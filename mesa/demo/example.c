@@ -31,14 +31,13 @@ const char *EXAMPLE_FATAL_ERROR_FILE = 0;
 /* Store the meba inst globally */
 meba_inst_t meba_example_inst;
 
-#define PR_APPEND(buf, fmt, ...)                                               \
-    do {                                                                       \
-        if (buf##_VALID < sizeof(buf)) {                                       \
-            buf##_VALID +=                                                     \
-                snprintf(buf + buf##_VALID, sizeof(buf) - buf##_VALID, fmt,    \
-                         ##__VA_ARGS__);                                       \
-            buf[sizeof(buf) - 1] = 0;                                          \
-        }                                                                      \
+#define PR_APPEND(buf, fmt, ...)                                                                   \
+    do {                                                                                           \
+        if (buf##_VALID < sizeof(buf)) {                                                           \
+            buf##_VALID +=                                                                         \
+                snprintf(buf + buf##_VALID, sizeof(buf) - buf##_VALID, fmt, ##__VA_ARGS__);        \
+            buf[sizeof(buf) - 1] = 0;                                                              \
+        }                                                                                          \
     } while (0)
 
 static mscc_appl_trace_module_t trace_module = {.name = "example"};
@@ -140,8 +139,7 @@ static mesa_example_register_t *example_active = NULL;
 
 static void cli_cmd_error(const char *msg)
 {
-    cli_printf("%s at %s:%d\n", msg, EXAMPLE_FATAL_ERROR_FILE,
-               EXAMPLE_FATAL_ERROR_LINE);
+    cli_printf("%s at %s:%d\n", msg, EXAMPLE_FATAL_ERROR_FILE, EXAMPLE_FATAL_ERROR_LINE);
     cli_printf("Please reboot to recover from this.\n");
 }
 
@@ -274,8 +272,7 @@ static int cli_cmd_example(int argc, const char **argv)
         }
 
         if (example_active != NULL) {
-            cli_printf(
-                "Cannot load new example while an existing example is running\n");
+            cli_printf("Cannot load new example while an existing example is running\n");
             return -1;
         }
 

@@ -37,9 +37,9 @@ static int init_port_configuration(mesa_port_no_t port)
     mesa_qos_port_conf_t     qos_conf;
     mesa_qos_port_dpl_conf_t dpl_conf[4];
     uint32_t                 dpl_cnt;
-    static mesa_tagprio_t pcp[MESA_PRIO_ARRAY_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7};
-    static mesa_dei_t     dei0[MESA_PRIO_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
-    static mesa_dei_t     dei1[MESA_PRIO_ARRAY_SIZE] = {1, 1, 1, 1, 1, 1, 1, 1};
+    static mesa_tagprio_t    pcp[MESA_PRIO_ARRAY_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7};
+    static mesa_dei_t        dei0[MESA_PRIO_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
+    static mesa_dei_t        dei1[MESA_PRIO_ARRAY_SIZE] = {1, 1, 1, 1, 1, 1, 1, 1};
 
     dpl_cnt = mesa_capability(NULL, MESA_CAP_QOS_DPL_CNT);
 
@@ -76,8 +76,7 @@ static int init_port_configuration(mesa_port_no_t port)
     RC(mesa_qos_port_conf_set(NULL, port, &qos_conf));
 
     /* Configure egress prio and dpl mapping to 1:1 */
-    RC(mesa_qos_port_dpl_conf_get(NULL, port, dpl_cnt,
-                                  &state.dpl_conf[port][0]));
+    RC(mesa_qos_port_dpl_conf_get(NULL, port, dpl_cnt, &state.dpl_conf[port][0]));
     dpl_conf[0] = state.dpl_conf[port][0];
     dpl_conf[1] = state.dpl_conf[port][1];
     memcpy(dpl_conf[0].pcp, pcp, sizeof(dpl_conf[0].pcp));
@@ -166,13 +165,13 @@ static const char *ot_help() { return ot_help_txt; }
 
 static int ot_run(int argc, const char *argv[])
 {
-    uint32_t                 cycle_time, gce_cnt, i;
-    uint32_t                 time_interval_0, time_interval_4, time_interval_7;
-    uint32_t                 frame_tx_time_nano, gce_count, tas_support;
-    mesa_qos_tas_gce_t      *gcl;
-    mesa_timestamp_t         base_time;
-    mesa_qos_tas_port_conf_t tas_conf;
-    mesa_qos_port_conf_t     qos_conf;
+    uint32_t                   cycle_time, gce_cnt, i;
+    uint32_t                   time_interval_0, time_interval_4, time_interval_7;
+    uint32_t                   frame_tx_time_nano, gce_count, tas_support;
+    mesa_qos_tas_gce_t        *gcl;
+    mesa_timestamp_t           base_time;
+    mesa_qos_tas_port_conf_t   tas_conf;
+    mesa_qos_port_conf_t       qos_conf;
     mesa_qos_tas_port_status_t tas_status;
     uint64_t                   tc;
 
@@ -227,16 +226,14 @@ static int ot_run(int argc, const char *argv[])
             return 0;
         }
 
-        frame_tx_time_nano = (frame_size + 20) *
-                             8; // One bit takes one nano sec to transmit at 1G
-        time_interval_0 = (cycle_frames * 10 * frame_tx_time_nano) /
-                          100; // number of nano for each interval
-        time_interval_4 = (cycle_frames * 30 * frame_tx_time_nano) /
-                          100; // number of nano for each interval
-        time_interval_7 = (cycle_frames * 60 * frame_tx_time_nano) /
-                          100; // number of nano for each interval
-        cycle_time = time_interval_0 + time_interval_4 +
-                     time_interval_7; // GCL cycle time
+        frame_tx_time_nano = (frame_size + 20) * 8; // One bit takes one nano sec to transmit at 1G
+        time_interval_0 =
+            (cycle_frames * 10 * frame_tx_time_nano) / 100; // number of nano for each interval
+        time_interval_4 =
+            (cycle_frames * 30 * frame_tx_time_nano) / 100; // number of nano for each interval
+        time_interval_7 =
+            (cycle_frames * 60 * frame_tx_time_nano) / 100; // number of nano for each interval
+        cycle_time = time_interval_0 + time_interval_4 + time_interval_7; // GCL cycle time
 
         gcl = malloc(gce_count);
         if (gcl == NULL) {
@@ -245,8 +242,7 @@ static int ot_run(int argc, const char *argv[])
         }
 
         // Create GCL
-        RC(mesa_qos_tas_port_gcl_conf_get(NULL, egress_port, gce_count, gcl,
-                                          &gce_cnt));
+        RC(mesa_qos_tas_port_gcl_conf_get(NULL, egress_port, gce_count, gcl, &gce_cnt));
         gcl[0].gate_operation = MESA_QOS_TAS_GCO_SET_GATE_STATES;
         memset(gcl[0].gate_open, FALSE, sizeof(gcl[0].gate_open));
         gcl[0].gate_open[0] = TRUE;
@@ -292,8 +288,7 @@ static int ot_run(int argc, const char *argv[])
         // Check GCL is started
         RC(mesa_qos_tas_port_status_get(NULL, egress_port, &tas_status));
         if (tas_status.config_pending == TRUE) {
-            cli_printf("GCL unexpected config_pending = %u\n",
-                       tas_status.config_pending);
+            cli_printf("GCL unexpected config_pending = %u\n", tas_status.config_pending);
         }
 
         free(gcl);

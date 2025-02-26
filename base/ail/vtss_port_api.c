@@ -10,8 +10,7 @@
 /* - Port mapping -------------------------------------------------- */
 
 /* Get port map */
-vtss_rc vtss_port_map_get(const vtss_inst_t inst,
-                          vtss_port_map_t   port_map[VTSS_PORT_ARRAY_SIZE])
+vtss_rc vtss_port_map_get(const vtss_inst_t inst, vtss_port_map_t port_map[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_state_t  *vtss_state;
     vtss_port_no_t port_no;
@@ -20,8 +19,7 @@ vtss_rc vtss_port_map_get(const vtss_inst_t inst,
     VTSS_D("enter");
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END;
-             port_no++) {
+        for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
             port_map[port_no] = vtss_state->port.map[port_no];
         }
     }
@@ -43,8 +41,7 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
     VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 0);
     VTSS_D("enter");
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END;
-             port_no++) {
+        for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
             pmap = &vtss_state->port.map[port_no];
             *pmap = port_map[port_no];
 
@@ -56,8 +53,7 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
 
             /* Port numbers greater than or equal to the first unmapped port are
              * ignored */
-            if (port_map[port_no].chip_port < 0 &&
-                port_no < vtss_state->port_count) {
+            if (port_map[port_no].chip_port < 0 && port_no < vtss_state->port_count) {
                 vtss_state->port_count = port_no;
             }
         }
@@ -85,8 +81,7 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
             vtss_state->l2.pgid_flood = pgid;
             pgid_entry = &vtss_state->l2.pgid_table[pgid];
             pgid_entry->references = 1;
-            for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-                 port_no++) {
+            for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
                 pgid_entry->member[port_no] = 1;
             }
         }
@@ -109,18 +104,16 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
 
 /* - Port configuration -------------------------------------------- */
 
-vtss_rc vtss_port_clause_37_control_set(const vtss_inst_t    inst,
-                                        const vtss_port_no_t port_no,
-                                        const vtss_port_clause_37_control_t
-                                            *const control)
+vtss_rc vtss_port_clause_37_control_set(const vtss_inst_t                          inst,
+                                        const vtss_port_no_t                       port_no,
+                                        const vtss_port_clause_37_control_t *const control)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->port.clause_37[port_no] = *control;
         rc = vtss_cil_port_clause_37_control_set(vtss_state, port_no);
     }
@@ -128,18 +121,16 @@ vtss_rc vtss_port_clause_37_control_set(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_port_clause_37_control_get(const vtss_inst_t    inst,
-                                        const vtss_port_no_t port_no,
-                                        vtss_port_clause_37_control_t
-                                            *const control)
+vtss_rc vtss_port_clause_37_control_get(const vtss_inst_t                    inst,
+                                        const vtss_port_no_t                 port_no,
+                                        vtss_port_clause_37_control_t *const control)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *control = vtss_state->port.clause_37[port_no];
     }
     VTSS_EXIT();
@@ -155,8 +146,7 @@ vtss_rc vtss_port_conf_get(const vtss_inst_t       inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *conf = vtss_state->port.conf[port_no];
     }
     VTSS_EXIT();
@@ -217,11 +207,9 @@ vtss_rc vtss_port_conf_set(const vtss_inst_t             inst,
 
     VTSS_I("port_no: %u, power-down = %u", port_no, conf->power_down);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         if (vtss_state->port.conf_set_called[port_no] &&
-            VTSS_MEMCMP(&vtss_state->port.conf[port_no], conf, sizeof(*conf)) ==
-                0) {
+            VTSS_MEMCMP(&vtss_state->port.conf[port_no], conf, sizeof(*conf)) == 0) {
             // Not first time and conf hasn't changed. Nothing to do.
             VTSS_I("port_no: %u - conf unchanged, skipping set", port_no);
         } else {
@@ -234,8 +222,7 @@ vtss_rc vtss_port_conf_set(const vtss_inst_t             inst,
 }
 
 #if defined(VTSS_FEATURE_PORT_CONF_BULK)
-vtss_rc vtss_port_conf_bulk_set(const vtss_inst_t      inst,
-                                const vtss_port_bulk_t bulk)
+vtss_rc vtss_port_conf_bulk_set(const vtss_inst_t inst, const vtss_port_bulk_t bulk)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -263,8 +250,7 @@ vtss_rc vtss_port_ifh_conf_set(const vtss_inst_t            inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
 #if defined(VTSS_FEATURE_PACKET)
         if (vtss_state->packet.npi_conf.enable) {
             npi_port = vtss_state->packet.npi_conf.port_no;
@@ -290,8 +276,7 @@ vtss_rc vtss_port_ifh_conf_get(const vtss_inst_t      inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *conf = vtss_state->port.ifh_conf[port_no];
     }
     VTSS_EXIT();
@@ -300,8 +285,8 @@ vtss_rc vtss_port_ifh_conf_get(const vtss_inst_t      inst,
 #endif /* VTSS_FEATURE_PORT_IFH */
 
 /* - Port status --------------------------------------------------- */
-static vtss_rc vtss_port_usxgmii_status_get(vtss_state_t        *vtss_state,
-                                            const vtss_port_no_t port_no,
+static vtss_rc vtss_port_usxgmii_status_get(vtss_state_t             *vtss_state,
+                                            const vtss_port_no_t      port_no,
                                             vtss_port_status_t *const status)
 {
     vtss_rc                      rc;
@@ -309,8 +294,7 @@ static vtss_rc vtss_port_usxgmii_status_get(vtss_state_t        *vtss_state,
 
     VTSS_N("port_no: %u", port_no);
     VTSS_MEMSET(&clause_37_status, 0, sizeof(clause_37_status));
-    if ((rc = vtss_cil_port_clause_37_status_get(vtss_state, port_no,
-                                                 &clause_37_status)) !=
+    if ((rc = vtss_cil_port_clause_37_status_get(vtss_state, port_no, &clause_37_status)) !=
         VTSS_RC_OK) {
         return rc;
     }
@@ -323,8 +307,8 @@ static vtss_rc vtss_port_usxgmii_status_get(vtss_state_t        *vtss_state,
     return rc;
 }
 
-static vtss_rc vtss_port_clause_37_status_get(vtss_state_t        *vtss_state,
-                                              const vtss_port_no_t port_no,
+static vtss_rc vtss_port_clause_37_status_get(vtss_state_t             *vtss_state,
+                                              const vtss_port_no_t      port_no,
                                               vtss_port_status_t *const status)
 {
     vtss_rc                        rc;
@@ -332,10 +316,8 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t        *vtss_state,
     vtss_port_clause_37_control_t *control;
     vtss_port_clause_37_adv_t     *adv, *lp;
     VTSS_N("port_no: %u", port_no);
-    VTSS_MEMSET(&clause_37_status, 0,
-                sizeof(clause_37_status)); /* Please Lint */
-    if ((rc = vtss_cil_port_clause_37_status_get(vtss_state, port_no,
-                                                 &clause_37_status)) !=
+    VTSS_MEMSET(&clause_37_status, 0, sizeof(clause_37_status)); /* Please Lint */
+    if ((rc = vtss_cil_port_clause_37_status_get(vtss_state, port_no, &clause_37_status)) !=
         VTSS_RC_OK) {
         return rc;
     }
@@ -344,8 +326,7 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t        *vtss_state,
 
     if (status->link_down) {
         /* Link has been down, so get the current status */
-        if ((rc = vtss_cil_port_clause_37_status_get(vtss_state, port_no,
-                                                     &clause_37_status)) !=
+        if ((rc = vtss_cil_port_clause_37_status_get(vtss_state, port_no, &clause_37_status)) !=
             VTSS_RC_OK) {
             return rc;
         }
@@ -360,8 +341,7 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t        *vtss_state,
     }
 
     /* Link is up */
-    if (vtss_state->port.conf[port_no].if_type ==
-        VTSS_PORT_INTERFACE_SGMII_CISCO) {
+    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         /* The SGMII aneg status is a status from SFP-Phy on the copper side */
         if (clause_37_status.autoneg.complete) {
             if (clause_37_status.autoneg.partner.sgmii.speed_1G) {
@@ -396,15 +376,13 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t        *vtss_state,
 
                 /* Flow control auto negotiation result */
                 status->aneg.obey_pause =
-                    (adv->symmetric_pause &&
-                             (lp->symmetric_pause ||
-                              (adv->asymmetric_pause && lp->asymmetric_pause))
+                    (adv->symmetric_pause && (lp->symmetric_pause ||
+                                              (adv->asymmetric_pause && lp->asymmetric_pause))
                          ? 1
                          : 0);
                 status->aneg.generate_pause =
-                    (lp->symmetric_pause &&
-                             (adv->symmetric_pause ||
-                              (adv->asymmetric_pause && lp->asymmetric_pause))
+                    (lp->symmetric_pause && (adv->symmetric_pause ||
+                                             (adv->asymmetric_pause && lp->asymmetric_pause))
                          ? 1
                          : 0);
 
@@ -441,8 +419,7 @@ vtss_rc vtss_port_status_get(const vtss_inst_t         inst,
     /* Initialize status */
     VTSS_MEMSET(status, 0, sizeof(*status));
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         switch (vtss_state->port.conf[port_no].if_type) {
         case VTSS_PORT_INTERFACE_RGMII:
         case VTSS_PORT_INTERFACE_RGMII_ID:
@@ -464,9 +441,7 @@ vtss_rc vtss_port_status_get(const vtss_inst_t         inst,
         case VTSS_PORT_INTERFACE_USGMII:
             rc = vtss_port_usxgmii_status_get(vtss_state, port_no, status);
             break;
-        default:
-            rc = vtss_cil_port_status_get(vtss_state, port_no, status);
-            break;
+        default: rc = vtss_cil_port_status_get(vtss_state, port_no, status); break;
         }
     }
     VTSS_EXIT();
@@ -483,8 +458,7 @@ vtss_rc vtss_port_pcs_status_get(const vtss_inst_t        inst,
 #if defined(VTSS_ARCH_LAN966X)
     vtss_state_t *vtss_state;
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_pcs_status_get(vtss_state, port_no, status);
     }
     VTSS_EXIT();
@@ -492,32 +466,28 @@ vtss_rc vtss_port_pcs_status_get(const vtss_inst_t        inst,
     return rc;
 }
 
-vtss_rc vtss_port_counters_update(const vtss_inst_t    inst,
-                                  const vtss_port_no_t port_no)
+vtss_rc vtss_port_counters_update(const vtss_inst_t inst, const vtss_port_no_t port_no)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_N("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_port_counters_update(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;
 }
 
-vtss_rc vtss_port_counters_clear(const vtss_inst_t    inst,
-                                 const vtss_port_no_t port_no)
+vtss_rc vtss_port_counters_clear(const vtss_inst_t inst, const vtss_port_no_t port_no)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_port_counters_clear(vtss_state, port_no);
     }
     VTSS_EXIT();
@@ -533,8 +503,7 @@ vtss_rc vtss_port_counters_get(const vtss_inst_t           inst,
 
     VTSS_N("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_port_counters_get(vtss_state, port_no, counters);
     }
     VTSS_EXIT();
@@ -550,8 +519,7 @@ vtss_rc vtss_port_basic_counters_get(const vtss_inst_t            inst,
 
     VTSS_N("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_port_basic_counters_get(vtss_state, port_no, counters);
     }
     VTSS_EXIT();
@@ -568,8 +536,7 @@ vtss_rc vtss_port_forward_state_get(const vtss_inst_t          inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *forward = vtss_state->port.forward[port_no];
     }
     VTSS_EXIT();
@@ -589,8 +556,7 @@ vtss_rc vtss_port_forward_state_set(const vtss_inst_t         inst,
            : forward == VTSS_PORT_FORWARD_INGRESS  ? "ingress"
                                                    : "egress");
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->port.forward[port_no] = forward;
         rc = vtss_cil_port_forward_set(vtss_state, port_no);
 #if defined(VTSS_FEATURE_LAYER2)
@@ -622,14 +588,13 @@ static vtss_rc vtss_miim_check(vtss_state_t           *vtss_state,
     *miim_controller = port_map->miim_controller;
     *miim_addr = port_map->miim_addr;
     if (*miim_controller < 0 || *miim_controller >= VTSS_MIIM_CONTROLLERS) {
-        VTSS_E(
-            "illegal miim_controller:%d on port_no:%u, addr:0x%X, miim_addr:0x%X",
-            *miim_controller, port_no, addr, *miim_addr);
+        VTSS_E("illegal miim_controller:%d on port_no:%u, addr:0x%X, miim_addr:0x%X",
+               *miim_controller, port_no, addr, *miim_addr);
         return VTSS_RC_ERROR;
     }
     if (*miim_addr > 31) {
-        VTSS_E("illegal miim_addr:%u on port_no:%u, controller:%d, addr:0x%X",
-               *miim_addr, port_no, *miim_controller, addr);
+        VTSS_E("illegal miim_addr:%u on port_no:%u, controller:%d, addr:0x%X", *miim_addr, port_no,
+               *miim_controller, addr);
         return VTSS_RC_ERROR;
     }
     VTSS_SELECT_CHIP(port_map->miim_chip_no);
@@ -647,12 +612,10 @@ static vtss_rc vtss_miim_reg_read(const vtss_inst_t    inst,
     vtss_miim_controller_t miim_controller;
     u8                     miim_addr;
     VTSS_RC(vtss_inst_check(inst, &vtss_state));
-    VTSS_RC(vtss_miim_check(vtss_state, port_no, addr, &miim_controller,
-                            &miim_addr));
-    if ((rc = vtss_cil_miim_read(vtss_state, miim_controller, miim_addr, addr,
-                                 value, TRUE)) == VTSS_RC_OK) {
-        VTSS_N("port_no: %u, addr: 0x%02x, value: 0x%04x", port_no, addr,
-               *value);
+    VTSS_RC(vtss_miim_check(vtss_state, port_no, addr, &miim_controller, &miim_addr));
+    if ((rc = vtss_cil_miim_read(vtss_state, miim_controller, miim_addr, addr, value, TRUE)) ==
+        VTSS_RC_OK) {
+        VTSS_N("port_no: %u, addr: 0x%02x, value: 0x%04x", port_no, addr, *value);
     }
 
     return rc;
@@ -670,12 +633,10 @@ static vtss_rc vtss_miim_reg_write(const vtss_inst_t    inst,
     u8                     miim_addr;
 
     VTSS_RC(vtss_inst_check(inst, &vtss_state));
-    VTSS_RC(vtss_miim_check(vtss_state, port_no, addr, &miim_controller,
-                            &miim_addr));
-    if ((rc = vtss_cil_miim_write(vtss_state, miim_controller, miim_addr, addr,
-                                  value, TRUE)) == VTSS_RC_OK) {
-        VTSS_N("port_no: %u, addr: 0x%02x, value: 0x%04x", port_no, addr,
-               value);
+    VTSS_RC(vtss_miim_check(vtss_state, port_no, addr, &miim_controller, &miim_addr));
+    if ((rc = vtss_cil_miim_write(vtss_state, miim_controller, miim_addr, addr, value, TRUE)) ==
+        VTSS_RC_OK) {
+        VTSS_N("port_no: %u, addr: 0x%02x, value: 0x%04x", port_no, addr, value);
     }
     return rc;
 }
@@ -689,8 +650,7 @@ vtss_rc vtss_port_miim_read(const vtss_inst_t    inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_miim_reg_read(vtss_state, port_no, addr, value);
     }
     VTSS_EXIT();
@@ -706,8 +666,7 @@ vtss_rc vtss_port_miim_write(const vtss_inst_t    inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_miim_reg_write(vtss_state, port_no, addr, value);
     }
     VTSS_EXIT();
@@ -733,13 +692,11 @@ vtss_rc vtss_miim_read(const vtss_inst_t            inst,
 
     /* Direct access */
     if (new_addr != miim_addr) {
-        return vtss_cil_miim_read(vtss_state, miim_controller, new_addr, addr,
-                                  value, FALSE);
+        return vtss_cil_miim_read(vtss_state, miim_controller, new_addr, addr, value, FALSE);
     }
 
     VTSS_ENTER();
-    rc = vtss_cil_miim_read(vtss_state, miim_controller, miim_addr, addr, value,
-                            FALSE);
+    rc = vtss_cil_miim_read(vtss_state, miim_controller, miim_addr, addr, value, FALSE);
     VTSS_EXIT();
     return rc;
 }
@@ -760,13 +717,11 @@ vtss_rc vtss_miim_write(const vtss_inst_t            inst,
 
     /* Direct access */
     if (new_addr != miim_addr) {
-        return vtss_cil_miim_write(vtss_state, miim_controller, new_addr, addr,
-                                   value, FALSE);
+        return vtss_cil_miim_write(vtss_state, miim_controller, new_addr, addr, value, FALSE);
     }
 
     VTSS_ENTER();
-    rc = vtss_cil_miim_write(vtss_state, miim_controller, miim_addr, addr,
-                             value, FALSE);
+    rc = vtss_cil_miim_write(vtss_state, miim_controller, miim_addr, addr, value, FALSE);
     VTSS_EXIT();
     return rc;
 }
@@ -788,8 +743,7 @@ static vtss_rc vtss_mmd_check(vtss_state_t           *vtss_state,
     *miim_controller = port_map->miim_controller;
     *miim_addr = port_map->miim_addr;
     if (*miim_controller < 0 || *miim_controller >= VTSS_MIIM_CONTROLLERS) {
-        VTSS_E("illegal miim_controller: %d on port_no: %u", *miim_controller,
-               port_no);
+        VTSS_E("illegal miim_controller: %d on port_no: %u", *miim_controller, port_no);
         return VTSS_RC_ERROR;
     }
     if (*miim_addr > 31) {
@@ -812,13 +766,10 @@ static vtss_rc vtss_mmd_reg_read(const vtss_inst_t    inst,
     u8                     mdio_addr;
 
     VTSS_RC(vtss_inst_check(inst, &vtss_state));
-    VTSS_RC(vtss_mmd_check(vtss_state, port_no, 0, &mdio_controller,
-                           &mdio_addr));
-    rc = vtss_cil_mmd_read(vtss_state, mdio_controller, mdio_addr, mmd, addr,
-                           value, TRUE);
+    VTSS_RC(vtss_mmd_check(vtss_state, port_no, 0, &mdio_controller, &mdio_addr));
+    rc = vtss_cil_mmd_read(vtss_state, mdio_controller, mdio_addr, mmd, addr, value, TRUE);
     if (rc == VTSS_RC_OK) {
-        VTSS_N("port_no: %u, mmd: %u, addr: 0x%04x, value: 0x%04x", port_no,
-               mmd, addr, *value);
+        VTSS_N("port_no: %u, mmd: %u, addr: 0x%04x, value: 0x%04x", port_no, mmd, addr, *value);
     }
     return rc;
 }
@@ -837,10 +788,8 @@ static vtss_rc vtss_mmd_reg_read_inc(const vtss_inst_t    inst,
     u8                     buf_count = count;
 
     VTSS_RC(vtss_inst_check(inst, &vtss_state));
-    VTSS_RC(vtss_mmd_check(vtss_state, port_no, 0, &mdio_controller,
-                           &mdio_addr));
-    rc = vtss_cil_mmd_read_inc(vtss_state, mdio_controller, mdio_addr, mmd,
-                               addr, buf, count, TRUE);
+    VTSS_RC(vtss_mmd_check(vtss_state, port_no, 0, &mdio_controller, &mdio_addr));
+    rc = vtss_cil_mmd_read_inc(vtss_state, mdio_controller, mdio_addr, mmd, addr, buf, count, TRUE);
     if (rc == VTSS_RC_OK) {
         VTSS_N("port_no: %u, mmd: %u, addr: 0x%04x", port_no, mmd, addr);
         while (buf_count) {
@@ -864,13 +813,10 @@ static vtss_rc vtss_mmd_reg_write(const vtss_inst_t    inst,
     u8                     mdio_addr;
 
     VTSS_RC(vtss_inst_check(inst, &vtss_state));
-    VTSS_RC(vtss_mmd_check(vtss_state, port_no, 0, &mdio_controller,
-                           &mdio_addr));
-    rc = vtss_cil_mmd_write(vtss_state, mdio_controller, mdio_addr, mmd, addr,
-                            value, TRUE);
+    VTSS_RC(vtss_mmd_check(vtss_state, port_no, 0, &mdio_controller, &mdio_addr));
+    rc = vtss_cil_mmd_write(vtss_state, mdio_controller, mdio_addr, mmd, addr, value, TRUE);
     if (rc == VTSS_RC_OK) {
-        VTSS_N("port_no: %u, mmd: %u, addr: 0x%04x, value: 0x%04x", port_no,
-               mmd, addr, value);
+        VTSS_N("port_no: %u, mmd: %u, addr: 0x%04x, value: 0x%04x", port_no, mmd, addr, value);
     }
     return rc;
 }
@@ -885,8 +831,7 @@ vtss_rc vtss_port_mmd_read(const vtss_inst_t    inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_mmd_reg_read(vtss_state, port_no, mmd, addr, value);
     }
     VTSS_EXIT();
@@ -904,8 +849,7 @@ vtss_rc vtss_port_mmd_read_inc(const vtss_inst_t    inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_mmd_reg_read_inc(vtss_state, port_no, mmd, addr, buf, count);
     }
     VTSS_EXIT();
@@ -922,8 +866,7 @@ vtss_rc vtss_port_mmd_write(const vtss_inst_t    inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_mmd_reg_write(vtss_state, port_no, mmd, addr, value);
     }
     VTSS_EXIT();
@@ -945,16 +888,14 @@ vtss_rc vtss_port_mmd_masked_write(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
-        (rc = vtss_miim_check(vtss_state, port_no, 0, &miim_controller,
-                              &miim_addr)) == VTSS_RC_OK &&
-        (rc = vtss_cil_mmd_read(vtss_state, miim_controller, miim_addr, mmd,
-                                addr, &val, TRUE)) == VTSS_RC_OK) {
+        (rc = vtss_miim_check(vtss_state, port_no, 0, &miim_controller, &miim_addr)) ==
+            VTSS_RC_OK &&
+        (rc = vtss_cil_mmd_read(vtss_state, miim_controller, miim_addr, mmd, addr, &val, TRUE)) ==
+            VTSS_RC_OK) {
         val = ((val & ~mask) | (value & mask));
-        rc = vtss_cil_mmd_write(vtss_state, miim_controller, miim_addr, mmd,
-                                addr, val, TRUE);
+        rc = vtss_cil_mmd_write(vtss_state, miim_controller, miim_addr, mmd, addr, val, TRUE);
         if (rc == VTSS_RC_OK) {
-            VTSS_N("port_no: %u, mmd: %u, addr: 0x%04x, val: 0x%04x", port_no,
-                   mmd, addr, val);
+            VTSS_N("port_no: %u, mmd: %u, addr: 0x%04x, val: 0x%04x", port_no, mmd, addr, val);
         }
     }
     VTSS_EXIT();
@@ -974,15 +915,12 @@ vtss_rc vtss_mmd_write(const vtss_inst_t            inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) ==
-        VTSS_RC_OK) {
-        rc = vtss_cil_mmd_write(vtss_state, miim_controller, miim_addr, mmd,
-                                addr, value, FALSE);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        rc = vtss_cil_mmd_write(vtss_state, miim_controller, miim_addr, mmd, addr, value, FALSE);
     }
 
     if (rc == VTSS_RC_OK) {
-        VTSS_N("miim_addr: %u, mmd: %u, addr: 0x%04x, value: 0x%04x", miim_addr,
-               mmd, addr, value);
+        VTSS_N("miim_addr: %u, mmd: %u, addr: 0x%04x, value: 0x%04x", miim_addr, mmd, addr, value);
     }
     VTSS_EXIT();
     return rc;
@@ -1001,15 +939,12 @@ vtss_rc vtss_mmd_read(const vtss_inst_t            inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) ==
-        VTSS_RC_OK) {
-        rc = vtss_cil_mmd_read(vtss_state, miim_controller, miim_addr, mmd,
-                               addr, value, FALSE);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        rc = vtss_cil_mmd_read(vtss_state, miim_controller, miim_addr, mmd, addr, value, FALSE);
     }
 
     if (rc == VTSS_RC_OK) {
-        VTSS_N("miim_addr: %u, mmd: %u, addr: 0x%04x, value: 0x%04x", miim_addr,
-               mmd, addr, *value);
+        VTSS_N("miim_addr: %u, mmd: %u, addr: 0x%04x, value: 0x%04x", miim_addr, mmd, addr, *value);
     }
     VTSS_EXIT();
     return rc;
@@ -1018,35 +953,27 @@ vtss_rc vtss_mmd_read(const vtss_inst_t            inst,
 /* - Warm start synchronization ------------------------------------ */
 
 #if defined(VTSS_FEATURE_WARM_START)
-static BOOL vtss_bool_changed(BOOL old, BOOL new)
-{
-    return ((old == new) || (old && new) ? 0 : 1);
-}
+static BOOL vtss_bool_changed(BOOL old, BOOL new) { return ((old == new) || (old && new) ? 0 : 1); }
 
 /* Synchronize port configuration */
-static vtss_rc vtss_port_conf_sync(vtss_state_t  *vtss_state,
-                                   vtss_port_no_t port_no)
+static vtss_rc vtss_port_conf_sync(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_rc          rc;
     vtss_port_conf_t old, *new = &vtss_state->port.conf[port_no];
 
     VTSS_MEMSET(&old, 0, sizeof(old)); /* Please Lint */
-    if ((rc = vtss_cil_port_conf_get(vtss_state, port_no, &old)) ==
-            VTSS_RC_OK &&
+    if ((rc = vtss_cil_port_conf_get(vtss_state, port_no, &old)) == VTSS_RC_OK &&
         new->speed != VTSS_SPEED_UNDEFINED &&
-        (vtss_bool_changed(old.power_down, new->power_down) ||
-         old.speed != new->speed || vtss_bool_changed(old.fdx, new->fdx) ||
+        (vtss_bool_changed(old.power_down, new->power_down) || old.speed != new->speed ||
+         vtss_bool_changed(old.fdx, new->fdx) ||
          vtss_bool_changed(old.flow_control.obey, new->flow_control.obey) ||
-         vtss_bool_changed(old.flow_control.generate,
-                           new->flow_control.generate))) {
+         vtss_bool_changed(old.flow_control.generate, new->flow_control.generate))) {
         /* Apply changed configuration */
         VTSS_I("port_no %u changed, apply port conf", port_no);
-        VTSS_I("old conf, power_down: %u, speed: %u, fdx: %u, obey: %u, gen: %u",
-               old.power_down, old.speed, old.fdx, old.flow_control.obey,
-               old.flow_control.generate);
-        VTSS_I("new conf, power_down: %u, speed: %u, fdx: %u, obey: %u, gen: %u",
-               new->power_down, new->speed, new->fdx, new->flow_control.obey,
-               new->flow_control.generate);
+        VTSS_I("old conf, power_down: %u, speed: %u, fdx: %u, obey: %u, gen: %u", old.power_down,
+               old.speed, old.fdx, old.flow_control.obey, old.flow_control.generate);
+        VTSS_I("new conf, power_down: %u, speed: %u, fdx: %u, obey: %u, gen: %u", new->power_down,
+               new->speed, new->fdx, new->flow_control.obey, new->flow_control.generate);
         rc = vtss_cil_port_conf_set(vtss_state, port_no);
     }
 
@@ -1054,20 +981,17 @@ static vtss_rc vtss_port_conf_sync(vtss_state_t  *vtss_state,
 }
 
 /* Synchronize port clause 37 control */
-static vtss_rc vtss_port_clause_37_sync(vtss_state_t  *vtss_state,
-                                        vtss_port_no_t port_no)
+static vtss_rc vtss_port_clause_37_sync(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_rc                       rc = VTSS_RC_OK;
-    vtss_port_clause_37_control_t old_ctrl,
-        *new_ctrl = &vtss_state->port.clause_37[port_no];
-    vtss_port_clause_37_adv_t *old, *new;
+    vtss_port_clause_37_control_t old_ctrl, *new_ctrl = &vtss_state->port.clause_37[port_no];
+    vtss_port_clause_37_adv_t    *old, *new;
 
     old = &old_ctrl.advertisement;
     new = &new_ctrl->advertisement;
 
     if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES &&
-        (rc = vtss_cil_port_clause_37_control_get(vtss_state, port_no,
-                                                  &old_ctrl)) == VTSS_RC_OK &&
+        (rc = vtss_cil_port_clause_37_control_get(vtss_state, port_no, &old_ctrl)) == VTSS_RC_OK &&
         (vtss_bool_changed(old_ctrl.enable, new_ctrl->enable) ||
          (new_ctrl->enable &&
           (vtss_bool_changed(old->next_page, new->next_page) ||
@@ -1075,19 +999,14 @@ static vtss_rc vtss_port_clause_37_sync(vtss_state_t  *vtss_state,
            old->remote_fault != new->remote_fault ||
            vtss_bool_changed(old->asymmetric_pause, new->asymmetric_pause) ||
            vtss_bool_changed(old->symmetric_pause, new->symmetric_pause) ||
-           vtss_bool_changed(old->hdx, new->hdx) ||
-           vtss_bool_changed(old->fdx, new->fdx))))) {
+           vtss_bool_changed(old->hdx, new->hdx) || vtss_bool_changed(old->fdx, new->fdx))))) {
         VTSS_I("port_no %u changed, apply clause 37 conf", port_no);
-        VTSS_I(
-            "old conf, ena: %u, next: %u, ack: %u, rem: %u, assym: %u, sym: %u. hdx: %u, fdx: %u",
-            old_ctrl.enable, old->next_page, old->acknowledge,
-            old->remote_fault, old->asymmetric_pause, old->symmetric_pause,
-            old->hdx, old->fdx);
-        VTSS_I(
-            "new conf, ena: %u, next: %u, ack: %u, rem: %u, assym: %u, sym: %u. hdx: %u, fdx: %u",
-            new_ctrl->enable, new->next_page, new->acknowledge,
-            new->remote_fault, new->asymmetric_pause, new->symmetric_pause,
-            new->hdx, new->fdx);
+        VTSS_I("old conf, ena: %u, next: %u, ack: %u, rem: %u, assym: %u, sym: %u. hdx: %u, fdx: %u",
+               old_ctrl.enable, old->next_page, old->acknowledge, old->remote_fault,
+               old->asymmetric_pause, old->symmetric_pause, old->hdx, old->fdx);
+        VTSS_I("new conf, ena: %u, next: %u, ack: %u, rem: %u, assym: %u, sym: %u. hdx: %u, fdx: %u",
+               new_ctrl->enable, new->next_page, new->acknowledge, new->remote_fault,
+               new->asymmetric_pause, new->symmetric_pause, new->hdx, new->fdx);
         rc = vtss_cil_port_clause_37_control_set(vtss_state, port_no);
     }
     return rc;
@@ -1097,8 +1016,7 @@ vtss_rc vtss_port_restart_sync(vtss_state_t *vtss_state)
 {
     vtss_port_no_t port_no;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         VTSS_RC(vtss_port_conf_sync(vtss_state, port_no));
         VTSS_RC(vtss_port_clause_37_sync(vtss_state, port_no));
 #if defined(VTSS_ARCH_OCELOT)
@@ -1131,14 +1049,10 @@ vtss_rc vtss_port_inst_create(vtss_state_t *vtss_state)
     switch (vtss_state->create.target) {
 #if defined(VTSS_ARCH_LUTON26)
     case VTSS_TARGET_SPARX_III_10:
-    case VTSS_TARGET_SPARX_III_10_01:
-        init_conf->mux_mode = VTSS_PORT_MUX_MODE_2;
-        break;
+    case VTSS_TARGET_SPARX_III_10_01: init_conf->mux_mode = VTSS_PORT_MUX_MODE_2; break;
     case VTSS_TARGET_CARACAL_LITE:
     case VTSS_TARGET_CARACAL_1:
-    case VTSS_TARGET_SPARX_III_10_UM:
-        init_conf->mux_mode = VTSS_PORT_MUX_MODE_1;
-        break;
+    case VTSS_TARGET_SPARX_III_10_UM: init_conf->mux_mode = VTSS_PORT_MUX_MODE_1; break;
 #endif /* VTSS_ARCH_LUTON26 */
 #if defined(VTSS_ARCH_OCELOT)
     case VTSS_TARGET_7511:
@@ -1160,22 +1074,19 @@ vtss_rc vtss_port_inst_create(vtss_state_t *vtss_state)
     }
 
 #if defined(VTSS_FEATURE_SERDES_MACRO_SETTINGS)
-    init_conf->serdes.serdes1g_vdd =
-        VTSS_VDD_1V0; /* Based on Ref board design */
-    init_conf->serdes.serdes6g_vdd =
-        VTSS_VDD_1V0;                      /* Based on Ref board design */
-    init_conf->serdes.ib_cterm_ena = 1;    /* Based on Ref board design */
-    init_conf->serdes.qsgmii.ob_post0 = 2; /* Based on Ref board design */
-    init_conf->serdes.qsgmii.ob_sr = 0;    /* Based on Ref board design */
-#endif /* VTSS_FEATURE_SERDES_MACRO_SETTINGS */
+    init_conf->serdes.serdes1g_vdd = VTSS_VDD_1V0; /* Based on Ref board design */
+    init_conf->serdes.serdes6g_vdd = VTSS_VDD_1V0; /* Based on Ref board design */
+    init_conf->serdes.ib_cterm_ena = 1;            /* Based on Ref board design */
+    init_conf->serdes.qsgmii.ob_post0 = 2;         /* Based on Ref board design */
+    init_conf->serdes.qsgmii.ob_sr = 0;            /* Based on Ref board design */
+#endif                                             /* VTSS_FEATURE_SERDES_MACRO_SETTINGS */
 
     return VTSS_RC_OK;
 }
 
 /* - Port utilities ------------------------------------------------ */
 /* Decode advertisement word */
-vtss_rc vtss_cmn_port_clause_37_adv_get(u32                        value,
-                                        vtss_port_clause_37_adv_t *adv)
+vtss_rc vtss_cmn_port_clause_37_adv_get(u32 value, vtss_port_clause_37_adv_t *adv)
 {
     adv->fdx = VTSS_BOOL(value & (1 << 5));
     adv->hdx = VTSS_BOOL(value & (1 << 6));
@@ -1193,8 +1104,7 @@ vtss_rc vtss_cmn_port_clause_37_adv_get(u32                        value,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cmn_port_sgmii_cisco_aneg_get(u32                     value,
-                                           vtss_port_sgmii_aneg_t *sgmii_adv)
+vtss_rc vtss_cmn_port_sgmii_cisco_aneg_get(u32 value, vtss_port_sgmii_aneg_t *sgmii_adv)
 {
     sgmii_adv->link = ((value >> 15) == 1) ? 1 : 0;
     sgmii_adv->fdx = (((value >> 12) & 0x1) == 1) ? 1 : 0;
@@ -1206,21 +1116,18 @@ vtss_rc vtss_cmn_port_sgmii_cisco_aneg_get(u32                     value,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cmn_port_usxgmii_aneg_get(u32                       lp_adv,
-                                       vtss_port_usxgmii_aneg_t *usxgmii)
+vtss_rc vtss_cmn_port_usxgmii_aneg_get(u32 lp_adv, vtss_port_usxgmii_aneg_t *usxgmii)
 {
     usxgmii->link = ((lp_adv >> 15) == 1) ? 1 : 0;
     usxgmii->fdx = (((lp_adv >> 12) & 0x1) == 1) ? 1 : 0;
     switch ((lp_adv >> 9) & 7) {
-    case 0: usxgmii->speed = VTSS_SPEED_10M; break;
-    case 1: usxgmii->speed = VTSS_SPEED_100M; break;
-    case 2: usxgmii->speed = VTSS_SPEED_1G; break;
-    case 3: usxgmii->speed = VTSS_SPEED_10G; break;
-    case 4: usxgmii->speed = VTSS_SPEED_2500M; break;
-    case 5: usxgmii->speed = VTSS_SPEED_5G; break;
-    default:
-        VTSS_E("Unknown speed '%d' after usxgmii aneg", ((lp_adv >> 9) & 7));
-        break;
+    case 0:  usxgmii->speed = VTSS_SPEED_10M; break;
+    case 1:  usxgmii->speed = VTSS_SPEED_100M; break;
+    case 2:  usxgmii->speed = VTSS_SPEED_1G; break;
+    case 3:  usxgmii->speed = VTSS_SPEED_10G; break;
+    case 4:  usxgmii->speed = VTSS_SPEED_2500M; break;
+    case 5:  usxgmii->speed = VTSS_SPEED_5G; break;
+    default: VTSS_E("Unknown speed '%d' after usxgmii aneg", ((lp_adv >> 9) & 7)); break;
     }
     return VTSS_RC_OK;
 }
@@ -1242,23 +1149,19 @@ vtss_rc vtss_cmn_port_clause_37_adv_set(u32                       *value,
     default:                                  rf = 3; break;
     }
 
-    *value =
-        (((adv->next_page ? 1 : 0) << 15) | ((adv->acknowledge ? 1 : 0) << 14) |
-         (rf << 12) | ((adv->asymmetric_pause ? 1 : 0) << 8) |
-         ((adv->symmetric_pause ? 1 : 0) << 7) | ((adv->hdx ? 1 : 0) << 6) |
-         ((adv->fdx ? 1 : 0) << 5));
+    *value = (((adv->next_page ? 1 : 0) << 15) | ((adv->acknowledge ? 1 : 0) << 14) | (rf << 12) |
+              ((adv->asymmetric_pause ? 1 : 0) << 8) | ((adv->symmetric_pause ? 1 : 0) << 7) |
+              ((adv->hdx ? 1 : 0) << 6) | ((adv->fdx ? 1 : 0) << 5));
     return VTSS_RC_OK;
 }
 
 /* Get first port_no in port_list or CPU port */
 vtss_port_no_t vtss_cmn_first_port_no_get(vtss_state_t *vtss_state,
-                                          const BOOL
-                                              port_list[VTSS_PORT_ARRAY_SIZE])
+                                          const BOOL    port_list[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_port_no_t port_no;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (port_list[port_no]) {
             return port_no;
         }
@@ -1273,10 +1176,8 @@ vtss_port_no_t vtss_cmn_port2port_no(vtss_state_t                  *vtss_state,
 {
     vtss_port_no_t port_no;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
-        if ((u32)VTSS_CHIP_PORT(port_no) == chip_port &&
-            VTSS_PORT_CHIP_SELECTED(port_no)) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+        if ((u32)VTSS_CHIP_PORT(port_no) == chip_port && VTSS_PORT_CHIP_SELECTED(port_no)) {
             if (info->port_list[port_no]) {
                 return port_no;
             }
@@ -1292,14 +1193,12 @@ vtss_port_no_t vtss_api_port(vtss_state_t *vtss_state, u32 chip_port)
     vtss_port_no_t port_no;
 
     /* Map from chip port to API port */
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if ((u32)VTSS_CHIP_PORT(port_no) == chip_port) {
             if (VTSS_PORT_CHIP_SELECTED(port_no)) {
                 return port_no;
             }
-            VTSS_D("Chip Port %u API Port %u not selected for this chip",
-                   chip_port, port_no);
+            VTSS_D("Chip Port %u API Port %u not selected for this chip", chip_port, port_no);
             break;
         }
     }
@@ -1318,8 +1217,7 @@ vtss_rc vtss_port_kr_status_get(vtss_inst_t                  inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         VTSS_MEMSET(status, 0, sizeof(*status));
         rc = vtss_cil_port_kr_status(vtss_state, port_no, status);
     }
@@ -1336,12 +1234,10 @@ vtss_rc vtss_port_kr_conf_set(const vtss_inst_t                inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->port.kr_conf[port_no] = *conf;
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
-        VTSS_MEMSET(&vtss_state->port.train_state[port_no], 0,
-                    sizeof(vtss_port_kr_state_t));
+        VTSS_MEMSET(&vtss_state->port.train_state[port_no], 0, sizeof(vtss_port_kr_state_t));
 #endif
         rc = vtss_cil_port_kr_conf_set(vtss_state, port_no);
     }
@@ -1358,8 +1254,7 @@ vtss_rc vtss_port_kr_conf_get(const vtss_inst_t          inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *conf = vtss_state->port.kr_conf[port_no];
     }
     VTSS_EXIT();
@@ -1374,8 +1269,7 @@ vtss_rc vtss_port_kr_fec_get(const vtss_inst_t         inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *conf = vtss_state->port.kr_fec[port_no];
     }
     VTSS_EXIT();
@@ -1391,8 +1285,7 @@ vtss_rc vtss_port_kr_fec_set(const vtss_inst_t               inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_SFI &&
             (conf->r_fec || conf->rs_fec)) {
             // If enabling R-FEC and/or RS-FEC and the MAC I/F is not SFI, it's
@@ -1412,17 +1305,14 @@ vtss_rc vtss_port_kr_fec_set(const vtss_inst_t               inst,
 
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
-vtss_rc vtss_port_kr_irq_get(vtss_inst_t          inst,
-                             const vtss_port_no_t port_no,
-                             u32 *const           vector)
+vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst, const vtss_port_no_t port_no, u32 *const vector)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_port_kr_irq_get(vtss_state, port_no, vector);
     }
     VTSS_EXIT();
@@ -1442,17 +1332,14 @@ vtss_rc vtss_port_kr_irq_activity(vtss_inst_t inst, u32 *const mask)
     return rc;
 }
 
-vtss_rc vtss_port_kr_event_enable(const vtss_inst_t    inst,
-                                  const vtss_port_no_t port_no,
-                                  BOOL                 enable)
+vtss_rc vtss_port_kr_event_enable(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL enable)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_port_kr_event_enable(vtss_state, port_no, enable);
     }
     VTSS_EXIT();
@@ -1468,8 +1355,7 @@ vtss_rc vtss_port_kr_eye_get(vtss_inst_t                   inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_port_kr_eye_dim(vtss_state, port_no, eye);
     }
     VTSS_EXIT();
@@ -1483,8 +1369,7 @@ vtss_rc vtss_port_kr_ctle_adjust(vtss_inst_t inst, const vtss_port_no_t port_no)
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_port_kr_ctle_adjust(vtss_state, port_no);
     }
     VTSS_EXIT();
@@ -1499,8 +1384,7 @@ vtss_rc vtss_port_kr_ctle_get(vtss_inst_t             inst,
     vtss_rc       rc;
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_cil_port_kr_ctle_get(vtss_state, port_no, ctle);
     }
     VTSS_EXIT();
@@ -1518,8 +1402,7 @@ vtss_rc vtss_port_test_conf_get(const vtss_inst_t            inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *conf = vtss_state->port.test_conf[port_no];
     }
     VTSS_EXIT();
@@ -1535,8 +1418,7 @@ vtss_rc vtss_port_test_conf_set(const vtss_inst_t                  inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->port.test_conf[port_no] = *conf;
         rc = vtss_cil_port_test_conf_set(vtss_state, port_no);
     }
@@ -1897,8 +1779,7 @@ static void kr_ber_training(vtss_state_t *vtss_state, vtss_port_no_t p, u32 irq)
                 krs->tap_idx = 0;
                 krs->tap_max_reached = FALSE;
             } else {
-                VTSS_E("IRQ:0x%x, State:VTSS_BER_GO_TO_MIN, LP Status:%d\n",
-                       irq, lp_status);
+                VTSS_E("IRQ:0x%x, State:VTSS_BER_GO_TO_MIN, LP Status:%d\n", irq, lp_status);
             }
         } else if (irq == KR_DME_VIOL_1) {
             krs->dme_viol = TRUE;
@@ -1912,18 +1793,15 @@ static void kr_ber_training(vtss_state_t *vtss_state, vtss_port_no_t p, u32 irq)
             krs->ber_busy = TRUE;
         } else if ((irq == KR_BER_BUSY_0) && (krs->ber_busy)) {
             krs->ber_busy = FALSE;
-            krs->ber_cnt[krs->current_tap][krs->tap_idx - 1] =
-                fa_port_kr_ber_cnt(vtss_state, p);
-            krs->eye_height[krs->current_tap][krs->tap_idx - 1] =
-                kr_eye_height_get(vtss_state, p);
+            krs->ber_cnt[krs->current_tap][krs->tap_idx - 1] = fa_port_kr_ber_cnt(vtss_state, p);
+            krs->eye_height[krs->current_tap][krs->tap_idx - 1] = kr_eye_height_get(vtss_state, p);
             if (krs->tap_max_reached) {
                 krs->lp_tap_max_cnt[krs->current_tap] = krs->tap_idx;
                 if (vtss_state->port.kr_conf[p].train.use_ber_cnt) {
                     mid_mark = kr_analyze_ber(krs, krs->current_tap);
                 } else {
-                    mid_mark =
-                        kr_get_best_eye(krs->eye_height[krs->current_tap],
-                                        krs->lp_tap_max_cnt[krs->current_tap]);
+                    mid_mark = kr_get_best_eye(krs->eye_height[krs->current_tap],
+                                               krs->lp_tap_max_cnt[krs->current_tap]);
                 }
                 krs->lp_tap_end_cnt[krs->current_tap] = mid_mark;
                 krs->decr_cnt = krs->tap_idx - mid_mark - 1;
@@ -1937,22 +1815,19 @@ static void kr_ber_training(vtss_state_t *vtss_state, vtss_port_no_t p, u32 irq)
                 req_msg.ber_enable = TRUE;
                 (void)kr_fw_req(vtss_state, p, &req_msg);
                 krs->tap_idx++;
-            } else if (lp_status == STATUS_UPDATED ||
-                       (lp_status == STATUS_MAXIMUM)) {
+            } else if (lp_status == STATUS_UPDATED || (lp_status == STATUS_MAXIMUM)) {
                 kr_send_coef_update(vtss_state, krs, p, COEF_HOLD);
                 if (lp_status == STATUS_MAXIMUM) {
                     krs->tap_max_reached = TRUE;
                 }
             } else {
-                VTSS_E("IRQ:0x%x, State:VTSS_BER_CALCULATE_BER, LP Status:%d\n",
-                       irq, lp_status);
+                VTSS_E("IRQ:0x%x, State:VTSS_BER_CALCULATE_BER, LP Status:%d\n", irq, lp_status);
             }
         } else if (irq == KR_DME_VIOL_1) {
             // Ignore DME_VIOL in this state
         } else {
-            VTSS_E(
-                "IRQ:0x%x, State:VTSS_BER_CALCULATE_BER, Status:%d, Last COEF send:%d\n",
-                irq, lp_status, krs->ber_coef_frm);
+            VTSS_E("IRQ:0x%x, State:VTSS_BER_CALCULATE_BER, Status:%d, Last COEF send:%d\n", irq,
+                   lp_status, krs->ber_coef_frm);
         }
         break;
 
@@ -1968,8 +1843,7 @@ static void kr_ber_training(vtss_state_t *vtss_state, vtss_port_no_t p, u32 irq)
                 }
                 if (krs->decr_cnt == 0 || lp_status == STATUS_MINIMUM ||
                     lp_status == STATUS_MAXIMUM) {
-                    if (krs->current_tap ==
-                        kr_ber_next_tap(krs->current_tap, 0)) {
+                    if (krs->current_tap == kr_ber_next_tap(krs->current_tap, 0)) {
                         krs->ber_training_stage = VTSS_BER_LOCAL_RX_TRAINED;
                     } else {
                         krs->current_tap = kr_ber_next_tap(krs->current_tap, 0);
@@ -1980,20 +1854,18 @@ static void kr_ber_training(vtss_state_t *vtss_state, vtss_port_no_t p, u32 irq)
             } else if (lp_status == STATUS_NOT_UPDATED) {
                 kr_send_coef_update(vtss_state, krs, p, COEF_DECR);
             } else {
-                VTSS_E(
-                    "IRQ:0x%x, State:MOVE_TO_MID_MARK(1), Status:%d, Last COEF send:%d\n",
-                    irq, lp_status, krs->ber_coef_frm);
+                VTSS_E("IRQ:0x%x, State:MOVE_TO_MID_MARK(1), Status:%d, Last COEF send:%d\n", irq,
+                       lp_status, krs->ber_coef_frm);
             }
         } else {
-            VTSS_E(
-                "IRQ:0x%x, State:MOVE_TO_MID_MARK(2), Status:%d, Last COEF send:%d\n",
-                irq, lp_status, krs->ber_coef_frm);
+            VTSS_E("IRQ:0x%x, State:MOVE_TO_MID_MARK(2), Status:%d, Last COEF send:%d\n", irq,
+                   lp_status, krs->ber_coef_frm);
         }
         break;
 
     default:
-        VTSS_E("IRQ:0x%x, State:DEFAILT, Status:%d, Last COEF send:%d\n", irq,
-               lp_status, krs->ber_coef_frm);
+        VTSS_E("IRQ:0x%x, State:DEFAILT, Status:%d, Last COEF send:%d\n", irq, lp_status,
+               krs->ber_coef_frm);
         break;
     }
 }
@@ -2134,8 +2006,7 @@ static vtss_rc kr_irq_apply(vtss_state_t        *vtss_state,
             if (krs->test_repeat > 0) {
                 krs->current_tap = VTSS_TAP_CM1;
                 kr_send_coef_update(vtss_state, krs, port_no,
-                                    (krs->test_repeat % 2 == 0) ? COEF_HOLD
-                                                                : COEF_DECR);
+                                    (krs->test_repeat % 2 == 0) ? COEF_HOLD : COEF_DECR);
                 krs->test_repeat--;
             } else {
                 krs->current_state = VTSS_TR_TRAIN_REMOTE;
@@ -2180,8 +2051,7 @@ static vtss_rc kr_irq_apply(vtss_state_t        *vtss_state,
     }
 
     // KR_REM_RDY_0 (LP is not happy)
-    if (irq & KR_REM_RDY_0 && krs->training_started &&
-        (krs->current_state != VTSS_TR_LINK_READY)) {
+    if (irq & KR_REM_RDY_0 && krs->training_started && (krs->current_state != VTSS_TR_LINK_READY)) {
         krs->remote_rx_ready = FALSE;
     }
 
@@ -2234,8 +2104,7 @@ static vtss_rc kr_irq_apply(vtss_state_t        *vtss_state,
         vtss_port_status_t ps;
         vtss_cil_port_status_get(vtss_state, port_no, &ps);
         if (!ps.link) {
-            VTSS_E("p:%d No port.status link after MW_DONE - Restart training\n",
-                   port_no);
+            VTSS_E("p:%d No port.status link after MW_DONE - Restart training\n", port_no);
             vtss_cil_port_kr_conf_set(vtss_state, port_no);
         }
     }
@@ -2250,8 +2119,7 @@ vtss_rc vtss_port_kr_irq_apply(const vtss_inst_t    inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         VTSS_D("port_no: %u", port_no);
         rc = kr_irq_apply(vtss_state, port_no, *irq_vec);
     }
@@ -2268,8 +2136,7 @@ vtss_rc vtss_port_kr_state_get(vtss_inst_t                 inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *state = vtss_state->port.train_state[port_no];
     }
     VTSS_EXIT();
@@ -2277,15 +2144,14 @@ vtss_rc vtss_port_kr_state_get(vtss_inst_t                 inst,
 }
 
 #endif // defined(VTSS_FEATURE_PORT_KR_IRQ)
-vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t    inst,
-                                   const vtss_port_no_t port_no,
+vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t                     inst,
+                                   const vtss_port_no_t                  port_no,
                                    const vtss_port_serdes_debug_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         VTSS_D("port_no: %u", port_no);
         rc = vtss_cil_port_serdes_debug(vtss_state, port_no, conf);
     }
@@ -2297,8 +2163,8 @@ vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t    inst,
 
 /* - Debug print --------------------------------------------------- */
 
-static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
-                                       lmu_ss_t     *ss,
+static void vtss_port_debug_print_conf(vtss_state_t                  *vtss_state,
+                                       lmu_ss_t                      *ss,
                                        const vtss_debug_info_t *const info)
 {
     vtss_port_no_t    port_no;
@@ -2313,8 +2179,7 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
         return;
     }
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (!info->port_list[port_no]) {
             continue;
         }
@@ -2341,16 +2206,14 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
                    : map->max_bw == VTSS_BW_NONE ? "None"
                                                  : "N/A");
 #endif
-        pr("%-10d%-11u%u\n", map->miim_controller, map->miim_addr,
-           map->miim_chip_no);
+        pr("%-10d%-11u%u\n", map->miim_controller, map->miim_addr, map->miim_chip_no);
     }
     if (!header) {
         pr("\n");
     }
     header = 1;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (!info->port_list[port_no]) {
             continue;
         }
@@ -2365,16 +2228,14 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
         }
         conf = &vtss_state->port.conf[port_no];
         switch (conf->speed) {
-        case VTSS_SPEED_10M:  mode = (conf->fdx ? "10fdx" : "10hdx"); break;
-        case VTSS_SPEED_100M: mode = (conf->fdx ? "100fdx" : "100hdx"); break;
-        case VTSS_SPEED_1G:   mode = (conf->fdx ? "1Gfdx" : "1Ghdx"); break;
-        case VTSS_SPEED_2500M:
-            mode = (conf->fdx ? "2.5Gfdx" : "2.5Ghdx");
-            break;
-        case VTSS_SPEED_5G:  mode = (conf->fdx ? "5Gfdx" : "5Ghdx"); break;
-        case VTSS_SPEED_10G: mode = (conf->fdx ? "10Gfdx" : "10Ghdx"); break;
-        case VTSS_SPEED_25G: mode = (conf->fdx ? "25Gfdx" : "25Ghdx"); break;
-        default:             mode = "?"; break;
+        case VTSS_SPEED_10M:   mode = (conf->fdx ? "10fdx" : "10hdx"); break;
+        case VTSS_SPEED_100M:  mode = (conf->fdx ? "100fdx" : "100hdx"); break;
+        case VTSS_SPEED_1G:    mode = (conf->fdx ? "1Gfdx" : "1Ghdx"); break;
+        case VTSS_SPEED_2500M: mode = (conf->fdx ? "2.5Gfdx" : "2.5Ghdx"); break;
+        case VTSS_SPEED_5G:    mode = (conf->fdx ? "5Gfdx" : "5Ghdx"); break;
+        case VTSS_SPEED_10G:   mode = (conf->fdx ? "10Gfdx" : "10Ghdx"); break;
+        case VTSS_SPEED_25G:   mode = (conf->fdx ? "25Gfdx" : "25Ghdx"); break;
+        default:               mode = "?"; break;
         }
         aneg = conf->if_type == VTSS_PORT_INTERFACE_QXGMII ||
                        conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO ||
@@ -2382,15 +2243,12 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
                    ? "Yes"
                    : "No";
         lmu_fmt_buf_init(&buf);
-        LMU_SS_FMT(&buf.ss, "%s",
-                   vtss_serdes_if_txt(vtss_state->port.serdes_mode[port_no]));
+        LMU_SS_FMT(&buf.ss, "%s", vtss_serdes_if_txt(vtss_state->port.serdes_mode[port_no]));
         if (conf->if_type == VTSS_PORT_INTERFACE_SFI) {
-            LMU_SS_FMT(&buf.ss, "(%s)",
-                       vtss_media_type_if_txt(conf->serdes.media_type));
+            LMU_SS_FMT(&buf.ss, "(%s)", vtss_media_type_if_txt(conf->serdes.media_type));
         }
-        pr("%-6u%-13s%-11s%-10s%-6s%-10s%-10s", port_no,
-           vtss_port_if_txt(conf->if_type), &buf, mode, aneg,
-           vtss_bool_txt(conf->flow_control.obey),
+        pr("%-6u%-13s%-11s%-10s%-6s%-10s%-10s", port_no, vtss_port_if_txt(conf->if_type), &buf,
+           mode, aneg, vtss_bool_txt(conf->flow_control.obey),
            vtss_bool_txt(conf->flow_control.generate));
 #if defined(VTSS_FEATURE_PFC)
         {
@@ -2414,8 +2272,7 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
 
 #if defined(VTSS_FEATURE_LAYER2)
     header = 1;
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_stp_state_t    stp = vtss_state->l2.stp_state[port_no];
         vtss_auth_state_t   auth = vtss_state->l2.auth_state[port_no];
         vtss_port_forward_t fwd = vtss_state->port.forward[port_no];
@@ -2451,10 +2308,8 @@ static void vtss_port_debug_print_conf(vtss_state_t *vtss_state,
             for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
                 vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
                 if (rb_conf->mode != VTSS_RB_MODE_DISABLED &&
-                    (rb_conf->port_a == port_no ||
-                     rb_conf->port_b == port_no)) {
-                    pr(" (RedBox %u, port %s)", id,
-                       rb_conf->port_a == port_no ? "A" : "B");
+                    (rb_conf->port_a == port_no || rb_conf->port_b == port_no)) {
+                    pr(" (RedBox %u, port %s)", id, rb_conf->port_a == port_no ? "A" : "B");
                     break;
                 }
             }
@@ -2486,8 +2341,8 @@ static void vtss_debug_port_cnt(lmu_ss_t           *ss,
     pr("\n");
 }
 
-static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
-                                           lmu_ss_t     *ss,
+static void vtss_port_debug_print_counters(vtss_state_t                  *vtss_state,
+                                           lmu_ss_t                      *ss,
                                            const vtss_debug_info_t *const info)
 {
     vtss_port_no_t                      port_no;
@@ -2501,36 +2356,27 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
         return;
     }
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         VTSS_SELECT_CHIP_PORT_NO(port_no);
         if (!info->port_list[port_no] ||
-            vtss_cil_port_counters_get(vtss_state, port_no, &counters) !=
-                VTSS_RC_OK) {
+            vtss_cil_port_counters_get(vtss_state, port_no, &counters) != VTSS_RC_OK) {
             continue;
         }
-        if (info->clear &&
-            vtss_cil_port_counters_clear(vtss_state, port_no) != VTSS_RC_OK) {
+        if (info->clear && vtss_cil_port_counters_clear(vtss_state, port_no) != VTSS_RC_OK) {
             continue;
         }
         VTSS_FMT(buf, "Port %u Counters", port_no);
         vtss_debug_print_header(ss, buf.s);
 
         /* Basic counters */
-        vtss_debug_port_cnt(ss, "Packets", "", rmon->rx_etherStatsPkts,
-                            rmon->tx_etherStatsPkts);
-        vtss_debug_port_cnt(ss, "Octets", "", rmon->rx_etherStatsOctets,
-                            rmon->tx_etherStatsOctets);
-        vtss_debug_port_cnt(ss, "Unicast", "", ifg->ifInUcastPkts,
-                            ifg->ifOutUcastPkts);
-        vtss_debug_port_cnt(ss, "Multicast", "",
-                            rmon->rx_etherStatsMulticastPkts,
+        vtss_debug_port_cnt(ss, "Packets", "", rmon->rx_etherStatsPkts, rmon->tx_etherStatsPkts);
+        vtss_debug_port_cnt(ss, "Octets", "", rmon->rx_etherStatsOctets, rmon->tx_etherStatsOctets);
+        vtss_debug_port_cnt(ss, "Unicast", "", ifg->ifInUcastPkts, ifg->ifOutUcastPkts);
+        vtss_debug_port_cnt(ss, "Multicast", "", rmon->rx_etherStatsMulticastPkts,
                             rmon->tx_etherStatsMulticastPkts);
-        vtss_debug_port_cnt(ss, "Broadcast", "",
-                            rmon->rx_etherStatsBroadcastPkts,
+        vtss_debug_port_cnt(ss, "Broadcast", "", rmon->rx_etherStatsBroadcastPkts,
                             rmon->tx_etherStatsBroadcastPkts);
-        vtss_debug_port_cnt(ss, "Pause", "", eth->dot3InPauseFrames,
-                            eth->dot3OutPauseFrames);
+        vtss_debug_port_cnt(ss, "Pause", "", eth->dot3InPauseFrames, eth->dot3OutPauseFrames);
         pr("\n");
         if (!info->full) {
             continue;
@@ -2539,23 +2385,17 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
         /* RMON counters */
         vtss_debug_port_cnt(ss, "64", "", rmon->rx_etherStatsPkts64Octets,
                             rmon->tx_etherStatsPkts64Octets);
-        vtss_debug_port_cnt(ss, "65-127", "",
-                            rmon->rx_etherStatsPkts65to127Octets,
+        vtss_debug_port_cnt(ss, "65-127", "", rmon->rx_etherStatsPkts65to127Octets,
                             rmon->tx_etherStatsPkts65to127Octets);
-        vtss_debug_port_cnt(ss, "128-255", "",
-                            rmon->rx_etherStatsPkts128to255Octets,
+        vtss_debug_port_cnt(ss, "128-255", "", rmon->rx_etherStatsPkts128to255Octets,
                             rmon->tx_etherStatsPkts128to255Octets);
-        vtss_debug_port_cnt(ss, "256-511", "",
-                            rmon->rx_etherStatsPkts256to511Octets,
+        vtss_debug_port_cnt(ss, "256-511", "", rmon->rx_etherStatsPkts256to511Octets,
                             rmon->tx_etherStatsPkts256to511Octets);
-        vtss_debug_port_cnt(ss, "512-1023", "",
-                            rmon->rx_etherStatsPkts512to1023Octets,
+        vtss_debug_port_cnt(ss, "512-1023", "", rmon->rx_etherStatsPkts512to1023Octets,
                             rmon->tx_etherStatsPkts512to1023Octets);
-        vtss_debug_port_cnt(ss, "1024-1526", "",
-                            rmon->rx_etherStatsPkts1024to1518Octets,
+        vtss_debug_port_cnt(ss, "1024-1526", "", rmon->rx_etherStatsPkts1024to1518Octets,
                             rmon->tx_etherStatsPkts1024to1518Octets);
-        vtss_debug_port_cnt(ss, "1527-    ", "",
-                            rmon->rx_etherStatsPkts1519toMaxOctets,
+        vtss_debug_port_cnt(ss, "1527-    ", "", rmon->rx_etherStatsPkts1519toMaxOctets,
                             rmon->tx_etherStatsPkts1519toMaxOctets);
         pr("\n");
 
@@ -2567,8 +2407,7 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
             /* Priority counters */
             for (prio = VTSS_PRIO_START; prio < VTSS_PRIO_END; prio++) {
                 VTSS_FMT(buf, "Class %u", prio);
-                vtss_debug_port_cnt(ss, buf.s, "",
-                                    prop->rx_prio[prio - VTSS_PRIO_START],
+                vtss_debug_port_cnt(ss, buf.s, "", prop->rx_prio[prio - VTSS_PRIO_START],
                                     prop->tx_prio[prio - VTSS_PRIO_START]);
             }
             pr("\n");
@@ -2579,18 +2418,13 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
         vtss_debug_port_cnt(ss, "Drops", "", rmon->rx_etherStatsDropEvents,
                             rmon->tx_etherStatsDropEvents);
         vtss_debug_port_cnt(ss, "CRC/Alignment", "Late/Exc. Coll.",
-                            rmon->rx_etherStatsCRCAlignErrors,
-                            ifg->ifOutErrors);
-        vtss_debug_port_cnt(ss, "Undersize", NULL,
-                            rmon->rx_etherStatsUndersizePkts, 0);
-        vtss_debug_port_cnt(ss, "Oversize", NULL,
-                            rmon->rx_etherStatsOversizePkts, 0);
-        vtss_debug_port_cnt(ss, "Fragments", NULL, rmon->rx_etherStatsFragments,
-                            0);
+                            rmon->rx_etherStatsCRCAlignErrors, ifg->ifOutErrors);
+        vtss_debug_port_cnt(ss, "Undersize", NULL, rmon->rx_etherStatsUndersizePkts, 0);
+        vtss_debug_port_cnt(ss, "Oversize", NULL, rmon->rx_etherStatsOversizePkts, 0);
+        vtss_debug_port_cnt(ss, "Fragments", NULL, rmon->rx_etherStatsFragments, 0);
         vtss_debug_port_cnt(ss, "Jabbers", NULL, rmon->rx_etherStatsJabbers, 0);
 #if defined(VTSS_FEATURE_PORT_CNT_BRIDGE)
-        vtss_debug_port_cnt(ss, "Filtered", NULL,
-                            counters.bridge.dot1dTpPortInDiscards, 0);
+        vtss_debug_port_cnt(ss, "Filtered", NULL, counters.bridge.dot1dTpPortInDiscards, 0);
 #endif /* VTSS_FEATURE_PORT_CNT_BRIDGE */
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
@@ -2598,15 +2432,11 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
             vtss_port_dot3br_counters_t *dot3br = &counters.dot3br;
 
             pr("\n");
-            vtss_debug_port_cnt(ss, "AssError", NULL,
-                                dot3br->aMACMergeFrameAssErrorCount, 0);
-            vtss_debug_port_cnt(ss, "SmdError", NULL,
-                                dot3br->aMACMergeFrameSmdErrorCount, 0);
-            vtss_debug_port_cnt(ss, "AssOk", "HoldCount",
-                                dot3br->aMACMergeFrameAssOkCount,
+            vtss_debug_port_cnt(ss, "AssError", NULL, dot3br->aMACMergeFrameAssErrorCount, 0);
+            vtss_debug_port_cnt(ss, "SmdError", NULL, dot3br->aMACMergeFrameSmdErrorCount, 0);
+            vtss_debug_port_cnt(ss, "AssOk", "HoldCount", dot3br->aMACMergeFrameAssOkCount,
                                 dot3br->aMACMergeHoldCount);
-            vtss_debug_port_cnt(ss, "FragCount", "",
-                                dot3br->aMACMergeFragCountRx,
+            vtss_debug_port_cnt(ss, "FragCount", "", dot3br->aMACMergeFragCountRx,
                                 dot3br->aMACMergeFragCountTx);
         }
 #endif
@@ -2619,22 +2449,15 @@ static void vtss_port_debug_print_counters(vtss_state_t *vtss_state,
 
             for (prio = VTSS_PRIO_START; prio < VTSS_PRIO_END; prio++) {
                 pr("\nClass %u:\n", prio);
-                vtss_debug_port_cnt(ss, "Green", "",
-                                    evc->rx_green[prio - VTSS_PRIO_START],
+                vtss_debug_port_cnt(ss, "Green", "", evc->rx_green[prio - VTSS_PRIO_START],
                                     evc->tx_green[prio - VTSS_PRIO_START]);
-                vtss_debug_port_cnt(ss, "Yellow", "",
-                                    evc->rx_yellow[prio - VTSS_PRIO_START],
+                vtss_debug_port_cnt(ss, "Yellow", "", evc->rx_yellow[prio - VTSS_PRIO_START],
                                     evc->tx_yellow[prio - VTSS_PRIO_START]);
-                vtss_debug_port_cnt(ss, "Red", NULL,
-                                    evc->rx_red[prio - VTSS_PRIO_START], 0);
+                vtss_debug_port_cnt(ss, "Red", NULL, evc->rx_red[prio - VTSS_PRIO_START], 0);
                 vtss_debug_port_cnt(ss, "Green Drops", NULL,
-                                    evc->rx_green_discard[prio -
-                                                          VTSS_PRIO_START],
-                                    0);
+                                    evc->rx_green_discard[prio - VTSS_PRIO_START], 0);
                 vtss_debug_port_cnt(ss, "Yellow Drops", NULL,
-                                    evc->rx_yellow_discard[prio -
-                                                           VTSS_PRIO_START],
-                                    0);
+                                    evc->rx_yellow_discard[prio - VTSS_PRIO_START], 0);
             }
         }
 #endif /* VTSS_ARCH_CARACAL */

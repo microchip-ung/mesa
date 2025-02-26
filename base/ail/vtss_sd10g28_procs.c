@@ -25,8 +25,7 @@ static u8 to_u8(const BOOL in)
 /* function to map from SD10G28 interface width to configuration value */
 static u8 sd10g28_get_iw_setting(const u8 interface_width)
 {
-    VTSS_D(" sd10g28_get_iw_setting:  Interface width is %d bits \n",
-           interface_width);
+    VTSS_D(" sd10g28_get_iw_setting:  Interface width is %d bits \n", interface_width);
     switch (interface_width) {
     case 10: {
         return 0;
@@ -62,9 +61,8 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
     case VTSS_SD10G28_MODE_10G_QSXGMII:
     case VTSS_SD10G28_MODE_10G_DSXGMII: {
         // ret_val->datarate = 10.3125e9;
-        ret_val->bitwidth =
-            sd10g28_get_iw_setting(32); // usgmii_ext and usxgmii_ext_rx_to_64
-        ret_val->cmu_sel = VTSS_SD10G28_MAIN; // MAIN CMU
+        ret_val->bitwidth = sd10g28_get_iw_setting(32); // usgmii_ext and usxgmii_ext_rx_to_64
+        ret_val->cmu_sel = VTSS_SD10G28_MAIN;           // MAIN CMU
         ret_val->rate = 0x0;
         ret_val->dfe_enable = 1;
         ret_val->dfe_tap = 0x1f;
@@ -110,12 +108,11 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
         // ret_val->bitwidth 16; //this has usxgmii_ext_tx_from_64 and rx_to_64
         // blocks between serdes and usxgmii_ext which converts 16bit
         // (serdes)<-> 64bit (Devices)
-        ret_val->bitwidth =
-            sd10g28_get_iw_setting(16); // this has usxgmii_ext_tx_from_64 and
-                                        // rx_to_64 blocks between serdes and
-                                        // usxgmii_ext which converts 16bit
-                                        // (serdes)<-> 64bit (Devices)
-        ret_val->cmu_sel = VTSS_SD10G28_MAIN; // MAIN CMU
+        ret_val->bitwidth = sd10g28_get_iw_setting(16); // this has usxgmii_ext_tx_from_64 and
+                                                        // rx_to_64 blocks between serdes and
+                                                        // usxgmii_ext which converts 16bit
+                                                        // (serdes)<-> 64bit (Devices)
+        ret_val->cmu_sel = VTSS_SD10G28_MAIN;           // MAIN CMU
         ret_val->rate = 0x1;
         ret_val->dfe_enable = 0;
         ret_val->dfe_tap = 0;
@@ -177,8 +174,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
         break;
     }
     default: {
-        VTSS_E(
-            "vtss_sd10g28_get_conf_from_mode: invalid parameter value for f_mode\n");
+        VTSS_E("vtss_sd10g28_get_conf_from_mode: invalid parameter value for f_mode\n");
         // 10.3125Gbps
         // ret_val->datarate= 10.3125e9;
         // ret_val->bitwidth 64; //10G Devices
@@ -219,8 +215,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     u8                           cmu;
     vtss_sd10g28_preset_struct_t preset;
 
-    rslt =
-        vtss_sd10g28_get_conf_from_mode(config.is_6g, config.mode, mode_args);
+    rslt = vtss_sd10g28_get_conf_from_mode(config.is_6g, config.mode, mode_args);
 
     ret_val->skip_cmu_cfg[0] = to_u8(config.skip_cmu_cfg);
     ret_val->is_6g[0] = to_u8(config.is_6g);
@@ -258,8 +253,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
 
     if ((config.chip_name != VTSS_SD10G28_CHIP_ANT) ||
         (config.chip_name != VTSS_SD10G28_CHIP_LAGUNA)) {
-        if ((config.preset == VTSS_SD10G28_ZR) ||
-            (config.preset == VTSS_SD10G28_DAC5M) ||
+        if ((config.preset == VTSS_SD10G28_ZR) || (config.preset == VTSS_SD10G28_DAC5M) ||
             (config.preset == VTSS_SD10G28_KR)) {
             VTSS_E(
                 "vtss_calc_sd10g28_setup_lane: Smart Control presets are not supported for the current Device");
@@ -435,10 +429,8 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     ret_val->cfg_sum_setcm_en[0] = 1;
 
     // r_misc_reg
-    ret_val->cfg_en_preemph[0] =
-        0; // Unused in current IP as per Tony 08/29/2018.
-    ret_val->cfg_itx_ippreemp_base_1_0[0] =
-        0; // Unused in current IP as per Tony 08/29/2018.
+    ret_val->cfg_en_preemph[0] = 0;            // Unused in current IP as per Tony 08/29/2018.
+    ret_val->cfg_itx_ippreemp_base_1_0[0] = 0; // Unused in current IP as per Tony 08/29/2018.
 
     // r_swing_reg;
     ret_val->cfg_itx_ipdriver_base_2_0[0] = (config.txswing >> 6);
@@ -446,45 +438,38 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     ret_val->cfg_txswing_half[0] = (config.txmargin);
 
     // r_cdr_from_hwt this is cfg controlled.
-    ret_val->cfg_dis_2ndOrder[0] = 0x1; //  2nd order CDR disable signal.
-    ret_val->cfg_rx_ssc_lh[0] = 0x0;    //  CDR operation rate selection
-    ret_val->cfg_pi_floop_steps_1_0[0] =
-        0x0; //  Frequency loop PI step selection
-    ret_val->cfg_pi_ext_dac_23_16[0] =
-        (1 << 5); //  2nd order CDR digital lowpass filter select
+    ret_val->cfg_dis_2ndOrder[0] = 0x1;          //  2nd order CDR disable signal.
+    ret_val->cfg_rx_ssc_lh[0] = 0x0;             //  CDR operation rate selection
+    ret_val->cfg_pi_floop_steps_1_0[0] = 0x0;    //  Frequency loop PI step selection
+    ret_val->cfg_pi_ext_dac_23_16[0] = (1 << 5); //  2nd order CDR digital lowpass filter select
 
-    ret_val->cfg_pi_ext_dac_15_8[0] =
-        (0 << 6); //  2nd order CDR digital lowpass filter select
+    ret_val->cfg_pi_ext_dac_15_8[0] = (0 << 6); //  2nd order CDR digital lowpass filter select
     ret_val->cfg_iscan_ext_dac_7_0[0] =
         (1 << 7) + 9; // CDR clock phase tuning parameter; Silicon Dependend;
 
     // RX CDR  and TX driver register Settings
-    ret_val->cfg_cdr_kf_gen1_2_0[0] = 1; // CDR 1st order Gain Adjust GEN1
-    ret_val->cfg_cdr_kf_gen2_2_0[0] = 1; // CDR 1st order Gain Adjust GEN2
-    ret_val->cfg_cdr_kf_gen3_2_0[0] = 1; // CDR 1st order Gain Adjust GEN3
-    ret_val->cfg_cdr_kf_gen4_2_0[0] = 1; // CDR 1st order Gain Adjust GEN4
-    ret_val->r_cdr_m_gen1_7_0[0] = 4;    // CDR 1st order LP filter select GEN1
-    ret_val->cfg_pi_bw_gen1_3_0[0] =
-        mode_args->pi_bw_gen1; // CDR PI BW Adj. GEN1 Silicon Dependend
-    ret_val->cfg_pi_bw_gen2[0] = mode_args->pi_bw_gen1; // CDR PI BW Adj. GEN2
-    ret_val->cfg_pi_bw_gen3[0] = mode_args->pi_bw_gen1; // CDR PI BW Adj. GEN3
-    ret_val->cfg_pi_bw_gen4[0] = mode_args->pi_bw_gen1; // CDR PI BW Adj. GEN4
+    ret_val->cfg_cdr_kf_gen1_2_0[0] = 1;                    // CDR 1st order Gain Adjust GEN1
+    ret_val->cfg_cdr_kf_gen2_2_0[0] = 1;                    // CDR 1st order Gain Adjust GEN2
+    ret_val->cfg_cdr_kf_gen3_2_0[0] = 1;                    // CDR 1st order Gain Adjust GEN3
+    ret_val->cfg_cdr_kf_gen4_2_0[0] = 1;                    // CDR 1st order Gain Adjust GEN4
+    ret_val->r_cdr_m_gen1_7_0[0] = 4;                       // CDR 1st order LP filter select GEN1
+    ret_val->cfg_pi_bw_gen1_3_0[0] = mode_args->pi_bw_gen1; // CDR PI BW Adj. GEN1 Silicon Dependend
+    ret_val->cfg_pi_bw_gen2[0] = mode_args->pi_bw_gen1;     // CDR PI BW Adj. GEN2
+    ret_val->cfg_pi_bw_gen3[0] = mode_args->pi_bw_gen1;     // CDR PI BW Adj. GEN3
+    ret_val->cfg_pi_bw_gen4[0] = mode_args->pi_bw_gen1;     // CDR PI BW Adj. GEN4
     // ret_val->cfg_iscan_ext_dac_7_0[0]= 9;   //Already configured
-    ret_val->cfg_pi_ext_dac_7_0[0] =
-        3; // DFE clock phase tuning parameter; Silicon Dependend;
+    ret_val->cfg_pi_ext_dac_7_0[0] = 3; // DFE clock phase tuning parameter; Silicon Dependend;
     ret_val->cfg_pi_steps[0] = 0;
     ret_val->cfg_mp_max_3_0[0] = 1;
-    ret_val->cfg_rstn_dfedig[0] =
-        mode_args->dfe_enable; // DFE Reset; it is reset automatically after
-                               // assert and release of pclk_gating
+    ret_val->cfg_rstn_dfedig[0] = mode_args->dfe_enable; // DFE Reset; it is reset automatically
+                                                         // after assert and release of pclk_gating
 
     ret_val->cfg_alos_thr_3_0[0] =
         preset.cfg_alos_thr_3_0; // Voltage threshold for squelch detection
 
     ret_val->cfg_predrv_slewrate_1_0[0] = 3; // ??
     ret_val->cfg_itx_ipcml_base_1_0[0] = 0;  // predriver current setting in TX
-    ret_val->cfg_ip_pre_base_1_0[0] =
-        0; // SBCHG:changed to 0 as per APP note 12/06/2019??
+    ret_val->cfg_ip_pre_base_1_0[0] = 0;     // SBCHG:changed to 0 as per APP note 12/06/2019??
 
     ret_val->r_cdr_m_gen2_7_0[0] = 2; //  CDR 1st order LP filter select GEN2
     ret_val->r_cdr_m_gen3_7_0[0] = 2; //  CDR 1st order LP filter select GEN3
@@ -543,8 +528,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     return rslt;
 }
 
-vtss_rc vtss_calc_sd10g28_lane_pwr_down(vtss_sd10g28_lane_pwr_down_t
-                                            *const ret_val)
+vtss_rc vtss_calc_sd10g28_lane_pwr_down(vtss_sd10g28_lane_pwr_down_t *const ret_val)
 {
 
     ret_val->r_iscan_reg[0] = 1;
@@ -589,8 +573,7 @@ vtss_rc vtss_calc_sd10g28_lane_pwr_down(vtss_sd10g28_lane_pwr_down_t
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_calc_sd10g28_cmu_pwr_down(vtss_sd10g28_cmu_pwr_down_t
-                                           *const ret_val)
+vtss_rc vtss_calc_sd10g28_cmu_pwr_down(vtss_sd10g28_cmu_pwr_down_t *const ret_val)
 {
 
     ret_val->cfg_ctrl_logic_pd[0] = 1;
@@ -614,26 +597,23 @@ vtss_rc vtss_calc_sd10g28_cmu_pwr_down(vtss_sd10g28_cmu_pwr_down_t
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_calc_sd10g28_cmu_type(int                            cmu_num,
-                                   vtss_sd10g28_cmu_type_t *const ret_val)
+vtss_rc vtss_calc_sd10g28_cmu_type(int cmu_num, vtss_sd10g28_cmu_type_t *const ret_val)
 {
 
     if (cmu_num < 14) {
 
         VTSS_D("vtss_calc_sd10g28_cmu_type: %d CMU Number\n", cmu_num);
-        if (cmu_num == 1 || cmu_num == 4 || cmu_num == 7 || cmu_num == 10 ||
-            cmu_num == 13) {
+        if (cmu_num == 1 || cmu_num == 4 || cmu_num == 7 || cmu_num == 10 || cmu_num == 13) {
             ret_val->cmu_type[0] = to_u8(1); /*AUX2 */
         } else {
             ret_val->cmu_type[0] = to_u8(0); /*MAIN and AUX1*/
         }
 
-        VTSS_D("vtss_calc_sd10g28_cmu_type: %d CMU Number and %d Type \n",
-               cmu_num, ret_val->cmu_type[0]);
+        VTSS_D("vtss_calc_sd10g28_cmu_type: %d CMU Number and %d Type \n", cmu_num,
+               ret_val->cmu_type[0]);
         return VTSS_RC_OK;
     } else {
-        VTSS_D("vtss_calc_sd10g28_cmu_type: %d CMU Number must be < 14\n",
-               cmu_num);
+        VTSS_D("vtss_calc_sd10g28_cmu_type: %d CMU Number must be < 14\n", cmu_num);
         return VTSS_RC_ERROR;
     }
 }

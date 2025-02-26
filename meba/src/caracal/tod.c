@@ -16,18 +16,14 @@ mesa_rc meba_tod_phy_ts_clk_info(meba_inst_t           inst,
     *freq = VTSS_PHY_TS_CLOCK_FREQ_250M;
     *src = VTSS_PHY_TS_CLOCK_SRC_INTERNAL;
     /* default 1pps latency for the phy is 3 clock cycles */
-    *pps_load_delay =
-        (((mepa_timeinterval_t)MESA_ONE_MIA << 16) * 4LL) / clk_mhz[*freq];
-    *pps_save_delay =
-        (((mepa_timeinterval_t)MESA_ONE_MIA << 16) * 3LL) / clk_mhz[*freq];
+    *pps_load_delay = (((mepa_timeinterval_t)MESA_ONE_MIA << 16) * 4LL) / clk_mhz[*freq];
+    *pps_save_delay = (((mepa_timeinterval_t)MESA_ONE_MIA << 16) * 3LL) / clk_mhz[*freq];
 #else
     *freq = VTSS_PHY_TS_CLOCK_FREQ_125M;
     *src = VTSS_PHY_TS_CLOCK_SRC_CLIENT_TX;
     /* default 1pps latency for the phy is 3 clock cycles */
-    *pps_load_delay =
-        (((mepa_timeinterval_t)MESA_ONE_MIA << 16) * 4LL) / clk_mhz[*freq];
-    *pps_save_delay =
-        (((mepa_timeinterval_t)MESA_ONE_MIA << 16) * 3LL) / clk_mhz[*freq];
+    *pps_load_delay = (((mepa_timeinterval_t)MESA_ONE_MIA << 16) * 4LL) / clk_mhz[*freq];
+    *pps_save_delay = (((mepa_timeinterval_t)MESA_ONE_MIA << 16) * 3LL) / clk_mhz[*freq];
 #endif /* defined(VTSS_PHY_TS_SILABS_CLK_DLL) */
 
     return MESA_RC_OK;

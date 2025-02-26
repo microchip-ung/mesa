@@ -24,11 +24,9 @@ typedef struct {
 } mesa_ts_conf_t CAP(TS);
 
 // TSN global configuration
-mesa_rc mesa_ts_conf_set(const mesa_inst_t           inst,
-                         const mesa_ts_conf_t *const conf) CAP(TS);
+mesa_rc mesa_ts_conf_set(const mesa_inst_t inst, const mesa_ts_conf_t *const conf) CAP(TS);
 
-mesa_rc mesa_ts_conf_get(const mesa_inst_t inst, mesa_ts_conf_t *const conf)
-    CAP(TS);
+mesa_rc mesa_ts_conf_get(const mesa_inst_t inst, mesa_ts_conf_t *const conf) CAP(TS);
 
 /** \brief This is the max time offset adjustment that os done without setting
  * ports in disabled state */
@@ -43,8 +41,7 @@ mesa_rc mesa_ts_conf_get(const mesa_inst_t inst, mesa_ts_conf_t *const conf)
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_timeofday_set(const mesa_inst_t             inst,
-                              const mesa_timestamp_t *const ts) CAP(TS);
+mesa_rc mesa_ts_timeofday_set(const mesa_inst_t inst, const mesa_timestamp_t *const ts) CAP(TS);
 
 /**
  * \brief Set the current time in a Timestamp format for a domain.
@@ -86,7 +83,7 @@ mesa_rc mesa_ts_timeofday_set_delta(const mesa_inst_t       inst,
 mesa_rc mesa_ts_domain_timeofday_set_delta(const mesa_inst_t       inst,
                                            const uint32_t          domain,
                                            const mesa_timestamp_t *ts,
-                                           mesa_bool_t negative) CAP(TS);
+                                           mesa_bool_t             negative) CAP(TS);
 
 /**
  * \brief Subtract offset from the current time.
@@ -97,8 +94,7 @@ mesa_rc mesa_ts_domain_timeofday_set_delta(const mesa_inst_t       inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_timeofday_offset_set(const mesa_inst_t inst,
-                                     const int32_t     offset) CAP(TS);
+mesa_rc mesa_ts_timeofday_offset_set(const mesa_inst_t inst, const int32_t offset) CAP(TS);
 
 /**
  * \brief Subtract offset from the current time.
@@ -147,8 +143,8 @@ mesa_rc mesa_ts_domain_timeofday_offset_set(const mesa_inst_t inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_adjtimer_one_sec(const mesa_inst_t  inst,
-                                 mesa_bool_t *const ongoing_adjustment) CAP(TS);
+mesa_rc mesa_ts_adjtimer_one_sec(const mesa_inst_t inst, mesa_bool_t *const ongoing_adjustment)
+    CAP(TS);
 
 /**
  * \brief Check if the clock adjustment is ongoing.
@@ -163,8 +159,7 @@ mesa_rc mesa_ts_adjtimer_one_sec(const mesa_inst_t  inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_ongoing_adjustment(const mesa_inst_t  inst,
-                                   mesa_bool_t *const ongoing_adjustment)
+mesa_rc mesa_ts_ongoing_adjustment(const mesa_inst_t inst, mesa_bool_t *const ongoing_adjustment)
     CAP(TS);
 
 /**
@@ -203,8 +198,7 @@ mesa_rc mesa_ts_timeofday_get(const mesa_inst_t       inst,
  */
 mesa_rc mesa_ts_timeofday_raw(const mesa_inst_t       inst,
                               mesa_timestamp_t *const ts,
-                              uint64_t *const         tc)
-    CAP(TS_MISSING_ONE_SEC_INTERRUPT);
+                              uint64_t *const         tc) CAP(TS_MISSING_ONE_SEC_INTERRUPT);
 
 /**
  * \brief Get the current time in a Timestamp format, and the corresponding
@@ -250,8 +244,7 @@ mesa_rc mesa_ts_multi_domain_timeofday_get(const mesa_inst_t       inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_timeofday_next_pps_get(const mesa_inst_t       inst,
-                                       mesa_timestamp_t *const ts) CAP(TS);
+mesa_rc mesa_ts_timeofday_next_pps_get(const mesa_inst_t inst, mesa_timestamp_t *const ts) CAP(TS);
 
 /**
  * \brief Get the time at the prev 1PPS pulse edge in a Timestamp format.
@@ -262,8 +255,7 @@ mesa_rc mesa_ts_timeofday_next_pps_get(const mesa_inst_t       inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_timeofday_prev_pps_get(const mesa_inst_t       inst,
-                                       mesa_timestamp_t *const ts) CAP(TS);
+mesa_rc mesa_ts_timeofday_prev_pps_get(const mesa_inst_t inst, mesa_timestamp_t *const ts) CAP(TS);
 
 /**
  * \brief Get the time at the next 1PPS pulse edge in a Timestamp format.
@@ -277,8 +269,7 @@ mesa_rc mesa_ts_timeofday_prev_pps_get(const mesa_inst_t       inst,
  */
 mesa_rc mesa_ts_domain_timeofday_next_pps_get(const mesa_inst_t       inst,
                                               const uint32_t          domain,
-                                              mesa_timestamp_t *const ts)
-    CAP(TS);
+                                              mesa_timestamp_t *const ts) CAP(TS);
 
 /**
  * \brief Adjust the clock timer ratio.
@@ -299,8 +290,7 @@ mesa_rc mesa_ts_adjtimer_set(const mesa_inst_t inst, const int32_t adj) CAP(TS);
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_adjtimer_get(const mesa_inst_t inst, int32_t *const adj)
-    CAP(TS);
+mesa_rc mesa_ts_adjtimer_get(const mesa_inst_t inst, int32_t *const adj) CAP(TS);
 
 /**
  * \brief Adjust the clock timer ratio for a domain.
@@ -347,8 +337,7 @@ mesa_rc mesa_ts_domain_adjtimer_get(const mesa_inst_t inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_freq_offset_get(const mesa_inst_t inst, int32_t *const adj)
-    CAP(TS);
+mesa_rc mesa_ts_freq_offset_get(const mesa_inst_t inst, int32_t *const adj) CAP(TS);
 
 /**
  * \brief Get the latest saved nanosec counter from the alternative clock.
@@ -359,8 +348,8 @@ mesa_rc mesa_ts_freq_offset_get(const mesa_inst_t inst, int32_t *const adj)
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_alt_clock_saved_get(const mesa_inst_t inst,
-                                    uint64_t *const   saved) CAP(TS_ALT_CLOCK);
+mesa_rc mesa_ts_alt_clock_saved_get(const mesa_inst_t inst, uint64_t *const saved)
+    CAP(TS_ALT_CLOCK);
 
 /**
  * \brief Get the latest saved timeofday from the alternative clock.
@@ -370,8 +359,7 @@ mesa_rc mesa_ts_alt_clock_saved_get(const mesa_inst_t inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_alt_clock_saved_timeofday_get(const mesa_inst_t       inst,
-                                              mesa_timestamp_t *const ts)
+mesa_rc mesa_ts_alt_clock_saved_timeofday_get(const mesa_inst_t inst, mesa_timestamp_t *const ts)
     CAP(TS_ALT_CLOCK);
 
 /**
@@ -381,11 +369,11 @@ mesa_rc mesa_ts_alt_clock_saved_timeofday_get(const mesa_inst_t       inst,
 typedef struct mesa_ts_alt_clock_mode_t {
     mesa_bool_t one_pps_out; /**< Enable 1pps output */
     mesa_bool_t one_pps_in;  /**< Enable 1pps input */
-    mesa_bool_t save; /**< Save actual time counter at next 1 PPS input. This is
-                         the TOD to get using
-                         mesa_ts_alt_clock_saved_timeofday_get() function */
-    mesa_bool_t load; /**< Load actual time counter at next 1 PPS input. The TOD
-                         loaded is given by the TOD _set() functions  */
+    mesa_bool_t save;        /**< Save actual time counter at next 1 PPS input. This is
+                                the TOD to get using
+                                mesa_ts_alt_clock_saved_timeofday_get() function */
+    mesa_bool_t load;        /**< Load actual time counter at next 1 PPS input. The TOD
+                                loaded is given by the TOD _set() functions  */
 } mesa_ts_alt_clock_mode_t CAP(TS_ALT_CLOCK);
 
 /**
@@ -397,9 +385,9 @@ typedef struct mesa_ts_alt_clock_mode_t {
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_alt_clock_mode_set(const mesa_inst_t inst,
-                                   const mesa_ts_alt_clock_mode_t
-                                       *const alt_clock_mode) CAP(TS_ALT_CLOCK);
+mesa_rc mesa_ts_alt_clock_mode_set(const mesa_inst_t                     inst,
+                                   const mesa_ts_alt_clock_mode_t *const alt_clock_mode)
+    CAP(TS_ALT_CLOCK);
 
 /**
  * \brief Get the alternative external clock mode.
@@ -409,9 +397,9 @@ mesa_rc mesa_ts_alt_clock_mode_set(const mesa_inst_t inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_alt_clock_mode_get(const mesa_inst_t inst,
-                                   mesa_ts_alt_clock_mode_t
-                                       *const alt_clock_mode) CAP(TS_ALT_CLOCK);
+mesa_rc mesa_ts_alt_clock_mode_get(const mesa_inst_t               inst,
+                                   mesa_ts_alt_clock_mode_t *const alt_clock_mode)
+    CAP(TS_ALT_CLOCK);
 
 /**
  * \brief Set the time at the next 1PPS pulse edge in a Timestamp format.
@@ -423,8 +411,7 @@ mesa_rc mesa_ts_alt_clock_mode_get(const mesa_inst_t inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_timeofday_next_pps_set(const mesa_inst_t             inst,
-                                       const mesa_timestamp_t *const ts)
+mesa_rc mesa_ts_timeofday_next_pps_set(const mesa_inst_t inst, const mesa_timestamp_t *const ts)
     CAP(TS_ALT_CLOCK);
 
 /**
@@ -434,9 +421,9 @@ typedef enum {
     MESA_TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE, /**< Disable 1PPS input/output */
     MESA_TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT,  /**< 1PPS clock output is generated
                                                based on TOD in domain 0 */
-    MESA_TS_EXT_CLOCK_MODE_ONE_PPS_INPUT, /**< TOD in domain 0 is saved on 1PPS
-                                             clock input. This is the TOD to get
-                                             using _get() functions */
+    MESA_TS_EXT_CLOCK_MODE_ONE_PPS_INPUT,   /**< TOD in domain 0 is saved on 1PPS
+                                               clock input. This is the TOD to get
+                                               using _get() functions */
     MESA_TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT_INPUT,
     MESA_TS_EXT_CLOCK_MODE_MAX
 } mesa_ts_ext_clock_one_pps_mode_t CAP(TS);
@@ -445,8 +432,7 @@ typedef enum {
  * \brief external clock input/output configuration.
  */
 typedef struct mesa_ts_ext_clock_mode_t {
-    mesa_ts_ext_clock_one_pps_mode_t
-        one_pps_mode;   /**< Select 1PPS ext clock mode */
+    mesa_ts_ext_clock_one_pps_mode_t one_pps_mode; /**< Select 1PPS ext clock mode */
     mesa_bool_t enable; /**< True: Select clock generation on external output pin
                            with frequency 'freq' False: Select 1PPS on external
                            input/output pins as indicated in 'one_pps_mode' */
@@ -466,9 +452,8 @@ typedef struct mesa_ts_ext_clock_mode_t {
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_external_clock_mode_get(const mesa_inst_t inst,
-                                        mesa_ts_ext_clock_mode_t
-                                            *const ext_clock_mode) CAP(TS);
+mesa_rc mesa_ts_external_clock_mode_get(const mesa_inst_t               inst,
+                                        mesa_ts_ext_clock_mode_t *const ext_clock_mode) CAP(TS);
 
 /**
  * \brief Set the external clock mode.
@@ -481,9 +466,9 @@ mesa_rc mesa_ts_external_clock_mode_get(const mesa_inst_t inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_external_clock_mode_set(const mesa_inst_t inst,
-                                        const mesa_ts_ext_clock_mode_t
-                                            *const ext_clock_mode) CAP(TS);
+mesa_rc mesa_ts_external_clock_mode_set(const mesa_inst_t                     inst,
+                                        const mesa_ts_ext_clock_mode_t *const ext_clock_mode)
+    CAP(TS);
 
 /**
  * \brief parameter for setting the external io mode.
@@ -492,27 +477,26 @@ mesa_rc mesa_ts_external_clock_mode_set(const mesa_inst_t inst,
  */
 typedef enum {
     MESA_TS_EXT_IO_MODE_ONE_PPS_DISABLE, /**< Disable IO pin */
-    MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT, /**< enable external sync pulse output */
+    MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT,  /**< enable external sync pulse output */
     MESA_TS_EXT_IO_MODE_WAVEFORM_OUTPUT, /**< enable external clock output
                                             frequency */
-    MESA_TS_EXT_IO_MODE_ONE_PPS_LOAD, /**< enable input and load time at positive
-                                         edge of input signal. The TOD loaded is
-                                         given by the TOD _set() functions */
-    MESA_TS_EXT_IO_MODE_ONE_PPS_SAVE, /**< enable input and save time at
-                                         positive edge of input signal. This is
-                                         the TOD to get using
-                                         mesa_ts_saved_timeofday_get() function
-                                       */
+    MESA_TS_EXT_IO_MODE_ONE_PPS_LOAD,    /**< enable input and load time at positive
+                                            edge of input signal. The TOD loaded is
+                                            given by the TOD _set() functions */
+    MESA_TS_EXT_IO_MODE_ONE_PPS_SAVE,    /**< enable input and save time at
+                                            positive edge of input signal. This is
+                                            the TOD to get using
+                                            mesa_ts_saved_timeofday_get() function
+                                          */
     MESA_TS_EXT_IO_MODE_MAX
 } mesa_ts_ext_io_pin_cfg_t CAP(TS);
 
 /** \brief external clock io configuration. */
 typedef struct mesa_ts_ext_io_mode_s {
-    mesa_ts_ext_io_pin_cfg_t
-             pin;    /**< Defines the io operation modefor the io pin */
-    uint32_t domain; /**< clock domain [0..2] assigned to the IO pin */
-    uint32_t freq;   /**< clock output frequency (hz [1..25.000.000]). only
-                        relevant in WAVEFORM _OUTPUT mode */
+    mesa_ts_ext_io_pin_cfg_t pin;    /**< Defines the io operation modefor the io pin */
+    uint32_t                 domain; /**< clock domain [0..2] assigned to the IO pin */
+    uint32_t                 freq;   /**< clock output frequency (hz [1..25.000.000]). only
+                                        relevant in WAVEFORM _OUTPUT mode */
 } mesa_ts_ext_io_mode_t CAP(TS);
 
 /**
@@ -528,8 +512,7 @@ typedef struct mesa_ts_ext_io_mode_s {
  */
 mesa_rc mesa_ts_external_io_mode_get(const mesa_inst_t            inst,
                                      const uint32_t               io,
-                                     mesa_ts_ext_io_mode_t *const ext_io_mode)
-    CAP(TS);
+                                     mesa_ts_ext_io_mode_t *const ext_io_mode) CAP(TS);
 
 /**
  * \brief Set the external io mode.
@@ -542,10 +525,9 @@ mesa_rc mesa_ts_external_io_mode_get(const mesa_inst_t            inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_external_io_mode_set(const mesa_inst_t inst,
-                                     const uint32_t    io,
-                                     const mesa_ts_ext_io_mode_t
-                                         *const ext_io_mode) CAP(TS);
+mesa_rc mesa_ts_external_io_mode_set(const mesa_inst_t                  inst,
+                                     const uint32_t                     io,
+                                     const mesa_ts_ext_io_mode_t *const ext_io_mode) CAP(TS);
 
 /**
  * \brief Get the latest saved time.
@@ -586,8 +568,7 @@ mesa_rc mesa_ts_output_clock_edge_offset_get(const mesa_inst_t inst,
  */
 /* TBD henrikb. This is not called by application and the cil pointer is not
  * loaded on any platform */
-mesa_rc mesa_ts_external_clock_saved_get(const mesa_inst_t inst,
-                                         uint32_t *const   saved) CAP(TS);
+mesa_rc mesa_ts_external_clock_saved_get(const mesa_inst_t inst, uint32_t *const saved) CAP(TS);
 
 /**
  * \brief Set the ingress latency.
@@ -597,10 +578,9 @@ mesa_rc mesa_ts_external_clock_saved_get(const mesa_inst_t inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_ingress_latency_set(const mesa_inst_t    inst,
-                                    const mesa_port_no_t port_no,
-                                    const mesa_timeinterval_t
-                                        *const ingress_latency) CAP(TS);
+mesa_rc mesa_ts_ingress_latency_set(const mesa_inst_t                inst,
+                                    const mesa_port_no_t             port_no,
+                                    const mesa_timeinterval_t *const ingress_latency) CAP(TS);
 
 /**
  * \brief Get the ingress latency.
@@ -612,8 +592,7 @@ mesa_rc mesa_ts_ingress_latency_set(const mesa_inst_t    inst,
  */
 mesa_rc mesa_ts_ingress_latency_get(const mesa_inst_t          inst,
                                     const mesa_port_no_t       port_no,
-                                    mesa_timeinterval_t *const ingress_latency)
-    CAP(TS);
+                                    mesa_timeinterval_t *const ingress_latency) CAP(TS);
 
 /**
  * \brief Set the P2P delay.
@@ -625,8 +604,7 @@ mesa_rc mesa_ts_ingress_latency_get(const mesa_inst_t          inst,
  */
 mesa_rc mesa_ts_p2p_delay_set(const mesa_inst_t                inst,
                               const mesa_port_no_t             port_no,
-                              const mesa_timeinterval_t *const p2p_delay)
-    CAP(TS);
+                              const mesa_timeinterval_t *const p2p_delay) CAP(TS);
 
 /**
  * \brief Get the P2P delay.
@@ -648,10 +626,9 @@ mesa_rc mesa_ts_p2p_delay_get(const mesa_inst_t          inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_egress_latency_set(const mesa_inst_t    inst,
-                                   const mesa_port_no_t port_no,
-                                   const mesa_timeinterval_t
-                                       *const egress_latency) CAP(TS);
+mesa_rc mesa_ts_egress_latency_set(const mesa_inst_t                inst,
+                                   const mesa_port_no_t             port_no,
+                                   const mesa_timeinterval_t *const egress_latency) CAP(TS);
 
 /**
  * \brief Get the egress latency.
@@ -663,8 +640,7 @@ mesa_rc mesa_ts_egress_latency_set(const mesa_inst_t    inst,
  */
 mesa_rc mesa_ts_egress_latency_get(const mesa_inst_t          inst,
                                    const mesa_port_no_t       port_no,
-                                   mesa_timeinterval_t *const egress_latency)
-    CAP(TS);
+                                   mesa_timeinterval_t *const egress_latency) CAP(TS);
 
 /**
  * \brief Set the delay asymmetry.
@@ -675,10 +651,9 @@ mesa_rc mesa_ts_egress_latency_get(const mesa_inst_t          inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_delay_asymmetry_set(const mesa_inst_t    inst,
-                                    const mesa_port_no_t port_no,
-                                    const mesa_timeinterval_t
-                                        *const delay_asymmetry) CAP(TS);
+mesa_rc mesa_ts_delay_asymmetry_set(const mesa_inst_t                inst,
+                                    const mesa_port_no_t             port_no,
+                                    const mesa_timeinterval_t *const delay_asymmetry) CAP(TS);
 
 /**
  * \brief Get the delay asymmetry.
@@ -690,8 +665,7 @@ mesa_rc mesa_ts_delay_asymmetry_set(const mesa_inst_t    inst,
  */
 mesa_rc mesa_ts_delay_asymmetry_get(const mesa_inst_t          inst,
                                     const mesa_port_no_t       port_no,
-                                    mesa_timeinterval_t *const delay_asymmetry)
-    CAP(TS);
+                                    mesa_timeinterval_t *const delay_asymmetry) CAP(TS);
 
 /**
  * \brief parameter for setting the timestamp operating mode
@@ -704,9 +678,9 @@ typedef enum {
 } mesa_ts_mode_t CAP(TS);
 
 typedef enum {
-    MESA_TS_PCH_TX_MODE_NONE,         /**< No PCH in transmitted frames */
-    MESA_TS_PCH_TX_MODE_ENCRYPT_NONE, /**< PCH added on transmitted frames */
-    MESA_TS_PCH_TX_MODE_ENCRYPT_BIT,  /**< PCH added with encryption bit set */
+    MESA_TS_PCH_TX_MODE_NONE,                    /**< No PCH in transmitted frames */
+    MESA_TS_PCH_TX_MODE_ENCRYPT_NONE,            /**< PCH added on transmitted frames */
+    MESA_TS_PCH_TX_MODE_ENCRYPT_BIT,             /**< PCH added with encryption bit set */
     MESA_TS_PCH_TX_MODE_ENCRYPT_BIT_INVERT_SMAC, /**< PCH added with encryption
                                                     bit set to inverted SMAC(40),
                                                     which is then cleared.#xD */
@@ -730,9 +704,9 @@ typedef enum {
 
 /** \brief Timestamp operation */
 typedef struct mesa_ts_operation_mode_t {
-    mesa_ts_mode_t mode; /**< Hardware Timestamping mode for a port(EXTERNAL or
-                            INTERNAL) */
-    uint32_t domain;     /**< Hardware timestamping domain for a port */
+    mesa_ts_mode_t mode;                      /**< Hardware Timestamping mode for a port(EXTERNAL or
+                                                 INTERNAL) */
+    uint32_t                          domain; /**< Hardware timestamping domain for a port */
     mesa_ts_pch_tx_mode_t tx_pch_mode CAP(PCH);   /**< PCH TX mode */
     mesa_ts_pch_rx_mode_t rx_pch_mode CAP(PCH);   /**< PCH RX mode */
     uint32_t pch_port_id              CAP(PCH);   /**< PCH sub-portID. */
@@ -752,10 +726,9 @@ typedef struct mesa_ts_operation_mode_t {
  * In backplane mode the internal format is determined by the internal mode (see
  * below) Other : Not used
  */
-mesa_rc mesa_ts_operation_mode_set(const mesa_inst_t    inst,
-                                   const mesa_port_no_t port_no,
-                                   const mesa_ts_operation_mode_t *const mode)
-    CAP(TS);
+mesa_rc mesa_ts_operation_mode_set(const mesa_inst_t                     inst,
+                                   const mesa_port_no_t                  port_no,
+                                   const mesa_ts_operation_mode_t *const mode) CAP(TS);
 
 /**
  * \brief Get the timestamping operation mode for a port
@@ -767,41 +740,39 @@ mesa_rc mesa_ts_operation_mode_set(const mesa_inst_t    inst,
  */
 mesa_rc mesa_ts_operation_mode_get(const mesa_inst_t               inst,
                                    const mesa_port_no_t            port_no,
-                                   mesa_ts_operation_mode_t *const mode)
-    CAP(TS);
+                                   mesa_ts_operation_mode_t *const mode) CAP(TS);
 
 /**
  * \brief parameter for setting the internal timestamp format
  */
 typedef enum {
     MESA_TS_INTERNAL_FMT_NONE,
-    MESA_TS_INTERNAL_FMT_RESERVED_LEN_30BIT, /* Ts is stored in reservedField as
-                                                30 bit (ns only) */
-    MESA_TS_INTERNAL_FMT_RESERVED_LEN_32BIT, /* Ts is stored in reservedField as
-                                                32 bit (ns+sec*10^9) mod 2^32) */
-    MESA_TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62, /* Ts is subtracted from cf at
-                                                    ingress as 44 bit
-                                                    (ns+sec*10^9) mod 2^44), MSB
-                                                    is saved in cf bit 62 */
+    MESA_TS_INTERNAL_FMT_RESERVED_LEN_30BIT,        /* Ts is stored in reservedField as
+                                                       30 bit (ns only) */
+    MESA_TS_INTERNAL_FMT_RESERVED_LEN_32BIT,        /* Ts is stored in reservedField as
+                                                       32 bit (ns+sec*10^9) mod 2^32) */
+    MESA_TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62,    /* Ts is subtracted from cf at
+                                                       ingress as 44 bit
+                                                       (ns+sec*10^9) mod 2^44), MSB
+                                                       is saved in cf bit 62 */
     MESA_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_3_0, /* Ts is subtracted from cf
                                                        at ingress as 48 bit
                                                        (ns+sec*10^9) mod 2^48),
                                                        MSBs are saved in cf bit
                                                        3-0 */
-    MESA_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_0, /* Ts is subtracted from cf at
-                                                     ingress as 48 bit
-                                                     (ns+sec*10^9) mod 2^48),
-                                                     MSB is saved in cf bit 0 */
-    MESA_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF,   /* Ts is subtracted from cf at
-                                                     ingress as 48 bit
-                                                     (ns+sec*10^9) mod 2^48) */
+    MESA_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_0,   /* Ts is subtracted from cf at
+                                                       ingress as 48 bit
+                                                       (ns+sec*10^9) mod 2^48),
+                                                       MSB is saved in cf bit 0 */
+    MESA_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF,     /* Ts is subtracted from cf at
+                                                       ingress as 48 bit
+                                                       (ns+sec*10^9) mod 2^48) */
     MESA_TS_INTERNAL_FMT_MAX
 } mesa_ts_internal_fmt_t CAP(TS);
 
 /** \brief Hardware timestamping format mode for internal ports */
 typedef struct mesa_ts_internal_mode_t {
-    mesa_ts_internal_fmt_t
-        int_fmt; /**< Hardware Timestamping format mode for INTERNAL ports */
+    mesa_ts_internal_fmt_t int_fmt; /**< Hardware Timestamping format mode for INTERNAL ports */
 } mesa_ts_internal_mode_t CAP(TS);
 
 /**
@@ -814,8 +785,7 @@ typedef struct mesa_ts_internal_mode_t {
  * Serval: Used to set INTERNAL mode timestamping format
  * Other : Not used
  */
-mesa_rc mesa_ts_internal_mode_set(const mesa_inst_t                    inst,
-                                  const mesa_ts_internal_mode_t *const mode)
+mesa_rc mesa_ts_internal_mode_set(const mesa_inst_t inst, const mesa_ts_internal_mode_t *const mode)
     CAP(TS);
 
 /**
@@ -825,8 +795,8 @@ mesa_rc mesa_ts_internal_mode_set(const mesa_inst_t                    inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_internal_mode_get(const mesa_inst_t              inst,
-                                  mesa_ts_internal_mode_t *const mode) CAP(TS);
+mesa_rc mesa_ts_internal_mode_get(const mesa_inst_t inst, mesa_ts_internal_mode_t *const mode)
+    CAP(TS);
 
 /** \brief Timestamp identifier */
 typedef struct mesa_ts_id_t {
@@ -872,8 +842,8 @@ mesa_rc mesa_rx_timestamp_get(const mesa_inst_t          inst,
  *
  * \return Return code.
  */
-mesa_rc mesa_rx_timestamp_id_release(const mesa_inst_t         inst,
-                                     const mesa_ts_id_t *const ts_id) CAP(TS);
+mesa_rc mesa_rx_timestamp_id_release(const mesa_inst_t inst, const mesa_ts_id_t *const ts_id)
+    CAP(TS);
 
 /**
  * \brief Get rx timestamp from a port (convert from slave time to the master
@@ -913,10 +883,9 @@ typedef struct mesa_ts_timestamp_alloc_t {
  *
  * \return Return code.
  */
-mesa_rc mesa_tx_timestamp_idx_alloc(const mesa_inst_t inst,
-                                    const mesa_ts_timestamp_alloc_t
-                                        *const          alloc_parm,
-                                    mesa_ts_id_t *const ts_id) CAP(TS);
+mesa_rc mesa_tx_timestamp_idx_alloc(const mesa_inst_t                      inst,
+                                    const mesa_ts_timestamp_alloc_t *const alloc_parm,
+                                    mesa_ts_id_t *const                    ts_id) CAP(TS);
 
 /**
  * \brief Age the FIFO timestamps
@@ -934,8 +903,7 @@ mesa_rc mesa_timestamp_age(const mesa_inst_t inst) CAP(TS);
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_status_change(const mesa_inst_t    inst,
-                              const mesa_port_no_t port_no) CAP(TS);
+mesa_rc mesa_ts_status_change(const mesa_inst_t inst, const mesa_port_no_t port_no) CAP(TS);
 
 /**
  * \brief parameter for setting auto response behavior pr domain
@@ -947,16 +915,14 @@ mesa_rc mesa_ts_status_change(const mesa_inst_t    inst,
  * portIdentity.portNumber = ptp_port_msb
  */
 typedef struct mesa_ts_autoresp_dom_cfg_s {
-    mesa_bool_t ptp_port_individual; /**< Influencing on DelayResponce
-                                        portIdentity.portNumber calculation as
-                                        described above */
-    uint16_t ptp_port_msb;           /**< Contributing to DelayResponce
-                                        portIdentity.portNumber as described above */
-    mesa_clock_identity
-        clock_identity; /**< DelayResponce portIdentity.clockIdentity. */
-    mesa_ace_u8_t
-        flag_field_update; /**< DelayResponce flagField byte 0. Bits in .value
-                              with .mask bit set, is written to DelayResponce */
+    mesa_bool_t ptp_port_individual;       /**< Influencing on DelayResponce
+                                              portIdentity.portNumber calculation as
+                                              described above */
+    uint16_t ptp_port_msb;                 /**< Contributing to DelayResponce
+                                              portIdentity.portNumber as described above */
+    mesa_clock_identity clock_identity;    /**< DelayResponce portIdentity.clockIdentity. */
+    mesa_ace_u8_t       flag_field_update; /**< DelayResponce flagField byte 0. Bits in .value
+                                              with .mask bit set, is written to DelayResponce */
 } mesa_ts_autoresp_dom_cfg_t CAP(TS_DELAY_REQ_AUTO_RESP);
 
 /**
@@ -967,8 +933,8 @@ typedef struct mesa_ts_autoresp_dom_cfg_s {
  *
  * \return Return code.
  */
-mesa_rc mesa_ts_autoresp_dom_cfg_set(const mesa_inst_t inst,
-                                     const uint8_t     domain,
+mesa_rc mesa_ts_autoresp_dom_cfg_set(const mesa_inst_t                       inst,
+                                     const uint8_t                           domain,
                                      const mesa_ts_autoresp_dom_cfg_t *const cfg)
     CAP(TS_DELAY_REQ_AUTO_RESP);
 
@@ -995,8 +961,7 @@ mesa_rc mesa_ts_autoresp_dom_cfg_get(const mesa_inst_t                 inst,
  */
 mesa_rc mesa_ts_smac_set(const mesa_inst_t       inst,
                          const mesa_port_no_t    port_no,
-                         const mesa_mac_t *const smac)
-    CAP(TS_DELAY_REQ_AUTO_RESP);
+                         const mesa_mac_t *const smac) CAP(TS_DELAY_REQ_AUTO_RESP);
 
 /**
  * \brief Get the source mac address used in auto Delay_Req/Resp

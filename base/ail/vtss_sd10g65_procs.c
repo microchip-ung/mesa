@@ -128,10 +128,9 @@ static u64 sd10g65_calc_gcd(const u64 num_in, const u64 div_in)
     return div;
 }
 
-static vtss_rc sd10g65_synth_settings_calc(u64 num_in,
-                                           u64 div_in,
-                                           vtss_sd10g65_synth_settings_calc_rslt_t
-                                               *const ret_val)
+static vtss_rc sd10g65_synth_settings_calc(u64                                            num_in,
+                                           u64                                            div_in,
+                                           vtss_sd10g65_synth_settings_calc_rslt_t *const ret_val)
 {
 
     u64 numerator;
@@ -190,8 +189,7 @@ static inline u16 sd10g65_tri_dec(u16 val_in)
         return 0;
         break;
     }
-    default:
-        VTSS_E("sd10g65_tri_dec discovered invalid input value %d\n", val_in);
+    default: VTSS_E("sd10g65_tri_dec discovered invalid input value %d\n", val_in);
     }
     return 0;
 }
@@ -207,8 +205,7 @@ static inline u16 sd10g65_bi_dec(u16 val_in)
         return 1;
         break;
     }
-    default:
-        VTSS_E("sd10g65_bi_dec discovered invalid input value %d\n", val_in);
+    default: VTSS_E("sd10g65_bi_dec discovered invalid input value %d\n", val_in);
     }
     return 0;
 }
@@ -232,8 +229,7 @@ static inline u16 sd10g65_lt_dec(u16 val_in)
         return 4;
         break;
     }
-    default:
-        VTSS_E("sd10g65_lt_dec discovered invalid input value %d\n", val_in);
+    default: VTSS_E("sd10g65_lt_dec discovered invalid input value %d\n", val_in);
     }
     return 0;
 }
@@ -273,15 +269,13 @@ static inline u16 sd10g65_ls_dec(u16 val_in)
         return 1;
         break;
     }
-    default:
-        VTSS_E("sd10g65_ls_dec discovered invalid input value %d\n", val_in);
+    default: VTSS_E("sd10g65_ls_dec discovered invalid input value %d\n", val_in);
     }
     return 0;
 }
 
-static vtss_rc sd10g65_calc_frec_dec_bypass(const u16 freq_mult_in,
-                                            vtss_sd10g65_freq_dec_bypass_rslt_t
-                                                *const ret_val)
+static vtss_rc sd10g65_calc_frec_dec_bypass(const u16                                  freq_mult_in,
+                                            vtss_sd10g65_freq_dec_bypass_rslt_t *const ret_val)
 {
 
     u16 freq_sign;
@@ -321,8 +315,7 @@ static vtss_rc sd10g65_calc_frec_dec_bypass(const u16 freq_mult_in,
     u16 dir_20m_dec;
 
     freq_sign = freq_mult_in >> 13;
-    freq_abs =
-        (freq_sign == 1) ? (freq_mult_in & 0xfff) : (~freq_mult_in & 0xfff);
+    freq_abs = (freq_sign == 1) ? (freq_mult_in & 0xfff) : (~freq_mult_in & 0xfff);
 
     tri_2g5 = sd10g65_tri_dec(((freq_abs - 684) >> 10) & 0x3);
     tri_625m = sd10g65_tri_dec(((freq_abs - 172) >> 8) & 0x3);
@@ -358,25 +351,22 @@ static vtss_rc sd10g65_calc_frec_dec_bypass(const u16 freq_mult_in,
     dir_ls_dec = dir_5m_pre;
     dir_20m_dec = (dir_20m_pre ^ ~dir_5m_pre) & 1;
 
-    ret_val->freq_mult_hi = ((ena_2g5_dec << 3) | (dir_2g5_dec << 2) |
-                             (spd_2g5_dec << 1) | (ena_625m_dec << 0)) ^
-                            0x4;
+    ret_val->freq_mult_hi =
+        ((ena_2g5_dec << 3) | (dir_2g5_dec << 2) | (spd_2g5_dec << 1) | (ena_625m_dec << 0)) ^ 0x4;
 
     ret_val->freq_mult =
-        ((dir_625m_dec << 13) | (spd_625m_dec << 12) | (ena_156m_dec << 11) |
-         (dir_156m_dec << 10) | (spd_156m_dec << 9) | (ena_39m_dec << 8) |
-         (dir_39m_dec << 7) | (dir_ls_dec << 6) | (ena_20m_dec << 5) |
-         (dir_20m_dec << 4) | (spd_20m_dec << 3) | (ena_2m5_dec << 2) |
+        ((dir_625m_dec << 13) | (spd_625m_dec << 12) | (ena_156m_dec << 11) | (dir_156m_dec << 10) |
+         (spd_156m_dec << 9) | (ena_39m_dec << 8) | (dir_39m_dec << 7) | (dir_ls_dec << 6) |
+         (ena_20m_dec << 5) | (dir_20m_dec << 4) | (spd_20m_dec << 3) | (ena_2m5_dec << 2) |
          (ena_1m25_dec << 1) | (inv_sd_dec << 0)) ^
         0x24D0;
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc sd10g65_synth_mult_calc(vtss_sd10g65_f_pll_t f_pll_in,
-                                       vtss_chip_name_t     chip_name,
-                                       vtss_sd10g65_synth_mult_calc_rslt_t
-                                           *const ret_val)
+static vtss_rc sd10g65_synth_mult_calc(vtss_sd10g65_f_pll_t                       f_pll_in,
+                                       vtss_chip_name_t                           chip_name,
+                                       vtss_sd10g65_synth_mult_calc_rslt_t *const ret_val)
 {
 
     vtss_sd10g65_synth_settings_calc_rslt_t synth_settings;
@@ -407,8 +397,7 @@ static vtss_rc sd10g65_synth_mult_calc(vtss_sd10g65_f_pll_t f_pll_in,
     num_in_tmp = (u64)f_pll_in.f_pll_khz * (u64)f_pll_in.ratio_num;
     div_in_tmp = (u64)f_pll_in.ratio_den * 2500000;
 
-    dr_khz = VTSS_DIV64((u64)f_pll_in.f_pll_khz * (u64)f_pll_in.ratio_num,
-                        (u64)f_pll_in.ratio_den);
+    dr_khz = VTSS_DIV64((u64)f_pll_in.f_pll_khz * (u64)f_pll_in.ratio_num, (u64)f_pll_in.ratio_den);
 
     if (dr_khz < ((u64)2.5e6 * 2 / 3)) {
         VTSS_E(
@@ -421,8 +410,7 @@ static vtss_rc sd10g65_synth_mult_calc(vtss_sd10g65_f_pll_t f_pll_in,
     } else {
         if (dr_khz < ((u64)2.5e6 * 4 / 3)) {
             /* sample frequncy below 3.33GHz -> use 2/3 * 2G5 .. 4/3 * 2G5 */
-            rc |= sd10g65_synth_settings_calc(num_in_tmp, (u64)div_in_tmp,
-                                              &synth_settings);
+            rc |= sd10g65_synth_settings_calc(num_in_tmp, (u64)div_in_tmp, &synth_settings);
             ret_val->synth_fbdiv_sel = 0;
 
             ret_val->tx_synth_ls_speed = 0;
@@ -432,8 +420,7 @@ static vtss_rc sd10g65_synth_mult_calc(vtss_sd10g65_f_pll_t f_pll_in,
         } else if (dr_khz < ((u64)2.5e6 * 8 / 3)) {
             /* sample frequncy between 3.33GHz and 6.66Ghz -> use 2/3 * 5G ..
              * 4/3 * 5G */
-            rc |= sd10g65_synth_settings_calc(num_in_tmp, (u64)2 * div_in_tmp,
-                                              &synth_settings);
+            rc |= sd10g65_synth_settings_calc(num_in_tmp, (u64)2 * div_in_tmp, &synth_settings);
             ret_val->synth_fbdiv_sel = 1;
 
             ret_val->tx_synth_ls_speed = 0;
@@ -443,8 +430,7 @@ static vtss_rc sd10g65_synth_mult_calc(vtss_sd10g65_f_pll_t f_pll_in,
         } else {
             /* sample frequncy between 6.66GHz and 13.33Ghz -> use 2/3 *10G ..
              * 4/3 * 5G */
-            rc |= sd10g65_synth_settings_calc(num_in_tmp, (u64)4 * div_in_tmp,
-                                              &synth_settings);
+            rc |= sd10g65_synth_settings_calc(num_in_tmp, (u64)4 * div_in_tmp, &synth_settings);
             ret_val->synth_fbdiv_sel = 2;
 
             ret_val->tx_synth_ls_speed = 1;
@@ -464,14 +450,10 @@ static vtss_rc sd10g65_synth_mult_calc(vtss_sd10g65_f_pll_t f_pll_in,
         ret_val->synth_freqm_1 = (u8)(synth_settings.synth_freqm >> 32);
         ret_val->synth_freqn_1 = (u8)(synth_settings.synth_freqn >> 32);
 
-        if ((chip_name == VTSS_SD10G65_CHIP_ES6514) ||
-            (chip_name == VTSS_SD10G65_CHIP_JAGUAR2) ||
-            (chip_name == VTSS_SD10G65_CHIP_JAGUAR2C) ||
-            (chip_name == VTSS_SD10G65_CHIP_VENICE) ||
-            (chip_name == VTSS_SD10G65_CHIP_VENICE_C) ||
-            (chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
-            (chip_name == VTSS_SD10G65_CHIP_MALIBU_B) ||
-            (chip_name == VTSS_SD10G65_CHIP_SERVALT) ||
+        if ((chip_name == VTSS_SD10G65_CHIP_ES6514) || (chip_name == VTSS_SD10G65_CHIP_JAGUAR2) ||
+            (chip_name == VTSS_SD10G65_CHIP_JAGUAR2C) || (chip_name == VTSS_SD10G65_CHIP_VENICE) ||
+            (chip_name == VTSS_SD10G65_CHIP_VENICE_C) || (chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
+            (chip_name == VTSS_SD10G65_CHIP_MALIBU_B) || (chip_name == VTSS_SD10G65_CHIP_SERVALT) ||
             (chip_name == VTSS_SD10G65_CHIP_ROLEX)) {
             // freq_dec has a flaw; using SW decoding and bypass mode;
             // decoding is translated from reworked verilog code
@@ -529,8 +511,7 @@ static u8 sd10g65_get_iw_setting(const u8 interface_width)
     }
 }
 
-vtss_rc vtss_sd10g65_setup_tx_args_init(vtss_sd10g65_setup_tx_args_t
-                                            *const init_val)
+vtss_rc vtss_sd10g65_setup_tx_args_init(vtss_sd10g65_setup_tx_args_t *const init_val)
 {
 
     init_val->chip_name = VTSS_SD10G65_CHIP_ES65XX;
@@ -552,8 +533,7 @@ vtss_rc vtss_sd10g65_setup_tx_args_init(vtss_sd10g65_setup_tx_args_t
     return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_sd10g65_set_default_preset_values(vtss_sd10g65_preset_struct_t
-                                                          *const preset)
+static vtss_rc vtss_sd10g65_set_default_preset_values(vtss_sd10g65_preset_struct_t *const preset)
 {
 
     // Set default preset values
@@ -623,8 +603,7 @@ static vtss_rc setup_loop_cfg(const vtss_chip_name_t         chip_name,
         loop_cfg->en_pad_loop = 1;
         loop_cfg->sig_sel = 2; // # loop driver
         loop_cfg->sbus_spare_pool = 2;
-        if (chip_name == VTSS_SD10G65_CHIP_ROLEX ||
-            chip_name == VTSS_SD10G65_CHIP_VENICE ||
+        if (chip_name == VTSS_SD10G65_CHIP_ROLEX || chip_name == VTSS_SD10G65_CHIP_VENICE ||
             chip_name == VTSS_SD10G65_CHIP_VENICE_C) {
             loop_cfg->sbus_loopdrv_ena = 1;
         } else {
@@ -651,7 +630,7 @@ static vtss_rc setup_loop_cfg(const vtss_chip_name_t         chip_name,
 /********************************************************************************
  ***                   vtss_calc_sd10g65_setup_tx ***
  ********************************************************************************/
-vtss_rc vtss_calc_sd10g65_setup_tx(const vtss_sd10g65_setup_tx_args_t config,
+vtss_rc vtss_calc_sd10g65_setup_tx(const vtss_sd10g65_setup_tx_args_t    config,
                                    vtss_sd10g65_setup_tx_struct_t *const ret_val)
 {
 
@@ -671,9 +650,8 @@ vtss_rc vtss_calc_sd10g65_setup_tx(const vtss_sd10g65_setup_tx_args_t config,
         rslt = vtss_sd10g65_get_f_pll_from_f_mode(config.f_mode, &cfg_f_pll);
     }
 
-    f_pll_khz_plain =
-        (u32)(VTSS_DIV64(((u64)cfg_f_pll.f_pll_khz * (u64)cfg_f_pll.ratio_num),
-                         (u64)cfg_f_pll.ratio_den));
+    f_pll_khz_plain = (u32)(VTSS_DIV64(((u64)cfg_f_pll.f_pll_khz * (u64)cfg_f_pll.ratio_num),
+                                       (u64)cfg_f_pll.ratio_den));
     if (f_pll_khz_plain < 2500000) {
         half_rate_mode = 1;
         f_pll_khz_plain = f_pll_khz_plain * 2;
@@ -682,10 +660,9 @@ vtss_rc vtss_calc_sd10g65_setup_tx(const vtss_sd10g65_setup_tx_args_t config,
         half_rate_mode = 0;
     }
 
-    if ((config.no_pwrcycle == 0) &&
-        ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
-         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
-         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU_B))) {
+    if ((config.no_pwrcycle == 0) && ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
+                                      (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
+                                      (config.chip_name == VTSS_SD10G65_CHIP_MALIBU_B))) {
         ret_val->pwrcycle[0] = 1;
     } else {
         ret_val->pwrcycle[0] = 0;
@@ -716,31 +693,19 @@ vtss_rc vtss_calc_sd10g65_setup_tx(const vtss_sd10g65_setup_tx_args_t config,
 
     ret_val->hr_mode[0] = half_rate_mode;
 
-    rslt |= sd10g65_synth_mult_calc(cfg_f_pll, config.chip_name,
-                                    &synth_mult_calc_rslt);
+    rslt |= sd10g65_synth_mult_calc(cfg_f_pll, config.chip_name, &synth_mult_calc_rslt);
 
-    ret_val->tx_synth_cfg0__synth_speed_sel[0] =
-        synth_mult_calc_rslt.synth_speed_sel;
-    ret_val->tx_synth_cfg0__synth_fbdiv_sel[0] =
-        synth_mult_calc_rslt.synth_fbdiv_sel;
-    ret_val->tx_synth_cfg3__synth_freqm_0[0] =
-        synth_mult_calc_rslt.synth_freqm_0;
-    ret_val->tx_synth_cfg4__synth_freqn_0[0] =
-        synth_mult_calc_rslt.synth_freqn_0;
-    ret_val->tx_synth_cfg1__synth_freqm_1[0] =
-        synth_mult_calc_rslt.synth_freqm_1;
-    ret_val->tx_synth_cfg1__synth_freqn_1[0] =
-        synth_mult_calc_rslt.synth_freqn_1;
-    ret_val->tx_synth_cfg1__synth_freq_mult_byp[0] =
-        synth_mult_calc_rslt.synth_freq_mult_byp;
-    ret_val->tx_synth_cfg1__synth_freq_mult_hi[0] =
-        synth_mult_calc_rslt.synth_freq_mult_hi;
-    ret_val->tx_synth_cfg1__synth_freq_mult[0] =
-        synth_mult_calc_rslt.synth_freq_mult;
-    ret_val->tx_synth_cfg0__synth_ls_speed[0] =
-        synth_mult_calc_rslt.tx_synth_ls_speed;
-    ret_val->tx_synth_cfg0__synth_cs_speed[0] =
-        synth_mult_calc_rslt.tx_synth_cs_speed;
+    ret_val->tx_synth_cfg0__synth_speed_sel[0] = synth_mult_calc_rslt.synth_speed_sel;
+    ret_val->tx_synth_cfg0__synth_fbdiv_sel[0] = synth_mult_calc_rslt.synth_fbdiv_sel;
+    ret_val->tx_synth_cfg3__synth_freqm_0[0] = synth_mult_calc_rslt.synth_freqm_0;
+    ret_val->tx_synth_cfg4__synth_freqn_0[0] = synth_mult_calc_rslt.synth_freqn_0;
+    ret_val->tx_synth_cfg1__synth_freqm_1[0] = synth_mult_calc_rslt.synth_freqm_1;
+    ret_val->tx_synth_cfg1__synth_freqn_1[0] = synth_mult_calc_rslt.synth_freqn_1;
+    ret_val->tx_synth_cfg1__synth_freq_mult_byp[0] = synth_mult_calc_rslt.synth_freq_mult_byp;
+    ret_val->tx_synth_cfg1__synth_freq_mult_hi[0] = synth_mult_calc_rslt.synth_freq_mult_hi;
+    ret_val->tx_synth_cfg1__synth_freq_mult[0] = synth_mult_calc_rslt.synth_freq_mult;
+    ret_val->tx_synth_cfg0__synth_ls_speed[0] = synth_mult_calc_rslt.tx_synth_ls_speed;
+    ret_val->tx_synth_cfg0__synth_cs_speed[0] = synth_mult_calc_rslt.tx_synth_cs_speed;
 
     if ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
@@ -836,9 +801,8 @@ vtss_rc vtss_calc_sd10g65_setup_tx(const vtss_sd10g65_setup_tx_args_t config,
     for (ifw_tmp = 4; ifw_tmp < 6; ifw_tmp++) {
         ret_val->ob_cfg0__sel_ifw[ifw_tmp - 3] = ifw_tmp;
         for (tog_cnt = 0; tog_cnt < 2 * hrate_toggle_cnt; tog_cnt++) {
-            ret_val->tx_synth_cfg0__synth_hrate_ena
-                [2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt + tog_cnt] =
-                (half_rate_mode + tog_cnt + 1) % 2;
+            ret_val->tx_synth_cfg0__synth_hrate_ena[2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt +
+                                                    tog_cnt] = (half_rate_mode + tog_cnt + 1) % 2;
         }
     }
 
@@ -875,8 +839,7 @@ vtss_rc vtss_sd10g65_pwr_down(vtss_sd10g65_pwr_down_t *const ret_val)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_sd10g65_setup_rx_args_init(vtss_sd10g65_setup_rx_args_t
-                                            *const init_val)
+vtss_rc vtss_sd10g65_setup_rx_args_init(vtss_sd10g65_setup_rx_args_t *const init_val)
 {
 
     init_val->chip_name = VTSS_SD10G65_CHIP_ES65XX;
@@ -910,7 +873,7 @@ vtss_rc vtss_sd10g65_setup_rx_args_init(vtss_sd10g65_setup_rx_args_t
 /********************************************************************************
  ***                   calc_sd10g65_setup_rx                                ***
  ********************************************************************************/
-vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
+vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t    config,
                                    vtss_sd10g65_setup_rx_struct_t *const ret_val)
 {
 
@@ -934,9 +897,8 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
     if (config.f_mode != VTSS_SD10G65_MODE_NONE) {
         rslt |= vtss_sd10g65_get_f_pll_from_f_mode(config.f_mode, &cfg_f_pll);
     }
-    f_pll_khz_plain =
-        (u32)(VTSS_DIV64(((u64)cfg_f_pll.f_pll_khz * (u64)cfg_f_pll.ratio_num),
-                         (u64)cfg_f_pll.ratio_den));
+    f_pll_khz_plain = (u32)(VTSS_DIV64(((u64)cfg_f_pll.f_pll_khz * (u64)cfg_f_pll.ratio_num),
+                                       (u64)cfg_f_pll.ratio_den));
 
     // Mode dependent settings (ib_rib_adj 2-complement: 8=>-8,15=>-1,0=>0,7=>7)
 
@@ -946,12 +908,9 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
     if ((config.chip_name != VTSS_SD10G65_CHIP_VENICE_C) &&
         (config.chip_name != VTSS_SD10G65_CHIP_JAGUAR2C) &&
         (config.chip_name != VTSS_SD10G65_CHIP_MALIBU_B)) {
-        if ((config.preset == VTSS_SD10G65_ZR_SC) ||
-            (config.preset == VTSS_SD10G65_DAC_SC) ||
-            (config.preset == VTSS_SD10G65_SR_SC) ||
-            (config.preset == VTSS_SD10G65_SR2_SC) ||
-            (config.preset == VTSS_SD10G65_KR_SC) ||
-            (config.preset == VTSS_SD10G65_BACKPLANE_SC)) {
+        if ((config.preset == VTSS_SD10G65_ZR_SC) || (config.preset == VTSS_SD10G65_DAC_SC) ||
+            (config.preset == VTSS_SD10G65_SR_SC) || (config.preset == VTSS_SD10G65_SR2_SC) ||
+            (config.preset == VTSS_SD10G65_KR_SC) || (config.preset == VTSS_SD10G65_BACKPLANE_SC)) {
             VTSS_E(
                 "vtss_calc_sd10g65_setup_rx: Smart Control presets are not supported for the current Device");
         }
@@ -1074,8 +1033,8 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
     ret_val->f_pll_ratio_num[0] = cfg_f_pll.ratio_num;
     ret_val->f_pll_ratio_den[0] = cfg_f_pll.ratio_den;
 
-    rslt |= setup_loop_cfg(config.chip_name, config.inp_loop, config.pad_loop,
-                           config.cmos_loop, preset.ib_sig_sel, &loop_cfg);
+    rslt |= setup_loop_cfg(config.chip_name, config.inp_loop, config.pad_loop, config.cmos_loop,
+                           preset.ib_sig_sel, &loop_cfg);
     if (rslt != VTSS_RC_OK) {
         VTSS_E("Error during loop config");
         return rslt;
@@ -1084,10 +1043,9 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
     /* -------------------------------------------------------------------- */
     /* Initial power down-cycle (required for RCPLL ramp-up in some chips)  */
     /* -------------------------------------------------------------------- */
-    if ((config.no_pwrcycle == 0) &&
-        ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
-         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
-         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU_B))) {
+    if ((config.no_pwrcycle == 0) && ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
+                                      (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
+                                      (config.chip_name == VTSS_SD10G65_CHIP_MALIBU_B))) {
         ret_val->pwrcycle[0] = 1;
     } else {
         ret_val->pwrcycle[0] = 0;
@@ -1114,26 +1072,22 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
 
     ret_val->sbus_rx_cfg__sbus_loopdrv_ena[0] = loop_cfg.sbus_loopdrv_ena;
     ret_val->sbus_rx_cfg__sbus_spare_pool[0] = loop_cfg.sbus_spare_pool;
-    ret_val->sbus_rx_cfg__sbus_bias_en[0] = 1; /* select sync_ibus0 */
-    ret_val->sbus_rx_cfg__sbus_bias_speed_sel[0] =
-        3; /* no longer data rate dependend */
+    ret_val->sbus_rx_cfg__sbus_bias_en[0] = 1;        /* select sync_ibus0 */
+    ret_val->sbus_rx_cfg__sbus_bias_speed_sel[0] = 3; /* no longer data rate dependend */
 
     /* -------------------------------------------------------------------- */
     /* Enable various bias circuits (SYNTH, PLL, IB)                        */
     /* -------------------------------------------------------------------- */
 
     ret_val->rx_rcpll_cfg2__pll_ena[1] = 1;
-    ret_val->rx_synth_cfg0__synth_ena[1] = 1; /* global synthesizer enable */
+    ret_val->rx_synth_cfg0__synth_ena[1] = 1;     /* global synthesizer enable */
     ret_val->rx_synth_cfg2__synth_aux_ena[0] = 1; /* aux channel clk gen */
     if (config.fpwr_mode == TRUE) {
-        ret_val->ib_cfg0__ib_clkdiv_ena[1] =
-            1; /* enckdv  (enable internal clock divider) */
+        ret_val->ib_cfg0__ib_clkdiv_ena[1] = 1; /* enckdv  (enable internal clock divider) */
     } else {
-        ret_val->ib_cfg0__ib_clkdiv_ena[1] =
-            0; /* enckdv  (disable internal clock divider) */
+        ret_val->ib_cfg0__ib_clkdiv_ena[1] = 0; /* enckdv  (disable internal clock divider) */
     }
-    ret_val->ib_cfg0__ib_vbulk_sel[0] =
-        1; /* fast    (sel. bulk volt. for cml cells) */
+    ret_val->ib_cfg0__ib_vbulk_sel[0] = 1; /* fast    (sel. bulk volt. for cml cells) */
     ret_val->ib_cfg0__ib_sam_ena[1] = 1;   /* ensam   (enable sampling stage) */
     ret_val->ib_cfg8__ib_bias_mode[1] = 1; /* constant current mode */
     ret_val->ib_cfg8__ib_cml_curr[0] = 0;  /* run with increased current */
@@ -1170,31 +1124,20 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
         }
     }
 
-    rslt |= sd10g65_synth_mult_calc(cfg_f_pll_synth_mult_cfg, config.chip_name,
-                                    &synth_mult_calc_rslt);
+    rslt |=
+        sd10g65_synth_mult_calc(cfg_f_pll_synth_mult_cfg, config.chip_name, &synth_mult_calc_rslt);
 
-    ret_val->rx_synth_cfg0__synth_speed_sel[0] =
-        synth_mult_calc_rslt.synth_speed_sel;
-    ret_val->rx_synth_cfg0__synth_fbdiv_sel[0] =
-        synth_mult_calc_rslt.synth_fbdiv_sel;
-    ret_val->rx_synth_cfg3__synth_freqm_0[0] =
-        synth_mult_calc_rslt.synth_freqm_0;
-    ret_val->rx_synth_cfg4__synth_freqn_0[0] =
-        synth_mult_calc_rslt.synth_freqn_0;
-    ret_val->rx_synth_cfg1__synth_freqm_1[0] =
-        synth_mult_calc_rslt.synth_freqm_1;
-    ret_val->rx_synth_cfg1__synth_freqn_1[0] =
-        synth_mult_calc_rslt.synth_freqn_1;
-    ret_val->rx_synth_cfg1__synth_freq_mult_byp[0] =
-        synth_mult_calc_rslt.synth_freq_mult_byp;
-    ret_val->rx_synth_cfg1__synth_freq_mult_hi[0] =
-        synth_mult_calc_rslt.synth_freq_mult_hi;
-    ret_val->rx_synth_cfg1__synth_freq_mult[0] =
-        synth_mult_calc_rslt.synth_freq_mult;
-    ret_val->rx_synth_cfg0__synth_fb_step[0] =
-        synth_mult_calc_rslt.rx_synth_fb_step;
-    ret_val->rx_synth_cfg0__synth_i2_step[0] =
-        synth_mult_calc_rslt.rx_synth_i2_step;
+    ret_val->rx_synth_cfg0__synth_speed_sel[0] = synth_mult_calc_rslt.synth_speed_sel;
+    ret_val->rx_synth_cfg0__synth_fbdiv_sel[0] = synth_mult_calc_rslt.synth_fbdiv_sel;
+    ret_val->rx_synth_cfg3__synth_freqm_0[0] = synth_mult_calc_rslt.synth_freqm_0;
+    ret_val->rx_synth_cfg4__synth_freqn_0[0] = synth_mult_calc_rslt.synth_freqn_0;
+    ret_val->rx_synth_cfg1__synth_freqm_1[0] = synth_mult_calc_rslt.synth_freqm_1;
+    ret_val->rx_synth_cfg1__synth_freqn_1[0] = synth_mult_calc_rslt.synth_freqn_1;
+    ret_val->rx_synth_cfg1__synth_freq_mult_byp[0] = synth_mult_calc_rslt.synth_freq_mult_byp;
+    ret_val->rx_synth_cfg1__synth_freq_mult_hi[0] = synth_mult_calc_rslt.synth_freq_mult_hi;
+    ret_val->rx_synth_cfg1__synth_freq_mult[0] = synth_mult_calc_rslt.synth_freq_mult;
+    ret_val->rx_synth_cfg0__synth_fb_step[0] = synth_mult_calc_rslt.rx_synth_fb_step;
+    ret_val->rx_synth_cfg0__synth_i2_step[0] = synth_mult_calc_rslt.rx_synth_i2_step;
 
     ret_val->fb_step_param_used[0] = (config.fb_step == TRUE) ? 1 : 0;
     ret_val->rx_synth_cfg0__synth_fb_step[1] = config.fb_step_val;
@@ -1212,8 +1155,7 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
 
     if (config.fpwr_mode == TRUE) {
         if (f_pll_khz_plain > 5000000) {
-            ret_val->rx_synth_cfg2__synth_phase_data[0] =
-                preset.synth_phase_data;
+            ret_val->rx_synth_cfg2__synth_phase_data[0] = preset.synth_phase_data;
         } else {
             ret_val->rx_synth_cfg2__synth_phase_data[0] = 64;
         }
@@ -1250,10 +1192,8 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
         } else if ((config.chip_name == VTSS_SD10G65_CHIP_JAGUAR2) ||
                    (config.chip_name == VTSS_SD10G65_CHIP_JAGUAR2C) ||
                    (config.chip_name == VTSS_SD10G65_CHIP_SERVALT)) {
-            ret_val->rx_synth_cfg2__synth_dv_ctrl_i1e[0] =
-                preset.synth_dv_ctrl_i1e;
-            ret_val->rx_synth_cfg2__synth_dv_ctrl_i1m[0] =
-                preset.synth_dv_ctrl_i1e;
+            ret_val->rx_synth_cfg2__synth_dv_ctrl_i1e[0] = preset.synth_dv_ctrl_i1e;
+            ret_val->rx_synth_cfg2__synth_dv_ctrl_i1m[0] = preset.synth_dv_ctrl_i1e;
         } else {
             VTSS_E(
                 "CHIP not fully supported yet by sd10g65_setup_rx_c. Please specify behaviour of I1 in case of a missing link status signal.");
@@ -1266,8 +1206,7 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
 
     ret_val->rx_synth_cdrlf[0] =
         (0x80000000 | ((u32)config.i1_lim << 21) | ((u32)config.i1_lim << 16) |
-         ((u32)config.i1_lim << 11) | ((u32)config.i1_fsel << 6) |
-         ((u32)config.i2_fsel << 0));
+         ((u32)config.i1_lim << 11) | ((u32)config.i1_fsel << 6) | ((u32)config.i2_fsel << 0));
 
     ret_val->rx_synth_cdrlf__synth_integ1_max1[0] = config.i1_lim;
     ret_val->rx_synth_cdrlf__synth_integ1_max0[0] = config.i1_lim;
@@ -1308,8 +1247,7 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
             ret_val->ib_cfg7__ib_dfe_gain_adj_s[0] = 1;
         }
         ret_val->ib_cfg7__ib_dfe_gain_adj[0] = preset.ib_dfe_gain_adj;
-        ret_val->ib_cfg7__ib_dfe_offset_h[0] =
-            25; /*needed for IB-Cal via APC */
+        ret_val->ib_cfg7__ib_dfe_offset_h[0] = 25; /*needed for IB-Cal via APC */
     } else if (config.chip_name == VTSS_SD10G65_CHIP_JAGUAR2) {
         /* macros with original IB with improved cfg */
         ret_val->ib_cfg6__ib_sam_offs_adj[0] = preset.ib_sam_offs_adj;
@@ -1328,8 +1266,7 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
         // $PRESET(ib_vscope_hl_offs)))
         // --> 4/8 + 19/8 * preset.ib_vscope_hl_offs = (4+19*
         // preset.ib_vscope_hl_offs)/8
-        ret_val->ib_cfg7__ib_dfe_offset_h[0] =
-            (u8)((u16)(4 + 19 * preset.ib_vscope_hl_offs) / 8);
+        ret_val->ib_cfg7__ib_dfe_offset_h[0] = (u8)((u16)(4 + 19 * preset.ib_vscope_hl_offs) / 8);
     }
 
     if (config.skip_cal == TRUE) {
@@ -1393,8 +1330,7 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
         ret_val->des_cfg0__des_inv_h[0] = 0;
         ret_val->des_cfg0__des_inv_l[0] = 0;
     }
-    ret_val->des_cfg0__des_if_mode_sel[1] =
-        sd10g65_get_iw_setting(config.if_width);
+    ret_val->des_cfg0__des_if_mode_sel[1] = sd10g65_get_iw_setting(config.if_width);
 
     /* -------------------------------------------------------------------- */
     /* Configure RX-RCPLL                                                   */
@@ -1440,15 +1376,13 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
     for (ifw_tmp = 4; ifw_tmp < 6; ifw_tmp++) {
         ret_val->des_cfg0__des_if_mode_sel[ifw_tmp - 2] = ifw_tmp;
         for (tog_cnt = 0; tog_cnt < 2 * hrate_toggle_cnt; tog_cnt++) {
-            ret_val->rx_synth_cfg0__synth_hrate_ena
-                [2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt + tog_cnt] =
-                (half_rate_mode + tog_cnt + 1) % 2;
+            ret_val->rx_synth_cfg0__synth_hrate_ena[2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt +
+                                                    tog_cnt] = (half_rate_mode + tog_cnt + 1) % 2;
         }
     }
     for (ifw_tmp = 4; ifw_tmp < 6; ifw_tmp++) {
         for (tog_cnt = 0; tog_cnt < 2 * hrate_toggle_cnt; tog_cnt++) {
-            ret_val->rx_synth_cfg0__synth_ena
-                [2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt + tog_cnt] =
+            ret_val->rx_synth_cfg0__synth_ena[2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt + tog_cnt] =
                 tog_cnt % 2;
         }
     }
@@ -1459,8 +1393,7 @@ vtss_rc vtss_calc_sd10g65_setup_rx(const vtss_sd10g65_setup_rx_args_t config,
     return rslt;
 }; /* vtss_calc_sd10g65_setup_rx */
 
-vtss_rc vtss_sd10g65_setup_f2df_args_init(vtss_sd10g65_setup_f2df_args_t
-                                              *const init_val)
+vtss_rc vtss_sd10g65_setup_f2df_args_init(vtss_sd10g65_setup_f2df_args_t *const init_val)
 {
 
     init_val->chip_name = VTSS_SD10G65_CHIP_ES65XX;
@@ -1481,9 +1414,8 @@ vtss_rc vtss_sd10g65_setup_f2df_args_init(vtss_sd10g65_setup_f2df_args_t
 /********************************************************************************
  ***                   calc_sd10g65_setup_f2df ***
  ********************************************************************************/
-vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config,
-                                     vtss_sd10g65_setup_f2df_struct_t
-                                         *const ret_val)
+vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t    config,
+                                     vtss_sd10g65_setup_f2df_struct_t *const ret_val)
 {
 
     vtss_rc                      rslt;
@@ -1536,25 +1468,21 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
         config_rx.cmos_loop = TRUE;
     }
 
-    rslt =
-        setup_loop_cfg(config.chip_name, config_rx.inp_loop, config_rx.pad_loop,
-                       config_rx.cmos_loop, preset.ib_sig_sel, &loop_cfg);
+    rslt = setup_loop_cfg(config.chip_name, config_rx.inp_loop, config_rx.pad_loop,
+                          config_rx.cmos_loop, preset.ib_sig_sel, &loop_cfg);
     if (rslt != VTSS_RC_OK) {
         VTSS_E("Error during loop config");
         return rslt;
     }
 
-    f_in_khz_plain =
-        (u32)(VTSS_DIV64(((u64)cfg_f_in.f_pll_khz * (u64)cfg_f_in.ratio_num),
-                         (u64)cfg_f_in.ratio_den));
+    f_in_khz_plain = (u32)(VTSS_DIV64(((u64)cfg_f_in.f_pll_khz * (u64)cfg_f_in.ratio_num),
+                                      (u64)cfg_f_in.ratio_den));
     if (f_in_khz_plain < 1000) {
-        VTSS_E("Input frequency = %d kHz to low, has to be >= 1e6Hz",
-               f_in_khz_plain);
+        VTSS_E("Input frequency = %d kHz to low, has to be >= 1e6Hz", f_in_khz_plain);
         rslt = VTSS_RC_ERROR;
         return rslt;
     } else if (f_in_khz_plain > 250000) {
-        VTSS_E("Input frequency = %d kHz to high, has to be <= 250e6Hz",
-               f_in_khz_plain);
+        VTSS_E("Input frequency = %d kHz to high, has to be <= 250e6Hz", f_in_khz_plain);
         rslt = VTSS_RC_ERROR;
         return rslt;
     }
@@ -1565,13 +1493,11 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
     side_detect = 0;
     while ((side_detect < 8) && (found == FALSE)) {
         interface_width = 16;
-        if ((f_in_khz_plain * interface_width * (1 << side_detect)) >=
-            2500000) {
+        if ((f_in_khz_plain * interface_width * (1 << side_detect)) >= 2500000) {
             found = TRUE;
         } else {
             interface_width = 20;
-            if ((f_in_khz_plain * interface_width * (1 << side_detect)) >=
-                2500000) {
+            if ((f_in_khz_plain * interface_width * (1 << side_detect)) >= 2500000) {
                 found = TRUE;
             }
         }
@@ -1590,8 +1516,7 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
         side_detect_bit_sel = 0;
         if ((config.chip_name == VTSS_SD10G65_CHIP_ES6512) ||
             (config.chip_name == VTSS_SD10G65_CHIP_VENICE)) {
-            VTSS_E("Input frequency = %d kHz to low, has to be >= 62.5e6Hz",
-                   f_in_khz_plain);
+            VTSS_E("Input frequency = %d kHz to low, has to be >= 62.5e6Hz", f_in_khz_plain);
             rslt = VTSS_RC_ERROR;
             return rslt;
         }
@@ -1600,23 +1525,20 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
     /* -------------------------------------------------------------------- */
     /* Initial power down-cycle (required for RCPLL ramp-up in some chips)  */
     /* -------------------------------------------------------------------- */
-    if ((config.no_pwrcycle == 0) &&
-        ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
-         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
-         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU_B))) {
+    if ((config.no_pwrcycle == 0) && ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
+                                      (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
+                                      (config.chip_name == VTSS_SD10G65_CHIP_MALIBU_B))) {
         ret_val->pwrcycle[0] = 1;
     } else {
         ret_val->pwrcycle[0] = 0;
     }
 
-    cfg_f_sam.f_pll_khz =
-        cfg_f_in.f_pll_khz * interface_width * (1 << side_detect);
+    cfg_f_sam.f_pll_khz = cfg_f_in.f_pll_khz * interface_width * (1 << side_detect);
     cfg_f_sam.ratio_num = cfg_f_in.ratio_num;
     cfg_f_sam.ratio_den = cfg_f_in.ratio_den;
 
-    f_sam_khz_plain =
-        (u32)(VTSS_DIV64(((u64)cfg_f_sam.f_pll_khz * (u64)cfg_f_sam.ratio_num),
-                         (u64)cfg_f_sam.ratio_den));
+    f_sam_khz_plain = (u32)(VTSS_DIV64(((u64)cfg_f_sam.f_pll_khz * (u64)cfg_f_sam.ratio_num),
+                                       (u64)cfg_f_sam.ratio_den));
 
     ret_val->f_pll_khz_plain[0] = f_sam_khz_plain;
     ret_val->f_pll_f_pll_khz[0] = cfg_f_sam.f_pll_khz;
@@ -1652,24 +1574,21 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
 
     ret_val->sbus_rx_cfg__sbus_loopdrv_ena[0] = loop_cfg.sbus_loopdrv_ena;
     ret_val->sbus_rx_cfg__sbus_spare_pool[0] = loop_cfg.sbus_spare_pool;
-    ret_val->sbus_rx_cfg__sbus_bias_en[0] = 1; /* select sync_ibus0 */
-    ret_val->sbus_rx_cfg__sbus_bias_speed_sel[0] =
-        3; /* no longer data rate dependend */
+    ret_val->sbus_rx_cfg__sbus_bias_en[0] = 1;        /* select sync_ibus0 */
+    ret_val->sbus_rx_cfg__sbus_bias_speed_sel[0] = 3; /* no longer data rate dependend */
 
     /* -------------------------------------------------------------------- */
     /* Enable various bias circuits (SYNTH, PLL, IB)                        */
     /* -------------------------------------------------------------------- */
 
     ret_val->rx_rcpll_cfg2__pll_ena[1] = 1;
-    ret_val->rx_synth_cfg0__synth_ena[1] = 1; /* global synthesizer enable */
+    ret_val->rx_synth_cfg0__synth_ena[1] = 1;     /* global synthesizer enable */
     ret_val->rx_synth_cfg2__synth_aux_ena[0] = 1; /* aux channel clk gen */
 
     /* For F2DF fpwr_mode is always true */
-    ret_val->ib_cfg0__ib_clkdiv_ena[1] =
-        1; /* enckdv  (enable internal clock divider) */
+    ret_val->ib_cfg0__ib_clkdiv_ena[1] = 1; /* enckdv  (enable internal clock divider) */
 
-    ret_val->ib_cfg0__ib_vbulk_sel[0] =
-        1; /* fast    (sel. bulk volt. for cml cells) */
+    ret_val->ib_cfg0__ib_vbulk_sel[0] = 1; /* fast    (sel. bulk volt. for cml cells) */
     ret_val->ib_cfg0__ib_sam_ena[1] = 1;   /* ensam   (enable sampling stage) */
     ret_val->ib_cfg8__ib_bias_mode[1] = 1; /* constant current mode */
     ret_val->ib_cfg8__ib_cml_curr[0] = 0;  /* run with increased current */
@@ -1697,31 +1616,20 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
 
     cfg_f_pll_synth_mult_cfg = cfg_f_sam;
 
-    rslt |= sd10g65_synth_mult_calc(cfg_f_pll_synth_mult_cfg, config.chip_name,
-                                    &synth_mult_calc_rslt);
+    rslt |=
+        sd10g65_synth_mult_calc(cfg_f_pll_synth_mult_cfg, config.chip_name, &synth_mult_calc_rslt);
 
-    ret_val->rx_synth_cfg0__synth_speed_sel[0] =
-        synth_mult_calc_rslt.synth_speed_sel;
-    ret_val->rx_synth_cfg0__synth_fbdiv_sel[0] =
-        synth_mult_calc_rslt.synth_fbdiv_sel;
-    ret_val->rx_synth_cfg3__synth_freqm_0[0] =
-        synth_mult_calc_rslt.synth_freqm_0;
-    ret_val->rx_synth_cfg4__synth_freqn_0[0] =
-        synth_mult_calc_rslt.synth_freqn_0;
-    ret_val->rx_synth_cfg1__synth_freqm_1[0] =
-        synth_mult_calc_rslt.synth_freqm_1;
-    ret_val->rx_synth_cfg1__synth_freqn_1[0] =
-        synth_mult_calc_rslt.synth_freqn_1;
-    ret_val->rx_synth_cfg1__synth_freq_mult_byp[0] =
-        synth_mult_calc_rslt.synth_freq_mult_byp;
-    ret_val->rx_synth_cfg1__synth_freq_mult_hi[0] =
-        synth_mult_calc_rslt.synth_freq_mult_hi;
-    ret_val->rx_synth_cfg1__synth_freq_mult[0] =
-        synth_mult_calc_rslt.synth_freq_mult;
-    ret_val->rx_synth_cfg0__synth_fb_step[0] =
-        synth_mult_calc_rslt.rx_synth_fb_step;
-    ret_val->rx_synth_cfg0__synth_i2_step[0] =
-        synth_mult_calc_rslt.rx_synth_i2_step;
+    ret_val->rx_synth_cfg0__synth_speed_sel[0] = synth_mult_calc_rslt.synth_speed_sel;
+    ret_val->rx_synth_cfg0__synth_fbdiv_sel[0] = synth_mult_calc_rslt.synth_fbdiv_sel;
+    ret_val->rx_synth_cfg3__synth_freqm_0[0] = synth_mult_calc_rslt.synth_freqm_0;
+    ret_val->rx_synth_cfg4__synth_freqn_0[0] = synth_mult_calc_rslt.synth_freqn_0;
+    ret_val->rx_synth_cfg1__synth_freqm_1[0] = synth_mult_calc_rslt.synth_freqm_1;
+    ret_val->rx_synth_cfg1__synth_freqn_1[0] = synth_mult_calc_rslt.synth_freqn_1;
+    ret_val->rx_synth_cfg1__synth_freq_mult_byp[0] = synth_mult_calc_rslt.synth_freq_mult_byp;
+    ret_val->rx_synth_cfg1__synth_freq_mult_hi[0] = synth_mult_calc_rslt.synth_freq_mult_hi;
+    ret_val->rx_synth_cfg1__synth_freq_mult[0] = synth_mult_calc_rslt.synth_freq_mult;
+    ret_val->rx_synth_cfg0__synth_fb_step[0] = synth_mult_calc_rslt.rx_synth_fb_step;
+    ret_val->rx_synth_cfg0__synth_i2_step[0] = synth_mult_calc_rslt.rx_synth_i2_step;
 
     /* half rate mode handling */
     ret_val->rx_synth_cfg0__synth_hrate_ena[0] = 1;
@@ -1770,10 +1678,9 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
 
     ret_val->rx_synth_cdrlf__synth_integ3_ena[0] = 1;
 
-    ret_val->rx_synth_cdrlf[0] =
-        (0x80000000 | ((u32)config_rx.i1_lim << 21) |
-         ((u32)config_rx.i1_lim << 16) | ((u32)config_rx.i1_lim << 11) |
-         ((u32)config_rx.i1_fsel << 6) | ((u32)config_rx.i2_fsel << 0));
+    ret_val->rx_synth_cdrlf[0] = (0x80000000 | ((u32)config_rx.i1_lim << 21) |
+                                  ((u32)config_rx.i1_lim << 16) | ((u32)config_rx.i1_lim << 11) |
+                                  ((u32)config_rx.i1_fsel << 6) | ((u32)config_rx.i2_fsel << 0));
 
     ret_val->rx_synth_cdrlf__synth_integ1_max1[0] = config_rx.i1_lim;
     ret_val->rx_synth_cdrlf__synth_integ1_max0[0] = config_rx.i1_lim;
@@ -1810,8 +1717,7 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
         // no ib_auto_agc_adj available
         ret_val->ib_cfg7__ib_dfe_gain_adj_s[0] = 1;
         ret_val->ib_cfg7__ib_dfe_gain_adj[0] = preset.ib_dfe_gain_adj;
-        ret_val->ib_cfg7__ib_dfe_offset_h[0] =
-            25; /*needed for IB-Cal via APC */
+        ret_val->ib_cfg7__ib_dfe_offset_h[0] = 25; /*needed for IB-Cal via APC */
     } else if (config.chip_name == VTSS_SD10G65_CHIP_JAGUAR2) {
         /* macros with original IB with improved cfg */
         ret_val->ib_cfg6__ib_sam_offs_adj[0] = preset.ib_sam_offs_adj;
@@ -1830,8 +1736,7 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
         // $PRESET(ib_vscope_hl_offs)))
         // --> 4/8 + 19/8 * preset.ib_vscope_hl_offs = (4+19*
         // preset.ib_vscope_hl_offs)/8
-        ret_val->ib_cfg7__ib_dfe_offset_h[0] =
-            (u8)((u16)(4 + 19 * preset.ib_vscope_hl_offs) / 8);
+        ret_val->ib_cfg7__ib_dfe_offset_h[0] = (u8)((u16)(4 + 19 * preset.ib_vscope_hl_offs) / 8);
     }
 
     ret_val->skip_cal[0] = 0;
@@ -1886,8 +1791,7 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
         ret_val->des_cfg0__des_inv_h[0] = 0;
         ret_val->des_cfg0__des_inv_l[0] = 0;
     }
-    ret_val->des_cfg0__des_if_mode_sel[1] =
-        sd10g65_get_iw_setting(interface_width);
+    ret_val->des_cfg0__des_if_mode_sel[1] = sd10g65_get_iw_setting(interface_width);
 
     /* -------------------------------------------------------------------- */
     /* Configure RX-RCPLL                                                   */
@@ -1928,15 +1832,13 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
     for (ifw_tmp = 4; ifw_tmp < 6; ifw_tmp++) {
         ret_val->des_cfg0__des_if_mode_sel[ifw_tmp - 2] = ifw_tmp;
         for (tog_cnt = 0; tog_cnt < 2 * hrate_toggle_cnt; tog_cnt++) {
-            ret_val->rx_synth_cfg0__synth_hrate_ena
-                [2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt + tog_cnt] =
-                (tog_cnt + 1) % 2;
+            ret_val->rx_synth_cfg0__synth_hrate_ena[2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt +
+                                                    tog_cnt] = (tog_cnt + 1) % 2;
         }
     }
     for (ifw_tmp = 4; ifw_tmp < 6; ifw_tmp++) {
         for (tog_cnt = 0; tog_cnt < 2 * hrate_toggle_cnt; tog_cnt++) {
-            ret_val->rx_synth_cfg0__synth_ena
-                [2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt + tog_cnt] =
+            ret_val->rx_synth_cfg0__synth_ena[2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt + tog_cnt] =
                 tog_cnt % 2;
         }
     }
@@ -1997,8 +1899,7 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
 
     ret_val->rx_synth_cdrlf[1] =
         (0x80000000 | ((u32)config.i1_lim << 21) | ((u32)config.i1_lim << 16) |
-         ((u32)config.i1_lim << 11) | ((u32)config.i1_fsel << 6) |
-         ((u32)config.i2_fsel << 0));
+         ((u32)config.i1_lim << 11) | ((u32)config.i1_fsel << 6) | ((u32)config.i2_fsel << 0));
 
     ret_val->rx_synth_cdrlf__synth_integ3_ena[1] = 1;
     ret_val->rx_synth_cdrlf__synth_integ1_lim[1] = config.i1_lim;
@@ -2020,15 +1921,14 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
         ret_val->chip_still_has_sample_mode[0] = 0;
     }
 
-    ret_val->f2df_cfg_stat[0] =
-        ((side_detect << 25) |         /* F2DF_SAMPLE_DIV */
-         (side_detect_bit_sel << 17) | /* F2DF_SIDE_DET_BIT_SEL */
-         (0 << 14) |                   /* F2DF_SIDE_DET_ONES_WEIGHT */
-         (2 << 11) |                   /* F2DF_SIDE_DET_ZEROS_WEIGHT */
-         (40 << 4) |                   /* F2DF_TOG_DET_CNT */
-         (0 << 3) |                    /* F2DF_DATA_VALID_PROPPER_SIDE */
-         (0 << 2) |                    /* F2DF_STICKY_CLR */
-         (1 << 0));                    /* F2DF_ENABLE */
+    ret_val->f2df_cfg_stat[0] = ((side_detect << 25) |         /* F2DF_SAMPLE_DIV */
+                                 (side_detect_bit_sel << 17) | /* F2DF_SIDE_DET_BIT_SEL */
+                                 (0 << 14) |                   /* F2DF_SIDE_DET_ONES_WEIGHT */
+                                 (2 << 11) |                   /* F2DF_SIDE_DET_ZEROS_WEIGHT */
+                                 (40 << 4) |                   /* F2DF_TOG_DET_CNT */
+                                 (0 << 3) |                    /* F2DF_DATA_VALID_PROPPER_SIDE */
+                                 (0 << 2) |                    /* F2DF_STICKY_CLR */
+                                 (1 << 0));                    /* F2DF_ENABLE */
     ret_val->f2df_cfg_stat__f2df_side_det_bit_sel[0] = side_detect_bit_sel;
     ret_val->f2df_cfg_stat__f2df_side_det_ones_weight[0] = 0;
     ret_val->f2df_cfg_stat__f2df_side_det_zeros_weight[0] = 2;
@@ -2041,13 +1941,11 @@ vtss_rc vtss_calc_sd10g65_setup_f2df(const vtss_sd10g65_setup_f2df_args_t config
     return rslt;
 }; /* vtss_calc_sd10g65_setup_f2df */
 
-vtss_rc vtss_sd10g65_setup_df2f_args_init(vtss_sd10g65_setup_df2f_args_t
-                                              *const init_val)
+vtss_rc vtss_sd10g65_setup_df2f_args_init(vtss_sd10g65_setup_df2f_args_t *const init_val)
 {
 
     init_val->chip_name = VTSS_SD10G65_CHIP_ES65XX;
-    init_val->f_out.f_pll_khz =
-        125000; // changed because the default would cause an error!!
+    init_val->f_out.f_pll_khz = 125000; // changed because the default would cause an error!!
     init_val->f_out.ratio_num = 66;
     init_val->f_out.ratio_den = 64;
     init_val->no_pwrcycle = FALSE;
@@ -2061,9 +1959,8 @@ vtss_rc vtss_sd10g65_setup_df2f_args_init(vtss_sd10g65_setup_df2f_args_t
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config,
-                                     vtss_sd10g65_setup_df2f_struct_t
-                                         *const ret_val)
+vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t    config,
+                                     vtss_sd10g65_setup_df2f_struct_t *const ret_val)
 {
 
     vtss_rc              rslt;
@@ -2081,20 +1978,17 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
     BOOL use_clk_gen;
     u8   interface_width;
     u8   num_periods;
-    u8   dft_word_mode =
-        8; /* need to have a default value to avoid compiler warning */
-    u8 num_words =
-        5; /* need to have a default value to avoid compiler warning */
+    u8   dft_word_mode = 8; /* need to have a default value to avoid compiler warning */
+    u8   num_words = 5;     /* need to have a default value to avoid compiler warning */
     u8   num_bits;
     BOOL chip_supports_dft_clk_gen;
     u16  pattern[16] = {0};
     u8   toggle;
     u8   incr;
-    u8   clock_gen_period_half =
-        16; /* need to have a default value to avoid compiler warning */
-    u8 divider;
-    u8 synth_half_rate_mode = 0;
-    u8 i;
+    u8   clock_gen_period_half = 16; /* need to have a default value to avoid compiler warning */
+    u8   divider;
+    u8   synth_half_rate_mode = 0;
+    u8   i;
 
     rslt = VTSS_RC_OK;
     if ((config.chip_name == VTSS_SD10G65_CHIP_ES6512) ||
@@ -2105,14 +1999,12 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
         chip_supports_dft_clk_gen = TRUE;
     }
 
-    f_out_khz_plain =
-        (u32)(VTSS_DIV64(((u64)cfg_f_out.f_pll_khz * (u64)cfg_f_out.ratio_num),
-                         (u64)cfg_f_out.ratio_den));
+    f_out_khz_plain = (u32)(VTSS_DIV64(((u64)cfg_f_out.f_pll_khz * (u64)cfg_f_out.ratio_num),
+                                       (u64)cfg_f_out.ratio_den));
 
     if (config.use_par_clk == FALSE) {
         if (f_out_khz_plain > 500000) {
-            VTSS_E(
-                "Targeted output frequency to high. Must not be above 500 MHz");
+            VTSS_E("Targeted output frequency to high. Must not be above 500 MHz");
             return VTSS_RC_ERROR;
         } else if (f_out_khz_plain < 1000) {
             VTSS_E("Targeted output frequency to low. Must not be below  1 MHz");
@@ -2211,13 +2103,11 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
                         /* use clock pattern generator */
                         use_clk_gen = TRUE;
                         interface_width = 32;
-                        clock_gen_period_half =
-                            10800000 / (f_out_khz_plain * interface_width * 2);
-                        f_sam_khz_plain = f_out_khz_plain * interface_width *
-                                          2 * clock_gen_period_half;
-                        cfg_f_sam.f_pll_khz = cfg_f_out.f_pll_khz *
-                                              interface_width * 2 *
-                                              clock_gen_period_half;
+                        clock_gen_period_half = 10800000 / (f_out_khz_plain * interface_width * 2);
+                        f_sam_khz_plain =
+                            f_out_khz_plain * interface_width * 2 * clock_gen_period_half;
+                        cfg_f_sam.f_pll_khz =
+                            cfg_f_out.f_pll_khz * interface_width * 2 * clock_gen_period_half;
                         cfg_f_sam.ratio_num = cfg_f_out.ratio_num;
                         cfg_f_sam.ratio_den = cfg_f_out.ratio_den;
                     }
@@ -2232,8 +2122,7 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
                         /* select sample frequency >= 2.5Ghz = lowest specified
                          * frequency for RC_PLL */
                         divider = 4;
-                    } else if ((u64)cfg_f_out.f_pll_khz * cfg_f_out.ratio_num *
-                                   2 >=
+                    } else if ((u64)cfg_f_out.f_pll_khz * cfg_f_out.ratio_num * 2 >=
                                (u64)cfg_f_out.ratio_den * 15625) {
                         /* select sample frequency >= 1.25Ghz */
                         divider = 8;
@@ -2251,27 +2140,23 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
                     for (num_words = 5; num_words <= 16; num_words++) {
                         num_bits = num_words * dft_word_mode / num_periods;
                         if (divider < 4) {
-                            if (f_out_khz_plain * num_bits * divider >=
-                                9000000) {
+                            if (f_out_khz_plain * num_bits * divider >= 9000000) {
                                 break;
                             }
                         } else if (divider < 8) {
-                            if (f_out_khz_plain * num_bits * divider >=
-                                10000000) {
+                            if (f_out_khz_plain * num_bits * divider >= 10000000) {
                                 break;
                             }
                         } else {
-                            if ((u64)cfg_f_out.f_pll_khz * cfg_f_out.ratio_num *
-                                    num_bits >=
+                            if ((u64)cfg_f_out.f_pll_khz * cfg_f_out.ratio_num * num_bits >=
                                 (u64)cfg_f_out.ratio_den * 1250000) {
                                 break;
                             }
                         }
                     }
-                    f_sam_khz_plain =
-                        f_out_khz_plain * num_bits * (1 + synth_half_rate_mode);
-                    cfg_f_sam.f_pll_khz = cfg_f_out.f_pll_khz * num_bits *
-                                          (1 + synth_half_rate_mode);
+                    f_sam_khz_plain = f_out_khz_plain * num_bits * (1 + synth_half_rate_mode);
+                    cfg_f_sam.f_pll_khz =
+                        cfg_f_out.f_pll_khz * num_bits * (1 + synth_half_rate_mode);
                     cfg_f_sam.ratio_num = cfg_f_out.ratio_num;
                     cfg_f_sam.ratio_den = cfg_f_out.ratio_den;
                     for (i = 0; i < num_words / 2; i++) {
@@ -2288,12 +2173,10 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
                 clock towards the core configured*/
         use_clk_gen = FALSE;
         if (f_out_khz_plain > 400000) {
-            VTSS_E(
-                "Targeted parallel clock frequency to high. Must not be above 400 MHz");
+            VTSS_E("Targeted parallel clock frequency to high. Must not be above 400 MHz");
             return VTSS_RC_ERROR;
         } else if (f_out_khz_plain < 31250) {
-            VTSS_E(
-                "Targeted parallel clock frequency to low. Must not be below  31.25 MHz");
+            VTSS_E("Targeted parallel clock frequency to low. Must not be below  31.25 MHz");
             return VTSS_RC_ERROR;
         } else {
             if (f_out_khz_plain < 41667) {
@@ -2316,10 +2199,9 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
                 /*  333.3 MHz .. 400.0 MHz:  10G mode @ 20bit IW */
                 interface_width = 20;
             }
-            f_sam_khz_plain =
-                f_out_khz_plain * interface_width * (1 + synth_half_rate_mode);
-            cfg_f_sam.f_pll_khz = cfg_f_out.f_pll_khz * interface_width *
-                                  (1 + synth_half_rate_mode);
+            f_sam_khz_plain = f_out_khz_plain * interface_width * (1 + synth_half_rate_mode);
+            cfg_f_sam.f_pll_khz =
+                cfg_f_out.f_pll_khz * interface_width * (1 + synth_half_rate_mode);
             cfg_f_sam.ratio_num = cfg_f_out.ratio_num;
             cfg_f_sam.ratio_den = cfg_f_out.ratio_den;
         }
@@ -2331,10 +2213,9 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
     /* ##################################################################### */
     /* ##################################################################### */
 
-    if ((config.no_pwrcycle == 0) &&
-        ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
-         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
-         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU_B))) {
+    if ((config.no_pwrcycle == 0) && ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
+                                      (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
+                                      (config.chip_name == VTSS_SD10G65_CHIP_MALIBU_B))) {
         ret_val->pwrcycle[0] = 1;
     } else {
         ret_val->pwrcycle[0] = 0;
@@ -2377,31 +2258,19 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
 
     ret_val->hr_mode[0] = synth_half_rate_mode;
 
-    rslt |= sd10g65_synth_mult_calc(cfg_f_sam, config.chip_name,
-                                    &synth_mult_calc_rslt);
+    rslt |= sd10g65_synth_mult_calc(cfg_f_sam, config.chip_name, &synth_mult_calc_rslt);
 
-    ret_val->tx_synth_cfg0__synth_speed_sel[0] =
-        synth_mult_calc_rslt.synth_speed_sel;
-    ret_val->tx_synth_cfg0__synth_fbdiv_sel[0] =
-        synth_mult_calc_rslt.synth_fbdiv_sel;
-    ret_val->tx_synth_cfg3__synth_freqm_0[0] =
-        synth_mult_calc_rslt.synth_freqm_0;
-    ret_val->tx_synth_cfg4__synth_freqn_0[0] =
-        synth_mult_calc_rslt.synth_freqn_0;
-    ret_val->tx_synth_cfg1__synth_freqm_1[0] =
-        synth_mult_calc_rslt.synth_freqm_1;
-    ret_val->tx_synth_cfg1__synth_freqn_1[0] =
-        synth_mult_calc_rslt.synth_freqn_1;
-    ret_val->tx_synth_cfg1__synth_freq_mult_byp[0] =
-        synth_mult_calc_rslt.synth_freq_mult_byp;
-    ret_val->tx_synth_cfg1__synth_freq_mult_hi[0] =
-        synth_mult_calc_rslt.synth_freq_mult_hi;
-    ret_val->tx_synth_cfg1__synth_freq_mult[0] =
-        synth_mult_calc_rslt.synth_freq_mult;
-    ret_val->tx_synth_cfg0__synth_ls_speed[0] =
-        synth_mult_calc_rslt.tx_synth_ls_speed;
-    ret_val->tx_synth_cfg0__synth_cs_speed[0] =
-        synth_mult_calc_rslt.tx_synth_cs_speed;
+    ret_val->tx_synth_cfg0__synth_speed_sel[0] = synth_mult_calc_rslt.synth_speed_sel;
+    ret_val->tx_synth_cfg0__synth_fbdiv_sel[0] = synth_mult_calc_rslt.synth_fbdiv_sel;
+    ret_val->tx_synth_cfg3__synth_freqm_0[0] = synth_mult_calc_rslt.synth_freqm_0;
+    ret_val->tx_synth_cfg4__synth_freqn_0[0] = synth_mult_calc_rslt.synth_freqn_0;
+    ret_val->tx_synth_cfg1__synth_freqm_1[0] = synth_mult_calc_rslt.synth_freqm_1;
+    ret_val->tx_synth_cfg1__synth_freqn_1[0] = synth_mult_calc_rslt.synth_freqn_1;
+    ret_val->tx_synth_cfg1__synth_freq_mult_byp[0] = synth_mult_calc_rslt.synth_freq_mult_byp;
+    ret_val->tx_synth_cfg1__synth_freq_mult_hi[0] = synth_mult_calc_rslt.synth_freq_mult_hi;
+    ret_val->tx_synth_cfg1__synth_freq_mult[0] = synth_mult_calc_rslt.synth_freq_mult;
+    ret_val->tx_synth_cfg0__synth_ls_speed[0] = synth_mult_calc_rslt.tx_synth_ls_speed;
+    ret_val->tx_synth_cfg0__synth_cs_speed[0] = synth_mult_calc_rslt.tx_synth_cs_speed;
 
     if ((config.chip_name == VTSS_SD10G65_CHIP_VENICE) ||
         (config.chip_name == VTSS_SD10G65_CHIP_MALIBU) ||
@@ -2494,8 +2363,8 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
     for (ifw_tmp = 4; ifw_tmp < 6; ifw_tmp++) {
         ret_val->ob_cfg0__sel_ifw[ifw_tmp - 3] = ifw_tmp;
         for (tog_cnt = 0; tog_cnt < 2 * hrate_toggle_cnt; tog_cnt++) {
-            ret_val->tx_synth_cfg0__synth_hrate_ena
-                [2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt + tog_cnt] =
+            ret_val->tx_synth_cfg0__synth_hrate_ena[2 + (ifw_tmp - 4) * 2 * hrate_toggle_cnt +
+                                                    tog_cnt] =
                 (synth_half_rate_mode + tog_cnt + 1) % 2;
         }
     }
@@ -2525,20 +2394,16 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
     if (config.use_par_clk == FALSE) {
         if (use_clk_gen == TRUE) {
             ret_val->dft_clk_gen_cfg__cg_per_cfg[0] = clock_gen_period_half;
-            ret_val->dft_clk_gen_cfg__cg_per_jump_cfg[0] =
-                clock_gen_period_half;
+            ret_val->dft_clk_gen_cfg__cg_per_jump_cfg[0] = clock_gen_period_half;
             ret_val->dft_clk_gen_cfg__cg_dcd_cfg[0] = 0;
             ret_val->dft_clk_gen_cfg__cg_mode_cfg[0] = 0;
-            ret_val->dft_tx_cfg__tx_wid_sel_cfg[0] =
-                sd10g65_get_iw_setting(interface_width);
+            ret_val->dft_tx_cfg__tx_wid_sel_cfg[0] = sd10g65_get_iw_setting(interface_width);
             ret_val->dft_tx_cfg__opath_cfg[0] = 2;
             ret_val->dft_tx_cfg__dft_tx_ena[0] = 1;
         } else {
             ret_val->dft_tx_cfg__dft_tx_ena[0] = 1;
-            ret_val->dft_tx_cfg__tx_wid_sel_cfg[0] =
-                sd10g65_get_iw_setting(interface_width);
-            ret_val->dft_tx_cfg__tx_word_mode_cfg[0] =
-                (dft_word_mode == 8) ? 0 : 1;
+            ret_val->dft_tx_cfg__tx_wid_sel_cfg[0] = sd10g65_get_iw_setting(interface_width);
+            ret_val->dft_tx_cfg__tx_word_mode_cfg[0] = (dft_word_mode == 8) ? 0 : 1;
             ret_val->dft_tx_cfg__ipath_cfg[0] = 0;
             ret_val->dft_tx_cfg__scram_inv_cfg[0] = 1;
             ret_val->num_words[0] = num_words;

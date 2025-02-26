@@ -29,9 +29,8 @@
 #if defined(VTSS_ARCH_OCELOT)
 #include "vtss_ocelot_cil.h"
 
-static vtss_rc ocelot_pll5g_register_cfg(vtss_state_t *vtss_state,
-                                         vtss_pll5g_setup_struct_t
-                                             *const res_struct)
+static vtss_rc ocelot_pll5g_register_cfg(vtss_state_t                    *vtss_state,
+                                         vtss_pll5g_setup_struct_t *const res_struct)
 {
 
     vtss_rc rc = VTSS_RC_OK;
@@ -44,8 +43,7 @@ static vtss_rc ocelot_pll5g_register_cfg(vtss_state_t *vtss_state,
                  VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST);
 
         SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2,
-                 VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST(
-                     res_struct->pll5g_cfg2__gain_test[0]),
+                 VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST(res_struct->pll5g_cfg2__gain_test[0]),
                  VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST);
 
     } else {
@@ -58,8 +56,7 @@ static vtss_rc ocelot_pll5g_register_cfg(vtss_state_t *vtss_state,
 
         } else {
             SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG4,
-                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL(
-                         res_struct->pll5g_cfg4__ib_ctrl[0]),
+                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL(res_struct->pll5g_cfg4__ib_ctrl[0]),
                      VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL);
 
             SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0,
@@ -69,13 +66,13 @@ static vtss_rc ocelot_pll5g_register_cfg(vtss_state_t *vtss_state,
                      VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_ENA_VCO_CONTRH);
 
             SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0,
-                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES(
-                         res_struct->pll5g_cfg0__loop_bw_res[0]),
+                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES(res_struct
+                                                                      ->pll5g_cfg0__loop_bw_res[0]),
                      VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES);
 
             SRVL_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0,
-                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820(
-                         res_struct->pll5g_cfg0__selbgv820[0]),
+                     VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820(res_struct
+                                                                    ->pll5g_cfg0__selbgv820[0]),
                      VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820);
 
             u32 i_var;
@@ -102,8 +99,7 @@ static vtss_rc ocelot_pll5g_register_cfg(vtss_state_t *vtss_state,
                 }
             }
             if (value < 2) {
-                VTSS_E(
-                    "Failed to initialize LCPLL as the gain was not within limits");
+                VTSS_E("Failed to initialize LCPLL as the gain was not within limits");
             }
         }
     }
@@ -114,8 +110,7 @@ static vtss_rc ocelot_pll5g_register_cfg(vtss_state_t *vtss_state,
     return rc;
 }
 
-vtss_rc vtss_ocelot_pll5g_setup(vtss_state_t                 *vtss_state,
-                                const vtss_pll5g_setup_args_t config)
+vtss_rc vtss_ocelot_pll5g_setup(vtss_state_t *vtss_state, const vtss_pll5g_setup_args_t config)
 {
     vtss_pll5g_setup_struct_t calc_results;
     vtss_rc                   ret_val;

@@ -17,14 +17,9 @@ struct mesa_port_list_ref {
   public:
     mesa_port_list_ref(const mesa_port_list_ref &) = delete;
     mesa_port_list_ref &operator=(const mesa_port_list_ref &rhs);
-    mesa_port_list_ref(mesa_port_list_ref &&rhs)
-        : parent_(rhs.parent_), bit_idx(rhs.bit_idx)
-    {
-    }
+    mesa_port_list_ref(mesa_port_list_ref &&rhs) : parent_(rhs.parent_), bit_idx(rhs.bit_idx) {}
 
-    mesa_port_list_ref(mesa_port_list_t *p, size_t i) : parent_(p), bit_idx(i)
-    {
-    }
+    mesa_port_list_ref(mesa_port_list_t *p, size_t i) : parent_(p), bit_idx(i) {}
 
     operator bool() const;
     mesa_port_list_ref &operator=(bool b);
@@ -135,8 +130,7 @@ struct mesa_port_list_t {
 
     mesa_port_list_ref operator[](size_t bit)
     {
-        return static_cast<mesa_port_list_ref &&>(mesa_port_list_ref(this,
-                                                                     bit));
+        return static_cast<mesa_port_list_ref &&>(mesa_port_list_ref(this, bit));
     }
 
     const bool operator[](size_t bit) const { return get(bit); }
@@ -160,13 +154,9 @@ inline bool operator!=(const mesa_port_list_t &rhs, const mesa_port_list_t &lhs)
     return false;
 }
 
-inline mesa_port_list_ref::operator bool() const
-{
-    return parent_->get(bit_idx);
-}
+inline mesa_port_list_ref::operator bool() const { return parent_->get(bit_idx); }
 
-inline mesa_port_list_ref &mesa_port_list_ref::operator=(const mesa_port_list_ref
-                                                             &rhs)
+inline mesa_port_list_ref &mesa_port_list_ref::operator=(const mesa_port_list_ref &rhs)
 {
     parent_->set(bit_idx, (bool)rhs);
     return *this;
@@ -202,26 +192,18 @@ inline mesa_port_list_ref &mesa_port_list_ref::operator^=(bool b)
     return *this;
 }
 
-template <typename T, size_t size> inline size_t MESA_ARRSZ(T (&)[size])
-{
-    return size;
-}
+template <typename T, size_t size> inline size_t MESA_ARRSZ(T (&)[size]) { return size; }
 
 // TODO
 inline size_t MESA_ARRSZ(const mesa_port_list_t &t) { return 5; }
 
 // hacks...
-inline void memcpy(mesa_port_list_t &dst, const mesa_port_list_t &src, size_t)
-{
-    dst = src;
-}
+inline void memcpy(mesa_port_list_t &dst, const mesa_port_list_t &src, size_t) { dst = src; }
 
 void memcpy(void *dst, const mesa_port_list_t *src, size_t);
 void memcpy(mesa_port_list_t *dst, const void *src, size_t);
 
-inline int memcmp(const mesa_port_list_t &s1,
-                  const mesa_port_list_t &s2,
-                  size_t)
+inline int memcmp(const mesa_port_list_t &s1, const mesa_port_list_t &s2, size_t)
 {
     return memcmp(s1._private, s2._private, sizeof(s1._private));
 }
@@ -245,9 +227,7 @@ static inline void mesa_port_list_clear(mesa_port_list_t *l)
     memset(l->_private, 0, sizeof(l->_private));
 }
 
-static inline void mesa_port_list_set(mesa_port_list_t *l,
-                                      int               bit,
-                                      mesa_bool_t       val)
+static inline void mesa_port_list_set(mesa_port_list_t *l, int bit, mesa_bool_t val)
 {
     size_t  idx = bit / 8;
     size_t  mod = bit % 8;

@@ -11,8 +11,8 @@
 /* =================================================================
  *  EEE - Energy Efficient Ethernet
  * =================================================================*/
-static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
-                                    const vtss_port_no_t port_no,
+static vtss_rc fa_eee_port_conf_set(vtss_state_t                     *vtss_state,
+                                    const vtss_port_no_t              port_no,
                                     const vtss_eee_port_conf_t *const conf)
 {
     u32            closest_match_index, closest_match, i, requested_time;
@@ -30,8 +30,7 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
     if (!vtss_state->eee.timer_table_initialized) {
         vtss_state->eee.timer_table_initialized = TRUE;
         for (i = 0; i < VTSS_EEE_TIMER_TABLE_CNT; i++) {
-            vtss_state->eee.timer_table[i] =
-                (1 << (2 * (i / 16UL))) * (i % 16UL);
+            vtss_state->eee.timer_table[i] = (1 << (2 * (i / 16UL))) * (i % 16UL);
         }
     }
 
@@ -45,14 +44,11 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
         //  EEE in the MAC (No LPI signal to the PHY) when the PHY has auto
         //  negotiated and have found that the link partner supports EEE.
         if (conf->lp_advertisement == 0) {
-            VTSS_D(
-                "Link partner doesn't support EEE - Keeping EEE disabled. Port:%u",
-                chip_port);
+            VTSS_D("Link partner doesn't support EEE - Keeping EEE disabled. Port:%u", chip_port);
         } else if (!(vtss_state->port.conf[port_no].fdx)) {
             // EEE and Half duplex are not supposed to work together, so we
             // disables EEE in the case where the port is in HDX mode.
-            VTSS_D("EEE disabled due to that port is in HDX mode, port:%u",
-                   chip_port);
+            VTSS_D("EEE disabled due to that port is in HDX mode, port:%u", chip_port);
         } else {
             eee_cfg_reg |= VTSS_M_DEV1G_EEE_CFG_EEE_ENA;
         }
@@ -95,8 +91,8 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
                    VTSS_F_DEV1G_EEE_CFG_EEE_TIMER_AGE(eee_timer_age);
 
     // EEE fast queues
-    VTSS_N("eee_fast_queues:0x%X, to-dev:%d, chip_port:%d",
-           conf->eee_fast_queues, dev_tgt, chip_port);
+    VTSS_N("eee_fast_queues:0x%X, to-dev:%d, chip_port:%d", conf->eee_fast_queues, dev_tgt,
+           chip_port);
     REG_WRM(VTSS_QSYS_EEE_CFG(chip_port),
             VTSS_F_QSYS_EEE_CFG_EEE_FAST_QUEUES(conf->eee_fast_queues),
             VTSS_M_QSYS_EEE_CFG_EEE_FAST_QUEUES);
@@ -104,8 +100,8 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
     // Registers write
     VTSS_D("chip_port:%d, eee_cfg_reg:0x%X", chip_port, eee_cfg_reg);
     REG_WR(VTSS_DEV1G_EEE_CFG(dev_tgt), eee_cfg_reg);
-    VTSS_D("chip_port:%u, eee_cfg_reg = 0x%X, conf->tx_tw = %d, eee_timer_age:%d",
-           chip_port, eee_cfg_reg, conf->tx_tw, eee_timer_age);
+    VTSS_D("chip_port:%u, eee_cfg_reg = 0x%X, conf->tx_tw = %d, eee_timer_age:%d", chip_port,
+           eee_cfg_reg, conf->tx_tw, eee_timer_age);
 
     // Setting Buffer size to 12.2 Kbyte & 255 frames.
     REG_WR(VTSS_QSYS_EEE_THRES, 0xFFFF);
@@ -124,8 +120,7 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
 /* =================================================================
  * FAN speed control
  * =================================================================*/
-static vtss_rc fa_fan_controller_init(vtss_state_t                *vtss_state,
-                                      const vtss_fan_conf_t *const spec)
+static vtss_rc fa_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_conf_t *const spec)
 {
     u32                    pwm_freq;
     u32                    system_clock_freq = 625000000;
@@ -162,16 +157,12 @@ static vtss_rc fa_fan_controller_init(vtss_state_t                *vtss_state,
 
     // Set PWM frequency (System clock frequency)/(PWM frequency)/256)
     REG_WRM(VTSS_DEVCPU_GCB_PWM_FREQ,
-            VTSS_F_DEVCPU_GCB_PWM_FREQ_PWM_FREQ(system_clock_freq / pwm_freq /
-                                                256) |
-                VTSS_F_DEVCPU_GCB_PWM_FREQ_CLK_CYCLES_10US(system_clock_freq /
-                                                           100000),
-            VTSS_M_DEVCPU_GCB_PWM_FREQ_PWM_FREQ |
-                VTSS_M_DEVCPU_GCB_PWM_FREQ_CLK_CYCLES_10US);
+            VTSS_F_DEVCPU_GCB_PWM_FREQ_PWM_FREQ(system_clock_freq / pwm_freq / 256) |
+                VTSS_F_DEVCPU_GCB_PWM_FREQ_CLK_CYCLES_10US(system_clock_freq / 100000),
+            VTSS_M_DEVCPU_GCB_PWM_FREQ_PWM_FREQ | VTSS_M_DEVCPU_GCB_PWM_FREQ_CLK_CYCLES_10US);
 
     // Set PWM polarity
-    REG_WRM(VTSS_DEVCPU_GCB_FAN_CFG,
-            spec->fan_low_pol ? VTSS_M_DEVCPU_GCB_FAN_CFG_INV_POL : 0,
+    REG_WRM(VTSS_DEVCPU_GCB_FAN_CFG, spec->fan_low_pol ? VTSS_M_DEVCPU_GCB_FAN_CFG_INV_POL : 0,
             VTSS_M_DEVCPU_GCB_FAN_CFG_INV_POL);
 
     // Set PWM open collector
@@ -246,8 +237,7 @@ static vtss_rc fa_temp_sensor_init(vtss_state_t *vtss_state, const BOOL enable)
 #if defined(VTSS_ARCH_LAN969X)
     // Clock cycles per us
     REG_WRM(VTSS_CHIP_TOP_TEMP_SENSOR_CFG,
-            VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(
-                system_clock_freq_in_1us),
+            VTSS_F_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(system_clock_freq_in_1us),
             VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US);
 
     // Enable/Disable
@@ -256,8 +246,7 @@ static vtss_rc fa_temp_sensor_init(vtss_state_t *vtss_state, const BOOL enable)
 #else
     // Clock cycles per us
     REG_WRM(VTSS_HSIOWRAP_TEMP_SENSOR_CFG,
-            VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(
-                system_clock_freq_in_1us),
+            VTSS_F_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US(system_clock_freq_in_1us),
             VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US);
 
     // Enable/Disable
@@ -320,15 +309,13 @@ static vtss_rc fa_reg_write(vtss_state_t        *vtss_state,
     return vtss_fa_wr(vtss_state, addr, value);
 }
 
-vtss_rc vtss_fa_chip_id_get(vtss_state_t         *vtss_state,
-                            vtss_chip_id_t *const chip_id)
+vtss_rc vtss_fa_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
     u32 value;
 
     REG_RD(VTSS_DEVCPU_GCB_CHIP_ID, &value);
     if (value == 0 || value == 0xffffffff) {
-        VTSS_E("CPU interface[%u] error, chipid: 0x%08x", vtss_state->chip_no,
-               value);
+        VTSS_E("CPU interface[%u] error, chipid: 0x%08x", vtss_state->chip_no, value);
         return VTSS_RC_ERROR;
     }
     chip_id->part_number = VTSS_X_DEVCPU_GCB_CHIP_ID_PART_ID(value);
@@ -337,8 +324,7 @@ vtss_rc vtss_fa_chip_id_get(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_ptp_event_poll(vtss_state_t          *vtss_state,
-                                 vtss_ptp_event_type_t *ev_mask)
+static vtss_rc fa_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
     u32 sticky, mask;
 
@@ -349,24 +335,18 @@ static vtss_rc fa_ptp_event_poll(vtss_state_t          *vtss_state,
     REG_RD(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA, &mask);
     sticky &= mask; /* Only handle enabled sources */
 
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 0))
-                    ? VTSS_PTP_PIN_0_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 1))
-                    ? VTSS_PTP_PIN_1_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 2))
-                    ? VTSS_PTP_PIN_2_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 3))
-                    ? VTSS_PTP_PIN_3_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 4))
-                    ? VTSS_PTP_PIN_4_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 5))
-                    ? VTSS_PTP_PIN_5_SYNC_EV
-                    : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 0)) ? VTSS_PTP_PIN_0_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 1)) ? VTSS_PTP_PIN_1_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 2)) ? VTSS_PTP_PIN_2_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 3)) ? VTSS_PTP_PIN_3_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 4)) ? VTSS_PTP_PIN_4_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 5)) ? VTSS_PTP_PIN_5_SYNC_EV : 0;
     VTSS_D("sticky: 0x%x, ev_mask 0x%x", sticky, *ev_mask);
 
     return VTSS_RC_OK;
@@ -381,38 +361,32 @@ static vtss_rc fa_ptp_event_enable(vtss_state_t         *vtss_state,
 
     if (ev_mask & VTSS_PTP_PIN_0_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 0
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 0 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 0));
     }
     if (ev_mask & VTSS_PTP_PIN_1_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 1
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 1 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 1));
     }
     if (ev_mask & VTSS_PTP_PIN_2_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 2
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 2 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 2));
     }
     if (ev_mask & VTSS_PTP_PIN_3_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 3
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 3 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 3));
     }
     if (ev_mask & VTSS_PTP_PIN_4_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 4
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 4 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 4));
     }
     if (ev_mask & VTSS_PTP_PIN_5_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 5
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 5 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 5));
     }
     return VTSS_RC_OK;
@@ -537,9 +511,7 @@ static vtss_rc fa_misc_irq_cfg(vtss_state_t                *vtss_state,
     } else {
         switch (irq) {
         case VTSS_IRQ_SOFTWARE:
-            rc = fa_misc_irq_remap(vtss_state,
-                                   VTSS_BIT(FA_IRQ_SW0) | VTSS_BIT(FA_IRQ_SW1),
-                                   conf);
+            rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_SW0) | VTSS_BIT(FA_IRQ_SW1), conf);
             break;
         case VTSS_IRQ_PTP_RDY:
             rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_PTP_RDY), conf);
@@ -547,21 +519,15 @@ static vtss_rc fa_misc_irq_cfg(vtss_state_t                *vtss_state,
         case VTSS_IRQ_PTP_SYNC:
             rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_PTP_SYNC), conf);
             break;
-        case VTSS_IRQ_EXT0:
-            rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_EXT0), conf);
-            break;
+        case VTSS_IRQ_EXT0: rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_EXT0), conf); break;
         case VTSS_IRQ_SGPIO:
             rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_SGPIO1), conf);
             break;
         case VTSS_IRQ_SGPIO2:
             rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_SGPIO2), conf);
             break;
-        case VTSS_IRQ_EXT1:
-            rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_EXT1), conf);
-            break;
-        case VTSS_IRQ_GPIO:
-            rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_GPIO), conf);
-            break;
+        case VTSS_IRQ_EXT1:    rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_EXT1), conf); break;
+        case VTSS_IRQ_GPIO:    rc = fa_misc_irq_remap(vtss_state, VTSS_BIT(FA_IRQ_GPIO), conf); break;
         case VTSS_IRQ_DEV_ALL:
         default:               rc = VTSS_RC_ERROR;
         }
@@ -569,8 +535,7 @@ static vtss_rc fa_misc_irq_cfg(vtss_state_t                *vtss_state,
     return rc;
 }
 
-static vtss_rc fa_misc_irq_status(vtss_state_t      *vtss_state,
-                                  vtss_irq_status_t *status)
+static vtss_rc fa_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
 {
 #if defined(VTSS_ARCH_SPARX5)
     u32 val, uio_irqs, dest;
@@ -584,9 +549,8 @@ static vtss_rc fa_misc_irq_status(vtss_state_t      *vtss_state,
         // one can be read from
         // CPU_CFG:PCIE:PCIE_INTR_COMMON_CFG.LEGACY_MODE_INTR_SEL.
         REG_RD(VTSS_CPU_PCIE_INTR_COMMON_CFG(0), &val);
-        dest = VTSS_X_CPU_PCIE_INTR_COMMON_CFG_LEGACY_MODE_INTR_SEL(val) == 0
-                   ? FA_IRQ_DEST_EXT0
-                   : FA_IRQ_DEST_EXT1;
+        dest = VTSS_X_CPU_PCIE_INTR_COMMON_CFG_LEGACY_MODE_INTR_SEL(val) == 0 ? FA_IRQ_DEST_EXT0
+                                                                              : FA_IRQ_DEST_EXT1;
     } else {
         // Internal CPU interrupts are handled directly in the kernel through
         // device tree
@@ -644,15 +608,11 @@ static vtss_rc fa_misc_irq_status(vtss_state_t      *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_misc_irq_enable(vtss_state_t    *vtss_state,
-                                  const vtss_irq_t irq,
-                                  const BOOL       enable)
+static vtss_rc fa_misc_irq_enable(vtss_state_t *vtss_state, const vtss_irq_t irq, const BOOL enable)
 {
     u32 mask = 0;
     switch (irq) {
-    case VTSS_IRQ_SOFTWARE:
-        mask = VTSS_BIT(FA_IRQ_SW0) | VTSS_BIT(FA_IRQ_SW1);
-        break;
+    case VTSS_IRQ_SOFTWARE: mask = VTSS_BIT(FA_IRQ_SW0) | VTSS_BIT(FA_IRQ_SW1); break;
     case VTSS_IRQ_PTP_RDY:  mask = VTSS_BIT(FA_IRQ_PTP_RDY); break;
     case VTSS_IRQ_PTP_SYNC: mask = VTSS_BIT(FA_IRQ_PTP_SYNC); break;
     case VTSS_IRQ_EXT0:     mask = VTSS_BIT(FA_IRQ_EXT0); break;
@@ -695,9 +655,7 @@ static vtss_rc fa_poll_1sec(vtss_state_t *vtss_state)
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_POLL);
 }
 
-vtss_rc fa_mdio_conf_set(vtss_state_t                 *vtss_state,
-                         u8                            ctrl_id,
-                         const vtss_mdio_conf_t *const conf)
+vtss_rc fa_mdio_conf_set(vtss_state_t *vtss_state, u8 ctrl_id, const vtss_mdio_conf_t *const conf)
 {
     u32 val;
     u32 clk = vtss_state->init_conf.core_clock.freq;
@@ -720,8 +678,7 @@ vtss_rc fa_mdio_conf_set(vtss_state_t                 *vtss_state,
     }
 
     val = clk / (conf->miim_freq * 2) - 1;
-    REG_WRM(VTSS_DEVCPU_GCB_MII_CFG(ctrl_id),
-            VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_CFG_PRESCALE(val),
+    REG_WRM(VTSS_DEVCPU_GCB_MII_CFG(ctrl_id), VTSS_F_DEVCPU_GCB_MII_CFG_MIIM_CFG_PRESCALE(val),
             VTSS_M_DEVCPU_GCB_MII_CFG_MIIM_CFG_PRESCALE);
 
     return VTSS_RC_OK;
@@ -989,8 +946,7 @@ static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
         }
         /* Enable/disable mapping globally */
         BOOL ena = sd_map->action == VTSS_SD_SGPIO_MAP_ENABLE ? TRUE : FALSE;
-        REG_WRM(VTSS_DEVCPU_GCB_HW_SGPIO_SD_CFG,
-                VTSS_F_DEVCPU_GCB_HW_SGPIO_SD_CFG_SD_MAP_SEL(ena),
+        REG_WRM(VTSS_DEVCPU_GCB_HW_SGPIO_SD_CFG, VTSS_F_DEVCPU_GCB_HW_SGPIO_SD_CFG_SD_MAP_SEL(ena),
                 VTSS_M_DEVCPU_GCB_HW_SGPIO_SD_CFG_SD_MAP_SEL);
         if (!ena) {
             return VTSS_RC_OK;
@@ -1014,8 +970,7 @@ static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
             return VTSS_RC_ERROR;
         }
 #endif
-        REG_WR(VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(VTSS_CHIP_PORT(port_no)),
-               bit_index);
+        REG_WR(VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(VTSS_CHIP_PORT(port_no)), bit_index);
     }
     return VTSS_RC_OK;
 }
@@ -1140,8 +1095,7 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t                  *vtss_state,
         switch (conf->bmode[i]) {
         case VTSS_SGPIO_BMODE_TOGGLE:
             if (i == 0) {
-                VTSS_E("blink mode 0 does not support TOGGLE (group:%d)",
-                       group);
+                VTSS_E("blink mode 0 does not support TOGGLE (group:%d)", group);
                 return VTSS_RC_ERROR;
             }
             bmode[i] = 3;
@@ -1165,10 +1119,8 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t                  *vtss_state,
              VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP(0) |
              VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH(conf->bit_count - 1) |
              VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT(1));
-    mask = (VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0 |
-            VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1 |
-            VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP |
-            VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH |
+    mask = (VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0 | VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1 |
+            VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP | VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT);
 #if defined(VTSS_ARCH_SPARX5)
     REG_WR(VTSS_DEVCPU_GCB_SIO_PORT_ENA(group), val);
@@ -1178,8 +1130,7 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t                  *vtss_state,
             // VTSS_CORE_CLOCK_250MHZ -> SIO clock = 250MHz / 50 =  5   MHz
             // VTSS_CORE_CLOCK_500MHZ -> SIO clock = 500MHz / 50 = 10   MHz
             // VTSS_CORE_CLOCK_625MHZ -> SIO clock = 625MHz / 50 = 12.5 MHz
-            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(50),
-            VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
+            VTSS_F_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ(50), VTSS_M_DEVCPU_GCB_SIO_CLOCK_SIO_CLK_FREQ);
 #else
     REG_WR(VTSS_DEVCPU_GCB_SIO_PORT_ENA, val);
     REG_WRM(VTSS_DEVCPU_GCB_SIO_CFG, value, mask);
@@ -1210,24 +1161,18 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t                  *vtss_state,
         REG_RD(VTSS_DEVCPU_GCB_SIO_PORT_CFG(port), &val);
 #endif
         for (pol = 0, bit_idx = 0; bit_idx < 4; bit_idx++) {
-            if (conf->port_conf[port].mode[bit_idx] ==
-                VTSS_SGPIO_MODE_NO_CHANGE) {
+            if (conf->port_conf[port].mode[bit_idx] == VTSS_SGPIO_MODE_NO_CHANGE) {
                 continue;
             }
             /* Set output bit n */
-            if (conf->port_conf[port].mode[bit_idx] ==
-                VTSS_SGPIO_MODE_0_ACTIVITY_INV) {
-                val |= VTSS_ENCODE_BITFIELD(VTSS_SGPIO_MODE_0_ACTIVITY,
-                                            (bit_idx * 3), 3);
+            if (conf->port_conf[port].mode[bit_idx] == VTSS_SGPIO_MODE_0_ACTIVITY_INV) {
+                val |= VTSS_ENCODE_BITFIELD(VTSS_SGPIO_MODE_0_ACTIVITY, (bit_idx * 3), 3);
                 pol |= (1 << bit_idx); // Inversed polarity
-            } else if (conf->port_conf[port].mode[bit_idx] ==
-                       VTSS_SGPIO_MODE_1_ACTIVITY_INV) {
-                val |= VTSS_ENCODE_BITFIELD(VTSS_SGPIO_MODE_1_ACTIVITY,
-                                            (bit_idx * 3), 3);
+            } else if (conf->port_conf[port].mode[bit_idx] == VTSS_SGPIO_MODE_1_ACTIVITY_INV) {
+                val |= VTSS_ENCODE_BITFIELD(VTSS_SGPIO_MODE_1_ACTIVITY, (bit_idx * 3), 3);
                 pol |= (1 << bit_idx); // Inversed polarity
             } else {
-                val |= VTSS_ENCODE_BITFIELD(conf->port_conf[port].mode[bit_idx],
-                                            (bit_idx * 3), 3);
+                val |= VTSS_ENCODE_BITFIELD(conf->port_conf[port].mode[bit_idx], (bit_idx * 3), 3);
             }
 
             // Setup the interrupt polarity
@@ -1238,8 +1183,8 @@ static vtss_rc fa_sgpio_conf_set(vtss_state_t                  *vtss_state,
 #else
             REG_WRM(VTSS_DEVCPU_GCB_SIO_INTR_POL(bit_idx), value, mask);
 #endif
-            VTSS_N("group:%d, port:%d, bit_idx:%d, int_pol_high:%d", group,
-                   port, bit_idx, pol_high);
+            VTSS_N("group:%d, port:%d, bit_idx:%d, int_pol_high:%d", group, port, bit_idx,
+                   pol_high);
         }
         value = (VTSS_F_DEVCPU_GCB_SIO_PORT_CFG_PWM_SOURCE(0) | // While PCB-134
                                                                 // is unstable
@@ -1281,14 +1226,10 @@ static vtss_rc fa_sgpio_read(vtss_state_t            *vtss_state,
 /* - Debug print --------------------------------------------------- */
 #if VTSS_OPT_DEBUG_PRINT
 
-#define FA_DEBUG_GPIO(ss, addr, name)                                          \
-    FA_DEBUG_REG_NAME(ss, DEVCPU_GCB, GPIO_##addr, "GPIO_" name)
-#define FA_DEBUG_SIO(ss, addr, name)                                           \
-    FA_DEBUG_REG_NAME(ss, DEVCPU_GCB, SIO_##addr, "SIO_" name)
-#define FA_DEBUG_SIO_INST(ss, addr, i, name)                                   \
-    vtss_fa_debug_reg_inst(vtss_state, ss,                                     \
-                           REG_ADDR(VTSS_DEVCPU_GCB_SIO_##addr), i,            \
-                           "SIO_" name)
+#define FA_DEBUG_GPIO(ss, addr, name) FA_DEBUG_REG_NAME(ss, DEVCPU_GCB, GPIO_##addr, "GPIO_" name)
+#define FA_DEBUG_SIO(ss, addr, name)  FA_DEBUG_REG_NAME(ss, DEVCPU_GCB, SIO_##addr, "SIO_" name)
+#define FA_DEBUG_SIO_INST(ss, addr, i, name)                                                       \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_GCB_SIO_##addr), i, "SIO_" name)
 #define FA_DEBUG_TGT(ss, name) jr_debug_tgt(ss, #name, VTSS_TO_##name)
 
 static vtss_rc fa_debug_misc(vtss_state_t                  *vtss_state,
@@ -1377,8 +1318,7 @@ vtss_rc vtss_fa_misc_debug_print(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, fa_debug_misc,
-                                   vtss_state, ss, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, fa_debug_misc, vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 #endif

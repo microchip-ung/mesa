@@ -83,10 +83,7 @@ struct vtss_lan966x_vcap_es0_key_vid {
 };
 
 /* Enumeration of all keys */
-enum vtss_lan966x_vcap_es0_key {
-    VTSS_LAN966X_VCAP_ES0_KEY_VID,
-    VTSS_LAN966X_VCAP_ES0_KEY_LAST
-};
+enum vtss_lan966x_vcap_es0_key { VTSS_LAN966X_VCAP_ES0_KEY_VID, VTSS_LAN966X_VCAP_ES0_KEY_LAST };
 
 /* Union of all key structs */
 struct vtss_lan966x_vcap_es0_key_fields {

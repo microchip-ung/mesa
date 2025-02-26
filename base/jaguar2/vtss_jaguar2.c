@@ -15,46 +15,33 @@
 static vtss_rc jr2_wr_indirect(vtss_state_t *vtss_state, u32 addr, u32 value);
 static vtss_rc jr2_rd_indirect(vtss_state_t *vtss_state, u32 addr, u32 *value);
 
-vtss_rc (*vtss_jr2_wr)(vtss_state_t *vtss_state,
-                       u32           addr,
-                       u32           value) = jr2_wr_indirect;
-vtss_rc (*vtss_jr2_rd)(vtss_state_t *vtss_state,
-                       u32           addr,
-                       u32          *value) = jr2_rd_indirect;
+vtss_rc (*vtss_jr2_wr)(vtss_state_t *vtss_state, u32 addr, u32 value) = jr2_wr_indirect;
+vtss_rc (*vtss_jr2_rd)(vtss_state_t *vtss_state, u32 addr, u32 *value) = jr2_rd_indirect;
 
 /* Read target register using current CPU interface */
-static inline vtss_rc jr2_rd_direct(vtss_state_t *vtss_state,
-                                    u32           reg,
-                                    u32          *value)
+static inline vtss_rc jr2_rd_direct(vtss_state_t *vtss_state, u32 reg, u32 *value)
 {
     return vtss_state->init_conf.reg_read(0, reg, value);
 }
 
 /* Write target register using current CPU interface */
-static inline vtss_rc jr2_wr_direct(vtss_state_t *vtss_state,
-                                    u32           reg,
-                                    u32           value)
+static inline vtss_rc jr2_wr_direct(vtss_state_t *vtss_state, u32 reg, u32 value)
 {
     return vtss_state->init_conf.reg_write(0, reg, value);
 }
 
-static inline BOOL jr2_reg_directly_accessible(vtss_state_t *vtss_state,
-                                               u32           addr)
+static inline BOOL jr2_reg_directly_accessible(vtss_state_t *vtss_state, u32 addr)
 {
     /* Using SPI, VCoreIII registers require indirect access.
      * Otherwise, all registers are directly accessible.
      */
     return vtss_state->init_conf.spi_bus
-               ? (addr >=
-                  ((VTSS_IO_ORIGIN2_OFFSET - VTSS_IO_ORIGIN1_OFFSET) >> 2))
+               ? (addr >= ((VTSS_IO_ORIGIN2_OFFSET - VTSS_IO_ORIGIN1_OFFSET) >> 2))
                : TRUE;
 }
 
 /* Read or write register indirectly */
-static vtss_rc jr2_reg_indirect_access(vtss_state_t *vtss_state,
-                                       u32           addr,
-                                       u32          *value,
-                                       BOOL          is_write)
+static vtss_rc jr2_reg_indirect_access(vtss_state_t *vtss_state, u32 addr, u32 *value, BOOL is_write)
 {
     /* The following access must be executed atomically, and since this function
      * may be called without the API lock taken, we have to disable the
@@ -78,42 +65,37 @@ static vtss_rc jr2_reg_indirect_access(vtss_state_t *vtss_state,
 
     VTSS_OS_SCHEDULER_LOCK(flags);
 
-    if ((result = vtss_jr2_wr(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_ADDR,
-                              addr)) != VTSS_RC_OK) {
+    if ((result = vtss_jr2_wr(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_ADDR, addr)) !=
+        VTSS_RC_OK) {
         goto do_exit;
     }
     if (is_write) {
-        if ((result =
-                 vtss_jr2_wr(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA,
-                             *value)) != VTSS_RC_OK) {
+        if ((result = vtss_jr2_wr(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA, *value)) !=
+            VTSS_RC_OK) {
             goto do_exit;
         }
         // Wait for operation to complete
         do {
-            if ((result = vtss_jr2_rd(vtss_state,
-                                      VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL,
-                                      &ctrl)) != VTSS_RC_OK) {
+            if ((result = vtss_jr2_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL, &ctrl)) !=
+                VTSS_RC_OK) {
                 goto do_exit;
             }
         } while (ctrl & VTSS_M_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL_VA_BUSY);
     } else {
         // Dummy read to initiate access
-        if ((result =
-                 vtss_jr2_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA,
-                             value)) != VTSS_RC_OK) {
+        if ((result = vtss_jr2_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA, value)) !=
+            VTSS_RC_OK) {
             goto do_exit;
         }
         // Wait for operation to complete
         do {
-            if ((result = vtss_jr2_rd(vtss_state,
-                                      VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL,
-                                      &ctrl)) != VTSS_RC_OK) {
+            if ((result = vtss_jr2_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL, &ctrl)) !=
+                VTSS_RC_OK) {
                 goto do_exit;
             }
         } while (ctrl & VTSS_M_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL_VA_BUSY);
-        if ((result =
-                 vtss_jr2_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA,
-                             value)) != VTSS_RC_OK) {
+        if ((result = vtss_jr2_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA, value)) !=
+            VTSS_RC_OK) {
             goto do_exit;
         }
     }
@@ -172,8 +154,7 @@ u64 vtss_jr2_port_mask(vtss_state_t *vtss_state, const BOOL member[])
     vtss_port_no_t port_no;
     u64            pmask = 0;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (member[port_no]) {
             pmask |= vtss_jr2_pmask(VTSS_CHIP_PORT(port_no));
         }
@@ -198,8 +179,7 @@ u32 vtss_jr2_vtss_pgid(const vtss_state_t *const state, u32 pgid)
     const vtss_port_map_t *pmap;
 
     if (pgid < VTSS_CHIP_PORTS) {
-        for (port_no = VTSS_PORT_NO_START; port_no < state->port_count;
-             port_no++) {
+        for (port_no = VTSS_PORT_NO_START; port_no < state->port_count; port_no++) {
             pmap = &state->port.map[port_no];
             if (pmap->chip_port == pgid)
                 break;
@@ -227,13 +207,12 @@ static void jr2_evc_counter_update(u32                       frames,
     }
 }
 
-static vtss_rc jr2_evc_isdx_counter_update(vtss_state_t *vtss_state,
-                                           u32           idx,
-                                           u32           i,
-                                           vtss_chip_counter_pair_t
-                                                               *chip_counter,
-                                           vtss_counter_pair_t *evc_counter,
-                                           BOOL                 clear)
+static vtss_rc jr2_evc_isdx_counter_update(vtss_state_t             *vtss_state,
+                                           u32                       idx,
+                                           u32                       i,
+                                           vtss_chip_counter_pair_t *chip_counter,
+                                           vtss_counter_pair_t      *evc_counter,
+                                           BOOL                      clear)
 {
     u32 frames, lsb, msb;
 
@@ -248,12 +227,11 @@ static vtss_rc jr2_evc_isdx_counter_update(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_evc_qsys_counter_update(vtss_state_t *vtss_state,
-                                           u32           addr,
-                                           vtss_chip_counter_pair_t
-                                                               *chip_counter,
-                                           vtss_counter_pair_t *evc_counter,
-                                           BOOL                 clear)
+static vtss_rc jr2_evc_qsys_counter_update(vtss_state_t             *vtss_state,
+                                           u32                       addr,
+                                           vtss_chip_counter_pair_t *chip_counter,
+                                           vtss_counter_pair_t      *evc_counter,
+                                           BOOL                      clear)
 {
     u32 frames, lsb, msb;
 
@@ -289,32 +267,22 @@ vtss_rc vtss_jr2_sdx_counters_update(vtss_state_t              *vtss_state,
         /* ISDX counters */
         c = &vtss_state->l2.sdx_info.sdx_table[idx];
         VTSS_RC(jr2_evc_isdx_counter_update(vtss_state, idx, 0, &c->rx_green,
-                                            cnt == NULL ? NULL : &cnt->rx_green,
-                                            clr));
+                                            cnt == NULL ? NULL : &cnt->rx_green, clr));
         VTSS_RC(jr2_evc_isdx_counter_update(vtss_state, idx, 1, &c->rx_yellow,
-                                            cnt == NULL ? NULL
-                                                        : &cnt->rx_yellow,
-                                            clr));
+                                            cnt == NULL ? NULL : &cnt->rx_yellow, clr));
         VTSS_RC(jr2_evc_isdx_counter_update(vtss_state, idx, 2, &c->rx_red,
-                                            cnt == NULL ? NULL : &cnt->rx_red,
-                                            clr));
+                                            cnt == NULL ? NULL : &cnt->rx_red, clr));
 
         /* QSYS counters */
 #if defined(VTSS_ARCH_JAGUAR_2_C)
-        JR2_WR(VTSS_XQS_SYSTEM_STAT_CFG,
-               VTSS_F_XQS_SYSTEM_STAT_CFG_STAT_VIEW(idx));
+        JR2_WR(VTSS_XQS_SYSTEM_STAT_CFG, VTSS_F_XQS_SYSTEM_STAT_CFG_STAT_VIEW(idx));
 #else
-        JR2_WR(VTSS_QSYS_SYSTEM_STAT_CFG,
-               VTSS_F_QSYS_SYSTEM_STAT_CFG_STAT_VIEW(idx));
+        JR2_WR(VTSS_QSYS_SYSTEM_STAT_CFG, VTSS_F_QSYS_SYSTEM_STAT_CFG_STAT_VIEW(idx));
 #endif
         VTSS_RC(jr2_evc_qsys_counter_update(vtss_state, 512, &c->rx_discard,
-                                            cnt == NULL ? NULL
-                                                        : &cnt->rx_discard,
-                                            clr));
+                                            cnt == NULL ? NULL : &cnt->rx_discard, clr));
         VTSS_RC(jr2_evc_qsys_counter_update(vtss_state, 513, &c->tx_discard,
-                                            cnt == NULL ? NULL
-                                                        : &cnt->rx_discard,
-                                            clr));
+                                            cnt == NULL ? NULL : &cnt->rx_discard, clr));
     }
 
     /* Update egress counters, if active */
@@ -323,19 +291,14 @@ vtss_rc vtss_jr2_sdx_counters_update(vtss_state_t              *vtss_state,
     if (row->size != 0 && row->col[row->size * ((idx % 8) / row->size)].used) {
         c = &vtss_state->l2.sdx_info.sdx_table[idx];
 #if defined(VTSS_ARCH_JAGUAR_2_C)
-        JR2_WR(VTSS_XQS_SYSTEM_STAT_CFG,
-               VTSS_F_XQS_SYSTEM_STAT_CFG_STAT_VIEW(idx));
+        JR2_WR(VTSS_XQS_SYSTEM_STAT_CFG, VTSS_F_XQS_SYSTEM_STAT_CFG_STAT_VIEW(idx));
 #else
-        JR2_WR(VTSS_QSYS_SYSTEM_STAT_CFG,
-               VTSS_F_QSYS_SYSTEM_STAT_CFG_STAT_VIEW(idx));
+        JR2_WR(VTSS_QSYS_SYSTEM_STAT_CFG, VTSS_F_QSYS_SYSTEM_STAT_CFG_STAT_VIEW(idx));
 #endif
         VTSS_RC(jr2_evc_qsys_counter_update(vtss_state, 768, &c->tx_green,
-                                            cnt == NULL ? NULL : &cnt->tx_green,
-                                            clr));
+                                            cnt == NULL ? NULL : &cnt->tx_green, clr));
         VTSS_RC(jr2_evc_qsys_counter_update(vtss_state, 769, &c->tx_yellow,
-                                            cnt == NULL ? NULL
-                                                        : &cnt->tx_yellow,
-                                            clr));
+                                            cnt == NULL ? NULL : &cnt->tx_yellow, clr));
     }
     return VTSS_RC_OK;
 }
@@ -346,19 +309,15 @@ vtss_rc vtss_cil_l2_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
     u32 pol_max = (sdx->pol_cnt ? (sdx->pol_cnt - 1) : 0);
     u32 stat_max = (sdx->stat_cnt ? (sdx->stat_cnt - 1) : 0);
 
-    JR2_WR(VTSS_ANA_L2_ISDX_DLB_CFG(isdx),
-           VTSS_F_ANA_L2_ISDX_DLB_CFG_DLB_IDX(sdx->pol_idx));
+    JR2_WR(VTSS_ANA_L2_ISDX_DLB_CFG(isdx), VTSS_F_ANA_L2_ISDX_DLB_CFG_DLB_IDX(sdx->pol_idx));
     JR2_WR(VTSS_ANA_L2_ISDX_ISDX_BASE_CFG(isdx),
            VTSS_F_ANA_L2_ISDX_ISDX_BASE_CFG_ISDX_BASE_ADDR(sdx->stat_idx));
     for (cosid = 0; cosid < 8; cosid++) {
         JR2_WR(VTSS_ANA_L2_ISDX_DLB_COS_CFG(isdx, cosid),
-               VTSS_F_ANA_L2_ISDX_DLB_COS_CFG_DLB_COS_OFFSET(cosid <= pol_max
-                                                                 ? cosid
-                                                                 : pol_max));
+               VTSS_F_ANA_L2_ISDX_DLB_COS_CFG_DLB_COS_OFFSET(cosid <= pol_max ? cosid : pol_max));
         JR2_WR(VTSS_ANA_L2_ISDX_ISDX_COS_CFG(isdx, cosid),
-               VTSS_F_ANA_L2_ISDX_ISDX_COS_CFG_ISDX_COS_OFFSET(cosid <= stat_max
-                                                                   ? cosid
-                                                                   : stat_max));
+               VTSS_F_ANA_L2_ISDX_ISDX_COS_CFG_ISDX_COS_OFFSET(cosid <= stat_max ? cosid
+                                                                                 : stat_max));
     }
     return VTSS_RC_OK;
 }
@@ -369,9 +328,7 @@ vtss_rc vtss_cil_l2_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
  *  Debug print utility functions
  * ================================================================= */
 
-void vtss_jr2_debug_print_port_header(vtss_state_t *vtss_state,
-                                      lmu_ss_t     *ss,
-                                      const char   *txt)
+void vtss_jr2_debug_print_port_header(vtss_state_t *vtss_state, lmu_ss_t *ss, const char *txt)
 {
     vtss_debug_print_port_header(vtss_state, ss, txt, VTSS_CHIP_PORTS + 1, 1);
 }
@@ -381,8 +338,7 @@ void vtss_jr2_debug_print_pmask(lmu_ss_t *ss, u64 pmask)
     u32 port;
 
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        pr("%s%s", port == 0 || (port & 7) ? "" : ".",
-           (vtss_jr2_pmask(port) & pmask) ? "1" : "0");
+        pr("%s%s", port == 0 || (port & 7) ? "" : ".", (vtss_jr2_pmask(port) & pmask) ? "1" : "0");
     }
     pr("\n");
 }
@@ -395,17 +351,13 @@ void vtss_jr2_debug_reg_header(lmu_ss_t *ss, const char *name)
     vtss_debug_print_reg_header(ss, buf.s);
 }
 
-void vtss_jr2_debug_reg(vtss_state_t *vtss_state,
-                        lmu_ss_t     *ss,
-                        u32           addr,
-                        const char   *name)
+void vtss_jr2_debug_reg(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 addr, const char *name)
 {
     u32           value;
     lmu_fmt_buf_t buf;
 
     if (vtss_jr2_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
-        VTSS_FMT(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f,
-                 addr & 0x3fff);
+        VTSS_FMT(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f, addr & 0x3fff);
         vtss_debug_print_reg(ss, buf.s, value);
     }
 }
@@ -472,10 +424,7 @@ static void jr2_debug_reg_clr(vtss_state_t *vtss_state,
     }
 } // jr2_debug_reg_clr
 
-void vtss_jr2_debug_sticky(vtss_state_t *vtss_state,
-                           lmu_ss_t     *ss,
-                           u32           addr,
-                           const char   *name)
+void vtss_jr2_debug_sticky(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 addr, const char *name)
 {
     jr2_debug_reg_clr(vtss_state, ss, addr, name, 1);
 } // vtss_jr2_debug_sticky
@@ -601,9 +550,8 @@ static jr2_cal_speed_t jr2_cal_speed_get(vtss_state_t  *vtss_state,
 
     case VTSS_BW_UNDEFINED:
     default:
-        VTSS_E(
-            "port_no = %u (chip_port = %u): In the port map, but with undefined B/W.",
-            port_no, *port);
+        VTSS_E("port_no = %u (chip_port = %u): In the port map, but with undefined B/W.", port_no,
+               *port);
         break;
     }
 
@@ -631,12 +579,9 @@ static vtss_rc jr2_calendar_auto(vtss_state_t *vtss_state)
             continue;
         }
 
-        this_bw = (spd == JR2_CAL_SPEED_1G    ? 1000
-                   : spd == JR2_CAL_SPEED_2G5 ? 2500
-                                              : 10000);
+        this_bw = (spd == JR2_CAL_SPEED_1G ? 1000 : spd == JR2_CAL_SPEED_2G5 ? 2500 : 10000);
         bw += this_bw;
-        VTSS_D("chip_port = %u, this_bw = %u, summed bw = %u", port, this_bw,
-               bw);
+        VTSS_D("chip_port = %u, this_bw = %u, summed bw = %u", port, this_bw, bw);
         cal[port / 16] += (spd << ((port % 16) * 2));
     }
 
@@ -681,8 +626,7 @@ static vtss_rc jr2_calendar_auto(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) ||          \
-    defined(VTSS_CALENDAR_CALC)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_CALENDAR_CALC)
 static vtss_rc jr2_calendar_do_set(vtss_state_t *vtss_state,
                                    u8           *cal,
                                    u32           length,
@@ -700,8 +644,7 @@ static vtss_rc jr2_calendar_do_set(vtss_state_t *vtss_state,
     JR2_WRM(VTSS_QSYS_CALCFG_CAL_CTRL,
             VTSS_F_QSYS_CALCFG_CAL_CTRL_CAL_MODE(10) |
                 VTSS_F_QSYS_CALCFG_CAL_CTRL_CAL_VD_USE_IDLE_ENA(1),
-            VTSS_M_QSYS_CALCFG_CAL_CTRL_CAL_MODE |
-                VTSS_M_QSYS_CALCFG_CAL_CTRL_CAL_VD_USE_IDLE_ENA);
+            VTSS_M_QSYS_CALCFG_CAL_CTRL_CAL_MODE | VTSS_M_QSYS_CALCFG_CAL_CTRL_CAL_VD_USE_IDLE_ENA);
 #else
     // JR2C + ServalT
 
@@ -717,8 +660,7 @@ static vtss_rc jr2_calendar_do_set(vtss_state_t *vtss_state,
 #endif
 
     /* Enable calendar update */
-    JR2_WRM(VTSS_QSYS_CALCFG_CAL_SEQ,
-            VTSS_F_QSYS_CALCFG_CAL_SEQ_CAL_SEQ_PGM_ENA(1),
+    JR2_WRM(VTSS_QSYS_CALCFG_CAL_SEQ, VTSS_F_QSYS_CALCFG_CAL_SEQ_CAL_SEQ_PGM_ENA(1),
             VTSS_M_QSYS_CALCFG_CAL_SEQ_CAL_SEQ_PGM_ENA);
 
     VTSS_NSLEEP(100);
@@ -747,7 +689,7 @@ static vtss_rc jr2_calendar_do_set(vtss_state_t *vtss_state,
     VTSS_I("Manual calendar applied");
     return VTSS_RC_OK;
 }
-#endif /* defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) ||    \
+#endif /* defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) ||                        \
           defined(VTSS_CALENDAR_CALC) */
 
 #if defined(VTSS_ARCH_JAGUAR_2_B)
@@ -761,56 +703,46 @@ static vtss_rc jr2_calendar_set(vtss_state_t *vtss_state)
     /* Calendar of length 335 found for configuration "TOP_CFG=10" (4x10G
      * 16x2.5G 1x1G): (from TOE) */
     u8 cal_1[] = {
-        63, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51,
-        49, 50, 52, 18, 11, 17, 10, 20, 51, 49, 50, 52, 9,  16, 8,  48, 51, 49,
-        50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 56, 51, 49, 50,
-        52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  54, 51, 49, 50, 52,
-        15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 63, 51, 49, 50, 52, 18, 11,
-        21, 10, 20, 51, 49, 50, 52, 17, 9,  16, 8,  51, 49, 50, 52, 15, 19, 14,
-        23, 51, 49, 50, 52, 13, 22, 12, 21, 48, 51, 49, 50, 52, 18, 11, 17, 10,
-        51, 49, 50, 52, 9,  16, 20, 8,  53, 51, 49, 50, 52, 15, 19, 14, 23, 51,
-        49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51, 49,
-        50, 52, 9,  16, 8,  63, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52,
-        13, 22, 12, 21, 56, 51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,
-        16, 20, 8,  48, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22,
-        12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51, 49, 50, 52, 9,  16, 8,
-        54, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 63,
-        51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  48, 51,
-        49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50,
-        52, 18, 11, 17, 10, 20, 51, 49, 50, 52, 9,  16, 8,  56, 51, 49, 50, 52,
-        15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 53, 51, 49, 50, 52, 18,
-        11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8};
+        63, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11,
+        17, 10, 20, 51, 49, 50, 52, 9,  16, 8,  48, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52,
+        13, 22, 12, 21, 56, 51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  54, 51,
+        49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 63, 51, 49, 50, 52, 18, 11, 21, 10,
+        20, 51, 49, 50, 52, 17, 9,  16, 8,  51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22,
+        12, 21, 48, 51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  53, 51, 49, 50,
+        52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51,
+        49, 50, 52, 9,  16, 8,  63, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21,
+        56, 51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  48, 51, 49, 50, 52, 15,
+        19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51, 49, 50,
+        52, 9,  16, 8,  54, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 63, 51,
+        49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  48, 51, 49, 50, 52, 15, 19, 14,
+        23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51, 49, 50, 52, 9,
+        16, 8,  56, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 53, 51, 49, 50,
+        52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8};
 
     /* Calendar of length 335 found for configuration "TOP_CFG=11" (2x10G
      * 24x2.5G 1x1G): (from TOE) */
     u8 cal_2[] = {
-        63, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49,
-        50, 26, 22, 25, 17, 9,  21, 29, 49, 50, 24, 20, 28, 16, 8,  48, 49, 50,
-        15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 56, 49, 50, 26,
-        22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  54, 49, 50, 15, 19,
-        14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 63, 49, 50, 10, 26, 22, 25,
-        17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  49, 50, 15, 19, 14, 31, 13,
-        23, 49, 50, 27, 12, 30, 11, 18, 10, 48, 49, 50, 26, 22, 25, 17, 9,  21,
-        49, 50, 24, 29, 20, 28, 16, 8,  53, 49, 50, 15, 19, 14, 31, 13, 23, 49,
-        50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49, 50,
-        24, 20, 28, 16, 8,  63, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12,
-        30, 11, 18, 10, 56, 49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20,
-        28, 16, 8,  48, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11,
-        18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49, 50, 24, 20, 28, 16, 8,
-        54, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 63,
-        49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  48, 49,
-        50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26,
-        22, 25, 17, 9,  21, 29, 49, 50, 24, 20, 28, 16, 8,  56, 49, 50, 15, 19,
-        14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 53, 49, 50, 26, 22, 25,
-        17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8};
+        63, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17,
+        9,  21, 29, 49, 50, 24, 20, 28, 16, 8,  48, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12,
+        30, 11, 18, 10, 56, 49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  54, 49,
+        50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 63, 49, 50, 10, 26, 22, 25, 17, 9,
+        21, 49, 50, 24, 29, 20, 28, 16, 8,  49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11,
+        18, 10, 48, 49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  53, 49, 50, 15,
+        19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49,
+        50, 24, 20, 28, 16, 8,  63, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10,
+        56, 49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  48, 49, 50, 15, 19, 14,
+        31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49, 50, 24,
+        20, 28, 16, 8,  54, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 63, 49,
+        50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  48, 49, 50, 15, 19, 14, 31, 13,
+        23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49, 50, 24, 20, 28,
+        16, 8,  56, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 53, 49, 50, 26,
+        22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8};
 
     if (vtss_state->init_conf.mux_mode == VTSS_PORT_MUX_MODE_0) {
-        VTSS_I(
-            "4x10 + 16x2.5 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_0)");
+        VTSS_I("4x10 + 16x2.5 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_0)");
         cal_p = cal_1; // VTSS_PORT_MUX_MODE_0, 4x10 + 16x2.5 + NPI
     } else {
-        VTSS_I(
-            "2x10 + 24x2.5 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_1)");
+        VTSS_I("2x10 + 24x2.5 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_1)");
         cal_p = cal_2; // VTSS_PORT_MUX_MODE_1, 2x10 + 24x2.5 + NPI
     }
 
@@ -827,87 +759,72 @@ static vtss_rc jr2_calendar_set(vtss_state_t *vtss_state)
     /* Calendar (from TOE) of length 335 for 4x10G 16x2.5G 1x1G CPU0(53)=750Mb +
      * CPU1(54)=250Mb + VD0(55)=0 VD1(56)=750Mb  */
     u8 cal_1[] = {
-        63, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51,
-        49, 50, 52, 18, 11, 17, 10, 20, 51, 49, 50, 52, 9,  16, 8,  48, 51, 49,
-        50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 53, 51, 49, 50,
-        52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  56, 51, 49, 50, 52,
-        15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 63, 51, 49, 50, 52, 18, 11,
-        21, 10, 20, 51, 49, 50, 52, 17, 9,  16, 8,  51, 49, 50, 52, 15, 19, 14,
-        23, 51, 49, 50, 52, 13, 22, 12, 21, 48, 51, 49, 50, 52, 18, 11, 17, 10,
-        51, 49, 50, 52, 9,  16, 20, 8,  56, 51, 49, 50, 52, 15, 19, 14, 23, 51,
-        49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51, 49,
-        50, 52, 9,  16, 8,  63, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52,
-        13, 22, 12, 21, 53, 51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,
-        16, 20, 8,  48, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22,
-        12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51, 49, 50, 52, 9,  16, 8,
-        54, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 63,
-        51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  48, 51,
-        49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50,
-        52, 18, 11, 17, 10, 20, 51, 49, 50, 52, 9,  16, 8,  53, 51, 49, 50, 52,
-        15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 56, 51, 49, 50, 52, 18,
-        11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8};
+        63, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11,
+        17, 10, 20, 51, 49, 50, 52, 9,  16, 8,  48, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52,
+        13, 22, 12, 21, 53, 51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  56, 51,
+        49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 63, 51, 49, 50, 52, 18, 11, 21, 10,
+        20, 51, 49, 50, 52, 17, 9,  16, 8,  51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22,
+        12, 21, 48, 51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  56, 51, 49, 50,
+        52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51,
+        49, 50, 52, 9,  16, 8,  63, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21,
+        53, 51, 49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  48, 51, 49, 50, 52, 15,
+        19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51, 49, 50,
+        52, 9,  16, 8,  54, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 63, 51,
+        49, 50, 52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8,  48, 51, 49, 50, 52, 15, 19, 14,
+        23, 51, 49, 50, 52, 13, 22, 12, 21, 51, 49, 50, 52, 18, 11, 17, 10, 20, 51, 49, 50, 52, 9,
+        16, 8,  53, 51, 49, 50, 52, 15, 19, 14, 23, 51, 49, 50, 52, 13, 22, 12, 21, 56, 51, 49, 50,
+        52, 18, 11, 17, 10, 51, 49, 50, 52, 9,  16, 20, 8};
 
     /* Calendar (from TOE) of length 335 for 2x10G 24x2.5G 1x1G CPU0(53)=750Mb +
      * CPU1(54)=250Mb + VD0(55)=0 VD1(56)=750Mb  */
     u8 cal_2[] = {
-        63, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49,
-        50, 26, 22, 25, 17, 9,  21, 29, 49, 50, 24, 20, 28, 16, 8,  48, 49, 50,
-        15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 56, 49, 50, 26,
-        22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  53, 49, 50, 15, 19,
-        14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 63, 49, 50, 10, 26, 22, 25,
-        17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  49, 50, 15, 19, 14, 31, 13,
-        23, 49, 50, 27, 12, 30, 11, 18, 10, 48, 49, 50, 26, 22, 25, 17, 9,  21,
-        49, 50, 24, 29, 20, 28, 16, 8,  53, 49, 50, 15, 19, 14, 31, 13, 23, 49,
-        50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49, 50,
-        24, 20, 28, 16, 8,  63, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12,
-        30, 11, 18, 10, 56, 49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20,
-        28, 16, 8,  48, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11,
-        18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49, 50, 24, 20, 28, 16, 8,
-        54, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 63,
-        49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  48, 49,
-        50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26,
-        22, 25, 17, 9,  21, 29, 49, 50, 24, 20, 28, 16, 8,  56, 49, 50, 15, 19,
-        14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 53, 49, 50, 26, 22, 25,
-        17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8};
+        63, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17,
+        9,  21, 29, 49, 50, 24, 20, 28, 16, 8,  48, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12,
+        30, 11, 18, 10, 56, 49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  53, 49,
+        50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 63, 49, 50, 10, 26, 22, 25, 17, 9,
+        21, 49, 50, 24, 29, 20, 28, 16, 8,  49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11,
+        18, 10, 48, 49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  53, 49, 50, 15,
+        19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49,
+        50, 24, 20, 28, 16, 8,  63, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10,
+        56, 49, 50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  48, 49, 50, 15, 19, 14,
+        31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49, 50, 24,
+        20, 28, 16, 8,  54, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 63, 49,
+        50, 26, 22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8,  48, 49, 50, 15, 19, 14, 31, 13,
+        23, 49, 50, 27, 12, 30, 11, 18, 10, 49, 50, 26, 22, 25, 17, 9,  21, 29, 49, 50, 24, 20, 28,
+        16, 8,  56, 49, 50, 15, 19, 14, 31, 13, 23, 49, 50, 27, 12, 30, 11, 18, 10, 53, 49, 50, 26,
+        22, 25, 17, 9,  21, 49, 50, 24, 29, 20, 28, 16, 8};
 
     /* Calendar (from TOE) of length 373 for 4x10G + 48x1G + NPI +
      * CPU0(53)=750Mb + CPU1(54)=250Mb + VD0(55)/VD1(56)=1G.  */
     u8 cal_3[] = {
-        63, 51, 49, 50, 52, 15, 35, 39, 47, 38, 51, 49, 50, 52, 46, 34, 14, 33,
-        37, 51, 49, 50, 52, 13, 45, 48, 36, 12, 51, 49, 50, 52, 44, 32, 43, 23,
-        27, 7,  51, 49, 50, 52, 3,  19, 31, 11, 22, 51, 49, 50, 52, 42, 6,  26,
-        2,  30, 51, 49, 50, 52, 18, 10, 5,  25, 17, 9,  51, 49, 50, 52, 29, 21,
-        41, 1,  8,  51, 49, 50, 52, 55, 4,  0,  28, 56, 51, 49, 50, 52, 40, 16,
-        20, 53, 24, 63, 51, 49, 50, 52, 15, 35, 39, 47, 38, 51, 49, 50, 52, 46,
-        34, 14, 33, 37, 51, 49, 50, 52, 13, 45, 48, 36, 12, 54, 51, 49, 50, 52,
-        44, 32, 43, 23, 27, 51, 49, 50, 52, 7,  3,  19, 31, 11, 51, 49, 50, 52,
-        42, 22, 6,  26, 2,  30, 51, 49, 50, 52, 18, 10, 5,  25, 9,  51, 49, 50,
-        52, 17, 21, 29, 41, 1,  51, 49, 50, 52, 8,  55, 4,  0,  28, 56, 51, 49,
-        50, 52, 40, 16, 20, 53, 63, 51, 49, 50, 52, 15, 35, 39, 47, 38, 51, 49,
-        50, 52, 46, 34, 14, 33, 37, 24, 51, 49, 50, 52, 13, 45, 48, 36, 12, 51,
-        49, 50, 52, 44, 32, 43, 23, 27, 51, 49, 50, 52, 7,  3,  19, 31, 11, 22,
-        51, 49, 50, 52, 42, 6,  26, 2,  30, 51, 49, 50, 52, 18, 10, 5,  25, 9,
-        51, 49, 50, 52, 17, 21, 29, 41, 1,  8,  51, 49, 50, 52, 55, 4,  0,  28,
-        56, 51, 49, 50, 52, 40, 16, 20, 53, 63, 51, 49, 50, 52, 15, 35, 39, 47,
-        38, 24, 51, 49, 50, 52, 46, 34, 14, 33, 37, 51, 49, 50, 52, 13, 45, 48,
-        36, 12, 51, 49, 50, 52, 44, 32, 43, 23, 27, 7,  51, 49, 50, 52, 3,  19,
-        31, 11, 22, 51, 49, 50, 52, 42, 6,  26, 2,  30, 51, 49, 50, 52, 18, 10,
-        5,  25, 17, 9,  51, 49, 50, 52, 29, 21, 41, 1,  8,  51, 49, 50, 52, 55,
-        4,  0,  28, 56, 51, 49, 50, 52, 40, 16, 20, 53, 24};
+        63, 51, 49, 50, 52, 15, 35, 39, 47, 38, 51, 49, 50, 52, 46, 34, 14, 33, 37, 51, 49, 50,
+        52, 13, 45, 48, 36, 12, 51, 49, 50, 52, 44, 32, 43, 23, 27, 7,  51, 49, 50, 52, 3,  19,
+        31, 11, 22, 51, 49, 50, 52, 42, 6,  26, 2,  30, 51, 49, 50, 52, 18, 10, 5,  25, 17, 9,
+        51, 49, 50, 52, 29, 21, 41, 1,  8,  51, 49, 50, 52, 55, 4,  0,  28, 56, 51, 49, 50, 52,
+        40, 16, 20, 53, 24, 63, 51, 49, 50, 52, 15, 35, 39, 47, 38, 51, 49, 50, 52, 46, 34, 14,
+        33, 37, 51, 49, 50, 52, 13, 45, 48, 36, 12, 54, 51, 49, 50, 52, 44, 32, 43, 23, 27, 51,
+        49, 50, 52, 7,  3,  19, 31, 11, 51, 49, 50, 52, 42, 22, 6,  26, 2,  30, 51, 49, 50, 52,
+        18, 10, 5,  25, 9,  51, 49, 50, 52, 17, 21, 29, 41, 1,  51, 49, 50, 52, 8,  55, 4,  0,
+        28, 56, 51, 49, 50, 52, 40, 16, 20, 53, 63, 51, 49, 50, 52, 15, 35, 39, 47, 38, 51, 49,
+        50, 52, 46, 34, 14, 33, 37, 24, 51, 49, 50, 52, 13, 45, 48, 36, 12, 51, 49, 50, 52, 44,
+        32, 43, 23, 27, 51, 49, 50, 52, 7,  3,  19, 31, 11, 22, 51, 49, 50, 52, 42, 6,  26, 2,
+        30, 51, 49, 50, 52, 18, 10, 5,  25, 9,  51, 49, 50, 52, 17, 21, 29, 41, 1,  8,  51, 49,
+        50, 52, 55, 4,  0,  28, 56, 51, 49, 50, 52, 40, 16, 20, 53, 63, 51, 49, 50, 52, 15, 35,
+        39, 47, 38, 24, 51, 49, 50, 52, 46, 34, 14, 33, 37, 51, 49, 50, 52, 13, 45, 48, 36, 12,
+        51, 49, 50, 52, 44, 32, 43, 23, 27, 7,  51, 49, 50, 52, 3,  19, 31, 11, 22, 51, 49, 50,
+        52, 42, 6,  26, 2,  30, 51, 49, 50, 52, 18, 10, 5,  25, 17, 9,  51, 49, 50, 52, 29, 21,
+        41, 1,  8,  51, 49, 50, 52, 55, 4,  0,  28, 56, 51, 49, 50, 52, 40, 16, 20, 53, 24};
 
     if (vtss_state->init_conf.mux_mode == VTSS_PORT_MUX_MODE_0) {
-        VTSS_I(
-            "4x10 + 16x2.5 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_0)");
+        VTSS_I("4x10 + 16x2.5 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_0)");
         cal_length = 335;
         cal_p = cal_1;
     } else if (vtss_state->init_conf.mux_mode == VTSS_PORT_MUX_MODE_1) {
-        VTSS_I(
-            "2x10 + 24x2.5 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_1)");
+        VTSS_I("2x10 + 24x2.5 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_1)");
         cal_length = 335;
         cal_p = cal_2;
     } else if (vtss_state->init_conf.mux_mode == VTSS_PORT_MUX_MODE_2) {
-        VTSS_I(
-            "4x10 + 48x1 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_2)");
+        VTSS_I("4x10 + 48x1 + NPI is configured for calendar (VTSS_PORT_MUX_MODE_2)");
         cal_length = 373;
         cal_p = cal_3;
     } else {
@@ -965,10 +882,8 @@ typedef struct {
     u32 cbc_len;
     u32 max_bw;
     u32 clk_period_ps;
-    u32 dsm_bytes_below_wm_mul_100[CBC_PORT_TYPE_LAST]
-                                  [CBC_SPEED_LAST]; // Scaled by a factor 100
-    u32 dsm_cells_above_wm_mul_100[CBC_PORT_TYPE_LAST]
-                                  [CBC_SPEED_LAST]; // Scaled by a factor 100
+    u32 dsm_bytes_below_wm_mul_100[CBC_PORT_TYPE_LAST][CBC_SPEED_LAST]; // Scaled by a factor 100
+    u32 dsm_cells_above_wm_mul_100[CBC_PORT_TYPE_LAST][CBC_SPEED_LAST]; // Scaled by a factor 100
     cbc_rtl_port_cfg_t port_cfg[CBC_IDLE + 1];
 } cbc_rtl_cfg_t;
 #endif /* defined(VTSS_CALENDAR_CALC) */
@@ -980,9 +895,9 @@ typedef struct cbc_req_port_cfg_s {
     // Filled in by calculator
     u32             slot_cnt;
     cbc_port_type_t port_type;
-    u32 ideal_slot_dist_mul_1000; // Multiplied by 1000 to get rid of decimals
-    u32 eth_speed;                // Mbps
-    u32 chip_port;
+    u32             ideal_slot_dist_mul_1000; // Multiplied by 1000 to get rid of decimals
+    u32             eth_speed;                // Mbps
+    u32             chip_port;
     struct cbc_req_port_cfg_s *next_port_in_grp;
     struct cbc_req_port_cfg_s *next_port_in_taxi;
 } cbc_req_port_cfg_t;
@@ -1000,8 +915,7 @@ typedef struct {
 
 #if defined(VTSS_CALENDAR_CALC)
 #if defined(VTSS_ARCH_SERVAL_T)
-static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
-                                        cbc_rtl_cfg_t *rtl_cfg)
+static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t *vtss_state, cbc_rtl_cfg_t *rtl_cfg)
 {
     u32                 max_bw_1g, max_bw_2g5, min_slot_dist_default = 5;
     cbc_rtl_port_cfg_t *port_cfg;
@@ -1026,8 +940,7 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
         4 * 100 * FFL_DSM_BUF_WM_2G5;
     rtl_cfg->dsm_bytes_below_wm_mul_100[CBC_PORT_TYPE_ETH][CBC_SPEED_10000] =
         4 * 100 * FFL_DSM_BUF_WM_10G;
-    rtl_cfg->dsm_bytes_below_wm_mul_100[CBC_PORT_TYPE_VD][CBC_SPEED_NA] =
-        512 * 100; // 16 * 64 / 2
+    rtl_cfg->dsm_bytes_below_wm_mul_100[CBC_PORT_TYPE_VD][CBC_SPEED_NA] = 512 * 100; // 16 * 64 / 2
     rtl_cfg->dsm_bytes_below_wm_mul_100[CBC_PORT_TYPE_CPU][CBC_SPEED_NA] =
         4 * 100 * FFL_DSM_BUF_WM_1G;
 
@@ -1041,8 +954,7 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
     rtl_cfg->dsm_cells_above_wm_mul_100[CBC_PORT_TYPE_ETH][CBC_SPEED_10000] =
         (4 * 100 * (FFL_DSM_BUF_SIZE_10G - FFL_DSM_BUF_WM_10G)) /
         208; // (4 * (576 - 201)) / 208 = 7.2115
-    rtl_cfg->dsm_cells_above_wm_mul_100[CBC_PORT_TYPE_VD][CBC_SPEED_NA] =
-        8 * 100; // 16 / 2
+    rtl_cfg->dsm_cells_above_wm_mul_100[CBC_PORT_TYPE_VD][CBC_SPEED_NA] = 8 * 100; // 16 / 2
     rtl_cfg->dsm_cells_above_wm_mul_100[CBC_PORT_TYPE_CPU][CBC_SPEED_NA] =
         (4 * 100 * (FFL_DSM_BUF_SIZE_1G - FFL_DSM_BUF_WM_1G)) /
         208; // (4 * (288 - 117)) / 208 = 1.75
@@ -1053,8 +965,7 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
 #undef FFL_DSM_BUF_SIZE_2G5
 #undef FFL_DSM_BUF_SIZE_10G
 
-#define MAX_SPEED_FACTOR                                                       \
-    1367 /* 64 / ((172 - 28 + 1 - 42) / 2) * 1.1 = 1.36699 */
+#define MAX_SPEED_FACTOR 1367 /* 64 / ((172 - 28 + 1 - 42) / 2) * 1.1 = 1.36699 */
     max_bw_1g = (1000 * MAX_SPEED_FACTOR) / 1000;
     max_bw_2g5 = (2500 * MAX_SPEED_FACTOR) / 1000;
 #undef MAX_SPEED_FACTOR
@@ -1065,8 +976,8 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
         port_cfg->port_type = CBC_PORT_TYPE_ETH;
         port_cfg->min_slot_dist = min_slot_dist_default;
 
-        if (chip_port == 2 || chip_port == 3 || chip_port == 7 ||
-            chip_port == 8 || chip_port == 10) {
+        if (chip_port == 2 || chip_port == 3 || chip_port == 7 || chip_port == 8 ||
+            chip_port == 10) {
             port_cfg->taxi_num = 1;
         } else {
             port_cfg->taxi_num = 0;
@@ -1103,8 +1014,7 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
     port_cfg->taxi_num = 90;
     port_cfg->port_type = CBC_PORT_TYPE_VD;
     port_cfg->min_slot_dist = 14;
-    port_cfg->max_line_speed =
-        rtl_cfg->max_bw / port_cfg->min_slot_dist; // 7464
+    port_cfg->max_line_speed = rtl_cfg->max_bw / port_cfg->min_slot_dist; // 7464
     port_cfg->max_cbc_bw = port_cfg->max_line_speed;
     port_cfg->best_effort = TRUE;
 
@@ -1112,8 +1022,7 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
     port_cfg->taxi_num = 91;
     port_cfg->port_type = CBC_PORT_TYPE_VD;
     port_cfg->min_slot_dist = min_slot_dist_default;
-    port_cfg->max_line_speed =
-        rtl_cfg->max_bw / port_cfg->min_slot_dist; // 10450
+    port_cfg->max_line_speed = rtl_cfg->max_bw / port_cfg->min_slot_dist; // 10450
     port_cfg->max_cbc_bw = port_cfg->max_line_speed;
     port_cfg->best_effort = TRUE;
 
@@ -1128,8 +1037,7 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
 }
 #else
 // JR2
-static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
-                                        cbc_rtl_cfg_t *rtl_cfg)
+static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t *vtss_state, cbc_rtl_cfg_t *rtl_cfg)
 {
     u32                 max_bw_1g, max_bw_2g5, min_slot_dist_default = 7;
     cbc_rtl_port_cfg_t *port_cfg;
@@ -1175,8 +1083,7 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
     rtl_cfg->dsm_cells_above_wm_mul_100[CBC_PORT_TYPE_CPU][CBC_SPEED_NA] =
         1067; // 16       * 2 / (          3) = 10.6667
 
-#define MAX_SPEED_FACTOR                                                       \
-    1367 /* 64 / ((172 - 28 + 1 - 42) / 2) * 1.1 = 1.36699 */
+#define MAX_SPEED_FACTOR 1367 /* 64 / ((172 - 28 + 1 - 42) / 2) * 1.1 = 1.36699 */
     max_bw_1g = (1000 * MAX_SPEED_FACTOR) / 1000;
     max_bw_2g5 = (2500 * MAX_SPEED_FACTOR) / 1000;
 #undef MAX_SPEED_FACTOR
@@ -1213,9 +1120,8 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
         } else if (chip_port >= 49) {
             port_cfg->max_line_speed = 10000;
             port_cfg->max_cbc_bw =
-                rtl_cfg->max_bw /
-                port_cfg->min_slot_dist; // Make it independent of clock speed
-                                         // by calculating it.
+                rtl_cfg->max_bw / port_cfg->min_slot_dist; // Make it independent of clock speed
+                                                           // by calculating it.
         } else {
             port_cfg->max_line_speed = 1000;
             port_cfg->max_cbc_bw = max_bw_1g;
@@ -1243,9 +1149,8 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
     port_cfg->min_slot_dist = 9;
     port_cfg->max_line_speed = 9333;
     port_cfg->max_cbc_bw =
-        rtl_cfg->max_bw /
-        port_cfg->min_slot_dist; // Make it independent of clock speed by
-                                 // calculating it.
+        rtl_cfg->max_bw / port_cfg->min_slot_dist; // Make it independent of clock speed by
+                                                   // calculating it.
     port_cfg->best_effort = TRUE;
 
     port_cfg = &rtl_cfg->port_cfg[VTSS_CHIP_PORT_VD1];
@@ -1254,9 +1159,8 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
     port_cfg->min_slot_dist = min_slot_dist_default;
     port_cfg->max_line_speed = 12000;
     port_cfg->max_cbc_bw =
-        rtl_cfg->max_bw /
-        port_cfg->min_slot_dist; // Make it independent of clock speed by
-                                 // calculating it.
+        rtl_cfg->max_bw / port_cfg->min_slot_dist; // Make it independent of clock speed by
+                                                   // calculating it.
     port_cfg->best_effort = TRUE;
 
     port_cfg = &rtl_cfg->port_cfg[CBC_IDLE];
@@ -1272,8 +1176,7 @@ static vtss_rc jr2_calendar_rtl_cfg_get(vtss_state_t  *vtss_state,
 #endif /* defined(VTSS_CALENDAR_CALC) */
 
 #if defined(VTSS_CALENDAR_CALC)
-static vtss_rc jr2_calendar_req_cfg_init(vtss_state_t  *vtss_state,
-                                         cbc_req_cfg_t *req_cfg)
+static vtss_rc jr2_calendar_req_cfg_init(vtss_state_t *vtss_state, cbc_req_cfg_t *req_cfg)
 {
     u32 vd1_bw = vtss_state->init_conf.loopback_bw_mbps;
 
@@ -1365,10 +1268,9 @@ static vtss_rc jr2_cbc_dist(cbc_rtl_cfg_t      *rtl_cfg,
                             u32                 pos_right,
                             u32                *dist)
 {
-    if (!jr2_cbc_slot_free(cbc, pos_left) &&
-        cbc->cbc[pos_left] != port_cfg->chip_port) {
-        VTSS_E("Internal Error: port = %u, CBC[port_left] = %hu",
-               port_cfg->chip_port, cbc->cbc[pos_left]);
+    if (!jr2_cbc_slot_free(cbc, pos_left) && cbc->cbc[pos_left] != port_cfg->chip_port) {
+        VTSS_E("Internal Error: port = %u, CBC[port_left] = %hu", port_cfg->chip_port,
+               cbc->cbc[pos_left]);
         return VTSS_RC_ERROR;
     }
 
@@ -1438,9 +1340,7 @@ static vtss_rc jr2_cbc_slot_acceptable(cbc_rtl_cfg_t      *rtl_cfg,
 #endif /* defined(VTSS_CALENDAR_CALC) */
 
 #if defined(VTSS_CALENDAR_CALC)
-static vtss_rc jr2_cbc_assign_slot(cbc_req_port_cfg_t *port_cfg,
-                                   vtss_calendar_t    *cbc,
-                                   u32                 pos)
+static vtss_rc jr2_cbc_assign_slot(cbc_req_port_cfg_t *port_cfg, vtss_calendar_t *cbc, u32 pos)
 {
     VTSS_D("Assigning cbc[%u] = %u", pos, port_cfg->chip_port);
     cbc->cbc[pos] = port_cfg->chip_port;
@@ -1457,29 +1357,25 @@ static vtss_rc jr2_cbc_find_slot(cbc_rtl_cfg_t      *rtl_cfg,
                                  u32                *pos_found)
 {
     // Find acceptable slot and return slot number.
-    BOOL best_effort = rtl_cfg->port_cfg[port_cfg->chip_port].best_effort,
-         acceptable;
-    u32 dist_from_ideal, dist_from_ideal_max;
+    BOOL best_effort = rtl_cfg->port_cfg[port_cfg->chip_port].best_effort, acceptable;
+    u32  dist_from_ideal, dist_from_ideal_max;
 
     // Round dist_from_ideal up to gain some flexibility.
     // This may result in illegal CBC, but that should be caught by acceptance
     // check.
-    dist_from_ideal_max =
-        (port_cfg->ideal_slot_dist_mul_1000 + 999 -
-         rtl_cfg->port_cfg[port_cfg->chip_port].min_slot_dist * 1000) /
-        1000;
+    dist_from_ideal_max = (port_cfg->ideal_slot_dist_mul_1000 + 999 -
+                           rtl_cfg->port_cfg[port_cfg->chip_port].min_slot_dist * 1000) /
+                          1000;
     if (best_effort) {
         dist_from_ideal_max = rtl_cfg->cbc_len / 2;
     }
 
     VTSS_D(
         "ideal_slot_dist_mul_1000 = %u, MIN_SLOT_DIST=%u, port=%u, pos_ideal=%u, dist_from_ideal_max=%u ",
-        port_cfg->ideal_slot_dist_mul_1000,
-        rtl_cfg->port_cfg[port_cfg->chip_port].min_slot_dist,
+        port_cfg->ideal_slot_dist_mul_1000, rtl_cfg->port_cfg[port_cfg->chip_port].min_slot_dist,
         port_cfg->chip_port, pos_ideal, dist_from_ideal_max);
 
-    for (dist_from_ideal = 1; dist_from_ideal <= dist_from_ideal_max;
-         dist_from_ideal++) {
+    for (dist_from_ideal = 1; dist_from_ideal <= dist_from_ideal_max; dist_from_ideal++) {
         int i;
 
         // For each dist_from_ideal, try both pos_ideal, pos_ideal -
@@ -1492,16 +1388,14 @@ static vtss_rc jr2_cbc_find_slot(cbc_rtl_cfg_t      *rtl_cfg,
                 continue;
             }
 
-            pos = jr2_cbc_pos_calc(rtl_cfg->cbc_len,
-                                   i == 0   ? pos_ideal
-                                   : i == 1 ? (pos_ideal - dist_from_ideal)
-                                            : (pos_ideal + dist_from_ideal));
+            pos = jr2_cbc_pos_calc(rtl_cfg->cbc_len, i == 0   ? pos_ideal
+                                                     : i == 1 ? (pos_ideal - dist_from_ideal)
+                                                              : (pos_ideal + dist_from_ideal));
 
             VTSS_D("Trying %u", pos);
 
             if (jr2_cbc_slot_free(cbc, pos)) {
-                VTSS_RC(jr2_cbc_slot_acceptable(rtl_cfg, port_cfg, cbc, pos,
-                                                &acceptable));
+                VTSS_RC(jr2_cbc_slot_acceptable(rtl_cfg, port_cfg, cbc, pos, &acceptable));
                 if (acceptable) {
                     *pos_found = pos;
                     return VTSS_RC_OK;
@@ -1535,9 +1429,7 @@ static vtss_rc jr2_cbc_free_port_slots(cbc_rtl_cfg_t      *rtl_cfg,
 #endif /* defined(VTSS_CALENDAR_CALC) */
 
 #if defined(VTSS_CALENDAR_CALC)
-static int jr2_cbc_next_free_slot(cbc_rtl_cfg_t   *rtl_cfg,
-                                  vtss_calendar_t *cbc,
-                                  int              pos)
+static int jr2_cbc_next_free_slot(cbc_rtl_cfg_t *rtl_cfg, vtss_calendar_t *cbc, int pos)
 {
     int i;
 
@@ -1560,8 +1452,7 @@ static vtss_rc jr2_cbc_assign_slots(cbc_rtl_cfg_t      *rtl_cfg,
                                     cbc_req_port_cfg_t *port_cfg,
                                     vtss_calendar_t    *cbc)
 {
-    u32 ideal_slot_dist_mul_1000 = port_cfg->ideal_slot_dist_mul_1000,
-        attempts = 0;
+    u32 ideal_slot_dist_mul_1000 = port_cfg->ideal_slot_dist_mul_1000, attempts = 0;
     int pos_start = -1;
 
     VTSS_D_HEX(cbc->cbc, rtl_cfg->cbc_len);
@@ -1573,8 +1464,7 @@ static vtss_rc jr2_cbc_assign_slots(cbc_rtl_cfg_t      *rtl_cfg,
         attempts++;
 
         // First slot
-        VTSS_RC(jr2_cbc_slot_acceptable(rtl_cfg, port_cfg, cbc, pos_start,
-                                        &acceptable));
+        VTSS_RC(jr2_cbc_slot_acceptable(rtl_cfg, port_cfg, cbc, pos_start, &acceptable));
         if (!acceptable) {
             continue;
         }
@@ -1586,13 +1476,10 @@ static vtss_rc jr2_cbc_assign_slots(cbc_rtl_cfg_t      *rtl_cfg,
         while (slot_cnt) {
             u32 pos_ideal =
                 jr2_cbc_pos_calc(rtl_cfg->cbc_len,
-                                 pos_start +
-                                     (ideal_slot_dist_mul_1000 * assign_cnt) /
-                                         1000);
+                                 pos_start + (ideal_slot_dist_mul_1000 * assign_cnt) / 1000);
             u32 pos_found = -1;
 
-            VTSS_RC(jr2_cbc_find_slot(rtl_cfg, port_cfg, cbc, pos_ideal,
-                                      pos_prv, &pos_found));
+            VTSS_RC(jr2_cbc_find_slot(rtl_cfg, port_cfg, cbc, pos_ideal, pos_prv, &pos_found));
 
             if (pos_found != -1) {
                 VTSS_RC(jr2_cbc_assign_slot(port_cfg, cbc, pos_found));
@@ -1601,8 +1488,8 @@ static vtss_rc jr2_cbc_assign_slots(cbc_rtl_cfg_t      *rtl_cfg,
                 pos_prv = pos_found;
             } else {
                 VTSS_RC(jr2_cbc_free_port_slots(rtl_cfg, port_cfg, cbc));
-                VTSS_D("Failed for port %u in attempt #%u with pos_start = %d",
-                       port_cfg->chip_port, attempts, pos_start);
+                VTSS_D("Failed for port %u in attempt #%u with pos_start = %d", port_cfg->chip_port,
+                       attempts, pos_start);
                 done = FALSE;
                 break;
             }
@@ -1614,15 +1501,13 @@ static vtss_rc jr2_cbc_assign_slots(cbc_rtl_cfg_t      *rtl_cfg,
     }
 
     // If we get here, we couldn't fit the slots for this port into the cbc.
-    VTSS_E("Port %u: Failed to find a free slot in %u attempts",
-           port_cfg->chip_port, attempts);
+    VTSS_E("Port %u: Failed to find a free slot in %u attempts", port_cfg->chip_port, attempts);
     return VTSS_RC_ERROR;
 }
 #endif /* defined(VTSS_CALENDAR_CALC) */
 
 #if defined(VTSS_CALENDAR_CALC)
-static cbc_speed_t jr2_cbc_speed_to_enum(cbc_port_type_t port_type,
-                                         u32             line_speed)
+static cbc_speed_t jr2_cbc_speed_to_enum(cbc_port_type_t port_type, u32 line_speed)
 {
     if (port_type != CBC_PORT_TYPE_ETH) {
         // This is the expected enumeration to return when
@@ -1640,8 +1525,7 @@ static cbc_speed_t jr2_cbc_speed_to_enum(cbc_port_type_t port_type,
     case 10000: return CBC_SPEED_10000;
 
     default:
-        VTSS_E("Unable to convert %u to a speed enum. Assuming CBC_SPEED_1G",
-               line_speed);
+        VTSS_E("Unable to convert %u to a speed enum. Assuming CBC_SPEED_1G", line_speed);
         return CBC_SPEED_1000;
     }
 }
@@ -1662,9 +1546,8 @@ static vtss_rc jr2_calendar_do_calc(cbc_rtl_cfg_t   *rtl_cfg,
         cbc_req_port_cfg_t *port_list;
     } cbc_grp_t;
 
-    u32 tot_bw = 0, bw, min_cbc_bw, max_cbc_bw, tot_slot_cnt = 0,
-        port_cnt_1g = 0, port_cnt_2g5 = 0, port_cnt_10g = 0, port_cnt_vd = 0,
-        port_cnt_cpu = 0, port_cnt_idle = 0;
+    u32 tot_bw = 0, bw, min_cbc_bw, max_cbc_bw, tot_slot_cnt = 0, port_cnt_1g = 0, port_cnt_2g5 = 0,
+        port_cnt_10g = 0, port_cnt_vd = 0, port_cnt_cpu = 0, port_cnt_idle = 0;
     vtss_phys_port_no_t chip_port;
     cbc_req_port_cfg_t *port_cfg, *p;
     cbc_grp_t           cbc_grps[CBC_IDLE + 1],
@@ -1706,22 +1589,19 @@ static vtss_rc jr2_calendar_do_calc(cbc_rtl_cfg_t   *rtl_cfg,
         max_cbc_bw = rtl_cfg->port_cfg[chip_port].max_cbc_bw;
 
         if (min_cbc_bw && bw < min_cbc_bw) {
-            VTSS_E("Port %u: Bandwidth (%u) is below MIN_CBC_BW = %u",
-                   chip_port, bw, min_cbc_bw);
+            VTSS_E("Port %u: Bandwidth (%u) is below MIN_CBC_BW = %u", chip_port, bw, min_cbc_bw);
             return VTSS_RC_ERROR;
         }
 
         if (bw > max_cbc_bw) {
-            VTSS_E("Port %u: Bandwidth (%u) exceeds MAX_CBC_BW = %u", chip_port,
-                   bw, max_cbc_bw);
+            VTSS_E("Port %u: Bandwidth (%u) exceeds MAX_CBC_BW = %u", chip_port, bw, max_cbc_bw);
             return VTSS_RC_ERROR;
         }
 
         port_cfg->eth_speed = bw >= 10000 ? 10000 : bw >= 2500 ? 2500 : 1000;
         port_cfg->slot_cnt = (bw * rtl_cfg->cbc_len) / rtl_cfg->max_bw;
         port_cfg->port_type = rtl_cfg->port_cfg[chip_port].port_type;
-        port_cfg->ideal_slot_dist_mul_1000 =
-            (1000 * rtl_cfg->cbc_len) / port_cfg->slot_cnt;
+        port_cfg->ideal_slot_dist_mul_1000 = (1000 * rtl_cfg->cbc_len) / port_cfg->slot_cnt;
 
         tot_slot_cnt += port_cfg->slot_cnt;
 
@@ -1734,9 +1614,7 @@ static vtss_rc jr2_calendar_do_calc(cbc_rtl_cfg_t   *rtl_cfg,
 
             case 10000: port_cnt_10g++; break;
 
-            default:
-                VTSS_E("Internal error (port = %u)", chip_port);
-                return VTSS_RC_ERROR;
+            default: VTSS_E("Internal error (port = %u)", chip_port); return VTSS_RC_ERROR;
             }
 
             break;
@@ -1747,39 +1625,30 @@ static vtss_rc jr2_calendar_do_calc(cbc_rtl_cfg_t   *rtl_cfg,
 
         case CBC_PORT_TYPE_IDLE: port_cnt_idle++; break;
 
-        default:
-            VTSS_E("Unknown port type (%d)", port_cfg->port_type);
-            return VTSS_RC_ERROR;
+        default: VTSS_E("Unknown port type (%d)", port_cfg->port_type); return VTSS_RC_ERROR;
         }
 
         tot_bw += bw;
-        VTSS_D("Port %u contributes with %u Mbps. Total B/W so far = %u",
-               chip_port, bw, tot_bw);
+        VTSS_D("Port %u contributes with %u Mbps. Total B/W so far = %u", chip_port, bw, tot_bw);
     }
 
-    VTSS_I(
-        "Total/Max B/W = %u/%u Mbps. Distribution: %ux10G, %ux2.5G, %ux1G, %uxCPU, %uxVD, %uxIDLE",
-        tot_bw, rtl_cfg->max_bw, port_cnt_10g, port_cnt_2g5, port_cnt_1g,
-        port_cnt_cpu, port_cnt_vd, port_cnt_idle);
-    VTSS_I(
-        "VD0 = %u Mbps, VD1 = %u Mbps, CPU0 = %u Mbps, CPU1 = %u Mbps, IDLE = %u Mbps",
-        req_cfg->port_cfg[VTSS_CHIP_PORT_VD0].bw,
-        req_cfg->port_cfg[VTSS_CHIP_PORT_VD1].bw,
-        req_cfg->port_cfg[VTSS_CHIP_PORT_CPU_0].bw,
-        req_cfg->port_cfg[VTSS_CHIP_PORT_CPU_1].bw,
-        req_cfg->port_cfg[CBC_IDLE].bw);
+    VTSS_I("Total/Max B/W = %u/%u Mbps. Distribution: %ux10G, %ux2.5G, %ux1G, %uxCPU, %uxVD, %uxIDLE",
+           tot_bw, rtl_cfg->max_bw, port_cnt_10g, port_cnt_2g5, port_cnt_1g, port_cnt_cpu,
+           port_cnt_vd, port_cnt_idle);
+    VTSS_I("VD0 = %u Mbps, VD1 = %u Mbps, CPU0 = %u Mbps, CPU1 = %u Mbps, IDLE = %u Mbps",
+           req_cfg->port_cfg[VTSS_CHIP_PORT_VD0].bw, req_cfg->port_cfg[VTSS_CHIP_PORT_VD1].bw,
+           req_cfg->port_cfg[VTSS_CHIP_PORT_CPU_0].bw, req_cfg->port_cfg[VTSS_CHIP_PORT_CPU_1].bw,
+           req_cfg->port_cfg[CBC_IDLE].bw);
 
     // Check total BW
     if (tot_bw > rtl_cfg->max_bw) {
-        VTSS_E("Total bandwidth (%u) exceeds MAX_BW = %u", tot_bw,
-               rtl_cfg->max_bw);
+        VTSS_E("Total bandwidth (%u) exceeds MAX_BW = %u", tot_bw, rtl_cfg->max_bw);
         return VTSS_RC_ERROR;
     }
 
     if (tot_slot_cnt != (rtl_cfg->cbc_len * tot_bw) / rtl_cfg->max_bw) {
-        VTSS_E(
-            "Internal Error: tot_slot_cnt = %u, cbc_len = %u, tot_bw = %u, max_bw = %u",
-            tot_slot_cnt, rtl_cfg->cbc_len, tot_bw, rtl_cfg->max_bw);
+        VTSS_E("Internal Error: tot_slot_cnt = %u, cbc_len = %u, tot_bw = %u, max_bw = %u",
+               tot_slot_cnt, rtl_cfg->cbc_len, tot_bw, rtl_cfg->max_bw);
         return VTSS_RC_ERROR;
     }
 
@@ -1793,8 +1662,7 @@ static vtss_rc jr2_calendar_do_calc(cbc_rtl_cfg_t   *rtl_cfg,
     cbc_grps[0].bw = req_cfg->port_cfg[CBC_IDLE].bw;
     cbc_grps[0].port_list = &req_cfg->port_cfg[CBC_IDLE];
 
-    for (chip_port = 0; chip_port < CBC_IDLE /* do not include IDLE */;
-         chip_port++) {
+    for (chip_port = 0; chip_port < CBC_IDLE /* do not include IDLE */; chip_port++) {
         BOOL inserted = FALSE;
 
         port_cfg = &req_cfg->port_cfg[chip_port];
@@ -1891,9 +1759,8 @@ static vtss_rc jr2_calendar_do_calc(cbc_rtl_cfg_t   *rtl_cfg,
             taxi_num = rtl_cfg->port_cfg[p->chip_port].taxi_num;
 
             if (taxi_num >= VTSS_ARRSZ(taxi_ports)) {
-                VTSS_E(
-                    "Found a taxi number (%u) greater than the allocated array (%u entries)",
-                    taxi_num, (u32)VTSS_ARRSZ(taxi_ports));
+                VTSS_E("Found a taxi number (%u) greater than the allocated array (%u entries)",
+                       taxi_num, (u32)VTSS_ARRSZ(taxi_ports));
                 return VTSS_RC_ERROR;
             }
 
@@ -1920,8 +1787,8 @@ static vtss_rc jr2_calendar_do_calc(cbc_rtl_cfg_t   *rtl_cfg,
                 break;
             }
 
-            VTSS_D("taxi_num = %u, use_cnt = %u, (total_use_cnt = %u)", j,
-                   t->use_cnt, total_use_cnt);
+            VTSS_D("taxi_num = %u, use_cnt = %u, (total_use_cnt = %u)", j, t->use_cnt,
+                   total_use_cnt);
             port_cfg = t->port_list;
             while (port_cfg) {
                 VTSS_D("  Port %u", port_cfg->chip_port);
@@ -1943,8 +1810,7 @@ static vtss_rc jr2_calendar_do_calc(cbc_rtl_cfg_t   *rtl_cfg,
                 // may get full of holes as we travese it.
                 t = &taxi_ports[j];
 
-                if (t->use_cnt > taxi_port_cnt_max &&
-                    (taxi_num_prv == -1 || j != taxi_num_prv)) {
+                if (t->use_cnt > taxi_port_cnt_max && (taxi_num_prv == -1 || j != taxi_num_prv)) {
                     taxi_port_cnt_max = t->use_cnt;
                     taxi_num_nxt = j;
                 }
@@ -1984,8 +1850,7 @@ static vtss_rc jr2_calendar_do_calc(cbc_rtl_cfg_t   *rtl_cfg,
 
             VTSS_D(
                 "Adding port %u (%u Mbps) to CBC for which taxi_num = %u, use_cnt = %u, slot_cnt = %u",
-                port_cfg->chip_port, port_cfg->bw, taxi_num_nxt, t->use_cnt,
-                port_cfg->slot_cnt);
+                port_cfg->chip_port, port_cfg->bw, taxi_num_nxt, t->use_cnt, port_cfg->slot_cnt);
             VTSS_RC(jr2_cbc_assign_slots(rtl_cfg, port_cfg, cbc));
             taxi_num_prv = taxi_num_nxt;
             total_use_cnt--;
@@ -2011,8 +1876,8 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
                                   cbc_req_cfg_t   *req_cfg,
                                   vtss_calendar_t *cbc)
 {
-    u32 slot_cnt[CBC_IDLE + 1], first_slot[CBC_IDLE + 1],
-        latest_slot[CBC_IDLE + 1], i, pos, dist, base, offset;
+    u32 slot_cnt[CBC_IDLE + 1], first_slot[CBC_IDLE + 1], latest_slot[CBC_IDLE + 1], i, pos, dist,
+        base, offset;
     vtss_phys_port_no_t chip_port;
     cbc_req_port_cfg_t *port_cfg;
 
@@ -2025,8 +1890,7 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
         chip_port = cbc->cbc[i];
 
         if (chip_port >= VTSS_ARRSZ(rtl_cfg->port_cfg)) {
-            VTSS_E("Invalid calendar. Unknown port (%u) in calendar position %u",
-                   chip_port, i);
+            VTSS_E("Invalid calendar. Unknown port (%u) in calendar position %u", chip_port, i);
             return VTSS_RC_ERROR;
         }
 
@@ -2041,10 +1905,9 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
             VTSS_RC(jr2_cbc_dist(rtl_cfg, cbc, &req_cfg->port_cfg[chip_port],
                                  latest_slot[chip_port], i, &dist));
             if (dist < rtl_cfg->port_cfg[chip_port].min_slot_dist) {
-                VTSS_E(
-                    "Port %u has slots %u and %u, which are distanced less than %u slots apart",
-                    chip_port, latest_slot[chip_port], i,
-                    rtl_cfg->port_cfg[chip_port].min_slot_dist);
+                VTSS_E("Port %u has slots %u and %u, which are distanced less than %u slots apart",
+                       chip_port, latest_slot[chip_port], i,
+                       rtl_cfg->port_cfg[chip_port].min_slot_dist);
                 return VTSS_RC_ERROR;
             }
         }
@@ -2059,24 +1922,20 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
 
         if (first_slot[chip_port] != -1 && latest_slot[chip_port] != -1 &&
             first_slot[chip_port] != latest_slot[chip_port]) {
-            VTSS_RC(jr2_cbc_dist(rtl_cfg, cbc, &req_cfg->port_cfg[chip_port],
-                                 first_slot[chip_port], latest_slot[chip_port],
-                                 &dist));
+            VTSS_RC(jr2_cbc_dist(rtl_cfg, cbc, &req_cfg->port_cfg[chip_port], first_slot[chip_port],
+                                 latest_slot[chip_port], &dist));
             if (dist < rtl_cfg->port_cfg[chip_port].min_slot_dist) {
-                VTSS_E(
-                    "Port %u has slots %u and %u, which are distanced less than %u slots apart",
-                    chip_port, first_slot[chip_port], latest_slot[chip_port],
-                    rtl_cfg->port_cfg[chip_port].min_slot_dist);
+                VTSS_E("Port %u has slots %u and %u, which are distanced less than %u slots apart",
+                       chip_port, first_slot[chip_port], latest_slot[chip_port],
+                       rtl_cfg->port_cfg[chip_port].min_slot_dist);
                 return VTSS_RC_ERROR;
             }
         }
 
-        if ((chip_port != CBC_IDLE &&
-             slot_cnt[chip_port] != port_cfg->slot_cnt) ||
-            (chip_port == CBC_IDLE &&
-             slot_cnt[chip_port] < port_cfg->slot_cnt)) {
-            VTSS_E("Port %u: Found %u slots, expected %u", chip_port,
-                   slot_cnt[chip_port], port_cfg->slot_cnt);
+        if ((chip_port != CBC_IDLE && slot_cnt[chip_port] != port_cfg->slot_cnt) ||
+            (chip_port == CBC_IDLE && slot_cnt[chip_port] < port_cfg->slot_cnt)) {
+            VTSS_E("Port %u: Found %u slots, expected %u", chip_port, slot_cnt[chip_port],
+                   port_cfg->slot_cnt);
             return VTSS_RC_ERROR;
         }
     }
@@ -2097,8 +1956,7 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
         chip_port_nxt = cbc->cbc[pos_nxt];
 
         if (chip_port == chip_port_nxt) {
-            VTSS_E("Positions %u and %u both belong to port %u", pos, pos_nxt,
-                   chip_port);
+            VTSS_E("Positions %u and %u both belong to port %u", pos, pos_nxt, chip_port);
             return VTSS_RC_ERROR;
         }
 
@@ -2106,8 +1964,7 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
         taxi_num_nxt = rtl_cfg->port_cfg[chip_port_nxt].taxi_num;
 
         if (taxi_num_nxt == taxi_num) {
-            VTSS_E("Positions %u and %u both belong to Taxi %u", pos, pos_nxt,
-                   taxi_num);
+            VTSS_E("Positions %u and %u both belong to Taxi %u", pos, pos_nxt, taxi_num);
             return VTSS_RC_ERROR;
         }
     }
@@ -2125,15 +1982,12 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
         // Count slots per port in the range
         VTSS_MEMSET(slot_cnt, 0, sizeof(slot_cnt));
         for (offset = pos; offset <= range_end; offset++) {
-            chip_port =
-                cbc->cbc[offset >= rtl_cfg->cbc_len ? offset - rtl_cfg->cbc_len
-                                                    : offset];
+            chip_port = cbc->cbc[offset >= rtl_cfg->cbc_len ? offset - rtl_cfg->cbc_len : offset];
             slot_cnt[chip_port]++;
         }
 
         // Check slot count for each port found in this range
-        for (chip_port = 0; chip_port < CBC_IDLE /* exclude IDLE */;
-             chip_port++) {
+        for (chip_port = 0; chip_port < CBC_IDLE /* exclude IDLE */; chip_port++) {
             u32             line_speed, max_slots_mul_100, slot_cnt_mul_100;
             cbc_port_type_t port_type;
 
@@ -2145,20 +1999,17 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
             line_speed = rtl_cfg->port_cfg[chip_port].max_line_speed;
             port_type = rtl_cfg->port_cfg[chip_port].port_type;
             max_slots_mul_100 =
-                rtl_cfg->dsm_cells_above_wm_mul_100
-                    [port_type][jr2_cbc_speed_to_enum(port_type, line_speed)] +
+                rtl_cfg->dsm_cells_above_wm_mul_100[port_type]
+                                                   [jr2_cbc_speed_to_enum(port_type, line_speed)] +
                 1 * 100;
             slot_cnt_mul_100 = slot_cnt[chip_port] * 100;
 
-            VTSS_D(
-                "Cell Stop Assertion: slot_cnt[%u] * 100 = %u, max_slots * 100 = %u",
-                chip_port, slot_cnt_mul_100, max_slots_mul_100);
+            VTSS_D("Cell Stop Assertion: slot_cnt[%u] * 100 = %u, max_slots * 100 = %u", chip_port,
+                   slot_cnt_mul_100, max_slots_mul_100);
 
             if (slot_cnt_mul_100 > max_slots_mul_100) {
-                VTSS_E(
-                    "Port %u has (%u / 100) slots in CBC[%u:%u], max (%u / 100) slots allowed.",
-                    chip_port, slot_cnt_mul_100, pos, range_end,
-                    max_slots_mul_100);
+                VTSS_E("Port %u has (%u / 100) slots in CBC[%u:%u], max (%u / 100) slots allowed.",
+                       chip_port, slot_cnt_mul_100, pos, range_end, max_slots_mul_100);
                 return VTSS_RC_ERROR;
             }
         }
@@ -2172,8 +2023,7 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
     //   DSM_MAX_STARTUP_CYCLES is calculated based on port speed and
     //   DSM_BYTES_BELOW_WM. <max SD> is maximum slot distance for port.
     for (chip_port = 0; chip_port < CBC_IDLE /* exclude IDLE */; chip_port++) {
-        u32 bytes_mul_100, speed, dsm_max_startup_cycles_mul_100, sd_max,
-            res_mul_100;
+        u32             bytes_mul_100, speed, dsm_max_startup_cycles_mul_100, sd_max, res_mul_100;
         cbc_port_type_t port_type;
 
         port_cfg = &req_cfg->port_cfg[chip_port];
@@ -2191,9 +2041,7 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
         }
 
         bytes_mul_100 =
-            rtl_cfg->dsm_bytes_below_wm_mul_100[port_type]
-                                               [jr2_cbc_speed_to_enum(port_type,
-                                                                      speed)];
+            rtl_cfg->dsm_bytes_below_wm_mul_100[port_type][jr2_cbc_speed_to_enum(port_type, speed)];
         // Clock cycles per second = ccps = 1E12 / clk_period_ps.
         // bits = 8 * bytes_mul_100
         // bps = 1E6 * speed in Mbps
@@ -2202,20 +2050,17 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
         // 1E12 (ps->s) / 1E6 (Mbps->bps) = 1E6. 1E6 * 800000 = 8E11 > u32, so
         // u64, but the result needs not be stored in an u64.
         dsm_max_startup_cycles_mul_100 =
-            (u64)(8LLU * bytes_mul_100 * 1000000LLU) /
-            ((u64)speed * rtl_cfg->clk_period_ps);
+            (u64)(8LLU * bytes_mul_100 * 1000000LLU) / ((u64)speed * rtl_cfg->clk_period_ps);
 
         sd_max = 0;
         for (base = 0; base < rtl_cfg->cbc_len; base++) {
             if (cbc->cbc[base] == chip_port) {
                 u32 sd = 0;
 
-                for (offset = base + 1; offset < base + 1 + rtl_cfg->cbc_len;
-                     offset++) {
+                for (offset = base + 1; offset < base + 1 + rtl_cfg->cbc_len; offset++) {
                     sd++;
-                    if (cbc->cbc[offset >= rtl_cfg->cbc_len
-                                     ? offset - rtl_cfg->cbc_len
-                                     : offset] == chip_port) {
+                    if (cbc->cbc[offset >= rtl_cfg->cbc_len ? offset - rtl_cfg->cbc_len : offset] ==
+                        chip_port) {
                         break;
                     }
                 }
@@ -2229,14 +2074,12 @@ static vtss_rc jr2_calendar_check(cbc_rtl_cfg_t   *rtl_cfg,
         res_mul_100 = (sd_max + rtl_cfg->fc_latency_cycles) * 100;
         VTSS_D(
             "port %2u: speed = %u, bytes_mul_100 = %u => dsm_max_startup_cycles_mul_100 = %u, (sd_max + fc_latency_cycles) * 100 = %u",
-            chip_port, speed, bytes_mul_100, dsm_max_startup_cycles_mul_100,
-            res_mul_100);
+            chip_port, speed, bytes_mul_100, dsm_max_startup_cycles_mul_100, res_mul_100);
 
         if (res_mul_100 > dsm_max_startup_cycles_mul_100) {
-            VTSS_E(
-                "Port %u: (sd_max (%u) + latency (%u)) * 100 = %u violates startup * 100 = %u",
-                chip_port, sd_max, rtl_cfg->fc_latency_cycles, res_mul_100,
-                dsm_max_startup_cycles_mul_100);
+            VTSS_E("Port %u: (sd_max (%u) + latency (%u)) * 100 = %u violates startup * 100 = %u",
+                   chip_port, sd_max, rtl_cfg->fc_latency_cycles, res_mul_100,
+                   dsm_max_startup_cycles_mul_100);
             return VTSS_RC_ERROR;
         }
     }
@@ -2276,8 +2119,8 @@ static vtss_rc jr2_calendar_calc_and_apply(vtss_state_t *vtss_state)
     // Apply the calendar. The last argument controls whether idle periods
     // should be assigned to VD1 or not. We set it to FALSE, because we've
     // already taken VD1 into the calculated calendar.
-    if ((rc = jr2_calendar_do_set(vtss_state, cal.cbc, rtl_cfg.cbc_len, FALSE,
-                                  TRUE)) != VTSS_RC_OK) {
+    if ((rc = jr2_calendar_do_set(vtss_state, cal.cbc, rtl_cfg.cbc_len, FALSE, TRUE)) !=
+        VTSS_RC_OK) {
         return rc;
     }
 
@@ -2286,8 +2129,8 @@ static vtss_rc jr2_calendar_calc_and_apply(vtss_state_t *vtss_state)
     // calculations to fail. In order to grant some B/W to VD0, we therefore
     // allow it to use idle periods.
     JR2_WR(VTSS_HSCH_HSCH_MISC_OUTB_SHARE_ENA(2),
-           VTSS_F_HSCH_HSCH_MISC_OUTB_SHARE_ENA_OUTB_SHARE_ENA(
-               rtl_cfg.port_cfg[VTSS_CHIP_PORT_VD0].min_slot_dist));
+           VTSS_F_HSCH_HSCH_MISC_OUTB_SHARE_ENA_OUTB_SHARE_ENA(rtl_cfg.port_cfg[VTSS_CHIP_PORT_VD0]
+                                                                   .min_slot_dist));
 
     return VTSS_RC_OK;
 }
@@ -2362,15 +2205,14 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         u32  init_val;
     } r, ram_init_list[] = {
              {FALSE, VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_RESET,
-              VTSS_M_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_RESET_RESET  },
-             {FALSE, VTSS_ASM_CFG_STAT_CFG,
-              VTSS_M_ASM_CFG_STAT_CFG_STAT_CNT_CLR_SHOT            },
-             {TRUE,  VTSS_QSYS_RAM_CTRL_RAM_INIT,                 0},
-             {TRUE,  VTSS_REW_RAM_CTRL_RAM_INIT,                  0},
-             {TRUE,  VTSS_VOP_RAM_CTRL_RAM_INIT,                  0},
-             {TRUE,  VTSS_ANA_AC_RAM_CTRL_RAM_INIT,               0},
-             {TRUE,  VTSS_ASM_RAM_CTRL_RAM_INIT,                  0},
-             {TRUE,  VTSS_DSM_RAM_CTRL_RAM_INIT,                  0}
+              VTSS_M_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_RESET_RESET                                          },
+             {FALSE, VTSS_ASM_CFG_STAT_CFG,                       VTSS_M_ASM_CFG_STAT_CFG_STAT_CNT_CLR_SHOT},
+             {TRUE,  VTSS_QSYS_RAM_CTRL_RAM_INIT,                 0                                        },
+             {TRUE,  VTSS_REW_RAM_CTRL_RAM_INIT,                  0                                        },
+             {TRUE,  VTSS_VOP_RAM_CTRL_RAM_INIT,                  0                                        },
+             {TRUE,  VTSS_ANA_AC_RAM_CTRL_RAM_INIT,               0                                        },
+             {TRUE,  VTSS_ASM_RAM_CTRL_RAM_INIT,                  0                                        },
+             {TRUE,  VTSS_DSM_RAM_CTRL_RAM_INIT,                  0                                        }
     };
 
 #define INIT_CNT (sizeof(ram_init_list) / sizeof(ram_init_list[0]))
@@ -2399,8 +2241,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         JR2_WR(VTSS_DEVCPU_GCB_CHIP_REGS_SOFT_RST,
                VTSS_M_DEVCPU_GCB_CHIP_REGS_SOFT_RST_SOFT_SWC_RST);
         for (i = 0;; i++) {
-            if (VTSS_X_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT_IF_NUM(if_cfgstat) ==
-                2) {
+            if (VTSS_X_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT_IF_NUM(if_cfgstat) == 2) {
                 /* Restore SPI configuration */
                 JR2_WR(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CTRL, if_ctrl);
                 JR2_WR(VTSS_DEVCPU_ORG_DEVCPU_ORG_IF_CFGSTAT, if_cfgstat);
@@ -2432,17 +2273,15 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 #if defined(VTSS_ARCH_JAGUAR_2_C) || VTSS_OPT_TRACE
     revision = vtss_state->misc.chip_id.revision;
 #endif
-    VTSS_I("chip_id: 0x%04x, revision: 0x%04x",
-           vtss_state->misc.chip_id.part_number, revision);
+    VTSS_I("chip_id: 0x%04x, revision: 0x%04x", vtss_state->misc.chip_id.part_number, revision);
 #if !defined(VTSS_ARCH_SERVAL_T)
     vtss_state->misc.jr2_a = (revision == 0 ? 1 : 0);
 #endif /* VTSS_ARCH_SERVAL_T */
 
 #if defined(VTSS_ARCH_JAGUAR_2_C)
     if (revision < 2) {
-        VTSS_E(
-            "The chip architechture (JR-RevC) does not match with the chip revision (rev %d)",
-            revision);
+        VTSS_E("The chip architechture (JR-RevC) does not match with the chip revision (rev %d)",
+               revision);
         return VTSS_RC_ERROR;
     } else if (revision < 4) {
         /* Reduced number of EVC policers and ES0 rules for revision C/D */
@@ -2459,20 +2298,19 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 
 #if defined(VTSS_ARCH_JAGUAR_2_B)
     if (revision > 1) {
-        VTSS_E(
-            "The chip architechture (JR-RevB) does not match with the chip revision (rev %d)",
-            revision);
+        VTSS_E("The chip architechture (JR-RevB) does not match with the chip revision (rev %d)",
+               revision);
         return VTSS_RC_ERROR;
     }
 #endif /* VTSS_ARCH_JAGUAR_2_B */
 
     if (!vtss_state->init_conf.skip_switch_reset) {
         /* Restore GPIO state */
-#define NZ_RESTORE(r, v)                                                       \
-    do {                                                                       \
-        if (v) {                                                               \
-            JR2_WR(r, v);                                                      \
-        }                                                                      \
+#define NZ_RESTORE(r, v)                                                                           \
+    do {                                                                                           \
+        if (v) {                                                                                   \
+            JR2_WR(r, v);                                                                          \
+        }                                                                                          \
     } while (0)
         NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT, gpio_out);
         NZ_RESTORE(VTSS_DEVCPU_GCB_GPIO_GPIO_OUT1, gpio_out1);
@@ -2518,15 +2356,13 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     if (vtss_lc_pll5g_setup(vtss_state) != VTSS_RC_OK) {
         VTSS_E("LC-PLL5G initialization error");
     }
-#if (defined VTSS_ARCH_JAGUAR_2_B) || (defined VTSS_ARCH_JAGUAR_2_C) ||        \
-    (defined VTSS_ARCH_SERVAL_T)
+#if (defined VTSS_ARCH_JAGUAR_2_B) || (defined VTSS_ARCH_JAGUAR_2_C) || (defined VTSS_ARCH_SERVAL_T)
     /* Enable i2c glitch filter */
     JR2_WR(VTSS_ICPU_CFG_TWI_SPIKE_FILTER_TWI_SPIKE_FILTER_CFG, 5);
 #endif /* VTSS_ARCH_JAGUAR_2_B || VTSS_ARCH_JAGUAR_2_C || VTSS_ARCH_SERVAL_T */
 
     /* Enable switch core and queue system */
-    JR2_WR(VTSS_QSYS_SYSTEM_RESET_CFG,
-           VTSS_F_QSYS_SYSTEM_RESET_CFG_CORE_ENA(1));
+    JR2_WR(VTSS_QSYS_SYSTEM_RESET_CFG, VTSS_F_QSYS_SYSTEM_RESET_CFG_CORE_ENA(1));
     for (i = VTSS_CHIP_PORTS; i < VTSS_CHIP_PORTS_ALL; i++) {
         JR2_WRM_SET(VTSS_QFWD_SYSTEM_SWITCH_PORT_MODE(i),
                     VTSS_M_QFWD_SYSTEM_SWITCH_PORT_MODE_PORT_ENA);
@@ -2558,8 +2394,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
                 VTSS_F_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT(693),
                 VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_UPD_INT_CFG_POL_UPD_INT);
 
-        JR2_WRM(VTSS_LRN_COMMON_AUTOAGE_CFG_1,
-                VTSS_F_LRN_COMMON_AUTOAGE_CFG_1_CLK_PERIOD_01NS(36),
+        JR2_WRM(VTSS_LRN_COMMON_AUTOAGE_CFG_1, VTSS_F_LRN_COMMON_AUTOAGE_CFG_1_CLK_PERIOD_01NS(36),
                 VTSS_M_LRN_COMMON_AUTOAGE_CFG_1_CLK_PERIOD_01NS);
 
         for (i = 0; i < 2; i++) {
@@ -2574,10 +2409,9 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
                 VTSS_F_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG_PTP_SYS_CLK_PER_NS(3),
                 VTSS_M_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG_PTP_SYS_CLK_PER_NS);
 
-        JR2_WRM(
-            VTSS_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG,
-            VTSS_F_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG_PTP_SYS_CLK_PER_PS100(6),
-            VTSS_M_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG_PTP_SYS_CLK_PER_PS100);
+        JR2_WRM(VTSS_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG,
+                VTSS_F_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG_PTP_SYS_CLK_PER_PS100(6),
+                VTSS_M_DEVCPU_PTP_PTP_CFG_PTP_SYS_CLK_CFG_PTP_SYS_CLK_PER_PS100);
 
         JR2_WRM(VTSS_HSCH_HSCH_MISC_SYS_CLK_PER,
                 VTSS_F_HSCH_HSCH_MISC_SYS_CLK_PER_SYS_CLK_PER_100PS(36),
@@ -2595,8 +2429,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 
 #if !defined(VTSS_ARCH_SERVAL_T)
     // Enable 250 MHz CLKOUT2 for 1588
-    JR2_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG3(1),
-            VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG3_CLKOUT2_SEL(3),
+    JR2_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG3(1), VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG3_CLKOUT2_SEL(3),
             VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG3_CLKOUT2_SEL);
 #endif /* VTSS_ARCH_SERVAL_T */
 
@@ -2610,10 +2443,8 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
             VTSS_M_DSM_CFG_SCH_STOP_WM_CFG_SCH_STOP_WM);
 
     JR2_WRM(VTSS_ASM_CFG_CPU_FC_CFG,
-            VTSS_F_ASM_CFG_CPU_FC_CFG_CPU_FC_WM(2) |
-                VTSS_F_ASM_CFG_CPU_FC_CFG_CPU_FC_ENA(1),
-            VTSS_M_ASM_CFG_CPU_FC_CFG_CPU_FC_WM |
-                VTSS_M_ASM_CFG_CPU_FC_CFG_CPU_FC_ENA);
+            VTSS_F_ASM_CFG_CPU_FC_CFG_CPU_FC_WM(2) | VTSS_F_ASM_CFG_CPU_FC_CFG_CPU_FC_ENA(1),
+            VTSS_M_ASM_CFG_CPU_FC_CFG_CPU_FC_WM | VTSS_M_ASM_CFG_CPU_FC_CFG_CPU_FC_ENA);
 
     JR2_RD(VTSS_ICPU_CFG_CPU_SYSTEM_CTRL_GENERAL_STAT, &value);
     vtss_state->sys_config.vcore_cfg =
@@ -2623,28 +2454,22 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
        vcore_cfg == 14 added as a special case */
 
     vtss_state->sys_config.using_vcoreiii =
-        (vtss_state->sys_config.vcore_cfg == 0 ||
-         vtss_state->sys_config.vcore_cfg == 12);
+        (vtss_state->sys_config.vcore_cfg == 0 || vtss_state->sys_config.vcore_cfg == 12);
 #if defined(VTSS_OPT_VRAP_ACCESS)
     vtss_state->sys_config.using_vrap =
-        (vtss_state->sys_config.vcore_cfg >= 1 &&
-         vtss_state->sys_config.vcore_cfg <= 8);
+        (vtss_state->sys_config.vcore_cfg >= 1 && vtss_state->sys_config.vcore_cfg <= 8);
 #else
     vtss_state->sys_config.using_vrap = 0;
 #endif // VTSS_OPT_VRAP_ACCESS
 #if defined(VTSS_OPT_PCIE_ACCESS)
     vtss_state->sys_config.using_pcie =
-        ((vtss_state->sys_config.vcore_cfg >= 1 &&
-          vtss_state->sys_config.vcore_cfg <= 7) ||
-         vtss_state->sys_config.vcore_cfg == 9 ||
-         vtss_state->sys_config.vcore_cfg == 14);
+        ((vtss_state->sys_config.vcore_cfg >= 1 && vtss_state->sys_config.vcore_cfg <= 7) ||
+         vtss_state->sys_config.vcore_cfg == 9 || vtss_state->sys_config.vcore_cfg == 14);
 #else
     vtss_state->sys_config.using_pcie = 0;
 #endif // VTSS_OPT_PCIe_ACCESS
-    VTSS_I("Vcore_cfg: 0x%04x, VCOREIII: %d, VRAP: %d, PCIe: %d",
-           vtss_state->sys_config.vcore_cfg,
-           vtss_state->sys_config.using_vcoreiii,
-           vtss_state->sys_config.using_vrap,
+    VTSS_I("Vcore_cfg: 0x%04x, VCOREIII: %d, VRAP: %d, PCIe: %d", vtss_state->sys_config.vcore_cfg,
+           vtss_state->sys_config.using_vcoreiii, vtss_state->sys_config.using_vrap,
            vtss_state->sys_config.using_pcie);
 
     /* Initialize function groups */

@@ -27,14 +27,12 @@ extern "C" {
 
 /** \brief Number of clock cycle counts pr sec. */
 #if defined(VTSS_ARCH_OCELOT)
-#define VTSS_HW_TIME_CNT_PR_SEC                                                \
-    1000000000 /* Serval counts ns instead of clock cycles */
+#define VTSS_HW_TIME_CNT_PR_SEC 1000000000 /* Serval counts ns instead of clock cycles */
 /** \brief Number of nanoseconds pr clock count. */
 #define VTSS_HW_TIME_NSEC_PR_CNT 1
 #endif
 #if defined(VTSS_ARCH_LUTON26)
-#define VTSS_HW_TIME_CNT_PR_SEC                                                \
-    250000000 /* L26 counts clock cycles instead of ns */
+#define VTSS_HW_TIME_CNT_PR_SEC 250000000 /* L26 counts clock cycles instead of ns */
 /** \brief Number of nanoseconds pr clock count. */
 #define VTSS_HW_TIME_NSEC_PR_CNT 4
 #endif
@@ -58,8 +56,7 @@ extern "C" {
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 /** \brief Caracal nanosecond time counter wrap around value (Caracal time
  * counter wraps when 0xffffffff is reached). */
-#define VTSS_HW_TIME_WRAP_LIMIT                                                \
-    0 /* time counter wrap around limit+1 (=0 if wrap at 0xffffffff) */
+#define VTSS_HW_TIME_WRAP_LIMIT 0 /* time counter wrap around limit+1 (=0 if wrap at 0xffffffff) */
 #endif
 
 #if defined(VTSS_ARCH_LUTON26)
@@ -120,8 +117,7 @@ typedef struct {
 } vtss_ts_conf_t;
 
 // TSN global configuration
-vtss_rc vtss_ts_conf_set(const vtss_inst_t           inst,
-                         const vtss_ts_conf_t *const conf);
+vtss_rc vtss_ts_conf_set(const vtss_inst_t inst, const vtss_ts_conf_t *const conf);
 
 vtss_rc vtss_ts_conf_get(const vtss_inst_t inst, vtss_ts_conf_t *const conf);
 
@@ -134,8 +130,7 @@ vtss_rc vtss_ts_conf_get(const vtss_inst_t inst, vtss_ts_conf_t *const conf);
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_timeofday_set(const vtss_inst_t             inst,
-                              const vtss_timestamp_t *const ts);
+vtss_rc vtss_ts_timeofday_set(const vtss_inst_t inst, const vtss_timestamp_t *const ts);
 
 /**
  * \brief Set the current time in a Timestamp format for a domain.
@@ -219,8 +214,7 @@ vtss_rc vtss_ts_domain_timeofday_offset_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_adjtimer_one_sec(const vtss_inst_t inst,
-                                 BOOL *const       ongoing_adjustment);
+vtss_rc vtss_ts_adjtimer_one_sec(const vtss_inst_t inst, BOOL *const ongoing_adjustment);
 
 /**
  * \brief Check if the clock adjustment is ongoing.
@@ -235,8 +229,7 @@ vtss_rc vtss_ts_adjtimer_one_sec(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_ongoing_adjustment(const vtss_inst_t inst,
-                                   BOOL *const       ongoing_adjustment);
+vtss_rc vtss_ts_ongoing_adjustment(const vtss_inst_t inst, BOOL *const ongoing_adjustment);
 
 /**
  * \brief Get the current time in a Timestamp format, and the corresponding
@@ -254,9 +247,7 @@ vtss_rc vtss_ts_ongoing_adjustment(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_timeofday_get(const vtss_inst_t       inst,
-                              vtss_timestamp_t *const ts,
-                              u64 *const              tc);
+vtss_rc vtss_ts_timeofday_get(const vtss_inst_t inst, vtss_timestamp_t *const ts, u64 *const tc);
 
 /**
  * \brief Get the current raw time in a Timestamp format, and the corresponding
@@ -272,9 +263,7 @@ vtss_rc vtss_ts_timeofday_get(const vtss_inst_t       inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_timeofday_raw(const vtss_inst_t       inst,
-                              vtss_timestamp_t *const ts,
-                              u64 *const              tc);
+vtss_rc vtss_ts_timeofday_raw(const vtss_inst_t inst, vtss_timestamp_t *const ts, u64 *const tc);
 
 /**
  * \brief Get the current time in a Timestamp format, and the corresponding
@@ -342,8 +331,7 @@ vtss_rc vtss_ts_multi_domain_timeofday_get(const vtss_inst_t       inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_timeofday_next_pps_get(const vtss_inst_t       inst,
-                                       vtss_timestamp_t *const ts);
+vtss_rc vtss_ts_timeofday_next_pps_get(const vtss_inst_t inst, vtss_timestamp_t *const ts);
 
 /**
  * \brief Get the time at the prev 1PPS pulse edge in a Timestamp format.
@@ -354,8 +342,7 @@ vtss_rc vtss_ts_timeofday_next_pps_get(const vtss_inst_t       inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_timeofday_prev_pps_get(const vtss_inst_t       inst,
-                                       vtss_timestamp_t *const ts);
+vtss_rc vtss_ts_timeofday_prev_pps_get(const vtss_inst_t inst, vtss_timestamp_t *const ts);
 
 /**
  * \brief Get the time at the next 1PPS pulse edge in a Timestamp format.
@@ -405,9 +392,7 @@ vtss_rc vtss_ts_adjtimer_get(const vtss_inst_t inst, i32 *const adj);
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_domain_adjtimer_set(const vtss_inst_t inst,
-                                    const u32         domain,
-                                    const i32         adj);
+vtss_rc vtss_ts_domain_adjtimer_set(const vtss_inst_t inst, const u32 domain, const i32 adj);
 
 /**
  * \brief get the clock timer ratio for a domain.
@@ -422,9 +407,7 @@ vtss_rc vtss_ts_domain_adjtimer_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_domain_adjtimer_get(const vtss_inst_t inst,
-                                    const u32         domain,
-                                    i32 *const        adj);
+vtss_rc vtss_ts_domain_adjtimer_get(const vtss_inst_t inst, const u32 domain, i32 *const adj);
 
 /**
  * \brief get the clock internal timer frequency offset, compared to external
@@ -439,8 +422,8 @@ vtss_rc vtss_ts_domain_adjtimer_get(const vtss_inst_t inst,
  */
 vtss_rc vtss_ts_freq_offset_get(const vtss_inst_t inst, i32 *const adj);
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||           \
+    defined(VTSS_ARCH_LAN966X)
 /**
  * \brief parameter for setting the alternative  clock mode.
  */
@@ -472,8 +455,7 @@ vtss_rc vtss_ts_alt_clock_saved_get(const vtss_inst_t inst, u64 *const saved);
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_alt_clock_saved_timeofday_get(const vtss_inst_t       inst,
-                                              vtss_timestamp_t *const ts);
+vtss_rc vtss_ts_alt_clock_saved_timeofday_get(const vtss_inst_t inst, vtss_timestamp_t *const ts);
 #endif
 
 /**
@@ -484,9 +466,8 @@ vtss_rc vtss_ts_alt_clock_saved_timeofday_get(const vtss_inst_t       inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_alt_clock_mode_get(const vtss_inst_t inst,
-                                   vtss_ts_alt_clock_mode_t
-                                       *const alt_clock_mode);
+vtss_rc vtss_ts_alt_clock_mode_get(const vtss_inst_t               inst,
+                                   vtss_ts_alt_clock_mode_t *const alt_clock_mode);
 
 /**
  * \brief Set the alternative external clock mode.
@@ -497,9 +478,8 @@ vtss_rc vtss_ts_alt_clock_mode_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_alt_clock_mode_set(const vtss_inst_t inst,
-                                   const vtss_ts_alt_clock_mode_t
-                                       *const alt_clock_mode);
+vtss_rc vtss_ts_alt_clock_mode_set(const vtss_inst_t                     inst,
+                                   const vtss_ts_alt_clock_mode_t *const alt_clock_mode);
 
 /**
  * \brief Set the time at the next 1PPS pulse edge in a Timestamp format.
@@ -508,8 +488,7 @@ vtss_rc vtss_ts_alt_clock_mode_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t             inst,
-                                       const vtss_timestamp_t *const ts);
+vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t inst, const vtss_timestamp_t *const ts);
 #endif
 
 /**
@@ -523,16 +502,15 @@ typedef enum {
     VTSS_TS_EXT_CLOCK_MODE_MAX
 } vtss_ts_ext_clock_one_pps_mode_t;
 
-#define TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE                                      \
+#define TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE                                                          \
     VTSS_TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE /**< Backward compatibility */
-#define TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT                                       \
+#define TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT                                                           \
     VTSS_TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT /**< Backward compatibility */
-#define TS_EXT_CLOCK_MODE_ONE_PPS_INPUT                                        \
+#define TS_EXT_CLOCK_MODE_ONE_PPS_INPUT                                                            \
     VTSS_TS_EXT_CLOCK_MODE_ONE_PPS_INPUT /**< Backward compatibility */
-#define TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT_INPUT                                 \
-    VTSS_TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT_INPUT /**< Backward compatibility */
-#define TS_EXT_CLOCK_MODE_MAX                                                  \
-    VTSS_TS_EXT_CLOCK_MODE_MAX /**< Backward compatibility */
+#define TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT_INPUT                                                     \
+    VTSS_TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT_INPUT          /**< Backward compatibility */
+#define TS_EXT_CLOCK_MODE_MAX VTSS_TS_EXT_CLOCK_MODE_MAX /**< Backward compatibility */
 
 /** \brief external clock output configuration. */
 typedef struct vtss_ts_ext_clock_mode_t {
@@ -558,9 +536,8 @@ typedef struct vtss_ts_ext_clock_mode_t {
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_external_clock_mode_get(const vtss_inst_t inst,
-                                        vtss_ts_ext_clock_mode_t
-                                            *const ext_clock_mode);
+vtss_rc vtss_ts_external_clock_mode_get(const vtss_inst_t               inst,
+                                        vtss_ts_ext_clock_mode_t *const ext_clock_mode);
 
 /**
  * \brief Set the external clock mode.
@@ -573,13 +550,11 @@ vtss_rc vtss_ts_external_clock_mode_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t inst,
-                                        const vtss_ts_ext_clock_mode_t
-                                            *const ext_clock_mode);
+vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t                     inst,
+                                        const vtss_ts_ext_clock_mode_t *const ext_clock_mode);
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LUTON26) ||                \
-    defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X) ||          \
+    defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 /**
  * \brief parameter for setting the external io mode.
  * Architecture:
@@ -587,7 +562,7 @@ vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t inst,
  */
 typedef enum {
     VTSS_TS_EXT_IO_MODE_ONE_PPS_DISABLE, /**< Disable IO pin */
-    VTSS_TS_EXT_IO_MODE_ONE_PPS_OUTPUT, /**< enable external sync pulse output */
+    VTSS_TS_EXT_IO_MODE_ONE_PPS_OUTPUT,  /**< enable external sync pulse output */
     VTSS_TS_EXT_IO_MODE_WAVEFORM_OUTPUT, /**< enable external clock output
                                             frequency */
     VTSS_TS_EXT_IO_MODE_ONE_PPS_LOAD,    /**< enable input and load time at
@@ -597,24 +572,20 @@ typedef enum {
     VTSS_TS_EXT_IO_MODE_MAX
 } vtss_ts_ext_io_pin_cfg_t;
 
-#define TS_EXT_IO_MODE_ONE_PPS_DISABLE                                         \
+#define TS_EXT_IO_MODE_ONE_PPS_DISABLE                                                             \
     VTSS_TS_EXT_IO_MODE_ONE_PPS_DISABLE /**< Backward compatibility */
-#define TS_EXT_IO_MODE_ONE_PPS_OUTPUT                                          \
+#define TS_EXT_IO_MODE_ONE_PPS_OUTPUT                                                              \
     VTSS_TS_EXT_IO_MODE_ONE_PPS_OUTPUT /**< Backward compatibility */
-#define TS_EXT_IO_MODE_WAVEFORM_OUTPUT                                         \
-    VTSS_TS_EXT_IO_MODE_WAVEFORM_OUTPUT /**< Backward compatibility */
-#define TS_EXT_IO_MODE_ONE_PPS_LOAD                                            \
-    VTSS_TS_EXT_IO_MODE_ONE_PPS_LOAD /**< Backward compatibility */
-#define TS_EXT_IO_MODE_ONE_PPS_SAVE                                            \
-    VTSS_TS_EXT_IO_MODE_ONE_PPS_SAVE /**< Backward compatibility */
-#define TS_EXT_IO_MODE_MAX                                                     \
-    VTSS_TS_EXT_IO_MODE_MAX /**< Backward compatibility */
+#define TS_EXT_IO_MODE_WAVEFORM_OUTPUT                                                             \
+    VTSS_TS_EXT_IO_MODE_WAVEFORM_OUTPUT                              /**< Backward compatibility */
+#define TS_EXT_IO_MODE_ONE_PPS_LOAD VTSS_TS_EXT_IO_MODE_ONE_PPS_LOAD /**< Backward compatibility */
+#define TS_EXT_IO_MODE_ONE_PPS_SAVE VTSS_TS_EXT_IO_MODE_ONE_PPS_SAVE /**< Backward compatibility */
+#define TS_EXT_IO_MODE_MAX          VTSS_TS_EXT_IO_MODE_MAX          /**< Backward compatibility */
 
 /** \brief external clock io configuration. */
 typedef struct vtss_ts_ext_io_mode_s {
-    vtss_ts_ext_io_pin_cfg_t
-        pin;    /**< Defines the io operation modefor the io pin */
-    u32 domain; /**< clock domain [0..2] assigned to the IO pin */
+    vtss_ts_ext_io_pin_cfg_t pin;    /**< Defines the io operation modefor the io pin */
+    u32                      domain; /**< clock domain [0..2] assigned to the IO pin */
     u32 freq; /**< clock output frequency (hz [1..25.000.000]). only relevant in
                  WAVEFORM _OUTPUT mode */
 } vtss_ts_ext_io_mode_t;
@@ -645,10 +616,9 @@ vtss_rc vtss_ts_external_io_mode_get(const vtss_inst_t            inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_external_io_mode_set(const vtss_inst_t inst,
-                                     const u32         io,
-                                     const vtss_ts_ext_io_mode_t
-                                         *const ext_io_mode);
+vtss_rc vtss_ts_external_io_mode_set(const vtss_inst_t                  inst,
+                                     const u32                          io,
+                                     const vtss_ts_ext_io_mode_t *const ext_io_mode);
 
 /**
  * \brief Get the latest saved time.
@@ -688,8 +658,7 @@ vtss_rc vtss_ts_output_clock_edge_offset_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_external_clock_saved_get(const vtss_inst_t inst,
-                                         u32 *const        saved);
+vtss_rc vtss_ts_external_clock_saved_get(const vtss_inst_t inst, u32 *const saved);
 
 /**
  * \brief Set the ingress latency.
@@ -699,10 +668,9 @@ vtss_rc vtss_ts_external_clock_saved_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_ingress_latency_set(const vtss_inst_t    inst,
-                                    const vtss_port_no_t port_no,
-                                    const vtss_timeinterval_t
-                                        *const ingress_latency);
+vtss_rc vtss_ts_ingress_latency_set(const vtss_inst_t                inst,
+                                    const vtss_port_no_t             port_no,
+                                    const vtss_timeinterval_t *const ingress_latency);
 
 /**
  * \brief Get the ingress latency.
@@ -748,10 +716,9 @@ vtss_rc vtss_ts_p2p_delay_get(const vtss_inst_t          inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_egress_latency_set(const vtss_inst_t    inst,
-                                   const vtss_port_no_t port_no,
-                                   const vtss_timeinterval_t
-                                       *const egress_latency);
+vtss_rc vtss_ts_egress_latency_set(const vtss_inst_t                inst,
+                                   const vtss_port_no_t             port_no,
+                                   const vtss_timeinterval_t *const egress_latency);
 
 /**
  * \brief Get the egress latency.
@@ -774,10 +741,9 @@ vtss_rc vtss_ts_egress_latency_get(const vtss_inst_t          inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_delay_asymmetry_set(const vtss_inst_t    inst,
-                                    const vtss_port_no_t port_no,
-                                    const vtss_timeinterval_t
-                                        *const delay_asymmetry);
+vtss_rc vtss_ts_delay_asymmetry_set(const vtss_inst_t                inst,
+                                    const vtss_port_no_t             port_no,
+                                    const vtss_timeinterval_t *const delay_asymmetry);
 
 /**
  * \brief Get the delay asymmetry.
@@ -809,9 +775,9 @@ typedef enum {
 #if defined(VTSS_FEATURE_TIMESTAMP_PCH)
 /**< Enable insertion of PCH in preamble on the port */
 typedef enum {
-    VTSS_TS_PCH_TX_MODE_NONE,         /**< No PCH in transmitted frames */
-    VTSS_TS_PCH_TX_MODE_ENCRYPT_NONE, /**< PCH added on transmitted frames */
-    VTSS_TS_PCH_TX_MODE_ENCRYPT_BIT,  /**< PCH added with encryption bit set */
+    VTSS_TS_PCH_TX_MODE_NONE,                    /**< No PCH in transmitted frames */
+    VTSS_TS_PCH_TX_MODE_ENCRYPT_NONE,            /**< PCH added on transmitted frames */
+    VTSS_TS_PCH_TX_MODE_ENCRYPT_BIT,             /**< PCH added with encryption bit set */
     VTSS_TS_PCH_TX_MODE_ENCRYPT_BIT_INVERT_SMAC, /**< PCH added with encryption
                                                     bit set to inverted SMAC(40),
                                                     which is then cleared.#xD */
@@ -840,8 +806,7 @@ typedef enum {
 typedef struct vtss_ts_operation_mode_t {
     vtss_ts_mode_t mode; /**< Hardware Timestamping mode for a port(EXTERNAL or
                             INTERNAL) */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
-    defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
     u32 domain; /**< Hardware timestamping domain for a port */
 #endif
 #if defined(VTSS_FEATURE_TIMESTAMP_PCH)
@@ -867,8 +832,8 @@ typedef struct vtss_ts_operation_mode_t {
  *          In backplane mode the internal format is determined by the internal
  * mode (see below) Other : Not used
  */
-vtss_rc vtss_ts_operation_mode_set(const vtss_inst_t    inst,
-                                   const vtss_port_no_t port_no,
+vtss_rc vtss_ts_operation_mode_set(const vtss_inst_t                     inst,
+                                   const vtss_port_no_t                  port_no,
                                    const vtss_ts_operation_mode_t *const mode);
 
 /**
@@ -888,51 +853,48 @@ vtss_rc vtss_ts_operation_mode_get(const vtss_inst_t               inst,
  */
 typedef enum {
     VTSS_TS_INTERNAL_FMT_NONE,
-    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_30BIT, /* Ts is stored in reservedField as
-                                                30 bit (ns only) */
-    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_32BIT, /* Ts is stored in reservedField as
-                                                32 bit (ns+sec*10^9) mod 2^32) */
-    VTSS_TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62, /* Ts is subtracted from cf at
-                                                    ingress as 44 bit
-                                                    (ns+sec*10^9) mod 2^44), MSB
-                                                    is saved in cf bit 62 */
+    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_30BIT,        /* Ts is stored in reservedField as
+                                                       30 bit (ns only) */
+    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_32BIT,        /* Ts is stored in reservedField as
+                                                       32 bit (ns+sec*10^9) mod 2^32) */
+    VTSS_TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62,    /* Ts is subtracted from cf at
+                                                       ingress as 44 bit
+                                                       (ns+sec*10^9) mod 2^44), MSB
+                                                       is saved in cf bit 62 */
     VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_3_0, /* Ts is subtracted from cf
                                                        at ingress as 48 bit
                                                        (ns+sec*10^9) mod 2^48),
                                                        MSBs are saved in cf bit
                                                        3-0 */
-    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_0, /* Ts is subtracted from cf at
-                                                     ingress as 48 bit
-                                                     (ns+sec*10^9) mod 2^48),
-                                                     MSB is saved in cf bit 0 */
-    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF,   /* Ts is subtracted from cf at
-                                                     ingress as 48 bit
-                                                     (ns+sec*10^9) mod 2^48) */
+    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_0,   /* Ts is subtracted from cf at
+                                                       ingress as 48 bit
+                                                       (ns+sec*10^9) mod 2^48),
+                                                       MSB is saved in cf bit 0 */
+    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF,     /* Ts is subtracted from cf at
+                                                       ingress as 48 bit
+                                                       (ns+sec*10^9) mod 2^48) */
     VTSS_TS_INTERNAL_FMT_MAX
 } vtss_ts_internal_fmt_t;
 
-#define TS_INTERNAL_FMT_NONE                                                   \
-    VTSS_TS_INTERNAL_FMT_NONE /**< Backward compatibility */
-#define TS_INTERNAL_FMT_RESERVED_LEN_30BIT                                     \
+#define TS_INTERNAL_FMT_NONE VTSS_TS_INTERNAL_FMT_NONE /**< Backward compatibility */
+#define TS_INTERNAL_FMT_RESERVED_LEN_30BIT                                                         \
     VTSS_TS_INTERNAL_FMT_RESERVED_LEN_30BIT /**< Backward compatibility */
-#define TS_INTERNAL_FMT_RESERVED_LEN_32BIT                                     \
+#define TS_INTERNAL_FMT_RESERVED_LEN_32BIT                                                         \
     VTSS_TS_INTERNAL_FMT_RESERVED_LEN_32BIT /**< Backward compatibility */
-#define TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62                                 \
+#define TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62                                                     \
     VTSS_TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62 /**< Backward compatibility */
-#define TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_3_0                              \
-    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_3_0 /**< Backward compatibility \
+#define TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_3_0                                                  \
+    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_3_0 /**< Backward compatibility                     \
                                                     */
-#define TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_0                                \
+#define TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_0                                                    \
     VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF_0 /**< Backward compatibility */
-#define TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF                                  \
-    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF /**< Backward compatibility */
-#define TX_INTERNAL_FMT_MAX                                                    \
-    VTSS_TS_INTERNAL_FMT_MAX /**< Backward compatibility */
+#define TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF                                                      \
+    VTSS_TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF       /**< Backward compatibility */
+#define TX_INTERNAL_FMT_MAX VTSS_TS_INTERNAL_FMT_MAX /**< Backward compatibility */
 
 /** \brief Hardware timestamping format mode for internal ports */
 typedef struct vtss_ts_internal_mode_t {
-    vtss_ts_internal_fmt_t
-        int_fmt; /**< Hardware Timestamping format mode for INTERNAL ports */
+    vtss_ts_internal_fmt_t int_fmt; /**< Hardware Timestamping format mode for INTERNAL ports */
 } vtss_ts_internal_mode_t;
 
 /**
@@ -955,8 +917,7 @@ vtss_rc vtss_ts_internal_mode_set(const vtss_inst_t                    inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_internal_mode_get(const vtss_inst_t              inst,
-                                  vtss_ts_internal_mode_t *const mode);
+vtss_rc vtss_ts_internal_mode_get(const vtss_inst_t inst, vtss_ts_internal_mode_t *const mode);
 
 /** \brief Timestamp identifier */
 typedef struct vtss_ts_id_t {
@@ -965,11 +926,11 @@ typedef struct vtss_ts_id_t {
 
 /** \brief Timestamp structure */
 typedef struct vtss_ts_timestamp_t {
-    u64   ts; /**< Timestamp value (tc in 16 bit fraction of nano seconds) */
-    u32   id; /**< Timestamp identifier */
-    void *context; /**< Application specific context */
-    BOOL ts_valid; /**< Timestamp is valid (can be not valid if timestamp is not
-                      received */
+    u64   ts;       /**< Timestamp value (tc in 16 bit fraction of nano seconds) */
+    u32   id;       /**< Timestamp identifier */
+    void *context;  /**< Application specific context */
+    BOOL  ts_valid; /**< Timestamp is valid (can be not valid if timestamp is not
+                       received */
 } vtss_ts_timestamp_t;
 
 /**
@@ -1022,8 +983,7 @@ vtss_rc _vtss_rx_timestamp_get(const vtss_inst_t          inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_rx_timestamp_id_release(const vtss_inst_t         inst,
-                                     const vtss_ts_id_t *const ts_id);
+vtss_rc vtss_rx_timestamp_id_release(const vtss_inst_t inst, const vtss_ts_id_t *const ts_id);
 
 /**
  * \brief Get rx timestamp from a port (convert from slave time to the master
@@ -1040,9 +1000,7 @@ vtss_rc vtss_rx_master_timestamp_get(const vtss_inst_t          inst,
                                      vtss_ts_timestamp_t *const ts);
 
 /** \brief Timestamp allocation callback */
-typedef void (*vtss_ts_timestamp_alloc_cb_t)(void                *context,
-                                             u32                  port_no,
-                                             vtss_ts_timestamp_t *ts);
+typedef void (*vtss_ts_timestamp_alloc_cb_t)(void *context, u32 port_no, vtss_ts_timestamp_t *ts);
 
 /** \brief Timestamp allocation */
 typedef struct vtss_ts_timestamp_alloc_t {
@@ -1063,10 +1021,9 @@ typedef struct vtss_ts_timestamp_alloc_t {
  *
  * \return Return code.
  */
-vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t inst,
-                                    const vtss_ts_timestamp_alloc_t
-                                        *const          alloc_parm,
-                                    vtss_ts_id_t *const ts_id);
+vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t                      inst,
+                                    const vtss_ts_timestamp_alloc_t *const alloc_parm,
+                                    vtss_ts_id_t *const                    ts_id);
 
 /**
  * \brief Age the FIFO timestamps
@@ -1084,20 +1041,19 @@ vtss_rc vtss_timestamp_age(const vtss_inst_t inst);
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_status_change(const vtss_inst_t    inst,
-                              const vtss_port_no_t port_no);
+vtss_rc vtss_ts_status_change(const vtss_inst_t inst, const vtss_port_no_t port_no);
 
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
 /**
  * \brief parameter for setting auto response behaviour pr domain
  */
 typedef struct vtss_ts_autoresp_dom_cfg_s {
-    BOOL ptp_port_individual; /**< TRUE => PortIdentity = ptp_port_msb ||
-                                 ptp_port_lsb, FALSE => PortIdentity =
-                                 ptp_port_msb */
-    u16 ptp_port_msb;         /**< ptp port number most significant bits 15:6 */
-    vtss_clock_identity clock_identity; /**< ptp clock identity */
-    vtss_ace_u8_t flag_field_update; /**< flag field [0] update value and mask */
+    BOOL ptp_port_individual;              /**< TRUE => PortIdentity = ptp_port_msb ||
+                                              ptp_port_lsb, FALSE => PortIdentity =
+                                              ptp_port_msb */
+    u16                 ptp_port_msb;      /**< ptp port number most significant bits 15:6 */
+    vtss_clock_identity clock_identity;    /**< ptp clock identity */
+    vtss_ace_u8_t       flag_field_update; /**< flag field [0] update value and mask */
 
 } vtss_ts_autoresp_dom_cfg_t;
 
@@ -1110,10 +1066,9 @@ typedef struct vtss_ts_autoresp_dom_cfg_s {
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_autoresp_dom_cfg_set(const vtss_inst_t inst,
-                                     const u8          domain,
-                                     const vtss_ts_autoresp_dom_cfg_t
-                                         *const cfg);
+vtss_rc vtss_ts_autoresp_dom_cfg_set(const vtss_inst_t                       inst,
+                                     const u8                                domain,
+                                     const vtss_ts_autoresp_dom_cfg_t *const cfg);
 
 /**
  * \brief Get auto response behaviour pr. domain.
@@ -1162,9 +1117,7 @@ vtss_rc vtss_ts_smac_get(const vtss_inst_t    inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_ts_seq_cnt_get(const vtss_inst_t inst,
-                            const u32         sec_cntr,
-                            u16 *const        cnt_val);
+vtss_rc vtss_ts_seq_cnt_get(const vtss_inst_t inst, const u32 sec_cntr, u16 *const cnt_val);
 
 #ifdef __cplusplus
 }

@@ -10,8 +10,8 @@
  * =================================================================*/
 
 #if defined(VTSS_FEATURE_EEE)
-static vtss_rc lan966x_eee_port_conf_set(vtss_state_t        *vtss_state,
-                                         const vtss_port_no_t port_no,
+static vtss_rc lan966x_eee_port_conf_set(vtss_state_t                     *vtss_state,
+                                         const vtss_port_no_t              port_no,
                                          const vtss_eee_port_conf_t *const conf)
 {
     return VTSS_RC_OK;
@@ -19,19 +19,15 @@ static vtss_rc lan966x_eee_port_conf_set(vtss_state_t        *vtss_state,
 #endif
 
 #if defined(VTSS_FEATURE_FAN)
-static vtss_rc lan966x_fan_controller_init(vtss_state_t *vtss_state,
+static vtss_rc lan966x_fan_controller_init(vtss_state_t                *vtss_state,
                                            const vtss_fan_conf_t *const spec)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
-{
-    return VTSS_RC_OK;
-}
+static vtss_rc lan966x_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl) { return VTSS_RC_OK; }
 
-static vtss_rc lan966x_fan_cool_lvl_get(vtss_state_t *vtss_state,
-                                        u8           *duty_cycle)
+static vtss_rc lan966x_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
 {
     return VTSS_RC_OK;
 }
@@ -47,19 +43,16 @@ static vtss_rc lan966x_fan_rotation_get(vtss_state_t    *vtss_state,
  *  Temperature Sensor
  * ================================================================= */
 #if defined(VTSS_FEATURE_TEMP_SENSOR)
-static vtss_rc lan966x_temp_sensor_init(vtss_state_t *vtss_state,
-                                        const BOOL    enable)
+static vtss_rc lan966x_temp_sensor_init(vtss_state_t *vtss_state, const BOOL enable)
 {
     // Enable/Disable
-    REG_WRM(CHIP_TOP_PVT_SENSOR_CFG,
-            enable ? CHIP_TOP_PVT_SENSOR_CFG_SAMPLE_ENA_M : 0,
+    REG_WRM(CHIP_TOP_PVT_SENSOR_CFG, enable ? CHIP_TOP_PVT_SENSOR_CFG_SAMPLE_ENA_M : 0,
             CHIP_TOP_PVT_SENSOR_CFG_SAMPLE_ENA_M);
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_temp_sensor_get(vtss_state_t *vtss_state,
-                                       i16          *temp_celsius)
+static vtss_rc lan966x_temp_sensor_get(vtss_state_t *vtss_state, i16 *temp_celsius)
 {
     u32     val;
     int64_t x, r;
@@ -119,8 +112,7 @@ static vtss_rc lan966x_reg_write(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_chip_id_get(vtss_state_t         *vtss_state,
-                                   vtss_chip_id_t *const chip_id)
+static vtss_rc lan966x_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
 #if defined(GCB_CHIP_ID)
     u32 val;
@@ -136,8 +128,7 @@ static vtss_rc lan966x_chip_id_get(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_ptp_event_poll(vtss_state_t          *vtss_state,
-                                      vtss_ptp_event_type_t *ev_mask)
+static vtss_rc lan966x_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
     u32 sticky, mask;
 
@@ -178,8 +169,7 @@ static vtss_rc lan966x_ptp_event_enable(vtss_state_t         *vtss_state,
         msk |= (1 << 3);
     }
     if (msk) {
-        REG_WRM(PTP_PIN_INTR_ENA, PTP_PIN_INTR_ENA_INTR_ENA(val),
-                PTP_PIN_INTR_ENA_INTR_ENA(msk));
+        REG_WRM(PTP_PIN_INTR_ENA, PTP_PIN_INTR_ENA_INTR_ENA(val), PTP_PIN_INTR_ENA_INTR_ENA(msk));
     }
     return VTSS_RC_OK;
 }
@@ -203,8 +193,8 @@ static vtss_rc lan966x_dev_all_event_poll(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_dev_all_event_enable(vtss_state_t  *vtss_state,
-                                            vtss_port_no_t port_no,
+static vtss_rc lan966x_dev_all_event_enable(vtss_state_t             *vtss_state,
+                                            vtss_port_no_t            port_no,
                                             vtss_dev_all_event_type_t ev_mask,
                                             BOOL                      enable)
 {
@@ -229,10 +219,7 @@ static vtss_rc lan966x_intr_cfg(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_intr_pol_negation(vtss_state_t *vtss_state)
-{
-    return VTSS_RC_OK;
-}
+static vtss_rc lan966x_intr_pol_negation(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
 #endif
 
 #if defined(VTSS_FEATURE_IRQ_CONTROL)
@@ -243,8 +230,7 @@ static vtss_rc lan966x_misc_irq_cfg(vtss_state_t                *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_misc_irq_status(vtss_state_t      *vtss_state,
-                                       vtss_irq_status_t *status)
+static vtss_rc lan966x_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
 {
     return VTSS_RC_OK;
 }
@@ -478,8 +464,7 @@ static vtss_rc lan966x_sgpio_conf_set(vtss_state_t                  *vtss_state,
         switch (conf->bmode[i]) {
         case VTSS_SGPIO_BMODE_TOGGLE:
             if (i == 0) {
-                VTSS_E("blink mode 0 does not support TOGGLE (group:%d)",
-                       group);
+                VTSS_E("blink mode 0 does not support TOGGLE (group:%d)", group);
                 return VTSS_RC_ERROR;
             }
             bmode[i] = 3;
@@ -510,17 +495,14 @@ static vtss_rc lan966x_sgpio_conf_set(vtss_state_t                  *vtss_state,
         }
     }
     REG_WRM(GCB_SIO_CFG,
-            GCB_SIO_CFG_SIO_BMODE_1(bmode[1]) |
-                GCB_SIO_CFG_SIO_BMODE_0(bmode[0]) |
+            GCB_SIO_CFG_SIO_BMODE_1(bmode[1]) | GCB_SIO_CFG_SIO_BMODE_0(bmode[0]) |
                 GCB_SIO_CFG_SIO_BURST_GAP(3) | GCB_SIO_CFG_SIO_AUTO_REPEAT(1) |
                 GCB_SIO_CFG_SIO_PORT_WIDTH(conf->bit_count - 1),
-            GCB_SIO_CFG_SIO_BMODE_1_M | GCB_SIO_CFG_SIO_BMODE_0_M |
-                GCB_SIO_CFG_SIO_BURST_GAP_M | GCB_SIO_CFG_SIO_AUTO_REPEAT_M |
-                GCB_SIO_CFG_SIO_PORT_WIDTH_M);
+            GCB_SIO_CFG_SIO_BMODE_1_M | GCB_SIO_CFG_SIO_BMODE_0_M | GCB_SIO_CFG_SIO_BURST_GAP_M |
+                GCB_SIO_CFG_SIO_AUTO_REPEAT_M | GCB_SIO_CFG_SIO_PORT_WIDTH_M);
     REG_WR(GCB_SIO_CLOCK,
            GCB_SIO_CLOCK_SIO_CLK_FREQ(20) |
-               GCB_SIO_CLOCK_SYS_CLK_PERIOD(
-                   vtss_lan966x_clk_period_ps(vtss_state) / 100));
+               GCB_SIO_CLOCK_SYS_CLK_PERIOD(vtss_lan966x_clk_period_ps(vtss_state) / 100));
 
     for (port = 0; port < 32; port++) {
         change = TRUE;
@@ -555,7 +537,7 @@ static vtss_rc lan966x_sgpio_conf_set(vtss_state_t                  *vtss_state,
 static vtss_rc lan966x_sgpio_read(vtss_state_t            *vtss_state,
                                   const vtss_chip_no_t     chip_no,
                                   const vtss_sgpio_group_t group,
-                                  vtss_sgpio_port_data_t data[VTSS_SGPIO_PORTS])
+                                  vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
 {
 #if defined(GCB_SIO_CFG)
     u32 i, port, val;
@@ -638,47 +620,33 @@ static vtss_rc lan966x_debug_misc(vtss_state_t                  *vtss_state,
 {
 #if defined(GCB_GPIO_OUT_SET2)
     pr("%-34s  31    24.23    16.15     8.7      0\n", "GPIO 0-31");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_INTR_ENA),
-                           "GPIO_INTR_ENA");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_INTR_ENA), "GPIO_INTR_ENA");
     vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_OE), "GPIO_OE");
     vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_OUT), "GPIO_OUT");
     vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_IN), "GPIO_IN");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT(0)),
-                           "GPIO_ALT(0)");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT(1)),
-                           "GPIO_ALT(1)");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT(2)),
-                           "GPIO_ALT(2)");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT(0)), "GPIO_ALT(0)");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT(1)), "GPIO_ALT(1)");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT(2)), "GPIO_ALT(2)");
     pr("\n");
 
     pr("%-34s  63    56.55    48.47    40.39    32\n", "GPIO 32-63");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_INTR_ENA1),
-                           "GPIO_INTR_ENA1");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_INTR_ENA1), "GPIO_INTR_ENA1");
     vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_OE1), "GPIO_OE1");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_OUT1),
-                           "GPIO_OUT1");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_OUT1), "GPIO_OUT1");
     vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_IN1), "GPIO_IN1");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT1(0)),
-                           "GPIO_ALT1(0)");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT1(1)),
-                           "GPIO_ALT1(1)");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT1(2)),
-                           "GPIO_ALT1(2)");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT1(0)), "GPIO_ALT1(0)");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT1(1)), "GPIO_ALT1(1)");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT1(2)), "GPIO_ALT1(2)");
     pr("\n");
 
     pr("%-34s  95    88.87    80.79    72.71    64\n", "GPIO 64-77");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_INTR_ENA2),
-                           "GPIO_INTR_ENA2");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_INTR_ENA2), "GPIO_INTR_ENA2");
     vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_OE2), "GPIO_OE2");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_OUT2),
-                           "GPIO_OUT2");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_OUT2), "GPIO_OUT2");
     vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_IN2), "GPIO_IN2");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT2(0)),
-                           "GPIO_ALT2(0)");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT2(1)),
-                           "GPIO_ALT2(1)");
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT2(2)),
-                           "GPIO_ALT2(2)");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT2(0)), "GPIO_ALT2(0)");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT2(1)), "GPIO_ALT2(1)");
+    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(GCB_GPIO_ALT2(2)), "GPIO_ALT2(2)");
     pr("\n");
 #endif
     return VTSS_RC_OK;
@@ -688,8 +656,7 @@ vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t                  *vtss_state,
                                       lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, lan966x_debug_misc,
-                                  vtss_state, ss, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, lan966x_debug_misc, vtss_state, ss, info);
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 

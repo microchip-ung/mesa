@@ -28,10 +28,10 @@ typedef struct {
  */
 typedef enum {
     VTSS_SFLOW_TYPE_NONE = 0, /**< Sampler is not enabled on the port. */
-    VTSS_SFLOW_TYPE_RX, /**< Sampler is enabled for ingress on the port. */
-    VTSS_SFLOW_TYPE_TX, /**< Sampler is enabled for egress on the port. */
-    VTSS_SFLOW_TYPE_ALL /**< Sampler is enabled for both ingress and egress on
-                           the port. */
+    VTSS_SFLOW_TYPE_RX,       /**< Sampler is enabled for ingress on the port. */
+    VTSS_SFLOW_TYPE_TX,       /**< Sampler is enabled for egress on the port. */
+    VTSS_SFLOW_TYPE_ALL       /**< Sampler is enabled for both ingress and egress on
+                                 the port. */
 } vtss_sflow_type_t;
 
 #endif /* #define _VTSS_L2_TYPES_H_ */

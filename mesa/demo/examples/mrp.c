@@ -10,8 +10,8 @@
 #define NO_EXP        0xFFFFFFFF
 #define IFLOW_ID_NONE 0
 
-static uint8_t test_mc_addr[6] = {0x01, 0x15, 0x4E, 0x00, 0x00, 0x01};
-static uint8_t test_uc_addr[6] = {0, 0, 0, 0, 5, 7};
+static uint8_t              test_mc_addr[6] = {0x01, 0x15, 0x4E, 0x00, 0x00, 0x01};
+static uint8_t              test_uc_addr[6] = {0, 0, 0, 0, 5, 7};
 static mesa_mrp_ring_role_t ring_role = MESA_MRP_RING_ROLE_MANAGER;
 static mesa_mrp_ring_role_t in_ring_role = MESA_MRP_RING_ROLE_CLIENT;
 static uint32_t             tst_interval = 333333;
@@ -58,9 +58,7 @@ static int init_port_configuration(mesa_port_no_t port, uint32_t idx)
     return 0;
 }
 
-static int mrp_flow_configuration(mesa_port_no_t port,
-                                  uint32_t       port_idx,
-                                  mesa_voe_idx_t voe_idx)
+static int mrp_flow_configuration(mesa_port_no_t port, uint32_t port_idx, mesa_voe_idx_t voe_idx)
 {
     mesa_iflow_conf_t iflow_conf;
     mesa_eflow_conf_t eflow_conf;
@@ -113,10 +111,10 @@ static int mrp_flow_configuration(mesa_port_no_t port,
 
 static int mrp_init(int argc, const char *argv[])
 {
-    mesa_port_no_t  p_port = ARGV_INT("p-port", "Is the primary port.");
-    mesa_port_no_t  s_port = ARGV_INT("s-port", "Is the secondary port.");
-    mesa_port_no_t  i_port = ARGV_INT("i-port", "Is the interconnection port.");
-    mesa_mrp_conf_t mrp_conf;
+    mesa_port_no_t          p_port = ARGV_INT("p-port", "Is the primary port.");
+    mesa_port_no_t          s_port = ARGV_INT("s-port", "Is the secondary port.");
+    mesa_port_no_t          i_port = ARGV_INT("i-port", "Is the interconnection port.");
+    mesa_mrp_conf_t         mrp_conf;
     mesa_mrp_tst_loc_conf_t loc_conf;
     mesa_packet_rx_queue_t  cpu_queue = 7;
     uint8_t                 frame[1600];
@@ -164,12 +162,9 @@ static int mrp_init(int argc, const char *argv[])
     mrp_conf.mra = FALSE;
     memcpy(mrp_conf.mac.addr, test_uc_addr, sizeof(mrp_conf.mac.addr));
     RC(mesa_mrp_add(NULL, state.mrp_idx, &mrp_conf));
-    RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.p_port,
-                               MESA_MRP_PORT_STATE_FORWARDING));
-    RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.s_port,
-                               MESA_MRP_PORT_STATE_FORWARDING));
-    RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.i_port,
-                               MESA_MRP_PORT_STATE_FORWARDING));
+    RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.p_port, MESA_MRP_PORT_STATE_FORWARDING));
+    RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.s_port, MESA_MRP_PORT_STATE_FORWARDING));
+    RC(mesa_mrp_port_state_set(NULL, state.mrp_idx, state.i_port, MESA_MRP_PORT_STATE_FORWARDING));
     // snippet_end
 
     // snippet_begin ex-mrp-flow_configuration
@@ -198,13 +193,11 @@ static int mrp_init(int argc, const char *argv[])
     // snippet_end
 
     // snippet_begin ex-mrp-events-enable
-    RC(mesa_mrp_event_mask_set(NULL, state.mrp_idx, MESA_MRP_EVENT_MASK_ALL,
-                               TRUE));
+    RC(mesa_mrp_event_mask_set(NULL, state.mrp_idx, MESA_MRP_EVENT_MASK_ALL, TRUE));
     // snippet_end
 
     // snippet_begin ex-mrp-ring-state-closed
-    RC(mesa_mrp_ring_state_set(NULL, state.mrp_idx,
-                               MESA_MRP_RING_STATE_CLOSED));
+    RC(mesa_mrp_ring_state_set(NULL, state.mrp_idx, MESA_MRP_RING_STATE_CLOSED));
     // snippet_end
 
     return 0;
@@ -249,22 +242,16 @@ static const char *mrp_help()
 
     cnt = sprintf(ret_string, "%s", mrp_help_txt);
     cnt += sprintf(ret_string + cnt, "MRP Ring Role is %s\n",
-                   (ring_role == MESA_MRP_RING_ROLE_MANAGER) ? "Manager"
-                                                             : "Client");
+                   (ring_role == MESA_MRP_RING_ROLE_MANAGER) ? "Manager" : "Client");
     cnt += sprintf(ret_string + cnt, "MRP Interconnect Role is %s\n",
-                   (in_ring_role == MESA_MRP_RING_ROLE_MANAGER) ? "Manager"
-                                                                : "Client");
-    cnt += sprintf(ret_string + cnt,
-                   "MRP Test frame Unicast MAC is %X-%X-%X-%X-%X-%X\n",
-                   test_uc_addr[0], test_uc_addr[1], test_uc_addr[2],
-                   test_uc_addr[3], test_uc_addr[4], test_uc_addr[5]);
+                   (in_ring_role == MESA_MRP_RING_ROLE_MANAGER) ? "Manager" : "Client");
+    cnt += sprintf(ret_string + cnt, "MRP Test frame Unicast MAC is %X-%X-%X-%X-%X-%X\n",
+                   test_uc_addr[0], test_uc_addr[1], test_uc_addr[2], test_uc_addr[3],
+                   test_uc_addr[4], test_uc_addr[5]);
     cnt += sprintf(ret_string + cnt, "MRP Test Interval is %u\n", tst_interval);
-    cnt += sprintf(ret_string + cnt, "MRP Test Monitor Count is %u\n",
-                   tst_mon_count);
-    cnt +=
-        sprintf(ret_string + cnt, "MRP InTest Interval is %u\n", itst_interval);
-    cnt += sprintf(ret_string + cnt, "MRP InTest Monitor Count is %u\n",
-                   itst_mon_count);
+    cnt += sprintf(ret_string + cnt, "MRP Test Monitor Count is %u\n", tst_mon_count);
+    cnt += sprintf(ret_string + cnt, "MRP InTest Interval is %u\n", itst_interval);
+    cnt += sprintf(ret_string + cnt, "MRP InTest Monitor Count is %u\n", itst_mon_count);
     return ret_string;
 }
 
@@ -291,15 +278,13 @@ static int mrp_run(int argc, const char *argv[])
         value 2 is CPU RX frame print.\n\
         value 3 is CPU TX Test frame.\n");
 
-    uint32_t exp_mrp_type = ARGV_RUN_OPT_INT(
-        "exp-mrp-type",
-        "The MRP Frame RX expected MRP type. Default is nothing expected",
-        NO_EXP);
+    uint32_t exp_mrp_type =
+        ARGV_RUN_OPT_INT("exp-mrp-type",
+                         "The MRP Frame RX expected MRP type. Default is nothing expected", NO_EXP);
 
     uint32_t exp_mrp_seen_p = ARGV_RUN_OPT_INT(
         "exp-seen-p-mrp",
-        "The MRP status show expected MRP seen. Primary. Default is nothing expected",
-        NO_EXP);
+        "The MRP status show expected MRP seen. Primary. Default is nothing expected", NO_EXP);
     uint32_t exp_state_loc_p = ARGV_RUN_OPT_INT(
         "exp-state-p-loc",
         "The MRP status show expected Test LOC state. Primary. Default is nothing expected",
@@ -318,8 +303,7 @@ static int mrp_run(int argc, const char *argv[])
         NO_EXP);
     uint32_t exp_count_tst_p = ARGV_RUN_OPT_INT(
         "exp-count-p-tst",
-        "The MRP status show expected Test RX count. Primary. Default is nothing expected",
-        NO_EXP);
+        "The MRP status show expected Test RX count. Primary. Default is nothing expected", NO_EXP);
     uint32_t exp_count_itst_p = ARGV_RUN_OPT_INT(
         "exp-count-p-itst",
         "The MRP status show expected InTest RX count. Primary. Default is nothing expected",
@@ -327,8 +311,7 @@ static int mrp_run(int argc, const char *argv[])
 
     uint32_t exp_mrp_seen_s = ARGV_RUN_OPT_INT(
         "exp-seen-s-mrp",
-        "The MRP status show expected MRP seen. Secondary. Default is nothing expected",
-        NO_EXP);
+        "The MRP status show expected MRP seen. Secondary. Default is nothing expected", NO_EXP);
     uint32_t exp_state_loc_s = ARGV_RUN_OPT_INT(
         "exp-state-s-loc",
         "The MRP status show expected Test LOC state. Secondary. Default is nothing expected",
@@ -356,8 +339,7 @@ static int mrp_run(int argc, const char *argv[])
 
     uint32_t exp_mrp_seen_i = ARGV_RUN_OPT_INT(
         "exp-seen-i-mrp",
-        "The MRP status show expected MRP seen. Interconnect. Default is nothing expected",
-        NO_EXP);
+        "The MRP status show expected MRP seen. Interconnect. Default is nothing expected", NO_EXP);
     uint32_t exp_state_loc_i = ARGV_RUN_OPT_INT(
         "exp-state-i-loc",
         "The MRP status show expected Test LOC state. Interconnect. Default is nothing expected",
@@ -402,86 +384,68 @@ static int mrp_run(int argc, const char *argv[])
         cli_printf("      tst_loc:       %u\n", mrp_status.p_status.tst_loc);
         cli_printf("      itst_loc:      %u\n", mrp_status.p_status.itst_loc);
         cli_printf("      mrp_seen:      %u\n", mrp_status.p_status.mrp_seen);
-        cli_printf("      mrp_proc_seen: %u\n",
-                   mrp_status.p_status.mrp_proc_seen);
-        cli_printf("      dmac_err_seen: %u\n",
-                   mrp_status.p_status.dmac_err_seen);
-        cli_printf("      vers_err_seen: %u\n",
-                   mrp_status.p_status.vers_err_seen);
+        cli_printf("      mrp_proc_seen: %u\n", mrp_status.p_status.mrp_proc_seen);
+        cli_printf("      dmac_err_seen: %u\n", mrp_status.p_status.dmac_err_seen);
+        cli_printf("      vers_err_seen: %u\n", mrp_status.p_status.vers_err_seen);
         cli_printf("\n");
         cli_printf("    Secondary Port:\n");
         cli_printf("      tst_loc:       %u\n", mrp_status.s_status.tst_loc);
         cli_printf("      itst_loc:      %u\n", mrp_status.s_status.itst_loc);
         cli_printf("      mrp_seen:      %u\n", mrp_status.s_status.mrp_seen);
-        cli_printf("      mrp_proc_seen: %u\n",
-                   mrp_status.s_status.mrp_proc_seen);
-        cli_printf("      dmac_err_seen: %u\n",
-                   mrp_status.s_status.dmac_err_seen);
-        cli_printf("      vers_err_seen: %u\n",
-                   mrp_status.s_status.vers_err_seen);
+        cli_printf("      mrp_proc_seen: %u\n", mrp_status.s_status.mrp_proc_seen);
+        cli_printf("      dmac_err_seen: %u\n", mrp_status.s_status.dmac_err_seen);
+        cli_printf("      vers_err_seen: %u\n", mrp_status.s_status.vers_err_seen);
         cli_printf("\n");
         cli_printf("    Interconnect Port:\n");
         cli_printf("      tst_loc:       %u\n", mrp_status.i_status.tst_loc);
         cli_printf("      itst_loc:      %u\n", mrp_status.i_status.itst_loc);
         cli_printf("      mrp_seen:      %u\n", mrp_status.i_status.mrp_seen);
-        cli_printf("      mrp_proc_seen: %u\n",
-                   mrp_status.i_status.mrp_proc_seen);
-        cli_printf("      dmac_err_seen: %u\n",
-                   mrp_status.i_status.dmac_err_seen);
-        cli_printf("      vers_err_seen: %u\n",
-                   mrp_status.i_status.vers_err_seen);
-        if ((exp_mrp_seen_p != NO_EXP) &&
-            (exp_mrp_seen_p != mrp_status.p_status.mrp_seen)) {
-            cli_printf("Primary MRP seen %u is not as expected %u\n",
-                       mrp_status.p_status.mrp_seen, exp_mrp_seen_p);
+        cli_printf("      mrp_proc_seen: %u\n", mrp_status.i_status.mrp_proc_seen);
+        cli_printf("      dmac_err_seen: %u\n", mrp_status.i_status.dmac_err_seen);
+        cli_printf("      vers_err_seen: %u\n", mrp_status.i_status.vers_err_seen);
+        if ((exp_mrp_seen_p != NO_EXP) && (exp_mrp_seen_p != mrp_status.p_status.mrp_seen)) {
+            cli_printf("Primary MRP seen %u is not as expected %u\n", mrp_status.p_status.mrp_seen,
+                       exp_mrp_seen_p);
             return -1;
         }
-        if ((exp_state_loc_p != NO_EXP) &&
-            (exp_state_loc_p != mrp_status.p_status.tst_loc)) {
+        if ((exp_state_loc_p != NO_EXP) && (exp_state_loc_p != mrp_status.p_status.tst_loc)) {
             cli_printf("Primary Test LOC state %u is not as expected %u\n",
                        mrp_status.p_status.tst_loc, exp_state_loc_p);
             return -1;
         }
-        if ((exp_state_iloc_p != NO_EXP) &&
-            (exp_state_iloc_p != mrp_status.p_status.itst_loc)) {
+        if ((exp_state_iloc_p != NO_EXP) && (exp_state_iloc_p != mrp_status.p_status.itst_loc)) {
             cli_printf("Primary InTest LOC state %u is not as expected %u\n",
                        mrp_status.p_status.itst_loc, exp_state_iloc_p);
             return -1;
         }
 
-        if ((exp_mrp_seen_s != NO_EXP) &&
-            (exp_mrp_seen_s != mrp_status.s_status.mrp_seen)) {
+        if ((exp_mrp_seen_s != NO_EXP) && (exp_mrp_seen_s != mrp_status.s_status.mrp_seen)) {
             cli_printf("Secondary MRP seen %u is not as expected %u\n",
                        mrp_status.s_status.mrp_seen, exp_mrp_seen_s);
             return -1;
         }
-        if ((exp_state_loc_s != NO_EXP) &&
-            (exp_state_loc_s != mrp_status.s_status.tst_loc)) {
+        if ((exp_state_loc_s != NO_EXP) && (exp_state_loc_s != mrp_status.s_status.tst_loc)) {
             cli_printf("Secondary Test LOC state %u is not as expected %u\n",
                        mrp_status.s_status.tst_loc, exp_state_loc_s);
             return -1;
         }
-        if ((exp_state_iloc_s != NO_EXP) &&
-            (exp_state_iloc_s != mrp_status.s_status.itst_loc)) {
+        if ((exp_state_iloc_s != NO_EXP) && (exp_state_iloc_s != mrp_status.s_status.itst_loc)) {
             cli_printf("Secondary InTest LOC state %u is not as expected %u\n",
                        mrp_status.s_status.itst_loc, exp_state_iloc_s);
             return -1;
         }
 
-        if ((exp_mrp_seen_i != NO_EXP) &&
-            (exp_mrp_seen_i != mrp_status.i_status.mrp_seen)) {
+        if ((exp_mrp_seen_i != NO_EXP) && (exp_mrp_seen_i != mrp_status.i_status.mrp_seen)) {
             cli_printf("Interconnect MRP seen %u is not as expected %u\n",
                        mrp_status.i_status.mrp_seen, exp_mrp_seen_i);
             return -1;
         }
-        if ((exp_state_loc_i != NO_EXP) &&
-            (exp_state_loc_i != mrp_status.i_status.tst_loc)) {
+        if ((exp_state_loc_i != NO_EXP) && (exp_state_loc_i != mrp_status.i_status.tst_loc)) {
             cli_printf("Interconnect Test LOC state %u is not as expected %u\n",
                        mrp_status.i_status.tst_loc, exp_state_loc_i);
             return -1;
         }
-        if ((exp_state_iloc_i != NO_EXP) &&
-            (exp_state_iloc_i != mrp_status.i_status.itst_loc)) {
+        if ((exp_state_iloc_i != NO_EXP) && (exp_state_iloc_i != mrp_status.i_status.itst_loc)) {
             cli_printf("Interconnect InTest LOC state %u is not as expected %u\n",
                        mrp_status.i_status.itst_loc, exp_state_iloc_i);
             return -1;
@@ -490,22 +454,16 @@ static int mrp_run(int argc, const char *argv[])
         RC(mesa_mrp_counters_get(NULL, state.mrp_idx, &mrp_counters));
         cli_printf("\nMRP counters:\n");
         cli_printf("    Primary Port:\n");
-        cli_printf("      tst_rx_count:  %llu\n",
-                   mrp_counters.p_counters.tst_rx_count);
-        cli_printf("      itst_rx_count: %llu\n",
-                   mrp_counters.p_counters.itst_rx_count);
+        cli_printf("      tst_rx_count:  %llu\n", mrp_counters.p_counters.tst_rx_count);
+        cli_printf("      itst_rx_count: %llu\n", mrp_counters.p_counters.itst_rx_count);
         cli_printf("\n");
         cli_printf("    Secondary Port:\n");
-        cli_printf("      tst_rx_count:  %llu\n",
-                   mrp_counters.s_counters.tst_rx_count);
-        cli_printf("      itst_rx_count: %llu\n",
-                   mrp_counters.s_counters.itst_rx_count);
+        cli_printf("      tst_rx_count:  %llu\n", mrp_counters.s_counters.tst_rx_count);
+        cli_printf("      itst_rx_count: %llu\n", mrp_counters.s_counters.itst_rx_count);
         cli_printf("\n");
         cli_printf("    Interconnect Port:\n");
-        cli_printf("      tst_rx_count:  %llu\n",
-                   mrp_counters.i_counters.tst_rx_count);
-        cli_printf("      itst_rx_count: %llu\n",
-                   mrp_counters.i_counters.itst_rx_count);
+        cli_printf("      tst_rx_count:  %llu\n", mrp_counters.i_counters.tst_rx_count);
+        cli_printf("      itst_rx_count: %llu\n", mrp_counters.i_counters.itst_rx_count);
         break;
         if ((exp_count_tst_p != NO_EXP) &&
             (exp_count_tst_p != mrp_counters.p_counters.tst_rx_count)) {
@@ -527,9 +485,8 @@ static int mrp_run(int argc, const char *argv[])
         }
         if ((exp_count_itst_i != NO_EXP) &&
             (exp_count_itst_i != mrp_counters.i_counters.itst_rx_count)) {
-            cli_printf(
-                "Interconnect MRP InTest RX count %u is not as expected %u\n",
-                mrp_counters.i_counters.tst_rx_count, exp_count_tst_i);
+            cli_printf("Interconnect MRP InTest RX count %u is not as expected %u\n",
+                       mrp_counters.i_counters.tst_rx_count, exp_count_tst_i);
             return -1;
         }
         if ((exp_count_tst_i != NO_EXP) &&
@@ -566,68 +523,55 @@ static int mrp_run(int argc, const char *argv[])
         cli_printf("      itst_loc: %u\n",
                    (MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.i_mask) ? 1 : 0);
         if ((exp_event_loc_p != NO_EXP) &&
-            (exp_event_loc_p !=
-             ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.p_mask) ? 1 : 0))) {
+            (exp_event_loc_p != ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.p_mask) ? 1 : 0))) {
             cli_printf("Primary loc event %u is not as expected %u\n",
-                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.p_mask) ? 1
-                                                                          : 0),
+                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.p_mask) ? 1 : 0),
                        exp_event_loc_p);
             return -1;
         }
         if ((exp_event_iloc_p != NO_EXP) &&
-            (exp_event_iloc_p !=
-             ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.p_mask) ? 1 : 0))) {
+            (exp_event_iloc_p != ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.p_mask) ? 1 : 0))) {
             cli_printf("Primary iloc event %u is not as expected %u\n",
-                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.p_mask) ? 1
-                                                                          : 0),
+                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.p_mask) ? 1 : 0),
                        exp_event_loc_p);
             return -1;
         }
 
         if ((exp_event_loc_s != NO_EXP) &&
-            (exp_event_loc_s !=
-             ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.s_mask) ? 1 : 0))) {
+            (exp_event_loc_s != ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.s_mask) ? 1 : 0))) {
             cli_printf("Secondary loc event %u is not as expected %u\n",
-                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.s_mask) ? 1
-                                                                          : 0),
+                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.s_mask) ? 1 : 0),
                        exp_event_loc_s);
             return -1;
         }
         if ((exp_event_iloc_s != NO_EXP) &&
-            (exp_event_iloc_s !=
-             ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.s_mask) ? 1 : 0))) {
+            (exp_event_iloc_s != ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.s_mask) ? 1 : 0))) {
             cli_printf("Secondary iloc event %u is not as expected %u\n",
-                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.s_mask) ? 1
-                                                                          : 0),
+                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.s_mask) ? 1 : 0),
                        exp_event_loc_s);
             return -1;
         }
 
         if ((exp_event_loc_i != NO_EXP) &&
-            (exp_event_loc_i !=
-             ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.i_mask) ? 1 : 0))) {
+            (exp_event_loc_i != ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.i_mask) ? 1 : 0))) {
             cli_printf("Interconnect loc event %u is not as expected %u\n",
-                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.i_mask) ? 1
-                                                                          : 0),
+                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.i_mask) ? 1 : 0),
                        exp_event_loc_p);
             return -1;
         }
         if ((exp_event_iloc_i != NO_EXP) &&
-            (exp_event_iloc_i !=
-             ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.i_mask) ? 1 : 0))) {
+            (exp_event_iloc_i != ((MESA_MRP_EVENT_MASK_TST_LOC & mrp_event.i_mask) ? 1 : 0))) {
             cli_printf("Interconnect iloc event %u is not as expected %u\n",
-                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.i_mask) ? 1
-                                                                          : 0),
+                       ((MESA_MRP_EVENT_MASK_ITST_LOC & mrp_event.i_mask) ? 1 : 0),
                        exp_event_loc_p);
             return -1;
         }
         break;
 
     case 2:
-        if ((rcode = mesa_packet_rx_frame(NULL, frame, sizeof(frame),
-                                          &rx_info)) != MESA_RC_OK) {
-            cli_printf("mesa_packet_rx_frame() failed  rc %X  Incomplete %u\n",
-                       rcode, (rcode == MESA_RC_INCOMPLETE));
+        if ((rcode = mesa_packet_rx_frame(NULL, frame, sizeof(frame), &rx_info)) != MESA_RC_OK) {
+            cli_printf("mesa_packet_rx_frame() failed  rc %X  Incomplete %u\n", rcode,
+                       (rcode == MESA_RC_INCOMPLETE));
             return -1;
         }
 
@@ -651,8 +595,7 @@ static int mrp_run(int argc, const char *argv[])
         cli_printf("    MRP Type: %s:\n", mrp_type_text(mrp_type));
         if (exp_mrp_type != NO_EXP) {
             if (exp_mrp_type != mrp_type) {
-                cli_printf("MRP type %u is not as expected %u\n", mrp_type,
-                           exp_mrp_type);
+                cli_printf("MRP type %u is not as expected %u\n", mrp_type, exp_mrp_type);
                 return -1;
             }
         }

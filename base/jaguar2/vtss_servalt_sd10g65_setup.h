@@ -28,24 +28,21 @@
 #include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_SERVAL_T)
 
-vtss_rc vtss_servalt_sd10g_setup_tx(vtss_state_t *vtss_state,
+vtss_rc vtss_servalt_sd10g_setup_tx(vtss_state_t                      *vtss_state,
                                     const vtss_sd10g65_setup_tx_args_t config,
                                     vtss_port_no_t                     port_no);
-vtss_rc vtss_servalt_sd10g_setup_rx(vtss_state_t *vtss_state,
+vtss_rc vtss_servalt_sd10g_setup_rx(vtss_state_t                      *vtss_state,
                                     const vtss_sd10g65_setup_rx_args_t config,
                                     vtss_port_no_t                     port_no);
-vtss_rc vtss_servalt_sd10g_power_down(vtss_state_t  *vtss_state,
-                                      vtss_port_no_t port_no);
-vtss_rc vtss_servalt_apc10g_setup(vtss_state_t *vtss_state,
+vtss_rc vtss_servalt_sd10g_power_down(vtss_state_t *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_servalt_apc10g_setup(vtss_state_t                       *vtss_state,
                                   const vtss_sd10g65_setup_apc_args_t config,
                                   vtss_port_no_t                      port_no);
-vtss_rc vtss_servalt_sd10g_setup_df2f(vtss_state_t *vtss_state,
-                                      const vtss_sd10g65_setup_df2f_args_t
-                                                     config,
-                                      vtss_port_no_t port_no);
-vtss_rc vtss_servalt_sd10g_setup_f2df(vtss_state_t *vtss_state,
-                                      const vtss_sd10g65_setup_f2df_args_t
-                                                     config,
-                                      vtss_port_no_t port_no);
+vtss_rc vtss_servalt_sd10g_setup_df2f(vtss_state_t                        *vtss_state,
+                                      const vtss_sd10g65_setup_df2f_args_t config,
+                                      vtss_port_no_t                       port_no);
+vtss_rc vtss_servalt_sd10g_setup_f2df(vtss_state_t                        *vtss_state,
+                                      const vtss_sd10g65_setup_f2df_args_t config,
+                                      vtss_port_no_t                       port_no);
 #endif
 #endif

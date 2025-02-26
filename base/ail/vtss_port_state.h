@@ -107,14 +107,12 @@ typedef struct {
     vtss_chip_counter_t tx_ct;
 
     /* Rx counters */
-    vtss_chip_counter_t
-        rx_mm_assembly_errors; /* 802.3br aMACMergeFrameAssErrorCount */
-    vtss_chip_counter_t
-        rx_mm_smd_errors; /* 802.3br aMACMergeFrameSmdErrorCount */
-    vtss_chip_counter_t rx_mm_assembly_ok; /* 802.3br aMACMergeFrameAssOkCount */
-    vtss_chip_counter_t rx_mm_fragments;   /* 802.3br aMACMergeFragCountRx   */
-    vtss_chip_counter_t tx_mm_fragments;   /* 802.3br aMACMergeFragCountTx */
-    vtss_chip_counter_t tx_mm_hold;        /* 802.3br aMACMergeHoldCountTx */
+    vtss_chip_counter_t rx_mm_assembly_errors; /* 802.3br aMACMergeFrameAssErrorCount */
+    vtss_chip_counter_t rx_mm_smd_errors;      /* 802.3br aMACMergeFrameSmdErrorCount */
+    vtss_chip_counter_t rx_mm_assembly_ok;     /* 802.3br aMACMergeFrameAssOkCount */
+    vtss_chip_counter_t rx_mm_fragments;       /* 802.3br aMACMergeFragCountRx   */
+    vtss_chip_counter_t tx_mm_fragments;       /* 802.3br aMACMergeFragCountTx */
+    vtss_chip_counter_t tx_mm_hold;            /* 802.3br aMACMergeHoldCountTx */
 #endif
 } vtss_port_luton26_counters_t;
 
@@ -304,13 +302,11 @@ typedef struct {
     vtss_chip_counter_t tx_backoff1;
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     /* Rx counters */
-    vtss_chip_counter_t
-        rx_mm_assembly_errors; /* 802.3br aMACMergeFrameAssErrorCount */
-    vtss_chip_counter_t
-        rx_mm_smd_errors; /* 802.3br aMACMergeFrameSmdErrorCount */
-    vtss_chip_counter_t rx_mm_assembly_ok; /* 802.3br aMACMergeFrameAssOkCount */
-    vtss_chip_counter_t rx_mm_fragments;   /* 802.3br aMACMergeFragCountRx   */
-    vtss_chip_counter_t tx_mm_fragments;   /* 802.3br aMACMergeFragCountTx */
+    vtss_chip_counter_t rx_mm_assembly_errors; /* 802.3br aMACMergeFrameAssErrorCount */
+    vtss_chip_counter_t rx_mm_smd_errors;      /* 802.3br aMACMergeFrameSmdErrorCount */
+    vtss_chip_counter_t rx_mm_assembly_ok;     /* 802.3br aMACMergeFrameAssOkCount */
+    vtss_chip_counter_t rx_mm_fragments;       /* 802.3br aMACMergeFragCountRx   */
+    vtss_chip_counter_t tx_mm_fragments;       /* 802.3br aMACMergeFragCountTx */
 #endif
 } vtss_port_fa_counters_t;
 
@@ -327,12 +323,9 @@ typedef struct {
     struct {
         BOOL complete; /**< Aneg completion status */
         union {
-            vtss_port_clause_37_adv_t
-                cl37; /**< Clause 37 advertisement results */
-            vtss_port_sgmii_aneg_t
-                sgmii; /**< Cisco-SGMII advertisement results */
-            vtss_port_usxgmii_aneg_t
-                usxgmii; /**< USXGMII advertisement results */
+            vtss_port_clause_37_adv_t cl37;    /**< Clause 37 advertisement results */
+            vtss_port_sgmii_aneg_t    sgmii;   /**< Cisco-SGMII advertisement results */
+            vtss_port_usxgmii_aneg_t  usxgmii; /**< USXGMII advertisement results */
         } partner;
     } autoneg; /**< Autoneg status */
 } vtss_port_clause_37_status_t;
@@ -345,9 +338,9 @@ typedef struct {
 typedef struct {
     u8   cbc[VTSS_CALENDAR_LEN_MAX]; // Resulting Cell Bus Calendar
     u32  len;                        // Length of calendar
-    BOOL manual; // TRUE when #cbc is applied. FALSE if auto-calendar is applied
-    BOOL dynamic; // TRUE when calendar is dynamically calcuated, FALSE when
-                  // static (only valid when #manual is TRUE).
+    BOOL manual;                     // TRUE when #cbc is applied. FALSE if auto-calendar is applied
+    BOOL dynamic;                    // TRUE when calendar is dynamically calcuated, FALSE when
+                                     // static (only valid when #manual is TRUE).
 } vtss_calendar_t;
 #endif /* defined(VTSS_ARCH_JAGUAR_2) && !defined(VTSS_ARCH_JAGUAR_2_B) */
 
@@ -390,10 +383,7 @@ typedef struct {
 #define KR_ANEG_RATE_2G5   12
 #define KR_ANEG_RATE_1G    13
 
-typedef enum {
-    VTSS_COEFFICIENT_UPDATE_FRM,
-    VTSS_STATUS_REPORT_FRM
-} vtss_port_kr_frm_type_t;
+typedef enum { VTSS_COEFFICIENT_UPDATE_FRM, VTSS_STATUS_REPORT_FRM } vtss_port_kr_frm_type_t;
 
 typedef struct {
     vtss_port_kr_frm_type_t type;
@@ -489,11 +479,10 @@ typedef struct {
 #if defined(VTSS_FEATURE_PORT_IFH)
     vtss_port_ifh_t ifh_conf[VTSS_PORT_ARRAY_SIZE];
 #endif /* VTSS_FEATURE_PORT_IFH */
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_LAN966X)
     u32 buf_prio_shr[VTSS_PRIOS]; /* Initial values of buf_prio_shr_i or
                                      buf_prio_shr_e watermarks */
-#endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) */
+#endif                            /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) */
     vtss_port_forward_t forward[VTSS_PORT_ARRAY_SIZE];
 
 #if defined(VTSS_ARCH_JAGUAR_2)
@@ -505,8 +494,7 @@ typedef struct {
 #endif /* defined(VTSS_CALENDAR_CALC) */
 } vtss_port_state_t;
 
-vtss_rc vtss_cil_port_conf_set(struct vtss_state_s *vtss_state,
-                               const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 vtss_rc vtss_cil_port_conf_get(struct vtss_state_s    *vtss_state,
                                const vtss_port_no_t    port_no,
                                vtss_port_conf_t *const conf);
@@ -544,24 +532,21 @@ vtss_rc vtss_cil_mmd_write(struct vtss_state_s   *vtss_state,
                            u16                    addr,
                            u16                    data,
                            BOOL                   report_errors);
-vtss_rc vtss_cil_port_clause_37_control_get(struct vtss_state_s *vtss_state,
-                                            const vtss_port_no_t port_no,
-                                            vtss_port_clause_37_control_t
-                                                *const control);
+vtss_rc vtss_cil_port_clause_37_control_get(struct vtss_state_s                 *vtss_state,
+                                            const vtss_port_no_t                 port_no,
+                                            vtss_port_clause_37_control_t *const control);
 vtss_rc vtss_cil_port_clause_37_control_set(struct vtss_state_s *vtss_state,
                                             const vtss_port_no_t port_no);
-vtss_rc vtss_cil_port_clause_37_status_get(struct vtss_state_s *vtss_state,
-                                           const vtss_port_no_t port_no,
-                                           vtss_port_clause_37_status_t
-                                               *const status);
+vtss_rc vtss_cil_port_clause_37_status_get(struct vtss_state_s                *vtss_state,
+                                           const vtss_port_no_t                port_no,
+                                           vtss_port_clause_37_status_t *const status);
 vtss_rc vtss_cil_port_status_get(struct vtss_state_s      *vtss_state,
                                  const vtss_port_no_t      port_no,
                                  vtss_port_status_t *const status);
 vtss_rc vtss_cil_pcs_status_get(struct vtss_state_s     *vtss_state,
                                 const vtss_port_no_t     port_no,
                                 vtss_pcs_status_t *const status);
-vtss_rc vtss_cil_port_kr_ctle_adjust(struct vtss_state_s *vtss_state,
-                                     const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_kr_ctle_adjust(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 vtss_rc vtss_cil_port_kr_ctle_get(struct vtss_state_s    *vtss_state,
                                   const vtss_port_no_t    port_no,
                                   vtss_port_ctle_t *const ctle);
@@ -570,38 +555,31 @@ vtss_rc vtss_cil_port_counters_get(struct vtss_state_s        *vtss_state,
                                    vtss_port_counters_t *const counters);
 vtss_rc vtss_cil_port_counters_update(struct vtss_state_s *vtss_state,
                                       const vtss_port_no_t port_no);
-vtss_rc vtss_cil_port_counters_clear(struct vtss_state_s *vtss_state,
-                                     const vtss_port_no_t port_no);
-vtss_rc vtss_cil_port_basic_counters_get(struct vtss_state_s *vtss_state,
-                                         const vtss_port_no_t port_no,
+vtss_rc vtss_cil_port_counters_clear(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_basic_counters_get(struct vtss_state_s         *vtss_state,
+                                         const vtss_port_no_t         port_no,
                                          vtss_basic_counters_t *const counters);
-vtss_rc vtss_cil_port_forward_set(struct vtss_state_s *vtss_state,
-                                  const vtss_port_no_t port_no);
-vtss_rc vtss_cil_port_test_conf_set(struct vtss_state_s *vtss_state,
-                                    const vtss_port_no_t port_no);
-vtss_rc vtss_cil_port_serdes_debug(struct vtss_state_s *vtss_state,
-                                   const vtss_port_no_t port_no,
+vtss_rc vtss_cil_port_forward_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_test_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_serdes_debug(struct vtss_state_s                  *vtss_state,
+                                   const vtss_port_no_t                  port_no,
                                    const vtss_port_serdes_debug_t *const conf);
 vtss_rc vtss_cil_port_conf_set_bulk(struct vtss_state_s *vtss_state);
-vtss_rc vtss_cil_port_ifh_set(struct vtss_state_s *vtss_state,
-                              const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_ifh_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 #if defined(VTSS_FEATURE_SYNCE)
 vtss_rc vtss_cil_synce_clock_out_set(struct vtss_state_s        *vtss_state,
                                      const vtss_synce_clk_port_t clk_port);
 vtss_rc vtss_cil_synce_clock_in_set(struct vtss_state_s        *vtss_state,
                                     const vtss_synce_clk_port_t clk_port);
-vtss_rc vtss_cil_synce_station_clk_out_set(struct vtss_state_s *vtss_state,
-                                           const vtss_synce_clk_port_t
-                                               clk_port_par);
+vtss_rc vtss_cil_synce_station_clk_out_set(struct vtss_state_s        *vtss_state,
+                                           const vtss_synce_clk_port_t clk_port_par);
 #endif
 #if defined(VTSS_FEATURE_PORT_KR_IRQ) || defined(VTSS_FEATURE_PORT_KR)
 vtss_rc vtss_cil_port_kr_status(struct vtss_state_s         *vtss_state,
                                 const vtss_port_no_t         port_no,
                                 vtss_port_kr_status_t *const status);
-vtss_rc vtss_cil_port_kr_fec_set(struct vtss_state_s *vtss_state,
-                                 const vtss_port_no_t port_no);
-vtss_rc vtss_cil_port_kr_conf_set(struct vtss_state_s *vtss_state,
-                                  const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_kr_fec_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_kr_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 #endif
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
 vtss_rc vtss_cil_port_kr_coef_set(struct vtss_state_s            *vtss_state,
@@ -623,8 +601,7 @@ vtss_rc vtss_cil_port_kr_ber_cnt(struct vtss_state_s *vtss_state,
 vtss_rc vtss_cil_port_kr_irq_get(struct vtss_state_s *vtss_state,
                                  const vtss_port_no_t port_no,
                                  u32 *const           irq);
-vtss_rc vtss_cil_port_kr_irq_activity(struct vtss_state_s *vtss_state,
-                                      u32 *const           irq_mask);
+vtss_rc vtss_cil_port_kr_irq_activity(struct vtss_state_s *vtss_state, u32 *const irq_mask);
 vtss_rc vtss_cil_port_kr_event_enable(struct vtss_state_s *vtss_state,
                                       const vtss_port_no_t port_no,
                                       BOOL                 enable);
@@ -644,8 +621,7 @@ vtss_rc vtss_port_inst_create(struct vtss_state_s *vtss_state);
 vtss_rc vtss_port_restart_sync(struct vtss_state_s *vtss_state);
 
 vtss_port_no_t vtss_cmn_first_port_no_get(struct vtss_state_s *vtss_state,
-                                          const BOOL
-                                              port_list[VTSS_PORT_ARRAY_SIZE]);
+                                          const BOOL           port_list[VTSS_PORT_ARRAY_SIZE]);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_port_no_t vtss_cmn_port2port_no(struct vtss_state_s           *vtss_state,
                                      const vtss_debug_info_t *const info,
@@ -655,15 +631,12 @@ vtss_port_no_t vtss_api_port(struct vtss_state_s *vtss_state, u32 chip_port);
 vtss_rc        vtss_port_conf_set_private(struct vtss_state_s          *vtss_state,
                                           const vtss_port_no_t          port_no,
                                           const vtss_port_conf_t *const conf);
-vtss_rc        vtss_cmn_port_clause_37_adv_get(u32                        value,
-                                               vtss_port_clause_37_adv_t *adv);
+vtss_rc        vtss_cmn_port_clause_37_adv_get(u32 value, vtss_port_clause_37_adv_t *adv);
 vtss_rc        vtss_cmn_port_clause_37_adv_set(u32                       *value,
                                                vtss_port_clause_37_adv_t *adv,
                                                BOOL                       aneg_enable);
-vtss_rc        vtss_cmn_port_sgmii_cisco_aneg_get(u32                     value,
-                                                  vtss_port_sgmii_aneg_t *sgmii_adv);
-vtss_rc        vtss_cmn_port_usxgmii_aneg_get(u32                       value,
-                                              vtss_port_usxgmii_aneg_t *usxgmii);
+vtss_rc        vtss_cmn_port_sgmii_cisco_aneg_get(u32 value, vtss_port_sgmii_aneg_t *sgmii_adv);
+vtss_rc        vtss_cmn_port_usxgmii_aneg_get(u32 value, vtss_port_usxgmii_aneg_t *usxgmii);
 #if VTSS_OPT_DEBUG_PRINT
 void vtss_port_debug_print(struct vtss_state_s           *vtss_state,
                            lmu_ss_t                      *ss,

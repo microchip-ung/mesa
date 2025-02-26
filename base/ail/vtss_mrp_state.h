@@ -24,12 +24,12 @@ typedef struct {
 
     /* Internals */
     BOOL active;
-    u32  tst_loc_idx;        /* The allocated LOC timer index */
-    u32  itst_loc_idx;       /* The allocated Interconnect LOC timer index */
-    u32  ring_transitions;   /* Number op ring state transitions from closed to
-                                open */
-    u32 in_ring_transitions; /* Number op interconnected ring state transitions
-                                from closed to open */
+    u32  tst_loc_idx;                        /* The allocated LOC timer index */
+    u32  itst_loc_idx;                       /* The allocated Interconnect LOC timer index */
+    u32  ring_transitions;                   /* Number op ring state transitions from closed to
+                                                open */
+    u32 in_ring_transitions;                 /* Number op interconnected ring state transitions
+                                                from closed to open */
     vtss_mrp_internal_counters_t p_counters; /* P port chip counters */
     vtss_mrp_internal_counters_t s_counters; /* S port chip counters */
     vtss_mrp_internal_counters_t i_counters; /* I port chip counters */
@@ -41,13 +41,9 @@ typedef struct {
 
 typedef struct {
     /* CIL function pointers */
-    vtss_rc (*mrp_add)(struct vtss_state_s *,
-                       const vtss_mrp_idx_t,
-                       const vtss_mrp_conf_t *const);
+    vtss_rc (*mrp_add)(struct vtss_state_s *, const vtss_mrp_idx_t, const vtss_mrp_conf_t *const);
     vtss_rc (*mrp_del)(struct vtss_state_s *, const vtss_mrp_idx_t);
-    vtss_rc (*mrp_primary_port_set)(struct vtss_state_s *,
-                                    const vtss_mrp_idx_t,
-                                    vtss_port_no_t);
+    vtss_rc (*mrp_primary_port_set)(struct vtss_state_s *, const vtss_mrp_idx_t, vtss_port_no_t);
     vtss_rc (*mrp_ring_role_set)(struct vtss_state_s *,
                                  const vtss_mrp_idx_t,
                                  const vtss_mrp_ring_role_t);
@@ -83,9 +79,7 @@ typedef struct {
                                   const vtss_mrp_idx_t,
                                   const u32,
                                   const BOOL);
-    vtss_rc (*mrp_event_get)(struct vtss_state_s *,
-                             const vtss_mrp_idx_t,
-                             vtss_mrp_event_t *const);
+    vtss_rc (*mrp_event_get)(struct vtss_state_s *, const vtss_mrp_idx_t, vtss_mrp_event_t *const);
 
     /* Internal MRP data */
     u32             mrp_poll_idx; /* The one second MRP poll index */

@@ -59,33 +59,24 @@ typedef enum {
     VTSS_TARGET_7558 = 0x7558,             /**< SparX-5-200 Enterprise Switch */
     VTSS_TARGET_7546TSN = 0x47546,         /**< SparX-5-64i Industrial Switch */
     VTSS_TARGET_7549TSN = 0x47549,         /**< SparX-5-90i Industrial Switch */
-    VTSS_TARGET_7552TSN = 0x47552, /**< SparX-5-128i Industrial Switch */
-    VTSS_TARGET_7556TSN = 0x47556, /**< SparX-5-160i Industrial Switch */
-    VTSS_TARGET_7558TSN = 0x47558, /**< SparX-5-200i Industrial Switch */
-    VTSS_TARGET_LAN9662 = 0x9662,  /**< LAN9662 switch */
-    VTSS_TARGET_LAN9668 = 0x9668,  /**< LAN9668 switch */
+    VTSS_TARGET_7552TSN = 0x47552,         /**< SparX-5-128i Industrial Switch */
+    VTSS_TARGET_7556TSN = 0x47556,         /**< SparX-5-160i Industrial Switch */
+    VTSS_TARGET_7558TSN = 0x47558,         /**< SparX-5-200i Industrial Switch */
+    VTSS_TARGET_LAN9662 = 0x9662,          /**< LAN9662 switch */
+    VTSS_TARGET_LAN9668 = 0x9668,          /**< LAN9668 switch */
 
-    VTSS_TARGET_LAN9694 = 0x9694, /**< Laguna-40:      +40G Ethernet switch */
-    VTSS_TARGET_LAN9691VAO =
-        0x9691, /**< Laguna-40-VAO:  +40G Automotive TSN Ethernet switch */
-    VTSS_TARGET_LAN9694TSN =
-        0x9695, /**< Laguna-40-TSN:  +40G TSN Ethernet switch */
-    VTSS_TARGET_LAN9694RED =
-        0x969A, /**< Laguna-40-RED:  +40G TSN Ethernet switch with PRP/HSR */
-    VTSS_TARGET_LAN9696 = 0x9696, /**< Laguna-60:      +60G Ethernet switch */
-    VTSS_TARGET_LAN9692VAO =
-        0x9692, /**< Laguna-65-VAO:  +65G Automotive TSN Ethernet switch */
-    VTSS_TARGET_LAN9696TSN =
-        0x9697, /**< Laguna-60-TSN:  +60G TSN Ethernet switch */
-    VTSS_TARGET_LAN9696RED =
-        0x969B, /**< Laguna-60-RED:  +60G TSN Ethernet switch with PRP/HSR */
-    VTSS_TARGET_LAN9698 = 0x9698, /**< Laguna-100:     +80G Ethernet switch */
-    VTSS_TARGET_LAN9693VAO =
-        0x9693, /**< Laguna-100-VAO: +80G Automotive TSN Ethernet switch */
-    VTSS_TARGET_LAN9698TSN =
-        0x9699, /**< Laguna-100-TSN: +80G TSN Ethernet switch */
-    VTSS_TARGET_LAN9698RED =
-        0x969C, /**< Laguna-100-RED: +80G TSN Ethernet switch with PRP/HSR */
+    VTSS_TARGET_LAN9694 = 0x9694,    /**< Laguna-40:      +40G Ethernet switch */
+    VTSS_TARGET_LAN9691VAO = 0x9691, /**< Laguna-40-VAO:  +40G Automotive TSN Ethernet switch */
+    VTSS_TARGET_LAN9694TSN = 0x9695, /**< Laguna-40-TSN:  +40G TSN Ethernet switch */
+    VTSS_TARGET_LAN9694RED = 0x969A, /**< Laguna-40-RED:  +40G TSN Ethernet switch with PRP/HSR */
+    VTSS_TARGET_LAN9696 = 0x9696,    /**< Laguna-60:      +60G Ethernet switch */
+    VTSS_TARGET_LAN9692VAO = 0x9692, /**< Laguna-65-VAO:  +65G Automotive TSN Ethernet switch */
+    VTSS_TARGET_LAN9696TSN = 0x9697, /**< Laguna-60-TSN:  +60G TSN Ethernet switch */
+    VTSS_TARGET_LAN9696RED = 0x969B, /**< Laguna-60-RED:  +60G TSN Ethernet switch with PRP/HSR */
+    VTSS_TARGET_LAN9698 = 0x9698,    /**< Laguna-100:     +80G Ethernet switch */
+    VTSS_TARGET_LAN9693VAO = 0x9693, /**< Laguna-100-VAO: +80G Automotive TSN Ethernet switch */
+    VTSS_TARGET_LAN9698TSN = 0x9699, /**< Laguna-100-TSN: +80G TSN Ethernet switch */
+    VTSS_TARGET_LAN9698RED = 0x969C, /**< Laguna-100-RED: +80G TSN Ethernet switch with PRP/HSR */
 } vtss_target_type_t;
 
 /** \brief Create structure */
@@ -101,8 +92,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_inst_get(const vtss_target_type_t  target,
-                      vtss_inst_create_t *const create);
+vtss_rc vtss_inst_get(const vtss_target_type_t target, vtss_inst_create_t *const create);
 
 /**
  * \brief Create target instance.
@@ -112,8 +102,7 @@ vtss_rc vtss_inst_get(const vtss_target_type_t  target,
  *
  * \return Return code.
  **/
-vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
-                         vtss_inst_t *const              inst);
+vtss_rc vtss_inst_create(const vtss_inst_create_t *const create, vtss_inst_t *const inst);
 
 /**
  * \brief Destroy target instance.
@@ -133,9 +122,7 @@ vtss_rc vtss_inst_destroy(const vtss_inst_t inst);
  *
  * \return Return code.
  **/
-typedef vtss_rc (*vtss_reg_read_t)(const vtss_chip_no_t chip_no,
-                                   const u32            addr,
-                                   u32 *const           value);
+typedef vtss_rc (*vtss_reg_read_t)(const vtss_chip_no_t chip_no, const u32 addr, u32 *const value);
 
 /**
  * \brief Register write function
@@ -146,9 +133,7 @@ typedef vtss_rc (*vtss_reg_read_t)(const vtss_chip_no_t chip_no,
  *
  * \return Return code.
  **/
-typedef vtss_rc (*vtss_reg_write_t)(const vtss_chip_no_t chip_no,
-                                    const u32            addr,
-                                    const u32            value);
+typedef vtss_rc (*vtss_reg_write_t)(const vtss_chip_no_t chip_no, const u32 addr, const u32 value);
 
 /**
  * \brief I2C read function
@@ -357,10 +342,10 @@ typedef enum {
 /** \brief PI configuration */
 typedef struct {
 #if defined(VTSS_ARCH_LUTON26)
-    vtss_pi_width_t width;       /**< Width */
-    BOOL use_extended_bus_cycle; /**< Use extended bus cycle for slow registers */
-#endif                           /* VTSS_ARCH_LUTON26 */
-    u32 cs_wait_ns;              /**< Minimum CS wait time in nanoseconds */
+    vtss_pi_width_t width;                  /**< Width */
+    BOOL            use_extended_bus_cycle; /**< Use extended bus cycle for slow registers */
+#endif                                      /* VTSS_ARCH_LUTON26 */
+    u32 cs_wait_ns;                         /**< Minimum CS wait time in nanoseconds */
 } vtss_pi_conf_t;
 
 #if defined(VTSS_FEATURE_PORT_MUX)
@@ -421,7 +406,7 @@ typedef struct {
     vtss_vdd_t           serdes1g_vdd; /**< Serdes1g supply */
     vtss_vdd_t           serdes6g_vdd; /**< Serdes6g supply */
     BOOL                 ib_cterm_ena; /**< AC(0)/DC(1) coupled */
-    vtss_serdes_fields_t qsgmii; /**< Appl/Board specific fields for QSGMII */
+    vtss_serdes_fields_t qsgmii;       /**< Appl/Board specific fields for QSGMII */
 } vtss_serdes_macro_conf_t;
 #endif /* VTSS_FEATURE_SERDES_MACRO_SETTINGS */
 
@@ -464,13 +449,13 @@ typedef enum {
 typedef enum {
     VTSS_CORE_REF_CLK_DEFAULT, /**< Use strapping pin (0=25Mhz/1=39Mhz) */
     VTSS_CORE_REF_CLK_25MHZ,   /**< Force to use 25Mhz ref. clock */
-    VTSS_CORE_REF_CLK_39MHZ, /**< Force to use 39.0625Mhz (156.25/4) ref. clock */
+    VTSS_CORE_REF_CLK_39MHZ,   /**< Force to use 39.0625Mhz (156.25/4) ref. clock */
 } vtss_core_ref_clk_t;
 
 /** \brief Core clock configuration */
 typedef struct {
-    vtss_core_clock_freq_t freq; /**< The frequency of the core clock (LC-PLL) */
-    vtss_core_ref_clk_t ref_freq; /**< The frequency of the reference clock */
+    vtss_core_clock_freq_t freq;     /**< The frequency of the core clock (LC-PLL) */
+    vtss_core_ref_clk_t    ref_freq; /**< The frequency of the reference clock */
 } vtss_core_clock_conf_t;
 #endif /* VTSS_FEATURE_CORE_CLOCK */
 
@@ -490,29 +475,23 @@ typedef struct {
     vtss_miim_write_t miim_write; /**< MII management write function */
 
     /* MMD management access must be setup for 10G phys */
-    vtss_mmd_read_t mmd_read; /**< MMD management read function */
-    vtss_mmd_read_inc_t
-        mmd_read_inc;           /**< MMD management read increment function */
-    vtss_mmd_write_t mmd_write; /**< MMD management write function */
+    vtss_mmd_read_t     mmd_read;     /**< MMD management read function */
+    vtss_mmd_read_inc_t mmd_read_inc; /**< MMD management read increment function */
+    vtss_mmd_write_t    mmd_write;    /**< MMD management write function */
 
-    vtss_spi_read_write_t
-        spi_read_write; /**< Board specific SPI read/write callout function */
+    vtss_spi_read_write_t spi_read_write; /**< Board specific SPI read/write callout function */
 
-    vtss_spi_32bit_read_write_t
-        spi_32bit_read_write; /**< Board specific SPI read/write callout
-                                 function for 32 bit data */
-    vtss_spi_64bit_read_write_t
-        spi_64bit_read_write; /**< Board specific SPI read/write callout
-                                 function for 64 bit data*/
+    vtss_spi_32bit_read_write_t spi_32bit_read_write; /**< Board specific SPI read/write callout
+                                                         function for 32 bit data */
+    vtss_spi_64bit_read_write_t spi_64bit_read_write; /**< Board specific SPI read/write callout
+                                                         function for 64 bit data*/
 
 #if defined(VTSS_GPIOS)
-    vtss_gpio_func_info_get_t
-        gpio_func_info_get; /**< GPIO functionallity information get callout
-                               function */
+    vtss_gpio_func_info_get_t gpio_func_info_get; /**< GPIO functionallity information get callout
+                                                     function */
 #endif
 
-    vtss_port_serdes_tap_get_t
-        serdes_tap_get; /**< Serdes tap get callout function */
+    vtss_port_serdes_tap_get_t serdes_tap_get; /**< Serdes tap get callout function */
 
     /** Do not reset the switch core when calling vtss_init_conf_set. This
      * assumes someone else is doing the reset.
@@ -523,17 +502,14 @@ typedef struct {
 
     BOOL spi_bus; /**< Using SPI bus interface for reg_read/reg_write */
 #if defined(VTSS_FEATURE_WARM_START)
-    BOOL warm_start_enable; /**< Allow warm start */
-    vtss_restart_info_src_t
-        restart_info_src; /**< Source of restart information */
-    vtss_port_no_t
-        restart_info_port; /**< Port used to store PHY restart information */
-#endif                     /* VTSS_FEATURE_WARM_START */
+    BOOL                    warm_start_enable; /**< Allow warm start */
+    vtss_restart_info_src_t restart_info_src;  /**< Source of restart information */
+    vtss_port_no_t          restart_info_port; /**< Port used to store PHY restart information */
+#endif                                         /* VTSS_FEATURE_WARM_START */
 
 #if defined(VTSS_FEATURE_PORT_MUX)
-    vtss_port_mux_mode_t
-        mux_mode; /**< Mux mode (port connection to Serdes Macroes) */
-#endif            /* VTSS_FEATURE_PORT_MUX */
+    vtss_port_mux_mode_t mux_mode; /**< Mux mode (port connection to Serdes Macroes) */
+#endif                             /* VTSS_FEATURE_PORT_MUX */
 
     vtss_pi_conf_t pi; /**< Parallel Interface configuration */
 
@@ -580,8 +556,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_init_conf_get(const vtss_inst_t       inst,
-                           vtss_init_conf_t *const conf);
+vtss_rc vtss_init_conf_get(const vtss_inst_t inst, vtss_init_conf_t *const conf);
 
 /**
  * \brief Set initialization configuration.
@@ -591,8 +566,7 @@ vtss_rc vtss_init_conf_get(const vtss_inst_t       inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_init_conf_set(const vtss_inst_t             inst,
-                           const vtss_init_conf_t *const conf);
+vtss_rc vtss_init_conf_set(const vtss_inst_t inst, const vtss_init_conf_t *const conf);
 
 /**
  * \brief Change access interface to either use SPI or another interface.
@@ -652,8 +626,8 @@ typedef struct {
     vtss_reg_read_t      reg_read;  /**< Register read function */
     vtss_spi_endian_t    endian;    /**< Endian configuration */
     vtss_spi_bit_order_t bit_order; /**< Bit order configuration */
-    u8 padding; /**< Number of padding bytes to insert before read-data is
-                   shifted out */
+    u8                   padding;   /**< Number of padding bytes to insert before read-data is
+                                       shifted out */
 } vtss_spi_slave_init_t;
 
 /**
@@ -702,8 +676,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_restart_status_get(const vtss_inst_t            inst,
-                                vtss_restart_status_t *const status);
+vtss_rc vtss_restart_status_get(const vtss_inst_t inst, vtss_restart_status_t *const status);
 
 /**
  * \brief Get restart configuration (next restart mode)
@@ -713,8 +686,7 @@ vtss_rc vtss_restart_status_get(const vtss_inst_t            inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_restart_conf_get(const vtss_inst_t     inst,
-                              vtss_restart_t *const restart);
+vtss_rc vtss_restart_conf_get(const vtss_inst_t inst, vtss_restart_t *const restart);
 
 /**
  * \brief Set restart configuration (next restart mode)
@@ -724,8 +696,7 @@ vtss_rc vtss_restart_conf_get(const vtss_inst_t     inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_restart_conf_set(const vtss_inst_t    inst,
-                              const vtss_restart_t restart);
+vtss_rc vtss_restart_conf_set(const vtss_inst_t inst, const vtss_restart_t restart);
 
 #endif /* VTSS_FEATURE_WARM_START */
 

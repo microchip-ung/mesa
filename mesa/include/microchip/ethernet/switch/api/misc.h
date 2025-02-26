@@ -64,14 +64,12 @@ typedef struct {
 // Get trace configuration
 // group [IN]  Trace group
 // conf [OUT]  Trace group configuration.
-mesa_rc mesa_trace_conf_get(const mesa_trace_group_t group,
-                            mesa_trace_conf_t *const conf);
+mesa_rc mesa_trace_conf_get(const mesa_trace_group_t group, mesa_trace_conf_t *const conf);
 
 // Set trace configuration
 // group [IN]  Trace group
 // conf [IN]   Trace group configuration.
-mesa_rc mesa_trace_conf_set(const mesa_trace_group_t       group,
-                            const mesa_trace_conf_t *const conf);
+mesa_rc mesa_trace_conf_set(const mesa_trace_group_t group, const mesa_trace_conf_t *const conf);
 
 // Trace callout function
 //
@@ -144,24 +142,24 @@ typedef enum {
     MESA_DEBUG_GROUP_TS,        // TS: TimeStamping
     MESA_DEBUG_GROUP_PHY_TS,    // PHY_TS: PHY TimeStamping
     MESA_DEBUG_GROUP_WM,        // WaterMarks
-    MESA_DEBUG_GROUP_LRN,  // DEPRECATED. Use MESA_DEBUG_GROUP_MAC_TABLE instead
-    MESA_DEBUG_GROUP_IPMC, // IP Multicast
-    MESA_DEBUG_GROUP_STACK,    // Stacking
-    MESA_DEBUG_GROUP_CMEF,     // Congestion Management
-    MESA_DEBUG_GROUP_HOST,     // CE-MAX Host configuration
-    MESA_DEBUG_GROUP_MPLS,     // MPLS
-    MESA_DEBUG_GROUP_HW_PROT,  // Hardware Protection
-    MESA_DEBUG_GROUP_HQOS,     // Hierarchical Quality of Service
-    MESA_DEBUG_GROUP_VXLAT,    // VLAN Translation
-    MESA_DEBUG_GROUP_OAM,      // OAM, incl. VOEs/VOP
-    MESA_DEBUG_GROUP_MRP,      // MRP
-    MESA_DEBUG_GROUP_SER_GPIO, // Serial GPIO configuration
-    MESA_DEBUG_GROUP_L3,       // L3 services
-    MESA_DEBUG_GROUP_AFI,      // Automatic Frame Injector
-    MESA_DEBUG_GROUP_MACSEC,   // 802.1AE MacSec
-    MESA_DEBUG_GROUP_SERDES,   // Serdes Macroes
-    MESA_DEBUG_GROUP_KR,       // 5G/10G/25G-KR
-    MESA_DEBUG_GROUP_MUX,      // mux mode
+    MESA_DEBUG_GROUP_LRN,       // DEPRECATED. Use MESA_DEBUG_GROUP_MAC_TABLE instead
+    MESA_DEBUG_GROUP_IPMC,      // IP Multicast
+    MESA_DEBUG_GROUP_STACK,     // Stacking
+    MESA_DEBUG_GROUP_CMEF,      // Congestion Management
+    MESA_DEBUG_GROUP_HOST,      // CE-MAX Host configuration
+    MESA_DEBUG_GROUP_MPLS,      // MPLS
+    MESA_DEBUG_GROUP_HW_PROT,   // Hardware Protection
+    MESA_DEBUG_GROUP_HQOS,      // Hierarchical Quality of Service
+    MESA_DEBUG_GROUP_VXLAT,     // VLAN Translation
+    MESA_DEBUG_GROUP_OAM,       // OAM, incl. VOEs/VOP
+    MESA_DEBUG_GROUP_MRP,       // MRP
+    MESA_DEBUG_GROUP_SER_GPIO,  // Serial GPIO configuration
+    MESA_DEBUG_GROUP_L3,        // L3 services
+    MESA_DEBUG_GROUP_AFI,       // Automatic Frame Injector
+    MESA_DEBUG_GROUP_MACSEC,    // 802.1AE MacSec
+    MESA_DEBUG_GROUP_SERDES,    // Serdes Macroes
+    MESA_DEBUG_GROUP_KR,        // 5G/10G/25G-KR
+    MESA_DEBUG_GROUP_MUX,       // mux mode
 
     // New groups are added above this line
     MESA_DEBUG_GROUP_COUNT // Number of groups
@@ -229,13 +227,11 @@ typedef struct {
 
 // Debug lock API access
 // lock [IN]  Lock information
-mesa_rc mesa_debug_lock(const mesa_inst_t              inst,
-                        const mesa_debug_lock_t *const lock);
+mesa_rc mesa_debug_lock(const mesa_inst_t inst, const mesa_debug_lock_t *const lock);
 
 // Debug unlock API access
 // lock [IN]  Lock information
-mesa_rc mesa_debug_unlock(const mesa_inst_t        inst,
-                          mesa_debug_lock_t *const lock);
+mesa_rc mesa_debug_unlock(const mesa_inst_t inst, mesa_debug_lock_t *const lock);
 
 /* - Direct register access (for debugging only) ------------------- */
 
@@ -294,26 +290,17 @@ mesa_rc mesa_poll_1sec(const mesa_inst_t inst);
 // Event (interrupt) types related to PTP in the switch chips
 typedef enum {
     MESA_PTP_NONE_EV = 0,
-    MESA_PTP_SYNC_EV = (1 << 0), // PTP Synchronization pulse update
-    MESA_PTP_EXT_SYNC_EV =
-        (1 << 1), // PTP External Synchronization input  (Sync 0 on Serval)
-    MESA_PTP_CLK_ADJ_EV = (1 << 2), // PTP Clock adjustment updated
-    MESA_PTP_TX_TSTAMP_EV =
-        (1 << 3), // Tx timestamp udated (Jaguar and Serval only)
-    MESA_PTP_EXT_1_SYNC_EV =
-        (1 << 4), // PTP External Synchronization 1 input (Serval only)
-    MESA_PTP_PIN_0_SYNC_EV =
-        (1 << 5), // PTP External pin 0 synchronization (Jaguar2 only)
-    MESA_PTP_PIN_1_SYNC_EV =
-        (1 << 6), // PTP External pin 1 synchronization (Jaguar2 only)
-    MESA_PTP_PIN_2_SYNC_EV =
-        (1 << 7), // PTP External pin 2 synchronization (Jaguar2 only)
-    MESA_PTP_PIN_3_SYNC_EV =
-        (1 << 8), // PTP External pin 3 synchronization (Jaguar2 only)
-    MESA_PTP_PIN_4_SYNC_EV =
-        (1 << 9), // PTP External pin 4 synchronization (Laguna)
-    MESA_PTP_PIN_5_SYNC_EV =
-        (1 << 10), // PTP External pin 5 synchronization (Laguna)
+    MESA_PTP_SYNC_EV = (1 << 0),        // PTP Synchronization pulse update
+    MESA_PTP_EXT_SYNC_EV = (1 << 1),    // PTP External Synchronization input  (Sync 0 on Serval)
+    MESA_PTP_CLK_ADJ_EV = (1 << 2),     // PTP Clock adjustment updated
+    MESA_PTP_TX_TSTAMP_EV = (1 << 3),   // Tx timestamp udated (Jaguar and Serval only)
+    MESA_PTP_EXT_1_SYNC_EV = (1 << 4),  // PTP External Synchronization 1 input (Serval only)
+    MESA_PTP_PIN_0_SYNC_EV = (1 << 5),  // PTP External pin 0 synchronization (Jaguar2 only)
+    MESA_PTP_PIN_1_SYNC_EV = (1 << 6),  // PTP External pin 1 synchronization (Jaguar2 only)
+    MESA_PTP_PIN_2_SYNC_EV = (1 << 7),  // PTP External pin 2 synchronization (Jaguar2 only)
+    MESA_PTP_PIN_3_SYNC_EV = (1 << 8),  // PTP External pin 3 synchronization (Jaguar2 only)
+    MESA_PTP_PIN_4_SYNC_EV = (1 << 9),  // PTP External pin 4 synchronization (Laguna)
+    MESA_PTP_PIN_5_SYNC_EV = (1 << 10), // PTP External pin 5 synchronization (Laguna)
 } mesa_ptp_event_type_t;
 
 // PTP polling function called at by interrupt or periodicly
@@ -322,8 +309,7 @@ typedef enum {
 // multiple event types (or MESA_EVTYPE_ALL). If invoked by a
 // processor interrupt signal, the type of event to check for may be
 // narrowed in to specific events.
-mesa_rc mesa_ptp_event_poll(const mesa_inst_t            inst,
-                            mesa_ptp_event_type_t *const ev_mask);
+mesa_rc mesa_ptp_event_poll(const mesa_inst_t inst, mesa_ptp_event_type_t *const ev_mask);
 
 // Enable PTP event generation for a specific event type
 // enable   [IN] Enable or disable events
@@ -470,8 +456,8 @@ typedef struct {
 } mesa_gpio_func_info_t;
 
 // Get the GPIO information that is board specific for this GPIO functionality
-typedef mesa_rc (*mesa_gpio_func_info_get_t)(const mesa_inst_t      inst,
-                                             const mesa_gpio_func_t gpio_func,
+typedef mesa_rc (*mesa_gpio_func_info_get_t)(const mesa_inst_t            inst,
+                                             const mesa_gpio_func_t       gpio_func,
                                              mesa_gpio_func_info_t *const info);
 
 /* - Serial GPIO control ---------------------------------------------------- */
@@ -509,17 +495,17 @@ typedef enum {
 
 // SGPIO port configuration
 typedef struct {
-    mesa_bool_t       enabled;   // Port enabled/disabled
-    mesa_sgpio_mode_t mode[4];   // Mode for each bit
-    mesa_bool_t int_pol_high[4]; // SGPIO interrupt polarity for each bit - TRUE
-                                 // - Interrupt when SGPIO pin high, FALSE -
-                                 // Interrupt when SGPIO pin low.
+    mesa_bool_t       enabled;         // Port enabled/disabled
+    mesa_sgpio_mode_t mode[4];         // Mode for each bit
+    mesa_bool_t       int_pol_high[4]; // SGPIO interrupt polarity for each bit - TRUE
+                                       // - Interrupt when SGPIO pin high, FALSE -
+                                       // Interrupt when SGPIO pin low.
 } mesa_sgpio_port_conf_t CAP(MISC_SGPIO_CNT);
 
 // SGPIO configuration for a group
 typedef struct {
-    mesa_sgpio_bmode_t     bmode[2];  // Blink mode 0 and 1
-    uint8_t                bit_count; // Bits enabled per port, 1-4
+    mesa_sgpio_bmode_t     bmode[2];                    // Blink mode 0 and 1
+    uint8_t                bit_count;                   // Bits enabled per port, 1-4
     mesa_sgpio_port_conf_t port_conf[MESA_SGPIO_PORTS]; // Port configuration
 } mesa_sgpio_conf_t CAP(MISC_SGPIO_CNT);
 
@@ -539,8 +525,7 @@ mesa_rc mesa_sgpio_conf_get(const mesa_inst_t        inst,
 mesa_rc mesa_sgpio_conf_set(const mesa_inst_t              inst,
                             const mesa_chip_no_t           chip_no,
                             const mesa_sgpio_group_t       group,
-                            const mesa_sgpio_conf_t *const conf)
-    CAP(MISC_SGPIO_CNT);
+                            const mesa_sgpio_conf_t *const conf) CAP(MISC_SGPIO_CNT);
 
 // SGPIO read data for a port
 typedef struct {
@@ -554,8 +539,7 @@ typedef struct {
 mesa_rc mesa_sgpio_read(const mesa_inst_t        inst,
                         const mesa_chip_no_t     chip_no,
                         const mesa_sgpio_group_t group,
-                        mesa_sgpio_port_data_t   data[MESA_SGPIO_PORTS])
-    CAP(MISC_SGPIO_CNT);
+                        mesa_sgpio_port_data_t   data[MESA_SGPIO_PORTS]) CAP(MISC_SGPIO_CNT);
 
 // Get SGPIO event indication
 // chip_no [IN]  Chip number (if multi-chip instance).
@@ -567,7 +551,7 @@ mesa_rc mesa_sgpio_event_poll(const mesa_inst_t        inst,
                               const mesa_chip_no_t     chip_no,
                               const mesa_sgpio_group_t group,
                               const uint32_t           bit,
-                              mesa_bool_t *const events) CAP(MISC_SGPIO_CNT);
+                              mesa_bool_t *const       events) CAP(MISC_SGPIO_CNT);
 
 // Get SGPIO event enable
 // chip_no [IN]  Chip number (if multi-chip instance).
@@ -580,7 +564,7 @@ mesa_rc mesa_sgpio_event_enable(const mesa_inst_t        inst,
                                 const mesa_sgpio_group_t group,
                                 const mesa_port_no_t     port,
                                 const uint32_t           bit,
-                                mesa_bool_t enable) CAP(MISC_SGPIO_CNT);
+                                mesa_bool_t              enable) CAP(MISC_SGPIO_CNT);
 
 // Configure interrupt.
 // mask [IN] Interrupt mask - Configures the interrupts for the bits set in the
@@ -598,15 +582,13 @@ typedef struct {
 
 // Set the interrupt mask.
 // mask [IN] Pointer to mask structure.
-mesa_rc mesa_intr_mask_set(const mesa_inst_t inst, mesa_intr_t *mask)
-    CAP(MISC_INTERRUPTS);
+mesa_rc mesa_intr_mask_set(const mesa_inst_t inst, mesa_intr_t *mask) CAP(MISC_INTERRUPTS);
 
 // Get the interrupt status for all enabled sources.
 // The interrupt status bit is cleared by the function
 // status [OUT] Pointer to a structure with status of all enabled interrupt
 // sources.
-mesa_rc mesa_intr_status_get(const mesa_inst_t inst, mesa_intr_t *status)
-    CAP(MISC_INTERRUPTS);
+mesa_rc mesa_intr_status_get(const mesa_inst_t inst, mesa_intr_t *status) CAP(MISC_INTERRUPTS);
 
 // This vil negate polarity on fast link fail detection signals when active
 // This is only intended to be used on Luton26 RevB as a work around for the
@@ -663,9 +645,8 @@ typedef struct {
 
 // Interrupt status structure.
 typedef struct {
-    uint32_t active; // Bitmap for pending IRQs (MESA_IRQ_xxx)
-    uint32_t
-        raw_ident; // RAW (target dependentant) bitmap for active pending IRQs
+    uint32_t active;     // Bitmap for pending IRQs (MESA_IRQ_xxx)
+    uint32_t raw_ident;  // RAW (target dependentant) bitmap for active pending IRQs
     uint32_t raw_status; // RAW (target dependentant) bitmap for all pending IRQs
     uint32_t raw_mask;   // RAW (target dependentant) bitmap for IRQs mask
 } mesa_irq_status_t CAP(MISC_IRQ_CONTROL);
@@ -673,30 +654,26 @@ typedef struct {
 // Get IRQ configuration
 // irq  [IN]     Interrupt source.
 // conf [OUT]    IRQ configuration.
-mesa_rc mesa_irq_conf_get(const mesa_inst_t inst,
-                          const mesa_irq_t  irq,
-                          mesa_irq_conf_t  *conf) CAP(MISC_IRQ_CONTROL);
+mesa_rc mesa_irq_conf_get(const mesa_inst_t inst, const mesa_irq_t irq, mesa_irq_conf_t *conf)
+    CAP(MISC_IRQ_CONTROL);
 
 // Set IRQ configuration
 // irq  [IN]     Interrupt source.
 // conf [IN]     IRQ configuration.
 mesa_rc mesa_irq_conf_set(const mesa_inst_t            inst,
                           const mesa_irq_t             irq,
-                          const mesa_irq_conf_t *const conf)
-    CAP(MISC_IRQ_CONTROL);
+                          const mesa_irq_conf_t *const conf) CAP(MISC_IRQ_CONTROL);
 
 // Get IRQ status (active sources), mask current sources
 // status [OUT]  IRQ status.
-mesa_rc mesa_irq_status_get_and_mask(const mesa_inst_t  inst,
-                                     mesa_irq_status_t *status)
+mesa_rc mesa_irq_status_get_and_mask(const mesa_inst_t inst, mesa_irq_status_t *status)
     CAP(MISC_IRQ_CONTROL);
 
 // Control a specific interrupt source
 // irq    [IN]   Interrupt source.
 // enable [IN]   Enable or disable source.
-mesa_rc mesa_irq_enable(const mesa_inst_t inst,
-                        const mesa_irq_t  irq,
-                        mesa_bool_t       enable) CAP(MISC_IRQ_CONTROL);
+mesa_rc mesa_irq_enable(const mesa_inst_t inst, const mesa_irq_t irq, mesa_bool_t enable)
+    CAP(MISC_IRQ_CONTROL);
 
 // MDIO controller
 typedef struct {
@@ -740,9 +717,9 @@ typedef struct {
     uint32_t hw_cnt; // hardware counter
 } mesa_os_timestamp_t;
 
-#define MESA_OS_TIMESTAMP(timestamp)                                           \
-    do {                                                                       \
-        (timestamp)->hw_cnt = mesa_tod_get_ns_cnt();                           \
+#define MESA_OS_TIMESTAMP(timestamp)                                                               \
+    do {                                                                                           \
+        (timestamp)->hw_cnt = mesa_tod_get_ns_cnt();                                               \
     } while (0);
 
 /* - Fan control functions -------------------------------------- */
@@ -754,8 +731,7 @@ mesa_rc mesa_temp_sensor_init(const mesa_inst_t inst, const mesa_bool_t enable)
 
 // Read temperature sensor value
 // temperature [OUT]      Temperature from sensor (range from -46 to 135 degC)
-mesa_rc mesa_temp_sensor_get(const mesa_inst_t inst, int16_t *temperature)
-    CAP(MISC_TEMP_SENSOR);
+mesa_rc mesa_temp_sensor_get(const mesa_inst_t inst, int16_t *temperature) CAP(MISC_TEMP_SENSOR);
 
 // FAN PWM frequency
 typedef enum {
@@ -784,48 +760,44 @@ typedef enum {
 // Fan specifications
 typedef struct {
     mesa_fan_pwd_freq_t fan_pwm_freq; // Fan PWM frequency
-    mesa_bool_t fan_low_pol; // Fan polarity of the PWM output. TRUE = PWM is
-                             // logic 0 when on. FALSE = PWM is logic 1 when on
-    mesa_bool_t     fan_open_col; // PWM output is open collector if TRUE.
-    mesa_fan_type_t type;         // 2,3 or 4 wire fan type
-    uint32_t ppr; // Pulses per rotation. Only valid for 3 and 4 wire fans
+    mesa_bool_t         fan_low_pol;  // Fan polarity of the PWM output. TRUE = PWM is
+                                      // logic 0 when on. FALSE = PWM is logic 1 when on
+    mesa_bool_t     fan_open_col;     // PWM output is open collector if TRUE.
+    mesa_fan_type_t type;             // 2,3 or 4 wire fan type
+    uint32_t        ppr;              // Pulses per rotation. Only valid for 3 and 4 wire fans
 } mesa_fan_conf_t CAP(MISC_FAN);
 
 // Get the number of fan rotations
 // rotation_count [OUT] Number of fan rotation countered for the last second.
-mesa_rc mesa_fan_rotation_get(const mesa_inst_t inst, uint32_t *rotation_count)
-    CAP(MISC_FAN);
+mesa_rc mesa_fan_rotation_get(const mesa_inst_t inst, uint32_t *rotation_count) CAP(MISC_FAN);
 
 // Set fan cool level (Duty cycle)
 // lvl  [IN]       Level. 0 = Fan off, 255 = fan fully on
-mesa_rc mesa_fan_cool_lvl_set(const mesa_inst_t inst, uint8_t lvl)
-    CAP(MISC_FAN);
+mesa_rc mesa_fan_cool_lvl_set(const mesa_inst_t inst, uint8_t lvl) CAP(MISC_FAN);
 
 // Initialise fan controller)
 // spec [IN]    Fan specifications
-mesa_rc mesa_fan_controller_init(const mesa_inst_t            inst,
-                                 const mesa_fan_conf_t *const spec)
+mesa_rc mesa_fan_controller_init(const mesa_inst_t inst, const mesa_fan_conf_t *const spec)
     CAP(MISC_FAN);
 
 // Get fan cool level (Duty cycle)
 // lvl  [IN]       Level. 0 = Fan off, 255 = fan fully on
-mesa_rc mesa_fan_cool_lvl_get(const mesa_inst_t inst, uint8_t *lvl)
-    CAP(MISC_FAN);
+mesa_rc mesa_fan_cool_lvl_get(const mesa_inst_t inst, uint8_t *lvl) CAP(MISC_FAN);
 
 /* - EEE functions -------------------------------------- */
 
 // EEE port configuration
 typedef struct {
-    mesa_bool_t eee_ena;         // Enable EEE
-    uint8_t     eee_fast_queues; // Queues set in this mask will activate egress
-                             // path as soon as any data is available. Vector
-                             // for enabling fast queues. bit 0 = queue 0, bit 1
-                             // = queue 1 and so on.
-    uint16_t tx_tw; // Time from path is activated until frame transmission
-                    // restarted.
-    uint8_t lp_advertisement; // Link partner EEE advertisement. Bit 0 = Link
-                              // partner advertises 100BASE-T capability. Bit 1
-                              // = Link partner advertises 1000BASE-T capability.
+    mesa_bool_t eee_ena;             // Enable EEE
+    uint8_t     eee_fast_queues;     // Queues set in this mask will activate egress
+                                     // path as soon as any data is available. Vector
+                                     // for enabling fast queues. bit 0 = queue 0, bit 1
+                                     // = queue 1 and so on.
+    uint16_t tx_tw;                  // Time from path is activated until frame transmission
+                                     // restarted.
+    uint8_t lp_advertisement;        // Link partner EEE advertisement. Bit 0 = Link
+                                     // partner advertises 100BASE-T capability. Bit 1
+                                     // = Link partner advertises 1000BASE-T capability.
     mesa_bool_t optimized_for_power; // EEE can be optimized for either most
                                      // power savings or least traffic latency
 } mesa_eee_port_conf_t;
@@ -843,12 +815,12 @@ typedef struct {
                                      // enable/disable
     uint32_t gpio_rs422_1588_slvoen; // IO pin used for RS422 client output
                                      // enable/disable
-    uint32_t ptp_pin_ldst;         // PTP_IO pin used for RS422 Load/store input
-    uint32_t ptp_pin_ppso;         // PTP_IO pin used for RS422 1 PPS output
-    uint32_t ptp_rs422_pps_int_id; // Interrupt id for RS422 1PPS interrupt
-    uint32_t ptp_rs422_ldsv_int_id; // Interrupt id for RS422 Load/Save input
-                                    // interrupt
-    const char *serial_port; // The serial port used for RS422 (default ttyS1)
+    uint32_t ptp_pin_ldst;           // PTP_IO pin used for RS422 Load/store input
+    uint32_t ptp_pin_ppso;           // PTP_IO pin used for RS422 1 PPS output
+    uint32_t ptp_rs422_pps_int_id;   // Interrupt id for RS422 1PPS interrupt
+    uint32_t ptp_rs422_ldsv_int_id;  // Interrupt id for RS422 Load/Save input
+                                     // interrupt
+    const char *serial_port;         // The serial port used for RS422 (default ttyS1)
 } meba_ptp_rs422_conf_t CAP(TS_PTP_RS422);
 
 /* - Symreg ----------------------------------------------------------------- */
@@ -863,38 +835,34 @@ typedef struct {
 
 // Symbolic descriptiopn of a register group.
 typedef struct {
-    const char   *name;       // Name of register group
-    unsigned long base_addr;  // Base address of register group
-    unsigned long repl_cnt;   // Replication count of register group
-    unsigned long repl_width; // Replication width of register group
-    mesa_symreg_reg_t const
-        *regs; // Pointer to symbolic registers (null terminated)
+    const char              *name;       // Name of register group
+    unsigned long            base_addr;  // Base address of register group
+    unsigned long            repl_cnt;   // Replication count of register group
+    unsigned long            repl_width; // Replication width of register group
+    mesa_symreg_reg_t const *regs;       // Pointer to symbolic registers (null terminated)
 } mesa_symreg_reggrp_t;
 
 // Symbolic descriptiopn of a register target.
 typedef struct {
-    const char   *name;        // Name of register target
-    int           repl_number; // Target instance number
-    unsigned long tgt_id;      // Target ID
-    unsigned long base_addr;   // Base address
-    mesa_symreg_reggrp_t const
-        *reggrps; // Pointer to symbolic register groups (null terminated)
+    const char                 *name;        // Name of register target
+    int                         repl_number; // Target instance number
+    unsigned long               tgt_id;      // Target ID
+    unsigned long               base_addr;   // Base address
+    mesa_symreg_reggrp_t const *reggrps; // Pointer to symbolic register groups (null terminated)
 } mesa_symreg_target_t;
 
 // Symbolic register base data.
 typedef struct {
-    const mesa_symreg_target_t
-                 *targets;           // Pointer to targets (not null terminated)
-    unsigned long targets_cnt;       // Number of targets
-    unsigned long io_origin1_offset; // IO register offset
-    unsigned long repl_cnt_max;      // Highest number of replications
-    unsigned long name_len_max;      // Max name length
+    const mesa_symreg_target_t *targets;           // Pointer to targets (not null terminated)
+    unsigned long               targets_cnt;       // Number of targets
+    unsigned long               io_origin1_offset; // IO register offset
+    unsigned long               repl_cnt_max;      // Highest number of replications
+    unsigned long               name_len_max;      // Max name length
 } mesa_symreg_data_t;
 
 // Get symbolic register data.
 // data       [OUT] data
-mesa_rc mesa_symreg_data_get(const mesa_inst_t         inst,
-                             mesa_symreg_data_t *const data);
+mesa_rc mesa_symreg_data_get(const mesa_inst_t inst, mesa_symreg_data_t *const data);
 
 typedef enum {
     MESA_VSCOPE_FAST_SCAN,
@@ -902,10 +870,9 @@ typedef enum {
 } mesa_vscope_scan_t CAP(VSCOPE);
 
 typedef struct {
-    mesa_vscope_scan_t
-                scan_type;   // selects the type of scan to be implemented */
-    mesa_bool_t enable;      // enable or disable vscope fast scan*/
-    uint32_t    error_thres; // error_threshold for vscope calculations */
+    mesa_vscope_scan_t scan_type;   // selects the type of scan to be implemented */
+    mesa_bool_t        enable;      // enable or disable vscope fast scan*/
+    uint32_t           error_thres; // error_threshold for vscope calculations */
 } mesa_vscope_conf_t CAP(VSCOPE);
 
 mesa_rc mesa_vscope_conf_set(const mesa_inst_t               inst,
@@ -916,21 +883,17 @@ mesa_rc mesa_vscope_conf_get(const mesa_inst_t         inst,
                              const mesa_port_no_t      port_no,
                              mesa_vscope_conf_t *const conf) CAP(VSCOPE);
 
-#define VSCOPE_BOOLEAN_STORAGE_COUNT                                           \
-    6 // BOOL parameters to be stored during Vscope Scan */
-#define VSCOPE_UNSIGNED_STORAGE_COUNT                                          \
-    5 // UNSIGNED parameters to be stored during Vscope Scan */
+#define VSCOPE_BOOLEAN_STORAGE_COUNT  6 // BOOL parameters to be stored during Vscope Scan */
+#define VSCOPE_UNSIGNED_STORAGE_COUNT 5 // UNSIGNED parameters to be stored during Vscope Scan */
 
 typedef struct {
-    mesa_bool_t
-        ib_storage_bool[VSCOPE_BOOLEAN_STORAGE_COUNT]; // boolean values to be
-                                                       // stored in vtss_state
-                                                       // during vscope fast
-                                                       // scan configuration */
-    uint32_t
-        ib_storage[VSCOPE_UNSIGNED_STORAGE_COUNT]; // u8 values to be stored in
-                                                   // vtss_state during vscope
-                                                   // fast scan configuration */
+    mesa_bool_t ib_storage_bool[VSCOPE_BOOLEAN_STORAGE_COUNT]; // boolean values to be
+                                                               // stored in vtss_state
+                                                               // during vscope fast
+                                                               // scan configuration */
+    uint32_t ib_storage[VSCOPE_UNSIGNED_STORAGE_COUNT];        // u8 values to be stored in
+                                                               // vtss_state during vscope
+                                                               // fast scan configuration */
 } mesa_vscope_ib_storage_t CAP(VSCOPE);
 
 /**\brief VSCOPE scan configuration */
@@ -940,9 +903,9 @@ typedef struct {
     uint32_t    y_start; // start value for y (0-63)*/
     uint32_t    x_incr;  // increment value for x during the scan */
     uint32_t    y_incr;  // increment value for y during the scan */
-    uint32_t x_count; // max value for x ( upto which scan is to be performed) */
-    uint32_t y_count; // max value for y ( upto which scan is to be performed) */
-    uint32_t ber;     // bit error rate */
+    uint32_t    x_count; // max value for x ( upto which scan is to be performed) */
+    uint32_t    y_count; // max value for y ( upto which scan is to be performed) */
+    uint32_t    ber;     // bit error rate */
 } mesa_vscope_scan_conf_t CAP(VSCOPE);
 
 #define PHASE_POINTS     128 // phase points range from 0-127 */
@@ -950,18 +913,16 @@ typedef struct {
 
 /**\ brief Vscope eye scan status*/
 typedef struct {
-    mesa_vscope_scan_conf_t scan_conf; // scan configuration data */
-    int32_t  error_free_x; // error free x values in case of fast eye scan */
-    int32_t  error_free_y; // error free y values in case of fast eye scan */
-    int32_t  amp_range;    // amp range in case of fast eye scan */
-    uint32_t errors[PHASE_POINTS]
-                   [AMPLITUDE_POINTS]; // error matrix in full scan mode */
+    mesa_vscope_scan_conf_t scan_conf;    // scan configuration data */
+    int32_t                 error_free_x; // error free x values in case of fast eye scan */
+    int32_t                 error_free_y; // error free y values in case of fast eye scan */
+    int32_t                 amp_range;    // amp range in case of fast eye scan */
+    uint32_t errors[PHASE_POINTS][AMPLITUDE_POINTS]; // error matrix in full scan mode */
 } mesa_vscope_scan_status_t CAP(VSCOPE);
 
 mesa_rc mesa_vscope_scan_status_get(const mesa_inst_t                inst,
                                     const mesa_port_no_t             port_no,
-                                    mesa_vscope_scan_status_t *const conf)
-    CAP(VSCOPE);
+                                    mesa_vscope_scan_status_t *const conf) CAP(VSCOPE);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_SWITCH_API_MISC_

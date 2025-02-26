@@ -6,12 +6,12 @@
 
 #if defined(VTSS_FEATURE_QOS)
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||           \
+    defined(VTSS_ARCH_LAN966X)
 
 #define VTSS_QOS_DWRR_COST_BIT_WIDTH 5
 
-#endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||          \
+#endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                              \
           defined(VTSS_ARCH_SPARX5) */
 
 #if defined(VTSS_ARCH_LUTON26)
@@ -46,36 +46,36 @@ typedef struct {
 
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
 typedef struct {
-    BOOL disable;    /* Disable policer */
-    BOOL frame_rate; /* Enable frame rate policing (always single bucket) */
-    BOOL dual;       /* Enable dual leaky bucket mode */
-    BOOL data_rate;  /* Enable data rate policing */
-    u32  cir;        /* CIR in kbps/fps (ignored in single bucket mode) */
-    u32  cbs;        /* CBS in bytes/frames (ignored in single bucket mode) */
-    u32  eir;        /* EIR (PIR) in kbps/fps */
-    u32  ebs;        /* EBS (PBS) in bytes/frames */
-    BOOL cf;         /* Coupling flag (ignored in single bucket mode) */
-    BOOL drop_yellow;
+    BOOL            disable;    /* Disable policer */
+    BOOL            frame_rate; /* Enable frame rate policing (always single bucket) */
+    BOOL            dual;       /* Enable dual leaky bucket mode */
+    BOOL            data_rate;  /* Enable data rate policing */
+    u32             cir;        /* CIR in kbps/fps (ignored in single bucket mode) */
+    u32             cbs;        /* CBS in bytes/frames (ignored in single bucket mode) */
+    u32             eir;        /* EIR (PIR) in kbps/fps */
+    u32             ebs;        /* EBS (PBS) in bytes/frames */
+    BOOL            cf;         /* Coupling flag (ignored in single bucket mode) */
+    BOOL            drop_yellow;
     vtss_opt_bool_t mark_all_red;
 } vtss_policer_conf_t;
 
 typedef struct {
-    u32 rate_pwm; /**< Target relative rate of CIR PWM Serval fix. Unit: kbps.
-                     Valid values are 0, 100, 200, and 300. Use 0 to disable the
-                     CIR PWM Serval fix */
+    u32 rate_pwm;       /**< Target relative rate of CIR PWM Serval fix. Unit: kbps.
+                           Valid values are 0, 100, 200, and 300. Use 0 to disable the
+                           CIR PWM Serval fix */
     u32 rate_pwm_high;  /**< High rate of CIR PWM Serval fix.            Unit:
                            100 kbps */
     i32 rate_pwm_error; /**< Current rate error of CIR PWM Serval fix. */
-    u32 level_pwm; /**< CBS used by CIR PWM Serval fix.             Unit: 4096
-                      bytes */
-    u32 eir_pwm;   /**< Target relative rate of EIR PWM Serval fix. Unit: kbps.
-                      Valid values are 0, 100, 200, and 300. Use 0 to disable the
-                      EIR PWM Serval fix */
-    u32 eir_pwm_high; /**< High rate of EIR PWM Serval fix.            Unit: 100
-                         kbps */
-    i32 eir_pwm_error; /**< Current rate error of EIR PWM Serval fix. */
-    u32 ebs_pwm; /**< EBS used by EIR PWM Serval fix.             Unit: 4096
-                    bytes */
+    u32 level_pwm;      /**< CBS used by CIR PWM Serval fix.             Unit: 4096
+                           bytes */
+    u32 eir_pwm;        /**< Target relative rate of EIR PWM Serval fix. Unit: kbps.
+                           Valid values are 0, 100, 200, and 300. Use 0 to disable the
+                           EIR PWM Serval fix */
+    u32 eir_pwm_high;   /**< High rate of EIR PWM Serval fix.            Unit: 100
+                           kbps */
+    i32 eir_pwm_error;  /**< Current rate error of EIR PWM Serval fix. */
+    u32 ebs_pwm;        /**< EBS used by EIR PWM Serval fix.             Unit: 4096
+                           bytes */
 } vtss_shaper_calibrate_t;
 #endif /* defined(VTSS_ARCH_OCELOT) */
 
@@ -91,9 +91,8 @@ typedef struct {
 #define VTSS_EVC_POL_CNT  VTSS_STREAM_CNT
 #define VTSS_EVC_STAT_CNT VTSS_STREAM_CNT
 #else
-#define VTSS_SDX_CNT 255
-#define VTSS_EVC_POL_CNT                                                       \
-    240 /* DLB policers (port/queue/ACL policers reserved) */
+#define VTSS_SDX_CNT      255
+#define VTSS_EVC_POL_CNT  240 /* DLB policers (port/queue/ACL policers reserved) */
 #define VTSS_EVC_STAT_CNT 256 /* ISDX/ESDX statistics */
 #endif
 #endif
@@ -127,35 +126,27 @@ typedef struct {
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-#define VTSS_QOS_INGRESS_MAP_ROWS                                              \
-    (VTSS_QOS_INGRESS_MAP_IDS * 2) /**< Number of rows in hardware */
-#define VTSS_QOS_INGRESS_ROW_MIN                                               \
-    10 /**< (DSCP, PCP/DEI) mapping is 10*8 = 80 entries */
+#define VTSS_QOS_INGRESS_MAP_ROWS (VTSS_QOS_INGRESS_MAP_IDS * 2) /**< Number of rows in hardware */
+#define VTSS_QOS_INGRESS_ROW_MIN  10 /**< (DSCP, PCP/DEI) mapping is 10*8 = 80 entries */
 #if (VTSS_QOS_INGRESS_MAP_ROWS > 2 * VTSS_QOS_INGRESS_ROW_MIN)
-#define VTSS_QOS_INGRESS_MAP_IX_RESERVED                                       \
-    (VTSS_QOS_INGRESS_MAP_ROWS -                                               \
-     VTSS_QOS_INGRESS_ROW_MIN) /**< Start of area reserved at the end. Used in \
-                                  move operations */
+#define VTSS_QOS_INGRESS_MAP_IX_RESERVED                                                           \
+    (VTSS_QOS_INGRESS_MAP_ROWS - VTSS_QOS_INGRESS_ROW_MIN) /**< Start of area reserved at the end. \
+                                                              Used in move operations */
 #else
-#define VTSS_QOS_INGRESS_MAP_IX_RESERVED                                       \
-    VTSS_QOS_INGRESS_MAP_ROWS // No reserved rows available
+#define VTSS_QOS_INGRESS_MAP_IX_RESERVED VTSS_QOS_INGRESS_MAP_ROWS // No reserved rows available
 #endif
 #endif /* VTSS_FEATURE_QOS_INGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
 
-#define VTSS_QOS_EGRESS_MAP_ROWS                                               \
-    VTSS_QOS_EGRESS_MAP_IDS /**< Number of rows in hardware */
-#define VTSS_QOS_EGRESS_ROW_MIN                                                \
-    32 /**< (DP, DSCP) mapping is 32*8 = 256 entries */
+#define VTSS_QOS_EGRESS_MAP_ROWS VTSS_QOS_EGRESS_MAP_IDS /**< Number of rows in hardware */
+#define VTSS_QOS_EGRESS_ROW_MIN  32 /**< (DP, DSCP) mapping is 32*8 = 256 entries */
 #if (VTSS_QOS_EGRESS_MAP_ROWS > 2 * VTSS_QOS_EGRESS_ROW_MIN)
-#define VTSS_QOS_EGRESS_MAP_IX_RESERVED                                        \
-    (VTSS_QOS_EGRESS_MAP_ROWS -                                                \
-     VTSS_QOS_EGRESS_ROW_MIN) /**< Start of area reserved at the end. Used in  \
-                                 move operations */
+#define VTSS_QOS_EGRESS_MAP_IX_RESERVED                                                            \
+    (VTSS_QOS_EGRESS_MAP_ROWS - VTSS_QOS_EGRESS_ROW_MIN) /**< Start of area reserved at the end.   \
+                                                            Used in move operations */
 #else
-#define VTSS_QOS_EGRESS_MAP_IX_RESERVED                                        \
-    VTSS_QOS_EGRESS_MAP_ROWS // No reserved rows available
+#define VTSS_QOS_EGRESS_MAP_IX_RESERVED VTSS_QOS_EGRESS_MAP_ROWS // No reserved rows available
 #endif
 
 /* Egress map action flags */
@@ -167,8 +158,7 @@ typedef struct {
 
 #endif /* VTSS_FEATURE_QOS_EGRESS_MAP */
 
-#if defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                                   \
-    defined(VTSS_FEATURE_QOS_EGRESS_MAP)
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP) || defined(VTSS_FEATURE_QOS_EGRESS_MAP)
 /*********************************************************************************************************************************
 
 Ingress and egress mapping uses two kind of tables for the administration of
@@ -268,8 +258,7 @@ and egress.
 *********************************************************************************************************************************/
 
 typedef int (*vtss_qos_map_key2len_t)(int key);
-typedef vtss_rc (*vtss_qos_map_vcap_update_t)(struct vtss_state_s *vtss_state,
-                                              const u16            id);
+typedef vtss_rc (*vtss_qos_map_vcap_update_t)(struct vtss_state_s *vtss_state, const u16 id);
 typedef vtss_rc (*vtss_qos_map_hw_update_t)(struct vtss_state_s *vtss_state,
                                             const u16            res,
                                             const u16            ix,
@@ -297,38 +286,36 @@ typedef struct {
 } vtss_qos_map_id_entry_t;
 
 typedef struct {
-    vtss_qos_map_id_entry_t *entry; /**< Array of entries, indexed by map id */
-    u16 entry_len; /**< Indicated the number of allocated entries above */
+    vtss_qos_map_id_entry_t *entry;     /**< Array of entries, indexed by map id */
+    u16                      entry_len; /**< Indicated the number of allocated entries above */
 } vtss_qos_map_id_adm_t;
 
 typedef struct {
-    u16 id : 12; /**< Id for this entry. Use VTSS_QOS_MAP_ID_NONE if not in use */
-    u16 key : 4; /**< Key for this entry. Use VTSS_QOS_MAP_KEY_NONE if not in
-                    use */
-    u8 flags; /**< Bit flags. Currently only used for storing of enabled actions
-                 in egress mapping */
+    u16 id  : 12; /**< Id for this entry. Use VTSS_QOS_MAP_ID_NONE if not in use */
+    u16 key : 4;  /**< Key for this entry. Use VTSS_QOS_MAP_KEY_NONE if not in
+                     use */
+    u8 flags;     /**< Bit flags. Currently only used for storing of enabled actions
+                     in egress mapping */
 } vtss_qos_map_ix_entry_t;
 
 typedef struct {
-    vtss_qos_map_ix_entry_t *entry; /**< Array of entries, indexed by hw index */
-    u16 entry_len; /**< Indicated the number of allocated entries above */
-    u16 entry_end; /**<  VTSS_QOS_INGRESS_MAP_ID_END */
-    u16 free;      /**< Start of free area */
-    u16 reserved;  /**< Start of reserved area (never changes after
-                      initialization) */
+    vtss_qos_map_ix_entry_t *entry;     /**< Array of entries, indexed by hw index */
+    u16                      entry_len; /**< Indicated the number of allocated entries above */
+    u16                      entry_end; /**<  VTSS_QOS_INGRESS_MAP_ID_END */
+    u16                      free;      /**< Start of free area */
+    u16                      reserved;  /**< Start of reserved area (never changes after
+                                           initialization) */
 } vtss_qos_map_ix_adm_t;
 
 typedef struct {
-    char                  name[8]; /**< "Ingress" or "Egress" */
-    vtss_qos_map_kind_t   kind;    /**< Kind of map */
-    vtss_qos_map_id_adm_t id;      /**< Administration of map id table */
-    vtss_qos_map_ix_adm_t
-        ix[VTSS_QOS_MAP_RESOURCES]; /**< Administration of map ix table(s) */
-    vtss_qos_map_key2len_t key2len; /**< Function for key to length conversion */
+    char                       name[8];                    /**< "Ingress" or "Egress" */
+    vtss_qos_map_kind_t        kind;                       /**< Kind of map */
+    vtss_qos_map_id_adm_t      id;                         /**< Administration of map id table */
+    vtss_qos_map_ix_adm_t      ix[VTSS_QOS_MAP_RESOURCES]; /**< Administration of map ix table(s) */
+    vtss_qos_map_key2len_t     key2len;     /**< Function for key to length conversion */
     vtss_qos_map_vcap_update_t vcap_update; /**< Function for updating of vcap */
-    vtss_qos_map_hw_update_t
-        hw_update; /**< Function for updating of map registers */
-    vtss_qos_map_hw_copy_t hw_copy; /**< Function for copying of map registers */
+    vtss_qos_map_hw_update_t   hw_update;   /**< Function for updating of map registers */
+    vtss_qos_map_hw_copy_t     hw_copy;     /**< Function for copying of map registers */
 } vtss_qos_map_adm_t;
 
 vtss_rc vtss_cmn_qos_map_add(struct vtss_state_s *vtss_state,
@@ -341,30 +328,28 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
                              vtss_qos_map_adm_t  *adm,
                              const u16            id);
 
-#endif /* defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                             \
+#endif /* defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                                                 \
           defined(VTSS_FEATURE_QOS_EGRESS_MAP) */
 
 #if defined(VTSS_FEATURE_QOS_HSCH_LEAK_LISTS)
 
 #if defined(VTSS_ARCH_SERVAL_T)
-#define VTSS_HSCH_LAYERS 4   /**< Number of layers (L0, L1, L2 and QSCH) */
-#define VTSS_HSCH_L0_SES 416 /**< Number of scheduler elements in layer 0 */
-#define VTSS_HSCH_L1_SES 64  /**< Number of scheduler elements in layer 1 */
-#define VTSS_HSCH_L2_SES 15  /**< Number of scheduler elements in layer 2 */
-#define VTSS_HSCH_L3_QSHPS                                                     \
-    (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
+#define VTSS_HSCH_LAYERS   4                      /**< Number of layers (L0, L1, L2 and QSCH) */
+#define VTSS_HSCH_L0_SES   416                    /**< Number of scheduler elements in layer 0 */
+#define VTSS_HSCH_L1_SES   64                     /**< Number of scheduler elements in layer 1 */
+#define VTSS_HSCH_L2_SES   15                     /**< Number of scheduler elements in layer 2 */
+#define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
 #elif defined(VTSS_ARCH_JAGUAR_2_B)
 #define VTSS_HSCH_LAYERS 3    /**< Number of layers (L0, L1 and L2) */
 #define VTSS_HSCH_L0_SES 4096 /**< Number of scheduler elements in layer 0 */
 #define VTSS_HSCH_L1_SES 64   /**< Number of scheduler elements in layer 1 */
 #define VTSS_HSCH_L2_SES 57   /**< Number of scheduler elements in layer 2 */
 #elif defined(VTSS_ARCH_JAGUAR_2_C)
-#define VTSS_HSCH_LAYERS 4    /**< Number of layers (L0, L1, L2 and QSCH) */
-#define VTSS_HSCH_L0_SES 3400 /**< Number of scheduler elements in layer 0 */
-#define VTSS_HSCH_L1_SES 64   /**< Number of scheduler elements in layer 1 */
-#define VTSS_HSCH_L2_SES 57   /**< Number of scheduler elements in layer 2 */
-#define VTSS_HSCH_L3_QSHPS                                                     \
-    (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
+#define VTSS_HSCH_LAYERS   4                      /**< Number of layers (L0, L1, L2 and QSCH) */
+#define VTSS_HSCH_L0_SES   3400                   /**< Number of scheduler elements in layer 0 */
+#define VTSS_HSCH_L1_SES   64                     /**< Number of scheduler elements in layer 1 */
+#define VTSS_HSCH_L2_SES   57                     /**< Number of scheduler elements in layer 2 */
+#define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
 #elif defined(VTSS_ARCH_FA)
 #define VTSS_HSCH_LAYERS 4 /**< Number of layers (L0, L1, L2 and QSCH) */
 #if defined(VTSS_ARCH_LAN969X) && VTSS_OPT_LIGHT
@@ -376,53 +361,49 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
 #define VTSS_HSCH_L1_SES 64   /**< Number of scheduler elements in layer 1 */
 #define VTSS_HSCH_L2_SES 70   /**< Number of scheduler elements in layer 2 */
 #endif
-#define VTSS_HSCH_L3_QSHPS                                                     \
-    (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
-#endif                     /* defined(VTSS_ARCH_SERVAL_T) */
+#define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
+#endif                                            /* defined(VTSS_ARCH_SERVAL_T) */
 
 #define VTSS_HSCH_LEAK_LISTS 4 /**< Number of leak list groups per layer */
 
 /* The bit rates below must be defined in increasing order */
-#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_B) ||            \
-    defined(VTSS_ARCH_JAGUAR_2_C)
-#define VTSS_HSCH_MAX_RATE_GROUP_0                                             \
+#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
+#define VTSS_HSCH_MAX_RATE_GROUP_0                                                                 \
     1024000 /**< Maximum bit rate for group 0 in kbps ( 1.024 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_1                                             \
+#define VTSS_HSCH_MAX_RATE_GROUP_1                                                                 \
     1024000 /**< Maximum bit rate for group 1 in kbps ( 1.024 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_2                                             \
+#define VTSS_HSCH_MAX_RATE_GROUP_2                                                                 \
     2560000 /**< Maximum bit rate for group 2 in kbps ( 2.56  Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_3                                             \
+#define VTSS_HSCH_MAX_RATE_GROUP_3                                                                 \
     12800000 /**< Maximum bit rate for group 3 in kbps (12.8   Gbps) */
 #elif defined(VTSS_ARCH_SPARX5_CE)
 // TBD_VK: Verify the target names and rate values for CE SKUs.
 #if defined(VTSS_CHIP_7538)
-#define VTSS_HSCH_MAX_RATE_GROUP_0                                             \
-    655355 /**< Maximum bit rate for group 0 in kbps ( 0.655 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_1                                             \
+#define VTSS_HSCH_MAX_RATE_GROUP_0 655355 /**< Maximum bit rate for group 0 in kbps ( 0.655 Gbps) */
+#define VTSS_HSCH_MAX_RATE_GROUP_1                                                                 \
     1048568 /**< Maximum bit rate for group 1 in kbps ( 1.049 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_2                                             \
+#define VTSS_HSCH_MAX_RATE_GROUP_2                                                                 \
     6553550 /**< Maximum bit rate for group 2 in kbps ( 6.554 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_3                                             \
+#define VTSS_HSCH_MAX_RATE_GROUP_3                                                                 \
     10485680 /**< Maximum bit rate for group 3 in kbps (10.486 Gbps) */
 #else
-#define VTSS_HSCH_MAX_RATE_GROUP_0                                             \
-    655355 /**< Maximum bit rate for group 0 in kbps ( 0.655 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_1                                             \
+#define VTSS_HSCH_MAX_RATE_GROUP_0 655355 /**< Maximum bit rate for group 0 in kbps ( 0.655 Gbps) */
+#define VTSS_HSCH_MAX_RATE_GROUP_1                                                                 \
     1048568 /**< Maximum bit rate for group 1 in kbps ( 1.049 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_2                                             \
+#define VTSS_HSCH_MAX_RATE_GROUP_2                                                                 \
     6553550 /**< Maximum bit rate for group 2 in kbps ( 6.554 Gbps) */
-#define VTSS_HSCH_MAX_RATE_GROUP_3                                             \
+#define VTSS_HSCH_MAX_RATE_GROUP_3                                                                 \
     26214200 /**< Maximum bit rate for group 3 in kbps (26.214 Gbps) */
 #endif       /* defined(VTSS_CHIP_7538) */
 #elif defined(VTSS_ARCH_FA)
 
-#endif /* defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_B) ||      \
+#endif /* defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_B) ||                          \
           defined(VTSS_ARCH_JAGUAR_2_C) */
 
 /** \brief Leak Chain entry */
 typedef struct {
-    u32 prev : 14; /**< Index of previous element in chain. A value equal to this
-                      element no. indicates this element is the head of chain */
+    u32 prev : 14;   /**< Index of previous element in chain. A value equal to this
+                        element no. indicates this element is the head of chain */
     u32 next : 14;   /**< Index of next element in chain. A value equal to this
                         element no. indicates this element is the end of the chain
                       */
@@ -433,44 +414,39 @@ typedef struct {
 
 /** \brief Leak Group */
 typedef struct {
-    vtss_bitrate_t max_rate; /**< The maximum supported bitrate in kbps for this
-                                leak group. Write at init, then read-only */
-    vtss_bitrate_t resolution; /**< Resolution for this leak group in kbps.
-                                  Write at init, then read-only */
-    u32 leak_time; /**< The value written to the LEAK_TIME register when leak
-                      group is in use. Write at init, then read-only */
-    u16 max_ses; /**< Maximum allowed number of scheduler elements in leak list */
-    u16 cur_ses; /**< Current number of scheduler elements in leak list */
-    vtss_qos_leak_entry_t head; /**< Index of first and last scheduler element
-                                   in leak group list */
+    vtss_bitrate_t max_rate;       /**< The maximum supported bitrate in kbps for this
+                                      leak group. Write at init, then read-only */
+    vtss_bitrate_t resolution;     /**< Resolution for this leak group in kbps.
+                                      Write at init, then read-only */
+    u32 leak_time;                 /**< The value written to the LEAK_TIME register when leak
+                                      group is in use. Write at init, then read-only */
+    u16                   max_ses; /**< Maximum allowed number of scheduler elements in leak list */
+    u16                   cur_ses; /**< Current number of scheduler elements in leak list */
+    vtss_qos_leak_entry_t head;    /**< Index of first and last scheduler element
+                                      in leak group list */
 } vtss_qos_leak_group_t;
 
 /** \brief Leak Layer */
 typedef struct {
     vtss_qos_leak_group_t  group[VTSS_HSCH_LEAK_LISTS]; /**< Per group data */
-    vtss_qos_leak_entry_t *entry;   /**< Pointer to allocation for this layer */
-    u16                    entries; /**< Number of entries in this layer */
+    vtss_qos_leak_entry_t *entry;                       /**< Pointer to allocation for this layer */
+    u16                    entries;                     /**< Number of entries in this layer */
 } vtss_qos_leak_layer_t;
 
 /** \brief Leak Config */
 typedef struct {
-    vtss_qos_leak_layer_t layer[VTSS_HSCH_LAYERS]; /**< Per layer data */
-    vtss_qos_leak_entry_t
-        l0_alloc[VTSS_HSCH_L0_SES]; /**< Allocation of layer 0 entries. Only
-                                       accessed through layer[0].entry above */
-    vtss_qos_leak_entry_t
-        l1_alloc[VTSS_HSCH_L1_SES]; /**< Allocation of layer 1 entries.
-                                       Currently not used */
-    vtss_qos_leak_entry_t
-        l2_alloc[VTSS_HSCH_L2_SES]; /**< Allocation of layer 2 entries. Only
-                                       accessed through layer[2].entry above */
-#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) ||            \
-    defined(VTSS_ARCH_FA)
-    vtss_qos_leak_entry_t
-        l3_alloc[VTSS_HSCH_L3_QSHPS]; /**< Allocation of layer 3 (queue shaper)
-                                         entries. Only accessed through
-                                         layer[3].entry above */
-#endif /* defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) ||      \
+    vtss_qos_leak_layer_t layer[VTSS_HSCH_LAYERS];    /**< Per layer data */
+    vtss_qos_leak_entry_t l0_alloc[VTSS_HSCH_L0_SES]; /**< Allocation of layer 0 entries. Only
+                                                         accessed through layer[0].entry above */
+    vtss_qos_leak_entry_t l1_alloc[VTSS_HSCH_L1_SES]; /**< Allocation of layer 1 entries.
+                                                         Currently not used */
+    vtss_qos_leak_entry_t l2_alloc[VTSS_HSCH_L2_SES]; /**< Allocation of layer 2 entries. Only
+                                                         accessed through layer[2].entry above */
+#if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_FA)
+    vtss_qos_leak_entry_t l3_alloc[VTSS_HSCH_L3_QSHPS]; /**< Allocation of layer 3 (queue shaper)
+                                                           entries. Only accessed through
+                                                           layer[3].entry above */
+#endif /* defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_C) ||                          \
           defined(VTSS_ARCH_SPARX5) */
 } vtss_qos_leak_conf_t;
 
@@ -482,27 +458,26 @@ typedef struct {
 #define VTSS_TAS_NUMBER_OF_PROFILES 100
 #define VTSS_TAS_NUMBER_OF_ENTRIES  (0x3FFF + 1)
 #if VTSS_OPT_LIGHT
-#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK                                   \
-    8 /* Number of entries per block. This is the minimum allocated number of  \
+#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK                                                       \
+    8 /* Number of entries per block. This is the minimum allocated number of                      \
          entries for a list */
 #else
-#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK                                   \
-    32 /* Number of entries per block. This is the minimum allocated number of \
+#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK                                                       \
+    32 /* Number of entries per block. This is the minimum allocated number of                     \
           entries for a list */
 #endif
-#define VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW                                      \
-    (VTSS_QOS_TAS_GCL_LEN_MAX /                                                \
-     VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK) /* Number of blocks per row. A list \
-                                              must be able to fit into one     \
-                                              row. So a row must have blocks   \
+#define VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW                                                          \
+    (VTSS_QOS_TAS_GCL_LEN_MAX /                                                                    \
+     VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK) /* Number of blocks per row. A list                     \
+                                              must be able to fit into one                         \
+                                              row. So a row must have blocks                       \
                                               to contain the maximum GCL */
-#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW                                     \
-    VTSS_QOS_TAS_GCL_LEN_MAX /* Number of entries per row. This is also the    \
-                                maximum lengt of a list as a list mist be in   \
+#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW                                                         \
+    VTSS_QOS_TAS_GCL_LEN_MAX /* Number of entries per row. This is also the                        \
+                                maximum lengt of a list as a list mist be in                       \
                                 one row */
-#define VTSS_TAS_NUMBER_OF_ROWS                                                \
-    (VTSS_TAS_NUMBER_OF_ENTRIES /                                              \
-     VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW) /* Number of rows */
+#define VTSS_TAS_NUMBER_OF_ROWS                                                                    \
+    (VTSS_TAS_NUMBER_OF_ENTRIES / VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW) /* Number of rows */
 #endif
 
 #if defined(VTSS_ARCH_LAN966X)
@@ -580,17 +555,14 @@ typedef struct {
 } vtss_qos_lb_group_t;
 #define LB_GROUP_CNT 10   /* The number of LB groups */
 #define LB_SET_CNT   4615 /* The number of LB sets */
-#endif /* defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) */
+#endif                    /* defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) */
 
 typedef struct {
     /* CIL function pointers */
     vtss_rc (*conf_set)(struct vtss_state_s *vtss_state, BOOL changed);
-    vtss_rc (*port_conf_set)(struct vtss_state_s *vtss_state,
-                             const vtss_port_no_t port_no);
-    vtss_rc (*port_conf_update)(struct vtss_state_s *vtss_state,
-                                const vtss_port_no_t port_no);
-    vtss_rc (*status_get)(struct vtss_state_s     *vtss_state,
-                          vtss_qos_status_t *const status);
+    vtss_rc (*port_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
+    vtss_rc (*port_conf_update)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
+    vtss_rc (*status_get)(struct vtss_state_s *vtss_state, vtss_qos_status_t *const status);
 
 #if defined(VTSS_FEATURE_QCL)
     vtss_rc (*qce_add)(struct vtss_state_s    *vtss_state,
@@ -612,8 +584,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
     vtss_rc (*ingress_map_add)(struct vtss_state_s                *vtss_state,
                                const vtss_qos_ingress_map_t *const map);
-    vtss_rc (*ingress_map_del)(struct vtss_state_s            *vtss_state,
-                               const vtss_qos_ingress_map_id_t id);
+    vtss_rc (*ingress_map_del)(struct vtss_state_s *vtss_state, const vtss_qos_ingress_map_id_t id);
     vtss_qos_map_vcap_update_t ingress_map_vcap_update;
     vtss_qos_map_hw_update_t   ingress_map_hw_update;
     vtss_qos_map_hw_copy_t     ingress_map_hw_copy;
@@ -622,22 +593,19 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
     vtss_rc (*egress_map_add)(struct vtss_state_s               *vtss_state,
                               const vtss_qos_egress_map_t *const map);
-    vtss_rc (*egress_map_del)(struct vtss_state_s           *vtss_state,
-                              const vtss_qos_egress_map_id_t id);
+    vtss_rc (*egress_map_del)(struct vtss_state_s *vtss_state, const vtss_qos_egress_map_id_t id);
     vtss_qos_map_vcap_update_t egress_map_vcap_update;
     vtss_qos_map_hw_update_t   egress_map_hw_update;
     vtss_qos_map_hw_copy_t     egress_map_hw_copy;
 #endif /* VTSS_FEATURE_QOS_EGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
-    vtss_rc (*cpu_port_shaper_set)(struct vtss_state_s *vtss_state,
-                                   const vtss_bitrate_t rate);
+    vtss_rc (*cpu_port_shaper_set)(struct vtss_state_s *vtss_state, const vtss_bitrate_t rate);
 #endif /* defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER) */
 
 #if defined(VTSS_FEATURE_QOS_TAS)
     vtss_rc (*tas_conf_set)(struct vtss_state_s *vtss_state);
-    vtss_rc (*tas_port_conf_set)(struct vtss_state_s *vtss_state,
-                                 const vtss_port_no_t port_no);
+    vtss_rc (*tas_port_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
     vtss_rc (*tas_port_status_get)(struct vtss_state_s              *vtss_state,
                                    const vtss_port_no_t              port_no,
                                    vtss_qos_tas_port_status_t *const status);
@@ -648,8 +616,7 @@ typedef struct {
                                   const vtss_port_no_t             port_no,
                                   vtss_qos_fp_port_status_t *const status);
 
-    vtss_rc (*fp_port_conf_set)(struct vtss_state_s *vtss_state,
-                                const vtss_port_no_t port_no);
+    vtss_rc (*fp_port_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 #endif /* defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION) */
 
     /* Configuration/state */
@@ -673,39 +640,33 @@ typedef struct {
 
 #if defined(VTSS_ARCH_FA)
     vtss_qos_lb_group_t lb_groups[LB_GROUP_CNT];
-    u16 lb_set_grp_idx[LB_SET_CNT]; /* The LB group index for this LB set */
+    u16                 lb_set_grp_idx[LB_SET_CNT]; /* The LB group index for this LB set */
 #endif
 
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_shaper_calibrate_t port_shaper[VTSS_PORT_ARRAY_SIZE];
-    vtss_shaper_calibrate_t queue_shaper[VTSS_PORT_ARRAY_SIZE]
-                                        [VTSS_QUEUE_ARRAY_SIZE];
+    vtss_shaper_calibrate_t queue_shaper[VTSS_PORT_ARRAY_SIZE][VTSS_QUEUE_ARRAY_SIZE];
 #endif /* defined(VTSS_ARCH_OCELOT) */
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-    vtss_qos_map_id_entry_t
-        imap_id[VTSS_QOS_INGRESS_MAP_IDS]; /* Allocation of id table. Only
-                                              accessed through imap below */
-    vtss_qos_map_ix_entry_t
-        imap_ix[VTSS_QOS_INGRESS_MAP_ROWS]; /* Allocation of ix table. Only
-                                               accessed through imap below */
-    vtss_qos_map_adm_t imap;                /* Generic table administration */
-#endif                                      /* VTSS_FEATURE_QOS_INGRESS_MAP */
+    vtss_qos_map_id_entry_t imap_id[VTSS_QOS_INGRESS_MAP_IDS];  /* Allocation of id table. Only
+                                                                   accessed through imap below */
+    vtss_qos_map_ix_entry_t imap_ix[VTSS_QOS_INGRESS_MAP_ROWS]; /* Allocation of ix table. Only
+                                                                   accessed through imap below */
+    vtss_qos_map_adm_t imap;                                    /* Generic table administration */
+#endif                                                          /* VTSS_FEATURE_QOS_INGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-    vtss_qos_map_id_entry_t
-        emap_id[VTSS_QOS_EGRESS_MAP_IDS]; /* Allocation of id table. Only
-                                             accessed through emap below */
-    vtss_qos_map_ix_entry_t
-        emap_ix_a[VTSS_QOS_EGRESS_MAP_ROWS]; /* Allocation of ix table resource
-                                                A. Only accessed through emap
-                                                below */
-    vtss_qos_map_ix_entry_t
-        emap_ix_b[VTSS_QOS_EGRESS_MAP_ROWS]; /* Allocation of ix table resource
-                                                B. Only accessed through emap
-                                                below */
-    vtss_qos_map_adm_t emap;                 /* Generic table administration */
-#endif                                       /* VTSS_FEATURE_QOS_EGRESS_MAP */
+    vtss_qos_map_id_entry_t emap_id[VTSS_QOS_EGRESS_MAP_IDS];    /* Allocation of id table. Only
+                                                                    accessed through emap below */
+    vtss_qos_map_ix_entry_t emap_ix_a[VTSS_QOS_EGRESS_MAP_ROWS]; /* Allocation of ix table resource
+                                                                    A. Only accessed through emap
+                                                                    below */
+    vtss_qos_map_ix_entry_t emap_ix_b[VTSS_QOS_EGRESS_MAP_ROWS]; /* Allocation of ix table resource
+                                                                    B. Only accessed through emap
+                                                                    below */
+    vtss_qos_map_adm_t emap;                                     /* Generic table administration */
+#endif                                                           /* VTSS_FEATURE_QOS_EGRESS_MAP */
 
 #if defined(VTSS_FEATURE_QOS_HSCH_LEAK_LISTS)
     vtss_qos_leak_conf_t leak_conf;
@@ -727,17 +688,11 @@ typedef struct {
 vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state);
 vtss_rc vtss_qos_restart_sync(struct vtss_state_s *vtss_state);
 
-u32     vtss_cmn_qos_chip_prio(struct vtss_state_s *vtss_state,
-                               const vtss_prio_t    prio);
+u32     vtss_cmn_qos_chip_prio(struct vtss_state_s *vtss_state, const vtss_prio_t prio);
 u32     vtss_cmn_qos_packet_rate(vtss_packet_rate_t rate, u32 *unit);
-u32     vtss_cmn_qos_storm_mode(vtss_packet_rate_t        rate,
-                                vtss_storm_policer_mode_t mode);
-vtss_rc vtss_cmn_qos_port_conf_set(struct vtss_state_s *vtss_state,
-                                   const vtss_port_no_t port_no);
-vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight,
-                                 u8               *cost,
-                                 u32               num,
-                                 u8                bit_width);
+u32     vtss_cmn_qos_storm_mode(vtss_packet_rate_t rate, vtss_storm_policer_mode_t mode);
+vtss_rc vtss_cmn_qos_port_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
+vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, u32 num, u8 bit_width);
 #if defined(VTSS_FEATURE_QCL)
 vtss_rc vtss_cmn_qce_add(struct vtss_state_s    *vtss_state,
                          const vtss_qcl_id_t     qcl_id,

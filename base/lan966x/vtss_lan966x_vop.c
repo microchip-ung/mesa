@@ -16,8 +16,7 @@
 #define VTSS_OAM_CNT_DIR_RX   (1 << 30)
 #define VTSS_OAM_CNT_DIR_BOTH (VTSS_OAM_CNT_DIR_TX | VTSS_OAM_CNT_DIR_RX)
 
-static vtss_rc voe_default_set(vtss_state_t        *vtss_state,
-                               const vtss_voe_idx_t voe_idx);
+static vtss_rc voe_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx);
 
 static u32 loc_period_value(vtss_voe_ccm_period_t p)
 {
@@ -51,13 +50,10 @@ static vtss_rc level_filtering_conf(vtss_state_t                *vtss_state,
 
     VTSS_D("Enter  enable %u", conf->enable);
 
-    value = (conf->enable)
-                ? 0
-                : (1 << voe_idx); /* OAM frames on this level or lower, must not
-                                     be forwarded to this port */
+    value = (conf->enable) ? 0 : (1 << voe_idx); /* OAM frames on this level or lower, must not
+                                                    be forwarded to this port */
     mask = (1 << voe_idx);
-    for (i = 0; i <= conf->meg_level;
-         ++i) { /* Configure filtering on this level an lower */
+    for (i = 0; i <= conf->meg_level; ++i) { /* Configure filtering on this level an lower */
         REG_WRM(MEP_MEL_FILTERING_CFG(i), value, mask);
     }
 
@@ -73,53 +69,48 @@ static vtss_rc voe_counter_update(vtss_state_t        *vtss_state,
  * The clear operation will be triggered by matching the 'clear_mask' with both
  * a counter type (ctype) and a counter direction (cdir - TX or RX).
  */
-#define CHIPREAD(reg, cnt, ctype, cdir)                                        \
-    {                                                                          \
-        REG_RD(reg, &v);                                                       \
-        vtss_cmn_counter_32_update(v, cnt,                                     \
-                                   ((clear_mask & (ctype)) != 0) &&            \
-                                       ((clear_mask & (cdir)) != 0));          \
+#define CHIPREAD(reg, cnt, ctype, cdir)                                                            \
+    {                                                                                              \
+        REG_RD(reg, &v);                                                                           \
+        vtss_cmn_counter_32_update(v, cnt,                                                         \
+                                   ((clear_mask & (ctype)) != 0) && ((clear_mask & (cdir)) != 0)); \
     }
-#define UPDATE8(v, cnt, ctype, cdir)                                           \
-    {                                                                          \
-        vtss_cmn_counter_8_update(v, cnt,                                      \
-                                  ((clear_mask & (ctype)) != 0) &&             \
-                                      ((clear_mask & (cdir)) != 0));           \
+#define UPDATE8(v, cnt, ctype, cdir)                                                               \
+    {                                                                                              \
+        vtss_cmn_counter_8_update(v, cnt,                                                          \
+                                  ((clear_mask & (ctype)) != 0) && ((clear_mask & (cdir)) != 0));  \
     }
-#define UPDATE16(v, cnt, ctype, cdir)                                          \
-    {                                                                          \
-        vtss_cmn_counter_16_update(v, cnt,                                     \
-                                   ((clear_mask & (ctype)) != 0) &&            \
-                                       ((clear_mask & (cdir)) != 0));          \
+#define UPDATE16(v, cnt, ctype, cdir)                                                              \
+    {                                                                                              \
+        vtss_cmn_counter_16_update(v, cnt,                                                         \
+                                   ((clear_mask & (ctype)) != 0) && ((clear_mask & (cdir)) != 0)); \
     }
 
     vtss_rc                           rc = VTSS_RC_OK;
     u32                               v;
-    vtss_oam_voe_internal_counters_t *chipcnt =
-        &vtss_state->oam.voe_internal[voe_idx].counters;
+    vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
 
     /* CCM counter update */
-    CHIPREAD(MEP_CCM_RX_VL_FC_CNT(voe_idx), &chipcnt->ccm.rx_valid_counter,
-             VTSS_OAM_CNT_CCM, VTSS_OAM_CNT_DIR_RX);
-    CHIPREAD(MEP_CCM_RX_IV_FC_CNT(voe_idx), &chipcnt->ccm.rx_invalid_counter,
-             VTSS_OAM_CNT_CCM, VTSS_OAM_CNT_DIR_RX);
-    CHIPREAD(REW_PTP_SEQ_NO(voe_idx), &chipcnt->ccm.tx_counter,
-             VTSS_OAM_CNT_CCM, VTSS_OAM_CNT_DIR_TX);
+    CHIPREAD(MEP_CCM_RX_VL_FC_CNT(voe_idx), &chipcnt->ccm.rx_valid_counter, VTSS_OAM_CNT_CCM,
+             VTSS_OAM_CNT_DIR_RX);
+    CHIPREAD(MEP_CCM_RX_IV_FC_CNT(voe_idx), &chipcnt->ccm.rx_invalid_counter, VTSS_OAM_CNT_CCM,
+             VTSS_OAM_CNT_DIR_RX);
+    CHIPREAD(REW_PTP_SEQ_NO(voe_idx), &chipcnt->ccm.tx_counter, VTSS_OAM_CNT_CCM,
+             VTSS_OAM_CNT_DIR_TX);
 
     /* CCM sequence number error counter is a one bit sticky. We need to read a
      * sticky bit and internally accumulate the value. */
     REG_RD(MEP_RX_STICKY(voe_idx), &v);
     REG_WR(MEP_RX_STICKY(voe_idx), MEP_RX_STICKY_CCM_RX_SEQ_ERR_STICKY_M);
     v = MEP_RX_STICKY_CCM_RX_SEQ_ERR_STICKY_X(v);
-    vtss_cmn_counter_32_update(v + chipcnt->ccm.rx_oo_counter.prev,
-                               &chipcnt->ccm.rx_oo_counter,
+    vtss_cmn_counter_32_update(v + chipcnt->ccm.rx_oo_counter.prev, &chipcnt->ccm.rx_oo_counter,
                                (clear_mask & VTSS_OAM_CNT_CCM) != 0);
 
     /* VOE counter update */
-    CHIPREAD(MEP_RX_SEL_CNT(voe_idx), &chipcnt->voe.rx_selected_counter,
-             VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_RX);
-    CHIPREAD(MEP_RX_FRM_CNT(voe_idx), &chipcnt->voe.rx_counter,
-             VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_RX);
+    CHIPREAD(MEP_RX_SEL_CNT(voe_idx), &chipcnt->voe.rx_selected_counter, VTSS_OAM_CNT_VOE,
+             VTSS_OAM_CNT_DIR_RX);
+    CHIPREAD(MEP_RX_FRM_CNT(voe_idx), &chipcnt->voe.rx_counter, VTSS_OAM_CNT_VOE,
+             VTSS_OAM_CNT_DIR_RX);
 
     return rc;
 #undef CHIPREAD
@@ -158,8 +149,7 @@ static vtss_rc lan966x_voe_alloc(vtss_state_t              *vtss_state,
     vtss_state->oam.voe_alloc_data[*voe_idx].direction = direction;
 
     /* Disable VOE */
-    REG_WRM(MEP_BASIC_CTRL(*voe_idx), MEP_BASIC_CTRL_VOE_ENA(0),
-            MEP_BASIC_CTRL_VOE_ENA_M);
+    REG_WRM(MEP_BASIC_CTRL(*voe_idx), MEP_BASIC_CTRL_VOE_ENA(0), MEP_BASIC_CTRL_VOE_ENA_M);
 
     /* Clear assorted counters: */
     REG_WR(MEP_CCM_RX_VL_FC_CNT(*voe_idx), 0); /* Clear assorted counters */
@@ -169,10 +159,8 @@ static vtss_rc lan966x_voe_alloc(vtss_state_t              *vtss_state,
     REG_WR(MEP_RX_SEL_CNT(*voe_idx), 0);
     REG_WR(MEP_RX_FRM_CNT(*voe_idx), 0);
 
-    REG_WR(MEP_RX_STICKY(*voe_idx),
-           0xffffff); /* sticky bits cleared by writing 1 to them */
-    REG_WR(MEP_STICKY(*voe_idx),
-           0xff); /* sticky bits cleared by writing 1 to them */
+    REG_WR(MEP_RX_STICKY(*voe_idx), 0xffffff); /* sticky bits cleared by writing 1 to them */
+    REG_WR(MEP_STICKY(*voe_idx), 0xff);        /* sticky bits cleared by writing 1 to them */
     REG_WR(MEP_INTR_ENA(*voe_idx), 0);
 
     /* Clear LM counters */
@@ -186,8 +174,7 @@ static vtss_rc lan966x_voe_alloc(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_free(vtss_state_t        *vtss_state,
-                                const vtss_voe_idx_t voe_idx)
+static vtss_rc lan966x_voe_free(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     vtss_rc           rc, ret_rc = VTSS_RC_OK;
     vtss_voe_alloc_t *alloc_data = &vtss_state->oam.voe_alloc_data[voe_idx];
@@ -202,8 +189,7 @@ static vtss_rc lan966x_voe_free(vtss_state_t        *vtss_state,
 
     /* Update the level filtering mask */
     vtss_state->oam.voe_conf[voe_idx].enable = FALSE;
-    VTSS_RC(level_filtering_conf(vtss_state, voe_idx,
-                                 &vtss_state->oam.voe_conf[voe_idx]));
+    VTSS_RC(level_filtering_conf(vtss_state, voe_idx, &vtss_state->oam.voe_conf[voe_idx]));
 
     if ((rc = voe_default_set(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
@@ -212,13 +198,10 @@ static vtss_rc lan966x_voe_free(vtss_state_t        *vtss_state,
     return (ret_rc);
 }
 
-static vtss_rc lan966x_vop_conf_set(vtss_state_t                *vtss_state,
-                                    const vtss_vop_conf_t *const conf)
+static vtss_rc lan966x_vop_conf_set(vtss_state_t *vtss_state, const vtss_vop_conf_t *const conf)
 {
     BOOL npi = vtss_state->packet.npi_conf.enable ? TRUE : FALSE;
-    u32  value,
-        npi_port =
-            npi ? VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no) : 0;
+    u32  value, npi_port = npi ? VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no) : 0;
 
     VTSS_D("Enter");
 
@@ -226,10 +209,8 @@ static vtss_rc lan966x_vop_conf_set(vtss_state_t                *vtss_state,
     value = (conf->multicast_dmac.addr[0] << 8) | conf->multicast_dmac.addr[1];
     REG_WR(MEP_MC_MAC_MSB, MEP_MC_MAC_MSB_MEP_MC_MAC_MSB(value));
 
-    value = (conf->multicast_dmac.addr[2] << 24) |
-            (conf->multicast_dmac.addr[3] << 16) |
-            (conf->multicast_dmac.addr[4] << 8) |
-            (conf->multicast_dmac.addr[5]);
+    value = (conf->multicast_dmac.addr[2] << 24) | (conf->multicast_dmac.addr[3] << 16) |
+            (conf->multicast_dmac.addr[4] << 8) | (conf->multicast_dmac.addr[5]);
     value >>= 4; /* Value in reg. field doesn't include the lower 4 bits */
     REG_WR(MEP_MC_MAC_LSB, MEP_MC_MAC_LSB_MEP_MC_MAC_LSB(value));
 
@@ -254,8 +235,7 @@ static vtss_rc lan966x_vop_conf_set(vtss_state_t                *vtss_state,
     REG_WR(MEP_MRP_CPU_CFG, value);
 
     /* Enable master interrupt */
-    REG_WRM(MEP_INTR_CTRL, MEP_INTR_CTRL_OAM_MEP_INTR_ENA(1),
-            MEP_INTR_CTRL_OAM_MEP_INTR_ENA_M);
+    REG_WRM(MEP_INTR_CTRL, MEP_INTR_CTRL_OAM_MEP_INTR_ENA(1), MEP_INTR_CTRL_OAM_MEP_INTR_ENA_M);
 
     /* Enable VOP */
     value = MEP_CPU_MASK_CFG_EXT_CPU_PORTMASK(npi ? (0x01 << npi_port) : 0);
@@ -295,26 +275,13 @@ static vtss_rc lan966x_voe_event_mask_set(vtss_state_t        *vtss_state,
 
     /* Translate the input mask to register mask */
     reg_mask =
-        ((mask & VTSS_VOE_EVENT_MASK_CCM_PERIOD)
-             ? MEP_INTR_ENA_CCM_PER_INTR_ENA_M
-             : 0) |
-        ((mask & VTSS_VOE_EVENT_MASK_CCM_PRIORITY)
-             ? MEP_INTR_ENA_CCM_PRIO_INTR_ENA_M
-             : 0) |
-        ((mask & VTSS_VOE_EVENT_MASK_CCM_ZERO_PERIOD)
-             ? MEP_INTR_ENA_CCM_ZERO_PER_INTR_ENA_M
-             : 0) |
-        ((mask & VTSS_VOE_EVENT_MASK_CCM_RX_RDI)
-             ? MEP_INTR_ENA_CCM_RX_RDI_INTR_ENA_M
-             : 0) |
-        ((mask & VTSS_VOE_EVENT_MASK_CCM_LOC) ? MEP_INTR_ENA_CCM_LOC_INTR_ENA_M
-                                              : 0) |
-        ((mask & VTSS_VOE_EVENT_MASK_CCM_MEP_ID)
-             ? MEP_INTR_ENA_CCM_MEPID_INTR_ENA_M
-             : 0) |
-        ((mask & VTSS_VOE_EVENT_MASK_CCM_MEG_ID)
-             ? MEP_INTR_ENA_CCM_MEGID_INTR_ENA_M
-             : 0);
+        ((mask & VTSS_VOE_EVENT_MASK_CCM_PERIOD) ? MEP_INTR_ENA_CCM_PER_INTR_ENA_M : 0) |
+        ((mask & VTSS_VOE_EVENT_MASK_CCM_PRIORITY) ? MEP_INTR_ENA_CCM_PRIO_INTR_ENA_M : 0) |
+        ((mask & VTSS_VOE_EVENT_MASK_CCM_ZERO_PERIOD) ? MEP_INTR_ENA_CCM_ZERO_PER_INTR_ENA_M : 0) |
+        ((mask & VTSS_VOE_EVENT_MASK_CCM_RX_RDI) ? MEP_INTR_ENA_CCM_RX_RDI_INTR_ENA_M : 0) |
+        ((mask & VTSS_VOE_EVENT_MASK_CCM_LOC) ? MEP_INTR_ENA_CCM_LOC_INTR_ENA_M : 0) |
+        ((mask & VTSS_VOE_EVENT_MASK_CCM_MEP_ID) ? MEP_INTR_ENA_CCM_MEPID_INTR_ENA_M : 0) |
+        ((mask & VTSS_VOE_EVENT_MASK_CCM_MEG_ID) ? MEP_INTR_ENA_CCM_MEGID_INTR_ENA_M : 0);
 
     /* Calculate new enable mask */
     enable_mask = enable ? (enable_mask | reg_mask) : (enable_mask & ~reg_mask);
@@ -339,31 +306,23 @@ static vtss_rc lan966x_voe_event_get(vtss_state_t        *vtss_state,
     /* Read sticky bits and clear the enabled ones */
     REG_RD(MEP_STICKY(voe_idx), &sticky_mask);
     sticky_mask &= enable_mask;
-    REG_WR(MEP_STICKY(voe_idx),
-           sticky_mask); /* Sticky bits cleared by writing 1 to them */
+    REG_WR(MEP_STICKY(voe_idx), sticky_mask); /* Sticky bits cleared by writing 1 to them */
 
     /* Translate sticky mask to returned event mask */
-    *mask = (((sticky_mask & MEP_STICKY_CCM_PERIOD_STICKY_M) != 0)
-                 ? VTSS_VOE_EVENT_MASK_CCM_PERIOD
-                 : 0) |
-            (((sticky_mask & MEP_STICKY_CCM_PRIO_STICKY_M) != 0)
-                 ? VTSS_VOE_EVENT_MASK_CCM_PRIORITY
-                 : 0) |
-            (((sticky_mask & MEP_STICKY_CCM_ZERO_PERIOD_STICKY_M) != 0)
-                 ? VTSS_VOE_EVENT_MASK_CCM_ZERO_PERIOD
-                 : 0) |
-            (((sticky_mask & MEP_STICKY_CCM_RX_RDI_STICKY_M) != 0)
-                 ? VTSS_VOE_EVENT_MASK_CCM_RX_RDI
-                 : 0) |
-            (((sticky_mask & MEP_STICKY_CCM_LOC_STICKY_M) != 0)
-                 ? VTSS_VOE_EVENT_MASK_CCM_LOC
-                 : 0) |
-            (((sticky_mask & MEP_STICKY_CCM_MEPID_STICKY_M) != 0)
-                 ? VTSS_VOE_EVENT_MASK_CCM_MEP_ID
-                 : 0) |
-            (((sticky_mask & MEP_STICKY_CCM_MEGID_STICKY_M) != 0)
-                 ? VTSS_VOE_EVENT_MASK_CCM_MEG_ID
-                 : 0);
+    *mask =
+        (((sticky_mask & MEP_STICKY_CCM_PERIOD_STICKY_M) != 0) ? VTSS_VOE_EVENT_MASK_CCM_PERIOD
+                                                               : 0) |
+        (((sticky_mask & MEP_STICKY_CCM_PRIO_STICKY_M) != 0) ? VTSS_VOE_EVENT_MASK_CCM_PRIORITY
+                                                             : 0) |
+        (((sticky_mask & MEP_STICKY_CCM_ZERO_PERIOD_STICKY_M) != 0)
+             ? VTSS_VOE_EVENT_MASK_CCM_ZERO_PERIOD
+             : 0) |
+        (((sticky_mask & MEP_STICKY_CCM_RX_RDI_STICKY_M) != 0) ? VTSS_VOE_EVENT_MASK_CCM_RX_RDI
+                                                               : 0) |
+        (((sticky_mask & MEP_STICKY_CCM_LOC_STICKY_M) != 0) ? VTSS_VOE_EVENT_MASK_CCM_LOC : 0) |
+        (((sticky_mask & MEP_STICKY_CCM_MEPID_STICKY_M) != 0) ? VTSS_VOE_EVENT_MASK_CCM_MEP_ID
+                                                              : 0) |
+        (((sticky_mask & MEP_STICKY_CCM_MEGID_STICKY_M) != 0) ? VTSS_VOE_EVENT_MASK_CCM_MEG_ID : 0);
 
     VTSS_D("Exit  mask %X", *mask);
 
@@ -379,11 +338,10 @@ static vtss_rc lan966x_voe_conf_set(vtss_state_t                *vtss_state,
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Configure the unicast MAC */
-    value = MEP_UC_MAC_MSB_MEP_UC_MAC_MSB((conf->unicast_mac.addr[0] << 8) |
-                                          conf->unicast_mac.addr[1]);
+    value =
+        MEP_UC_MAC_MSB_MEP_UC_MAC_MSB((conf->unicast_mac.addr[0] << 8) | conf->unicast_mac.addr[1]);
     REG_WR(MEP_UC_MAC_MSB(voe_idx), value);
-    value = (conf->unicast_mac.addr[2] << 24) |
-            (conf->unicast_mac.addr[3] << 16) |
+    value = (conf->unicast_mac.addr[2] << 24) | (conf->unicast_mac.addr[3] << 16) |
             (conf->unicast_mac.addr[4] << 8) | (conf->unicast_mac.addr[5]);
     REG_WR(MEP_UC_MAC_LSB(voe_idx), value);
 
@@ -394,18 +352,10 @@ static vtss_rc lan966x_voe_conf_set(vtss_state_t                *vtss_state,
 
     /* Configure the DMAC check type */
     switch (conf->dmac_check_type) {
-    case VTSS_VOE_DMAC_CHECK_NONE:
-        value = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL(0x01);
-        break;
-    case VTSS_VOE_DMAC_CHECK_UNICAST:
-        value = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL(0x01);
-        break;
-    case VTSS_VOE_DMAC_CHECK_MULTICAST:
-        value = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL(0x02);
-        break;
-    case VTSS_VOE_DMAC_CHECK_BOTH:
-        value = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL(0x03);
-        break;
+    case VTSS_VOE_DMAC_CHECK_NONE:      value = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL(0x01); break;
+    case VTSS_VOE_DMAC_CHECK_UNICAST:   value = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL(0x01); break;
+    case VTSS_VOE_DMAC_CHECK_MULTICAST: value = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL(0x02); break;
+    case VTSS_VOE_DMAC_CHECK_BOTH:      value = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL(0x03); break;
     }
     mask = MEP_BASIC_CTRL_RX_DMAC_CHK_SEL_M;
     REG_WRM(MEP_BASIC_CTRL(voe_idx), value, mask);
@@ -422,15 +372,14 @@ static vtss_rc lan966x_voe_conf_set(vtss_state_t                *vtss_state,
     VTSS_RC(level_filtering_conf(vtss_state, voe_idx, conf));
 
     /* Enable/Disable VOE */
-    REG_WRM(MEP_BASIC_CTRL(voe_idx),
-            MEP_BASIC_CTRL_VOE_ENA(conf->enable ? 1 : 0),
+    REG_WRM(MEP_BASIC_CTRL(voe_idx), MEP_BASIC_CTRL_VOE_ENA(conf->enable ? 1 : 0),
             MEP_BASIC_CTRL_VOE_ENA_M);
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_cc_conf_set(vtss_state_t        *vtss_state,
-                                       const vtss_voe_idx_t voe_idx,
+static vtss_rc lan966x_voe_cc_conf_set(vtss_state_t                   *vtss_state,
+                                       const vtss_voe_idx_t            voe_idx,
                                        const vtss_voe_cc_conf_t *const conf)
 {
     u32       i, value, mask;
@@ -447,56 +396,46 @@ static vtss_rc lan966x_voe_cc_conf_set(vtss_state_t        *vtss_state,
 
     /* Clear sequence numbers */
     REG_RD(MEP_BASIC_CTRL(voe_idx), &value);
-    if (conf->enable && (MEP_BASIC_CTRL_VOE_ENA_X(value) ==
-                         0)) { /* The Tx and Rx sequence numbers are cleared
-                                  when CC is enabled */
+    if (conf->enable &&
+        (MEP_BASIC_CTRL_VOE_ENA_X(value) == 0)) { /* The Tx and Rx sequence numbers are cleared
+                                                     when CC is enabled */
         REG_WR(REW_PTP_SEQ_NO(voe_idx), 0);
         REG_WR(MEP_CCM_RX_SEQ_CFG(voe_idx), 0);
         vtss_cmn_counter_32_rebase(0, &vtss_state->oam.voe_internal[voe_idx]
-                                           .counters.ccm
-                                           .tx_counter); /* Always re-base when
-                                                            Tx sequence number
-                                                            is changed */
+                                           .counters.ccm.tx_counter); /* Always re-base when
+                                                                         Tx sequence number
+                                                                         is changed */
     }
 
     /* Configure prio, period ect. */
-    value = MEP_CCM_CFG_CCM_RX_SEQ_CHK_ENA(1) |
-            MEP_CCM_CFG_CCM_PRIO(conf->expected_priority) |
+    value = MEP_CCM_CFG_CCM_RX_SEQ_CHK_ENA(1) | MEP_CCM_CFG_CCM_PRIO(conf->expected_priority) |
             MEP_CCM_CFG_CCM_PERIOD(loc_period_value(conf->expected_period)) |
             MEP_CCM_CFG_CCM_MEGID_CHK_ENA(1) | MEP_CCM_CFG_CCM_MEPID_CHK_ENA(1);
-    mask = MEP_CCM_CFG_CCM_RX_SEQ_CHK_ENA_M | MEP_CCM_CFG_CCM_PRIO_M |
-           MEP_CCM_CFG_CCM_PERIOD_M | MEP_CCM_CFG_CCM_MEGID_CHK_ENA_M |
-           MEP_CCM_CFG_CCM_MEPID_CHK_ENA_M;
+    mask = MEP_CCM_CFG_CCM_RX_SEQ_CHK_ENA_M | MEP_CCM_CFG_CCM_PRIO_M | MEP_CCM_CFG_CCM_PERIOD_M |
+           MEP_CCM_CFG_CCM_MEGID_CHK_ENA_M | MEP_CCM_CFG_CCM_MEPID_CHK_ENA_M;
     REG_WRM(MEP_CCM_CFG(voe_idx), value, mask);
 
     /* Configure the sequence number update enable in rewriter */
-    REG_WRM(REW_CCM_TX_CFG(voe_idx),
-            REW_CCM_TX_CFG_CCM_SEQ_UPD_ENA(conf->seq_no_update ? 1 : 0),
+    REG_WRM(REW_CCM_TX_CFG(voe_idx), REW_CCM_TX_CFG_CCM_SEQ_UPD_ENA(conf->seq_no_update ? 1 : 0),
             REW_CCM_TX_CFG_CCM_SEQ_UPD_ENA_M);
 
     /* Configure MEG id */
     p = &conf->expected_megid[47]; // MSB
     for (i = 0; i < 12; ++i, p -= 4) {
-        value =
-            (*(p - 3) << 24) | (*(p - 2) << 16) | (*(p - 1) << 8) | (*(p - 0));
+        value = (*(p - 3) << 24) | (*(p - 2) << 16) | (*(p - 1) << 8) | (*(p - 0));
         REG_WR(MEP_CCM_MEGID_CFG(voe_idx, i), value);
     }
 
     /* Configure count_as_selected */
     REG_WRM(MEP_CNT_OAM_CTRL(voe_idx),
-            MEP_CNT_OAM_CTRL_CCM_OAM_CNT((conf->enable &&
-                                          conf->count_as_selected)
-                                             ? 1
-                                             : 0),
+            MEP_CNT_OAM_CTRL_CCM_OAM_CNT((conf->enable && conf->count_as_selected) ? 1 : 0),
             MEP_CNT_OAM_CTRL_CCM_OAM_CNT_M);
 
     /* Configure peer MEP id */
-    REG_WR(MEP_CCM_MEPID_CFG(voe_idx),
-           MEP_CCM_MEPID_CFG_CCM_MEPID(conf->expected_peer_mepid));
+    REG_WR(MEP_CCM_MEPID_CFG(voe_idx), MEP_CCM_MEPID_CFG_CCM_MEPID(conf->expected_peer_mepid));
 
     /* Enable/Disable CCM handling */
-    REG_WRM(MEP_HW_CTRL(voe_idx), MEP_HW_CTRL_CCM_ENA(conf->enable ? 1 : 0),
-            MEP_HW_CTRL_CCM_ENA_M);
+    REG_WRM(MEP_HW_CTRL(voe_idx), MEP_HW_CTRL_CCM_ENA(conf->enable ? 1 : 0), MEP_HW_CTRL_CCM_ENA_M);
 
     return VTSS_RC_OK;
 }
@@ -518,11 +457,9 @@ static vtss_rc lan966x_voe_cc_cpu_copy_next_set(vtss_state_t        *vtss_state,
 {
     u32 value, mask;
 
-    value = MEP_BASIC_CTRL_CPU_ONCE_CCM_TLV(1) |
-            MEP_BASIC_CTRL_CCM_ERR_CPU_ONCE(1) |
+    value = MEP_BASIC_CTRL_CPU_ONCE_CCM_TLV(1) | MEP_BASIC_CTRL_CCM_ERR_CPU_ONCE(1) |
             MEP_BASIC_CTRL_CCM_NXT_CPU_ONCE(1);
-    mask = MEP_BASIC_CTRL_CPU_ONCE_CCM_TLV_M |
-           MEP_BASIC_CTRL_CCM_ERR_CPU_ONCE_M |
+    mask = MEP_BASIC_CTRL_CPU_ONCE_CCM_TLV_M | MEP_BASIC_CTRL_CCM_ERR_CPU_ONCE_M |
            MEP_BASIC_CTRL_CCM_NXT_CPU_ONCE_M;
     REG_WRM(MEP_BASIC_CTRL(voe_idx), value, mask);
 
@@ -547,8 +484,7 @@ static vtss_rc lan966x_voe_status_get(vtss_state_t            *vtss_state,
     status->dmac_unexp_seen = MEP_RX_STICKY_MAC_ADDR_ERR_STICKY_X(value);
 
     /* Clear the RX sticky bits that has been detected */
-    value = value & (MEP_RX_STICKY_UNK_OPCODE_RX_STICKY_M |
-                     MEP_RX_STICKY_MAC_ADDR_ERR_STICKY_M |
+    value = value & (MEP_RX_STICKY_UNK_OPCODE_RX_STICKY_M | MEP_RX_STICKY_MAC_ADDR_ERR_STICKY_M |
                      MEP_RX_STICKY_MEP_EGR_BLOCK_STICKY_M);
     REG_WR(MEP_RX_STICKY(voe_idx), value);
 
@@ -575,12 +511,10 @@ static vtss_rc lan966x_voe_cc_status_get(vtss_state_t         *vtss_state,
 
     /* Calculate the 'xxx_seen' - read the RX sticky bits */
     REG_RD(MEP_RX_STICKY(voe_idx), &value);
-    status->seen = MEP_RX_STICKY_CCM_RX_STICKY_X(value) ||
-                   MEP_RX_STICKY_CCM_LM_RX_STICKY_X(value);
+    status->seen = MEP_RX_STICKY_CCM_RX_STICKY_X(value) || MEP_RX_STICKY_CCM_LM_RX_STICKY_X(value);
 
     /* Clear the sticky bits that has been detected */
-    value = value &
-            (MEP_RX_STICKY_CCM_RX_STICKY_M | MEP_RX_STICKY_CCM_LM_RX_STICKY_M);
+    value = value & (MEP_RX_STICKY_CCM_RX_STICKY_M | MEP_RX_STICKY_CCM_LM_RX_STICKY_M);
     REG_WR(MEP_RX_STICKY(voe_idx), value);
 
     return VTSS_RC_OK;
@@ -591,8 +525,7 @@ static vtss_rc lan966x_voe_counters_get(vtss_state_t              *vtss_state,
                                         vtss_voe_counters_t *const counters)
 {
     vtss_rc                           rc;
-    vtss_oam_voe_internal_counters_t *chipcnt =
-        &vtss_state->oam.voe_internal[voe_idx].counters;
+    vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -611,8 +544,7 @@ static vtss_rc lan966x_voe_cc_counters_get(vtss_state_t           *vtss_state,
                                            vtss_voe_cc_counters_t *counters)
 {
     vtss_rc                           rc;
-    vtss_oam_voe_internal_counters_t *chipcnt =
-        &vtss_state->oam.voe_internal[voe_idx].counters;
+    vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -628,24 +560,20 @@ static vtss_rc lan966x_voe_cc_counters_get(vtss_state_t           *vtss_state,
     return rc;
 }
 
-static vtss_rc lan966x_voe_counters_clear(vtss_state_t        *vtss_state,
-                                          const vtss_voe_idx_t voe_idx)
+static vtss_rc lan966x_voe_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
-    VTSS_RC(voe_counter_update(vtss_state, voe_idx,
-                               VTSS_OAM_CNT_VOE | VTSS_OAM_CNT_DIR_BOTH));
+    VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_VOE | VTSS_OAM_CNT_DIR_BOTH));
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_cc_counters_clear(vtss_state_t        *vtss_state,
-                                             const vtss_voe_idx_t voe_idx)
+static vtss_rc lan966x_voe_cc_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
-    VTSS_RC(voe_counter_update(vtss_state, voe_idx,
-                               VTSS_OAM_CNT_CCM | VTSS_OAM_CNT_DIR_BOTH));
+    VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_CCM | VTSS_OAM_CNT_DIR_BOTH));
 
     return VTSS_RC_OK;
 }
@@ -661,10 +589,8 @@ static vtss_rc lan966x_oam_voe_poll_1sec(vtss_state_t *vtss_state)
 }
 
 // D_COM: Debug COMmon; DR_COM: Debug Read COMmon. _I for Instance. Etc.
-#define D_REG(ss, name)                                                        \
-    vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(name), name)
-#define D_REG_I(ss, name, i)                                                   \
-    vtss_lan966x_debug_reg_inst(vtss_state, ss, name, (i), name)
+#define D_REG(ss, name)      vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(name), name)
+#define D_REG_I(ss, name, i) vtss_lan966x_debug_reg_inst(vtss_state, ss, name, (i), name)
 
 static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
@@ -682,8 +608,7 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
         show = (info->action == 0) ? TRUE : FALSE;
         vop = (info->action == 1) ? TRUE : FALSE;
 
-        if (info->action >
-            2) { /* This potentially a VOE config or VOE status action */
+        if (info->action > 2) { /* This potentially a VOE config or VOE status action */
             for (i = 0, div = 10000; i < 5; ++i, (div = div / 10)) {
                 voe = (info->action / div == 4) ? TRUE : FALSE;
                 status = (info->action / div == 5) ? TRUE : FALSE;
@@ -692,15 +617,14 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
                     break;
                 }
             }
-            if (voe || status ||
-                lm_counters) { /* Calculate the possible VOE/MIP index */
+            if (voe || status || lm_counters) { /* Calculate the possible VOE/MIP index */
                 voe_idx = info->action % div;
             }
         }
     }
 
-    VTSS_D("show %u  vop %u  voe %u  status %u  lm_counters %u", show, vop, voe,
-           status, lm_counters);
+    VTSS_D("show %u  vop %u  voe %u  status %u  lm_counters %u", show, vop, voe, status,
+           lm_counters);
 
     if (show) {
         pr("OAM Debug Group action:\n");
@@ -714,45 +638,30 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
 
     if (!info->has_action || vop) { /* VOP configuration must be printed */
         vtss_lan966x_debug_reg_header(ss, "VOP");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MEP_CTRL),
-                               "MEP_MEP_CTRL");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_CPU_CFG),
-                               "MEP_CPU_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_CPU_CFG_1),
-                               "MEP_CPU_CFG_1");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MRP_CPU_CFG),
-                               "MEP_MRP_CPU_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_DLR_CPU_CFG),
-                               "MEP_DLR_CPU_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MEP_CTRL), "MEP_MEP_CTRL");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_CPU_CFG), "MEP_CPU_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_CPU_CFG_1), "MEP_CPU_CFG_1");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MRP_CPU_CFG), "MEP_MRP_CPU_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_DLR_CPU_CFG), "MEP_DLR_CPU_CFG");
         for (i = 0; i < 8; ++i)
-            vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                        REG_ADDR(MEP_GENERIC_CFG(i)), i,
+            vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_GENERIC_CFG(i)), i,
                                         "MEP_GENERIC_CFG");
         for (i = 0; i < 7; ++i)
-            vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                        REG_ADDR(MEP_LOC_PERIOD_CFG(i)), i,
+            vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_LOC_PERIOD_CFG(i)), i,
                                         "MEP_LOC_PERIOD_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_LOC_CTRL),
-                               "MEP_LOC_CTRL");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_LOC_CTRL), "MEP_LOC_CTRL");
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_LOC_SCAN_STICKY),
                                "MEP_LOC_SCAN_STICKY");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_INTR_CTRL),
-                               "MEP_INTR_CTRL");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_INTR_CTRL), "MEP_INTR_CTRL");
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_INTR), "MEP_INTR");
         for (i = 0; i < 7; ++i)
-            vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                        REG_ADDR(MEP_VOE_CNT_CTRL(i)), i,
+            vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_VOE_CNT_CTRL(i)), i,
                                         "MEP_VOE_CNT_CTRL");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MC_MAC_MSB),
-                               "MEP_MC_MAC_MSB");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MC_MAC_LSB),
-                               "MEP_MC_MAC_LSB");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_TICK_CFG),
-                               "MEP_TICK_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MRP_RX_TS_CFG),
-                               "MEP_MRP_RX_TS_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_DBG_STICKY),
-                               "MEP_DBG_STICKY");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MC_MAC_MSB), "MEP_MC_MAC_MSB");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MC_MAC_LSB), "MEP_MC_MAC_LSB");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_TICK_CFG), "MEP_TICK_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_MRP_RX_TS_CFG), "MEP_MRP_RX_TS_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(MEP_DBG_STICKY), "MEP_DBG_STICKY");
         pr("\n");
     }
 
@@ -761,8 +670,7 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
 
         for (i = 0; i < VTSS_VOE_CNT; ++i) {
             if (voe && (div > 1) &&
-                (voe_idx !=
-                 i)) { /* A specific VOE must be printed - this is not the one */
+                (voe_idx != i)) { /* A specific VOE must be printed - this is not the one */
                 continue;
             }
 
@@ -770,52 +678,36 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
             if (info->full || MEP_BASIC_CTRL_VOE_ENA_X(v)) {
                 VTSS_FMT(buf, "VOE %u", i);
                 vtss_lan966x_debug_reg_header(ss, buf.s);
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_BASIC_CTRL(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_BASIC_CTRL(i)), i,
                                             "MEP_BASIC_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_MEL_CTRL(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_MEL_CTRL(i)), i,
                                             "MEP_MEL_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CPU_COPY_CTRL(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CPU_COPY_CTRL(i)), i,
                                             "MEP_CPU_COPY_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_FWD_CTRL(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_FWD_CTRL(i)), i,
                                             "MEP_FWD_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CNT_OAM_CTRL(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CNT_OAM_CTRL(i)), i,
                                             "MEP_CNT_OAM_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CNT_DATA_CTRL(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CNT_DATA_CTRL(i)), i,
                                             "MEP_CNT_DATA_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_UC_MAC_LSB(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_UC_MAC_LSB(i)), i,
                                             "MEP_UC_MAC_LSB");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_UC_MAC_MSB(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_UC_MAC_MSB(i)), i,
                                             "MEP_UC_MAC_MSB");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_HW_CTRL(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_HW_CTRL(i)), i,
                                             "MEP_HW_CTRL");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CCM_CFG(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CCM_CFG(i)), i,
                                             "MEP_CCM_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(REW_PTP_SEQ_NO(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(REW_PTP_SEQ_NO(i)), i,
                                             "REW_PTP_SEQ_NO");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CCM_RX_SEQ_CFG(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CCM_RX_SEQ_CFG(i)), i,
                                             "MEP_CCM_RX_SEQ_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CCM_MEPID_CFG(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CCM_MEPID_CFG(i)), i,
                                             "MEP_CCM_MEPID_CFG");
                 for (k = 0; k < 12; ++k)
-                    vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                                REG_ADDR(MEP_CCM_MEGID_CFG(i,
-                                                                           k)),
+                    vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CCM_MEGID_CFG(i, k)),
                                                 11 - k, "MEP_CCM_MEGID_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_INTR_ENA(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_INTR_ENA(i)), i,
                                             "MEP_INTR_ENA");
                 pr("\n");
             }
@@ -828,8 +720,7 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
 
         for (i = 0; i < VTSS_VOE_CNT; ++i) {
             if (status && (div > 1) &&
-                (voe_idx !=
-                 i)) { /* A specific VOE must be printed - this is not the one */
+                (voe_idx != i)) { /* A specific VOE must be printed - this is not the one */
                 continue;
             }
 
@@ -837,32 +728,23 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
             if (info->full || MEP_BASIC_CTRL_VOE_ENA_X(v)) {
                 VTSS_FMT(buf, "VOE %u", i);
                 vtss_lan966x_debug_reg_header(ss, buf.s);
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CCM_CFG(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CCM_CFG(i)), i,
                                             "MEP_CCM_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CCM_RX_VL_FC_CNT(i)),
-                                            i, "MEP_CCM_RX_VL_FC_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CCM_RX_IV_FC_CNT(i)),
-                                            i, "MEP_CCM_RX_IV_FC_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(REW_PTP_SEQ_NO(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CCM_RX_VL_FC_CNT(i)), i,
+                                            "MEP_CCM_RX_VL_FC_CNT");
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CCM_RX_IV_FC_CNT(i)), i,
+                                            "MEP_CCM_RX_IV_FC_CNT");
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(REW_PTP_SEQ_NO(i)), i,
                                             "REW_PTP_SEQ_NO");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_CCM_RX_SEQ_CFG(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_CCM_RX_SEQ_CFG(i)), i,
                                             "MEP_CCM_RX_SEQ_CFG");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_RX_STICKY(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_RX_STICKY(i)), i,
                                             "MEP_RX_STICKY");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_STICKY(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_STICKY(i)), i,
                                             "MEP_STICKY");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_RX_SEL_CNT(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_RX_SEL_CNT(i)), i,
                                             "MEP_RX_SEL_CNT");
-                vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                            REG_ADDR(MEP_RX_FRM_CNT(i)), i,
+                vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_RX_FRM_CNT(i)), i,
                                             "MEP_RX_FRM_CNT");
             }
         }
@@ -874,8 +756,7 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
 
         for (i = 0; i < VTSS_VOE_CNT; ++i) {
             if (lm_counters && (div > 1) &&
-                (voe_idx !=
-                 i)) { /* A specific VOE must be printed - this is not the one */
+                (voe_idx != i)) { /* A specific VOE must be printed - this is not the one */
                 continue;
             }
 
@@ -885,10 +766,8 @@ static vtss_rc lan966x_debug_oam(vtss_state_t                  *vtss_state,
                 vtss_lan966x_debug_reg_header(ss, buf.s);
 
                 for (k = 0; k < VTSS_PRIO_ARRAY_SIZE; ++k) {
-                    vtss_lan966x_debug_reg_inst(vtss_state, ss,
-                                                REG_ADDR(MEP_PORT_RX_FRM_CNT(i)),
-                                                ((i * VTSS_PRIO_ARRAY_SIZE) +
-                                                 k),
+                    vtss_lan966x_debug_reg_inst(vtss_state, ss, REG_ADDR(MEP_PORT_RX_FRM_CNT(i)),
+                                                ((i * VTSS_PRIO_ARRAY_SIZE) + k),
                                                 "MEP_PORT_RX_FRM_CNT");
                 }
             }
@@ -903,20 +782,17 @@ vtss_rc vtss_lan966x_oam_debug_print(vtss_state_t                  *vtss_state,
                                      lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_OAM, lan966x_debug_oam,
-                                  vtss_state, ss, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_OAM, lan966x_debug_oam, vtss_state, ss, info);
 }
 
 #undef D_REG
 #undef D_REG_I
 
-static vtss_rc voe_default_set(vtss_state_t        *vtss_state,
-                               const vtss_voe_idx_t voe_idx)
+static vtss_rc voe_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     vtss_rc rc, ret_rc = VTSS_RC_OK;
 
-    VTSS_MEMSET(&vtss_state->oam.voe_conf[voe_idx], 0,
-                sizeof(vtss_state->oam.voe_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_conf[voe_idx]));
     VTSS_MEMSET(&vtss_state->oam.voe_cc_conf[voe_idx], 0,
                 sizeof(vtss_state->oam.voe_cc_conf[voe_idx]));
     VTSS_MEMSET(&vtss_state->oam.voe_rdi_conf[voe_idx], 0,
@@ -924,29 +800,24 @@ static vtss_rc voe_default_set(vtss_state_t        *vtss_state,
     VTSS_MEMSET(&vtss_state->oam.voe_event_mask[voe_idx], 0,
                 sizeof(vtss_state->oam.voe_event_mask[voe_idx]));
 
-    if ((rc = lan966x_voe_event_mask_set(vtss_state, voe_idx,
-                                         VTSS_VOE_EVENT_MASK_ALL, FALSE)) !=
+    if ((rc = lan966x_voe_event_mask_set(vtss_state, voe_idx, VTSS_VOE_EVENT_MASK_ALL, FALSE)) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = lan966x_voe_cc_rdi_set(vtss_state, voe_idx, FALSE)) !=
-        VTSS_RC_OK) {
+    if ((rc = lan966x_voe_cc_rdi_set(vtss_state, voe_idx, FALSE)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
     if ((rc = lan966x_voe_cc_conf_set(vtss_state, voe_idx,
-                                      &vtss_state->oam.voe_cc_conf[voe_idx])) !=
-        VTSS_RC_OK) {
+                                      &vtss_state->oam.voe_cc_conf[voe_idx])) != VTSS_RC_OK) {
         ret_rc = rc;
     }
     if ((rc = lan966x_voe_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = lan966x_voe_cc_counters_clear(vtss_state, voe_idx)) !=
-        VTSS_RC_OK) {
+    if ((rc = lan966x_voe_cc_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = lan966x_voe_conf_set(vtss_state, voe_idx,
-                                   &vtss_state->oam.voe_conf[voe_idx])) !=
+    if ((rc = lan966x_voe_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_conf[voe_idx])) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
@@ -968,30 +839,21 @@ static vtss_rc lan966x_init(vtss_state_t *vtss_state)
 
     /* Configure LOC base tick count */
     clk_period_in_ps = vtss_lan966x_clk_period_ps(vtss_state);
-    base_tick_ps = 200 * 1000; /* Base tick target is 200 ns */
-    value =
-        base_tick_ps / clk_period_in_ps; /* clk_period * value = base_tick */
-    REG_WRM(MEP_LOC_CTRL, MEP_LOC_CTRL_BASE_TICK_CNT(value),
-            MEP_LOC_CTRL_BASE_TICK_CNT_M);
+    base_tick_ps = 200 * 1000;               /* Base tick target is 200 ns */
+    value = base_tick_ps / clk_period_in_ps; /* clk_period * value = base_tick */
+    REG_WRM(MEP_LOC_CTRL, MEP_LOC_CTRL_BASE_TICK_CNT(value), MEP_LOC_CTRL_BASE_TICK_CNT_M);
     base_tick_ps = clk_period_in_ps * value;
 
     /* Configure LOC periods used for CCM LOC. Note that MRP is using the last
      * six LOC timers */
     value = (3300000000 / base_tick_ps) + ((3300000000 % base_tick_ps) ? 1 : 0);
-    REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_3_3_MS)),
-           value);
-    value =
-        (10000000000 / base_tick_ps) + ((10000000000 % base_tick_ps) ? 1 : 0);
-    REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_10_MS)),
-           value);
-    value =
-        (100000000000 / base_tick_ps) + ((100000000000 % base_tick_ps) ? 1 : 0);
-    REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_100_MS)),
-           value);
-    value = (1000000000000 / base_tick_ps) +
-            ((1000000000000 % base_tick_ps) ? 1 : 0);
-    REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_1_SEC)),
-           value);
+    REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_3_3_MS)), value);
+    value = (10000000000 / base_tick_ps) + ((10000000000 % base_tick_ps) ? 1 : 0);
+    REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_10_MS)), value);
+    value = (100000000000 / base_tick_ps) + ((100000000000 % base_tick_ps) ? 1 : 0);
+    REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_100_MS)), value);
+    value = (1000000000000 / base_tick_ps) + ((1000000000000 % base_tick_ps) ? 1 : 0);
+    REG_WR(MEP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_1_SEC)), value);
 
     /* Configure analyzer to default mark OAM as untagged */
     for (i = 0; i < VTSS_CHIP_PORTS; ++i) {
@@ -1027,9 +889,7 @@ vtss_rc vtss_lan966x_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     case VTSS_INIT_CMD_INIT: VTSS_RC(lan966x_init(vtss_state)); break;
 
-    case VTSS_INIT_CMD_POLL:
-        VTSS_RC(lan966x_oam_voe_poll_1sec(vtss_state));
-        break;
+    case VTSS_INIT_CMD_POLL: VTSS_RC(lan966x_oam_voe_poll_1sec(vtss_state)); break;
 
     default: break;
     }

@@ -16,9 +16,9 @@ The test will apply bulk configuration to those ports.\n\
 
 static int port_bulk_init(int argc, const char *argv[])
 {
-    uint32_t port_from = ARGV_INT("port1", "Apply config from this port");
-    uint32_t port_to = ARGV_INT("port2", "Apply config to this port");
-    uint32_t port_no;
+    uint32_t         port_from = ARGV_INT("port1", "Apply config from this port");
+    uint32_t         port_to = ARGV_INT("port2", "Apply config to this port");
+    uint32_t         port_no;
     mesa_port_conf_t conf, *store;
     uint32_t         port_cnt = mesa_port_cnt(NULL);
 

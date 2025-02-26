@@ -48,13 +48,13 @@ typedef struct {
     mesa_rc (*func)(void);
 } test_entry_t;
 
-#define MESA_RC(expr)                                                          \
-    {                                                                          \
-        mesa_rc _rc = (expr);                                                  \
-        if (_rc != MESA_RC_OK) {                                               \
-            cli_printf("%d %s failed\n", __LINE__, #expr);                     \
-            return _rc;                                                        \
-        }                                                                      \
+#define MESA_RC(expr)                                                                              \
+    {                                                                                              \
+        mesa_rc _rc = (expr);                                                                      \
+        if (_rc != MESA_RC_OK) {                                                                   \
+            cli_printf("%d %s failed\n", __LINE__, #expr);                                         \
+            return _rc;                                                                            \
+        }                                                                                          \
     }
 
 // ACL example, discard UDP frames from switch port 2, unless SIP is 1.2.3.4
@@ -108,12 +108,10 @@ static mesa_rc test_acl(void)
 //     mesa_packet_pipeline_pt_t pipeline_pt;
 // } mesa_packet_tx_info_t;
 
-#define POStoBYTE(pos)                                                         \
-    (35 - ((pos) / 8)) /* Converte IFH bit position to a IFH byte position */
-#define POStoBIT(pos)                                                          \
-    ((pos) % 8) /* Converte IFH bit position to a IFH byte bit position */
-#define VSTAX                                                                  \
-    73 /* The IFH bit position of the first VSTAX bit. This is because the     \
+#define POStoBYTE(pos) (35 - ((pos) / 8)) /* Converte IFH bit position to a IFH byte position */
+#define POStoBIT(pos)  ((pos) % 8)        /* Converte IFH bit position to a IFH byte bit position */
+#define VSTAX                                                                                      \
+    73 /* The IFH bit position of the first VSTAX bit. This is because the                         \
           VSTAX bit positions in Data sheet is starting from zero. */
 static void print_ifh(uint8_t *ifh)
 {
@@ -122,17 +120,16 @@ static void print_ifh(uint8_t *ifh)
     cli_printf("IFH:\n");
     byte = POStoBYTE(232);
     bit = POStoBIT(232);
-    cli_printf("TS          Bit %u  byte  %u  width %u  %X %X %X %X %X\n", bit,
-               byte, 40, ifh[byte - 4], ifh[byte - 3], ifh[byte - 2],
-               ifh[byte - 1], ifh[byte]); /* 40 bit - 5 bytes*/
+    cli_printf("TS          Bit %u  byte  %u  width %u  %X %X %X %X %X\n", bit, byte, 40,
+               ifh[byte - 4], ifh[byte - 3], ifh[byte - 2], ifh[byte - 1],
+               ifh[byte]); /* 40 bit - 5 bytes*/
 
     byte = POStoBYTE(153);
     bit = POStoBIT(153);
-    cli_printf(
-        "DST         Bit %u  byte %u  width %u  %X %X %X %X %X %X %X %X %X %X\n",
-        bit, byte, 79, ifh[byte - 9], ifh[byte - 8], ifh[byte - 7],
-        ifh[byte - 6], ifh[byte - 5], ifh[byte - 4], ifh[byte - 3],
-        ifh[byte - 2], ifh[byte - 1], ifh[byte]); /* 79 bit - 10 bytes*/
+    cli_printf("DST         Bit %u  byte %u  width %u  %X %X %X %X %X %X %X %X %X %X\n", bit, byte,
+               79, ifh[byte - 9], ifh[byte - 8], ifh[byte - 7], ifh[byte - 6], ifh[byte - 5],
+               ifh[byte - 4], ifh[byte - 3], ifh[byte - 2], ifh[byte - 1],
+               ifh[byte]); /* 79 bit - 10 bytes*/
 
     byte = POStoBYTE(VSTAX + 79);
     bit = POStoBIT(VSTAX + 79);
@@ -141,57 +138,53 @@ static void print_ifh(uint8_t *ifh)
 
     byte = POStoBYTE(VSTAX + 64);
     bit = POStoBIT(VSTAX + 64);
-    cli_printf("VSTAX.MISC  Bit %u  byte %u  width %u  %X %X\n", bit, byte, 15,
-               ifh[byte - 1], ifh[byte]); /* 15 bit - 2 bytes */
+    cli_printf("VSTAX.MISC  Bit %u  byte %u  width %u  %X %X\n", bit, byte, 15, ifh[byte - 1],
+               ifh[byte]); /* 15 bit - 2 bytes */
 
     byte = POStoBYTE(VSTAX + 55);
     bit = POStoBIT(VSTAX + 55);
-    cli_printf("VSTAX.QOS   Bit %u  byte %u  width %u   %X %X\n", bit, byte, 7,
-               ifh[byte - 1], ifh[byte]); /* 7 bit - 1 bytes */
+    cli_printf("VSTAX.QOS   Bit %u  byte %u  width %u   %X %X\n", bit, byte, 7, ifh[byte - 1],
+               ifh[byte]); /* 7 bit - 1 bytes */
 
     byte = POStoBYTE(VSTAX + 44);
     bit = POStoBIT(VSTAX + 44);
-    cli_printf("VSTAX.GEN   Bit %u  byte %u  width %u  %X %X\n", bit, byte, 10,
-               ifh[byte - 1], ifh[byte]); /* 10 bit - 2 bytes */
+    cli_printf("VSTAX.GEN   Bit %u  byte %u  width %u  %X %X\n", bit, byte, 10, ifh[byte - 1],
+               ifh[byte]); /* 10 bit - 2 bytes */
 
     byte = POStoBYTE(VSTAX + 32);
     bit = POStoBIT(VSTAX + 32);
-    cli_printf("VSTAX.DST   Bit %u  byte %u  width %u  %X %X\n", bit, byte, 11,
-               ifh[byte - 1], ifh[byte]); /* 11 bit - 2 bytes */
+    cli_printf("VSTAX.DST   Bit %u  byte %u  width %u  %X %X\n", bit, byte, 11, ifh[byte - 1],
+               ifh[byte]); /* 11 bit - 2 bytes */
 
     byte = POStoBYTE(VSTAX + 12);
     bit = POStoBIT(VSTAX + 12);
-    cli_printf("VSTAX.TAG   Bit %u  byte %u  width %u  %X %X %X %X\n", bit,
-               byte, 20, ifh[byte - 3], ifh[byte - 2], ifh[byte - 1],
-               ifh[byte]); /* 20 bit - 3 bytes */
+    cli_printf("VSTAX.TAG   Bit %u  byte %u  width %u  %X %X %X %X\n", bit, byte, 20, ifh[byte - 3],
+               ifh[byte - 2], ifh[byte - 1], ifh[byte]); /* 20 bit - 3 bytes */
 
     byte = POStoBYTE(VSTAX + 0);
     bit = POStoBIT(VSTAX + 0);
-    cli_printf("VSTAX.SRC   Bit %u  byte %u  width %u  %X %X\n", bit, byte, 12,
-               ifh[byte - 1], ifh[byte]); /* 12 bit - 2 bytes */
+    cli_printf("VSTAX.SRC   Bit %u  byte %u  width %u  %X %X\n", bit, byte, 12, ifh[byte - 1],
+               ifh[byte]); /* 12 bit - 2 bytes */
 
     byte = POStoBYTE(64);
     bit = POStoBIT(64);
-    cli_printf("FWD.D_MODE  Bit %u  byte %u  width %u   %X %X\n", bit, byte, 9,
-               ifh[byte - 1], ifh[byte]); /* 9 bit - 2 bytes */
+    cli_printf("FWD.D_MODE  Bit %u  byte %u  width %u   %X %X\n", bit, byte, 9, ifh[byte - 1],
+               ifh[byte]); /* 9 bit - 2 bytes */
 
     byte = POStoBYTE(45);
     bit = POStoBIT(45);
-    cli_printf("FWD.DN_REW  Bit %u  byte %u  width %u  %X %X %X\n", bit, byte,
-               12, ifh[byte - 2], ifh[byte - 1],
-               ifh[byte]); /* 12 bit - 2 bytes */
+    cli_printf("FWD.DN_REW  Bit %u  byte %u  width %u  %X %X %X\n", bit, byte, 12, ifh[byte - 2],
+               ifh[byte - 1], ifh[byte]); /* 12 bit - 2 bytes */
 
     byte = POStoBYTE(29);
     bit = POStoBIT(29);
-    cli_printf("MISC        Bit %u  byte %u  width %u  %X %X %X\n", bit, byte,
-               16, ifh[byte - 2], ifh[byte - 1],
-               ifh[byte]); /* 16 bit - 2 bytes */
+    cli_printf("MISC        Bit %u  byte %u  width %u  %X %X %X\n", bit, byte, 16, ifh[byte - 2],
+               ifh[byte - 1], ifh[byte]); /* 16 bit - 2 bytes */
 
     byte = POStoBYTE(8);
     bit = POStoBIT(8);
-    cli_printf("TAGGING     Bit %u  byte %u  width %u  %X %X %X\n", bit, byte,
-               21, ifh[byte - 2], ifh[byte - 1],
-               ifh[byte]); /* 21 bit - 3 bytes */
+    cli_printf("TAGGING     Bit %u  byte %u  width %u  %X %X %X\n", bit, byte, 21, ifh[byte - 2],
+               ifh[byte - 1], ifh[byte]); /* 21 bit - 3 bytes */
 
     byte = POStoBYTE(0);
     bit = POStoBIT(0);
@@ -402,32 +395,23 @@ static mesa_rc test_fa_policer(mesa_bool_t enable, mesa_bool_t all)
     // 409600   64          0          102399 9    2048       2095104    4882
     // 10000000       39990234       1          1024000  64          0 255999
 
-    conf.queue[0].policer.level =
-        8190; /*  10 M group max rate - max rate burst size */
+    conf.queue[0].policer.level = 8190; /*  10 M group max rate - max rate burst size */
     conf.queue[0].policer.rate = 39990;
     MESA_RC(mesa_qos_port_conf_set(0, 1, &conf));
 
-    conf.queue[1].policer.level =
-        8190 - 1; /*  10 M group max rate - max rate burst size - 1 */
+    conf.queue[1].policer.level = 8190 - 1; /*  10 M group max rate - max rate burst size - 1 */
     conf.queue[1].policer.rate = 39990;
     MESA_RC(mesa_qos_port_conf_set(0, 1, &conf));
 
-    conf.queue[2].policer.level =
-        2095104 + 1; /*  10 M group max rate - max burst size + 1 */
+    conf.queue[2].policer.level = 2095104 + 1; /*  10 M group max rate - max burst size + 1 */
     conf.queue[2].policer.rate = 39990;
     MESA_RC(mesa_qos_port_conf_set(0, 1, &conf));
 
     return MESA_RC_OK;
 }
 static mesa_rc test_fa_policer_enable(void) { return test_fa_policer(1, 0); }
-static mesa_rc test_fa_policer_disable_first(void)
-{
-    return test_fa_policer(0, 0);
-}
-static mesa_rc test_fa_policer_disable_all(void)
-{
-    return test_fa_policer(0, 1);
-}
+static mesa_rc test_fa_policer_disable_first(void) { return test_fa_policer(0, 0); }
+static mesa_rc test_fa_policer_disable_all(void) { return test_fa_policer(0, 1); }
 
 static mesa_rc test_fa_ts(void)
 {
@@ -439,22 +423,18 @@ static mesa_rc test_fa_ts(void)
     mesa_bool_t                   timestamp_ok;
 
     MESA_RC(mesa_packet_phy_cnt_to_ts_cnt(NULL, 5, &ts_cnt));
-    cli_printf("mesa_packet_phy_cnt_to_ts_cnt  ts_cnt  %llu  %llX\n", ts_cnt,
-               ts_cnt);
+    cli_printf("mesa_packet_phy_cnt_to_ts_cnt  ts_cnt  %llu  %llX\n", ts_cnt, ts_cnt);
 
     MESA_RC(mesa_packet_ns_to_ts_cnt(NULL, 1000000000 - 5, &ts_cnt));
-    cli_printf("mesa_packet_ns_to_ts_cnt  ts_cnt  %llu  %llX\n", ts_cnt,
-               ts_cnt);
+    cli_printf("mesa_packet_ns_to_ts_cnt  ts_cnt  %llu  %llX\n", ts_cnt, ts_cnt);
 
     memset(frm, 0, sizeof(frm));
     memset(&rx_info, 0, sizeof(rx_info));
     memset(&ts_props, 0, sizeof(ts_props));
     rx_info.hw_tstamp = 0x500;
-    MESA_RC(mesa_ptp_get_timestamp(NULL, frm, &rx_info,
-                                   MESA_PACKET_PTP_MESSAGE_TYPE_SYNC, ts_props,
+    MESA_RC(mesa_ptp_get_timestamp(NULL, frm, &rx_info, MESA_PACKET_PTP_MESSAGE_TYPE_SYNC, ts_props,
                                    &ts_cnt, &timestamp_ok));
-    cli_printf("mesa_ptp_get_timestamp  ts_cnt %llu  timestamp_ok %u\n", ts_cnt,
-               timestamp_ok);
+    cli_printf("mesa_ptp_get_timestamp  ts_cnt %llu  timestamp_ok %u\n", ts_cnt, timestamp_ok);
 
     MESA_RC(mesa_ts_timeofday_get(NULL, &ts, &ts_cnt));
     cli_printf(
@@ -495,13 +475,11 @@ static mesa_rc test_fa_ifh_encode_decode(void)
     tx_info.tag.pcp = 2;
     tx_info.ptp_timestamp = 0x800000000100;
 
-    cli_printf("tx_info:  switch_frm %u  dst_port %u  pipeline_pt %u  cos %u\n",
-               tx_info.switch_frm, tx_info.dst_port, tx_info.pipeline_pt,
-               tx_info.cos);
-    cli_printf("          tag.vid %u  tag.pcp %u  ptp_timestamp %llX\n",
-               tx_info.tag.vid, tx_info.tag.pcp, tx_info.ptp_timestamp);
-    MESA_RC(mesa_packet_tx_hdr_encode(NULL, &tx_info, ifh_len, (uint8_t *)ifh,
-                                      &ifh_len));
+    cli_printf("tx_info:  switch_frm %u  dst_port %u  pipeline_pt %u  cos %u\n", tx_info.switch_frm,
+               tx_info.dst_port, tx_info.pipeline_pt, tx_info.cos);
+    cli_printf("          tag.vid %u  tag.pcp %u  ptp_timestamp %llX\n", tx_info.tag.vid,
+               tx_info.tag.pcp, tx_info.ptp_timestamp);
+    MESA_RC(mesa_packet_tx_hdr_encode(NULL, &tx_info, ifh_len, (uint8_t *)ifh, &ifh_len));
     print_ifh(ifh);
 
     memset(&tx_info, 0, sizeof(tx_info));
@@ -510,10 +488,9 @@ static mesa_rc test_fa_ifh_encode_decode(void)
     tx_info.iflow_id = 7;
 
     cli_printf("\n");
-    cli_printf("tx_info:  switch_frm %u  masquerade_port %u  iflow_id %u\n",
-               tx_info.switch_frm, tx_info.masquerade_port, tx_info.iflow_id);
-    MESA_RC(mesa_packet_tx_hdr_encode(NULL, &tx_info, ifh_len, (uint8_t *)ifh,
-                                      &ifh_len));
+    cli_printf("tx_info:  switch_frm %u  masquerade_port %u  iflow_id %u\n", tx_info.switch_frm,
+               tx_info.masquerade_port, tx_info.iflow_id);
+    MESA_RC(mesa_packet_tx_hdr_encode(NULL, &tx_info, ifh_len, (uint8_t *)ifh, &ifh_len));
     print_ifh(ifh);
 
     timestamp = 0x8000000001;
@@ -571,8 +548,7 @@ static mesa_rc test_mac_swap_port_facility_loop(void)
     ace.action.port_action = MESA_ACL_PORT_ACTION_FILTER;
     MESA_RC(mesa_ace_add(NULL, MESA_ACE_ID_LAST, &ace));
 
-    cli_printf(
-        "Port 1 is now configured to loop back all ingress frames with swapped DMAC/SMAC.\n");
+    cli_printf("Port 1 is now configured to loop back all ingress frames with swapped DMAC/SMAC.\n");
     cli_printf("Forwarding to Port 1 from other ports is prevented.\n");
     cli_printf("\n");
     cli_printf("Start injecting untagged frames on port 1 and port 2.\n");
@@ -591,8 +567,7 @@ static mesa_rc test_qos(void)
 
     // Add ACE 1 allowing all IPv4 frames from switch port 2 with SIP 1.2.3.4
     MESA_RC(mesa_qos_port_conf_get(NULL, port_no, &conf));
-    cli_printf("Port 0 has basic classification to prio %d.\n",
-               conf.default_prio);
+    cli_printf("Port 0 has basic classification to prio %d.\n", conf.default_prio);
     conf.default_prio = 7;
     MESA_RC(mesa_qos_port_conf_set(NULL, port_no, &conf));
 
@@ -653,8 +628,7 @@ static mesa_rc test_fa_tsn(void)
     // Include port 0, 1 and 3 in forwarding VLAN
     mesa_port_list_clear(&port_list);
     for (port_no = 0; port_no < 4; port_no++) {
-        mesa_port_list_set(&port_list, port_no,
-                           port_no == (port_tx + 1) ? 0 : 1);
+        mesa_port_list_set(&port_list, port_no, port_no == (port_tx + 1) ? 0 : 1);
         MESA_RC(mesa_vlan_port_conf_get(NULL, port_no, &vlan_conf));
         vlan_conf.pvid = 2;
         vlan_conf.untagged_vid = 2;
@@ -668,8 +642,7 @@ static mesa_rc test_fa_tsn(void)
     mesa_port_list_clear(&port_list);
     for (port_no = 0; port_no < 3; port_no++) {
         mesa_port_list_set(&port_list, port_no, 1);
-        mesa_port_list_set(port_no == port_rx ? &rx_list : &tx_list, port_no,
-                           1);
+        mesa_port_list_set(port_no == port_rx ? &rx_list : &tx_list, port_no, 1);
     }
     MESA_RC(mesa_vlan_port_members_set(NULL, vid_frer, &port_list));
 
@@ -872,17 +845,16 @@ static mesa_rc test_fa_tsn(void)
 }
 
 static test_entry_t test_table[] = {
-    {"ACL test",                                test_acl                     },
-    {"Serval1 Port facility MAC swapping loop",
-     test_mac_swap_port_facility_loop                                        },
-    {"QoS test",                                test_qos                     },
-    {"Fireant IFH encode test",                 test_fa_ifh_encode_decode    },
-    {"Fireant TS test",                         test_fa_time_stamp           },
-    {"Fireant Policer enable test",             test_fa_policer_enable       },
-    {"Fireant Policer disable first test",      test_fa_policer_disable_first},
-    {"Fireant Policer disable all test",        test_fa_policer_disable_all  },
-    {"Fireant TS test",                         test_fa_ts                   },
-    {"SparX-5i TSN demo",                       test_fa_tsn                  }
+    {"ACL test",                                test_acl                        },
+    {"Serval1 Port facility MAC swapping loop", test_mac_swap_port_facility_loop},
+    {"QoS test",                                test_qos                        },
+    {"Fireant IFH encode test",                 test_fa_ifh_encode_decode       },
+    {"Fireant TS test",                         test_fa_time_stamp              },
+    {"Fireant Policer enable test",             test_fa_policer_enable          },
+    {"Fireant Policer disable first test",      test_fa_policer_disable_first   },
+    {"Fireant Policer disable all test",        test_fa_policer_disable_all     },
+    {"Fireant TS test",                         test_fa_ts                      },
+    {"SparX-5i TSN demo",                       test_fa_tsn                     }
 };
 
 static void cli_cmd_test(cli_req_t *req)
@@ -917,8 +889,8 @@ static int cli_parm_test_no(cli_req_t *req)
 }
 
 static cli_parm_t cli_parm_table[] = {
-    {"<test_no>", "Test number, default: Show test descriptions",
-     CLI_PARM_FLAG_SET, cli_parm_test_no},
+    {"<test_no>", "Test number, default: Show test descriptions", CLI_PARM_FLAG_SET,
+     cli_parm_test_no},
 };
 
 static void test_cli_init(void)
@@ -949,10 +921,8 @@ void mscc_appl_test_init(mscc_appl_init_t *init)
     case MSCC_INIT_CMD_INIT:
         test_cli_init();
 
-        if (MESA_RC_OK ==
-            init->board_inst->iface.conf_get("mep_loop_port", port_buf,
-                                             (size_t)sizeof(port_buf),
-                                             &ret_len)) {
+        if (MESA_RC_OK == init->board_inst->iface.conf_get("mep_loop_port", port_buf,
+                                                           (size_t)sizeof(port_buf), &ret_len)) {
             if (0 != strlen(port_buf)) {
                 loop_port = atoi(port_buf);
             }

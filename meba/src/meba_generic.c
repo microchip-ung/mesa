@@ -6,8 +6,7 @@
 
 #include "meba_generic.h"
 
-mesa_ptp_event_type_t meba_generic_ptp_source_to_event(meba_inst_t  inst,
-                                                       meba_event_t event_id)
+mesa_ptp_event_type_t meba_generic_ptp_source_to_event(meba_inst_t inst, meba_event_t event_id)
 {
     switch (event_id) {
     case MEBA_EVENT_SYNC:       return MESA_PTP_SYNC_EV;
@@ -26,26 +25,23 @@ mesa_ptp_event_type_t meba_generic_ptp_source_to_event(meba_inst_t  inst,
     return (mesa_ptp_event_type_t)0;
 }
 
-mepa_ts_event_t meba_generic_phy_ts_source_to_event(meba_inst_t  inst,
-                                                    meba_event_t event_id)
+mepa_ts_event_t meba_generic_phy_ts_source_to_event(meba_inst_t inst, meba_event_t event_id)
 {
     switch (event_id) {
-    case MEBA_EVENT_INGR_ENGINE_ERR:   return MEPA_TS_INGR_ENGINE_ERR;
-    case MEBA_EVENT_INGR_RW_PREAM_ERR: return MEPA_TS_INGR_RW_PREAM_ERR;
-    case MEBA_EVENT_INGR_RW_FCS_ERR:   return MEPA_TS_INGR_RW_FCS_ERR;
-    case MEBA_EVENT_EGR_ENGINE_ERR:    return MEPA_TS_EGR_ENGINE_ERR;
-    case MEBA_EVENT_EGR_RW_FCS_ERR:    return MEPA_TS_EGR_RW_FCS_ERR;
-    case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED:
-        return MEPA_TS_EGR_TIMESTAMP_CAPTURED;
-    case MEBA_EVENT_EGR_FIFO_OVERFLOW: return MEPA_TS_EGR_FIFO_OVERFLOW;
-    default:                           T_E(inst, "Unknown event %d", event_id); MEBA_ASSERT(0);
+    case MEBA_EVENT_INGR_ENGINE_ERR:        return MEPA_TS_INGR_ENGINE_ERR;
+    case MEBA_EVENT_INGR_RW_PREAM_ERR:      return MEPA_TS_INGR_RW_PREAM_ERR;
+    case MEBA_EVENT_INGR_RW_FCS_ERR:        return MEPA_TS_INGR_RW_FCS_ERR;
+    case MEBA_EVENT_EGR_ENGINE_ERR:         return MEPA_TS_EGR_ENGINE_ERR;
+    case MEBA_EVENT_EGR_RW_FCS_ERR:         return MEPA_TS_EGR_RW_FCS_ERR;
+    case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED: return MEPA_TS_EGR_TIMESTAMP_CAPTURED;
+    case MEBA_EVENT_EGR_FIFO_OVERFLOW:      return MEPA_TS_EGR_FIFO_OVERFLOW;
+    default:                                T_E(inst, "Unknown event %d", event_id); MEBA_ASSERT(0);
     }
 
     return (mepa_ts_event_t)0;
 }
 
-mesa_rc meba_generic_ptp_handler(meba_inst_t         inst,
-                                 meba_event_signal_t signal_notifier)
+mesa_rc meba_generic_ptp_handler(meba_inst_t inst, meba_event_signal_t signal_notifier)
 {
     mesa_ptp_event_type_t ptp_events;
     mesa_rc               rc;
@@ -55,8 +51,7 @@ mesa_rc meba_generic_ptp_handler(meba_inst_t         inst,
     } else {
         int handled = 0;
         if (ptp_events) {
-            if ((rc = mesa_ptp_event_enable(NULL, ptp_events, false)) !=
-                MESA_RC_OK) {
+            if ((rc = mesa_ptp_event_enable(NULL, ptp_events, false)) != MESA_RC_OK) {
                 T_E(inst, "mesa_ptp_event_enable = %d", rc);
             }
 
@@ -118,17 +113,14 @@ mesa_rc meba_generic_phy_timestamp_check(meba_inst_t         inst,
     mepa_ts_init_conf_t ts_init_conf;
 
     // poll for TS interrupt only after ts_init is done
-    if ((rc = meba_phy_ts_init_conf_get(inst, port_no, &ts_init_conf)) ==
-        MESA_RC_OK) {
+    if ((rc = meba_phy_ts_init_conf_get(inst, port_no, &ts_init_conf)) == MESA_RC_OK) {
         mepa_ts_event_t ts_events = 0;
-        if ((rc = meba_phy_ts_event_poll(inst, port_no, &ts_events)) ==
-            MESA_RC_OK) {
+        if ((rc = meba_phy_ts_event_poll(inst, port_no, &ts_events)) == MESA_RC_OK) {
             int handled = 0;
 
             T_I(inst, "ts_events: 0x%x, port = %u", ts_events, port_no);
 
-            if ((rc = meba_phy_ts_event_set(inst, port_no, false, ts_events)) !=
-                MESA_RC_OK) {
+            if ((rc = meba_phy_ts_event_set(inst, port_no, false, ts_events)) != MESA_RC_OK) {
                 T_E(inst, "meba_phy_ts_event_enable_set = %d", rc);
             }
 
@@ -189,8 +181,7 @@ mesa_rc meba_generic_phy_event_check(meba_inst_t         inst,
         if (events) {
             T_I(inst, "Port %u, event: 0x%x", port_no, events);
 
-            if ((rc = meba_phy_event_enable_set(inst, port_no, events,
-                                                false)) != MESA_RC_OK) {
+            if ((rc = meba_phy_event_enable_set(inst, port_no, events, false)) != MESA_RC_OK) {
                 T_E(inst, "meba_phy_event_enable_set = %d", rc);
             }
 
@@ -219,8 +210,8 @@ mepa_rc meba_mmd_read(struct mepa_callout_ctx *ctx,
                       const uint16_t           addr,
                       uint16_t *const          value)
 {
-    return mesa_mmd_read(ctx->inst, ctx->chip_no, ctx->miim_controller,
-                         ctx->miim_addr, mmd, addr, value);
+    return mesa_mmd_read(ctx->inst, ctx->chip_no, ctx->miim_controller, ctx->miim_addr, mmd, addr,
+                         value);
 }
 
 mepa_rc meba_mmd_read_inc(struct mepa_callout_ctx *ctx,
@@ -229,8 +220,7 @@ mepa_rc meba_mmd_read_inc(struct mepa_callout_ctx *ctx,
                           uint16_t *const          buf,
                           uint8_t                  count)
 {
-    return mesa_port_mmd_read_inc(ctx->inst, ctx->port_no, mmd, addr, buf,
-                                  count);
+    return mesa_port_mmd_read_inc(ctx->inst, ctx->port_no, mmd, addr, buf, count);
 }
 
 mepa_rc meba_mmd_write(struct mepa_callout_ctx *ctx,
@@ -238,30 +228,23 @@ mepa_rc meba_mmd_write(struct mepa_callout_ctx *ctx,
                        const uint16_t           addr,
                        const uint16_t           value)
 {
-    return mesa_mmd_write(ctx->inst, ctx->chip_no, ctx->miim_controller,
-                          ctx->miim_addr, mmd, addr, value);
+    return mesa_mmd_write(ctx->inst, ctx->chip_no, ctx->miim_controller, ctx->miim_addr, mmd, addr,
+                          value);
 }
 
-mepa_rc meba_miim_read(struct mepa_callout_ctx *ctx,
-                       const uint8_t            addr,
-                       uint16_t *const          value)
+mepa_rc meba_miim_read(struct mepa_callout_ctx *ctx, const uint8_t addr, uint16_t *const value)
 {
-    return mesa_miim_read(ctx->inst, ctx->chip_no, ctx->miim_controller,
-                          ctx->miim_addr, addr, value);
+    return mesa_miim_read(ctx->inst, ctx->chip_no, ctx->miim_controller, ctx->miim_addr, addr,
+                          value);
 }
 
-mepa_rc meba_miim_write(struct mepa_callout_ctx *ctx,
-                        const uint8_t            addr,
-                        const uint16_t           value)
+mepa_rc meba_miim_write(struct mepa_callout_ctx *ctx, const uint8_t addr, const uint16_t value)
 {
-    return mesa_miim_write(ctx->inst, ctx->chip_no, ctx->miim_controller,
-                           ctx->miim_addr, addr, value);
+    return mesa_miim_write(ctx->inst, ctx->chip_no, ctx->miim_controller, ctx->miim_addr, addr,
+                           value);
 }
 
-static void *mem_alloc(struct mepa_callout_ctx *ctx, size_t size)
-{
-    return malloc(size);
-}
+static void *mem_alloc(struct mepa_callout_ctx *ctx, size_t size) { return malloc(size); }
 
 static void mem_free(struct mepa_callout_ctx *ctx, void *ptr) { free(ptr); }
 
@@ -285,8 +268,7 @@ void meba_phy_driver_init(meba_inst_t inst)
     meba_port_entry_t entry;
     mepa_device_t    *phy_dev;
 
-    inst->phy_device_ctx =
-        calloc(inst->phy_device_cnt, sizeof(mepa_callout_ctx_t));
+    inst->phy_device_ctx = calloc(inst->phy_device_cnt, sizeof(mepa_callout_ctx_t));
     inst->mepa_callout.mmd_read = meba_mmd_read;
     inst->mepa_callout.mmd_read_inc = meba_mmd_read_inc;
     inst->mepa_callout.mmd_write = meba_mmd_write;
@@ -330,18 +312,15 @@ void meba_phy_driver_init(meba_inst_t inst)
             inst->phy_device_ctx[port_no].inst = 0;
             inst->phy_device_ctx[port_no].port_no = port_no;
             inst->phy_device_ctx[port_no].meba_inst = inst;
-            inst->phy_device_ctx[port_no].miim_controller =
-                entry.map.miim_controller;
+            inst->phy_device_ctx[port_no].miim_controller = entry.map.miim_controller;
             inst->phy_device_ctx[port_no].miim_addr = entry.map.miim_addr;
             inst->phy_device_ctx[port_no].chip_no = entry.map.chip_no;
 
             inst->phy_devices[port_no] =
-                mepa_create(&(inst->mepa_callout),
-                            &(inst->phy_device_ctx[port_no]), &board_conf);
+                mepa_create(&(inst->mepa_callout), &(inst->phy_device_ctx[port_no]), &board_conf);
 
             if (inst->phy_devices[port_no]) {
-                T_I(inst, "Phy has been probed on port %d, MAC I/F = %d",
-                    port_no, mac_if);
+                T_I(inst, "Phy has been probed on port %d, MAC I/F = %d", port_no, mac_if);
                 rc = mepa_if_set(inst->phy_devices[port_no], mac_if);
                 if (rc != MESA_RC_OK && rc != MESA_RC_NOT_IMPLEMENTED) {
                     T_E(inst,
@@ -360,8 +339,7 @@ void meba_phy_driver_init(meba_inst_t inst)
         inst->api.meba_port_entry_get(inst, port_no, &entry);
         phy_dev = inst->phy_devices[port_no];
         if (phy_dev && inst->phy_devices[entry.phy_base_port]) {
-            (void)mepa_link_base_port(phy_dev,
-                                      inst->phy_devices[entry.phy_base_port],
+            (void)mepa_link_base_port(phy_dev, inst->phy_devices[entry.phy_base_port],
                                       entry.map.chip_port);
         }
     }

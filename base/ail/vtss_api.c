@@ -30,46 +30,26 @@ vtss_inst_t vtss_default_inst = NULL;
 
 /* Trace group table */
 vtss_trace_conf_t vtss_trace_conf[VTSS_TRACE_GROUP_COUNT] = {
-    [VTSS_TRACE_GROUP_DEFAULT] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                            VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_PORT] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                         VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_PHY] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                        VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_PACKET] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                           VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_QOS] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                        VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_L2] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                       VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_L3] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                       VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_SECURITY] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                             VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_EVC] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                        VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_FDMA_NORMAL] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                                VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_FDMA_IRQ] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                             VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_REG_CHECK] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                              VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_MPLS] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                         VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_HW_PROT] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                            VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_HQOS] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                         VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_VCAP] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                         VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_OAM] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                        VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_MRP] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                        VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_TS] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                       VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_CLOCK] = {.level = {VTSS_TRACE_LEVEL_ERROR,
-                                          VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_DEFAULT] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_PORT] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_PHY] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_PACKET] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_QOS] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_L2] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_L3] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_SECURITY] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_EVC] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_FDMA_NORMAL] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_FDMA_IRQ] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_REG_CHECK] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_MPLS] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_HW_PROT] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_HQOS] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_VCAP] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_OAM] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_MRP] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_TS] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_CLOCK] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
 };
 
 /* ================================================================= *
@@ -164,8 +144,7 @@ vtss_rc vtss_inst_chip_no_check(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_inst_get(const vtss_target_type_t  target,
-                      vtss_inst_create_t *const create)
+vtss_rc vtss_inst_get(const vtss_target_type_t target, vtss_inst_create_t *const create)
 {
     VTSS_D("enter");
     create->target = target;
@@ -236,15 +215,13 @@ static vtss_rc vtss_ail_create(vtss_state_t *vtss_state, BOOL create_pre)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
-                         vtss_inst_t *const              inst)
+vtss_rc vtss_inst_create(const vtss_inst_create_t *const create, vtss_inst_t *const inst)
 {
     vtss_state_t *vtss_state;
     vtss_arch_t   arch;
     VTSS_D("enter, sizeof(*vtss_state): %zu", sizeof(*vtss_state));
 
-    if ((vtss_state = VTSS_OS_MALLOC(sizeof(*vtss_state),
-                                     VTSS_MEM_FLAGS_NONE)) == NULL) {
+    if ((vtss_state = VTSS_OS_MALLOC(sizeof(*vtss_state), VTSS_MEM_FLAGS_NONE)) == NULL) {
         return VTSS_RC_ERROR;
     }
 
@@ -337,9 +314,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create,
         VTSS_RC(vtss_lan966x_inst_create(vtss_state));
         break;
 #endif
-    default:
-        VTSS_E("unknown target: 0x%05x", create->target);
-        return VTSS_RC_ERROR;
+    default: VTSS_E("unknown target: 0x%05x", create->target); return VTSS_RC_ERROR;
     }
 
     vtss_state->arch = arch;
@@ -395,8 +370,7 @@ vtss_rc vtss_init_conf_get(const vtss_inst_t inst, vtss_init_conf_t *const conf)
 }
 
 /* Set initialization configuration */
-vtss_rc vtss_init_conf_set(const vtss_inst_t             inst,
-                           const vtss_init_conf_t *const conf)
+vtss_rc vtss_init_conf_set(const vtss_inst_t inst, const vtss_init_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -461,8 +435,8 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
     u32 si = 0, value;
     u32 base_addr = 0x70000 >> 2;
 
-    VTSS_D("enter endian %u  bit_order %u  padding %u", conf->endian,
-           conf->bit_order, conf->padding);
+    VTSS_D("enter endian %u  bit_order %u  padding %u", conf->endian, conf->bit_order,
+           conf->padding);
 
     if (conf->endian == VTSS_SPI_ENDIAN_BIG) {
         si |= 0x10;
@@ -531,8 +505,7 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
  * ================================================================= */
 
 /* Get trace configuration */
-vtss_rc vtss_trace_conf_get(const vtss_trace_group_t group,
-                            vtss_trace_conf_t *const conf)
+vtss_rc vtss_trace_conf_get(const vtss_trace_group_t group, vtss_trace_conf_t *const conf)
 {
     if (group >= VTSS_TRACE_GROUP_COUNT) {
         VTSS_E("illegal group: %d", group);
@@ -544,8 +517,7 @@ vtss_rc vtss_trace_conf_get(const vtss_trace_group_t group,
 }
 
 /* Set trace configuration */
-vtss_rc vtss_trace_conf_set(const vtss_trace_group_t       group,
-                            const vtss_trace_conf_t *const conf)
+vtss_rc vtss_trace_conf_set(const vtss_trace_group_t group, const vtss_trace_conf_t *const conf)
 {
     if (group >= VTSS_TRACE_GROUP_COUNT) {
         VTSS_E("illegal group: %d", group);
@@ -784,10 +756,9 @@ vtss_rc vtss_synce_clock_in_get(const vtss_inst_t            inst,
 }
 
 /* Set the configuration of a station clock output */
-vtss_rc vtss_synce_synce_station_clk_out_set(
-    const vtss_inst_t                           inst,
-    const vtss_synce_clk_port_t                 clk_port,
-    const vtss_synce_station_clock_out_t *const conf)
+vtss_rc vtss_synce_synce_station_clk_out_set(const vtss_inst_t                           inst,
+                                             const vtss_synce_clk_port_t                 clk_port,
+                                             const vtss_synce_station_clock_out_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -806,11 +777,9 @@ vtss_rc vtss_synce_synce_station_clk_out_set(
 
 #if defined(VTSS_ARCH_SERVAL_T)
 /* Get the configuration of a station clock output */
-vtss_rc vtss_synce_synce_station_clk_out_get(const vtss_inst_t inst,
-                                             const vtss_synce_clk_port_t
-                                                 clk_port,
-                                             vtss_synce_station_clock_out_t
-                                                 *const conf)
+vtss_rc vtss_synce_synce_station_clk_out_get(const vtss_inst_t                     inst,
+                                             const vtss_synce_clk_port_t           clk_port,
+                                             vtss_synce_station_clock_out_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -853,8 +822,7 @@ static vtss_rc vtss_restart_sync(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_restart_cur_set(vtss_state_t        *vtss_state,
-                                    const vtss_restart_t restart)
+static vtss_rc vtss_restart_cur_set(vtss_state_t *vtss_state, const vtss_restart_t restart)
 {
     vtss_rc rc = VTSS_RC_OK;
 
@@ -891,8 +859,7 @@ vtss_rc vtss_restart_conf_end(const vtss_inst_t inst)
     return rc;
 }
 
-vtss_rc vtss_restart_status_get(const vtss_inst_t            inst,
-                                vtss_restart_status_t *const status)
+vtss_rc vtss_restart_status_get(const vtss_inst_t inst, vtss_restart_status_t *const status)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -908,8 +875,7 @@ vtss_rc vtss_restart_status_get(const vtss_inst_t            inst,
     return rc;
 }
 
-vtss_rc vtss_restart_conf_get(const vtss_inst_t     inst,
-                              vtss_restart_t *const restart)
+vtss_rc vtss_restart_conf_get(const vtss_inst_t inst, vtss_restart_t *const restart)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -923,8 +889,7 @@ vtss_rc vtss_restart_conf_get(const vtss_inst_t     inst,
     return rc;
 }
 
-vtss_rc vtss_restart_conf_set(const vtss_inst_t    inst,
-                              const vtss_restart_t restart)
+vtss_rc vtss_restart_conf_set(const vtss_inst_t inst, const vtss_restart_t restart)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -1021,8 +986,7 @@ vtss_rc vtss_debug_info_print_buf(const vtss_inst_t              inst,
 }
 #endif // VTSS_OPT_DEBUG_PRINT
 
-vtss_rc vtss_debug_lock(const vtss_inst_t              inst,
-                        const vtss_debug_lock_t *const lock)
+vtss_rc vtss_debug_lock(const vtss_inst_t inst, const vtss_debug_lock_t *const lock)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -1030,8 +994,7 @@ vtss_rc vtss_debug_lock(const vtss_inst_t              inst,
     /*lint --e{454, 456} */
     VTSS_ENTER();
     /* Lock API and set context to chip number */
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, lock->chip_no)) !=
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, lock->chip_no)) != VTSS_RC_OK) {
         VTSS_EXIT();
     }
     return rc;

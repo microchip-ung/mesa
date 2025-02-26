@@ -66,14 +66,12 @@ static int packet_uninit(void)
 
 static int packet_poll(int fast)
 {
-    uint8_t frame[1600], *f = &frame[4]; // Make room for inserting tag
+    uint8_t               frame[1600], *f = &frame[4]; // Make room for inserting tag
     mesa_packet_rx_info_t rx_info;
     mesa_packet_tx_info_t tx_info;
 
     // Extract frame
-    if (fast == 0 ||
-        mesa_packet_rx_frame(NULL, f, sizeof(frame) - 4, &rx_info) !=
-            MESA_RC_OK ||
+    if (fast == 0 || mesa_packet_rx_frame(NULL, f, sizeof(frame) - 4, &rx_info) != MESA_RC_OK ||
         (rx_info.xtr_qu_mask & (1 << 7)) == 0) {
         return 0;
     }
@@ -103,14 +101,6 @@ static int packet_poll(int fast)
     return 0;
 }
 
-static const char *packet_help(void)
-{
-    return "Packet extraction/injection example";
-}
+static const char *packet_help(void) { return "Packet extraction/injection example"; }
 
-EXAMPLE_EXT(packet,
-            packet_init,
-            packet_run,
-            packet_uninit,
-            packet_poll,
-            packet_help);
+EXAMPLE_EXT(packet, packet_init, packet_run, packet_uninit, packet_poll, packet_help);

@@ -51,9 +51,7 @@ mepa_rc meba_phy_ts_init_conf_set(meba_inst_t                inst,
     return mepa_ts_init_conf_set(inst->phy_devices[port_no], ts_init_conf);
 }
 
-mepa_rc meba_phy_ts_mode_get(meba_inst_t        inst,
-                             mepa_port_no_t     port_no,
-                             mepa_bool_t *const enable)
+mepa_rc meba_phy_ts_mode_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t *const enable)
 {
     mesa_rc rc = MESA_RC_ERROR;
 
@@ -65,9 +63,7 @@ mepa_rc meba_phy_ts_mode_get(meba_inst_t        inst,
     return mepa_ts_mode_get(inst->phy_devices[port_no], enable);
 }
 
-mepa_rc meba_phy_ts_mode_set(meba_inst_t       inst,
-                             mepa_port_no_t    port_no,
-                             const mepa_bool_t enable)
+mepa_rc meba_phy_ts_mode_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_bool_t enable)
 {
     mesa_rc rc = MESA_RC_ERROR;
 
@@ -107,9 +103,7 @@ mepa_rc meba_phy_ts_ltc_set(meba_inst_t                   inst,
     return mepa_ts_ltc_set(inst->phy_devices[port_no], ts);
 }
 
-mepa_rc meba_phy_ts_ltc_get(meba_inst_t             inst,
-                            mepa_port_no_t          port_no,
-                            mepa_timestamp_t *const ts)
+mepa_rc meba_phy_ts_ltc_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_timestamp_t *const ts)
 {
     mesa_rc rc = MESA_RC_ERROR;
 
@@ -135,10 +129,9 @@ mepa_rc meba_phy_ts_delay_asymmetry_get(meba_inst_t                inst,
     return mepa_ts_delay_asymmetry_get(inst->phy_devices[port_no], delay_asym);
 }
 
-mepa_rc meba_phy_ts_delay_asymmetry_set(meba_inst_t    inst,
-                                        mepa_port_no_t port_no,
-                                        const mepa_timeinterval_t
-                                            *const delay_asym)
+mepa_rc meba_phy_ts_delay_asymmetry_set(meba_inst_t                      inst,
+                                        mepa_port_no_t                   port_no,
+                                        const mepa_timeinterval_t *const delay_asym)
 {
     mesa_rc rc = MESA_RC_ERROR;
 
@@ -220,8 +213,8 @@ mepa_rc meba_phy_ts_ingress_latency_get(meba_inst_t                inst,
     return mepa_ts_ingress_latency_get(inst->phy_devices[port_no], latency);
 }
 
-mepa_rc meba_phy_ts_ingress_latency_set(meba_inst_t    inst,
-                                        mepa_port_no_t port_no,
+mepa_rc meba_phy_ts_ingress_latency_set(meba_inst_t                      inst,
+                                        mepa_port_no_t                   port_no,
                                         const mepa_timeinterval_t *const latency)
 {
     mesa_rc rc = MESA_RC_ERROR;
@@ -262,9 +255,7 @@ mepa_rc meba_phy_ts_clock_rateadj_set(meba_inst_t                       inst,
     return mepa_ts_clock_rateadj_set(inst->phy_devices[port_no], rateadj);
 }
 
-mepa_rc meba_phy_ts_clock_adj1ns(meba_inst_t       inst,
-                                 mepa_port_no_t    port_no,
-                                 const mepa_bool_t incr)
+mepa_rc meba_phy_ts_clock_adj1ns(meba_inst_t inst, mepa_port_no_t port_no, const mepa_bool_t incr)
 {
     mesa_rc rc = MESA_RC_ERROR;
 
@@ -276,9 +267,9 @@ mepa_rc meba_phy_ts_clock_adj1ns(meba_inst_t       inst,
     return mepa_ts_clock_adj1ns(inst->phy_devices[port_no], incr);
 }
 
-mepa_rc meba_phy_ts_rx_classifier_conf_get(meba_inst_t    inst,
-                                           mepa_port_no_t port_no,
-                                           uint16_t       flow_index,
+mepa_rc meba_phy_ts_rx_classifier_conf_get(meba_inst_t                 inst,
+                                           mepa_port_no_t              port_no,
+                                           uint16_t                    flow_index,
                                            mepa_ts_classifier_t *const pkt_conf)
 {
     mesa_rc rc = MESA_RC_ERROR;
@@ -288,13 +279,12 @@ mepa_rc meba_phy_ts_rx_classifier_conf_get(meba_inst_t    inst,
         return rc;
     }
 
-    return mepa_ts_rx_classifier_conf_get(inst->phy_devices[port_no],
-                                          flow_index, pkt_conf);
+    return mepa_ts_rx_classifier_conf_get(inst->phy_devices[port_no], flow_index, pkt_conf);
 }
 
-mepa_rc meba_phy_ts_rx_classifier_conf_set(meba_inst_t    inst,
-                                           mepa_port_no_t port_no,
-                                           uint16_t       flow_index,
+mepa_rc meba_phy_ts_rx_classifier_conf_set(meba_inst_t                 inst,
+                                           mepa_port_no_t              port_no,
+                                           uint16_t                    flow_index,
                                            const mepa_ts_classifier_t *pkt_conf)
 {
     mesa_rc rc = MESA_RC_ERROR;
@@ -304,13 +294,12 @@ mepa_rc meba_phy_ts_rx_classifier_conf_set(meba_inst_t    inst,
         return rc;
     }
 
-    return mepa_ts_rx_classifier_conf_set(inst->phy_devices[port_no],
-                                          flow_index, pkt_conf);
+    return mepa_ts_rx_classifier_conf_set(inst->phy_devices[port_no], flow_index, pkt_conf);
 }
 
-mepa_rc meba_phy_ts_tx_classifier_conf_get(meba_inst_t    inst,
-                                           mepa_port_no_t port_no,
-                                           uint16_t       flow_index,
+mepa_rc meba_phy_ts_tx_classifier_conf_get(meba_inst_t                 inst,
+                                           mepa_port_no_t              port_no,
+                                           uint16_t                    flow_index,
                                            mepa_ts_classifier_t *const pkt_conf)
 {
     mesa_rc rc = MESA_RC_ERROR;
@@ -320,13 +309,12 @@ mepa_rc meba_phy_ts_tx_classifier_conf_get(meba_inst_t    inst,
         return rc;
     }
 
-    return mepa_ts_tx_classifier_conf_get(inst->phy_devices[port_no],
-                                          flow_index, pkt_conf);
+    return mepa_ts_tx_classifier_conf_get(inst->phy_devices[port_no], flow_index, pkt_conf);
 }
 
-mepa_rc meba_phy_ts_tx_classifier_conf_set(meba_inst_t    inst,
-                                           mepa_port_no_t port_no,
-                                           uint16_t       flow_index,
+mepa_rc meba_phy_ts_tx_classifier_conf_set(meba_inst_t                 inst,
+                                           mepa_port_no_t              port_no,
+                                           uint16_t                    flow_index,
                                            const mepa_ts_classifier_t *pkt_conf)
 {
     mesa_rc rc = MESA_RC_ERROR;
@@ -336,14 +324,12 @@ mepa_rc meba_phy_ts_tx_classifier_conf_set(meba_inst_t    inst,
         return rc;
     }
 
-    return mepa_ts_tx_classifier_conf_set(inst->phy_devices[port_no],
-                                          flow_index, pkt_conf);
+    return mepa_ts_tx_classifier_conf_set(inst->phy_devices[port_no], flow_index, pkt_conf);
 }
-mepa_rc meba_phy_ts_rx_clock_conf_get(meba_inst_t    inst,
-                                      mepa_port_no_t port_no,
-                                      uint16_t       clock_id,
-                                      mepa_ts_ptp_clock_conf_t
-                                          *const ptpclock_conf)
+mepa_rc meba_phy_ts_rx_clock_conf_get(meba_inst_t                     inst,
+                                      mepa_port_no_t                  port_no,
+                                      uint16_t                        clock_id,
+                                      mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
 {
     mesa_rc rc = MESA_RC_ERROR;
 
@@ -352,15 +338,13 @@ mepa_rc meba_phy_ts_rx_clock_conf_get(meba_inst_t    inst,
         return rc;
     }
 
-    return mepa_ts_rx_clock_conf_get(inst->phy_devices[port_no], clock_id,
-                                     ptpclock_conf);
+    return mepa_ts_rx_clock_conf_get(inst->phy_devices[port_no], clock_id, ptpclock_conf);
 }
 
-mepa_rc meba_phy_ts_tx_clock_conf_get(meba_inst_t    inst,
-                                      mepa_port_no_t port_no,
-                                      uint16_t       clock_id,
-                                      mepa_ts_ptp_clock_conf_t
-                                          *const ptpclock_conf)
+mepa_rc meba_phy_ts_tx_clock_conf_get(meba_inst_t                     inst,
+                                      mepa_port_no_t                  port_no,
+                                      uint16_t                        clock_id,
+                                      mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
 {
     mesa_rc rc = MESA_RC_ERROR;
 
@@ -369,15 +353,13 @@ mepa_rc meba_phy_ts_tx_clock_conf_get(meba_inst_t    inst,
         return rc;
     }
 
-    return mepa_ts_tx_clock_conf_get(inst->phy_devices[port_no], clock_id,
-                                     ptpclock_conf);
+    return mepa_ts_tx_clock_conf_get(inst->phy_devices[port_no], clock_id, ptpclock_conf);
 }
 
-mepa_rc meba_phy_ts_rx_clock_conf_set(meba_inst_t    inst,
-                                      mepa_port_no_t port_no,
-                                      uint16_t       clock_id,
-                                      const mepa_ts_ptp_clock_conf_t
-                                          *ptpclock_conf)
+mepa_rc meba_phy_ts_rx_clock_conf_set(meba_inst_t                     inst,
+                                      mepa_port_no_t                  port_no,
+                                      uint16_t                        clock_id,
+                                      const mepa_ts_ptp_clock_conf_t *ptpclock_conf)
 {
     mesa_rc rc = MESA_RC_ERROR;
 
@@ -386,15 +368,13 @@ mepa_rc meba_phy_ts_rx_clock_conf_set(meba_inst_t    inst,
         return rc;
     }
 
-    return mepa_ts_rx_clock_conf_set(inst->phy_devices[port_no], clock_id,
-                                     ptpclock_conf);
+    return mepa_ts_rx_clock_conf_set(inst->phy_devices[port_no], clock_id, ptpclock_conf);
 }
 
-mepa_rc meba_phy_ts_tx_clock_conf_set(meba_inst_t    inst,
-                                      mepa_port_no_t port_no,
-                                      uint16_t       clock_id,
-                                      const mepa_ts_ptp_clock_conf_t
-                                          *ptpclock_conf)
+mepa_rc meba_phy_ts_tx_clock_conf_set(meba_inst_t                     inst,
+                                      mepa_port_no_t                  port_no,
+                                      uint16_t                        clock_id,
+                                      const mepa_ts_ptp_clock_conf_t *ptpclock_conf)
 {
     mesa_rc rc = MESA_RC_ERROR;
 
@@ -403,8 +383,7 @@ mepa_rc meba_phy_ts_tx_clock_conf_set(meba_inst_t    inst,
         return rc;
     }
 
-    return mepa_ts_tx_clock_conf_set(inst->phy_devices[port_no], clock_id,
-                                     ptpclock_conf);
+    return mepa_ts_tx_clock_conf_set(inst->phy_devices[port_no], clock_id, ptpclock_conf);
 }
 
 mepa_rc meba_phy_ts_pps_conf_get(meba_inst_t               inst,

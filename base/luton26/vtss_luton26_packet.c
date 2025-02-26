@@ -24,8 +24,8 @@ static vtss_rc l26_npi_mask_set(vtss_state_t *vtss_state)
                 qmask |= VTSS_BIT(i); /* NPI redirect */
             }
         }
-        val = VTSS_F_SYS_SYSTEM_EXT_CPU_CFG_EXT_CPU_PORT(
-                  VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no)) |
+        val = VTSS_F_SYS_SYSTEM_EXT_CPU_CFG_EXT_CPU_PORT(VTSS_CHIP_PORT(vtss_state->packet.npi_conf
+                                                                            .port_no)) |
               VTSS_F_SYS_SYSTEM_EXT_CPU_CFG_EXT_CPUQ_MSK(qmask);
         L26_WR(VTSS_SYS_SYSTEM_EXT_CPU_CFG, val);
     } else {
@@ -56,8 +56,7 @@ static vtss_rc l26_npi_update(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_npi_conf_set(vtss_state_t *vtss_state,
-                                const vtss_npi_conf_t *const new)
+static vtss_rc l26_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
 {
     vtss_npi_conf_t *conf = &vtss_state->packet.npi_conf;
 
@@ -75,9 +74,7 @@ static vtss_rc l26_npi_conf_set(vtss_state_t *vtss_state,
     return vtss_cmn_vlan_update_all(vtss_state);
 }
 
-static vtss_rc l26_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state,
-                                            u32           phy_cnt,
-                                            u64          *ts_cnt)
+static vtss_rc l26_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
 {
     VTSS_I("Not supported in this architecture");
     *ts_cnt = 0;
@@ -85,9 +82,7 @@ static vtss_rc l26_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_packet_ns_to_ts_cnt(vtss_state_t *vtss_state,
-                                       u32           ns,
-                                       u64          *ts_cnt)
+static vtss_rc l26_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u32              tc;
@@ -97,14 +92,13 @@ static vtss_rc l26_packet_ns_to_ts_cnt(vtss_state_t *vtss_state,
         VTSS_I("Invalid ns value (%d)", ns);
     }
     _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc_64);
-    tc = tc_64 >> 16; /* The tc_64 returned by _vtss_ts_domain_timeofday_get()
-                         is in 16 bit fractions of nanoseconds */
+    tc = tc_64 >> 16;          /* The tc_64 returned by _vtss_ts_domain_timeofday_get()
+                                  is in 16 bit fractions of nanoseconds */
     if (ts.nanoseconds < ns) { // ns has wrapped
         ts.nanoseconds += VTSS_ONE_MIA;
     }
     tc = tc - ((ts.nanoseconds - ns) / VTSS_HW_TIME_NSEC_PR_CNT);
-    *ts_cnt =
-        (u64)tc << 16; /* Must return in 16 bit fractions of nanoseconds */
+    *ts_cnt = (u64)tc << 16; /* Must return in 16 bit fractions of nanoseconds */
 
     return VTSS_RC_OK;
 }
@@ -130,13 +124,13 @@ static void l26_packet_pack32(u32 v, u8 *buf)
     buf[3] = v & 0xff;
 }
 
-static vtss_rc l26_ptp_get_timestamp(vtss_state_t   *vtss_state,
-                                     const u8 *const frm,
+static vtss_rc l26_ptp_get_timestamp(vtss_state_t                      *vtss_state,
+                                     const u8 *const                    frm,
                                      const vtss_packet_rx_info_t *const rx_info,
-                                     vtss_packet_ptp_message_type_t message_type,
-                                     vtss_packet_timestamp_props_t ts_props,
-                                     u64                          *rxTime,
-                                     BOOL                         *timestamp_ok)
+                                     vtss_packet_ptp_message_type_t     message_type,
+                                     vtss_packet_timestamp_props_t      ts_props,
+                                     u64                               *rxTime,
+                                     BOOL                              *timestamp_ok)
 {
     vtss_ts_id_t        ts_id;
     vtss_ts_timestamp_t ts;
@@ -152,8 +146,7 @@ static vtss_rc l26_ptp_get_timestamp(vtss_state_t   *vtss_state,
         *timestamp_ok = FALSE;
     }
 #ifdef PTP_LOG_TRANSPARENT_ONESTEP_FORWARDING
-    VTSS_I("Forwarded message type %d, ts.id %lu, source: %s, dest %s",
-           message_type, ts_id.ts_id,
+    VTSS_I("Forwarded message type %d, ts.id %lu, source: %s, dest %s", message_type, ts_id.ts_id,
            (etype == ip_ether_type) ? misc_ipv4_txt(sender.ip, str1)
                                     : misc_mac_txt(sender.mac, str1),
            (etype == ip_ether_type) ? misc_ipv4_txt(dest_ip, str2)
@@ -163,8 +156,7 @@ static vtss_rc l26_ptp_get_timestamp(vtss_state_t   *vtss_state,
     port_iter_init_local(&pit);
     while (port_iter_getnext(&pit)) {
         tx_port_no = pit.iport;
-        if (VTSS_RC_OK == _vtss_tx_timestamp_get(0, tx_port_no, &ts_id, &ts) &&
-            ts.ts_valid) {
+        if (VTSS_RC_OK == _vtss_tx_timestamp_get(0, tx_port_no, &ts_id, &ts) && ts.ts_valid) {
             VTSS_I("Forwarded message, ts.id %u, to port %u", ts_id.ts_id,
                    ptp_l2port_to_api(tx_port_no));
         }
@@ -179,19 +171,15 @@ static vtss_rc l26_ptp_get_timestamp(vtss_state_t   *vtss_state,
     } else {
         if (message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_SYNC) {
             /* if Sync message then subtract the p2p delay from rx time  */
-            l26_packet_ts_cnt_sub(&ns_32, ns_32,
-                                  (u32)(ts_props.delay_comp.delay_cnt >> 16));
+            l26_packet_ts_cnt_sub(&ns_32, ns_32, (u32)(ts_props.delay_comp.delay_cnt >> 16));
         }
         /* link asymmetry compensation for Sync and PdelayResp events */
         if ((message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_SYNC ||
              message_type == VTSS_PACKET_PTP_MESSAGE_TYPE_P_DELAY_RESP) &&
             ts_props.delay_comp.asymmetry_cnt != 0) {
-            l26_packet_ts_cnt_sub(&ns_32, ns_32,
-                                  (u32)(ts_props.delay_comp.asymmetry_cnt >>
-                                        16));
+            l26_packet_ts_cnt_sub(&ns_32, ns_32, (u32)(ts_props.delay_comp.asymmetry_cnt >> 16));
         }
-        *rxTime = (u64)ns_32
-                  << 16; /* Must return in 16 bit fractions of nanoseconds */
+        *rxTime = (u64)ns_32 << 16; /* Must return in 16 bit fractions of nanoseconds */
     }
     return VTSS_RC_OK;
 }
@@ -206,8 +194,7 @@ static vtss_rc l26_packet_mode_update(vtss_state_t *vtss_state)
         /* Change mode to manual extraction and injection */
         vtss_state->packet.manual_mode = 1;
         /* Status word before last data */
-        L26_WR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(0),
-               VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
+        L26_WR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(0), VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
     }
     return VTSS_RC_OK;
 }
@@ -221,8 +208,7 @@ static vtss_rc l26_packet_mode_update(vtss_state_t *vtss_state)
 #define XTR_ESCAPE    0x80000006U
 #define XTR_NOT_READY 0x80000007U
 
-static vtss_rc l26_rx_frame_discard(vtss_state_t                *vtss_state,
-                                    const vtss_packet_rx_queue_t queue_no)
+static vtss_rc l26_rx_frame_discard(vtss_state_t *vtss_state, const vtss_packet_rx_queue_t queue_no)
 {
     BOOL                 done = FALSE;
     vtss_packet_rx_grp_t xtr_grp;
@@ -245,7 +231,7 @@ static vtss_rc l26_rx_frame_discard(vtss_state_t                *vtss_state,
         case XTR_EOF_1:
         case XTR_EOF_0:
             L26_RD(VTSS_DEVCPU_QS_XTR_XTR_RD(xtr_grp), &val); /* Last data */
-            done = TRUE; /* Last 1-4 bytes */
+            done = TRUE;                                      /* Last 1-4 bytes */
             break;
         case XTR_ESCAPE:
             L26_RD(VTSS_DEVCPU_QS_XTR_XTR_RD(xtr_grp), &val); /* Escaped data */
@@ -340,12 +326,12 @@ static vtss_rc l26_rx_frame_rd(vtss_state_t                *vtss_state,
 static inline u32 BYTE_SWAP(u32 v)
 {
     register u32 v1 = v;
-    v1 = ((v1 >> 24) & 0x000000FF) | ((v1 >> 8) & 0x0000FF00) |
-         ((v1 << 8) & 0x00FF0000) | ((v1 << 24) & 0xFF000000);
+    v1 = ((v1 >> 24) & 0x000000FF) | ((v1 >> 8) & 0x0000FF00) | ((v1 << 8) & 0x00FF0000) |
+         ((v1 << 24) & 0xFF000000);
     return v1;
 }
 
-static vtss_rc l26_tx_frame_ifh_vid(vtss_state_t *vtss_state,
+static vtss_rc l26_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
                                     const vtss_packet_tx_ifh_t *const ifh,
                                     const u8 *const                   frame,
                                     const u32                         length,
@@ -364,21 +350,18 @@ static vtss_rc l26_tx_frame_ifh_vid(vtss_state_t *vtss_state,
     VTSS_RC(l26_packet_mode_update(vtss_state));
 
     L26_RD(VTSS_DEVCPU_QS_INJ_INJ_STATUS, &status);
-    if (!(VTSS_X_DEVCPU_QS_INJ_INJ_STATUS_FIFO_RDY(status) &
-          VTSS_BIT(CPU_INJ_REG))) {
+    if (!(VTSS_X_DEVCPU_QS_INJ_INJ_STATUS_FIFO_RDY(status) & VTSS_BIT(CPU_INJ_REG))) {
         VTSS_E("not ready");
         return VTSS_RC_ERROR;
     }
 
-    if (VTSS_X_DEVCPU_QS_INJ_INJ_STATUS_WMARK_REACHED(status) &
-        VTSS_BIT(CPU_INJ_REG)) {
+    if (VTSS_X_DEVCPU_QS_INJ_INJ_STATUS_WMARK_REACHED(status) & VTSS_BIT(CPU_INJ_REG)) {
         VTSS_E("wm reached");
         return VTSS_RC_ERROR;
     }
 
     /* Indicate SOF */
-    L26_WR(VTSS_DEVCPU_QS_INJ_INJ_CTRL(CPU_INJ_REG),
-           VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_SOF);
+    L26_WR(VTSS_DEVCPU_QS_INJ_INJ_CTRL(CPU_INJ_REG), VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_SOF);
 
     /* Write IFH - variable length */
     for (w = 0, count = (ifh->length / 4); w < count; w++) {
@@ -391,8 +374,7 @@ static vtss_rc l26_tx_frame_ifh_vid(vtss_state_t *vtss_state,
     for (w = 0; w < count; w++, buf += 4) {
         if (w == 3 && vid != VTSS_VID_NULL) {
             /* Insert C-tag */
-            L26_WR(VTSS_DEVCPU_QS_INJ_INJ_WR(CPU_INJ_REG),
-                   VTSS_OS_NTOHL((0x8100U << 16) | vid));
+            L26_WR(VTSS_DEVCPU_QS_INJ_INJ_WR(CPU_INJ_REG), VTSS_OS_NTOHL((0x8100U << 16) | vid));
             w++;
         }
 #ifdef VTSS_OS_BIG_ENDIAN
@@ -434,8 +416,8 @@ static vtss_rc l26_tx_frame_ifh(vtss_state_t                     *vtss_state,
 
 static vtss_rc l26_rx_hdr_decode(const vtss_state_t *const          state,
                                  const vtss_packet_rx_meta_t *const meta,
-                                 const u8 xtr_hdr[VTSS_L26_RX_IFH_SIZE],
-                                 vtss_packet_rx_info_t *const info)
+                                 const u8                           xtr_hdr[VTSS_L26_RX_IFH_SIZE],
+                                 vtss_packet_rx_info_t *const       info)
 {
     u64                 ifh;
     u32                 sflow_id;
@@ -445,16 +427,14 @@ static vtss_rc l26_rx_hdr_decode(const vtss_state_t *const          state,
     VTSS_DG(VTSS_TRACE_GROUP_PACKET, "IFH:");
     VTSS_DG_HEX(VTSS_TRACE_GROUP_PACKET, &xtr_hdr[0], 8);
 
-    ifh = ((u64)xtr_hdr[0] << 56) | ((u64)xtr_hdr[1] << 48) |
-          ((u64)xtr_hdr[2] << 40) | ((u64)xtr_hdr[3] << 32) |
-          ((u64)xtr_hdr[4] << 24) | ((u64)xtr_hdr[5] << 16) |
+    ifh = ((u64)xtr_hdr[0] << 56) | ((u64)xtr_hdr[1] << 48) | ((u64)xtr_hdr[2] << 40) |
+          ((u64)xtr_hdr[3] << 32) | ((u64)xtr_hdr[4] << 24) | ((u64)xtr_hdr[5] << 16) |
           ((u64)xtr_hdr[6] << 8) | ((u64)xtr_hdr[7] << 0);
 
     // Signature must be 0xFF, otherwise it's not a valid extraction header.
     signature = VTSS_EXTRACT_BITFIELD64(ifh, 56, 8);
     if (signature != 0xFF) {
-        VTSS_EG(VTSS_TRACE_GROUP_PACKET,
-                "Invalid Rx header signature. Expected 0xFF got 0x%02x",
+        VTSS_EG(VTSS_TRACE_GROUP_PACKET, "Invalid Rx header signature. Expected 0xFF got 0x%02x",
                 signature);
         return VTSS_RC_ERROR;
     }
@@ -477,8 +457,7 @@ static vtss_rc l26_rx_hdr_decode(const vtss_state_t *const          state,
     info->xtr_qu_mask = VTSS_EXTRACT_BITFIELD64(ifh, 20, 8);
     info->cos = VTSS_EXTRACT_BITFIELD64(ifh, 17, 3);
 
-    VTSS_RC(vtss_cmn_packet_hints_update(state, VTSS_TRACE_GROUP_PACKET,
-                                         meta->etype, info));
+    VTSS_RC(vtss_cmn_packet_hints_update(state, VTSS_TRACE_GROUP_PACKET, meta->etype, info));
 
     info->acl_hit = VTSS_EXTRACT_BITFIELD64(ifh, 31, 1);
     if (info->acl_hit) {
@@ -525,8 +504,7 @@ static vtss_rc l26_rx_frame(struct vtss_state_s         *vtss_state,
     /* Check if data is ready for grp */
     L26_RD(VTSS_DEVCPU_QS_XTR_XTR_DATA_PRESENT, &val);
     if (val) {
-        VTSS_RC(l26_rx_frame_rd(vtss_state, 0, ifh, VTSS_L26_RX_IFH_SIZE,
-                                NULL));
+        VTSS_RC(l26_rx_frame_rd(vtss_state, 0, ifh, VTSS_L26_RX_IFH_SIZE, NULL));
         VTSS_RC(l26_rx_frame_rd(vtss_state, 0, data, buflen, &len));
         VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (len - 4);
@@ -539,8 +517,7 @@ static vtss_rc l26_rx_frame(struct vtss_state_s         *vtss_state,
 /*****************************************************************************/
 // l26_ptp_action_to_ifh()
 /*****************************************************************************/
-static vtss_rc l26_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action,
-                                     u32                     *result)
+static vtss_rc l26_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, u32 *result)
 {
     vtss_rc rc = VTSS_RC_OK;
 
@@ -595,13 +572,11 @@ static vtss_rc l26_tx_hdr_encode(vtss_state_t *const                state,
         u64            chip_port_mask;
         vtss_chip_no_t chip_no;
         vtss_port_no_t stack_port_no, port_no;
-        u32  mi_port, port_cnt, ptp_action, pop_cnt = 3 /* Disable rewriter */;
-        BOOL miroring = FALSE;
+        u32            mi_port, port_cnt, ptp_action, pop_cnt = 3 /* Disable rewriter */;
+        BOOL           miroring = FALSE;
 
-        VTSS_RC(vtss_cmn_logical_to_chip_port_mask(state, info->dst_port_mask,
-                                                   &chip_port_mask, &chip_no,
-                                                   &stack_port_no, &port_cnt,
-                                                   &port_no));
+        VTSS_RC(vtss_cmn_logical_to_chip_port_mask(state, info->dst_port_mask, &chip_port_mask,
+                                                   &chip_no, &stack_port_no, &port_cnt, &port_no));
 
         if (info->tag.tpid == 0 && info->tag.vid != VTSS_VID_NULL) {
             // Get the frame classified to info->tag.vid, and rewritten
@@ -619,19 +594,16 @@ static vtss_rc l26_tx_hdr_encode(vtss_state_t *const                state,
         // Add mirror port if egress mirroring is enabled on port in dst_port_mask
         if (mi_port < state->port_count) {
             for (u32 i = 0; i < state->port_count; i++) {
-                if ((info->dst_port_mask & (1 << i)) &&
-                    state->l2.mirror_egress[i]) {
+                if ((info->dst_port_mask & (1 << i)) && state->l2.mirror_egress[i]) {
                     // Egress mirroring on a destination port is enabled
                     miroring = TRUE;
                     break;
                 }
             }
         }
-        if (miroring &&
-            state->l2.port_state[mi_port]) { // Mirroring is requested and the
-                                             // link is up
-            chip_port_mask |=
-                VTSS_BIT64(VTSS_CHIP_PORT_FROM_STATE(state, mi_port));
+        if (miroring && state->l2.port_state[mi_port]) { // Mirroring is requested and the
+                                                         // link is up
+            chip_port_mask |= VTSS_BIT64(VTSS_CHIP_PORT_FROM_STATE(state, mi_port));
         }
 
         // Destination port set.
@@ -692,27 +664,21 @@ static vtss_rc l26_rx_conf_set(vtss_state_t *vtss_state)
     /* Each CPU queue get resverved extraction buffer space. No sharing at port
      * or buffer level */
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
-        L26_WR(VTSS_SYS_RES_CTRL_RES_CFG(VTSS_CHIP_PORT_CPU * VTSS_PRIOS +
-                                         queue + 512),
+        L26_WR(VTSS_SYS_RES_CTRL_RES_CFG(VTSS_CHIP_PORT_CPU * VTSS_PRIOS + queue + 512),
                conf->queue[queue].size / L26_BUFFER_CELL_SZ);
     }
     L26_WR(VTSS_SYS_RES_CTRL_RES_CFG(VTSS_CHIP_PORT_CPU + 224 + 512),
            0); /* No extra shared space at port level */
 
     /* Rx IPMC registration */
-    value =
-        (reg->ipmc_ctrl_cpu_copy
-             ? VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_IPMC_CTRL_COPY_ENA
-             : 0) |
-        (reg->igmp_cpu_only ? VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_IGMP_REDIR_ENA
-                            : 0) |
-        (reg->mld_cpu_only ? VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_MLD_REDIR_ENA : 0);
+    value = (reg->ipmc_ctrl_cpu_copy ? VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_IPMC_CTRL_COPY_ENA : 0) |
+            (reg->igmp_cpu_only ? VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_IGMP_REDIR_ENA : 0) |
+            (reg->mld_cpu_only ? VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_MLD_REDIR_ENA : 0);
     for (port = 0; port < VTSS_CHIP_PORTS; port++)
         L26_WR(VTSS_ANA_PORT_CPU_FWD_CFG(port), value);
 
     /* Rx BPDU and GARP registrations */
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (!VTSS_PORT_CHIP_SELECTED(port_no))
             continue;
         port = VTSS_CHIP_PORT(port_no);
@@ -733,39 +699,30 @@ static vtss_rc l26_rx_conf_set(vtss_state_t *vtss_state)
 
     /* Fixme - chipset has more queues than the classification the API expose */
     value =
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_SFLOW(map->sflow_queue !=
-                                                      VTSS_PACKET_RX_QUEUE_NONE
-                                                  ? map->sflow_queue -
-                                                        VTSS_PACKET_RX_QUEUE_START
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_SFLOW(map->sflow_queue != VTSS_PACKET_RX_QUEUE_NONE
+                                                  ? map->sflow_queue - VTSS_PACKET_RX_QUEUE_START
                                                   : VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MIRROR(map->mac_vid_queue -
-                                               VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_LRN(map->learn_queue -
-                                            VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MAC_COPY(map->mac_vid_queue -
-                                                 VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_SRC_COPY(map->mac_vid_queue -
-                                                 VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_LOCKED_PORTMOVE(
-            map->mac_vid_queue - VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_ALLBRIDGE(map->bpdu_queue -
-                                                  VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MIRROR(map->mac_vid_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_LRN(map->learn_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MAC_COPY(map->mac_vid_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_SRC_COPY(map->mac_vid_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_LOCKED_PORTMOVE(map->mac_vid_queue -
+                                                        VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_ALLBRIDGE(map->bpdu_queue - VTSS_PACKET_RX_QUEUE_START) |
         VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_IPMC_CTRL(map->ipmc_ctrl_queue -
                                                   VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_IGMP(map->igmp_queue -
-                                             VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MLD(map->igmp_queue -
-                                            VTSS_PACKET_RX_QUEUE_START);
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_IGMP(map->igmp_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MLD(map->igmp_queue - VTSS_PACKET_RX_QUEUE_START);
     L26_WR(VTSS_ANA_COMMON_CPUQ_CFG, value);
 
     /* Setup each of the BPDU, GARP and CCM 'address' extraction queues */
     for (i = 0; i < 16; i++) {
-        value = VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_BPDU_VAL(
-                    map->bpdu_queue - VTSS_PACKET_RX_QUEUE_START) |
-                VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_GARP_VAL(
-                    map->garp_queue - VTSS_PACKET_RX_QUEUE_START) |
-                VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_CCM_VAL(
-                    VTSS_PACKET_RX_QUEUE_START); /* Fixme */
+        value =
+            VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_BPDU_VAL(map->bpdu_queue -
+                                                          VTSS_PACKET_RX_QUEUE_START) |
+            VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_GARP_VAL(map->garp_queue -
+                                                          VTSS_PACKET_RX_QUEUE_START) |
+            VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_CCM_VAL(VTSS_PACKET_RX_QUEUE_START); /* Fixme */
         L26_WR(VTSS_ANA_COMMON_CPUQ_8021_CFG(i), value);
     }
 
@@ -784,8 +741,7 @@ static vtss_rc l26_rx_conf_set(vtss_state_t *vtss_state)
         /* Note: On Luton26, CPU Queue is not to be confused with CPU Extraction
          * Queue. */
         L26_WR(VTSS_DEVCPU_QS_XTR_XTR_MAP(i),
-               (i * VTSS_F_DEVCPU_QS_XTR_XTR_MAP_GRP) |
-                   VTSS_F_DEVCPU_QS_XTR_XTR_MAP_MAP_ENA);
+               (i * VTSS_F_DEVCPU_QS_XTR_XTR_MAP_GRP) | VTSS_F_DEVCPU_QS_XTR_XTR_MAP_MAP_ENA);
     }
 
     VTSS_RC(l26_npi_mask_set(vtss_state));
@@ -793,12 +749,10 @@ static vtss_rc l26_rx_conf_set(vtss_state_t *vtss_state)
     /* Setup CPU port 0 and 1 */
     for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1; i++) {
         /* Enable IFH insertion */
-        L26_WRM_SET(VTSS_REW_PORT_PORT_CFG(i),
-                    VTSS_F_REW_PORT_PORT_CFG_IFH_INSERT_ENA);
+        L26_WRM_SET(VTSS_REW_PORT_PORT_CFG(i), VTSS_F_REW_PORT_PORT_CFG_IFH_INSERT_ENA);
 
         /* Enable IFH parsing on CPU port 0 and 1 */
-        L26_WRM_SET(VTSS_SYS_SYSTEM_PORT_MODE(i),
-                    VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR);
+        L26_WRM_SET(VTSS_SYS_SYSTEM_PORT_MODE(i), VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR);
     }
 
     /* Enable CPU port */
@@ -810,21 +764,16 @@ static vtss_rc l26_rx_conf_set(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
-#define L26_DEBUG_CPU_FWD(ss, addr, i, name)                                   \
-    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_CPU_FWD_##addr, i,   \
-                            "FWD_" name)
-#define L26_DEBUG_XTR(ss, addr, name)                                          \
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr,          \
-                       "XTR_" name)
-#define L26_DEBUG_XTR_INST(ss, addr, i, name)                                  \
-    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr, i,  \
-                            "XTR_" name)
-#define L26_DEBUG_INJ(ss, addr, name)                                          \
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr,          \
-                       "INJ_" name)
-#define L26_DEBUG_INJ_INST(ss, addr, i, name)                                  \
-    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr, i,  \
-                            "INJ_" name)
+#define L26_DEBUG_CPU_FWD(ss, addr, i, name)                                                       \
+    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_CPU_FWD_##addr, i, "FWD_" name)
+#define L26_DEBUG_XTR(ss, addr, name)                                                              \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr, "XTR_" name)
+#define L26_DEBUG_XTR_INST(ss, addr, i, name)                                                      \
+    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr, i, "XTR_" name)
+#define L26_DEBUG_INJ(ss, addr, name)                                                              \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr, "INJ_" name)
+#define L26_DEBUG_INJ_INST(ss, addr, i, name)                                                      \
+    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr, i, "INJ_" name)
 
 static vtss_rc l26_debug_pkt(vtss_state_t                  *vtss_state,
                              lmu_ss_t                      *ss,
@@ -853,8 +802,7 @@ static vtss_rc l26_debug_pkt(vtss_state_t                  *vtss_state,
     vtss_l26_debug_reg_header(ss, "CPU Queues");
     vtss_l26_debug_reg(vtss_state, ss, VTSS_ANA_COMMON_CPUQ_CFG, "CPUQ_CFG");
     for (i = 0; i < 16; i++)
-        vtss_l26_debug_reg_inst(vtss_state, ss,
-                                VTSS_ANA_COMMON_CPUQ_8021_CFG(i), i,
+        vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_ANA_COMMON_CPUQ_8021_CFG(i), i,
                                 "CPUQ_8021_CFG");
     pr("\n");
 
@@ -889,8 +837,7 @@ vtss_rc vtss_l26_packet_debug_print(vtss_state_t                  *vtss_state,
                                     lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, l26_debug_pkt,
-                                   vtss_state, ss, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, l26_debug_pkt, vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 
@@ -903,13 +850,11 @@ static vtss_rc l26_packet_init(vtss_state_t *vtss_state)
     /* Setup the CPU port as VLAN aware to support switching frames based on
      * tags */
     L26_WR(VTSS_ANA_PORT_VLAN_CFG(VTSS_CHIP_PORT_CPU),
-           VTSS_F_ANA_PORT_VLAN_CFG_VLAN_AWARE_ENA |
-               VTSS_F_ANA_PORT_VLAN_CFG_VLAN_POP_CNT(1) |
+           VTSS_F_ANA_PORT_VLAN_CFG_VLAN_AWARE_ENA | VTSS_F_ANA_PORT_VLAN_CFG_VLAN_POP_CNT(1) |
                VTSS_F_ANA_PORT_VLAN_CFG_VLAN_VID(1));
 
     /* Disable learning (only RECV_ENA must be set) */
-    L26_WR(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU),
-           VTSS_F_ANA_PORT_PORT_CFG_RECV_ENA);
+    L26_WR(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU), VTSS_F_ANA_PORT_PORT_CFG_RECV_ENA);
 
     /* Set-up default packet Rx endianness and position of status word. */
     for (i = 0; i < VTSS_PACKET_RX_GRP_CNT; i++) {
@@ -917,8 +862,7 @@ static vtss_rc l26_packet_init(vtss_state_t *vtss_state)
         // particular Rx group.
         if (!vtss_state->init_conf.using_ufdma || i != 0) {
             /* Little-endian and status word before last data */
-            L26_WR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i),
-                   VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
+            L26_WR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i), VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
         }
     }
 
@@ -929,27 +873,23 @@ static vtss_rc l26_packet_init(vtss_state_t *vtss_state)
      * of the VLAN tag (which is always inserted to get it switched on a given
      * VID), then controls the priority. */
     /* Enable looking into PCP bits */
-    L26_WR(VTSS_ANA_PORT_QOS_CFG(VTSS_CHIP_PORT_CPU),
-           VTSS_F_ANA_PORT_QOS_CFG_QOS_PCP_ENA);
+    L26_WR(VTSS_ANA_PORT_QOS_CFG(VTSS_CHIP_PORT_CPU), VTSS_F_ANA_PORT_QOS_CFG_QOS_PCP_ENA);
 
     /* Disable aging of Rx CPU queues to allow the frames to stay there longer
      * than on normal front ports. */
-    L26_WRM_SET(VTSS_REW_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU),
-                VTSS_F_REW_PORT_PORT_CFG_AGE_DIS);
+    L26_WRM_SET(VTSS_REW_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU), VTSS_F_REW_PORT_PORT_CFG_AGE_DIS);
 
     /* Disallow the CPU Rx queues to use shared memory. */
     L26_WRM_SET(VTSS_SYS_SYSTEM_EGR_NO_SHARING, VTSS_BIT(VTSS_CHIP_PORT_CPU));
 
     /* Don't make head-of-line-blocking of frames going to the CPU, as this may
      * cause pause-frames to be sent out on flow-control-enabled front ports. */
-    L26_WRM_SET(VTSS_SYS_PAUSE_CFG_EGR_DROP_FORCE,
-                VTSS_BIT(VTSS_CHIP_PORT_CPU));
+    L26_WRM_SET(VTSS_SYS_PAUSE_CFG_EGR_DROP_FORCE, VTSS_BIT(VTSS_CHIP_PORT_CPU));
 
     /* Set-up the one-to-one mapping */
     for (pcp = 0; pcp < VTSS_PCP_END - VTSS_PCP_START; pcp++) {
         for (dei = 0; dei < VTSS_DEI_END - VTSS_DEI_START; dei++) {
-            L26_WR(VTSS_ANA_PORT_QOS_PCP_DEI_MAP_CFG(VTSS_CHIP_PORT_CPU,
-                                                     (8 * dei + pcp)),
+            L26_WR(VTSS_ANA_PORT_QOS_PCP_DEI_MAP_CFG(VTSS_CHIP_PORT_CPU, (8 * dei + pcp)),
                    VTSS_F_ANA_PORT_QOS_PCP_DEI_MAP_CFG_QOS_PCP_DEI_VAL(pcp));
         }
     }

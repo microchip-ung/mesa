@@ -79,22 +79,18 @@ static void cli_cmd_packet_tx(cli_req_t *req)
 
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
         uport = iport2uport(iport);
-        if (req->port_list[uport] == 0 ||
-            mesa_port_state_get(NULL, iport, &state) != MESA_RC_OK ||
-            state == 0 ||
-            mesa_packet_tx_info_init(NULL, &tx_info) != MESA_RC_OK) {
+        if (req->port_list[uport] == 0 || mesa_port_state_get(NULL, iport, &state) != MESA_RC_OK ||
+            state == 0 || mesa_packet_tx_info_init(NULL, &tx_info) != MESA_RC_OK) {
             continue;
         }
 
-        cli_printf("Sending %u frames of %u bytes on port %u\n", cnt, len,
-                   uport);
+        cli_printf("Sending %u frames of %u bytes on port %u\n", cnt, len, uport);
         tx_info.dst_port_mask = 1;
         tx_info.dst_port_mask <<= iport;
         tx_info.dst_port = iport;
         frame[11] = uport;
         for (i = 0; i < cnt; i++) {
-            if (mesa_packet_tx_frame(NULL, &tx_info, frame, len - 4) !=
-                MESA_RC_OK) {
+            if (mesa_packet_tx_frame(NULL, &tx_info, frame, len - 4) != MESA_RC_OK) {
                 cli_printf("tx_frame[%u] failed\n", i);
                 break;
             }
@@ -103,10 +99,10 @@ static void cli_cmd_packet_tx(cli_req_t *req)
 }
 
 static cli_cmd_t cli_cmd_table[] = {
-    {"Packet Forward [<queue_list>] [<port_no>]",
-     "Set or show packet forwarding", cli_cmd_packet_forward},
-    {"Packet Tx [<port_list>] [<length>] [<count>]",
-     "Send broadcast frame to ports", cli_cmd_packet_tx     },
+    {"Packet Forward [<queue_list>] [<port_no>]",    "Set or show packet forwarding",
+     cli_cmd_packet_forward},
+    {"Packet Tx [<port_list>] [<length>] [<count>]", "Send broadcast frame to ports",
+     cli_cmd_packet_tx     },
 };
 
 static int cli_parm_queue_list(cli_req_t *req)
@@ -114,8 +110,7 @@ static int cli_parm_queue_list(cli_req_t *req)
     packet_cli_req_t *mreq = req->module_req;
     int               error;
 
-    error = cli_parse_list(req->cmd, mreq->queue_list, 0,
-                           MESA_PACKET_RX_QUEUE_CNT - 1, 1);
+    error = cli_parse_list(req->cmd, mreq->queue_list, 0, MESA_PACKET_RX_QUEUE_CNT - 1, 1);
     if (!error) {
         mreq->queue_valid = 1;
     }
@@ -137,12 +132,11 @@ static int cli_parm_count(cli_req_t *req)
 }
 
 static cli_parm_t cli_parm_table[] = {
-    {"<queue_list>", "Queue list, default: All queues (0-7)",
-     CLI_PARM_FLAG_NONE,                                                                              cli_parm_queue_list},
+    {"<queue_list>", "Queue list, default: All queues (0-7)",                     CLI_PARM_FLAG_NONE,
+     cli_parm_queue_list                                                                                             },
     {"<length>",     "Frame length including FCS (64 - 1518), default: 64 bytes",
-     CLI_PARM_FLAG_NONE | CLI_PARM_FLAG_SET,                                                          cli_parm_length    },
-    {"<count>",      "Frame count (1 - 1000), default: 1",                        CLI_PARM_FLAG_NONE,
-     cli_parm_count                                                                                                      },
+     CLI_PARM_FLAG_NONE | CLI_PARM_FLAG_SET,                                                          cli_parm_length},
+    {"<count>",      "Frame count (1 - 1000), default: 1",                        CLI_PARM_FLAG_NONE, cli_parm_count },
 };
 
 static void packet_cli_init(void)
@@ -177,12 +171,11 @@ static void packet_poll(void)
     }
 
     /* Extract frame */
-    if (mesa_packet_rx_frame(NULL, frame, sizeof(frame), &rx_info) !=
-        MESA_RC_OK) {
+    if (mesa_packet_rx_frame(NULL, frame, sizeof(frame), &rx_info) != MESA_RC_OK) {
         return;
     }
-    T_I("Rx frame on port %u, length: %u, vid: %u, qmask: 0x%02x",
-        rx_info.port_no, rx_info.length, rx_info.tag.vid, rx_info.xtr_qu_mask);
+    T_I("Rx frame on port %u, length: %u, vid: %u, qmask: 0x%02x", rx_info.port_no, rx_info.length,
+        rx_info.tag.vid, rx_info.xtr_qu_mask);
     T_D_HEX(frame, rx_info.length);
 
     /* Check if forwarding is enabled for Rx queue */
@@ -192,8 +185,7 @@ static void packet_poll(void)
             break;
         }
     }
-    if (iport == MESA_PORT_NO_NONE ||
-        mesa_packet_tx_info_init(NULL, &tx_info) != MESA_RC_OK) {
+    if (iport == MESA_PORT_NO_NONE || mesa_packet_tx_info_init(NULL, &tx_info) != MESA_RC_OK) {
         return;
     }
 
@@ -202,8 +194,7 @@ static void packet_poll(void)
     tx_info.dst_port_mask = 1;
     tx_info.dst_port_mask <<= iport;
     tx_info.dst_port = iport;
-    if (mesa_packet_tx_frame(NULL, &tx_info, frame, rx_info.length) !=
-        MESA_RC_OK) {
+    if (mesa_packet_tx_frame(NULL, &tx_info, frame, rx_info.length) != MESA_RC_OK) {
     }
 }
 

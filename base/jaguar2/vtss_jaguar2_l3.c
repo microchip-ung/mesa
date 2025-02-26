@@ -17,8 +17,7 @@
 #define JR2_L3_CNT_IP_MC_PACKETS 2
 #define JR2_L3_CNT_IP_MC_BYTES   3
 
-vtss_rc vtss_cil_l3_common_set(vtss_state_t                      *vtss_state,
-                               const vtss_l3_common_conf_t *const conf)
+vtss_rc vtss_cil_l3_common_set(vtss_state_t *vtss_state, const vtss_l3_common_conf_t *const conf)
 {
     const u8 *addr = conf->base_address.addr;
     u32       type_sel = 2;
@@ -27,17 +26,14 @@ vtss_rc vtss_cil_l3_common_set(vtss_state_t                      *vtss_state,
     u64       port_mask = 0xffffffffffffffff;
 
     /* Setup router leg MAC address and type */
-    JR2_WR(VTSS_ANA_L3_COMMON_RLEG_CFG_0,
-           VTSS_F_ANA_L3_COMMON_RLEG_CFG_0_RLEG_MAC_LSB(lsb));
+    JR2_WR(VTSS_ANA_L3_COMMON_RLEG_CFG_0, VTSS_F_ANA_L3_COMMON_RLEG_CFG_0_RLEG_MAC_LSB(lsb));
     JR2_WR(VTSS_ANA_L3_COMMON_RLEG_CFG_1,
            VTSS_F_ANA_L3_COMMON_RLEG_CFG_1_RLEG_MAC_TYPE_SEL(type_sel) |
                VTSS_F_ANA_L3_COMMON_RLEG_CFG_1_RLEG_MAC_MSB(msb));
 #if !defined(JR2_L3_INGRESS_MAC_UPDATE)
-    JR2_WR(VTSS_REW_COMMON_RLEG_CFG_0,
-           VTSS_F_REW_COMMON_RLEG_CFG_0_RLEG_MAC_LSB(lsb));
-    JR2_WR(VTSS_REW_COMMON_RLEG_CFG_1,
-           VTSS_F_REW_COMMON_RLEG_CFG_1_RLEG_MAC_TYPE_SEL(type_sel) |
-               VTSS_F_REW_COMMON_RLEG_CFG_1_RLEG_MAC_MSB(msb));
+    JR2_WR(VTSS_REW_COMMON_RLEG_CFG_0, VTSS_F_REW_COMMON_RLEG_CFG_0_RLEG_MAC_LSB(lsb));
+    JR2_WR(VTSS_REW_COMMON_RLEG_CFG_1, VTSS_F_REW_COMMON_RLEG_CFG_1_RLEG_MAC_TYPE_SEL(type_sel) |
+                                           VTSS_F_REW_COMMON_RLEG_CFG_1_RLEG_MAC_MSB(msb));
 #endif
 
     /* Enable/disable routing */
@@ -79,82 +75,63 @@ static vtss_rc jr2_l3_rleg_counter_update(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_l3_rleg_counters_get(vtss_state_t     *vtss_state,
-                                      vtss_l3_rleg_id_t rleg)
+vtss_rc vtss_cil_l3_rleg_counters_get(vtss_state_t *vtss_state, vtss_l3_rleg_id_t rleg)
 {
-    vtss_l3_counters_t *prev =
-        &vtss_state->l3.statistics.interface_shadow_counter[rleg];
-    vtss_l3_counters_t *counter =
-        &vtss_state->l3.statistics.interface_counter[rleg];
+    vtss_l3_counters_t *prev = &vtss_state->l3.statistics.interface_shadow_counter[rleg];
+    vtss_l3_counters_t *counter = &vtss_state->l3.statistics.interface_counter[rleg];
 
     /* IPv4 UC counters */
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg,
-                                       JR2_L3_CNT_IP_UC_PACKETS,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg, JR2_L3_CNT_IP_UC_PACKETS,
                                        &prev->ipv4uc_received_frames,
                                        &counter->ipv4uc_received_frames));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg,
-                                       JR2_L3_CNT_IP_UC_BYTES,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg, JR2_L3_CNT_IP_UC_BYTES,
                                        &prev->ipv4uc_received_octets,
                                        &counter->ipv4uc_received_octets));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg,
-                                       JR2_L3_CNT_IP_UC_PACKETS,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg, JR2_L3_CNT_IP_UC_PACKETS,
                                        &prev->ipv4uc_transmitted_frames,
                                        &counter->ipv4uc_transmitted_frames));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg,
-                                       JR2_L3_CNT_IP_UC_BYTES,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg, JR2_L3_CNT_IP_UC_BYTES,
                                        &prev->ipv4uc_transmitted_octets,
                                        &counter->ipv4uc_transmitted_octets));
     /* IPv4 MC counters */
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg,
-                                       JR2_L3_CNT_IP_MC_PACKETS,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg, JR2_L3_CNT_IP_MC_PACKETS,
                                        &prev->ipv4mc_received_frames,
                                        &counter->ipv4mc_received_frames));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg,
-                                       JR2_L3_CNT_IP_MC_BYTES,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg, JR2_L3_CNT_IP_MC_BYTES,
                                        &prev->ipv4mc_received_octets,
                                        &counter->ipv4mc_received_octets));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg,
-                                       JR2_L3_CNT_IP_MC_PACKETS,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg, JR2_L3_CNT_IP_MC_PACKETS,
                                        &prev->ipv4mc_transmitted_frames,
                                        &counter->ipv4mc_transmitted_frames));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg,
-                                       JR2_L3_CNT_IP_MC_BYTES,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg, JR2_L3_CNT_IP_MC_BYTES,
                                        &prev->ipv4mc_transmitted_octets,
                                        &counter->ipv4mc_transmitted_octets));
 
     /* IPv6 UC counters */
     rleg += VTSS_RLEG_STAT_CNT;
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg,
-                                       JR2_L3_CNT_IP_UC_PACKETS,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg, JR2_L3_CNT_IP_UC_PACKETS,
                                        &prev->ipv6uc_received_frames,
                                        &counter->ipv6uc_received_frames));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg,
-                                       JR2_L3_CNT_IP_UC_BYTES,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg, JR2_L3_CNT_IP_UC_BYTES,
                                        &prev->ipv6uc_received_octets,
                                        &counter->ipv6uc_received_octets));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg,
-                                       JR2_L3_CNT_IP_UC_PACKETS,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg, JR2_L3_CNT_IP_UC_PACKETS,
                                        &prev->ipv6uc_transmitted_frames,
                                        &counter->ipv6uc_transmitted_frames));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg,
-                                       JR2_L3_CNT_IP_UC_BYTES,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg, JR2_L3_CNT_IP_UC_BYTES,
                                        &prev->ipv6uc_transmitted_octets,
                                        &counter->ipv6uc_transmitted_octets));
     /* IPv6 MC counters */
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg,
-                                       JR2_L3_CNT_IP_MC_PACKETS,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg, JR2_L3_CNT_IP_MC_PACKETS,
                                        &prev->ipv6mc_received_frames,
                                        &counter->ipv6mc_received_frames));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg,
-                                       JR2_L3_CNT_IP_MC_BYTES,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, TRUE, rleg, JR2_L3_CNT_IP_MC_BYTES,
                                        &prev->ipv6mc_received_octets,
                                        &counter->ipv6mc_received_octets));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg,
-                                       JR2_L3_CNT_IP_MC_PACKETS,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg, JR2_L3_CNT_IP_MC_PACKETS,
                                        &prev->ipv6mc_transmitted_frames,
                                        &counter->ipv6mc_transmitted_frames));
-    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg,
-                                       JR2_L3_CNT_IP_MC_BYTES,
+    VTSS_RC(jr2_l3_rleg_counter_update(vtss_state, FALSE, rleg, JR2_L3_CNT_IP_MC_BYTES,
                                        &prev->ipv6mc_transmitted_octets,
                                        &counter->ipv6mc_transmitted_octets));
 
@@ -185,18 +162,12 @@ vtss_rc vtss_cil_l3_rleg_set(vtss_state_t                    *vtss_state,
 
     JR2_WR(VTSS_ANA_L3_VMID_RLEG_CTRL(rleg),
            VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_EVID(conf->vlan) |
-               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_UC_ENA(
-                   conf->ipv6_unicast_enable) |
-               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_UC_ENA(
-                   conf->ipv4_unicast_enable) |
-               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_MC_ENA(
-                   conf->ipv6_multicast_enable) |
-               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_MC_ENA(
-                   conf->ipv4_multicast_enable) |
-               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_ICMP_REDIR_ENA(
-                   conf->ipv6_icmp_redirect_enable) |
-               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_ICMP_REDIR_ENA(
-                   conf->ipv4_icmp_redirect_enable) |
+               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_UC_ENA(conf->ipv6_unicast_enable) |
+               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_UC_ENA(conf->ipv4_unicast_enable) |
+               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_MC_ENA(conf->ipv6_multicast_enable) |
+               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_MC_ENA(conf->ipv4_multicast_enable) |
+               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_ICMP_REDIR_ENA(conf->ipv6_icmp_redirect_enable) |
+               VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_ICMP_REDIR_ENA(conf->ipv4_icmp_redirect_enable) |
                VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_VRID_ENA(vrid_enable) |
                VTSS_F_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_VRID_ENA(vrid_enable));
 
@@ -204,8 +175,9 @@ vtss_rc vtss_cil_l3_rleg_set(vtss_state_t                    *vtss_state,
             VTSS_F_ANA_L3_VMID_VMID_MC_RLEG_IP6_MC_TTL(conf->mc_ttl_limit_enable
                                                            ? conf->mc_ttl_limit
                                                            : 0) |
-                VTSS_F_ANA_L3_VMID_VMID_MC_RLEG_IP4_MC_TTL(
-                    conf->mc_ttl_limit_enable ? conf->mc_ttl_limit : 0),
+                VTSS_F_ANA_L3_VMID_VMID_MC_RLEG_IP4_MC_TTL(conf->mc_ttl_limit_enable
+                                                               ? conf->mc_ttl_limit
+                                                               : 0),
             VTSS_M_ANA_L3_VMID_VMID_MC_RLEG_IP6_MC_TTL |
                 VTSS_M_ANA_L3_VMID_VMID_MC_RLEG_IP4_MC_TTL);
 
@@ -218,8 +190,7 @@ vtss_rc vtss_cil_l3_rleg_set(vtss_state_t                    *vtss_state,
                    VTSS_F_ANA_L3_VMID_VRRP_CFG_RLEG_IP4_VRID(vrid));
     }
 
-    JR2_WR(VTSS_REW_VMID_RLEG_CTRL(rleg),
-           VTSS_F_REW_VMID_RLEG_CTRL_RLEG_EVID(conf->vlan));
+    JR2_WR(VTSS_REW_VMID_RLEG_CTRL(rleg), VTSS_F_REW_VMID_RLEG_CTRL_RLEG_EVID(conf->vlan));
 
     return VTSS_RC_OK;
 }
@@ -256,8 +227,7 @@ static u32 jr2_l3_cpu_queue(vtss_state_t *vtss_state, vtss_ip_addr_t *dip)
     return (dip_zero ? map->l3_uc_queue : map->l3_other_queue);
 }
 
-vtss_rc vtss_cil_l3_mc_rt_rleg_add(vtss_state_t    *vtss_state,
-                                   vtss_l3_mc_rt_t *grp)
+vtss_rc vtss_cil_l3_mc_rt_rleg_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *grp)
 {
     vtss_l3_mc_tbl_t *tbl = &vtss_state->l3.mc_tbl[grp->tbl];
 
@@ -273,16 +243,10 @@ vtss_rc vtss_cil_l3_mc_rt_rleg_add(vtss_state_t    *vtss_state,
     }
 #endif
     JR2_WRM(VTSS_ANA_L3_L3MC_L3MC_CTRL(grp->tbl),
-            VTSS_F_ANA_L3_L3MC_L3MC_CTRL_RPF_CHK_ENA(tbl->rpf ==
-                                                             VTSS_L3_MC_RPF_DIS
-                                                         ? 0
-                                                         : 1) |
-                VTSS_F_ANA_L3_L3MC_L3MC_CTRL_RPF_VMID(tbl->rpf ==
-                                                              VTSS_L3_MC_RPF_DIS
-                                                          ? 0
-                                                          : tbl->rpf),
-            VTSS_M_ANA_L3_L3MC_L3MC_CTRL_RPF_CHK_ENA |
-                VTSS_M_ANA_L3_L3MC_L3MC_CTRL_RPF_VMID);
+            VTSS_F_ANA_L3_L3MC_L3MC_CTRL_RPF_CHK_ENA(tbl->rpf == VTSS_L3_MC_RPF_DIS ? 0 : 1) |
+                VTSS_F_ANA_L3_L3MC_L3MC_CTRL_RPF_VMID(tbl->rpf == VTSS_L3_MC_RPF_DIS ? 0
+                                                                                     : tbl->rpf),
+            VTSS_M_ANA_L3_L3MC_L3MC_CTRL_RPF_CHK_ENA | VTSS_M_ANA_L3_L3MC_L3MC_CTRL_RPF_VMID);
 
     return VTSS_RC_OK;
 }
@@ -335,14 +299,10 @@ vtss_rc vtss_cil_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
     action->data.l3mc_idx = rt->tbl;
 
     return vtss_vcap_add(vtss_state, obj, VTSS_LPM_USER_L3_MC, rt->id,
-                         rt->next == NULL ? VTSS_VCAP_ID_LAST : rt->next->id,
-                         &data, 0);
+                         rt->next == NULL ? VTSS_VCAP_ID_LAST : rt->next->id, &data, 0);
 }
 
-vtss_rc vtss_cil_l3_rt_add(vtss_state_t  *vtss_state,
-                           vtss_l3_net_t *net,
-                           vtss_l3_nb_t  *nb,
-                           u32            cnt)
+vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state, vtss_l3_net_t *net, vtss_l3_nb_t *nb, u32 cnt)
 {
     vtss_vcap_obj_t   *obj = &vtss_state->vcap.lpm.obj;
     vtss_vcap_data_t   data;
@@ -388,8 +348,7 @@ vtss_rc vtss_cil_l3_rt_add(vtss_state_t  *vtss_state,
         action->type = LPM_TYPE_ARP_ENTRY;
         action->data.arp_entry.mac = nb->dmac;
         action->data.arp_entry.vmid = nb->rleg;
-        action->data.arp_entry.cpu_queue =
-            jr2_l3_cpu_queue(vtss_state, &net->nh.dip);
+        action->data.arp_entry.cpu_queue = jr2_l3_cpu_queue(vtss_state, &net->nh.dip);
         action->data.arp_entry.arp_ena = 1;
     } else {
         action->type = LPM_TYPE_ARP_PTR;
@@ -398,8 +357,7 @@ vtss_rc vtss_cil_l3_rt_add(vtss_state_t  *vtss_state,
     }
 
     return vtss_vcap_add(vtss_state, obj, VTSS_LPM_USER_L3, net->id,
-                         net->next == NULL ? VTSS_VCAP_ID_LAST : net->next->id,
-                         &data, 0);
+                         net->next == NULL ? VTSS_VCAP_ID_LAST : net->next->id, &data, 0);
 }
 
 vtss_rc vtss_cil_l3_rt_del(vtss_state_t *vtss_state, vtss_l3_net_t *net)
@@ -418,14 +376,13 @@ vtss_rc vtss_cil_l3_arp_set(vtss_state_t *vtss_state, u32 idx, vtss_l3_nb_t *nb)
 {
     const u8 *addr = nb->dmac.addr;
     u32       msb = ((addr[0] << 8) | addr[1]);
-    u32 lsb = ((addr[2] << 24) | (addr[3] << 16) | (addr[4] << 8) | addr[5]);
-    u32 queue = vtss_state->packet.rx_conf.map.l3_other_queue;
+    u32       lsb = ((addr[2] << 24) | (addr[3] << 16) | (addr[4] << 8) | addr[5]);
+    u32       queue = vtss_state->packet.rx_conf.map.l3_other_queue;
 
-    JR2_WR(VTSS_ANA_L3_ARP_ARP_CFG_0(idx),
-           VTSS_F_ANA_L3_ARP_ARP_CFG_0_MAC_MSB(msb) |
-               VTSS_F_ANA_L3_ARP_ARP_CFG_0_ARP_VMID(nb->rleg) |
-               VTSS_F_ANA_L3_ARP_ARP_CFG_0_ZERO_DMAC_CPU_QU(queue) |
-               VTSS_F_ANA_L3_ARP_ARP_CFG_0_ARP_ENA(1));
+    JR2_WR(VTSS_ANA_L3_ARP_ARP_CFG_0(idx), VTSS_F_ANA_L3_ARP_ARP_CFG_0_MAC_MSB(msb) |
+                                               VTSS_F_ANA_L3_ARP_ARP_CFG_0_ARP_VMID(nb->rleg) |
+                                               VTSS_F_ANA_L3_ARP_ARP_CFG_0_ZERO_DMAC_CPU_QU(queue) |
+                                               VTSS_F_ANA_L3_ARP_ARP_CFG_0_ARP_ENA(1));
     JR2_WR(VTSS_ANA_L3_ARP_ARP_CFG_1(idx), lsb);
 
     return VTSS_RC_OK;
@@ -444,10 +401,7 @@ vtss_rc vtss_cil_l3_debug_sticky_clear(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
-static void jr2_l3_debug_cnt(lmu_ss_t   *ss,
-                             const char *name,
-                             u64         rx_cnt,
-                             u64         tx_cnt)
+static void jr2_l3_debug_cnt(lmu_ss_t *ss, const char *name, u64 rx_cnt, u64 tx_cnt)
 {
     vtss_chip_counter_t c1, c2;
 
@@ -472,20 +426,17 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
     }
 
     vtss_jr2_debug_reg_header(ss, "ANA_L3");
-    vtss_jr2_debug_reg(vtss_state, ss, VTSS_ANA_L3_COMMON_ROUTING_CFG,
-                       "ROUTING_CFG");
+    vtss_jr2_debug_reg(vtss_state, ss, VTSS_ANA_L3_COMMON_ROUTING_CFG, "ROUTING_CFG");
     pr("\n");
 
     JR2_RD(VTSS_ANA_L3_COMMON_RLEG_CFG_0, &cfg0);
     JR2_RD(VTSS_ANA_L3_COMMON_RLEG_CFG_1, &cfg1);
-    pr("Router MAC: %06x-%06x (Type %u)\n\n",
-       VTSS_X_ANA_L3_COMMON_RLEG_CFG_1_RLEG_MAC_MSB(cfg1),
+    pr("Router MAC: %06x-%06x (Type %u)\n\n", VTSS_X_ANA_L3_COMMON_RLEG_CFG_1_RLEG_MAC_MSB(cfg1),
        VTSS_X_ANA_L3_COMMON_RLEG_CFG_0_RLEG_MAC_LSB(cfg0),
        VTSS_X_ANA_L3_COMMON_RLEG_CFG_1_RLEG_MAC_TYPE_SEL(cfg1));
 
     for (i = 0; i < VTSS_RLEG_STAT_CNT; i++) {
-        if (i < VTSS_RLEG_CNT && vtss_state->l3.rleg_conf[i].vlan == 0 &&
-            !info->full) {
+        if (i < VTSS_RLEG_CNT && vtss_state->l3.rleg_conf[i].vlan == 0 && !info->full) {
             continue;
         }
 
@@ -496,21 +447,18 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
         JR2_RD(VTSS_ANA_L3_VMID_RLEG_CTRL(i), &value);
         JR2_RD(VTSS_ANA_L3_VMID_VRRP_CFG(i, 0), &cfg0);
         JR2_RD(VTSS_ANA_L3_VMID_VRRP_CFG(i, 1), &cfg1);
-        pr("%-6u%-6u%-8u%-8u%-8u%-8u%-11u%-11u", i,
-           VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_EVID(value),
+        pr("%-6u%-6u%-8u%-8u%-8u%-8u%-11u%-11u", i, VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_EVID(value),
            VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_UC_ENA(value),
            VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_UC_ENA(value),
            VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_MC_ENA(value),
            VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_MC_ENA(value),
            VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_ICMP_REDIR_ENA(value),
            VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_ICMP_REDIR_ENA(value));
-        VTSS_FMT(buf, "%u (%u/%u)",
-                 VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_VRID_ENA(value),
+        VTSS_FMT(buf, "%u (%u/%u)", VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP4_VRID_ENA(value),
                  VTSS_X_ANA_L3_VMID_VRRP_CFG_RLEG_IP4_VRID(cfg0),
                  VTSS_X_ANA_L3_VMID_VRRP_CFG_RLEG_IP4_VRID(cfg1));
         pr("%-13s", &buf);
-        VTSS_FMT(buf, "%u (%u/%u)",
-                 VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_VRID_ENA(value),
+        VTSS_FMT(buf, "%u (%u/%u)", VTSS_X_ANA_L3_VMID_RLEG_CTRL_RLEG_IP6_VRID_ENA(value),
                  VTSS_X_ANA_L3_VMID_VRRP_CFG_RLEG_IP6_VRID(cfg0),
                  VTSS_X_ANA_L3_VMID_VRRP_CFG_RLEG_IP6_VRID(cfg1));
         pr("%-13s", &buf);
@@ -523,8 +471,7 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
     }
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
-        if (!(vtss_state->l2.vlan_table[vid].flags & VLAN_FLAGS_ENABLED) &&
-            !info->full) {
+        if (!(vtss_state->l2.vlan_table[vid].flags & VLAN_FLAGS_ENABLED) && !info->full) {
             continue;
         }
 
@@ -538,8 +485,7 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
             continue;
         }
         JR2_RD(VTSS_ANA_L3_VLAN_VMID_CFG(vid), &value);
-        pr("%-6u%-10u%-4u\n", vid, enable,
-           VTSS_X_ANA_L3_VLAN_VMID_CFG_VMID(value));
+        pr("%-6u%-10u%-4u\n", vid, enable, VTSS_X_ANA_L3_VLAN_VMID_CFG_VMID(value));
 
         /* Leave critical region briefly */
         VTSS_EXIT_ENTER();
@@ -562,8 +508,8 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
             pr("IDX   MAC           VMID\n");
             header = 0;
         }
-        pr("%-6u%04x%08x  %u\n", i, VTSS_X_ANA_L3_ARP_ARP_CFG_0_MAC_MSB(cfg0),
-           cfg1, VTSS_X_ANA_L3_ARP_ARP_CFG_0_ARP_VMID(cfg0));
+        pr("%-6u%04x%08x  %u\n", i, VTSS_X_ANA_L3_ARP_ARP_CFG_0_MAC_MSB(cfg0), cfg1,
+           VTSS_X_ANA_L3_ARP_ARP_CFG_0_ARP_VMID(cfg0));
     }
     if (!header) {
         pr("\n");
@@ -591,8 +537,7 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
             header = 0;
         }
         if (found) {
-            pr("%d       0x%x     0x%x    0x%x    0x%x\n", i, v[0], v[1], v[2],
-               v[3]);
+            pr("%d       0x%x     0x%x    0x%x    0x%x\n", i, v[0], v[1], v[2], v[3]);
             found = 0;
         }
     }
@@ -603,20 +548,16 @@ vtss_rc vtss_jr2_l3_debug_print(vtss_state_t                  *vtss_state,
     if (info->clear || info->full) {
         /* Read and clear sticky bits */
         vtss_jr2_debug_reg_header(ss, "ANA_L3:STICKY");
-        vtss_jr2_debug_sticky(vtss_state, ss,
-                              VTSS_ANA_L3_LPM_REMAP_STICKY_L3_LPM_REMAP_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_L3_LPM_REMAP_STICKY_L3_LPM_REMAP_STICKY,
                               "LPM_REMAP_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, ss,
-                              VTSS_ANA_L3_VLAN_ARP_L3MC_STICKY_VLAN_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_L3_VLAN_ARP_L3MC_STICKY_VLAN_STICKY,
                               "VLAN_STICKY");
-        vtss_jr2_debug_sticky(vtss_state, ss,
-                              VTSS_ANA_L3_VLAN_ARP_L3MC_STICKY_L3_ARP_IPMC_STICKY,
+        vtss_jr2_debug_sticky(vtss_state, ss, VTSS_ANA_L3_VLAN_ARP_L3MC_STICKY_L3_ARP_IPMC_STICKY,
                               "ARP_IPMC_STICKY");
     }
 
     for (i = 0; i < VTSS_RLEG_STAT_CNT; i++) {
-        if ((i < VTSS_RLEG_CNT && vtss_state->l3.rleg_conf[i].vlan == 0 &&
-             !info->full) ||
+        if ((i < VTSS_RLEG_CNT && vtss_state->l3.rleg_conf[i].vlan == 0 && !info->full) ||
             vtss_cil_l3_rleg_counters_get(vtss_state, i) != VTSS_RC_OK) {
             continue;
         }
@@ -657,30 +598,24 @@ static vtss_rc jr2_l3_init_counter(vtss_state_t *vtss_state,
     u32 frame_type = 1; /* Events with no FCS errors */
 
     /* IRLEG counters */
-    JR2_WR(
-        VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG(idx),
-        VTSS_F_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG_GLOBAL_CFG_CNT_FRM_TYPE(
-            frame_type));
+    JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG(idx),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG_GLOBAL_CFG_CNT_FRM_TYPE(
+               frame_type));
     JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_CFG(idx),
-           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(
-               cnt_byte));
-    JR2_WR(
-        VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK(idx),
-        VTSS_F_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(
-            1 << event_ir));
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(cnt_byte));
+    JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK(idx),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(1
+                                                                                        << event_ir));
 
     /* ERLEG counters */
-    JR2_WR(
-        VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_GLOBAL_CNT_FRM_TYPE_CFG(idx),
-        VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ERLEG_GLOBAL_CNT_FRM_TYPE_CFG_GLOBAL_CFG_CNT_FRM_TYPE(
-            frame_type));
+    JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_GLOBAL_CNT_FRM_TYPE_CFG(idx),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ERLEG_GLOBAL_CNT_FRM_TYPE_CFG_GLOBAL_CFG_CNT_FRM_TYPE(
+               frame_type));
     JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_CFG(idx),
-           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(
-               cnt_byte));
-    JR2_WR(
-        VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK(idx),
-        VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(
-            1 << event_er));
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(cnt_byte));
+    JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK(idx),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(1
+                                                                                        << event_er));
 
     return VTSS_RC_OK;
 }
@@ -714,8 +649,7 @@ static vtss_rc jr2_l3_poll(vtss_state_t *vtss_state)
     /* Poll counters for one router leg every second to avoid counter wrapping.
        The worst case is a 40-bit byte counter, which would wrap in about 900
        seconds at 10 Gbps */
-    VTSS_RC(vtss_cil_l3_rleg_counters_get(vtss_state,
-                                          vtss_state->l3.statistics.rleg));
+    VTSS_RC(vtss_cil_l3_rleg_counters_get(vtss_state, vtss_state->l3.statistics.rleg));
     vtss_state->l3.statistics.rleg++;
     if (vtss_state->l3.statistics.rleg >= VTSS_RLEG_STAT_CNT) {
         vtss_state->l3.statistics.rleg = 0;

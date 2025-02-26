@@ -66,8 +66,7 @@ typedef enum {
 
 /** \brief Trace group configuration */
 typedef struct {
-    vtss_trace_level_t
-        level[VTSS_TRACE_LAYER_COUNT]; /**< Trace level per layer */
+    vtss_trace_level_t level[VTSS_TRACE_LAYER_COUNT]; /**< Trace level per layer */
 } vtss_trace_conf_t;
 
 /**
@@ -78,8 +77,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_trace_conf_get(const vtss_trace_group_t group,
-                            vtss_trace_conf_t *const conf);
+vtss_rc vtss_trace_conf_get(const vtss_trace_group_t group, vtss_trace_conf_t *const conf);
 
 /**
  * \brief Set trace configuration
@@ -89,8 +87,7 @@ vtss_rc vtss_trace_conf_get(const vtss_trace_group_t group,
  *
  * \return Return code.
  **/
-vtss_rc vtss_trace_conf_set(const vtss_trace_group_t       group,
-                            const vtss_trace_conf_t *const conf);
+vtss_rc vtss_trace_conf_set(const vtss_trace_group_t group, const vtss_trace_conf_t *const conf);
 
 /** \brief Attribute */
 #if defined(__GNUC__) && (__GNUC__ > 2)
@@ -210,16 +207,16 @@ typedef enum {
 
 /** \brief Debug information structure */
 typedef struct {
-    vtss_debug_layer_t layer;   /**< Layer */
-    vtss_debug_group_t group;   /**< Function group */
-    vtss_chip_no_t     chip_no; /**< Chip number, multi-chip targets */
+    vtss_debug_layer_t layer;                           /**< Layer */
+    vtss_debug_group_t group;                           /**< Function group */
+    vtss_chip_no_t     chip_no;                         /**< Chip number, multi-chip targets */
     BOOL               port_list[VTSS_PORT_ARRAY_SIZE]; /**< Port list */
-    BOOL               full;       /**< Full information dump */
-    BOOL               clear;      /**< Clear counters */
-    BOOL               vml_format; /**< VML format register dump */
-    BOOL               has_action; /**< Action parameter is present */
-    u32                action;     /**< Debug group depending action value */
-    u32                prm[10];    /**< Parameters from user */
+    BOOL               full;                            /**< Full information dump */
+    BOOL               clear;                           /**< Clear counters */
+    BOOL               vml_format;                      /**< VML format register dump */
+    BOOL               has_action;                      /**< Action parameter is present */
+    u32                action;                          /**< Debug group depending action value */
+    u32                prm[10];                         /**< Parameters from user */
 } vtss_debug_info_t;
 
 /** \brief Debug printf function
@@ -294,8 +291,7 @@ typedef struct {
  *
  * \return Return code.
  */
-vtss_rc vtss_debug_lock(const vtss_inst_t              inst,
-                        const vtss_debug_lock_t *const lock);
+vtss_rc vtss_debug_lock(const vtss_inst_t inst, const vtss_debug_lock_t *const lock);
 
 /**
  * \brief Debug unlock API access
@@ -305,8 +301,7 @@ vtss_rc vtss_debug_lock(const vtss_inst_t              inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_debug_unlock(const vtss_inst_t        inst,
-                          vtss_debug_lock_t *const lock);
+vtss_rc vtss_debug_unlock(const vtss_inst_t inst, vtss_debug_lock_t *const lock);
 
 #if defined(VTSS_FEATURE_MISC)
 /* - Direct register access (for debugging only) ------------------- */
@@ -405,26 +400,17 @@ vtss_rc vtss_poll_1sec(const vtss_inst_t inst);
  **/
 typedef enum {
     VTSS_PTP_NONE_EV = 0,
-    VTSS_PTP_SYNC_EV = (1 << 0), /*< PTP Synchronization pulse update */
-    VTSS_PTP_EXT_SYNC_EV =
-        (1 << 1), /*< PTP External Synchronization input  (Sync 0 on Serval)*/
-    VTSS_PTP_CLK_ADJ_EV = (1 << 2), /*< PTP Clock adjustment updated */
-    VTSS_PTP_TX_TSTAMP_EV =
-        (1 << 3), /*< Tx timestamp udated (Jaguar and Serval only)*/
-    VTSS_PTP_EXT_1_SYNC_EV =
-        (1 << 4), /*< PTP External Synchronization 1 input (Serval only)*/
-    VTSS_PTP_PIN_0_SYNC_EV =
-        (1 << 5), /*< PTP External pin 0 synchronization (Jaguar2 only)*/
-    VTSS_PTP_PIN_1_SYNC_EV =
-        (1 << 6), /*< PTP External pin 1 synchronization (Jaguar2 only)*/
-    VTSS_PTP_PIN_2_SYNC_EV =
-        (1 << 7), /*< PTP External pin 2 synchronization (Jaguar2 only)*/
-    VTSS_PTP_PIN_3_SYNC_EV =
-        (1 << 8), /*< PTP External pin 3 synchronization (Jaguar2 only)*/
-    VTSS_PTP_PIN_4_SYNC_EV =
-        (1 << 9), /*< PTP External pin 4 synchronization (Laguna)*/
-    VTSS_PTP_PIN_5_SYNC_EV =
-        (1 << 10), /*< PTP External pin 5 synchronization (Laguna)*/
+    VTSS_PTP_SYNC_EV = (1 << 0),        /*< PTP Synchronization pulse update */
+    VTSS_PTP_EXT_SYNC_EV = (1 << 1),    /*< PTP External Synchronization input  (Sync 0 on Serval)*/
+    VTSS_PTP_CLK_ADJ_EV = (1 << 2),     /*< PTP Clock adjustment updated */
+    VTSS_PTP_TX_TSTAMP_EV = (1 << 3),   /*< Tx timestamp udated (Jaguar and Serval only)*/
+    VTSS_PTP_EXT_1_SYNC_EV = (1 << 4),  /*< PTP External Synchronization 1 input (Serval only)*/
+    VTSS_PTP_PIN_0_SYNC_EV = (1 << 5),  /*< PTP External pin 0 synchronization (Jaguar2 only)*/
+    VTSS_PTP_PIN_1_SYNC_EV = (1 << 6),  /*< PTP External pin 1 synchronization (Jaguar2 only)*/
+    VTSS_PTP_PIN_2_SYNC_EV = (1 << 7),  /*< PTP External pin 2 synchronization (Jaguar2 only)*/
+    VTSS_PTP_PIN_3_SYNC_EV = (1 << 8),  /*< PTP External pin 3 synchronization (Jaguar2 only)*/
+    VTSS_PTP_PIN_4_SYNC_EV = (1 << 9),  /*< PTP External pin 4 synchronization (Laguna)*/
+    VTSS_PTP_PIN_5_SYNC_EV = (1 << 10), /*< PTP External pin 5 synchronization (Laguna)*/
 } vtss_ptp_event_type_t;
 
 /**
@@ -440,8 +426,7 @@ typedef enum {
  *
  * \return Return code.
  **/
-vtss_rc vtss_ptp_event_poll(const vtss_inst_t            inst,
-                            vtss_ptp_event_type_t *const ev_mask);
+vtss_rc vtss_ptp_event_poll(const vtss_inst_t inst, vtss_ptp_event_type_t *const ev_mask);
 
 /**
  * \brief Enable PTP event generation for a specific event type
@@ -713,8 +698,8 @@ typedef struct {
  *
  * \return Return code.
  **/
-typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t      inst,
-                                             const vtss_gpio_func_t gpio_func,
+typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t            inst,
+                                             const vtss_gpio_func_t       gpio_func,
                                              vtss_gpio_func_info_t *const info);
 
 #endif /* GPIOS */
@@ -723,9 +708,8 @@ typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t      inst,
 
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) ||                 \
-    defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X) ||               \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T) ||      \
+    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
 /** \brief Number of serial GPIO groups */
 #define VTSS_SGPIO_GROUPS 1
 #endif /* VTSS_ARCH_LUTON26/SERVAL/SERVAL_T */
@@ -763,8 +747,8 @@ typedef enum {
                                        polarity */
     VTSS_SGPIO_MODE_1_ACTIVITY_INV, /**< Mode 1 when link activity, inversed
                                        polarity */
-    VTSS_SGPIO_MODE_NO_CHANGE /**< Do not change the SGPIO mode (the mode is
-                                 controlled elsewhere) */
+    VTSS_SGPIO_MODE_NO_CHANGE       /**< Do not change the SGPIO mode (the mode is
+                                       controlled elsewhere) */
 } vtss_sgpio_mode_t;
 
 /** \brief SGPIO blink mode */
@@ -778,19 +762,18 @@ typedef enum {
 
 /** \brief SGPIO port configuration */
 typedef struct {
-    BOOL              enabled; /**< Port enabled/disabled */
-    vtss_sgpio_mode_t mode[4]; /**< Mode for each bit */
-    BOOL int_pol_high[4]; /**< SGPIO interrupt polarity for each bit - TRUE -
-                             Interrupt when SGPIO pin high, FALSE - Interrupt
-                             when SGPIO pin low. */
+    BOOL              enabled;         /**< Port enabled/disabled */
+    vtss_sgpio_mode_t mode[4];         /**< Mode for each bit */
+    BOOL              int_pol_high[4]; /**< SGPIO interrupt polarity for each bit - TRUE -
+                                          Interrupt when SGPIO pin high, FALSE - Interrupt
+                                          when SGPIO pin low. */
 } vtss_sgpio_port_conf_t;
 
 /** \brief SGPIO configuration for a group */
 typedef struct {
-    vtss_sgpio_bmode_t bmode[2];  /**< Blink mode 0 and 1 */
-    u8                 bit_count; /**< Bits enabled per port, 1-4 */
-    vtss_sgpio_port_conf_t
-        port_conf[VTSS_SGPIO_PORTS]; /**< Port configuration */
+    vtss_sgpio_bmode_t     bmode[2];                    /**< Blink mode 0 and 1 */
+    u8                     bit_count;                   /**< Bits enabled per port, 1-4 */
+    vtss_sgpio_port_conf_t port_conf[VTSS_SGPIO_PORTS]; /**< Port configuration */
 } vtss_sgpio_conf_t;
 
 /**
@@ -998,9 +981,9 @@ typedef struct {
  * \brief Interrupt status structure.
  */
 typedef struct {
-    u32 active;    /**< Bitmap for pending IRQs (VTSS_IRQ_xxx) */
-    u32 raw_ident; /**< RAW (target dependentant) bitmap for active pending IRQs
-                    */
+    u32 active;     /**< Bitmap for pending IRQs (VTSS_IRQ_xxx) */
+    u32 raw_ident;  /**< RAW (target dependentant) bitmap for active pending IRQs
+                     */
     u32 raw_status; /**< RAW (target dependentant) bitmap for all pending IRQs */
     u32 raw_mask;   /**< RAW (target dependentant) bitmap for IRQs mask */
 } vtss_irq_status_t;
@@ -1014,9 +997,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_irq_conf_get(const vtss_inst_t inst,
-                          const vtss_irq_t  irq,
-                          vtss_irq_conf_t  *conf);
+vtss_rc vtss_irq_conf_get(const vtss_inst_t inst, const vtss_irq_t irq, vtss_irq_conf_t *conf);
 
 /**
  * \brief Set IRQ configuration
@@ -1039,8 +1020,7 @@ vtss_rc vtss_irq_conf_set(const vtss_inst_t            inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_irq_status_get_and_mask(const vtss_inst_t  inst,
-                                     vtss_irq_status_t *status);
+vtss_rc vtss_irq_status_get_and_mask(const vtss_inst_t inst, vtss_irq_status_t *status);
 
 /**
  * \brief Control a specific interrupt source
@@ -1051,9 +1031,7 @@ vtss_rc vtss_irq_status_get_and_mask(const vtss_inst_t  inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_irq_enable(const vtss_inst_t inst,
-                        const vtss_irq_t  irq,
-                        BOOL              enable);
+vtss_rc vtss_irq_enable(const vtss_inst_t inst, const vtss_irq_t irq, BOOL enable);
 
 #endif /* VTSS_FEATURE_IRQ_CONTROL */
 
@@ -1092,14 +1070,14 @@ void vtss_tod_set_ns_cnt_cb(tod_get_ns_cnt_cb_t cb);
 typedef struct {
     u32 hw_cnt; /**< hardware counter */
 } vtss_os_timestamp_t;
-#define VTSS_OS_TIMESTAMP(timestamp)                                           \
-    do {                                                                       \
-        /* Currently no need to lock scheduler, since it's only          */    \
-        /* called from a function, where the sceduler is already locked. */    \
-        /* cyg_scheduler_lock(__FILE__, __LINE__); */                          \
-        (timestamp)->hw_cnt = vtss_tod_get_ns_cnt();                           \
-        /* cyg_scheduler_unlock(__FILE__, __LINE__); */                        \
-    } while (0); /**< VTSS_OS_TIMESTAMP() provides the implementation that     \
+#define VTSS_OS_TIMESTAMP(timestamp)                                                               \
+    do {                                                                                           \
+        /* Currently no need to lock scheduler, since it's only          */                        \
+        /* called from a function, where the sceduler is already locked. */                        \
+        /* cyg_scheduler_lock(__FILE__, __LINE__); */                                              \
+        (timestamp)->hw_cnt = vtss_tod_get_ns_cnt();                                               \
+        /* cyg_scheduler_unlock(__FILE__, __LINE__); */                                            \
+    } while (0); /**< VTSS_OS_TIMESTAMP() provides the implementation that                         \
                     will fill in the timestamp. */
 
 /* - Temperature Sensor ----------------------------------------- */
@@ -1144,11 +1122,7 @@ typedef enum {
 } vtss_fan_pwd_freq_t;
 
 /** \brief FAN Types  */
-typedef enum {
-    VTSS_FAN_2_WIRE_TYPE,
-    VTSS_FAN_3_WIRE_TYPE,
-    VTSS_FAN_4_WIRE_TYPE
-} vtss_fan_type_t;
+typedef enum { VTSS_FAN_2_WIRE_TYPE, VTSS_FAN_3_WIRE_TYPE, VTSS_FAN_4_WIRE_TYPE } vtss_fan_type_t;
 
 /** \brief Maximum fan speed level (Fan runs at full speed) */
 #define VTSS_FAN_SPEED_MAX 0x255
@@ -1158,11 +1132,11 @@ typedef enum {
 /** \brief Fan specifications */
 typedef struct {
     vtss_fan_pwd_freq_t fan_pwm_freq; /**< Fan PWM frequency*/
-    BOOL fan_low_pol; /**< Fan polarity of the PWM output. TRUE = PWM is logic 0
-                         when on. FALSE = PWM is logic 1 when on */
-    BOOL            fan_open_col; /**< PWM output is open collector if TRUE.*/
-    vtss_fan_type_t type;         /**< 2,3 or 4 wire fan type*/
-    u32 ppr; /**< Pulses per rotation. Only valid for 3 and 4 wire fans */
+    BOOL                fan_low_pol;  /**< Fan polarity of the PWM output. TRUE = PWM is logic 0
+                                         when on. FALSE = PWM is logic 1 when on */
+    BOOL            fan_open_col;     /**< PWM output is open collector if TRUE.*/
+    vtss_fan_type_t type;             /**< 2,3 or 4 wire fan type*/
+    u32             ppr;              /**< Pulses per rotation. Only valid for 3 and 4 wire fans */
 } vtss_fan_conf_t;
 
 /**
@@ -1197,8 +1171,7 @@ vtss_rc vtss_fan_cool_lvl_set(const vtss_inst_t inst, u8 lvl);
  *
  * \return Return code.
  **/
-vtss_rc vtss_fan_controller_init(const vtss_inst_t            inst,
-                                 const vtss_fan_conf_t *const spec);
+vtss_rc vtss_fan_controller_init(const vtss_inst_t inst, const vtss_fan_conf_t *const spec);
 
 /**
  * \brief Get fan cool level (Duty cycle)
@@ -1221,11 +1194,11 @@ typedef struct {
                              as soon as any data is available. Vector for enabling
                              fast queues. bit 0 = queue 0, bit 1 = queue 1 and so
                              on. */
-    u16 tx_tw; /**< Time from path is activated until frame transmission
-                  restarted. */
-    u8 lp_advertisement; /**< Link partner EEE advertisement. Bit 0 = Link
-                            partner advertises 100BASE-T capability. Bit 1 =
-                            Link partner advertises 1000BASE-T capability. */
+    u16 tx_tw;            /**< Time from path is activated until frame transmission
+                             restarted. */
+    u8 lp_advertisement;  /**< Link partner EEE advertisement. Bit 0 = Link
+                             partner advertises 100BASE-T capability. Bit 1 =
+                             Link partner advertises 1000BASE-T capability. */
 
     BOOL optimized_for_power; /**< EEE can be optimized for either most power
                                  savings or least traffic latency */
@@ -1284,12 +1257,11 @@ typedef struct {
 
 /** \brief Symbolic descriptiopn of a register group. */
 typedef struct {
-    const char   *name;       /**< Name of register group */
-    unsigned long base_addr;  /**< Base address of register group */
-    unsigned long repl_cnt;   /**< Replication count of register group */
-    unsigned long repl_width; /**< Replication width of register group */
-    vtss_symreg_reg_t const
-        *regs; /**< Pointer to symbolic registers (null terminated) */
+    const char              *name;       /**< Name of register group */
+    unsigned long            base_addr;  /**< Base address of register group */
+    unsigned long            repl_cnt;   /**< Replication count of register group */
+    unsigned long            repl_width; /**< Replication width of register group */
+    vtss_symreg_reg_t const *regs;       /**< Pointer to symbolic registers (null terminated) */
 } vtss_symreg_reggrp_t;
 
 /** \brief Symbolic descriptiopn of a register target. */
@@ -1304,12 +1276,11 @@ typedef struct {
 
 /** \brief Symbolic register base data. */
 typedef struct {
-    const vtss_symreg_target_t
-                 *targets;     /**< Pointer to targets (not null terminated) */
-    unsigned long targets_cnt; /**< Number of targets */
-    unsigned long io_origin1_offset; /**< IO register offset */
-    unsigned long repl_cnt_max;      /**< Highest number of replications */
-    unsigned long name_len_max;      /**< Max name length */
+    const vtss_symreg_target_t *targets;           /**< Pointer to targets (not null terminated) */
+    unsigned long               targets_cnt;       /**< Number of targets */
+    unsigned long               io_origin1_offset; /**< IO register offset */
+    unsigned long               repl_cnt_max;      /**< Highest number of replications */
+    unsigned long               name_len_max;      /**< Max name length */
 } vtss_symreg_data_t;
 
 /**
@@ -1321,8 +1292,7 @@ typedef struct {
  * \return Return code.
  *
  **/
-vtss_rc vtss_symreg_data_get(const vtss_inst_t         inst,
-                             vtss_symreg_data_t *const data);
+vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data);
 
 typedef enum {
     VTSS_VSCOPE_FAST_SCAN,
@@ -1330,10 +1300,9 @@ typedef enum {
 } vtss_vscope_scan_t;
 
 typedef struct {
-    vtss_vscope_scan_t
-         scan_type;   /**<selects the type of scan to be implemented */
-    BOOL enable;      /**<enable or disable vscope fast scan*/
-    u32  error_thres; /**<error_threshold for vscope calculations */
+    vtss_vscope_scan_t scan_type;   /**<selects the type of scan to be implemented */
+    BOOL               enable;      /**<enable or disable vscope fast scan*/
+    u32                error_thres; /**<error_threshold for vscope calculations */
 } vtss_vscope_conf_t;
 
 #if defined(VTSS_FEATURE_VSCOPE)
@@ -1345,19 +1314,17 @@ vtss_rc vtss_vscope_conf_get(const vtss_inst_t         inst,
                              const vtss_port_no_t      port_no,
                              vtss_vscope_conf_t *const conf);
 
-#define VSCOPE_BOOLEAN_STORAGE_COUNT                                           \
-    6 /**<BOOL parameters to be stored during Vscope Scan */
-#define VSCOPE_UNSIGNED_STORAGE_COUNT                                          \
-    5 /**<UNSIGNED parameters to be stored during Vscope Scan */
+#define VSCOPE_BOOLEAN_STORAGE_COUNT  6 /**<BOOL parameters to be stored during Vscope Scan */
+#define VSCOPE_UNSIGNED_STORAGE_COUNT 5 /**<UNSIGNED parameters to be stored during Vscope Scan */
 
 typedef struct {
     BOOL ib_storage_bool[VSCOPE_BOOLEAN_STORAGE_COUNT]; /**<boolean values to be
                                                            stored in vtss_state
                                                            during vscope fast
                                                            scan configuration */
-    u32 ib_storage[VSCOPE_UNSIGNED_STORAGE_COUNT]; /**<u8 values to be stored in
-                                                      vtss_state during vscope
-                                                      fast scan configuration */
+    u32 ib_storage[VSCOPE_UNSIGNED_STORAGE_COUNT];      /**<u8 values to be stored in
+                                                           vtss_state during vscope
+                                                           fast scan configuration */
 } vtss_vscope_ib_storage_t;
 
 /**\brief VSCOPE scan configuration */
@@ -1377,12 +1344,11 @@ typedef struct {
 
 /**\ brief Vscope eye scan status*/
 typedef struct {
-    vtss_vscope_scan_conf_t scan_conf; /**<scan configuration data */
-    i32 error_free_x; /**<error free x values in case of fast eye scan */
-    i32 error_free_y; /**<error free y values in case of fast eye scan */
-    i32 amp_range;    /**<amp range in case of fast eye scan */
-    u32 errors[PHASE_POINTS]
-              [AMPLITUDE_POINTS]; /**<error matrix in full scan mode */
+    vtss_vscope_scan_conf_t scan_conf;          /**<scan configuration data */
+    i32                     error_free_x;       /**<error free x values in case of fast eye scan */
+    i32                     error_free_y;       /**<error free y values in case of fast eye scan */
+    i32                     amp_range;          /**<amp range in case of fast eye scan */
+    u32 errors[PHASE_POINTS][AMPLITUDE_POINTS]; /**<error matrix in full scan mode */
 } vtss_vscope_scan_status_t;
 
 vtss_rc vtss_vscope_scan_status_get(const vtss_inst_t                inst,

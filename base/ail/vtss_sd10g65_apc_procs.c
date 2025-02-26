@@ -75,13 +75,12 @@ static u8 sd10g65_apc_get_iw_setting(const u8 interface_width)
     }
 }
 
-static vtss_rc vtss_sd10g65_apc_set_default_preset_values(
-    const vtss_chip_name_t                  chip_name,
-    vtss_sd10g65_apc_preset_struct_t *const preset)
+static vtss_rc vtss_sd10g65_apc_set_default_preset_values(const vtss_chip_name_t chip_name,
+                                                          vtss_sd10g65_apc_preset_struct_t
+                                                              *const preset)
 {
 
-    if ((chip_name == VTSS_SD10G65_CHIP_VENICE) ||
-        (chip_name == VTSS_SD10G65_CHIP_ES6514) ||
+    if ((chip_name == VTSS_SD10G65_CHIP_VENICE) || (chip_name == VTSS_SD10G65_CHIP_ES6514) ||
         (chip_name == VTSS_SD10G65_CHIP_JAGUAR2)) {
         preset->ld_lev_ini = 24;
         preset->range_sel = 20;
@@ -134,8 +133,7 @@ static vtss_rc vtss_sd10g65_apc_set_default_preset_values(
 /********************************************************************************
  ***                   calc_sd10g65_setup_apc                                ***
  ********************************************************************************/
-vtss_rc vtss_sd10g65_setup_apc_args_init(vtss_sd10g65_setup_apc_args_t
-                                             *const init_val)
+vtss_rc vtss_sd10g65_setup_apc_args_init(vtss_sd10g65_setup_apc_args_t *const init_val)
 {
 
     init_val->chip_name = VTSS_SD10G65_CHIP_ES65XX;
@@ -168,9 +166,8 @@ vtss_rc vtss_sd10g65_setup_apc_args_init(vtss_sd10g65_setup_apc_args_t
     return VTSS_RC_OK;
 } /* vtss_sd10g65_setup_apc_args_init */
 
-vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
-                                    vtss_sd10g65_setup_apc_struct_t
-                                        *const ret_val)
+vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    config,
+                                    vtss_sd10g65_setup_apc_struct_t *const ret_val)
 {
 
     typedef struct {
@@ -201,13 +198,11 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     u32                              f_pll_khz_plain, optimize_for_1g = FALSE;
     u8                               thresh_init;
 
-    f_pll_khz_plain =
-        (u32)(VTSS_DIV64(((u64)cfg_f_pll.f_pll_khz * (u64)cfg_f_pll.ratio_num),
-                         (u64)cfg_f_pll.ratio_den));
+    f_pll_khz_plain = (u32)(VTSS_DIV64(((u64)cfg_f_pll.f_pll_khz * (u64)cfg_f_pll.ratio_num),
+                                       (u64)cfg_f_pll.ratio_den));
     rc = vtss_sd10g65_apc_set_default_preset_values(config.chip_name, &preset);
 
-    if (cfg_f_pll.f_pll_khz <= 2.5e6 &&
-        config.chip_name != VTSS_SD10G65_CHIP_VENICE) {
+    if (cfg_f_pll.f_pll_khz <= 2.5e6 && config.chip_name != VTSS_SD10G65_CHIP_VENICE) {
         optimize_for_1g = TRUE;
         preset.dfe1_max = 68; // 1G optimization
     }
@@ -215,12 +210,9 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     if ((config.chip_name != VTSS_SD10G65_CHIP_VENICE_C) &&
         (config.chip_name != VTSS_SD10G65_CHIP_JAGUAR2C) &&
         (config.chip_name != VTSS_SD10G65_CHIP_MALIBU_B)) {
-        if ((config.preset == VTSS_SD10G65_ZR_SC) ||
-            (config.preset == VTSS_SD10G65_DAC_SC) ||
-            (config.preset == VTSS_SD10G65_SR_SC) ||
-            (config.preset == VTSS_SD10G65_SR2_SC) ||
-            (config.preset == VTSS_SD10G65_KR_SC) ||
-            (config.preset == VTSS_SD10G65_BACKPLANE_SC)) {
+        if ((config.preset == VTSS_SD10G65_ZR_SC) || (config.preset == VTSS_SD10G65_DAC_SC) ||
+            (config.preset == VTSS_SD10G65_SR_SC) || (config.preset == VTSS_SD10G65_SR2_SC) ||
+            (config.preset == VTSS_SD10G65_KR_SC) || (config.preset == VTSS_SD10G65_BACKPLANE_SC)) {
             VTSS_E(
                 "vtss_calc_sd10g65_setup_apc: Smart Control presets are not supported for the current Device");
         }
@@ -351,8 +343,8 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
         preset.range_sel = config.range_sel_val;
     }
 
-    if (config.offset_guard == TRUE && (config.preset != VTSS_SD10G65_KR_HW &&
-                                        config.preset != VTSS_SD10G65_KR_SC)) {
+    if (config.offset_guard == TRUE &&
+        (config.preset != VTSS_SD10G65_KR_HW && config.preset != VTSS_SD10G65_KR_SC)) {
         apc_set[VTSS_SD10G65_APC_PARAM_OFFS].max = 0xA0; // --> 640 (512+128)
         apc_set[VTSS_SD10G65_APC_PARAM_OFFS].ini = 0x80; // --> 512
         apc_set[VTSS_SD10G65_APC_PARAM_OFFS].min = 0x60; // --> 384 (512-128)
@@ -378,33 +370,28 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     apc_set[VTSS_SD10G65_APC_PARAM_DFE1].ini = 64;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE1].min = preset.dfe1_min;
 
-    apc_set[VTSS_SD10G65_APC_PARAM_DFE2].max =
-        optimize_for_1g ? 36 : 48; // 1G optimization
+    apc_set[VTSS_SD10G65_APC_PARAM_DFE2].max = optimize_for_1g ? 36 : 48; // 1G optimization
     apc_set[VTSS_SD10G65_APC_PARAM_DFE2].ini = 32;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE2].min = 0;
 
-    apc_set[VTSS_SD10G65_APC_PARAM_DFE3].max =
-        optimize_for_1g ? 20 : 31; // 1G optimization;
+    apc_set[VTSS_SD10G65_APC_PARAM_DFE3].max = optimize_for_1g ? 20 : 31; // 1G optimization;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE3].ini = 16;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE3].min = 0;
 
-    apc_set[VTSS_SD10G65_APC_PARAM_DFE4].max =
-        optimize_for_1g ? 20 : 31; // 1G optimization;
+    apc_set[VTSS_SD10G65_APC_PARAM_DFE4].max = optimize_for_1g ? 20 : 31; // 1G optimization;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE4].ini = 16;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE4].min = 0;
 
-    if (config.offset_guard == TRUE && (config.preset == VTSS_SD10G65_KR_HW ||
-                                        config.preset == VTSS_SD10G65_KR_SC)) {
+    if (config.offset_guard == TRUE &&
+        (config.preset == VTSS_SD10G65_KR_HW || config.preset == VTSS_SD10G65_KR_SC)) {
         apc_set[VTSS_SD10G65_APC_PARAM_OFFS].range_sel =
             12; // as suggested by Stefan Janiszewski for all KR presets
     } else {
         apc_set[VTSS_SD10G65_APC_PARAM_OFFS].range_sel = preset.range_sel;
     }
-    apc_set[VTSS_SD10G65_APC_PARAM_C].range_sel =
-        preset.range_sel + preset.c_rs_offs;
+    apc_set[VTSS_SD10G65_APC_PARAM_C].range_sel = preset.range_sel + preset.c_rs_offs;
     apc_set[VTSS_SD10G65_APC_PARAM_C].chg_mode = preset.c_chg_mode;
-    apc_set[VTSS_SD10G65_APC_PARAM_L].range_sel =
-        preset.range_sel + preset.l_rs_offs;
+    apc_set[VTSS_SD10G65_APC_PARAM_L].range_sel = preset.range_sel + preset.l_rs_offs;
     apc_set[VTSS_SD10G65_APC_PARAM_L].chg_mode = preset.l_chg_mode;
     apc_set[VTSS_SD10G65_APC_PARAM_AGC].range_sel = preset.range_sel;
 
@@ -416,8 +403,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     ret_val->apc_common_cfg0__apc_fsm_recover_mode[0] = 1;
     ret_val->apc_common_cfg0__hml_errcorr_ena[0] = 0;
     ret_val->apc_common_cfg0__skip_cal[0] = to_u8(config.skip_cal);
-    ret_val->apc_common_cfg0__if_width[0] =
-        sd10g65_apc_get_iw_setting(config.if_width);
+    ret_val->apc_common_cfg0__if_width[0] = sd10g65_apc_get_iw_setting(config.if_width);
     ret_val->apc_common_cfg0__reset_apc[0] = 1;
     ret_val->apc_common_cfg0__apc_direct_ena[0] = 1;
     ret_val->apc_common_cfg1__offscal_dis_swap[0] = 1;
@@ -441,12 +427,12 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     } else {
         if (config.chip_name != VTSS_SD10G65_CHIP_VENICE) {
             ret_val->calibration_time_ms[0] = 0; // not used at all
-            ret_val->calibration_time_ms[1] = (u16)(VTSS_DIV64(
-                (((u64)1 << (2 * ret_val->apc_ld_cal_cfg__cal_clk_div[0])) *
-                 (ret_val->apc_is_cal_cfg1__cal_num_iterations[0] + 1) *
-                 156500 * config.if_width) +
-                    (f_pll_khz_plain - 1),
-                f_pll_khz_plain));
+            ret_val->calibration_time_ms[1] =
+                (u16)(VTSS_DIV64((((u64)1 << (2 * ret_val->apc_ld_cal_cfg__cal_clk_div[0])) *
+                                  (ret_val->apc_is_cal_cfg1__cal_num_iterations[0] + 1) * 156500 *
+                                  config.if_width) +
+                                     (f_pll_khz_plain - 1),
+                                 f_pll_khz_plain));
         } else {
             ret_val->calibration_time_ms[0] = 50;
             ret_val->calibration_time_ms[1] = 200;
@@ -455,30 +441,21 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
 
     ret_val->apc_eqz_common_cfg__eqz_gain_auto_restart[0] = 0;
     ret_val->ib_cal_only[0] = config.ib_cal_only;
-    ret_val->apc_eqz_agc_par_cfg__eqz_agc_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_AGC].ini;
-    ret_val->apc_dfe1_par_cfg__dfe1_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE1].ini;
-    ret_val->apc_dfe2_par_cfg__dfe2_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE2].ini;
-    ret_val->apc_dfe3_par_cfg__dfe3_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE3].ini;
-    ret_val->apc_dfe4_par_cfg__dfe4_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE4].ini;
+    ret_val->apc_eqz_agc_par_cfg__eqz_agc_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_AGC].ini;
+    ret_val->apc_dfe1_par_cfg__dfe1_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE1].ini;
+    ret_val->apc_dfe2_par_cfg__dfe2_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE2].ini;
+    ret_val->apc_dfe3_par_cfg__dfe3_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE3].ini;
+    ret_val->apc_dfe4_par_cfg__dfe4_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE4].ini;
     ret_val->throttle_mode[0] = to_u8(config.throttle_mode);
-    ret_val->sd10g65_ib_cfg0__ib_vscope_ena[0] =
-        1; /* CML sampler always active */
+    ret_val->sd10g65_ib_cfg0__ib_vscope_ena[0] = 1;     /* CML sampler always active */
     ret_val->apc_parctrl_sync_cfg__fsm1_op_mode[0] = 1; /* one-time operation */
     if (config.throttle_mode == TRUE) {
-        ret_val->apc_parctrl_fsm1_timer_cfg__fsm1_op_time[0] =
-            500; /* number of active cycles */
+        ret_val->apc_parctrl_fsm1_timer_cfg__fsm1_op_time[0] = 500; /* number of active cycles */
     } else {
-        ret_val->apc_parctrl_fsm1_timer_cfg__fsm1_op_time[0] =
-            50000; /* number of active cycles */
+        ret_val->apc_parctrl_fsm1_timer_cfg__fsm1_op_time[0] = 50000; /* number of active cycles */
     }
-    ret_val->apc_top_ctrl_cfg__sleep_time[0] =
-        4500; /* number of inactive cycles */
-    ret_val->apc_common_cfg0__throttle_mode[0] = 1; /* enable throttle mode */
+    ret_val->apc_top_ctrl_cfg__sleep_time[0] = 4500; /* number of inactive cycles */
+    ret_val->apc_common_cfg0__throttle_mode[0] = 1;  /* enable throttle mode */
     ret_val->single_step[0] = to_u8(config.single_step);
     ret_val->apc_eqz_ld_ctrl__ld_lev_ini[0] = preset.ld_lev_ini;
     ret_val->apc_eqz_ld_ctrl_cfg0__ld_t_deadtime_wrk[0] = 65535;
@@ -498,24 +475,18 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     ret_val->apc_eqz_offs_par_cfg__eqz_offs_chg_mode[0] = 0;
     ret_val->apc_eqz_offs_par_cfg__eqz_offs_range_sel[0] =
         apc_set[VTSS_SD10G65_APC_PARAM_OFFS].range_sel;
-    ret_val->apc_eqz_offs_par_cfg__eqz_offs_max[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_OFFS].max;
-    ret_val->apc_eqz_offs_par_cfg__eqz_offs_min[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_OFFS].min;
-    ret_val->apc_eqz_offs_par_cfg__eqz_offs_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_OFFS].ini;
+    ret_val->apc_eqz_offs_par_cfg__eqz_offs_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_OFFS].max;
+    ret_val->apc_eqz_offs_par_cfg__eqz_offs_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_OFFS].min;
+    ret_val->apc_eqz_offs_par_cfg__eqz_offs_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_OFFS].ini;
     ret_val->apc_eqz_offs_ctrl__eqz_offs_sync_mode[0] = 1;
 
     ret_val->apc_eqz_agc_par_cfg__eqz_agc_chg_mode[0] = 0;
     ret_val->apc_eqz_agc_par_cfg__eqz_agc_range_sel[0] =
         apc_set[VTSS_SD10G65_APC_PARAM_AGC].range_sel;
-    ret_val->apc_eqz_agc_par_cfg__eqz_agc_max[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_AGC].max;
-    ret_val->apc_eqz_agc_par_cfg__eqz_agc_min[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_AGC].min;
+    ret_val->apc_eqz_agc_par_cfg__eqz_agc_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_AGC].max;
+    ret_val->apc_eqz_agc_par_cfg__eqz_agc_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_AGC].min;
     // Note: same assignment as above
-    ret_val->apc_eqz_agc_par_cfg__eqz_agc_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_AGC].ini;
+    ret_val->apc_eqz_agc_par_cfg__eqz_agc_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_AGC].ini;
     ret_val->apc_eqz_agc_ctrl__eqz_agc_sync_mode[0] = 1;
 
     /* # In case input data are inverted, the offset control direction has to be
@@ -536,11 +507,9 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     ret_val->force_eqz_l[0] = to_u8(config.force_eqz_l);
     if (config.force_eqz_l == TRUE) {
         /* # force L or C */
-        ret_val->apc_eqz_l_par_cfg__eqz_l_chg_mode[0] =
-            1; /* use forced values */
+        ret_val->apc_eqz_l_par_cfg__eqz_l_chg_mode[0] = 1; /* use forced values */
         ret_val->apc_eqz_l_par_cfg__eqz_l_range_sel[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_L]
-                .range_sel; /* Not used in this mode */
+            apc_set[VTSS_SD10G65_APC_PARAM_L].range_sel; /* Not used in this mode */
         ret_val->apc_eqz_l_par_cfg__eqz_l_max[0] =
             apc_set[VTSS_SD10G65_APC_PARAM_L].max; /* Not used in this mode */
         ret_val->apc_eqz_l_par_cfg__eqz_l_min[0] =
@@ -553,12 +522,9 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
             apc_set[VTSS_SD10G65_APC_PARAM_L].chg_mode; /* control parameter */
         ret_val->apc_eqz_l_par_cfg__eqz_l_range_sel[0] =
             apc_set[VTSS_SD10G65_APC_PARAM_L].range_sel;
-        ret_val->apc_eqz_l_par_cfg__eqz_l_max[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_L].max;
-        ret_val->apc_eqz_l_par_cfg__eqz_l_min[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_L].min;
-        ret_val->apc_eqz_l_par_cfg__eqz_l_ini[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_L].ini;
+        ret_val->apc_eqz_l_par_cfg__eqz_l_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_L].max;
+        ret_val->apc_eqz_l_par_cfg__eqz_l_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_L].min;
+        ret_val->apc_eqz_l_par_cfg__eqz_l_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_L].ini;
         if ((config.lc_softctrl == TRUE) || (preset.lc_smartctrl == 1)) {
             /* start LC softctrl with known initial values */
             ret_val->apc_eqz_l_ctrl__eqz_l_sync_mode[0] = 0; /* disabled */
@@ -567,15 +533,13 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
         }
     } else {
         /* low data rates -> force L and C to 0 */
-        ret_val->apc_eqz_l_par_cfg__eqz_l_chg_mode[0] =
-            1; /* use forced values */
+        ret_val->apc_eqz_l_par_cfg__eqz_l_chg_mode[0] = 1; /* use forced values */
         ret_val->apc_eqz_l_par_cfg__eqz_l_range_sel[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_L]
-                .range_sel; /* Not used in this mode */
+            apc_set[VTSS_SD10G65_APC_PARAM_L].range_sel; /* Not used in this mode */
         ret_val->apc_eqz_l_par_cfg__eqz_l_max[0] =
             apc_set[VTSS_SD10G65_APC_PARAM_L].max; /* Not used in this mode */
         ret_val->apc_eqz_l_par_cfg__eqz_l_min[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_L].min; /* Not used in this mode */
+            apc_set[VTSS_SD10G65_APC_PARAM_L].min;       /* Not used in this mode */
         ret_val->apc_eqz_l_par_cfg__eqz_l_ini[0] = 0;    /* lowest value */
         ret_val->apc_eqz_l_ctrl__eqz_l_sync_mode[0] = 0; /* disabled */
     }
@@ -583,11 +547,9 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     ret_val->force_eqz_c[0] = to_u8(config.force_eqz_c);
     if (config.force_eqz_c == TRUE) {
         /* # force L or C */
-        ret_val->apc_eqz_c_par_cfg__eqz_c_chg_mode[0] =
-            1; /* use forced values */
+        ret_val->apc_eqz_c_par_cfg__eqz_c_chg_mode[0] = 1; /* use forced values */
         ret_val->apc_eqz_c_par_cfg__eqz_c_range_sel[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_C]
-                .range_sel; /* Not used in this mode */
+            apc_set[VTSS_SD10G65_APC_PARAM_C].range_sel; /* Not used in this mode */
         ret_val->apc_eqz_c_par_cfg__eqz_c_max[0] =
             apc_set[VTSS_SD10G65_APC_PARAM_C].max; /* Not used in this mode */
         ret_val->apc_eqz_c_par_cfg__eqz_c_min[0] =
@@ -600,12 +562,9 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
             apc_set[VTSS_SD10G65_APC_PARAM_C].chg_mode; /* control parameter */
         ret_val->apc_eqz_c_par_cfg__eqz_c_range_sel[0] =
             apc_set[VTSS_SD10G65_APC_PARAM_C].range_sel;
-        ret_val->apc_eqz_c_par_cfg__eqz_c_max[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_C].max;
-        ret_val->apc_eqz_c_par_cfg__eqz_c_min[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_C].min;
-        ret_val->apc_eqz_c_par_cfg__eqz_c_ini[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_C].ini;
+        ret_val->apc_eqz_c_par_cfg__eqz_c_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_C].max;
+        ret_val->apc_eqz_c_par_cfg__eqz_c_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_C].min;
+        ret_val->apc_eqz_c_par_cfg__eqz_c_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_C].ini;
         if ((config.lc_softctrl == TRUE) || (preset.lc_smartctrl == 1)) {
             /* start LC softctrl with known initial values */
             ret_val->apc_eqz_c_ctrl__eqz_c_sync_mode[0] = 0; /* disabled */
@@ -614,71 +573,52 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
         }
     } else {
         /* low data rates -> force L and C to 0 */
-        ret_val->apc_eqz_c_par_cfg__eqz_c_chg_mode[0] =
-            1; /* use forced values */
+        ret_val->apc_eqz_c_par_cfg__eqz_c_chg_mode[0] = 1; /* use forced values */
         ret_val->apc_eqz_c_par_cfg__eqz_c_range_sel[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_C]
-                .range_sel; /* Not used in this mode */
+            apc_set[VTSS_SD10G65_APC_PARAM_C].range_sel; /* Not used in this mode */
         ret_val->apc_eqz_c_par_cfg__eqz_c_max[0] =
             apc_set[VTSS_SD10G65_APC_PARAM_C].max; /* Not used in this mode */
         ret_val->apc_eqz_c_par_cfg__eqz_c_min[0] =
-            apc_set[VTSS_SD10G65_APC_PARAM_C].min; /* Not used in this mode */
+            apc_set[VTSS_SD10G65_APC_PARAM_C].min;       /* Not used in this mode */
         ret_val->apc_eqz_c_par_cfg__eqz_c_ini[0] = 0;    /* lowest value */
         ret_val->apc_eqz_c_ctrl__eqz_c_sync_mode[0] = 0; /* disabled */
     }
 
     ret_val->apc_dfe1_par_cfg__dfe1_chg_mode[0] = 0;
-    ret_val->apc_dfe1_par_cfg__dfe1_range_sel[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE1].range_sel;
-    ret_val->apc_dfe1_par_cfg__dfe1_max[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE1].max;
-    ret_val->apc_dfe1_par_cfg__dfe1_min[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE1].min;
+    ret_val->apc_dfe1_par_cfg__dfe1_range_sel[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE1].range_sel;
+    ret_val->apc_dfe1_par_cfg__dfe1_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE1].max;
+    ret_val->apc_dfe1_par_cfg__dfe1_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE1].min;
     // Note: same assignment as above
-    ret_val->apc_dfe1_par_cfg__dfe1_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE1].ini;
+    ret_val->apc_dfe1_par_cfg__dfe1_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE1].ini;
     ret_val->apc_dfe1_ctrl__dfe1_sync_mode[0] = 1;
 
     ret_val->apc_dfe2_par_cfg__dfe2_chg_mode[0] = 0;
-    ret_val->apc_dfe2_par_cfg__dfe2_range_sel[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE2].range_sel;
-    ret_val->apc_dfe2_par_cfg__dfe2_max[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE2].max;
-    ret_val->apc_dfe2_par_cfg__dfe2_min[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE2].min;
+    ret_val->apc_dfe2_par_cfg__dfe2_range_sel[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE2].range_sel;
+    ret_val->apc_dfe2_par_cfg__dfe2_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE2].max;
+    ret_val->apc_dfe2_par_cfg__dfe2_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE2].min;
     // Note: same assignment as above
-    ret_val->apc_dfe2_par_cfg__dfe2_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE2].ini;
+    ret_val->apc_dfe2_par_cfg__dfe2_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE2].ini;
     ret_val->apc_dfe2_ctrl__dfe2_sync_mode[0] = 1;
 
     ret_val->apc_dfe3_par_cfg__dfe3_chg_mode[0] = 0;
-    ret_val->apc_dfe3_par_cfg__dfe3_range_sel[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE3].range_sel;
-    ret_val->apc_dfe3_par_cfg__dfe3_max[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE3].max;
-    ret_val->apc_dfe3_par_cfg__dfe3_min[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE3].min;
+    ret_val->apc_dfe3_par_cfg__dfe3_range_sel[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE3].range_sel;
+    ret_val->apc_dfe3_par_cfg__dfe3_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE3].max;
+    ret_val->apc_dfe3_par_cfg__dfe3_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE3].min;
     // Note: same assignment as above
-    ret_val->apc_dfe3_par_cfg__dfe3_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE3].ini;
+    ret_val->apc_dfe3_par_cfg__dfe3_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE3].ini;
     ret_val->apc_dfe3_ctrl__dfe3_sync_mode[0] = 1;
 
     ret_val->apc_dfe4_par_cfg__dfe4_chg_mode[0] = 0;
-    ret_val->apc_dfe4_par_cfg__dfe4_range_sel[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE4].range_sel;
-    ret_val->apc_dfe4_par_cfg__dfe4_max[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE4].max;
-    ret_val->apc_dfe4_par_cfg__dfe4_min[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE4].min;
+    ret_val->apc_dfe4_par_cfg__dfe4_range_sel[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE4].range_sel;
+    ret_val->apc_dfe4_par_cfg__dfe4_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE4].max;
+    ret_val->apc_dfe4_par_cfg__dfe4_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE4].min;
     // Note: same assignment as above
-    ret_val->apc_dfe4_par_cfg__dfe4_ini[0] =
-        apc_set[VTSS_SD10G65_APC_PARAM_DFE4].ini;
+    ret_val->apc_dfe4_par_cfg__dfe4_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE4].ini;
     ret_val->apc_dfe4_ctrl__dfe4_sync_mode[0] = 1;
 
     /* gain setting */
     ret_val->apc_eqz_gain_ctrl_cfg__eqz_gain_ini[0] = preset.gain_ini;
-    ret_val->apc_eqz_gain_adj_ctrl_cfg__eqz_gain_adj_ini[0] =
-        preset.gain_adj_ini;
+    ret_val->apc_eqz_gain_adj_ctrl_cfg__eqz_gain_adj_ini[0] = preset.gain_adj_ini;
     ret_val->apc_eqz_common_cfg__eqz_gain_chg_mode[0] = preset.gain_chg_mode;
 
     /* do calibration if desired */
@@ -688,29 +628,23 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
 
     thresh_init = 31;
     ret_val->sd10g65_ib_cfg8__ib_inv_thr_cal_val[0] = 0;
-    ret_val->apc_is_cal_cfg0__cpmd_thres_init[0] =
-        thresh_init; /* to be optimized (default 0) */
-    ret_val->apc_is_cal_cfg0__vsc_thres_init[0] =
-        thresh_init; /* to be optimized (default 0) */
+    ret_val->apc_is_cal_cfg0__cpmd_thres_init[0] = thresh_init; /* to be optimized (default 0) */
+    ret_val->apc_is_cal_cfg0__vsc_thres_init[0] = thresh_init;  /* to be optimized (default 0) */
     ret_val->apc_is_cal_cfg0__skip_threshold_cal[1] = 1;
     ret_val->apc_is_cal_cfg1__cal_vsc_offset_tgt[0] = 1;
 
     ret_val->sd10g65_ib_cfg0__ib_dfe_ena[0] = 0; /* disable dfe stage */
-    ret_val->sd10g65_des_cfg0__des_inv_x[0] =
-        0; /* disable inversion for IB cal */
+    ret_val->sd10g65_des_cfg0__des_inv_x[0] = 0; /* disable inversion for IB cal */
     if (config.incl_ld_cal == TRUE) {
-        ret_val->apc_common_cfg0__apc_mode[0] =
-            5; /* automatic mode for full ib_cal */
+        ret_val->apc_common_cfg0__apc_mode[0] = 5; /* automatic mode for full ib_cal */
     } else {
-        ret_val->apc_common_cfg0__apc_mode[0] =
-            1; /* manual mode for manual ib_cal */
+        ret_val->apc_common_cfg0__apc_mode[0] = 1; /* manual mode for manual ib_cal */
     }
     ret_val->apc_common_cfg0__reset_apc[1] = 0; /* reset release */
 
     ret_val->sd10g65_ib_cfg0__ib_dfe_ena[1] = 1; /* restore dfe stage */
     if (config.invert == TRUE) {
-        ret_val->sd10g65_des_cfg0__des_inv_x[1] =
-            1; /* enable inversion when intended */
+        ret_val->sd10g65_des_cfg0__des_inv_x[1] = 1; /* enable inversion when intended */
     } else {
         ret_val->sd10g65_des_cfg0__des_inv_x[1] = 0; /* no inversion intended */
     }
@@ -731,8 +665,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     if (config.single_step == TRUE) {
         ret_val->apc_common_cfg0__apc_mode[2] = 1; /* manual_mode */
     } else {
-        ret_val->apc_common_cfg0__apc_mode[2] =
-            2; /* apc full operation (fsm1) */
+        ret_val->apc_common_cfg0__apc_mode[2] = 2; /* apc full operation (fsm1) */
     }
     ret_val->apc_common_cfg0__reset_apc[2] = 0;
 
@@ -747,10 +680,9 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
     ret_val->apc_lc_softctrl_cfg1__lc_sc_dfe1_target[0] = 63;
     ret_val->apc_lc_softctrl_cfg__lc_sc_timer[0] = 10;
     ret_val->apc_lc_softctrl_cfg__lc_sc_avgshft[0] = 6;
-    ret_val->apc_lc_softctrl_cfg__lc_sc_dfe1_threshold[0] = 8; /* 8=default   */
-    ret_val->apc_lc_softctrl_cfg__lc_sc_dfe2_threshold[0] = 4; /* 4=default   */
-    ret_val->apc_lc_softctrl_cfg__lc_sc_agc_threshold[0] =
-        125; /* 125=default */
+    ret_val->apc_lc_softctrl_cfg__lc_sc_dfe1_threshold[0] = 8;  /* 8=default   */
+    ret_val->apc_lc_softctrl_cfg__lc_sc_dfe2_threshold[0] = 4;  /* 4=default   */
+    ret_val->apc_lc_softctrl_cfg__lc_sc_agc_threshold[0] = 125; /* 125=default */
     ret_val->apc_lc_softctrl_cfg__lc_sc_div_c_sel[0] = 1;
     ret_val->apc_lc_softctrl_cfg__lc_sc_div_l[0] = 4; /* 4=default   */
     ret_val->apc_lc_softctrl_cfg__lc_sc_div_c[0] = 4; /* 4=default   */

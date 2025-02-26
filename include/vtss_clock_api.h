@@ -40,36 +40,36 @@ typedef u8 vtss_clock_dpll_inst_t;
  * \brief parameter describing the DPLL selection mode.
  **/
 typedef enum {
-    VTSS_CLOCK_SELECTION_MODE_DISABLED, /**< Controller / DPLL is disabled */
-    VTSS_CLOCK_SELECTION_MODE_MANUEL,   /**< Manually select an input */
+    VTSS_CLOCK_SELECTION_MODE_DISABLED,               /**< Controller / DPLL is disabled */
+    VTSS_CLOCK_SELECTION_MODE_MANUEL,                 /**< Manually select an input */
     VTSS_CLOCK_SELECTION_MODE_AUTOMATIC_NONREVERTIVE, /**< Automatic selection
                                                          mode non revertive */
-    VTSS_CLOCK_SELECTION_MODE_AUTOMATIC_REVERTIVE, /**< Automatic selection mode
-                                                      revertive */
-    VTSS_CLOCK_SELECTION_MODE_FORCED_HOLDOVER,     /**< Manually selection mode
-                                                      forced to holdover */
-    VTSS_CLOCK_SELECTION_MODE_FORCED_FREE_RUN,     /**< Manually selection mode
-                                                      forced to free-run */
-    VTSS_CLOCK_SELECTION_MODE_FORCED_DCO,          /**< Selection mode Digitally
-                                                      Controlled Oscillator (DCO) */
+    VTSS_CLOCK_SELECTION_MODE_AUTOMATIC_REVERTIVE,    /**< Automatic selection mode
+                                                         revertive */
+    VTSS_CLOCK_SELECTION_MODE_FORCED_HOLDOVER,        /**< Manually selection mode
+                                                         forced to holdover */
+    VTSS_CLOCK_SELECTION_MODE_FORCED_FREE_RUN,        /**< Manually selection mode
+                                                         forced to free-run */
+    VTSS_CLOCK_SELECTION_MODE_FORCED_DCO,             /**< Selection mode Digitally
+                                                         Controlled Oscillator (DCO) */
 } vtss_clock_selection_mode_t;
 
 /**
  * \brief parameter setting up the DPLL selection mode.
  **/
 typedef struct {
-    vtss_clock_selection_mode_t mode; /**< selection mode */
-    u8 clock_input;                   /**< selected input id manual mode */
+    vtss_clock_selection_mode_t mode;        /**< selection mode */
+    u8                          clock_input; /**< selected input id manual mode */
 } vtss_clock_selection_conf_t;
 
 /**
  * \brief parameter describing the DPLL selectior state.
  **/
 typedef enum {
-    VTSS_CLOCK_SELECTOR_STATE_LOCKED,   /**< the dpll is locked to an input */
-    VTSS_CLOCK_SELECTOR_STATE_HOLDOVER, /**< the dpll is in holdover state */
-    VTSS_CLOCK_SELECTOR_STATE_FREERUN,  /**< the dpll is in free-run state */
-    VTSS_CLOCK_SELECTOR_STATE_DCO, /**< the dpll is controlled by SW (DCO mode) */
+    VTSS_CLOCK_SELECTOR_STATE_LOCKED,     /**< the dpll is locked to an input */
+    VTSS_CLOCK_SELECTOR_STATE_HOLDOVER,   /**< the dpll is in holdover state */
+    VTSS_CLOCK_SELECTOR_STATE_FREERUN,    /**< the dpll is in free-run state */
+    VTSS_CLOCK_SELECTOR_STATE_DCO,        /**< the dpll is controlled by SW (DCO mode) */
     VTSS_CLOCK_SELECTOR_STATE_REF_FAILED, /**< the selected reference failed */
     VTSS_CLOCK_SELECTOR_STATE_ACQUIRING,  /**< acquiring lock to the selected
                                              reference */
@@ -95,25 +95,24 @@ typedef enum {
  * \brief parameter for setting up the phase slope limiter.
  */
 typedef struct vtss_clock_psl_conf_t {
-    u32 limit_ppb; /**< maximum phase slope in ppb [1..524000], 0 Disables the
-                      feature */
+    u32 limit_ppb;            /**< maximum phase slope in ppb [1..524000], 0 Disables the
+                                 feature */
     BOOL phase_build_out_ena; /**< If true, limited phase information is
                                  dismissed */
-    BOOL ho_based; /**< If true, slope limit is with respect to frequency offset
-                      stored in holdover stack*/
+    BOOL ho_based;            /**< If true, slope limit is with respect to frequency offset
+                                 stored in holdover stack*/
 } vtss_clock_psl_conf_t;
 
 /**
  * \brief parameter for setting the dpll configuration.
  */
 typedef struct vtss_clock_dpll_conf_t {
-    vtss_clock_operation_mode_t
-        mode;     /**< clock operation mode. Enable / Disable */
-    u16 holdoff;  /**< holdoff time in ms (0 => holdoff disabled); the actual
-                     holdoff is in steps of 1 ms; i.e. values are trunkated to 1
-                     ms multipla HW: 16 bit*/
-    u32 holdover; /**< holdover time in ms [0..84600]       HW:17 bit*/
-    u16 wtr;      /**< wait-to-restore time in sec [0..720] HW:10 bit*/
+    vtss_clock_operation_mode_t mode;    /**< clock operation mode. Enable / Disable */
+    u16                         holdoff; /**< holdoff time in ms (0 => holdoff disabled); the actual
+                                            holdoff is in steps of 1 ms; i.e. values are trunkated to 1
+                                            ms multipla HW: 16 bit*/
+    u32 holdover;                        /**< holdover time in ms [0..84600]       HW:17 bit*/
+    u16 wtr;                             /**< wait-to-restore time in sec [0..720] HW:10 bit*/
 } vtss_clock_dpll_conf_t;
 
 /**
@@ -123,9 +122,9 @@ typedef struct vtss_clock_ho_stack_conf_t {
     u32 ho_post_filtering_bw; /**< holdover stack post filtering bandwidth im
                                  mHz [23 ... 1.46e9] es6514: Bugzilla #15547
                                  [741 ... 1.46e9]*/
-    u8 ho_qual_time_conf; /**< holdover qulification time configuration. time in
-                             s = 2^ho_qual_time_conf conf. range: [0..11] =>
-                             time: [1..2048]s */
+    u8 ho_qual_time_conf;     /**< holdover qulification time configuration. time in
+                                 s = 2^ho_qual_time_conf conf. range: [0..11] =>
+                                 time: [1..2048]s */
 } vtss_clock_ho_stack_conf_t;
 
 #define VTSS_CLOCK_HO_STACK_SIZE 12 /**< Size of the holdover stack */
@@ -136,9 +135,9 @@ typedef struct vtss_clock_ho_stack_content_t {
     u64 stack_value[VTSS_CLOCK_HO_STACK_SIZE]; /**< HO-stack read data got all
                                                   12 stack levels (HO values in
                                                   scaled PPB's) */
-    u8 ho_sel;          /**< Select ho-value to take in hold-over state. */
-    u8 ho_min_fill_lvl; /**< Minimum fill level before ho-stack considered full */
-    BOOL ho_filled;     /**< TRUE if stack is full */
+    u8   ho_sel;                               /**< Select ho-value to take in hold-over state. */
+    u8   ho_min_fill_lvl; /**< Minimum fill level before ho-stack considered full */
+    BOOL ho_filled;       /**< TRUE if stack is full */
 } vtss_clock_ho_stack_content_t;
 
 /**
@@ -162,9 +161,9 @@ typedef struct vtss_clock_ratio_t {
  * \brief parameter for selecting the type of the clock input
  */
 typedef enum {
-    VTSS_CLOCK_INPUT_TYPE_DPLL, /**< a dpll output is selected as output */
-    VTSS_CLOCK_INPUT_TYPE_IN, /**< a input signal is directly selected as output
-                               */
+    VTSS_CLOCK_INPUT_TYPE_DPLL,     /**< a dpll output is selected as output */
+    VTSS_CLOCK_INPUT_TYPE_IN,       /**< a input signal is directly selected as output
+                                     */
     VTSS_CLOCK_INPUT_TYPE_PURE_DCO, /**< output is running purely on LC-PLL plus
                                        optional DCO */
 } vtss_clock_input_type_t;
@@ -173,20 +172,19 @@ typedef enum {
  * \brief parameter for setting the clock output selector.
  */
 typedef struct vtss_clock_input_selector_t {
-    vtss_clock_input_type_t
-        input_type; /**< Defines if it is clock input or a DPLL outpus that
-                       drives the clock output */
-    u8 input_inst;  /**< defines the clock input or DPLL instance */
+    vtss_clock_input_type_t input_type; /**< Defines if it is clock input or a DPLL outpus that
+                                           drives the clock output */
+    u8 input_inst;                      /**< defines the clock input or DPLL instance */
 } vtss_clock_input_selector_t;
 
 /**
  * \brief parameter for returning the dpll state.
  */
 typedef struct vtss_clock_dpll_state_t {
-    BOOL pll_freq_lock;  /**< PLL is stabilized to the selected frequency */
-    BOOL pll_phase_lock; /**< PLL is phase locked to incoming clock */
-    BOOL pll_losx; /**< PLL the currently selected reference input fails */
-    BOOL pll_lol;  /**< PLL loss of lock */
+    BOOL pll_freq_lock;    /**< PLL is stabilized to the selected frequency */
+    BOOL pll_phase_lock;   /**< PLL is phase locked to incoming clock */
+    BOOL pll_losx;         /**< PLL the currently selected reference input fails */
+    BOOL pll_lol;          /**< PLL loss of lock */
     BOOL pll_dig_hold_vld; /**< PLL Hold-over stack is filled with enough
                               samples*/
 } vtss_clock_dpll_state_t;
@@ -225,8 +223,8 @@ typedef struct vtss_clock_input_alarm_ena_t {
  * \brief parameter for setting input selection parameters
  */
 typedef struct vtss_clock_input_conf_t {
-    BOOL los_active_high; /**< Set to TRUE when Loss Of Signal input is active
-                             high.*/
+    BOOL los_active_high;                   /**< Set to TRUE when Loss Of Signal input is active
+                                               high.*/
     vtss_clock_input_alarm_ena_t alarm_ena; /**< Collection of alarm enables */
 } vtss_clock_input_conf_t;
 
@@ -256,8 +254,8 @@ typedef struct vtss_clock_pfm_conf_t {
 typedef struct vtss_clock_gst_conf_t {
     u32 disqualification_time_us; /**< Disqualification time in micro seconds [1
                                      us .. 1500s] */
-    u32 qualification_time_us; /**< Qualification time in micro seconds    [1 us
-                                  .. 1500s] */
+    u32 qualification_time_us;    /**< Qualification time in micro seconds    [1 us
+                                     .. 1500s] */
     /**< 1/255 <= (diqualification_time_us/qualification_time_us) <= 255 */
     BOOL los; /**< Set to TRUE when Loss Of Signal alarm should be source for
                  GST */
@@ -305,10 +303,7 @@ vtss_rc vtss_clock_wr(const vtss_inst_t inst, const u32 addr, const u32 value);
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_wrm(const vtss_inst_t inst,
-                       const u32         addr,
-                       const u32         value,
-                       const u32         mask);
+vtss_rc vtss_clock_wrm(const vtss_inst_t inst, const u32 addr, const u32 value, const u32 mask);
 
 // ***************************************************************************
 //
@@ -323,8 +318,7 @@ vtss_rc vtss_clock_wrm(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_global_enable_set(const vtss_inst_t                inst,
-                                     const vtss_clock_global_enable_t ena);
+vtss_rc vtss_clock_global_enable_set(const vtss_inst_t inst, const vtss_clock_global_enable_t ena);
 
 /**
  * \brief Get global enable state
@@ -333,8 +327,7 @@ vtss_rc vtss_clock_global_enable_set(const vtss_inst_t                inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_global_enable_get(const vtss_inst_t           inst,
-                                     vtss_clock_global_enable_t *ena);
+vtss_rc vtss_clock_global_enable_get(const vtss_inst_t inst, vtss_clock_global_enable_t *ena);
 
 /**
  * \brief Global SW Reset for the clock. Resets logic but not the configuration
@@ -362,10 +355,9 @@ vtss_rc vtss_clock_shutdown(const vtss_inst_t inst);
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_selection_mode_set(const vtss_inst_t            inst,
-                                      const vtss_clock_dpll_inst_t dpll,
-                                      const vtss_clock_selection_conf_t
-                                          *const conf);
+vtss_rc vtss_clock_selection_mode_set(const vtss_inst_t                        inst,
+                                      const vtss_clock_dpll_inst_t             dpll,
+                                      const vtss_clock_selection_conf_t *const conf);
 
 /**
  * \brief Get Clock selection mode.
@@ -412,10 +404,9 @@ vtss_rc vtss_clock_operation_conf_get(const vtss_inst_t             inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_ho_stack_conf_set(const vtss_inst_t            inst,
-                                     const vtss_clock_dpll_inst_t dpll,
-                                     const vtss_clock_ho_stack_conf_t
-                                         *const conf);
+vtss_rc vtss_clock_ho_stack_conf_set(const vtss_inst_t                       inst,
+                                     const vtss_clock_dpll_inst_t            dpll,
+                                     const vtss_clock_ho_stack_conf_t *const conf);
 
 /**
  * \brief Get Holdover stack configuration.
@@ -437,10 +428,9 @@ vtss_rc vtss_clock_ho_stack_conf_get(const vtss_inst_t                 inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_ho_stack_content_get(const vtss_inst_t            inst,
-                                        const vtss_clock_dpll_inst_t dpll,
-                                        vtss_clock_ho_stack_content_t
-                                            *const cont);
+vtss_rc vtss_clock_ho_stack_content_get(const vtss_inst_t                    inst,
+                                        const vtss_clock_dpll_inst_t         dpll,
+                                        vtss_clock_ho_stack_content_t *const cont);
 /**
  * \brief Set Clock dpll frequency adjustment in DCO mode (directly influence
  * the controller).
@@ -453,7 +443,7 @@ vtss_rc vtss_clock_ho_stack_content_get(const vtss_inst_t            inst,
  */
 vtss_rc vtss_clock_dco_frequency_offset_set(const vtss_inst_t            inst,
                                             const vtss_clock_dpll_inst_t dpll,
-                                            const i64 offset);
+                                            const i64                    offset);
 
 /**
  * \brief Get Clock dpll frequency adjustment in DCO mode (directly influence
@@ -467,7 +457,7 @@ vtss_rc vtss_clock_dco_frequency_offset_set(const vtss_inst_t            inst,
  */
 vtss_rc vtss_clock_dco_frequency_offset_get(const vtss_inst_t            inst,
                                             const vtss_clock_dpll_inst_t dpll,
-                                            i64 *const offset);
+                                            i64 *const                   offset);
 
 /**
  * \brief Set Output Filter Bandwidth.
@@ -502,8 +492,7 @@ vtss_rc vtss_clock_output_filter_bw_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_output_filter_lock_fast_set(const vtss_inst_t inst,
-                                               const u8          clock_output);
+vtss_rc vtss_clock_output_filter_lock_fast_set(const vtss_inst_t inst, const u8 clock_output);
 
 /**
  * \brief Check if fast lock has completed.
@@ -515,7 +504,7 @@ vtss_rc vtss_clock_output_filter_lock_fast_set(const vtss_inst_t inst,
  */
 vtss_rc vtss_clock_output_filter_lock_fast_get(const vtss_inst_t inst,
                                                const u8          clock_output,
-                                               BOOL *lock_completed);
+                                               BOOL             *lock_completed);
 /**
  * \brief Set Output Filter Phase Slope Limiter (PSL) configuration
  * \param inst [IN]         Handle to an API instance.
@@ -524,8 +513,8 @@ vtss_rc vtss_clock_output_filter_lock_fast_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_output_psl_conf_set(const vtss_inst_t inst,
-                                       const u8          clock_output,
+vtss_rc vtss_clock_output_psl_conf_set(const vtss_inst_t                  inst,
+                                       const u8                           clock_output,
                                        const vtss_clock_psl_conf_t *const conf);
 
 /**
@@ -536,8 +525,8 @@ vtss_rc vtss_clock_output_psl_conf_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_output_psl_conf_get(const vtss_inst_t inst,
-                                       const u8          clock_output,
+vtss_rc vtss_clock_output_psl_conf_get(const vtss_inst_t            inst,
+                                       const u8                     clock_output,
                                        vtss_clock_psl_conf_t *const conf);
 
 /**
@@ -550,9 +539,7 @@ vtss_rc vtss_clock_output_psl_conf_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_adj_frequency_set(const vtss_inst_t inst,
-                                     const u8          clock_output,
-                                     const i64         adj);
+vtss_rc vtss_clock_adj_frequency_set(const vtss_inst_t inst, const u8 clock_output, const i64 adj);
 
 /**
  * \brief Get Clock dpll frequency adjustment (influence the respective output
@@ -564,9 +551,7 @@ vtss_rc vtss_clock_adj_frequency_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_adj_frequency_get(const vtss_inst_t inst,
-                                     const u8          clock_output,
-                                     i64 *const        adj);
+vtss_rc vtss_clock_adj_frequency_get(const vtss_inst_t inst, const u8 clock_output, i64 *const adj);
 
 /**
  * \brief Set Clock dpll phase adjustment.
@@ -578,9 +563,7 @@ vtss_rc vtss_clock_adj_frequency_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_adj_phase_set(const vtss_inst_t inst,
-                                 const u8          clock_output,
-                                 const i32         adj);
+vtss_rc vtss_clock_adj_phase_set(const vtss_inst_t inst, const u8 clock_output, const i32 adj);
 
 /**
  * \brief Get Clock dpll phase adjustment.
@@ -589,8 +572,7 @@ vtss_rc vtss_clock_adj_phase_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_adj_phase_get(const vtss_inst_t inst,
-                                 BOOL *const       adj_ongoing);
+vtss_rc vtss_clock_adj_phase_get(const vtss_inst_t inst, BOOL *const adj_ongoing);
 
 /**
  * \brief Set Clock input priority.
@@ -602,11 +584,10 @@ vtss_rc vtss_clock_adj_phase_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_priority_set(const vtss_inst_t            inst,
-                                const vtss_clock_dpll_inst_t dpll,
-                                const u8                     clock_input,
-                                const vtss_clock_priority_selector_t
-                                    *const conf);
+vtss_rc vtss_clock_priority_set(const vtss_inst_t                           inst,
+                                const vtss_clock_dpll_inst_t                dpll,
+                                const u8                                    clock_input,
+                                const vtss_clock_priority_selector_t *const conf);
 
 /**
  * \brief Get Clock input priority.
@@ -618,9 +599,9 @@ vtss_rc vtss_clock_priority_set(const vtss_inst_t            inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_priority_get(const vtss_inst_t            inst,
-                                const vtss_clock_dpll_inst_t dpll,
-                                const u8                     clock_input,
+vtss_rc vtss_clock_priority_get(const vtss_inst_t                     inst,
+                                const vtss_clock_dpll_inst_t          dpll,
+                                const u8                              clock_input,
                                 vtss_clock_priority_selector_t *const conf);
 
 /**
@@ -638,7 +619,7 @@ vtss_rc vtss_clock_priority_get(const vtss_inst_t            inst,
 vtss_rc vtss_clock_input_frequency_set(const vtss_inst_t inst,
                                        const u8          clock_input,
                                        const u32         freq_khz,
-                                       const BOOL use_internal_clock_src);
+                                       const BOOL        use_internal_clock_src);
 
 /**
  * \brief Get Clock input frequency.
@@ -654,7 +635,7 @@ vtss_rc vtss_clock_input_frequency_set(const vtss_inst_t inst,
 vtss_rc vtss_clock_input_frequency_get(const vtss_inst_t inst,
                                        const u8          clock_input,
                                        u32 *const        freq_khz,
-                                       BOOL *const use_internal_clock_src);
+                                       BOOL *const       use_internal_clock_src);
 
 /**
  * \brief Set Clock input frequency with ratio.
@@ -670,11 +651,10 @@ vtss_rc vtss_clock_input_frequency_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_input_frequency_ratio_set(const vtss_inst_t inst,
-                                             const u8          clock_input,
-                                             const u32         freq_khz,
-                                             const vtss_clock_ratio_t
-                                                 *const ratio,
+vtss_rc vtss_clock_input_frequency_ratio_set(const vtss_inst_t               inst,
+                                             const u8                        clock_input,
+                                             const u32                       freq_khz,
+                                             const vtss_clock_ratio_t *const ratio,
                                              const BOOL use_internal_clock_src);
 
 /**
@@ -690,11 +670,11 @@ vtss_rc vtss_clock_input_frequency_ratio_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_input_frequency_ratio_get(const vtss_inst_t inst,
-                                             const u8          clock_input,
-                                             u32 *const        freq_khz,
+vtss_rc vtss_clock_input_frequency_ratio_get(const vtss_inst_t         inst,
+                                             const u8                  clock_input,
+                                             u32 *const                freq_khz,
                                              vtss_clock_ratio_t *const ratio,
-                                             BOOL *const use_internal_clock_src);
+                                             BOOL *const               use_internal_clock_src);
 
 /**
  * \brief Set Clock output frequency.
@@ -756,12 +736,11 @@ vtss_rc vtss_clock_output_frequency_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_output_frequency_ratio_set(const vtss_inst_t inst,
-                                              const u8          clock_output,
-                                              const u32         freq_khz,
-                                              const u32         par_freq_khz,
-                                              const vtss_clock_ratio_t
-                                                  *const ratio);
+vtss_rc vtss_clock_output_frequency_ratio_set(const vtss_inst_t               inst,
+                                              const u8                        clock_output,
+                                              const u32                       freq_khz,
+                                              const u32                       par_freq_khz,
+                                              const vtss_clock_ratio_t *const ratio);
 
 /**
  * \brief Get Clock output frequency.
@@ -775,10 +754,10 @@ vtss_rc vtss_clock_output_frequency_ratio_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_output_frequency_ratio_get(const vtss_inst_t inst,
-                                              const u8          clock_output,
-                                              u32 *const        freq_khz,
-                                              u32 *const        par_freq_khz,
+vtss_rc vtss_clock_output_frequency_ratio_get(const vtss_inst_t         inst,
+                                              const u8                  clock_output,
+                                              u32 *const                freq_khz,
+                                              u32 *const                par_freq_khz,
                                               vtss_clock_ratio_t *const ratio);
 
 /**
@@ -816,10 +795,9 @@ vtss_rc vtss_clock_output_level_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_output_selector_set(const vtss_inst_t inst,
-                                       const u8          clock_output,
-                                       const vtss_clock_input_selector_t
-                                           *const input);
+vtss_rc vtss_clock_output_selector_set(const vtss_inst_t                        inst,
+                                       const u8                                 clock_output,
+                                       const vtss_clock_input_selector_t *const input);
 
 /**
  * \brief Get Clock output selector.
@@ -829,8 +807,8 @@ vtss_rc vtss_clock_output_selector_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_output_selector_get(const vtss_inst_t inst,
-                                       const u8          clock_output,
+vtss_rc vtss_clock_output_selector_get(const vtss_inst_t                  inst,
+                                       const u8                           clock_output,
                                        vtss_clock_input_selector_t *const input);
 
 /**
@@ -842,10 +820,9 @@ vtss_rc vtss_clock_output_selector_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_input_alarm_conf_set(const vtss_inst_t inst,
-                                        const u8          clock_input,
-                                        const vtss_clock_input_conf_t
-                                            *const conf);
+vtss_rc vtss_clock_input_alarm_conf_set(const vtss_inst_t                    inst,
+                                        const u8                             clock_input,
+                                        const vtss_clock_input_conf_t *const conf);
 
 /**
  * \brief Get Clock input alarm configuration.
@@ -856,8 +833,8 @@ vtss_rc vtss_clock_input_alarm_conf_set(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_input_alarm_conf_get(const vtss_inst_t inst,
-                                        const u8          clock_input,
+vtss_rc vtss_clock_input_alarm_conf_get(const vtss_inst_t              inst,
+                                        const u8                       clock_input,
                                         vtss_clock_input_conf_t *const conf);
 
 /**
@@ -868,8 +845,8 @@ vtss_rc vtss_clock_input_alarm_conf_get(const vtss_inst_t inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_input_cfm_conf_set(const vtss_inst_t inst,
-                                      const u8          clock_input,
+vtss_rc vtss_clock_input_cfm_conf_set(const vtss_inst_t                  inst,
+                                      const u8                           clock_input,
                                       const vtss_clock_cfm_conf_t *const conf);
 
 /**
@@ -892,8 +869,8 @@ vtss_rc vtss_clock_input_cfm_conf_get(const vtss_inst_t            inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_input_pfm_conf_set(const vtss_inst_t inst,
-                                      const u8          clock_input,
+vtss_rc vtss_clock_input_pfm_conf_set(const vtss_inst_t                  inst,
+                                      const u8                           clock_input,
                                       const vtss_clock_pfm_conf_t *const conf);
 
 /**
@@ -915,8 +892,8 @@ vtss_rc vtss_clock_input_pfm_conf_get(const vtss_inst_t            inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_input_gst_conf_set(const vtss_inst_t inst,
-                                      const u8          clock_input,
+vtss_rc vtss_clock_input_gst_conf_set(const vtss_inst_t                  inst,
+                                      const u8                           clock_input,
                                       const vtss_clock_gst_conf_t *const conf);
 
 /**
@@ -946,11 +923,10 @@ vtss_rc vtss_clock_input_gst_conf_get(const vtss_inst_t            inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_selector_state_get(const vtss_inst_t            inst,
-                                      const vtss_clock_dpll_inst_t dpll,
-                                      vtss_clock_selector_state_t
-                                          *const selector_state,
-                                      u8 *const  clock_input);
+vtss_rc vtss_clock_selector_state_get(const vtss_inst_t                  inst,
+                                      const vtss_clock_dpll_inst_t       dpll,
+                                      vtss_clock_selector_state_t *const selector_state,
+                                      u8 *const                          clock_input);
 
 /**
  * \brief get Clock pll state.
@@ -973,10 +949,9 @@ vtss_rc vtss_clock_dpll_state_get(const vtss_inst_t              inst,
  *
  * \return Return code.
  */
-vtss_rc vtss_clock_ho_stack_frequency_offset_get(const vtss_inst_t inst,
-                                                 const vtss_clock_dpll_inst_t
-                                                            dpll,
-                                                 i64 *const offset);
+vtss_rc vtss_clock_ho_stack_frequency_offset_get(const vtss_inst_t            inst,
+                                                 const vtss_clock_dpll_inst_t dpll,
+                                                 i64 *const                   offset);
 
 /**
  * \brief get Clock input state.
@@ -1000,12 +975,12 @@ vtss_rc vtss_clock_input_state_get(const vtss_inst_t               inst,
  * \brief Define event (interrupt) types related to the Vitesse Synce Clock
  *inputs.
  **/
-#define VTSS_CLOCK_INPUT_LOS_EV (1 << 0) /**< External Loss Of Signal event */
-#define VTSS_CLOCK_INPUT_PFM_EV (1 << 1) /**< Precise frequency monitor event */
-#define VTSS_CLOCK_INPUT_CFM_EV (1 << 2) /**< Coarse frequency monitor event */
-#define VTSS_CLOCK_INPUT_SCM_EV (1 << 3) /**< Single Cycle monitor event */
-#define VTSS_CLOCK_INPUT_GST_EV (1 << 4) /**< Guard Soak timer event */
-#define VTSS_CLOCK_INPUT_LOL_EV (1 << 5) /**< Loss of Lock event */
+#define VTSS_CLOCK_INPUT_LOS_EV (1 << 0)   /**< External Loss Of Signal event */
+#define VTSS_CLOCK_INPUT_PFM_EV (1 << 1)   /**< Precise frequency monitor event */
+#define VTSS_CLOCK_INPUT_CFM_EV (1 << 2)   /**< Coarse frequency monitor event */
+#define VTSS_CLOCK_INPUT_SCM_EV (1 << 3)   /**< Single Cycle monitor event */
+#define VTSS_CLOCK_INPUT_GST_EV (1 << 4)   /**< Guard Soak timer event */
+#define VTSS_CLOCK_INPUT_LOL_EV (1 << 5)   /**< Loss of Lock event */
 typedef u32 vtss_clock_input_event_type_t; /**< Int events: Single event or 'OR'
                                               multiple events above */
 
@@ -1023,10 +998,9 @@ typedef u32 vtss_clock_input_event_type_t; /**< Int events: Single event or 'OR'
  *
  * \return Return code.
  **/
-vtss_rc vtss_clock_input_event_poll(const vtss_inst_t inst,
-                                    const u8          clock_input,
-                                    vtss_clock_input_event_type_t
-                                        *const ev_mask);
+vtss_rc vtss_clock_input_event_poll(const vtss_inst_t                    inst,
+                                    const u8                             clock_input,
+                                    vtss_clock_input_event_type_t *const ev_mask);
 
 /**
  * \brief Enable clock input event generation for a specific event type
@@ -1038,11 +1012,10 @@ vtss_rc vtss_clock_input_event_poll(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_clock_input_event_enable(const vtss_inst_t inst,
-                                      const u8          clock_input,
-                                      const vtss_clock_input_event_type_t
-                                                 ev_mask,
-                                      const BOOL enable);
+vtss_rc vtss_clock_input_event_enable(const vtss_inst_t                   inst,
+                                      const u8                            clock_input,
+                                      const vtss_clock_input_event_type_t ev_mask,
+                                      const BOOL                          enable);
 
 /**
  * \brief Define event (interrupt) types related to the Vitesse Synce Clock
@@ -1054,10 +1027,9 @@ vtss_rc vtss_clock_input_event_enable(const vtss_inst_t inst,
 //    lock event */ VTSS_CLOCK_DPLL_LOSX         =      (1 << 2), /**< PLL the
 //    currently selected reference input fails event */ VTSS_CLOCK_DPLL_LOL = (1
 //    << 3), /**< PLL loss of lock event */
-#define VTSS_CLOCK_DPLL_STATE_CHANGE_EV                                        \
-    (1 << 0)                              /**< State change event in EEC FSM */
-typedef u32 vtss_clock_dpll_event_type_t; /**< Int events: Currently only Single
-                                             event */
+#define VTSS_CLOCK_DPLL_STATE_CHANGE_EV (1 << 0) /**< State change event in EEC FSM */
+typedef u32 vtss_clock_dpll_event_type_t;        /**< Int events: Currently only Single
+                                                    event */
 
 /**
  * \brief Clock dpll event polling function called by interrupt or periodicly

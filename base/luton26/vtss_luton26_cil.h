@@ -54,27 +54,25 @@
 #define L26_ACL_POLICER_OFFSET (VTSS_L26_POLICER_CNT - VTSS_ACL_POLICERS)
 
 /* sFlow H/W-related min/max */
-#define LU26_SFLOW_MIN_SAMPLE_RATE                                             \
-    0 /**< Minimum allowable sampling rate for sFlow */
-#define LU26_SFLOW_MAX_SAMPLE_RATE                                             \
-    4095 /**< Maximum allowable sampling rate for sFlow */
+#define LU26_SFLOW_MIN_SAMPLE_RATE 0    /**< Minimum allowable sampling rate for sFlow */
+#define LU26_SFLOW_MAX_SAMPLE_RATE 4095 /**< Maximum allowable sampling rate for sFlow */
 
 /* ================================================================= *
  *  Register acces
  * ================================================================= */
 
-#define L26_RD(p, value)                                                       \
-    {                                                                          \
-        vtss_rc __rc = vtss_l26_rd(vtss_state, p, value);                      \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define L26_RD(p, value)                                                                           \
+    {                                                                                              \
+        vtss_rc __rc = vtss_l26_rd(vtss_state, p, value);                                          \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     }
 
-#define L26_WR(p, value)                                                       \
-    {                                                                          \
-        vtss_rc __rc = vtss_l26_wr(vtss_state, p, value);                      \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define L26_WR(p, value)                                                                           \
+    {                                                                                              \
+        vtss_rc __rc = vtss_l26_wr(vtss_state, p, value);                                          \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     }
 
 // Read modify write.
@@ -82,11 +80,11 @@
 // p     : Register to modify
 // value : New value
 // mask  : Bits to be affected.
-#define L26_WRM(p, value, mask)                                                \
-    {                                                                          \
-        vtss_rc __rc = vtss_l26_wrm(vtss_state, p, value, mask);               \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define L26_WRM(p, value, mask)                                                                    \
+    {                                                                                              \
+        vtss_rc __rc = vtss_l26_wrm(vtss_state, p, value, mask);                                   \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     }
 
 #define L26_WRM_SET(p, mask)         L26_WRM(p, mask, mask)
@@ -119,23 +117,17 @@ typedef struct {
 vtss_rc vtss_l26_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 u32     vtss_l26_port_mask(vtss_state_t *vtss_state, const BOOL member[]);
 void    vtss_l26_debug_reg_header(lmu_ss_t *ss, const char *name);
-void    vtss_l26_debug_reg(vtss_state_t *vtss_state,
-                           lmu_ss_t     *ss,
-                           u32           addr,
-                           const char   *name);
+void    vtss_l26_debug_reg(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 addr, const char *name);
 void    vtss_l26_debug_reg_inst(vtss_state_t *vtss_state,
                                 lmu_ss_t     *ss,
                                 u32           addr,
                                 u32           i,
                                 const char   *name);
-void    vtss_l26_debug_print_port_header(vtss_state_t *vtss_state,
-                                         lmu_ss_t     *ss,
-                                         const char   *txt);
+void    vtss_l26_debug_print_port_header(vtss_state_t *vtss_state, lmu_ss_t *ss, const char *txt);
 
 /* Port functions */
 vtss_rc vtss_l26_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
-vtss_rc vtss_l26_port_max_tags_set(vtss_state_t  *vtss_state,
-                                   vtss_port_no_t port_no);
+vtss_rc vtss_l26_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_l26_port_debug_print(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
@@ -145,8 +137,7 @@ vtss_rc vtss_l26_gpio_mode(vtss_state_t          *vtss_state,
                            const vtss_chip_no_t   chip_no,
                            const vtss_gpio_no_t   gpio_no,
                            const vtss_gpio_mode_t mode);
-vtss_rc vtss_l26_chip_id_get(vtss_state_t         *vtss_state,
-                             vtss_chip_id_t *const chip_id);
+vtss_rc vtss_l26_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id);
 vtss_rc vtss_l26_misc_debug_print(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);
@@ -162,8 +153,7 @@ vtss_rc vtss_l26_policer_conf_set(vtss_state_t            *vtss_state,
                                   BOOL                     enable,
                                   vtss_l26_policer_conf_t *conf);
 vtss_rc vtss_l26_policer_free_get(vtss_state_t *vtss_state, u16 *new);
-vtss_rc vtss_l26_qos_port_conf_set(vtss_state_t        *vtss_state,
-                                   const vtss_port_no_t port_no);
+vtss_rc vtss_l26_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
 vtss_rc vtss_l26_evc_policer_conf_set(vtss_state_t               *vtss_state,
                                       const vtss_evc_policer_id_t policer_id);
@@ -174,8 +164,7 @@ vtss_rc vtss_l26_qos_debug_print(vtss_state_t                  *vtss_state,
 
 /* L2 functions */
 vtss_rc vtss_l26_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
-vtss_rc vtss_l26_vcl_port_conf_set(vtss_state_t        *vtss_state,
-                                   const vtss_port_no_t port_no);
+vtss_rc vtss_l26_vcl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 vtss_rc vtss_l26_l2_debug_print(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);

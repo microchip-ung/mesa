@@ -36,8 +36,7 @@ static void cli_cmd_mac_add(cli_req_t *req)
         entry.vid_mac.mac.addr[i] = mreq->mac[i];
     }
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
-        mesa_port_list_set(&entry.destination, iport,
-                           req->port_list[iport2uport(iport)]);
+        mesa_port_list_set(&entry.destination, iport, req->port_list[iport2uport(iport)]);
     }
     mesa_mac_table_add(NULL, &entry);
 }
@@ -91,8 +90,7 @@ static void cli_cmd_mac_dump(cli_req_t *req)
     mesa_bool_t            first = 1;
 
     memset(&entry, 0, sizeof(entry));
-    while (mesa_mac_table_get_next(NULL, &entry.vid_mac, &entry) ==
-           MESA_RC_OK) {
+    while (mesa_mac_table_get_next(NULL, &entry.vid_mac, &entry) == MESA_RC_OK) {
         cli_mac_print(&entry, first);
         first = 0;
     }
@@ -113,16 +111,12 @@ static void cli_cmd_mac_age_time(cli_req_t *req)
 }
 
 static cli_cmd_t cli_cmd_table[] = {
-    {"MAC Add <mac_addr> <port_list> [<vid>]", "Add MAC address table entry",
-     cli_cmd_mac_add                                                                                       },
-    {"MAC Delete <mac_addr> [<vid>]",          "Delete MAC address entry",
-     cli_cmd_mac_del                                                                                       },
-    {"MAC Lookup <mac_addr> [<vid>]",          "Lookup MAC address entry",
-     cli_cmd_mac_lookup                                                                                    },
-    {"MAC Dump",                               "Show sorted list of MAC address entries", cli_cmd_mac_dump },
-    {"MAC Flush",                              "Flush all learned entries",               cli_cmd_mac_flush},
-    {"MAC Agetime [<age_time>]",               "Set or show the MAC address age timer",
-     cli_cmd_mac_age_time                                                                                  },
+    {"MAC Add <mac_addr> <port_list> [<vid>]", "Add MAC address table entry",             cli_cmd_mac_add     },
+    {"MAC Delete <mac_addr> [<vid>]",          "Delete MAC address entry",                cli_cmd_mac_del     },
+    {"MAC Lookup <mac_addr> [<vid>]",          "Lookup MAC address entry",                cli_cmd_mac_lookup  },
+    {"MAC Dump",                               "Show sorted list of MAC address entries", cli_cmd_mac_dump    },
+    {"MAC Flush",                              "Flush all learned entries",               cli_cmd_mac_flush   },
+    {"MAC Agetime [<age_time>]",               "Set or show the MAC address age timer",   cli_cmd_mac_age_time},
 };
 
 static int cli_parm_mac(cli_req_t *req)
@@ -131,8 +125,8 @@ static int cli_parm_mac(cli_req_t *req)
     int            error = 1;
     mac_cli_req_t *mreq = req->module_req;
 
-    if (sscanf(req->cmd, "%2x-%2x-%2x-%2x-%2x-%2x", &mac[0], &mac[1], &mac[2],
-               &mac[3], &mac[4], &mac[5]) == 6) {
+    if (sscanf(req->cmd, "%2x-%2x-%2x-%2x-%2x-%2x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4],
+               &mac[5]) == 6) {
         for (i = 0; i < 6; i++)
             mreq->mac[i] = (mac[i] & 0xff);
         error = 0;
@@ -146,18 +140,16 @@ static int cli_parm_age_time(cli_req_t *req)
     uint32_t       value;
     mac_cli_req_t *mreq = req->module_req;
 
-    error =
-        (cli_parm_u32(req, &value, 0, 1000000) || (value != 0 && value < 10));
+    error = (cli_parm_u32(req, &value, 0, 1000000) || (value != 0 && value < 10));
     if (!error)
         mreq->age_time = value;
     return error;
 }
 
 static cli_parm_t cli_parm_table[] = {
-    {"<mac_addr>", "MAC address (xx-xx-xx-xx-xx-xx)",                           CLI_PARM_FLAG_SET,
-     cli_parm_mac                                                                                                   },
-    {"<age_time>", "MAC address age time (10-1000000), default: Show age time",
-     CLI_PARM_FLAG_SET,                                                                            cli_parm_age_time},
+    {"<mac_addr>", "MAC address (xx-xx-xx-xx-xx-xx)",                           CLI_PARM_FLAG_SET, cli_parm_mac},
+    {"<age_time>", "MAC address age time (10-1000000), default: Show age time", CLI_PARM_FLAG_SET,
+     cli_parm_age_time                                                                                         },
 };
 
 static void mac_cli_init(void)

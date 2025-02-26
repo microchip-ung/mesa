@@ -26,12 +26,11 @@ u32 vtss_cmn_pcp2qos(u32 pcp)
 
 const char *vtss_func;
 
-vtss_rc vtss_port_no_check(vtss_state_t        *vtss_state,
-                           const vtss_port_no_t port_no)
+vtss_rc vtss_port_no_check(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     if (port_no >= vtss_state->port_count) {
-        VTSS_E("%s: illegal port_no: %u.  port_count: %u",
-               vtss_func ? vtss_func : "?", port_no, vtss_state->port_count);
+        VTSS_E("%s: illegal port_no: %u.  port_count: %u", vtss_func ? vtss_func : "?", port_no,
+               vtss_state->port_count);
         return VTSS_RC_ERROR;
     }
 
@@ -43,12 +42,9 @@ vtss_rc vtss_port_no_check(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_port_no_none_check(vtss_state_t        *vtss_state,
-                                const vtss_port_no_t port_no)
+vtss_rc vtss_port_no_none_check(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    return (port_no == VTSS_PORT_NO_NONE
-                ? VTSS_RC_OK
-                : vtss_port_no_check(vtss_state, port_no));
+    return (port_no == VTSS_PORT_NO_NONE ? VTSS_RC_OK : vtss_port_no_check(vtss_state, port_no));
 }
 
 vtss_rc vtss_cmn_restart_update(vtss_state_t *vtss_state, u32 value)
@@ -62,11 +58,9 @@ vtss_rc vtss_cmn_restart_update(vtss_state_t *vtss_state, u32 value)
     vtss_state->restart_updated = 1;
 
     vtss_state->restart_prev =
-        VTSS_EXTRACT_BITFIELD(value, VTSS_RESTART_TYPE_OFFSET,
-                              VTSS_RESTART_TYPE_WIDTH);
+        VTSS_EXTRACT_BITFIELD(value, VTSS_RESTART_TYPE_OFFSET, VTSS_RESTART_TYPE_WIDTH);
     vtss_state->version_prev =
-        VTSS_EXTRACT_BITFIELD(value, VTSS_RESTART_VERSION_OFFSET,
-                              VTSS_RESTART_VERSION_WIDTH);
+        VTSS_EXTRACT_BITFIELD(value, VTSS_RESTART_VERSION_OFFSET, VTSS_RESTART_VERSION_WIDTH);
     vtss_state->restart_cur = vtss_state->restart_prev;
     vtss_state->version_cur = VTSS_API_VERSION;
     switch (vtss_state->restart_cur) {
@@ -76,8 +70,8 @@ vtss_rc vtss_cmn_restart_update(vtss_state_t *vtss_state, u32 value)
         VTSS_I("warm start detected");
         if (conf->warm_start_enable) {
             if (vtss_state->version_prev > vtss_state->version_cur) {
-                VTSS_I("downgrade from version %u to %u",
-                       vtss_state->version_prev, vtss_state->version_cur);
+                VTSS_I("downgrade from version %u to %u", vtss_state->version_prev,
+                       vtss_state->version_cur);
             } else {
                 vtss_state->warm_start_cur = 1;
                 VTSS_I("warm starting");
@@ -97,8 +91,7 @@ vtss_rc vtss_cmn_restart_update(vtss_state_t *vtss_state, u32 value)
 
 u32 vtss_cmn_restart_value_get(vtss_state_t *vtss_state)
 {
-    return (VTSS_ENCODE_BITFIELD(vtss_state->restart_cur,
-                                 VTSS_RESTART_TYPE_OFFSET,
+    return (VTSS_ENCODE_BITFIELD(vtss_state->restart_cur, VTSS_RESTART_TYPE_OFFSET,
                                  VTSS_RESTART_TYPE_WIDTH) |
             VTSS_ENCODE_BITFIELD(VTSS_API_VERSION, VTSS_RESTART_VERSION_OFFSET,
                                  VTSS_RESTART_VERSION_WIDTH));
@@ -113,9 +106,7 @@ void vtss_cmn_counter_8_rebase(u8 new_base_value, vtss_chip_counter_t *counter)
 }
 
 /* Clear/increment 64-bit counter based on 8 bit chip counter */
-void vtss_cmn_counter_8_update(u8                   value,
-                               vtss_chip_counter_t *counter,
-                               BOOL                 clear)
+void vtss_cmn_counter_8_update(u8 value, vtss_chip_counter_t *counter, BOOL clear)
 {
     u64 add = 0, new = value;
 
@@ -134,16 +125,13 @@ void vtss_cmn_counter_8_update(u8                   value,
 
 /* Rebase 64-bit counter, i.e. discard changes since last update, based on
  * 16-bit chip counter */
-void vtss_cmn_counter_16_rebase(u16                  new_base_value,
-                                vtss_chip_counter_t *counter)
+void vtss_cmn_counter_16_rebase(u16 new_base_value, vtss_chip_counter_t *counter)
 {
     counter->prev = new_base_value;
 }
 
 /* Clear/increment 64-bit counter based on 16 bit chip counter */
-void vtss_cmn_counter_16_update(u16                  value,
-                                vtss_chip_counter_t *counter,
-                                BOOL                 clear)
+void vtss_cmn_counter_16_update(u16 value, vtss_chip_counter_t *counter, BOOL clear)
 {
     u64 add = 0, new = value;
 
@@ -162,25 +150,19 @@ void vtss_cmn_counter_16_update(u16                  value,
 
 /* Rebase 64-bit counter, i.e. discard changes since last update, based on
  * 32-bit chip counter */
-void vtss_cmn_counter_32_rebase(u32                  new_base_value,
-                                vtss_chip_counter_t *counter)
+void vtss_cmn_counter_32_rebase(u32 new_base_value, vtss_chip_counter_t *counter)
 {
     counter->prev = new_base_value;
 }
 
 /* Clear/increment 64-bit counter based on 32 bit chip counter */
-void vtss_cmn_counter_32_update(u32                  value,
-                                vtss_chip_counter_t *counter,
-                                BOOL                 clear)
+void vtss_cmn_counter_32_update(u32 value, vtss_chip_counter_t *counter, BOOL clear)
 {
     vtss_cmn_counter_32_cmd(value, counter,
-                            clear ? VTSS_COUNTER_CMD_CLEAR
-                                  : VTSS_COUNTER_CMD_UPDATE);
+                            clear ? VTSS_COUNTER_CMD_CLEAR : VTSS_COUNTER_CMD_UPDATE);
 }
 
-void vtss_cmn_counter_32_cmd(u32                  value,
-                             vtss_chip_counter_t *counter,
-                             vtss_counter_cmd_t   cmd)
+void vtss_cmn_counter_32_cmd(u32 value, vtss_chip_counter_t *counter, vtss_counter_cmd_t cmd)
 {
     u64 add = 0, new = value;
 
@@ -231,19 +213,14 @@ void vtss_cmn_counter_dual_cmd(u32                  emac,
 
 /* Rebase 64-bit counter, i.e. discard changes since last update, based on
  * 40-bit chip counter */
-void vtss_cmn_counter_40_rebase(u32                  new_lsb,
-                                u32                  new_msb,
-                                vtss_chip_counter_t *counter)
+void vtss_cmn_counter_40_rebase(u32 new_lsb, u32 new_msb, vtss_chip_counter_t *counter)
 {
     counter->prev = new_msb;
     counter->prev = ((counter->prev << 32) + new_lsb);
 }
 
 /* Clear/increment 64-bit counter based on 40 bit chip counter */
-void vtss_cmn_counter_40_update(u32                  lsb,
-                                u32                  msb,
-                                vtss_chip_counter_t *counter,
-                                BOOL                 clear)
+void vtss_cmn_counter_40_update(u32 lsb, u32 msb, vtss_chip_counter_t *counter, BOOL clear)
 {
     u64 add = 0, new = msb;
 
@@ -298,10 +275,7 @@ const char *vtss_ref_freq_to_txt(vtss_core_ref_clk_t freq)
  *  Debug print
  * ================================================================= */
 
-const char *vtss_bool_txt(BOOL enabled)
-{
-    return (enabled ? "Enabled" : "Disabled");
-}
+const char *vtss_bool_txt(BOOL enabled) { return (enabled ? "Enabled" : "Disabled"); }
 
 char *vtss_mac_txt(vtss_mac_t *mac)
 {
@@ -309,16 +283,13 @@ char *vtss_mac_txt(vtss_mac_t *mac)
     u8           *p = mac->addr;
     lmu_fmt_buf_t buf;
 
-    VTSS_FMT(buf, "%02x-%02x-%02x-%02x-%02x-%02x", p[0], p[1], p[2], p[3], p[4],
-             p[5]);
+    VTSS_FMT(buf, "%02x-%02x-%02x-%02x-%02x-%02x", p[0], p[1], p[2], p[3], p[4], p[5]);
     lmu_czstrcpy(str, buf.s);
     return str;
 }
 
 #if VTSS_OPT_DEBUG_PRINT
-void vtss_debug_print_header_underlined(lmu_ss_t   *ss,
-                                        const char *header,
-                                        BOOL        layer)
+void vtss_debug_print_header_underlined(lmu_ss_t *ss, const char *header, BOOL layer)
 {
     int i, len = VTSS_STRLEN(header);
 
@@ -329,10 +300,7 @@ void vtss_debug_print_header_underlined(lmu_ss_t   *ss,
     pr("\n\n");
 }
 
-void vtss_debug_print_header(lmu_ss_t *ss, const char *header)
-{
-    pr("%s:\n\n", header);
-}
+void vtss_debug_print_header(lmu_ss_t *ss, const char *header) { pr("%s:\n\n", header); }
 
 static const char *const vtss_debug_group_name[VTSS_DEBUG_GROUP_COUNT] = {
     [VTSS_DEBUG_GROUP_ALL] = "All", /**< All groups */
@@ -406,10 +374,9 @@ BOOL vtss_debug_group_enabled(lmu_ss_t                      *ss,
 }
 
 vtss_rc vtss_debug_print_group(const vtss_debug_group_t group,
-                               vtss_rc (*dbg)(vtss_state_t *vtss_state,
-                                              lmu_ss_t     *ss,
-                                              const vtss_debug_info_t
-                                                  *const info),
+                               vtss_rc (*dbg)(vtss_state_t                  *vtss_state,
+                                              lmu_ss_t                      *ss,
+                                              const vtss_debug_info_t *const info),
                                vtss_state_t                  *vtss_state,
                                lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
@@ -442,8 +409,7 @@ void vtss_debug_print_reg(lmu_ss_t *ss, const char *name, u32 value)
 
     pr("%-32s: ", name);
     for (i = 0; i < 32; i++) {
-        pr("%s%u", i == 0 || (i % 8) ? "" : ".",
-           value & (1 << (31 - i)) ? 1 : 0);
+        pr("%s%u", i == 0 || (i % 8) ? "" : ".", value & (1 << (31 - i)) ? 1 : 0);
     }
     pr(" 0x%08x\n", value);
 }
@@ -463,8 +429,7 @@ static void vtss_debug_print_init(vtss_state_t                  *vtss_state,
     pr("Mux mode   : 0x%04x\n", vtss_state->init_conf.mux_mode);
 #endif /* VTSS_FEATURE_PORT_MUX */
 #if defined(VTSS_FEATURE_CORE_CLOCK)
-    pr("Core clock : %s / %s\n",
-       vtss_core_freq_to_txt(vtss_state->init_conf.core_clock.freq),
+    pr("Core clock : %s / %s\n", vtss_core_freq_to_txt(vtss_state->init_conf.core_clock.freq),
        vtss_ref_freq_to_txt(vtss_state->init_conf.core_clock.ref_freq));
 #endif /* VTSS_FEATURE_PORT_MUX */
     pr("VTSS_PORTS : %d\n", VTSS_PORTS);
@@ -545,15 +510,11 @@ void vtss_debug_print_port_header(vtss_state_t *vtss_state,
     }
 }
 
-void vtss_debug_print_ports(vtss_state_t *vtss_state,
-                            lmu_ss_t     *ss,
-                            u8           *member,
-                            BOOL          nl)
+void vtss_debug_print_ports(vtss_state_t *vtss_state, lmu_ss_t *ss, u8 *member, BOOL nl)
 {
     vtss_port_no_t port_no;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         pr("%s%s", port_no == 0 || (port_no & 7) ? "" : ".",
            VTSS_PORT_BF_GET(member, port_no) ? "1" : "0");
     }
@@ -564,15 +525,14 @@ void vtss_debug_print_ports(vtss_state_t *vtss_state,
 
 void vtss_debug_print_port_members(vtss_state_t *vtss_state,
                                    lmu_ss_t     *ss,
-                                   BOOL port_member[VTSS_PORT_ARRAY_SIZE],
-                                   BOOL nl)
+                                   BOOL          port_member[VTSS_PORT_ARRAY_SIZE],
+                                   BOOL          nl)
 {
     vtss_port_no_t port_no;
     u8             member[VTSS_PORT_BF_SIZE];
 
     VTSS_PORT_BF_CLR(member);
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         VTSS_PORT_BF_SET(member, port_no, port_member[port_no]);
     }
     vtss_debug_print_ports(vtss_state, ss, member, nl);
@@ -627,8 +587,7 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t                  *vtss_state,
                                     lmu_ss_t                      *ss,
                                     const vtss_debug_info_t *const info)
 {
-    if (info->layer != VTSS_DEBUG_LAYER_ALL &&
-        info->layer != VTSS_DEBUG_LAYER_AIL) {
+    if (info->layer != VTSS_DEBUG_LAYER_ALL && info->layer != VTSS_DEBUG_LAYER_AIL) {
         return VTSS_RC_OK;
     }
 
@@ -704,8 +663,7 @@ static vtss_rc vtss_debug_cil_print(vtss_state_t                  *vtss_state,
     lmu_fmt_buf_t  buf;
     vtss_chip_no_t chip_no;
 
-    if (info->layer != VTSS_DEBUG_LAYER_ALL &&
-        info->layer != VTSS_DEBUG_LAYER_CIL) {
+    if (info->layer != VTSS_DEBUG_LAYER_ALL && info->layer != VTSS_DEBUG_LAYER_CIL) {
         return VTSS_RC_OK;
     }
 

@@ -21,9 +21,9 @@ typedef enum {
 
 // Startup option
 typedef struct mscc_appl_opt_t {
-    char *option; // Option character, e.g "t:"
-    char *parm;   // Option parameter, e.g. "<module>:<group>:<level>
-    char *descr;  // Description
+    char *option;                // Option character, e.g "t:"
+    char *parm;                  // Option parameter, e.g. "<module>:<group>:<level>
+    char *descr;                 // Description
     mesa_rc (*func)(char *parm); // Command function
 
     // Internal fields
@@ -63,21 +63,13 @@ typedef enum {
 } spi_user_t;
 
 // Register access functions
-mesa_rc spi_reg_read(const mesa_chip_no_t chip_no,
-                     const uint32_t       addr,
-                     uint32_t *const      value);
-mesa_rc spi_reg_write(const mesa_chip_no_t chip_no,
-                      const uint32_t       addr,
-                      const uint32_t       value);
+mesa_rc spi_reg_read(const mesa_chip_no_t chip_no, const uint32_t addr, uint32_t *const value);
+mesa_rc spi_reg_write(const mesa_chip_no_t chip_no, const uint32_t addr, const uint32_t value);
 mesa_rc spi_io_init(spi_user_t user, const char *device, int freq, int padding);
 mesa_rc spi_read(spi_user_t user, const uint32_t addr, uint32_t *const value);
 mesa_rc spi_write(spi_user_t user, const uint32_t addr, const uint32_t value);
-mesa_rc uio_reg_read(const mesa_chip_no_t chip_no,
-                     const uint32_t       addr,
-                     uint32_t *const      value);
-mesa_rc uio_reg_write(const mesa_chip_no_t chip_no,
-                      const uint32_t       addr,
-                      const uint32_t       value);
+mesa_rc uio_reg_read(const mesa_chip_no_t chip_no, const uint32_t addr, uint32_t *const value);
+mesa_rc uio_reg_write(const mesa_chip_no_t chip_no, const uint32_t addr, const uint32_t value);
 mesa_rc uio_reg_io_init(void);
 
 typedef mesa_rc (*reg_read_t)(const mesa_chip_no_t chip_no,
@@ -103,19 +95,19 @@ void ip_mac_setup(mesa_vid_t vid, mesa_bool_t add);
 #endif
 
 // MEBA API wrapper
-#define MEBA_WRAP(_name_, _inst_, _args_...)                                   \
-    ({                                                                         \
-        mesa_rc rc;                                                            \
-        if (_inst_->api._name_) {                                              \
-            _inst_->iface.debug(MEBA_TRACE_LVL_RACKET, __FUNCTION__, __LINE__, \
-                                "Calling %s", #_name_);                        \
-            rc = _inst_->api._name_(_inst_, _args_);                           \
-            _inst_->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__,  \
-                                "%s returns %d", #_name_, rc);                 \
-        } else {                                                               \
-            rc = MESA_RC_NOT_IMPLEMENTED;                                      \
-        }                                                                      \
-        rc;                                                                    \
+#define MEBA_WRAP(_name_, _inst_, _args_...)                                                       \
+    ({                                                                                             \
+        mesa_rc rc;                                                                                \
+        if (_inst_->api._name_) {                                                                  \
+            _inst_->iface.debug(MEBA_TRACE_LVL_RACKET, __FUNCTION__, __LINE__, "Calling %s",       \
+                                #_name_);                                                          \
+            rc = _inst_->api._name_(_inst_, _args_);                                               \
+            _inst_->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "%s returns %d",     \
+                                #_name_, rc);                                                      \
+        } else {                                                                                   \
+            rc = MESA_RC_NOT_IMPLEMENTED;                                                          \
+        }                                                                                          \
+        rc;                                                                                        \
     })
 
 #endif /* _MSCC_APPL_MAIN_H_ */

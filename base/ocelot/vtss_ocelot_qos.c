@@ -36,11 +36,9 @@ vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t        *vtss_state,
         pbs = (pir ? 64 : 0); // Use 64 frames burst if rate non-zero
         if (pir >= 100) {
             mode = POL_MODE_FRMRATE_100FPS;
-            pir =
-                VTSS_DIV_ROUND_UP(pir,
-                                  100); /* Resolution is in steps of 100 fps */
-            pbs = (pbs * 10 / 328);     /* Burst unit is 32.8 frames */
-            pbs_max = VTSS_BITMASK(6);  /* Limit burst to the maximum value */
+            pir = VTSS_DIV_ROUND_UP(pir, 100); /* Resolution is in steps of 100 fps */
+            pbs = (pbs * 10 / 328);            /* Burst unit is 32.8 frames */
+            pbs_max = VTSS_BITMASK(6);         /* Limit burst to the maximum value */
         } else {
             mode = POL_MODE_FRMRATE_1FPS;
             pbs = (pbs * 10 / 3); /* Burst unit is 0.3 frames */
@@ -63,12 +61,10 @@ vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t        *vtss_state,
                 /* Discard CIR frames */
                 cir_discard = 1;
             }
-            cir = VTSS_DIV_ROUND_UP(cir,
-                                    100); /* Rate unit is 100 kbps, round up */
-            cbs = (cbs ? cbs : 1); /* BZ 9813: Avoid using zero burst size */
-            cbs =
-                VTSS_DIV_ROUND_UP(cbs, 4096); /* Burst unit is 4kB, round up */
-            cbs_max = 61; /* See Bugzilla#4944, comment#2  */
+            cir = VTSS_DIV_ROUND_UP(cir, 100);  /* Rate unit is 100 kbps, round up */
+            cbs = (cbs ? cbs : 1);              /* BZ 9813: Avoid using zero burst size */
+            cbs = VTSS_DIV_ROUND_UP(cbs, 4096); /* Burst unit is 4kB, round up */
+            cbs_max = 61;                       /* See Bugzilla#4944, comment#2  */
             cir_ena = 1;
             cf = conf->cf;
             if (cf)
@@ -78,8 +74,8 @@ vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t        *vtss_state,
             /* Discard PIR frames */
             pir_discard = 1;
         }
-        pir = VTSS_DIV_ROUND_UP(pir, 100); /* Rate unit is 100 kbps, round up */
-        pbs = (pbs ? pbs : 1); /* BZ 9813: Avoid using zero burst size */
+        pir = VTSS_DIV_ROUND_UP(pir, 100);  /* Rate unit is 100 kbps, round up */
+        pbs = (pbs ? pbs : 1);              /* BZ 9813: Avoid using zero burst size */
         pbs = VTSS_DIV_ROUND_UP(pbs, 4096); /* Burst unit is 4kB, round up */
         pbs_max = 61;                       /* See Bugzilla#4944, comment#2  */
     }
@@ -110,21 +106,18 @@ vtss_rc vtss_srvl_qos_policer_conf_set(vtss_state_t        *vtss_state,
     value |= VTSS_F_ANA_POL_POL_MODE_CFG_OVERSHOOT_ENA;
     SRVL_WR(VTSS_ANA_POL_POL_MODE_CFG(policer), value);
     SRVL_WR(VTSS_ANA_POL_POL_PIR_CFG(policer),
-            VTSS_F_ANA_POL_POL_PIR_CFG_PIR_RATE(pir) |
-                VTSS_F_ANA_POL_POL_PIR_CFG_PIR_BURST(pbs));
+            VTSS_F_ANA_POL_POL_PIR_CFG_PIR_RATE(pir) | VTSS_F_ANA_POL_POL_PIR_CFG_PIR_BURST(pbs));
     SRVL_WR(VTSS_ANA_POL_POL_PIR_STATE(policer),
             pir_discard ? VTSS_M_ANA_POL_POL_PIR_STATE_PIR_LVL : 0);
     SRVL_WR(VTSS_ANA_POL_POL_CIR_CFG(policer),
-            VTSS_F_ANA_POL_POL_CIR_CFG_CIR_RATE(cir) |
-                VTSS_F_ANA_POL_POL_CIR_CFG_CIR_BURST(cbs));
+            VTSS_F_ANA_POL_POL_CIR_CFG_CIR_RATE(cir) | VTSS_F_ANA_POL_POL_CIR_CFG_CIR_BURST(cbs));
     SRVL_WR(VTSS_ANA_POL_POL_CIR_STATE(policer),
             cir_discard ? VTSS_M_ANA_POL_POL_CIR_STATE_CIR_LVL : 0);
 
     return VTSS_RC_OK;
 }
 
-#define SRVL_DEFAULT_POL_ORDER                                                 \
-    0x1d3 /* Serval policer order: Serial (QoS -> Port -> VCAP) */
+#define SRVL_DEFAULT_POL_ORDER 0x1d3 /* Serval policer order: Serial (QoS -> Port -> VCAP) */
 
 static vtss_rc srvl_port_policer_set(vtss_state_t        *vtss_state,
                                      u32                  port,
@@ -133,14 +126,12 @@ static vtss_rc srvl_port_policer_set(vtss_state_t        *vtss_state,
 {
     u32 order = SRVL_DEFAULT_POL_ORDER;
 
-    VTSS_RC(vtss_srvl_qos_policer_conf_set(vtss_state, SRVL_POLICER_PORT + port,
-                                           conf));
+    VTSS_RC(vtss_srvl_qos_policer_conf_set(vtss_state, SRVL_POLICER_PORT + port, conf));
 
     SRVL_WRM(VTSS_ANA_PORT_POL_CFG(port),
              (enable ? VTSS_F_ANA_PORT_POL_CFG_PORT_POL_ENA : 0) |
                  VTSS_F_ANA_PORT_POL_CFG_POL_ORDER(order),
-             VTSS_F_ANA_PORT_POL_CFG_PORT_POL_ENA |
-                 VTSS_M_ANA_PORT_POL_CFG_POL_ORDER);
+             VTSS_F_ANA_PORT_POL_CFG_PORT_POL_ENA | VTSS_M_ANA_PORT_POL_CFG_POL_ORDER);
 
     return VTSS_RC_OK;
 }
@@ -151,14 +142,11 @@ static vtss_rc srvl_queue_policer_set(vtss_state_t        *vtss_state,
                                       BOOL                 enable,
                                       vtss_policer_conf_t *conf)
 {
-    VTSS_RC(vtss_srvl_qos_policer_conf_set(vtss_state,
-                                           SRVL_POLICER_QUEUE + port * 8 +
-                                               queue,
+    VTSS_RC(vtss_srvl_qos_policer_conf_set(vtss_state, SRVL_POLICER_QUEUE + port * 8 + queue,
                                            conf));
 
     SRVL_WRM(VTSS_ANA_PORT_POL_CFG(port),
-             (enable ? VTSS_F_ANA_PORT_POL_CFG_QUEUE_POL_ENA(VTSS_BIT(queue))
-                     : 0),
+             (enable ? VTSS_F_ANA_PORT_POL_CFG_QUEUE_POL_ENA(VTSS_BIT(queue)) : 0),
              VTSS_F_ANA_PORT_POL_CFG_QUEUE_POL_ENA(VTSS_BIT(queue)));
 
     return VTSS_RC_OK;
@@ -194,8 +182,7 @@ static vtss_rc srvl_qos_shaper_conf_set(vtss_state_t            *vtss_state,
     /* Shaper mode is not configurable for queue shapers of elements 0 - 217
        (i.e. SE 256 - 691), meaning no queue-shaping inside a service. Serval 1
        limitation */
-    SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(se),
-             VTSS_F_QSYS_HSCH_SE_CFG_SE_FRM_MODE(shaper->mode),
+    SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(se), VTSS_F_QSYS_HSCH_SE_CFG_SE_FRM_MODE(shaper->mode),
              VTSS_M_QSYS_HSCH_SE_CFG_SE_FRM_MODE);
 
     if (shaper->rate != VTSS_BITRATE_DISABLED) {
@@ -206,9 +193,8 @@ static vtss_rc srvl_qos_shaper_conf_set(vtss_state_t            *vtss_state,
             if (calibrate) {
                 calibrate->rate_pwm = 0;
             }
-            SRVL_WR(VTSS_QSYS_HSCH_CIR_CFG(se),
-                    VTSS_F_QSYS_HSCH_CIR_CFG_CIR_RATE(cir) |
-                        VTSS_F_QSYS_HSCH_CIR_CFG_CIR_BURST(cbs));
+            SRVL_WR(VTSS_QSYS_HSCH_CIR_CFG(se), VTSS_F_QSYS_HSCH_CIR_CFG_CIR_RATE(cir) |
+                                                    VTSS_F_QSYS_HSCH_CIR_CFG_CIR_BURST(cbs));
         } else {
             u32 new_rate_pwm = (cir % 4) * 100;
             u32 new_rate_pwm_high = cir + (4 - (cir % 4));
@@ -216,11 +202,9 @@ static vtss_rc srvl_qos_shaper_conf_set(vtss_state_t            *vtss_state,
                 calibrate->rate_pwm_high != new_rate_pwm_high) {
                 calibrate->rate_pwm = new_rate_pwm;
                 calibrate->rate_pwm_high = new_rate_pwm_high;
-                cir = (cir + 3) &
-                      ~3; /* Round up to the nearest factor of 400 kbps */
-                SRVL_WR(VTSS_QSYS_HSCH_CIR_CFG(se),
-                        VTSS_F_QSYS_HSCH_CIR_CFG_CIR_RATE(cir) |
-                            VTSS_F_QSYS_HSCH_CIR_CFG_CIR_BURST(cbs));
+                cir = (cir + 3) & ~3; /* Round up to the nearest factor of 400 kbps */
+                SRVL_WR(VTSS_QSYS_HSCH_CIR_CFG(se), VTSS_F_QSYS_HSCH_CIR_CFG_CIR_RATE(cir) |
+                                                        VTSS_F_QSYS_HSCH_CIR_CFG_CIR_BURST(cbs));
             }
             calibrate->level_pwm = cbs;
         }
@@ -228,10 +212,8 @@ static vtss_rc srvl_qos_shaper_conf_set(vtss_state_t            *vtss_state,
         /* DLB configuration */
         if (dlb_ena) {
             if (shaper->eir != VTSS_BITRATE_DISABLED) {
-                u32 eir =
-                    MIN(VTSS_BITMASK(15), VTSS_DIV_ROUND_UP(shaper->eir, 100));
-                u32 ebs =
-                    MIN(VTSS_BITMASK(6), VTSS_DIV_ROUND_UP(shaper->ebs, 4096));
+                u32 eir = MIN(VTSS_BITMASK(15), VTSS_DIV_ROUND_UP(shaper->eir, 100));
+                u32 ebs = MIN(VTSS_BITMASK(6), VTSS_DIV_ROUND_UP(shaper->ebs, 4096));
 
                 if (!calibrate || eir % 4 == 0) {
                     if (calibrate) {
@@ -256,8 +238,7 @@ static vtss_rc srvl_qos_shaper_conf_set(vtss_state_t            *vtss_state,
 
                 SRVL_WR(VTSS_QSYS_HSCH_SE_DLB_SENSE(se),
                         VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO(dlb_sense_qos) |
-                            VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_DPORT(
-                                dlb_sense_port) |
+                            VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_DPORT(dlb_sense_port) |
                             VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO_ENA |
                             VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_DPORT_ENA);
             } else {
@@ -310,8 +291,7 @@ vtss_rc vtss_srvl_qos_port_conf_change(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
-                                      const vtss_port_no_t port_no)
+static vtss_rc srvl_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_qos_port_conf_t *conf = &vtss_state->qos.port_conf[port_no];
     u32                   port = VTSS_CHIP_PORT(port_no);
@@ -326,27 +306,21 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
     SRVL_WRM(VTSS_ANA_PORT_VLAN_CFG(port),
              (conf->default_dei ? VTSS_F_ANA_PORT_VLAN_CFG_VLAN_DEI : 0) |
                  VTSS_F_ANA_PORT_VLAN_CFG_VLAN_PCP(conf->usr_prio),
-             VTSS_F_ANA_PORT_VLAN_CFG_VLAN_DEI |
-                 VTSS_M_ANA_PORT_VLAN_CFG_VLAN_PCP);
+             VTSS_F_ANA_PORT_VLAN_CFG_VLAN_DEI | VTSS_M_ANA_PORT_VLAN_CFG_VLAN_PCP);
 
     /* Port default QoS class, DP level, tagged frames mode, DSCP mode and DSCP
      * remarking configuration */
     SRVL_WR(VTSS_ANA_PORT_QOS_CFG(port),
             (conf->default_dpl ? VTSS_F_ANA_PORT_QOS_CFG_DP_DEFAULT_VAL : 0) |
-                VTSS_F_ANA_PORT_QOS_CFG_QOS_DEFAULT_VAL(
-                    vtss_cmn_qos_chip_prio(vtss_state, conf->default_prio)) |
-                (conf->tag_class_enable ? VTSS_F_ANA_PORT_QOS_CFG_QOS_PCP_ENA
-                                        : 0) |
-                (conf->dscp_class_enable ? VTSS_F_ANA_PORT_QOS_CFG_QOS_DSCP_ENA
-                                         : 0) |
-                (conf->dscp_translate
-                     ? VTSS_F_ANA_PORT_QOS_CFG_DSCP_TRANSLATE_ENA
-                     : 0) |
+                VTSS_F_ANA_PORT_QOS_CFG_QOS_DEFAULT_VAL(vtss_cmn_qos_chip_prio(vtss_state,
+                                                                               conf->default_prio)) |
+                (conf->tag_class_enable ? VTSS_F_ANA_PORT_QOS_CFG_QOS_PCP_ENA : 0) |
+                (conf->dscp_class_enable ? VTSS_F_ANA_PORT_QOS_CFG_QOS_DSCP_ENA : 0) |
+                (conf->dscp_translate ? VTSS_F_ANA_PORT_QOS_CFG_DSCP_TRANSLATE_ENA : 0) |
                 VTSS_F_ANA_PORT_QOS_CFG_DSCP_REWR_CFG(conf->dscp_mode));
 
     /* Egress DSCP remarking configuration */
-    SRVL_WR(VTSS_REW_PORT_DSCP_CFG(port),
-            VTSS_F_REW_PORT_DSCP_CFG_DSCP_REWR_CFG(conf->dscp_emode));
+    SRVL_WR(VTSS_REW_PORT_DSCP_CFG(port), VTSS_F_REW_PORT_DSCP_CFG_DSCP_REWR_CFG(conf->dscp_emode));
 
     /* Map for (PCP and DEI) to (QoS class and DP level */
     for (pcp = VTSS_PCP_START; pcp < VTSS_PCP_END; pcp++) {
@@ -356,9 +330,7 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
                          ? VTSS_F_ANA_PORT_QOS_PCP_DEI_MAP_CFG_DP_PCP_DEI_VAL
                          : 0) |
                         VTSS_F_ANA_PORT_QOS_PCP_DEI_MAP_CFG_QOS_PCP_DEI_VAL(
-                            vtss_cmn_qos_chip_prio(vtss_state,
-                                                   conf->qos_class_map[pcp]
-                                                                      [dei])));
+                            vtss_cmn_qos_chip_prio(vtss_state, conf->qos_class_map[pcp][dei])));
         }
     }
 
@@ -427,25 +399,19 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
             dwrr_cnt = 0; /* All queues are running in strict mode */
         }
 
-        SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(dwrr_se),
-                 VTSS_F_QSYS_HSCH_SE_CFG_SE_DWRR_CNT(dwrr_cnt),
-                 VTSS_M_QSYS_HSCH_SE_CFG_SE_DWRR_CNT |
-                     VTSS_F_QSYS_HSCH_SE_CFG_SE_RR_ENA);
+        SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(dwrr_se), VTSS_F_QSYS_HSCH_SE_CFG_SE_DWRR_CNT(dwrr_cnt),
+                 VTSS_M_QSYS_HSCH_SE_CFG_SE_DWRR_CNT | VTSS_F_QSYS_HSCH_SE_CFG_SE_RR_ENA);
 
         VTSS_RC(vtss_cmn_qos_weight2cost(conf->queue_pct, dwrr_cost, dwrr_cnt,
                                          VTSS_QOS_DWRR_COST_BIT_WIDTH));
         for (queue = 0; queue < 8; queue++) {
-            SRVL_WR(VTSS_QSYS_HSCH_SE_DWRR_CFG(dwrr_se, queue),
-                    dwrr_cost[queue]);
+            SRVL_WR(VTSS_QSYS_HSCH_SE_DWRR_CFG(dwrr_se, queue), dwrr_cost[queue]);
         }
 
         /* Port shaper configuration */
-        VTSS_RC(srvl_qos_shaper_conf_set(vtss_state, &conf->shaper_port,
-                                         terminal_se, TRUE, port, 0,
-                                         precise_rate
-                                             ? &vtss_state->qos
-                                                    .port_shaper[port_no]
-                                             : NULL));
+        VTSS_RC(srvl_qos_shaper_conf_set(vtss_state, &conf->shaper_port, terminal_se, TRUE, port, 0,
+                                         precise_rate ? &vtss_state->qos.port_shaper[port_no]
+                                                      : NULL));
         /* Egress queue shaper configuration */
         for (queue = 0; queue < 8; queue++) {
             u32  queue_shaper_se;
@@ -453,17 +419,13 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
 
             queue_shaper_se = SRVL_HSCH_L2_SE(port, queue);
 
-            VTSS_RC(srvl_qos_shaper_conf_set(vtss_state,
-                                             &conf->shaper_queue[queue],
-                                             queue_shaper_se, dlb_ena, port,
-                                             queue, NULL));
+            VTSS_RC(srvl_qos_shaper_conf_set(vtss_state, &conf->shaper_queue[queue],
+                                             queue_shaper_se, dlb_ena, port, queue, NULL));
 
             if (dlb_ena) {
                 /* Excess configuration */
                 SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(queue_shaper_se),
-                         conf->excess_enable[queue]
-                             ? VTSS_F_QSYS_HSCH_SE_CFG_SE_EXC_ENA
-                             : 0,
+                         conf->excess_enable[queue] ? VTSS_F_QSYS_HSCH_SE_CFG_SE_EXC_ENA : 0,
                          VTSS_F_QSYS_HSCH_SE_CFG_SE_EXC_ENA);
                 /* Credit configuration */
                 SRVL_WRM(VTSS_QSYS_HSCH_SE_CFG(queue_shaper_se),
@@ -476,16 +438,13 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
     }
 
     tag_remark_mode = conf->tag_remark_mode;
-    tag_default_dei =
-        (tag_remark_mode == VTSS_TAG_REMARK_MODE_DEFAULT ? conf->tag_default_dei
-                                                         : 0);
+    tag_default_dei = (tag_remark_mode == VTSS_TAG_REMARK_MODE_DEFAULT ? conf->tag_default_dei : 0);
 
     /* Tag remarking configuration */
     SRVL_WRM(VTSS_REW_PORT_PORT_VLAN_CFG(port),
              (tag_default_dei ? VTSS_F_REW_PORT_PORT_VLAN_CFG_PORT_DEI : 0) |
                  VTSS_F_REW_PORT_PORT_VLAN_CFG_PORT_PCP(conf->tag_default_pcp),
-             VTSS_F_REW_PORT_PORT_VLAN_CFG_PORT_DEI |
-                 VTSS_M_REW_PORT_PORT_VLAN_CFG_PORT_PCP);
+             VTSS_F_REW_PORT_PORT_VLAN_CFG_PORT_DEI | VTSS_M_REW_PORT_PORT_VLAN_CFG_PORT_PCP);
 
     /* Map remark mode */
     switch (tag_remark_mode) {
@@ -503,8 +462,7 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
     SRVL_WRM(VTSS_REW_PORT_TAG_CFG(port),
              VTSS_F_REW_PORT_TAG_CFG_TAG_PCP_CFG(tag_remark_mode) |
                  VTSS_F_REW_PORT_TAG_CFG_TAG_DEI_CFG(tag_remark_mode),
-             VTSS_M_REW_PORT_TAG_CFG_TAG_PCP_CFG |
-                 VTSS_M_REW_PORT_TAG_CFG_TAG_DEI_CFG);
+             VTSS_M_REW_PORT_TAG_CFG_TAG_PCP_CFG | VTSS_M_REW_PORT_TAG_CFG_TAG_DEI_CFG);
 
     /* Map for (QoS class and DP level) to (PCP and DEI) */
     for (class = VTSS_QUEUE_START; class < VTSS_QUEUE_END; class ++) {
@@ -513,8 +471,8 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
                      (conf->tag_dei_map[class][dpl]
                           ? VTSS_F_REW_PORT_PCP_DEI_QOS_MAP_CFG_DEI_QOS_VAL
                           : 0) |
-                         VTSS_F_REW_PORT_PCP_DEI_QOS_MAP_CFG_PCP_QOS_VAL(
-                             conf->tag_pcp_map[class][dpl]),
+                         VTSS_F_REW_PORT_PCP_DEI_QOS_MAP_CFG_PCP_QOS_VAL(conf->tag_pcp_map[class]
+                                                                                          [dpl]),
                      VTSS_F_REW_PORT_PCP_DEI_QOS_MAP_CFG_DEI_QOS_VAL |
                          VTSS_M_REW_PORT_PCP_DEI_QOS_MAP_CFG_PCP_QOS_VAL);
         }
@@ -534,9 +492,7 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
         pol_cfg.disable = TRUE;
     }
     VTSS_RC(srvl_port_policer_set(vtss_state, port,
-                                  conf->policer_port[0].rate !=
-                                      VTSS_BITRATE_DISABLED,
-                                  &pol_cfg));
+                                  conf->policer_port[0].rate != VTSS_BITRATE_DISABLED, &pol_cfg));
 
     /* Queue policer configuration */
     for (queue = 0; queue < 8; queue++) {
@@ -548,17 +504,15 @@ static vtss_rc srvl_qos_port_conf_set(vtss_state_t        *vtss_state,
             pol_cfg.disable = TRUE;
         }
         VTSS_RC(srvl_queue_policer_set(vtss_state, port, queue,
-                                       conf->policer_queue[queue].rate !=
-                                           VTSS_BITRATE_DISABLED,
+                                       conf->policer_queue[queue].rate != VTSS_BITRATE_DISABLED,
                                        &pol_cfg));
     }
 
     /* Update QCL port configuration */
-    VTSS_RC(vtss_srvl_vcap_port_key_addr_set(
-        vtss_state, port_no, 2, /* Third IS1 lookup */
-        vtss_state->qos.port_conf[port_no].key_type,
-        vtss_state->qos.port_conf_old.key_type,
-        vtss_state->qos.port_conf[port_no].dmac_dip));
+    VTSS_RC(vtss_srvl_vcap_port_key_addr_set(vtss_state, port_no, 2, /* Third IS1 lookup */
+                                             vtss_state->qos.port_conf[port_no].key_type,
+                                             vtss_state->qos.port_conf_old.key_type,
+                                             vtss_state->qos.port_conf[port_no].dmac_dip));
 
     return VTSS_RC_OK;
 }
@@ -578,19 +532,15 @@ static vtss_rc srvl_qos_wred_conf_set(vtss_state_t *vtss_state)
 
             /* Sanity check */
             if (red->min_fl > 100) {
-                VTSS_E("illegal min_fl (%u) on queue %d, dpl %d", red->min_fl,
-                       queue, dpl);
+                VTSS_E("illegal min_fl (%u) on queue %d, dpl %d", red->min_fl, queue, dpl);
                 return VTSS_RC_ERROR;
             }
             if ((red->max < 1) || (red->max > 100)) {
-                VTSS_E("illegal max (%u) on queue %d, dpl %d", red->max, queue,
-                       dpl);
+                VTSS_E("illegal max (%u) on queue %d, dpl %d", red->max, queue, dpl);
                 return VTSS_RC_ERROR;
             }
-            if ((red->max_unit != VTSS_WRED_V2_MAX_DP) &&
-                (red->max_unit != VTSS_WRED_V2_MAX_FL)) {
-                VTSS_E("illegal max_unit (%u) on queue %d, dpl %d",
-                       red->max_unit, queue, dpl);
+            if ((red->max_unit != VTSS_WRED_V2_MAX_DP) && (red->max_unit != VTSS_WRED_V2_MAX_FL)) {
+                VTSS_E("illegal max_unit (%u) on queue %d, dpl %d", red->max_unit, queue, dpl);
                 return VTSS_RC_ERROR;
             }
             if (red->max_unit == VTSS_WRED_V2_MAX_DP) {
@@ -598,42 +548,36 @@ static vtss_rc srvl_qos_wred_conf_set(vtss_state_t *vtss_state)
                                       value */
             } else {
                 if (red->min_fl >= red->max) {
-                    VTSS_E("min_fl (%u) >= max fl (%u) on queue %d, dpl %d",
-                           red->min_fl, red->max, queue, dpl);
+                    VTSS_E("min_fl (%u) >= max fl (%u) on queue %d, dpl %d", red->min_fl, red->max,
+                           queue, dpl);
                     return VTSS_RC_ERROR;
                 } else {
-                    max_fl =
-                        red->max; /* Unit is fill level - save specified value */
+                    max_fl = red->max; /* Unit is fill level - save specified value */
                 }
             }
 
             if (red->enable) {
-                wm_red_low = wm_high * red->min_fl /
-                             100; /* Convert from % to actual value in bytes */
-                wm_red_high = wm_high * max_fl /
-                              100; /* Convert from % to actual value in bytes */
+                wm_red_low =
+                    wm_high * red->min_fl / 100;      /* Convert from % to actual value in bytes */
+                wm_red_high = wm_high * max_fl / 100; /* Convert from % to actual value in bytes */
                 wm_red_high = ((wm_red_high - wm_red_low) * 100 / max_dp) +
                               wm_red_low; /* Adjust wm_red_high to represent
                                              100% drop probability */
                 wm_red_low =
-                    MIN(wm_red_low / 960,
-                        VTSS_BITMASK(11)); /* Convert from bytes to 960 byte
-                                              chunks and prevent overflow */
+                    MIN(wm_red_low / 960, VTSS_BITMASK(11)); /* Convert from bytes to 960 byte
+                                                                chunks and prevent overflow */
                 wm_red_high =
-                    MIN(wm_red_high / 960,
-                        VTSS_BITMASK(11)); /* Convert from bytes to 960 byte
-                                              chunks and prevent overflow */
+                    MIN(wm_red_high / 960, VTSS_BITMASK(11)); /* Convert from bytes to 960 byte
+                                                                 chunks and prevent overflow */
             } else {
-                wm_red_low = wm_red_high =
-                    VTSS_BITMASK(11); /* Disable red by setting both fields to
-                                         max */
+                wm_red_low = wm_red_high = VTSS_BITMASK(11); /* Disable red by setting both fields
+                                                                to max */
             }
 
-            SRVL_WR(VTSS_QSYS_RES_QOS_ADV_RED_PROFILE(
-                        (queue + (8 * dpl))), /* Red profile for queue, dpl */
+            SRVL_WR(VTSS_QSYS_RES_QOS_ADV_RED_PROFILE((queue +
+                                                       (8 * dpl))), /* Red profile for queue, dpl */
                     VTSS_F_QSYS_RES_QOS_ADV_RED_PROFILE_WM_RED_LOW(wm_red_low) |
-                        VTSS_F_QSYS_RES_QOS_ADV_RED_PROFILE_WM_RED_HIGH(
-                            wm_red_high));
+                        VTSS_F_QSYS_RES_QOS_ADV_RED_PROFILE_WM_RED_HIGH(wm_red_high));
         }
     }
 
@@ -650,8 +594,7 @@ static vtss_rc srvl_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
 
     if (changed) {
         /* Number of priorities changed, update QoS setup for all ports */
-        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++) {
+        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             VTSS_RC(srvl_qos_port_conf_set(vtss_state, port_no));
         }
     }
@@ -666,75 +609,60 @@ static vtss_rc srvl_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
         return VTSS_RC_ERROR;
     }
     SRVL_WR(VTSS_ANA_ANA_STORMLIMIT_CFG(0),
-            VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_RATE(
-                vtss_cmn_qos_packet_rate(conf->policer_uc, &unit)) |
+            VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_RATE(vtss_cmn_qos_packet_rate(conf->policer_uc,
+                                                                              &unit)) |
                 (unit ? VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_UNIT : 0) |
                 VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_MODE(
-                    vtss_cmn_qos_storm_mode(conf->policer_uc,
-                                            conf->policer_uc_mode)));
+                    vtss_cmn_qos_storm_mode(conf->policer_uc, conf->policer_uc_mode)));
     /* BC storm policer */
     if (conf->policer_bc_frame_rate == FALSE) {
         VTSS_E("bit rate not supported on broadcast storm policer");
         return VTSS_RC_ERROR;
     }
     SRVL_WR(VTSS_ANA_ANA_STORMLIMIT_CFG(1),
-            VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_RATE(
-                vtss_cmn_qos_packet_rate(conf->policer_bc, &unit)) |
+            VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_RATE(vtss_cmn_qos_packet_rate(conf->policer_bc,
+                                                                              &unit)) |
                 (unit ? VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_UNIT : 0) |
                 VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_MODE(
-                    vtss_cmn_qos_storm_mode(conf->policer_bc,
-                                            conf->policer_bc_mode)));
+                    vtss_cmn_qos_storm_mode(conf->policer_bc, conf->policer_bc_mode)));
     /* MC storm policer */
     if (conf->policer_mc_frame_rate == FALSE) {
         VTSS_E("bit rate not supported on multicast storm policer");
         return VTSS_RC_ERROR;
     }
     SRVL_WR(VTSS_ANA_ANA_STORMLIMIT_CFG(2),
-            VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_RATE(
-                vtss_cmn_qos_packet_rate(conf->policer_mc, &unit)) |
+            VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_RATE(vtss_cmn_qos_packet_rate(conf->policer_mc,
+                                                                              &unit)) |
                 (unit ? VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_UNIT : 0) |
                 VTSS_F_ANA_ANA_STORMLIMIT_CFG_STORM_MODE(
-                    vtss_cmn_qos_storm_mode(conf->policer_mc,
-                                            conf->policer_mc_mode)));
+                    vtss_cmn_qos_storm_mode(conf->policer_mc, conf->policer_mc_mode)));
 
     /* DSCP classification and remarking configuration
      */
     for (i = 0; i < 64; i++) {
         SRVL_WR(VTSS_ANA_COMMON_DSCP_CFG(i),
-                (conf->dscp_dp_level_map[i]
-                     ? VTSS_F_ANA_COMMON_DSCP_CFG_DP_DSCP_VAL
-                     : 0) |
+                (conf->dscp_dp_level_map[i] ? VTSS_F_ANA_COMMON_DSCP_CFG_DP_DSCP_VAL : 0) |
                     VTSS_F_ANA_COMMON_DSCP_CFG_QOS_DSCP_VAL(
-                        vtss_cmn_qos_chip_prio(vtss_state,
-                                               conf->dscp_qos_class_map[i])) |
-                    VTSS_F_ANA_COMMON_DSCP_CFG_DSCP_TRANSLATE_VAL(
-                        conf->dscp_translate_map[i]) |
-                    (conf->dscp_trust[i]
-                         ? VTSS_F_ANA_COMMON_DSCP_CFG_DSCP_TRUST_ENA
-                         : 0) |
-                    (conf->dscp_remark[i]
-                         ? VTSS_F_ANA_COMMON_DSCP_CFG_DSCP_REWR_ENA
-                         : 0));
+                        vtss_cmn_qos_chip_prio(vtss_state, conf->dscp_qos_class_map[i])) |
+                    VTSS_F_ANA_COMMON_DSCP_CFG_DSCP_TRANSLATE_VAL(conf->dscp_translate_map[i]) |
+                    (conf->dscp_trust[i] ? VTSS_F_ANA_COMMON_DSCP_CFG_DSCP_TRUST_ENA : 0) |
+                    (conf->dscp_remark[i] ? VTSS_F_ANA_COMMON_DSCP_CFG_DSCP_REWR_ENA : 0));
 
         SRVL_WR(VTSS_REW_COMMON_DSCP_REMAP_CFG(i),
-                VTSS_F_REW_COMMON_DSCP_REMAP_CFG_DSCP_REMAP_VAL(conf->dscp_remap
-                                                                    [i]));
+                VTSS_F_REW_COMMON_DSCP_REMAP_CFG_DSCP_REMAP_VAL(conf->dscp_remap[i]));
 
         SRVL_WR(VTSS_REW_COMMON_DSCP_REMAP_DP1_CFG(i),
-                VTSS_F_REW_COMMON_DSCP_REMAP_DP1_CFG_DSCP_REMAP_DP1_VAL(
-                    conf->dscp_remap_dp1[i]));
+                VTSS_F_REW_COMMON_DSCP_REMAP_DP1_CFG_DSCP_REMAP_DP1_VAL(conf->dscp_remap_dp1[i]));
     }
 
     /* DSCP classification from QoS configuration
      */
     for (i = 0; i < 8; i++) {
         SRVL_WR(VTSS_ANA_COMMON_DSCP_REWR_CFG(i),
-                VTSS_F_ANA_COMMON_DSCP_REWR_CFG_DSCP_QOS_REWR_VAL(
-                    conf->dscp_qos_map[i]));
+                VTSS_F_ANA_COMMON_DSCP_REWR_CFG_DSCP_QOS_REWR_VAL(conf->dscp_qos_map[i]));
 
         SRVL_WR(VTSS_ANA_COMMON_DSCP_REWR_CFG(i + 8),
-                VTSS_F_ANA_COMMON_DSCP_REWR_CFG_DSCP_QOS_REWR_VAL(
-                    conf->dscp_qos_map_dp1[i]));
+                VTSS_F_ANA_COMMON_DSCP_REWR_CFG_DSCP_QOS_REWR_VAL(conf->dscp_qos_map_dp1[i]));
     }
 
     /* WRED configuration
@@ -748,9 +676,8 @@ static vtss_rc srvl_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
 static vtss_rc srvl_evc_policer_conf_set(vtss_state_t               *vtss_state,
                                          const vtss_evc_policer_id_t policer_id)
 {
-    vtss_evc_policer_conf_t *conf =
-        &vtss_state->qos.evc_policer_conf[policer_id];
-    vtss_policer_conf_t pol_conf;
+    vtss_evc_policer_conf_t *conf = &vtss_state->qos.evc_policer_conf[policer_id];
+    vtss_policer_conf_t      pol_conf;
 
     /* Convert to Serval policer configuration */
     VTSS_MEMSET(&pol_conf, 0, sizeof(pol_conf));
@@ -777,9 +704,7 @@ static vtss_rc srvl_evc_policer_conf_set(vtss_state_t               *vtss_state,
         pol_conf.disable = 1;
     }
 
-    return vtss_srvl_qos_policer_conf_set(vtss_state,
-                                          SRVL_POLICER_EVC + policer_id,
-                                          &pol_conf);
+    return vtss_srvl_qos_policer_conf_set(vtss_state, SRVL_POLICER_EVC + policer_id, &pol_conf);
 }
 #endif /* VTSS_FEATURE_EVC_POLICERS */
 
@@ -792,8 +717,7 @@ static vtss_rc srvl_qos_shaper_calibrate(vtss_state_t *vtss_state)
     return worst_case_rc;
 }
 
-static vtss_rc srvl_qos_cpu_port_shaper_set(vtss_state_t        *vtss_state,
-                                            const vtss_bitrate_t rate)
+static vtss_rc srvl_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
 {
     u32           i, se, queue, packet_rate;
     vtss_shaper_t shaper;
@@ -804,27 +728,23 @@ static vtss_rc srvl_qos_cpu_port_shaper_set(vtss_state_t        *vtss_state,
         VTSS_MEMSET(&shaper, 0, sizeof(shaper));
         shaper.rate = rate;        // kbps
         shaper.level = (4096 * 4); // 16 kbytes burst size
-        VTSS_RC(srvl_qos_shaper_conf_set(vtss_state, &shaper, se, FALSE, 0, 0,
-                                         NULL));
+        VTSS_RC(srvl_qos_shaper_conf_set(vtss_state, &shaper, se, FALSE, 0, 0, NULL));
 
         for (queue = 0; queue < 8; queue++) {
             /* CPU queue shapers at level 2, 1 FPS corresponds to 100 kbps */
             se = SRVL_HSCH_L2_SE(VTSS_CHIP_PORT_CPU_0 + i, queue);
             packet_rate = vtss_state->packet.rx_conf.queue[queue].rate;
-            shaper.rate = (packet_rate == VTSS_PACKET_RATE_DISABLED
-                               ? VTSS_BITRATE_DISABLED
-                               : packet_rate * 100);
+            shaper.rate = (packet_rate == VTSS_PACKET_RATE_DISABLED ? VTSS_BITRATE_DISABLED
+                                                                    : packet_rate * 100);
             shaper.level = 4096;
             shaper.mode = 3;
-            VTSS_RC(srvl_qos_shaper_conf_set(vtss_state, &shaper, se, FALSE, 0,
-                                             0, NULL));
+            VTSS_RC(srvl_qos_shaper_conf_set(vtss_state, &shaper, se, FALSE, 0, 0, NULL));
         }
     }
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_qos_status_get(vtss_state_t      *vtss_state,
-                                   vtss_qos_status_t *status)
+static vtss_rc srvl_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
 {
     u32 value;
 
@@ -886,8 +806,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
            VTSS_BOOL(dscp_cfg & VTSS_F_ANA_COMMON_DSCP_CFG_DSCP_REWR_ENA),
            VTSS_BOOL(dscp_cfg & VTSS_F_ANA_COMMON_DSCP_CFG_DSCP_TRUST_ENA),
            VTSS_X_REW_COMMON_DSCP_REMAP_CFG_DSCP_REMAP_VAL(dscp_remap),
-           VTSS_X_REW_COMMON_DSCP_REMAP_DP1_CFG_DSCP_REMAP_DP1_VAL(
-               dscp_remap_dp1));
+           VTSS_X_REW_COMMON_DSCP_REMAP_DP1_CFG_DSCP_REMAP_DP1_VAL(dscp_remap_dp1));
     }
     pr("\n");
 
@@ -898,8 +817,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
         u32 qos_dp0, qos_dp1;
         SRVL_RD(VTSS_ANA_COMMON_DSCP_REWR_CFG(i), &qos_dp0);
         SRVL_RD(VTSS_ANA_COMMON_DSCP_REWR_CFG(i + 8), &qos_dp1);
-        pr("%3u %4u     %4u\n", i,
-           VTSS_X_ANA_COMMON_DSCP_REWR_CFG_DSCP_QOS_REWR_VAL(qos_dp0),
+        pr("%3u %4u     %4u\n", i, VTSS_X_ANA_COMMON_DSCP_REWR_CFG_DSCP_QOS_REWR_VAL(qos_dp0),
            VTSS_X_ANA_COMMON_DSCP_REWR_CFG_DSCP_QOS_REWR_VAL(qos_dp1));
     }
     pr("\n");
@@ -909,8 +827,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     vtss_debug_print_header(ss, "QoS Port Classification Config");
 
     pr("LP CP PCP CLS DEI DPL TC_EN DC_EN\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         u32 vlan, qos;
         if (!info->port_list[port_no]) {
             continue;
@@ -921,8 +838,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
         pr("%2u %2u %3u %3u %3u %3u %5u %5u\n",
            port_no, // Logical port
            port,    // Chip port
-           VTSS_X_ANA_PORT_VLAN_CFG_VLAN_PCP(vlan),
-           VTSS_X_ANA_PORT_QOS_CFG_QOS_DEFAULT_VAL(qos),
+           VTSS_X_ANA_PORT_VLAN_CFG_VLAN_PCP(vlan), VTSS_X_ANA_PORT_QOS_CFG_QOS_DEFAULT_VAL(qos),
            VTSS_BOOL(vlan & VTSS_F_ANA_PORT_VLAN_CFG_VLAN_DEI),
            VTSS_BOOL(qos & VTSS_F_ANA_PORT_QOS_CFG_DP_DEFAULT_VAL),
            VTSS_BOOL(qos & VTSS_F_ANA_PORT_QOS_CFG_QOS_PCP_ENA),
@@ -930,12 +846,10 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-    vtss_debug_print_header(
-        ss, "QoS Port Classification PCP, DEI to QoS class, DP level Mapping");
+    vtss_debug_print_header(ss, "QoS Port Classification PCP, DEI to QoS class, DP level Mapping");
 
     pr("LP CP QoS class (8*DEI+PCP)           DP level (8*DEI+PCP)\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         int           pcp, dei;
         lmu_fmt_buf_t class_buf, dpl_buf;
         const char   *delim = "";
@@ -947,17 +861,11 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
         lmu_fmt_buf_init(&dpl_buf);
         for (dei = VTSS_DEI_START; dei < VTSS_DEI_END; dei++) {
             for (pcp = VTSS_PCP_START; pcp < VTSS_PCP_END; pcp++) {
-                SRVL_RD(VTSS_ANA_PORT_QOS_PCP_DEI_MAP_CFG(port,
-                                                          (8 * dei + pcp)),
-                        &value);
-                LMU_SS_FMT(
-                    &class_buf.ss, "%s%u", delim,
-                    VTSS_X_ANA_PORT_QOS_PCP_DEI_MAP_CFG_QOS_PCP_DEI_VAL(value));
-                LMU_SS_FMT(
-                    &dpl_buf.ss, "%s%u", delim,
-                    VTSS_BOOL(
-                        value &
-                        VTSS_F_ANA_PORT_QOS_PCP_DEI_MAP_CFG_DP_PCP_DEI_VAL));
+                SRVL_RD(VTSS_ANA_PORT_QOS_PCP_DEI_MAP_CFG(port, (8 * dei + pcp)), &value);
+                LMU_SS_FMT(&class_buf.ss, "%s%u", delim,
+                           VTSS_X_ANA_PORT_QOS_PCP_DEI_MAP_CFG_QOS_PCP_DEI_VAL(value));
+                LMU_SS_FMT(&dpl_buf.ss, "%s%u", delim,
+                           VTSS_BOOL(value & VTSS_F_ANA_PORT_QOS_PCP_DEI_MAP_CFG_DP_PCP_DEI_VAL));
                 delim = ",";
             }
         }
@@ -968,8 +876,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     vtss_debug_print_header(ss, "QoS Scheduler Config");
 
     pr("LP CP   SE Base IdxSel InpSel RR_ENA DWRR C0 C1 C2 C3 C4 C5 C6 C7\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2);
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2); port_no++) {
         if (port_no < vtss_state->port_count) {
             if (!info->port_list[port_no]) {
                 continue;
@@ -987,8 +894,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
         pr("%s %2u %4u %4u %6u %6u %6u %4u",
            &buf, // Logical port
            port, // Chip port
-           dwrr_se, VTSS_X_QSYS_QMAP_QMAP_SE_BASE(qmap),
-           VTSS_X_QSYS_QMAP_QMAP_SE_IDX_SEL(qmap),
+           dwrr_se, VTSS_X_QSYS_QMAP_QMAP_SE_BASE(qmap), VTSS_X_QSYS_QMAP_QMAP_SE_IDX_SEL(qmap),
            VTSS_X_QSYS_QMAP_QMAP_SE_INP_SEL(qmap), (value & 32) >> 5,
            VTSS_X_QSYS_HSCH_SE_CFG_SE_DWRR_CNT(value));
         for (queue = 0; queue < 8; queue++) {
@@ -1002,8 +908,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     vtss_debug_print_header(ss, "QoS Port and Queue Shaper Config");
 
     pr("LP CP Queue SE  CBS  CIR    EBS  EIR    SE_PRIO SE_SPORT SE_DPORT Excess Credit SE_FRM_MODE\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2);
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2); port_no++) {
         u32 eir, sense, excess;
         if (port_no < vtss_state->port_count) {
             if (!info->port_list[port_no]) {
@@ -1021,11 +926,9 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
         SRVL_RD(VTSS_QSYS_HSCH_CIR_CFG(terminal_se), &value);
         SRVL_RD(VTSS_QSYS_HSCH_EIR_CFG(terminal_se), &eir);
         SRVL_RD(VTSS_QSYS_HSCH_SE_DLB_SENSE(terminal_se), &sense);
-        pr("%s %2u     - %3u 0x%02x 0x%04x 0x%02x 0x%04x ", &buf, port,
-           terminal_se, VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value),
-           VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value),
-           VTSS_X_QSYS_HSCH_EIR_CFG_EIR_BURST(eir),
-           VTSS_X_QSYS_HSCH_EIR_CFG_EIR_RATE(eir));
+        pr("%s %2u     - %3u 0x%02x 0x%04x 0x%02x 0x%04x ", &buf, port, terminal_se,
+           VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value), VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value),
+           VTSS_X_QSYS_HSCH_EIR_CFG_EIR_BURST(eir), VTSS_X_QSYS_HSCH_EIR_CFG_EIR_RATE(eir));
         if (sense & VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO_ENA) {
             pr("%7u ", VTSS_X_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO(sense));
         } else {
@@ -1061,11 +964,9 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
                 SRVL_RD(VTSS_QSYS_HSCH_EIR_CFG(queue_shaper_se), &eir);
                 SRVL_RD(VTSS_QSYS_HSCH_SE_DLB_SENSE(queue_shaper_se), &sense);
             }
-            pr("      %5d %3u 0x%02x 0x%04x 0x%02x 0x%04x ", queue,
-               queue_shaper_se, VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value),
-               VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value),
-               VTSS_X_QSYS_HSCH_EIR_CFG_EIR_BURST(eir),
-               VTSS_X_QSYS_HSCH_EIR_CFG_EIR_RATE(eir));
+            pr("      %5d %3u 0x%02x 0x%04x 0x%02x 0x%04x ", queue, queue_shaper_se,
+               VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value), VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value),
+               VTSS_X_QSYS_HSCH_EIR_CFG_EIR_BURST(eir), VTSS_X_QSYS_HSCH_EIR_CFG_EIR_RATE(eir));
             if (sense & VTSS_F_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO_ENA) {
                 pr("%7u ", VTSS_X_QSYS_HSCH_SE_DLB_SENSE_SE_DLB_PRIO(sense));
             } else {
@@ -1092,20 +993,17 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     vtss_debug_print_header(ss, "QoS CPU Port Shaper Config");
     pr("CPU CP SE  CBS  CIR\n");
     SRVL_RD(VTSS_QSYS_HSCH_CIR_CFG(CPU_PORT_0_SE_INDEX), &value);
-    pr("%3u %2u %3u 0x%02x 0x%04x\n", 0, VTSS_CHIP_PORT_CPU_0,
-       CPU_PORT_0_SE_INDEX, VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value),
-       VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value));
+    pr("%3u %2u %3u 0x%02x 0x%04x\n", 0, VTSS_CHIP_PORT_CPU_0, CPU_PORT_0_SE_INDEX,
+       VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value), VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value));
     SRVL_RD(VTSS_QSYS_HSCH_CIR_CFG(CPU_PORT_1_SE_INDEX), &value);
-    pr("%3u %2u %3u 0x%02x 0x%04x\n", 1, VTSS_CHIP_PORT_CPU_1,
-       CPU_PORT_1_SE_INDEX, VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value),
-       VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value));
+    pr("%3u %2u %3u 0x%02x 0x%04x\n", 1, VTSS_CHIP_PORT_CPU_1, CPU_PORT_1_SE_INDEX,
+       VTSS_X_QSYS_HSCH_CIR_CFG_CIR_BURST(value), VTSS_X_QSYS_HSCH_CIR_CFG_CIR_RATE(value));
     pr("\n");
 
     vtss_debug_print_header(ss, "QoS Port Tag Remarking Config");
 
     pr("LP CP MPCP MDEI PCP DEI\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         u32 tag_default, tag_ctrl;
         if (!info->port_list[port_no]) {
             continue;
@@ -1124,8 +1022,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     vtss_debug_print_header(ss, "QoS Port Tag Remarking Map");
 
     pr("LP CP PCP (2*QoS class+DPL)           DEI (2*QoS class+DPL)\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         int class, dpl;
         lmu_fmt_buf_t pcp_buf, dei_buf;
         const char   *delim = "";
@@ -1136,16 +1033,11 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
         lmu_fmt_buf_init(&dei_buf);
         for (class = VTSS_QUEUE_START; class < VTSS_QUEUE_END; class ++) {
             for (dpl = 0; dpl < 2; dpl++) {
-                SRVL_RD(VTSS_REW_PORT_PCP_DEI_QOS_MAP_CFG(port,
-                                                          (8 * dpl + class)),
-                        &value);
-                LMU_SS_FMT(
-                    &pcp_buf.ss, "%s%u", delim,
-                    VTSS_X_REW_PORT_PCP_DEI_QOS_MAP_CFG_PCP_QOS_VAL(value));
-                LMU_SS_FMT(
-                    &dei_buf.ss, "%s%u", delim,
-                    VTSS_BOOL(value &
-                              VTSS_F_REW_PORT_PCP_DEI_QOS_MAP_CFG_DEI_QOS_VAL));
+                SRVL_RD(VTSS_REW_PORT_PCP_DEI_QOS_MAP_CFG(port, (8 * dpl + class)), &value);
+                LMU_SS_FMT(&pcp_buf.ss, "%s%u", delim,
+                           VTSS_X_REW_PORT_PCP_DEI_QOS_MAP_CFG_PCP_QOS_VAL(value));
+                LMU_SS_FMT(&dei_buf.ss, "%s%u", delim,
+                           VTSS_BOOL(value & VTSS_F_REW_PORT_PCP_DEI_QOS_MAP_CFG_DEI_QOS_VAL));
                 delim = ",";
             }
         }
@@ -1156,8 +1048,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     vtss_debug_print_header(ss, "QoS Port DSCP Remarking Config");
 
     pr("LP CP I_Mode Trans E_Mode\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         u32 qos_cfg, dscp_cfg;
         if (!info->port_list[port_no]) {
             continue;
@@ -1165,8 +1056,7 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
         port = VTSS_CHIP_PORT(port_no);
         SRVL_RD(VTSS_ANA_PORT_QOS_CFG(port), &qos_cfg);
         SRVL_RD(VTSS_REW_PORT_DSCP_CFG(port), &dscp_cfg);
-        pr("%2u %2u %6u %5u %6u\n", port_no, port,
-           VTSS_X_ANA_PORT_QOS_CFG_DSCP_REWR_CFG(qos_cfg),
+        pr("%2u %2u %6u %5u %6u\n", port_no, port, VTSS_X_ANA_PORT_QOS_CFG_DSCP_REWR_CFG(qos_cfg),
            VTSS_BOOL(qos_cfg & VTSS_F_ANA_PORT_QOS_CFG_DSCP_TRANSLATE_ENA),
            VTSS_X_REW_PORT_DSCP_CFG_DSCP_REWR_CFG(dscp_cfg));
     }
@@ -1178,16 +1068,13 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
     vtss_debug_print_header(ss, "QoS Port and Queue Policer");
 
     vtss_srvl_debug_reg_header(ss, "Policer Config (chip ports)");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (!info->port_list[port_no]) {
             continue;
         }
         port = VTSS_CHIP_PORT(port_no);
-        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_POL_CFG(port),
-                                 port, "POL_CFG");
-        vtss_srvl_debug_reg_inst(vtss_state, ss,
-                                 VTSS_ANA_POL_MISC_POL_FLOWC(port), port,
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_POL_CFG(port), port, "POL_CFG");
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_POL_MISC_POL_FLOWC(port), port,
                                  "POL_FLOWC");
     }
     pr("\n");
@@ -1225,10 +1112,8 @@ static vtss_rc srvl_debug_qos(vtss_state_t                  *vtss_state,
            VTSS_X_ANA_POL_POL_MODE_CFG_IPG_SIZE(value),
            SRVL_BF(ANA_POL_POL_MODE_CFG_DLB_COUPLED, value),
            SRVL_BF(ANA_POL_POL_MODE_CFG_OVERSHOOT_ENA, value),
-           VTSS_X_ANA_POL_POL_PIR_CFG_PIR_RATE(pir),
-           VTSS_X_ANA_POL_POL_PIR_CFG_PIR_BURST(pir),
-           VTSS_X_ANA_POL_POL_CIR_CFG_CIR_RATE(cir),
-           VTSS_X_ANA_POL_POL_CIR_CFG_CIR_BURST(cir));
+           VTSS_X_ANA_POL_POL_PIR_CFG_PIR_RATE(pir), VTSS_X_ANA_POL_POL_PIR_CFG_PIR_BURST(pir),
+           VTSS_X_ANA_POL_POL_CIR_CFG_CIR_RATE(cir), VTSS_X_ANA_POL_POL_CIR_CFG_CIR_BURST(cir));
     }
     if (!header) {
         pr("\n");
@@ -1241,8 +1126,7 @@ vtss_rc vtss_srvl_qos_debug_print(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, srvl_debug_qos,
-                                  vtss_state, ss, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, srvl_debug_qos, vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */
@@ -1272,20 +1156,17 @@ vtss_rc vtss_srvl_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         /* Setup discard policer */
         VTSS_MEMSET(&pol_conf, 0, sizeof(pol_conf));
         pol_conf.frame_rate = 1;
-        VTSS_RC(vtss_srvl_qos_policer_conf_set(vtss_state, SRVL_POLICER_DISCARD,
-                                               &pol_conf));
+        VTSS_RC(vtss_srvl_qos_policer_conf_set(vtss_state, SRVL_POLICER_DISCARD, &pol_conf));
         break;
     case VTSS_INIT_CMD_PORT_MAP: {
         /* Use quarter key in IS1 third lookup by default */
         vtss_vcap_key_type_t key_type = VTSS_VCAP_KEY_TYPE_DOUBLE_TAG;
 
-        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++) {
+        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
 #if defined(VTSS_FEATURE_QOS)
             vtss_state->qos.port_conf[port_no].key_type = key_type;
 #endif /* VTSS_FEATURE_QOS */
-            VTSS_RC(vtss_srvl_vcap_port_key_addr_set(vtss_state, port_no, 2,
-                                                     key_type, key_type,
+            VTSS_RC(vtss_srvl_vcap_port_key_addr_set(vtss_state, port_no, 2, key_type, key_type,
                                                      FALSE));
         }
 

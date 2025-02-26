@@ -11,8 +11,8 @@
 /* =================================================================
  *  EEE - Energy Efficient Ethernet
  * =================================================================*/
-static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
-                                    const vtss_port_no_t port_no,
+static vtss_rc fa_eee_port_conf_set(vtss_state_t                     *vtss_state,
+                                    const vtss_port_no_t              port_no,
                                     const vtss_eee_port_conf_t *const conf)
 {
     u32            closest_match_index, closest_match, i, requested_time;
@@ -30,8 +30,7 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
     if (!vtss_state->eee.timer_table_initialized) {
         vtss_state->eee.timer_table_initialized = TRUE;
         for (i = 0; i < VTSS_EEE_TIMER_TABLE_CNT; i++) {
-            vtss_state->eee.timer_table[i] =
-                (1 << (2 * (i / 16UL))) * (i % 16UL);
+            vtss_state->eee.timer_table[i] = (1 << (2 * (i / 16UL))) * (i % 16UL);
         }
     }
 
@@ -45,14 +44,11 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
         //  EEE in the MAC (No LPI signal to the PHY) when the PHY has auto
         //  negotiated and have found that the link partner supports EEE.
         if (conf->lp_advertisement == 0) {
-            VTSS_D(
-                "Link partner doesn't support EEE - Keeping EEE disabled. Port:%u",
-                chip_port);
+            VTSS_D("Link partner doesn't support EEE - Keeping EEE disabled. Port:%u", chip_port);
         } else if (!(vtss_state->port.conf[port_no].fdx)) {
             // EEE and Half duplex are not supposed to work together, so we
             // disables EEE in the case where the port is in HDX mode.
-            VTSS_D("EEE disabled due to that port is in HDX mode, port:%u",
-                   chip_port);
+            VTSS_D("EEE disabled due to that port is in HDX mode, port:%u", chip_port);
         } else {
             eee_cfg_reg |= VTSS_M_DEV1G_EEE_CFG_EEE_ENA;
         }
@@ -95,8 +91,8 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
                    VTSS_F_DEV1G_EEE_CFG_EEE_TIMER_AGE(eee_timer_age);
 
     // EEE fast queues
-    VTSS_N("eee_fast_queues:0x%X, to-dev:%d, chip_port:%d",
-           conf->eee_fast_queues, dev_tgt, chip_port);
+    VTSS_N("eee_fast_queues:0x%X, to-dev:%d, chip_port:%d", conf->eee_fast_queues, dev_tgt,
+           chip_port);
     REG_WRM(VTSS_QSYS_EEE_CFG(chip_port),
             VTSS_F_QSYS_EEE_CFG_EEE_FAST_QUEUES(conf->eee_fast_queues),
             VTSS_M_QSYS_EEE_CFG_EEE_FAST_QUEUES);
@@ -104,8 +100,8 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t        *vtss_state,
     // Registers write
     VTSS_D("chip_port:%d, eee_cfg_reg:0x%X", chip_port, eee_cfg_reg);
     REG_WR(VTSS_DEV1G_EEE_CFG(dev_tgt), eee_cfg_reg);
-    VTSS_D("chip_port:%u, eee_cfg_reg = 0x%X, conf->tx_tw = %d, eee_timer_age:%d",
-           chip_port, eee_cfg_reg, conf->tx_tw, eee_timer_age);
+    VTSS_D("chip_port:%u, eee_cfg_reg = 0x%X, conf->tx_tw = %d, eee_timer_age:%d", chip_port,
+           eee_cfg_reg, conf->tx_tw, eee_timer_age);
 
     // Setting Buffer size to 12.2 Kbyte & 255 frames.
     REG_WR(VTSS_QSYS_EEE_THRES, 0xFFFF);
@@ -140,16 +136,14 @@ static vtss_rc fa_reg_write(vtss_state_t        *vtss_state,
     return vtss_fa_wr(vtss_state, addr, value);
 }
 
-vtss_rc vtss_fa_chip_id_get(vtss_state_t         *vtss_state,
-                            vtss_chip_id_t *const chip_id)
+vtss_rc vtss_fa_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
     chip_id->part_number = 0x6500;
     chip_id->revision = 1;
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_ptp_event_poll(vtss_state_t          *vtss_state,
-                                 vtss_ptp_event_type_t *ev_mask)
+static vtss_rc fa_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
     u32 sticky, mask;
 
@@ -160,24 +154,18 @@ static vtss_rc fa_ptp_event_poll(vtss_state_t          *vtss_state,
     REG_RD(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA, &mask);
     sticky &= mask; /* Only handle enabled sources */
 
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 0))
-                    ? VTSS_PTP_PIN_0_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 1))
-                    ? VTSS_PTP_PIN_1_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 2))
-                    ? VTSS_PTP_PIN_2_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 3))
-                    ? VTSS_PTP_PIN_3_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 4))
-                    ? VTSS_PTP_PIN_4_SYNC_EV
-                    : 0;
-    *ev_mask |= (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 5))
-                    ? VTSS_PTP_PIN_5_SYNC_EV
-                    : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 0)) ? VTSS_PTP_PIN_0_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 1)) ? VTSS_PTP_PIN_1_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 2)) ? VTSS_PTP_PIN_2_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 3)) ? VTSS_PTP_PIN_3_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 4)) ? VTSS_PTP_PIN_4_SYNC_EV : 0;
+    *ev_mask |=
+        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 5)) ? VTSS_PTP_PIN_5_SYNC_EV : 0;
     VTSS_D("sticky: 0x%x, ev_mask 0x%x", sticky, *ev_mask);
 
     return VTSS_RC_OK;
@@ -192,38 +180,32 @@ static vtss_rc fa_ptp_event_enable(vtss_state_t         *vtss_state,
 
     if (ev_mask & VTSS_PTP_PIN_0_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 0
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 0 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 0));
     }
     if (ev_mask & VTSS_PTP_PIN_1_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 1
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 1 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 1));
     }
     if (ev_mask & VTSS_PTP_PIN_2_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 2
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 2 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 2));
     }
     if (ev_mask & VTSS_PTP_PIN_3_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 3
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 3 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 3));
     }
     if (ev_mask & VTSS_PTP_PIN_4_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 4
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 4 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 4));
     }
     if (ev_mask & VTSS_PTP_PIN_5_SYNC_EV) {
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 5
-                                                                       : 0),
+                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 5 : 0),
                 VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 5));
     }
     return VTSS_RC_OK;

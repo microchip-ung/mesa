@@ -42,8 +42,7 @@ static vtss_rc doing_calculate(vtss_state_t *vtss_state,
     BOOL lb_hw_enabled, tst_hw_enabled;
 
     REG_RD(VTSS_VOP_OAM_HW_CTRL(voe_idx), &v);
-    lb_hw_enabled = (v & (VTSS_M_VOP_OAM_HW_CTRL_LBM_ENA |
-                          VTSS_M_VOP_OAM_HW_CTRL_LBR_ENA)) != 0;
+    lb_hw_enabled = (v & (VTSS_M_VOP_OAM_HW_CTRL_LBM_ENA | VTSS_M_VOP_OAM_HW_CTRL_LBR_ENA)) != 0;
     tst_hw_enabled = (v & VTSS_M_VOP_OAM_HW_CTRL_TST_ENA) != 0;
 
     *doing_lb = lb_hw_enabled && !tst_hw_enabled;
@@ -108,9 +107,8 @@ u32 vtss_fa_voi_idx_to_mip_idx(vtss_state_t *vtss_state, vtss_voi_idx_t voi_idx)
     if (voi_idx < VTSS_DOWN_VOI_CNT) {
         return (voi_idx);
     } else {
-        return ((voi_idx - VTSS_DOWN_VOI_CNT) +
-                1); /* Up MIP instance 0 is not used as it cannot be addressed
-                       by ES0 action. */
+        return ((voi_idx - VTSS_DOWN_VOI_CNT) + 1); /* Up MIP instance 0 is not used as it cannot be
+                                                       addressed by ES0 action. */
     }
 }
 
@@ -123,81 +121,69 @@ static vtss_rc voe_counter_update(vtss_state_t        *vtss_state,
  * The clear operation will be triggered by matching the 'clear_mask' with both
  * a counter type (ctype) and a counter direction (cdir - TX or RX).
  */
-#define CHIPREAD(reg, cnt, ctype, cdir)                                        \
-    {                                                                          \
-        REG_RD(reg, &v);                                                       \
-        vtss_cmn_counter_32_update(v, cnt,                                     \
-                                   ((clear_mask & (ctype)) != 0) &&            \
-                                       ((clear_mask & (cdir)) != 0));          \
+#define CHIPREAD(reg, cnt, ctype, cdir)                                                            \
+    {                                                                                              \
+        REG_RD(reg, &v);                                                                           \
+        vtss_cmn_counter_32_update(v, cnt,                                                         \
+                                   ((clear_mask & (ctype)) != 0) && ((clear_mask & (cdir)) != 0)); \
     }
-#define UPDATE8(v, cnt, ctype, cdir)                                           \
-    {                                                                          \
-        vtss_cmn_counter_8_update(v, cnt,                                      \
-                                  ((clear_mask & (ctype)) != 0) &&             \
-                                      ((clear_mask & (cdir)) != 0));           \
+#define UPDATE8(v, cnt, ctype, cdir)                                                               \
+    {                                                                                              \
+        vtss_cmn_counter_8_update(v, cnt,                                                          \
+                                  ((clear_mask & (ctype)) != 0) && ((clear_mask & (cdir)) != 0));  \
     }
-#define UPDATE16(v, cnt, ctype, cdir)                                          \
-    {                                                                          \
-        vtss_cmn_counter_16_update(v, cnt,                                     \
-                                   ((clear_mask & (ctype)) != 0) &&            \
-                                       ((clear_mask & (cdir)) != 0));          \
+#define UPDATE16(v, cnt, ctype, cdir)                                                              \
+    {                                                                                              \
+        vtss_cmn_counter_16_update(v, cnt,                                                         \
+                                   ((clear_mask & (ctype)) != 0) && ((clear_mask & (cdir)) != 0)); \
     }
 
     vtss_rc                           rc = VTSS_RC_OK;
     u32                               v;
     BOOL                              doing_lb = 0, doing_tst = 0;
-    vtss_oam_voe_internal_counters_t *chipcnt =
-        &vtss_state->oam.voe_internal[voe_idx].counters;
+    vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
 
     /* CCM counter update */
     REG_RD(VTSS_VOP_CCM_RX_FRM_CNT(voe_idx), &v);
-    UPDATE16(VTSS_X_VOP_CCM_RX_FRM_CNT_CCM_RX_VLD_FC_CNT(v),
-             &chipcnt->ccm.rx_valid_counter, VTSS_OAM_CNT_CCM,
-             VTSS_OAM_CNT_DIR_RX);
-    UPDATE16(VTSS_X_VOP_CCM_RX_FRM_CNT_CCM_RX_INVLD_FC_CNT(v),
-             &chipcnt->ccm.rx_invalid_counter, VTSS_OAM_CNT_CCM,
-             VTSS_OAM_CNT_DIR_RX);
-    CHIPREAD(VTSS_VOP_CCM_TX_SEQ_CFG(voe_idx), &chipcnt->ccm.tx_counter,
-             VTSS_OAM_CNT_CCM, VTSS_OAM_CNT_DIR_TX);
+    UPDATE16(VTSS_X_VOP_CCM_RX_FRM_CNT_CCM_RX_VLD_FC_CNT(v), &chipcnt->ccm.rx_valid_counter,
+             VTSS_OAM_CNT_CCM, VTSS_OAM_CNT_DIR_RX);
+    UPDATE16(VTSS_X_VOP_CCM_RX_FRM_CNT_CCM_RX_INVLD_FC_CNT(v), &chipcnt->ccm.rx_invalid_counter,
+             VTSS_OAM_CNT_CCM, VTSS_OAM_CNT_DIR_RX);
+    CHIPREAD(VTSS_VOP_CCM_TX_SEQ_CFG(voe_idx), &chipcnt->ccm.tx_counter, VTSS_OAM_CNT_CCM,
+             VTSS_OAM_CNT_DIR_TX);
 
     REG_RD(VTSS_VOP_CCM_RX_WARNING(voe_idx), &v);
-    UPDATE16(VTSS_X_VOP_CCM_RX_WARNING_CCM_RX_SEQNO_ERR_CNT(v),
-             &chipcnt->ccm.rx_oo_counter, VTSS_OAM_CNT_CCM,
-             VTSS_OAM_CNT_DIR_RX);
+    UPDATE16(VTSS_X_VOP_CCM_RX_WARNING_CCM_RX_SEQNO_ERR_CNT(v), &chipcnt->ccm.rx_oo_counter,
+             VTSS_OAM_CNT_CCM, VTSS_OAM_CNT_DIR_RX);
 
     /* LB counter update */
     VTSS_RC(doing_calculate(vtss_state, voe_idx, &doing_lb, &doing_tst));
     if (doing_lb || (clear_mask & VTSS_OAM_CNT_LB)) {
-        CHIPREAD(VTSS_VOP_LBR_RX_FRM_CNT(voe_idx), &chipcnt->lb.rx_lbr_counter,
-                 VTSS_OAM_CNT_LB, VTSS_OAM_CNT_DIR_RX);
-        CHIPREAD(VTSS_VOP_LBM_TX_TRANSID_CFG(voe_idx),
-                 &chipcnt->lb.tx_lbm_counter, VTSS_OAM_CNT_LB,
+        CHIPREAD(VTSS_VOP_LBR_RX_FRM_CNT(voe_idx), &chipcnt->lb.rx_lbr_counter, VTSS_OAM_CNT_LB,
+                 VTSS_OAM_CNT_DIR_RX);
+        CHIPREAD(VTSS_VOP_LBM_TX_TRANSID_CFG(voe_idx), &chipcnt->lb.tx_lbm_counter, VTSS_OAM_CNT_LB,
                  VTSS_OAM_CNT_DIR_TX);
-        CHIPREAD(VTSS_VOP_LBR_RX_TRANSID_ERR_CNT(voe_idx),
-                 &chipcnt->lb.rx_lbr_oo_counter, VTSS_OAM_CNT_LB,
-                 VTSS_OAM_CNT_DIR_RX);
-        CHIPREAD(VTSS_VOP_LBR_CRC_ERR_CNT(voe_idx),
-                 &chipcnt->lb.rx_lbr_crc_counter, VTSS_OAM_CNT_LB,
-                 VTSS_OAM_CNT_DIR_RX);
-        CHIPREAD(VTSS_VOP_LBR_TX_FRM_CNT(voe_idx), &chipcnt->lb.tx_lbr_counter,
-                 VTSS_OAM_CNT_LB, VTSS_OAM_CNT_DIR_TX);
+        CHIPREAD(VTSS_VOP_LBR_RX_TRANSID_ERR_CNT(voe_idx), &chipcnt->lb.rx_lbr_oo_counter,
+                 VTSS_OAM_CNT_LB, VTSS_OAM_CNT_DIR_RX);
+        CHIPREAD(VTSS_VOP_LBR_CRC_ERR_CNT(voe_idx), &chipcnt->lb.rx_lbr_crc_counter,
+                 VTSS_OAM_CNT_LB, VTSS_OAM_CNT_DIR_RX);
+        CHIPREAD(VTSS_VOP_LBR_TX_FRM_CNT(voe_idx), &chipcnt->lb.tx_lbr_counter, VTSS_OAM_CNT_LB,
+                 VTSS_OAM_CNT_DIR_TX);
     }
 
     /* VOE counter update */
-    CHIPREAD(VTSS_VOP_RX_SEL_OAM_CNT(voe_idx),
-             &chipcnt->voe.rx_selected_counter, VTSS_OAM_CNT_VOE,
+    CHIPREAD(VTSS_VOP_RX_SEL_OAM_CNT(voe_idx), &chipcnt->voe.rx_selected_counter, VTSS_OAM_CNT_VOE,
              VTSS_OAM_CNT_DIR_RX);
-    CHIPREAD(VTSS_VOP_TX_SEL_OAM_CNT(voe_idx),
-             &chipcnt->voe.tx_selected_counter, VTSS_OAM_CNT_VOE,
+    CHIPREAD(VTSS_VOP_TX_SEL_OAM_CNT(voe_idx), &chipcnt->voe.tx_selected_counter, VTSS_OAM_CNT_VOE,
              VTSS_OAM_CNT_DIR_TX);
-    CHIPREAD(VTSS_VOP_RX_OAM_FRM_CNT(voe_idx), &chipcnt->voe.rx_counter,
-             VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_RX);
-    CHIPREAD(VTSS_VOP_TX_OAM_FRM_CNT(voe_idx), &chipcnt->voe.tx_counter,
-             VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_TX);
-    CHIPREAD(VTSS_VOP_TX_OAM_DISCARD(voe_idx), &chipcnt->voe.tx_discard_counter,
-             VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_TX);
-    CHIPREAD(VTSS_VOP_RX_OAM_DISCARD(voe_idx), &chipcnt->voe.rx_discard_counter,
-             VTSS_OAM_CNT_VOE, VTSS_OAM_CNT_DIR_RX);
+    CHIPREAD(VTSS_VOP_RX_OAM_FRM_CNT(voe_idx), &chipcnt->voe.rx_counter, VTSS_OAM_CNT_VOE,
+             VTSS_OAM_CNT_DIR_RX);
+    CHIPREAD(VTSS_VOP_TX_OAM_FRM_CNT(voe_idx), &chipcnt->voe.tx_counter, VTSS_OAM_CNT_VOE,
+             VTSS_OAM_CNT_DIR_TX);
+    CHIPREAD(VTSS_VOP_TX_OAM_DISCARD(voe_idx), &chipcnt->voe.tx_discard_counter, VTSS_OAM_CNT_VOE,
+             VTSS_OAM_CNT_DIR_TX);
+    CHIPREAD(VTSS_VOP_RX_OAM_DISCARD(voe_idx), &chipcnt->voe.rx_discard_counter, VTSS_OAM_CNT_VOE,
+             VTSS_OAM_CNT_DIR_RX);
 
     return rc;
 #undef CHIPREAD
@@ -207,8 +193,7 @@ static vtss_rc voe_counter_update(vtss_state_t        *vtss_state,
 
 static vtss_rc fa_oam_vop_int_enable(vtss_state_t *vtss_state, BOOL enable)
 {
-    REG_WRM(VTSS_VOP_MASTER_INTR_CTRL,
-            VTSS_F_VOP_MASTER_INTR_CTRL_OAM_MEP_INTR_ENA(enable ? 1 : 0),
+    REG_WRM(VTSS_VOP_MASTER_INTR_CTRL, VTSS_F_VOP_MASTER_INTR_CTRL_OAM_MEP_INTR_ENA(enable ? 1 : 0),
             VTSS_M_VOP_MASTER_INTR_CTRL_OAM_MEP_INTR_ENA);
 
     return VTSS_RC_OK;
@@ -236,19 +221,16 @@ vtss_rc vtss_fa_oam_vop_int_update(vtss_state_t *vtss_state)
     return fa_oam_vop_int_enable(vtss_state, must_enable ? TRUE : FALSE);
 }
 
-static vtss_rc voe_default_set(vtss_state_t        *vtss_state,
-                               const vtss_voe_idx_t voe_idx);
+static vtss_rc voe_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx);
 
-static vtss_rc voi_default_set(vtss_state_t        *vtss_state,
-                               const vtss_voe_idx_t voe_idx);
+static vtss_rc voi_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx);
 
 /* - CIL functions ------------------------------------------------- */
 /* - CIL functions ------------------------------------------------- */
 /* - CIL functions ------------------------------------------------- */
 /* - CIL functions ------------------------------------------------- */
 
-static vtss_rc fa_vop_conf_set(vtss_state_t                *vtss_state,
-                               const vtss_vop_conf_t *const conf)
+static vtss_rc fa_vop_conf_set(vtss_state_t *vtss_state, const vtss_vop_conf_t *const conf)
 {
 
     u32 value, i;
@@ -257,16 +239,12 @@ static vtss_rc fa_vop_conf_set(vtss_state_t                *vtss_state,
 
     /* Multicast MAC configuration */
     value = (conf->multicast_dmac.addr[0] << 8) | conf->multicast_dmac.addr[1];
-    REG_WR(VTSS_VOP_COMMON_MEP_MC_MAC_MSB,
-           VTSS_F_VOP_COMMON_MEP_MC_MAC_MSB_MEP_MC_MAC_MSB(value));
+    REG_WR(VTSS_VOP_COMMON_MEP_MC_MAC_MSB, VTSS_F_VOP_COMMON_MEP_MC_MAC_MSB_MEP_MC_MAC_MSB(value));
 
-    value = (conf->multicast_dmac.addr[2] << 24) |
-            (conf->multicast_dmac.addr[3] << 16) |
-            (conf->multicast_dmac.addr[4] << 8) |
-            (conf->multicast_dmac.addr[5]);
+    value = (conf->multicast_dmac.addr[2] << 24) | (conf->multicast_dmac.addr[3] << 16) |
+            (conf->multicast_dmac.addr[4] << 8) | (conf->multicast_dmac.addr[5]);
     value >>= 4; /* Value in reg. field doesn't include the lower 4 bits */
-    REG_WR(VTSS_VOP_COMMON_MEP_MC_MAC_LSB,
-           VTSS_F_VOP_COMMON_MEP_MC_MAC_LSB_MEP_MC_MAC_LSB(value));
+    REG_WR(VTSS_VOP_COMMON_MEP_MC_MAC_LSB, VTSS_F_VOP_COMMON_MEP_MC_MAC_LSB_MEP_MC_MAC_LSB(value));
 
     /* CPU extraction queue configuration */
     value = (VTSS_F_VOP_CPU_EXTR_CFG_CPU_ERR_QU(conf->voe_queue_err));
@@ -293,20 +271,17 @@ static vtss_rc fa_vop_conf_set(vtss_state_t                *vtss_state,
 
     for (i = 0; i < VTSS_DOWN_VOI_CNT;
          ++i) { /* The number of Down and Up MIPs are the same in HW */
-        REG_WRM(VTSS_ANA_CL_MIP_CFG(i),
-                VTSS_F_ANA_CL_MIP_CFG_CPU_MIP_QU(conf->voi_queue),
+        REG_WRM(VTSS_ANA_CL_MIP_CFG(i), VTSS_F_ANA_CL_MIP_CFG_CPU_MIP_QU(conf->voi_queue),
                 VTSS_M_ANA_CL_MIP_CFG_CPU_MIP_QU);
-        REG_WRM(VTSS_REW_MIP_CFG(i),
-                VTSS_F_REW_MIP_CFG_CPU_MIP_QU(conf->voi_queue),
+        REG_WRM(VTSS_REW_MIP_CFG(i), VTSS_F_REW_MIP_CFG_CPU_MIP_QU(conf->voi_queue),
                 VTSS_M_REW_MIP_CFG_CPU_MIP_QU);
     }
 
     /* Generic [GENERIC_OFFSET_LAPS] is used for LAPS */
-    value =
-        VTSS_F_VOP_OAM_GENERIC_CFG_GENERIC_OPCODE_CPU_QU(conf->voe_queue_aps) |
-        VTSS_F_VOP_OAM_GENERIC_CFG_GENERIC_OPCODE_VAL(39) | /* LAPS opcode is 39
-                                                             */
-        VTSS_F_VOP_OAM_GENERIC_CFG_GENERIC_DMAC_CHK_DIS(0);
+    value = VTSS_F_VOP_OAM_GENERIC_CFG_GENERIC_OPCODE_CPU_QU(conf->voe_queue_aps) |
+            VTSS_F_VOP_OAM_GENERIC_CFG_GENERIC_OPCODE_VAL(39) | /* LAPS opcode is 39
+                                                                 */
+            VTSS_F_VOP_OAM_GENERIC_CFG_GENERIC_DMAC_CHK_DIS(0);
     REG_WR(VTSS_VOP_OAM_GENERIC_CFG(GENERIC_OFFSET_LAPS), value);
 
     /* Always using all 8 HMO slots and HMO scan is initiated at half the
@@ -316,23 +291,15 @@ static vtss_rc fa_vop_conf_set(vtss_state_t                *vtss_state,
     REG_WR(VTSS_VOP_HMO_PERIOD_CFG(0),
            (((u64)conf->auto_copy_period[0]) * 1000) / loc_base / (8 / 2));
 
-    REG_WR(
-        VTSS_VOP_HMO_TIMER_CFG,
-        (VTSS_F_VOP_HMO_TIMER_CFG_HMO_RX_CCM_NXT_TIMER(conf->auto_copy_ccm_valid
-                                                           ? 1
-                                                           : 0) |
-         VTSS_F_VOP_HMO_TIMER_CFG_HMO_CCM_RX_TLV_NON_ZERO_TIMER(
-             conf->auto_copy_ccm_tlv ? 1 : 0) |
-         VTSS_F_VOP_HMO_TIMER_CFG_HMO_CCM_RX_BAD_NXT_TIMER(conf->auto_copy_ccm_err
-                                                               ? 1
-                                                               : 0) |
-         VTSS_F_VOP_HMO_TIMER_CFG_HMO_RX_TEST_FRM_NXT_TIMER(conf->auto_copy_lbr
-                                                                ? 1
-                                                                : 0)));
+    REG_WR(VTSS_VOP_HMO_TIMER_CFG,
+           (VTSS_F_VOP_HMO_TIMER_CFG_HMO_RX_CCM_NXT_TIMER(conf->auto_copy_ccm_valid ? 1 : 0) |
+            VTSS_F_VOP_HMO_TIMER_CFG_HMO_CCM_RX_TLV_NON_ZERO_TIMER(conf->auto_copy_ccm_tlv ? 1
+                                                                                           : 0) |
+            VTSS_F_VOP_HMO_TIMER_CFG_HMO_CCM_RX_BAD_NXT_TIMER(conf->auto_copy_ccm_err ? 1 : 0) |
+            VTSS_F_VOP_HMO_TIMER_CFG_HMO_RX_TEST_FRM_NXT_TIMER(conf->auto_copy_lbr ? 1 : 0)));
 
     /* Enable VOP */
-    value = VTSS_F_VOP_VOP_CTRL_VOP_ENA(1) |
-            VTSS_F_VOP_VOP_CTRL_LOC_SCAN_ENA(1) |
+    value = VTSS_F_VOP_VOP_CTRL_VOP_ENA(1) | VTSS_F_VOP_VOP_CTRL_LOC_SCAN_ENA(1) |
             VTSS_F_VOP_VOP_CTRL_CCM_RX_SRC_PORT_DETECT_CNT(3);
     REG_WR(VTSS_VOP_VOP_CTRL, value);
 
@@ -381,39 +348,31 @@ static vtss_rc fa_voe_event_mask_set(vtss_state_t        *vtss_state,
     REG_RD(VTSS_VOP_INTR_ENA(voe_idx), &enable_mask);
 
     /* Translate the input mask to register mask */
-    reg_mask = (((mask & VTSS_VOE_EVENT_MASK_CCM_SRC_PORT_MOVE)
-                     ? VTSS_M_VOP_INTR_ENA_CCM_RX_SRC_PORT_DETECT_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS)
-                     ? VTSS_M_VOP_INTR_ENA_TLV_PORT_STATUS_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_TLV_IF_STATUS)
-                     ? VTSS_M_VOP_INTR_ENA_TLV_INTERFACE_STATUS_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_PERIOD)
-                     ? VTSS_M_VOP_INTR_ENA_CCM_UNEXP_PERIOD_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_PRIORITY)
-                     ? VTSS_M_VOP_INTR_ENA_CCM_UNEXP_PRIO_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_ZERO_PERIOD)
-                     ? VTSS_M_VOP_INTR_ENA_CCM_ZERO_PERIOD_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_RX_RDI)
-                     ? VTSS_M_VOP_INTR_ENA_CCM_RX_RDI_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_LOC)
-                     ? VTSS_M_VOP_INTR_ENA_CCM_LOC_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_MEP_ID)
-                     ? VTSS_M_VOP_INTR_ENA_CCM_UNEXP_MEPID_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_MEG_ID)
-                     ? VTSS_M_VOP_INTR_ENA_CCM_UNEXP_MEGID_INTR_ENA
-                     : 0) |
-                ((mask & VTSS_VOE_EVENT_MASK_CCM_MEG_LEVEL)
-                     ? VTSS_M_VOP_INTR_ENA_CCM_RX_MEL_LOW_INTR_ENA
-                     : 0));
+    reg_mask =
+        (((mask & VTSS_VOE_EVENT_MASK_CCM_SRC_PORT_MOVE)
+              ? VTSS_M_VOP_INTR_ENA_CCM_RX_SRC_PORT_DETECT_INTR_ENA
+              : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS)
+              ? VTSS_M_VOP_INTR_ENA_TLV_PORT_STATUS_INTR_ENA
+              : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_TLV_IF_STATUS)
+              ? VTSS_M_VOP_INTR_ENA_TLV_INTERFACE_STATUS_INTR_ENA
+              : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_PERIOD) ? VTSS_M_VOP_INTR_ENA_CCM_UNEXP_PERIOD_INTR_ENA
+                                                  : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_PRIORITY) ? VTSS_M_VOP_INTR_ENA_CCM_UNEXP_PRIO_INTR_ENA
+                                                    : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_ZERO_PERIOD)
+              ? VTSS_M_VOP_INTR_ENA_CCM_ZERO_PERIOD_INTR_ENA
+              : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_RX_RDI) ? VTSS_M_VOP_INTR_ENA_CCM_RX_RDI_INTR_ENA : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_LOC) ? VTSS_M_VOP_INTR_ENA_CCM_LOC_INTR_ENA : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_MEP_ID) ? VTSS_M_VOP_INTR_ENA_CCM_UNEXP_MEPID_INTR_ENA
+                                                  : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_MEG_ID) ? VTSS_M_VOP_INTR_ENA_CCM_UNEXP_MEGID_INTR_ENA
+                                                  : 0) |
+         ((mask & VTSS_VOE_EVENT_MASK_CCM_MEG_LEVEL) ? VTSS_M_VOP_INTR_ENA_CCM_RX_MEL_LOW_INTR_ENA
+                                                     : 0));
 
     /* Calculate new enable mask */
     enable_mask = enable ? (enable_mask | reg_mask) : (enable_mask & ~reg_mask);
@@ -444,39 +403,40 @@ static vtss_rc fa_voe_event_get(vtss_state_t        *vtss_state,
      * is not the same as enable bit position) */
     enable_mask =
         (VTSS_F_VOP_INTR_STICKY_CCM_RX_SRC_PORT_DETECT_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_RX_SRC_PORT_DETECT_INTR_ENA)
-                 ? 1
-                 : 0) |
-         VTSS_F_VOP_INTR_STICKY_TLV_PORT_STATUS_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_TLV_PORT_STATUS_INTR_ENA) ? 1
-                                                                          : 0) |
+             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_RX_SRC_PORT_DETECT_INTR_ENA) ? 1 : 0) |
+         VTSS_F_VOP_INTR_STICKY_TLV_PORT_STATUS_STICKY((enable_mask &
+                                                        VTSS_M_VOP_INTR_ENA_TLV_PORT_STATUS_INTR_ENA)
+                                                           ? 1
+                                                           : 0) |
          VTSS_F_VOP_INTR_STICKY_TLV_INTERFACE_STATUS_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_TLV_INTERFACE_STATUS_INTR_ENA)
-                 ? 1
-                 : 0) |
+             (enable_mask & VTSS_M_VOP_INTR_ENA_TLV_INTERFACE_STATUS_INTR_ENA) ? 1 : 0) |
          VTSS_F_VOP_INTR_STICKY_CCM_UNEXP_PERIOD_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_UNEXP_PERIOD_INTR_ENA)
-                 ? 1
-                 : 0) |
-         VTSS_F_VOP_INTR_STICKY_CCM_UNEXP_PRIO_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_UNEXP_PRIO_INTR_ENA) ? 1
-                                                                         : 0) |
+             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_UNEXP_PERIOD_INTR_ENA) ? 1 : 0) |
+         VTSS_F_VOP_INTR_STICKY_CCM_UNEXP_PRIO_STICKY((enable_mask &
+                                                       VTSS_M_VOP_INTR_ENA_CCM_UNEXP_PRIO_INTR_ENA)
+                                                          ? 1
+                                                          : 0) |
          VTSS_F_VOP_INTR_STICKY_CCM_ZERO_PERIOD_RX_ERR_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_ZERO_PERIOD_INTR_ENA) ? 1
-                                                                          : 0) |
-         VTSS_F_VOP_INTR_STICKY_CCM_RX_RDI_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_RX_RDI_INTR_ENA) ? 1 : 0) |
-         VTSS_F_VOP_INTR_STICKY_CCM_LOC_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_LOC_INTR_ENA) ? 1 : 0) |
-         VTSS_F_VOP_INTR_STICKY_CCM_UNEXP_MEPID_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_UNEXP_MEPID_INTR_ENA) ? 1
-                                                                          : 0) |
-         VTSS_F_VOP_INTR_STICKY_CCM_UNEXP_MEGID_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_UNEXP_MEGID_INTR_ENA) ? 1
-                                                                          : 0) |
-         VTSS_F_VOP_INTR_STICKY_CCM_RX_MEL_LOW_STICKY(
-             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_RX_MEL_LOW_INTR_ENA) ? 1
-                                                                         : 0));
+             (enable_mask & VTSS_M_VOP_INTR_ENA_CCM_ZERO_PERIOD_INTR_ENA) ? 1 : 0) |
+         VTSS_F_VOP_INTR_STICKY_CCM_RX_RDI_STICKY((enable_mask &
+                                                   VTSS_M_VOP_INTR_ENA_CCM_RX_RDI_INTR_ENA)
+                                                      ? 1
+                                                      : 0) |
+         VTSS_F_VOP_INTR_STICKY_CCM_LOC_STICKY((enable_mask & VTSS_M_VOP_INTR_ENA_CCM_LOC_INTR_ENA)
+                                                   ? 1
+                                                   : 0) |
+         VTSS_F_VOP_INTR_STICKY_CCM_UNEXP_MEPID_STICKY((enable_mask &
+                                                        VTSS_M_VOP_INTR_ENA_CCM_UNEXP_MEPID_INTR_ENA)
+                                                           ? 1
+                                                           : 0) |
+         VTSS_F_VOP_INTR_STICKY_CCM_UNEXP_MEGID_STICKY((enable_mask &
+                                                        VTSS_M_VOP_INTR_ENA_CCM_UNEXP_MEGID_INTR_ENA)
+                                                           ? 1
+                                                           : 0) |
+         VTSS_F_VOP_INTR_STICKY_CCM_RX_MEL_LOW_STICKY((enable_mask &
+                                                       VTSS_M_VOP_INTR_ENA_CCM_RX_MEL_LOW_INTR_ENA)
+                                                          ? 1
+                                                          : 0));
     VTSS_D("enable_mask %X", enable_mask);
 
     /* Read sticky bits and clear the enabled ones */
@@ -488,39 +448,37 @@ static vtss_rc fa_voe_event_get(vtss_state_t        *vtss_state,
            sticky_mask); /* Sticky bits cleared by writing 1 to them */
 
     /* Translate sticky mask to returned event mask */
-    *mask = ((VTSS_X_VOP_INTR_STICKY_CCM_RX_SRC_PORT_DETECT_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_SRC_PORT_MOVE
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_TLV_PORT_STATUS_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_TLV_INTERFACE_STATUS_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_TLV_IF_STATUS
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_CCM_UNEXP_PERIOD_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_PERIOD
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_CCM_UNEXP_PRIO_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_PRIORITY
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_CCM_ZERO_PERIOD_RX_ERR_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_ZERO_PERIOD
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_CCM_RX_RDI_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_RX_RDI
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_CCM_LOC_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_LOC
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_CCM_UNEXP_MEPID_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_MEP_ID
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_CCM_UNEXP_MEGID_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_MEG_ID
-                  : 0) |
-             (VTSS_X_VOP_INTR_STICKY_CCM_RX_MEL_LOW_STICKY(sticky_mask)
-                  ? VTSS_VOE_EVENT_MASK_CCM_MEG_LEVEL
-                  : 0));
+    *mask =
+        ((VTSS_X_VOP_INTR_STICKY_CCM_RX_SRC_PORT_DETECT_STICKY(sticky_mask)
+              ? VTSS_VOE_EVENT_MASK_CCM_SRC_PORT_MOVE
+              : 0) |
+         (VTSS_X_VOP_INTR_STICKY_TLV_PORT_STATUS_STICKY(sticky_mask)
+              ? VTSS_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS
+              : 0) |
+         (VTSS_X_VOP_INTR_STICKY_TLV_INTERFACE_STATUS_STICKY(sticky_mask)
+              ? VTSS_VOE_EVENT_MASK_CCM_TLV_IF_STATUS
+              : 0) |
+         (VTSS_X_VOP_INTR_STICKY_CCM_UNEXP_PERIOD_STICKY(sticky_mask)
+              ? VTSS_VOE_EVENT_MASK_CCM_PERIOD
+              : 0) |
+         (VTSS_X_VOP_INTR_STICKY_CCM_UNEXP_PRIO_STICKY(sticky_mask)
+              ? VTSS_VOE_EVENT_MASK_CCM_PRIORITY
+              : 0) |
+         (VTSS_X_VOP_INTR_STICKY_CCM_ZERO_PERIOD_RX_ERR_STICKY(sticky_mask)
+              ? VTSS_VOE_EVENT_MASK_CCM_ZERO_PERIOD
+              : 0) |
+         (VTSS_X_VOP_INTR_STICKY_CCM_RX_RDI_STICKY(sticky_mask) ? VTSS_VOE_EVENT_MASK_CCM_RX_RDI
+                                                                : 0) |
+         (VTSS_X_VOP_INTR_STICKY_CCM_LOC_STICKY(sticky_mask) ? VTSS_VOE_EVENT_MASK_CCM_LOC : 0) |
+         (VTSS_X_VOP_INTR_STICKY_CCM_UNEXP_MEPID_STICKY(sticky_mask)
+              ? VTSS_VOE_EVENT_MASK_CCM_MEP_ID
+              : 0) |
+         (VTSS_X_VOP_INTR_STICKY_CCM_UNEXP_MEGID_STICKY(sticky_mask)
+              ? VTSS_VOE_EVENT_MASK_CCM_MEG_ID
+              : 0) |
+         (VTSS_X_VOP_INTR_STICKY_CCM_RX_MEL_LOW_STICKY(sticky_mask)
+              ? VTSS_VOE_EVENT_MASK_CCM_MEG_LEVEL
+              : 0));
 
     VTSS_D("Exit  mask %X", *mask);
 
@@ -528,16 +486,14 @@ static vtss_rc fa_voe_event_get(vtss_state_t        *vtss_state,
 }
 
 static u32     service_voe_alloc_idx;
-vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t       *vtss_state,
-                                         vtss_voe_function_t function)
+vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t *vtss_state, vtss_voe_function_t function)
 {
     u32 i;
 
     for (i = 0; (i < VTSS_PATH_SERVICE_VOE_CNT) &&
                 vtss_state->oam.voe_alloc_data[service_voe_alloc_idx].allocated;
          ++i) {
-        service_voe_alloc_idx =
-            (service_voe_alloc_idx + 1) % VTSS_PATH_SERVICE_VOE_CNT;
+        service_voe_alloc_idx = (service_voe_alloc_idx + 1) % VTSS_PATH_SERVICE_VOE_CNT;
     }
     if (i >= VTSS_PATH_SERVICE_VOE_CNT) {
         VTSS_E("No free Service VOE to allocate");
@@ -568,9 +524,8 @@ static vtss_rc fa_service_voe_free(vtss_state_t       *vtss_state,
         return (VTSS_RC_OK);
     }
     if (alloc_data->function != function) {
-        VTSS_E(
-            "VOE does not have correct function  voe_idx %u  function %u  allocated function %u",
-            voe_idx, function, alloc_data->function);
+        VTSS_E("VOE does not have correct function  voe_idx %u  function %u  allocated function %u",
+               voe_idx, function, alloc_data->function);
         return (VTSS_RC_ERROR);
     }
     alloc_data->allocated = FALSE;
@@ -587,8 +542,8 @@ static vtss_rc fa_voe_alloc(vtss_state_t              *vtss_state,
 {
     u32 i, offset, v;
 
-    VTSS_D("Enter  type %u  port %u  direction %u  service_voe_alloc_idx %u",
-           type, port, direction, service_voe_alloc_idx);
+    VTSS_D("Enter  type %u  port %u  direction %u  service_voe_alloc_idx %u", type, port, direction,
+           service_voe_alloc_idx);
 
     if (type == VTSS_VOE_TYPE_SERVICE) {
         i = vtss_fa_service_voe_alloc(vtss_state, VTSS_VOE_FUNCTION_OAM);
@@ -602,8 +557,7 @@ static vtss_rc fa_voe_alloc(vtss_state_t              *vtss_state,
             return VTSS_RC_ERROR;
         }
         i = VTSS_CHIP_PORT(port) + VTSS_PORT_VOE_BASE_IDX;
-        if ((i >= VTSS_VOE_CNT) ||
-            vtss_state->oam.voe_alloc_data[i].allocated) {
+        if ((i >= VTSS_VOE_CNT) || vtss_state->oam.voe_alloc_data[i].allocated) {
             VTSS_E("No free Port VOE to allocate");
             return VTSS_RC_ERROR;
         }
@@ -616,8 +570,7 @@ static vtss_rc fa_voe_alloc(vtss_state_t              *vtss_state,
     vtss_state->oam.voe_alloc_data[*voe_idx].direction = direction;
 
     /* Disable VOE */
-    REG_WRM(VTSS_VOP_VOE_MISC_CONFIG(*voe_idx), 0,
-            VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA);
+    REG_WRM(VTSS_VOP_VOE_MISC_CONFIG(*voe_idx), 0, VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA);
 
     /* Clear assorted counters: */
     REG_WR(VTSS_VOP_RX_SEL_OAM_CNT(*voe_idx), 0);
@@ -644,17 +597,14 @@ static vtss_rc fa_voe_alloc(vtss_state_t              *vtss_state,
                                                            default */
     REG_WR(VTSS_VOP_AUTO_HIT_ME_ONCE(*voe_idx), 0);
     REG_WR(VTSS_VOP_SYNLM_EXTRACT(*voe_idx), 0);
-    REG_WR(VTSS_VOP_OAM_TX_STICKY(*voe_idx),
-           VTSS_M_VOP_OAM_TX_STICKY_TX_BLOCK_ERR_STICKY |
-               VTSS_M_VOP_OAM_TX_STICKY_TX_SLM_PRIO_ERR_STICKY);
+    REG_WR(VTSS_VOP_OAM_TX_STICKY(*voe_idx), VTSS_M_VOP_OAM_TX_STICKY_TX_BLOCK_ERR_STICKY |
+                                                 VTSS_M_VOP_OAM_TX_STICKY_TX_SLM_PRIO_ERR_STICKY);
     REG_WR(VTSS_VOP_OAM_RX_STICKY(*voe_idx),
-           0xffffffff); /* sticky bits cleared by writing 1 to them */
-    REG_WR(VTSS_VOP_OAM_RX_STICKY2(*voe_idx),
-           0xff); /* sticky bits cleared by writing 1 to them */
+           0xffffffff);                              /* sticky bits cleared by writing 1 to them */
+    REG_WR(VTSS_VOP_OAM_RX_STICKY2(*voe_idx), 0xff); /* sticky bits cleared by writing 1 to them */
     REG_WR(VTSS_VOP_CCM_STAT(*voe_idx), 0);
     REG_WR(VTSS_VOP_CCM_RX_LAST(*voe_idx), 0);
-    REG_WR(VTSS_VOP_INTR_STICKY(*voe_idx),
-           0x7ff); /* sticky bits cleared by writing 1 to them */
+    REG_WR(VTSS_VOP_INTR_STICKY(*voe_idx), 0x7ff); /* sticky bits cleared by writing 1 to them */
     REG_WR(VTSS_VOP_INTR_ENA(*voe_idx), 0);
     REG_WR(VTSS_VOP_SLM_TX_FRM_CNT(*voe_idx), 0);
     REG_WR(VTSS_VOP_CCM_TX_FCB_CFG(*voe_idx), 0);
@@ -691,15 +641,11 @@ static vtss_rc fa_voe_alloc(vtss_state_t              *vtss_state,
             /* TBD - the port count-all Rx/Tx counters have been left out */
         }
         /* Default PORT_RX_COSID_MAP + PORT_TX_COSID_MAP, DEI=0: */
-        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP(*voe_idx - VTSS_PORT_VOE_BASE_IDX),
-               0);
-        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP(*voe_idx - VTSS_PORT_VOE_BASE_IDX),
-               0);
+        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP(*voe_idx - VTSS_PORT_VOE_BASE_IDX), 0);
+        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP(*voe_idx - VTSS_PORT_VOE_BASE_IDX), 0);
         /* Default PORT_RX_COSID_MAP + PORT_TX_COSID_MAP, DEI=1: */
-        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP1(*voe_idx - VTSS_PORT_VOE_BASE_IDX),
-               0);
-        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP1(*voe_idx - VTSS_PORT_VOE_BASE_IDX),
-               0);
+        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP1(*voe_idx - VTSS_PORT_VOE_BASE_IDX), 0);
+        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP1(*voe_idx - VTSS_PORT_VOE_BASE_IDX), 0);
         break;
     }
 
@@ -745,8 +691,7 @@ vtss_rc vtss_fa_voe_free(vtss_state_t        *vtss_state,
     return (ret_rc);
 }
 
-static vtss_rc fa_voe_free(vtss_state_t        *vtss_state,
-                           const vtss_voe_idx_t voe_idx)
+static vtss_rc fa_voe_free(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     return vtss_fa_voe_free(vtss_state, VTSS_VOE_FUNCTION_OAM, voe_idx);
 }
@@ -764,22 +709,17 @@ static vtss_rc fa_voe_conf_set(vtss_state_t                *vtss_state,
 
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
-    if (((voe_idx < VTSS_PORT_VOE_BASE_IDX) &&
-         (alloc_data->type == VTSS_VOE_TYPE_PORT)) ||
-        ((voe_idx >= VTSS_PORT_VOE_BASE_IDX) &&
-         (alloc_data->type == VTSS_VOE_TYPE_SERVICE))) {
-        VTSS_E("voe_idx %u  type %u.  VOE index and type mismatch", voe_idx,
-               alloc_data->type);
+    if (((voe_idx < VTSS_PORT_VOE_BASE_IDX) && (alloc_data->type == VTSS_VOE_TYPE_PORT)) ||
+        ((voe_idx >= VTSS_PORT_VOE_BASE_IDX) && (alloc_data->type == VTSS_VOE_TYPE_SERVICE))) {
+        VTSS_E("voe_idx %u  type %u.  VOE index and type mismatch", voe_idx, alloc_data->type);
         return VTSS_RC_ERROR;
     }
 
     /* Configure the unicast MAC */
-    value = VTSS_F_VOP_MEP_UC_MAC_MSB_MEP_UC_MAC_MSB((conf->unicast_mac.addr[0]
-                                                      << 8) |
+    value = VTSS_F_VOP_MEP_UC_MAC_MSB_MEP_UC_MAC_MSB((conf->unicast_mac.addr[0] << 8) |
                                                      conf->unicast_mac.addr[1]);
     REG_WR(VTSS_VOP_MEP_UC_MAC_MSB(voe_idx), value);
-    value = (conf->unicast_mac.addr[2] << 24) |
-            (conf->unicast_mac.addr[3] << 16) |
+    value = (conf->unicast_mac.addr[2] << 24) | (conf->unicast_mac.addr[3] << 16) |
             (conf->unicast_mac.addr[4] << 8) | (conf->unicast_mac.addr[5]);
     REG_WR(VTSS_VOP_MEP_UC_MAC_LSB(voe_idx), value);
 
@@ -788,61 +728,42 @@ static vtss_rc fa_voe_conf_set(vtss_state_t                *vtss_state,
             VTSS_F_VOP_VOE_CTRL_VERIFY_VERSION_ENA(1) |
             VTSS_F_VOP_VOE_CTRL_BLOCK_MEL_HIGH_RX(conf->block_mel_high ? 1 : 0);
     switch (conf->dmac_check_type) {
-    case VTSS_VOE_DMAC_CHECK_NONE:
-        value |= VTSS_F_VOP_VOE_CTRL_RX_DMAC_CHK_SEL(0);
-        break;
-    case VTSS_VOE_DMAC_CHECK_UNICAST:
-        value |= VTSS_F_VOP_VOE_CTRL_RX_DMAC_CHK_SEL(1);
-        break;
-    case VTSS_VOE_DMAC_CHECK_MULTICAST:
-        value |= VTSS_F_VOP_VOE_CTRL_RX_DMAC_CHK_SEL(2);
-        break;
-    case VTSS_VOE_DMAC_CHECK_BOTH:
-        value |= VTSS_F_VOP_VOE_CTRL_RX_DMAC_CHK_SEL(3);
-        break;
+    case VTSS_VOE_DMAC_CHECK_NONE:      value |= VTSS_F_VOP_VOE_CTRL_RX_DMAC_CHK_SEL(0); break;
+    case VTSS_VOE_DMAC_CHECK_UNICAST:   value |= VTSS_F_VOP_VOE_CTRL_RX_DMAC_CHK_SEL(1); break;
+    case VTSS_VOE_DMAC_CHECK_MULTICAST: value |= VTSS_F_VOP_VOE_CTRL_RX_DMAC_CHK_SEL(2); break;
+    case VTSS_VOE_DMAC_CHECK_BOTH:      value |= VTSS_F_VOP_VOE_CTRL_RX_DMAC_CHK_SEL(3); break;
     }
-    mask = VTSS_M_VOP_VOE_CTRL_MEL_VAL |
-           VTSS_M_VOP_VOE_CTRL_VERIFY_VERSION_ENA |
-           VTSS_M_VOP_VOE_CTRL_BLOCK_MEL_HIGH_RX |
-           VTSS_M_VOP_VOE_CTRL_RX_DMAC_CHK_SEL;
+    mask = VTSS_M_VOP_VOE_CTRL_MEL_VAL | VTSS_M_VOP_VOE_CTRL_VERIFY_VERSION_ENA |
+           VTSS_M_VOP_VOE_CTRL_BLOCK_MEL_HIGH_RX | VTSS_M_VOP_VOE_CTRL_RX_DMAC_CHK_SEL;
     REG_WRM(VTSS_VOP_VOE_CTRL(voe_idx), value, mask);
 
     /* Configure VOE direction Up or Down */
     REG_WRM(VTSS_VOP_VOE_COMMON_CFG(voe_idx),
-            VTSS_F_VOP_VOE_COMMON_CFG_UPMEP_ENA(alloc_data->direction ==
-                                                        VTSS_OAM_DIRECTION_UP
-                                                    ? 1
-                                                    : 0),
+            VTSS_F_VOP_VOE_COMMON_CFG_UPMEP_ENA(alloc_data->direction == VTSS_OAM_DIRECTION_UP ? 1
+                                                                                               : 0),
             VTSS_M_VOP_VOE_COMMON_CFG_UPMEP_ENA);
 
     /* Configure VOE looped frames to hit ES0 using ISDX in case IFLOW is not
      * none */
-    value = VTSS_F_VOP_LOOPBACK_CFG_LB_ES0_ISDX_ENA((conf->loop_iflow_id ==
-                                                     VTSS_IFLOW_ID_NONE)
-                                                        ? 0
-                                                        : 1) |
-            VTSS_F_VOP_LOOPBACK_CFG_LB_ISDX(conf->loop_iflow_id);
+    value =
+        VTSS_F_VOP_LOOPBACK_CFG_LB_ES0_ISDX_ENA((conf->loop_iflow_id == VTSS_IFLOW_ID_NONE) ? 0
+                                                                                            : 1) |
+        VTSS_F_VOP_LOOPBACK_CFG_LB_ISDX(conf->loop_iflow_id);
     REG_WR(VTSS_VOP_LOOPBACK_CFG(voe_idx), value);
 
     /* Configure the Port VOE COS mapping. Mapping is set to 1:1, DEI=0: */
     if (alloc_data->type == VTSS_VOE_TYPE_PORT) {
-        for (i = 0, value = 0x88888888; i < 8;
-             ++i) { /* set all "CountEnable=1" */
+        for (i = 0, value = 0x88888888; i < 8; ++i) { /* set all "CountEnable=1" */
             value |= (i & 7) << (4 * i);
         }
-        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP(voe_idx - VTSS_PORT_VOE_BASE_IDX),
-               value);
-        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP(voe_idx - VTSS_PORT_VOE_BASE_IDX),
-               value);
+        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP(voe_idx - VTSS_PORT_VOE_BASE_IDX), value);
+        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP(voe_idx - VTSS_PORT_VOE_BASE_IDX), value);
         /* PORT_RX_COSID_MAP + PORT_TX_COSID_MAP, DEI=1: */
-        for (i = 0, value = 0x88888888; i < 8;
-             ++i) { /* set all "CountEnable=1" */
+        for (i = 0, value = 0x88888888; i < 8; ++i) { /* set all "CountEnable=1" */
             value |= (i & 7) << (4 * i);
         }
-        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP1(voe_idx - VTSS_PORT_VOE_BASE_IDX),
-               value);
-        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP1(voe_idx - VTSS_PORT_VOE_BASE_IDX),
-               value);
+        REG_WR(VTSS_VOP_PORT_RX_COSID_MAP1(voe_idx - VTSS_PORT_VOE_BASE_IDX), value);
+        REG_WR(VTSS_VOP_PORT_TX_COSID_MAP1(voe_idx - VTSS_PORT_VOE_BASE_IDX), value);
     }
 
     /*
@@ -857,8 +778,7 @@ static vtss_rc fa_voe_conf_set(vtss_state_t                *vtss_state,
     }
 
     /* Configure the used HMO slot */
-    REG_WRM(VTSS_VOP_AUTO_HIT_ME_ONCE(voe_idx),
-            VTSS_F_VOP_AUTO_HIT_ME_ONCE_HMO_SLOT(voe_idx & 7),
+    REG_WRM(VTSS_VOP_AUTO_HIT_ME_ONCE(voe_idx), VTSS_F_VOP_AUTO_HIT_ME_ONCE_HMO_SLOT(voe_idx & 7),
             VTSS_M_VOP_AUTO_HIT_ME_ONCE_HMO_SLOT); /* always using all 8 HMO
                                                       slots */
 
@@ -868,12 +788,10 @@ static vtss_rc fa_voe_conf_set(vtss_state_t                *vtss_state,
             0) { /* VOE changed from disabled to enabled. */
             /* Clear the logical counters */
             VTSS_RC(voe_counter_update(vtss_state, voe_idx,
-                                       VTSS_OAM_CNT_ALL |
-                                           VTSS_OAM_CNT_DIR_BOTH));
+                                       VTSS_OAM_CNT_ALL | VTSS_OAM_CNT_DIR_BOTH));
 
             /* Disable CC */
-            REG_WRM(VTSS_VOP_OAM_HW_CTRL(voe_idx),
-                    VTSS_F_VOP_OAM_HW_CTRL_CCM_ENA(0),
+            REG_WRM(VTSS_VOP_OAM_HW_CTRL(voe_idx), VTSS_F_VOP_OAM_HW_CTRL_CCM_ENA(0),
                     VTSS_M_VOP_OAM_HW_CTRL_CCM_ENA);
         }
     }
@@ -908,17 +826,15 @@ static vtss_rc fa_voe_cc_conf_set(vtss_state_t                   *vtss_state,
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Configure the CPU copy */
-    mask =
-        VTSS_M_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_CCM_NXT | /* mask for
-                                                            VTSS_VOP_AUTO_HIT_ME_ONCE
-                                                            register */
-        VTSS_M_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_TLV_NON_ZERO |
-        VTSS_M_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_BAD_NXT;
+    mask = VTSS_M_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_CCM_NXT | /* mask for
+                                                               VTSS_VOP_AUTO_HIT_ME_ONCE
+                                                               register */
+           VTSS_M_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_TLV_NON_ZERO |
+           VTSS_M_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_BAD_NXT;
     switch (conf->cpu_copy) {
     case VTSS_OAM_CPU_COPY_ALL: /* Configure the CPU copy ALL */
         REG_WRM(VTSS_VOP_OAM_CPU_COPY_CTRL(voe_idx),
-                VTSS_F_VOP_OAM_CPU_COPY_CTRL_CCM_CPU_COPY_ENA(conf->enable ? 1
-                                                                           : 0),
+                VTSS_F_VOP_OAM_CPU_COPY_CTRL_CCM_CPU_COPY_ENA(conf->enable ? 1 : 0),
                 VTSS_M_VOP_OAM_CPU_COPY_CTRL_CCM_CPU_COPY_ENA);
         REG_WRM(VTSS_VOP_AUTO_HIT_ME_ONCE(voe_idx), 0, mask);
         break;
@@ -926,11 +842,10 @@ static vtss_rc fa_voe_cc_conf_set(vtss_state_t                   *vtss_state,
         REG_WRM(VTSS_VOP_OAM_CPU_COPY_CTRL(voe_idx),
                 VTSS_F_VOP_OAM_CPU_COPY_CTRL_CCM_CPU_COPY_ENA(0),
                 VTSS_M_VOP_OAM_CPU_COPY_CTRL_CCM_CPU_COPY_ENA);
-        value = conf->enable
-                    ? (VTSS_F_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_CCM_NXT(1) |
-                       VTSS_F_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_TLV_NON_ZERO(1) |
-                       VTSS_F_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_BAD_NXT(1))
-                    : 0;
+        value = conf->enable ? (VTSS_F_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_CCM_NXT(1) |
+                                VTSS_F_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_TLV_NON_ZERO(1) |
+                                VTSS_F_VOP_AUTO_HIT_ME_ONCE_HMO_CCM_RX_BAD_NXT(1))
+                             : 0;
         REG_WRM(VTSS_VOP_AUTO_HIT_ME_ONCE(voe_idx), value, mask);
         break;
     case VTSS_OAM_CPU_COPY_NONE: /* Configure the CPU copy NONE */
@@ -944,43 +859,36 @@ static vtss_rc fa_voe_cc_conf_set(vtss_state_t                   *vtss_state,
 
     /* Clear sequence numbers and counters */
     REG_RD(VTSS_VOP_OAM_HW_CTRL(voe_idx), &value);
-    if (conf->enable && (VTSS_X_VOP_OAM_HW_CTRL_CCM_ENA(value) ==
-                         0)) { /* CC is just enabled so clear */
+    if (conf->enable &&
+        (VTSS_X_VOP_OAM_HW_CTRL_CCM_ENA(value) == 0)) { /* CC is just enabled so clear */
         REG_WR(VTSS_VOP_CCM_TX_SEQ_CFG(voe_idx), 0);
         REG_WR(VTSS_VOP_CCM_RX_SEQ_CFG(voe_idx), 0);
-        VTSS_RC(voe_counter_update(vtss_state, voe_idx,
-                                   VTSS_OAM_CNT_CCM | VTSS_OAM_CNT_DIR_BOTH));
+        VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_CCM | VTSS_OAM_CNT_DIR_BOTH));
     }
 
     /* Configure seq_no_update, prio, period */
-    value =
-        (VTSS_F_VOP_CCM_CFG_CCM_SEQ_UPD_ENA((vtss_state->oam
-                                                 .voe_rdi_conf[voe_idx] ||
-                                             conf->seq_no_update)
-                                                ? 1
-                                                : 0) |
-         VTSS_F_VOP_CCM_CFG_CCM_RX_SEQ_CHK_ENA(1) |
-         VTSS_F_VOP_CCM_CFG_CCM_PRIO(conf->expected_priority) |
-         VTSS_F_VOP_CCM_CFG_CCM_PERIOD(loc_period_value(conf->expected_period)) |
-         VTSS_F_VOP_CCM_CFG_CCM_MEGID_CHK_ENA(1) |
-         VTSS_F_VOP_CCM_CFG_CCM_MEPID_CHK_ENA(1) |
-         VTSS_M_VOP_CCM_CFG_CCM_PERIOD_CHK_ENA);
+    value = (VTSS_F_VOP_CCM_CFG_CCM_SEQ_UPD_ENA((vtss_state->oam.voe_rdi_conf[voe_idx] ||
+                                                 conf->seq_no_update)
+                                                    ? 1
+                                                    : 0) |
+             VTSS_F_VOP_CCM_CFG_CCM_RX_SEQ_CHK_ENA(1) |
+             VTSS_F_VOP_CCM_CFG_CCM_PRIO(conf->expected_priority) |
+             VTSS_F_VOP_CCM_CFG_CCM_PERIOD(loc_period_value(conf->expected_period)) |
+             VTSS_F_VOP_CCM_CFG_CCM_MEGID_CHK_ENA(1) | VTSS_F_VOP_CCM_CFG_CCM_MEPID_CHK_ENA(1) |
+             VTSS_M_VOP_CCM_CFG_CCM_PERIOD_CHK_ENA);
     REG_WR(VTSS_VOP_CCM_CFG(voe_idx), value);
 
     /* Configure MEG id */
     p = &conf->expected_megid[47]; // MSB
     for (i = 0; i < 12; ++i, p -= 4) {
-        value =
-            (*(p - 3) << 24) | (*(p - 2) << 16) | (*(p - 1) << 8) | (*(p - 0));
+        value = (*(p - 3) << 24) | (*(p - 2) << 16) | (*(p - 1) << 8) | (*(p - 0));
         REG_WR(VTSS_VOP_CCM_MEGID_CFG(voe_idx, i), value);
     }
 
     /* Configure count_as_selected */
     value =
-        VTSS_F_VOP_OAM_CNT_OAM_CTRL_CCM_OAM_CNT_ENA((conf->enable &&
-                                                     conf->count_as_selected)
-                                                        ? 1
-                                                        : 0);
+        VTSS_F_VOP_OAM_CNT_OAM_CTRL_CCM_OAM_CNT_ENA((conf->enable && conf->count_as_selected) ? 1
+                                                                                              : 0);
     mask = VTSS_M_VOP_OAM_CNT_OAM_CTRL_CCM_OAM_CNT_ENA;
     REG_WRM(VTSS_VOP_OAM_CNT_OAM_CTRL(voe_idx), value, mask);
 
@@ -989,8 +897,7 @@ static vtss_rc fa_voe_cc_conf_set(vtss_state_t                   *vtss_state,
            VTSS_F_VOP_PEER_MEPID_CFG_PEER_MEPID(conf->expected_peer_mepid));
 
     /* Enable/Disable CCM handling */
-    REG_WRM(VTSS_VOP_OAM_HW_CTRL(voe_idx),
-            VTSS_F_VOP_OAM_HW_CTRL_CCM_ENA(conf->enable ? 1 : 0),
+    REG_WRM(VTSS_VOP_OAM_HW_CTRL(voe_idx), VTSS_F_VOP_OAM_HW_CTRL_CCM_ENA(conf->enable ? 1 : 0),
             VTSS_M_VOP_OAM_HW_CTRL_CCM_ENA);
 
     return (VTSS_RC_OK);
@@ -1013,9 +920,8 @@ static vtss_rc fa_voe_cc_rdi_set(vtss_state_t        *vtss_state,
 
     /* Seems that sequence number update must be enabled in order to set the RDI
      * bit */
-    value = VTSS_F_VOP_CCM_CFG_CCM_SEQ_UPD_ENA((rdi || vtss_state->oam
-                                                           .voe_cc_conf[voe_idx]
-                                                           .seq_no_update)
+    value = VTSS_F_VOP_CCM_CFG_CCM_SEQ_UPD_ENA((rdi ||
+                                                vtss_state->oam.voe_cc_conf[voe_idx].seq_no_update)
                                                    ? 1
                                                    : 0);
     mask = VTSS_M_VOP_CCM_CFG_CCM_SEQ_UPD_ENA;
@@ -1024,8 +930,7 @@ static vtss_rc fa_voe_cc_rdi_set(vtss_state_t        *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc fa_voe_cc_cpu_copy_next_set(vtss_state_t        *vtss_state,
-                                           const vtss_voe_idx_t voe_idx)
+static vtss_rc fa_voe_cc_cpu_copy_next_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     u32 value;
 
@@ -1064,30 +969,22 @@ static vtss_rc fa_voe_lt_conf_set(vtss_state_t                   *vtss_state,
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Configure copy to CPU */
-    value = VTSS_F_VOP_OAM_CPU_COPY_CTRL_LTM_CPU_COPY_ENA((conf->enable &&
-                                                           conf->ltm_cpu_copy)
-                                                              ? 1
-                                                              : 0) |
-            VTSS_F_VOP_OAM_CPU_COPY_CTRL_LTR_CPU_COPY_ENA((conf->enable &&
-                                                           conf->ltr_cpu_copy)
-                                                              ? 1
-                                                              : 0);
+    value =
+        VTSS_F_VOP_OAM_CPU_COPY_CTRL_LTM_CPU_COPY_ENA((conf->enable && conf->ltm_cpu_copy) ? 1
+                                                                                           : 0) |
+        VTSS_F_VOP_OAM_CPU_COPY_CTRL_LTR_CPU_COPY_ENA((conf->enable && conf->ltr_cpu_copy) ? 1 : 0);
     mask = VTSS_M_VOP_OAM_CPU_COPY_CTRL_LTM_CPU_COPY_ENA |
            VTSS_M_VOP_OAM_CPU_COPY_CTRL_LTR_CPU_COPY_ENA;
     REG_WRM(VTSS_VOP_OAM_CPU_COPY_CTRL(voe_idx), value, mask);
 
     /* Configure count_as_selected */
     value =
-        VTSS_F_VOP_OAM_CNT_OAM_CTRL_LTM_OAM_CNT_ENA((conf->enable &&
-                                                     conf->count_as_selected)
-                                                        ? 1
-                                                        : 0) |
-        VTSS_F_VOP_OAM_CNT_OAM_CTRL_LTR_OAM_CNT_ENA((conf->enable &&
-                                                     conf->count_as_selected)
-                                                        ? 1
-                                                        : 0);
-    mask = VTSS_M_VOP_OAM_CNT_OAM_CTRL_LTM_OAM_CNT_ENA |
-           VTSS_M_VOP_OAM_CNT_OAM_CTRL_LTR_OAM_CNT_ENA;
+        VTSS_F_VOP_OAM_CNT_OAM_CTRL_LTM_OAM_CNT_ENA((conf->enable && conf->count_as_selected) ? 1
+                                                                                              : 0) |
+        VTSS_F_VOP_OAM_CNT_OAM_CTRL_LTR_OAM_CNT_ENA((conf->enable && conf->count_as_selected) ? 1
+                                                                                              : 0);
+    mask =
+        VTSS_M_VOP_OAM_CNT_OAM_CTRL_LTM_OAM_CNT_ENA | VTSS_M_VOP_OAM_CNT_OAM_CTRL_LTR_OAM_CNT_ENA;
     REG_WRM(VTSS_VOP_OAM_CNT_OAM_CTRL(voe_idx), value, mask);
 
     return (VTSS_RC_OK);
@@ -1107,27 +1004,19 @@ static vtss_rc fa_voe_lb_conf_set(vtss_state_t                   *vtss_state,
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
     /* Configure copy to CPU */
-    value = VTSS_F_VOP_OAM_CPU_COPY_CTRL_LBM_CPU_COPY_ENA((conf->enable &&
-                                                           conf->lbm_cpu_copy)
-                                                              ? 1
-                                                              : 0) |
-            VTSS_F_VOP_OAM_CPU_COPY_CTRL_LBR_CPU_COPY_ENA((conf->enable &&
-                                                           conf->lbr_cpu_copy)
-                                                              ? 1
-                                                              : 0);
+    value =
+        VTSS_F_VOP_OAM_CPU_COPY_CTRL_LBM_CPU_COPY_ENA((conf->enable && conf->lbm_cpu_copy) ? 1
+                                                                                           : 0) |
+        VTSS_F_VOP_OAM_CPU_COPY_CTRL_LBR_CPU_COPY_ENA((conf->enable && conf->lbr_cpu_copy) ? 1 : 0);
     mask = VTSS_M_VOP_OAM_CPU_COPY_CTRL_LBM_CPU_COPY_ENA |
            VTSS_M_VOP_OAM_CPU_COPY_CTRL_LBR_CPU_COPY_ENA;
     REG_WRM(VTSS_VOP_OAM_CPU_COPY_CTRL(voe_idx), value, mask);
 
     /* Configure count_as_selected */
-    value = VTSS_F_VOP_OAM_CNT_OAM_CTRL_LBM_OAM_CNT_ENA(conf->count_as_selected
-                                                            ? 1
-                                                            : 0) |
-            VTSS_F_VOP_OAM_CNT_OAM_CTRL_LBR_OAM_CNT_ENA(conf->count_as_selected
-                                                            ? 1
-                                                            : 0);
-    mask = VTSS_M_VOP_OAM_CNT_OAM_CTRL_LBM_OAM_CNT_ENA |
-           VTSS_M_VOP_OAM_CNT_OAM_CTRL_LBR_OAM_CNT_ENA;
+    value = VTSS_F_VOP_OAM_CNT_OAM_CTRL_LBM_OAM_CNT_ENA(conf->count_as_selected ? 1 : 0) |
+            VTSS_F_VOP_OAM_CNT_OAM_CTRL_LBR_OAM_CNT_ENA(conf->count_as_selected ? 1 : 0);
+    mask =
+        VTSS_M_VOP_OAM_CNT_OAM_CTRL_LBM_OAM_CNT_ENA | VTSS_M_VOP_OAM_CNT_OAM_CTRL_LBR_OAM_CNT_ENA;
     REG_WRM(VTSS_VOP_OAM_CNT_OAM_CTRL(voe_idx), value, mask);
 
     /* Configure transaction id */
@@ -1140,10 +1029,9 @@ static vtss_rc fa_voe_lb_conf_set(vtss_state_t                   *vtss_state,
         REG_WR(VTSS_VOP_LBR_RX_TRANSID_CFG(voe_idx), transaction_id - 1);
         vtss_cmn_counter_32_rebase(transaction_id,
                                    &vtss_state->oam.voe_internal[voe_idx]
-                                        .counters.lb
-                                        .tx_lbm_counter); /* Always re-base when
-                                                             transaction id is
-                                                             changed */
+                                        .counters.lb.tx_lbm_counter); /* Always re-base when
+                                                                         transaction id is
+                                                                         changed */
     }
 
     VTSS_RC(doing_calculate(vtss_state, voe_idx, &doing_lb, &doing_tst));
@@ -1158,17 +1046,15 @@ static vtss_rc fa_voe_lb_conf_set(vtss_state_t                   *vtss_state,
            VTSS_M_VOP_OAM_HW_CTRL_LBR_TLV_CRC_VERIFY_ENA;
     REG_WRM(VTSS_VOP_OAM_HW_CTRL(voe_idx), value, mask);
 
-    if (conf->enable &&
-        !doing_lb) { /* In case LB is just enabled counters are cleared */
-        VTSS_RC(voe_counter_update(vtss_state, voe_idx,
-                                   VTSS_OAM_CNT_LB | VTSS_OAM_CNT_DIR_BOTH));
+    if (conf->enable && !doing_lb) { /* In case LB is just enabled counters are cleared */
+        VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_LB | VTSS_OAM_CNT_DIR_BOTH));
     }
 
     return (VTSS_RC_OK);
 }
 
-static vtss_rc fa_voe_laps_conf_set(vtss_state_t        *vtss_state,
-                                    const vtss_voe_idx_t voe_idx,
+static vtss_rc fa_voe_laps_conf_set(vtss_state_t                     *vtss_state,
+                                    const vtss_voe_idx_t              voe_idx,
                                     const vtss_voe_laps_conf_t *const conf)
 {
     u32 value, mask;
@@ -1181,19 +1067,16 @@ static vtss_rc fa_voe_laps_conf_set(vtss_state_t        *vtss_state,
 
     /* Configure CPU copy */
     /* Generic [GENERIC_OFFSET_LAPS] is used for LAPS */
-    value =
-        VTSS_F_VOP_OAM_CPU_COPY_CTRL_2_GENERIC_COPY_MASK((conf->enable &&
-                                                          conf->cpu_copy)
-                                                             ? GENERIC_MASK_LAPS
-                                                             : 0);
+    value = VTSS_F_VOP_OAM_CPU_COPY_CTRL_2_GENERIC_COPY_MASK((conf->enable && conf->cpu_copy)
+                                                                 ? GENERIC_MASK_LAPS
+                                                                 : 0);
     mask = VTSS_M_VOP_OAM_CPU_COPY_CTRL_2_GENERIC_COPY_MASK;
     REG_WRM(VTSS_VOP_OAM_CPU_COPY_CTRL_2(voe_idx), value, mask);
 
     /* Configure count_as_selected */
     /* Generic [GENERIC_OFFSET_LAPS] is used for LAPS */
     value =
-        VTSS_F_VOP_OAM_CNT_OAM_CTRL_GENERIC_OAM_CNT_MASK((conf->enable &&
-                                                          conf->count_as_selected)
+        VTSS_F_VOP_OAM_CNT_OAM_CTRL_GENERIC_OAM_CNT_MASK((conf->enable && conf->count_as_selected)
                                                              ? GENERIC_MASK_LAPS
                                                              : 0);
     mask = VTSS_M_VOP_OAM_CNT_OAM_CTRL_GENERIC_OAM_CNT_MASK;
@@ -1216,16 +1099,11 @@ static vtss_rc fa_voe_status_get(vtss_state_t            *vtss_state,
 
     /* Calculate the 'xxx_seen' - read the RX sticky bits */
     REG_RD(VTSS_VOP_OAM_RX_STICKY(voe_idx), &value);
-    status->opcode_unexp_seen =
-        (value & VTSS_M_VOP_OAM_RX_STICKY_UNK_OPCODE_RX_STICKY) != 0;
-    status->dmac_unexp_seen =
-        (value & VTSS_M_VOP_OAM_RX_STICKY_DMAC_RX_ERR_STICKY) != 0;
-    status->version_unexp_seen =
-        (value & VTSS_M_VOP_OAM_RX_STICKY_PDU_VERSION_RX_ERR_STICKY) != 0;
-    status->rx_level_low_seen =
-        (value & VTSS_M_VOP_OAM_RX_STICKY_RX_MEL_LOW_BLOCK_STICKY) != 0;
-    status->rx_level_high_seen =
-        (value & VTSS_M_VOP_OAM_RX_STICKY_RX_MEL_HIGH_BLOCK_STICKY) != 0;
+    status->opcode_unexp_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_UNK_OPCODE_RX_STICKY) != 0;
+    status->dmac_unexp_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_DMAC_RX_ERR_STICKY) != 0;
+    status->version_unexp_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_PDU_VERSION_RX_ERR_STICKY) != 0;
+    status->rx_level_low_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_RX_MEL_LOW_BLOCK_STICKY) != 0;
+    status->rx_level_high_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_RX_MEL_HIGH_BLOCK_STICKY) != 0;
 
     /* Clear the RX sticky bits that has been detected */
     value = value & (VTSS_M_VOP_OAM_RX_STICKY_UNK_OPCODE_RX_STICKY |
@@ -1237,8 +1115,7 @@ static vtss_rc fa_voe_status_get(vtss_state_t            *vtss_state,
 
     /* Calculate the 'xxx_seen' - read the TX sticky bits */
     REG_RD(VTSS_VOP_OAM_TX_STICKY(voe_idx), &value);
-    status->tx_level_low_seen =
-        (value & VTSS_M_VOP_OAM_TX_STICKY_TX_BLOCK_ERR_STICKY) != 0;
+    status->tx_level_low_seen = (value & VTSS_M_VOP_OAM_TX_STICKY_TX_BLOCK_ERR_STICKY) != 0;
 
     /* Clear the TX sticky bits that has been detected */
     value = value & (VTSS_M_VOP_OAM_TX_STICKY_TX_BLOCK_ERR_STICKY);
@@ -1261,33 +1138,23 @@ static vtss_rc fa_voe_cc_status_get(vtss_state_t         *vtss_state,
 
     /* Calculate CCM received status */
     REG_RD(VTSS_VOP_CCM_RX_LAST(voe_idx), &value);
-    status->zero_period =
-        VTSS_X_VOP_CCM_RX_LAST_CCM_ZERO_PERIOD_ERR(value) != 0;
+    status->zero_period = VTSS_X_VOP_CCM_RX_LAST_CCM_ZERO_PERIOD_ERR(value) != 0;
     status->rdi = VTSS_X_VOP_CCM_RX_LAST_CCM_RX_RDI(value) != 0;
     status->loc = VTSS_X_VOP_CCM_RX_LAST_CCM_LOC_DEFECT(value) != 0;
-    status->period_unexp =
-        VTSS_X_VOP_CCM_RX_LAST_CCM_UNEXP_PERIOD_DEFECT(value) != 0;
-    status->priority_unexp =
-        VTSS_X_VOP_CCM_RX_LAST_CCM_UNEXP_PRIO_DEFECT(value) != 0;
-    status->mep_id_unexp =
-        VTSS_X_VOP_CCM_RX_LAST_CCM_UNEXP_MEPID_DEFECT(value) != 0;
-    status->meg_id_unexp =
-        VTSS_X_VOP_CCM_RX_LAST_CCM_UNEXP_MEGID_DEFECT(value) != 0;
-    status->mel_unexp =
-        VTSS_X_VOP_CCM_RX_LAST_CCM_RX_MEL_LOW_DEFECT(value) != 0;
-    status->rx_port =
-        vtss_api_port(vtss_state,
-                      VTSS_X_VOP_CCM_RX_LAST_CCM_RX_SRC_PORT(value));
+    status->period_unexp = VTSS_X_VOP_CCM_RX_LAST_CCM_UNEXP_PERIOD_DEFECT(value) != 0;
+    status->priority_unexp = VTSS_X_VOP_CCM_RX_LAST_CCM_UNEXP_PRIO_DEFECT(value) != 0;
+    status->mep_id_unexp = VTSS_X_VOP_CCM_RX_LAST_CCM_UNEXP_MEPID_DEFECT(value) != 0;
+    status->meg_id_unexp = VTSS_X_VOP_CCM_RX_LAST_CCM_UNEXP_MEGID_DEFECT(value) != 0;
+    status->mel_unexp = VTSS_X_VOP_CCM_RX_LAST_CCM_RX_MEL_LOW_DEFECT(value) != 0;
+    status->rx_port = vtss_api_port(vtss_state, VTSS_X_VOP_CCM_RX_LAST_CCM_RX_SRC_PORT(value));
     status->port_status_tlv = VTSS_X_VOP_CCM_RX_LAST_TLV_PORT_STATUS(value);
     status->if_status_tlv = VTSS_X_VOP_CCM_RX_LAST_TLV_INTERFACE_STATUS(value);
 
     /* Calculate the 'xxx_seen' - read the RX sticky bits */
     REG_RD(VTSS_VOP_OAM_RX_STICKY(voe_idx), &value);
     status->seen = (value & VTSS_M_VOP_OAM_RX_STICKY_CCM_RX_STICKY) != 0;
-    status->tlv_seen =
-        (value & VTSS_M_VOP_OAM_RX_STICKY_CCM_RX_TLV_NON_ZERO_STICKY) != 0;
-    status->seq_unexp_seen =
-        (value & VTSS_M_VOP_OAM_RX_STICKY_CCM_RX_SEQ_ERR_STICKY) != 0;
+    status->tlv_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_CCM_RX_TLV_NON_ZERO_STICKY) != 0;
+    status->seq_unexp_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_CCM_RX_SEQ_ERR_STICKY) != 0;
 
     /* Clear the sticky bits that has been detected */
     value = value & (VTSS_M_VOP_OAM_RX_STICKY_CCM_RX_STICKY |
@@ -1316,8 +1183,8 @@ static vtss_rc fa_voe_lt_status_get(vtss_state_t         *vtss_state,
     status->ltr_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_LTR_RX_STICKY) != 0;
 
     /* Clear the sticky bits that has been detected */
-    value = value & (VTSS_M_VOP_OAM_RX_STICKY_LTM_RX_STICKY |
-                     VTSS_M_VOP_OAM_RX_STICKY_LTR_RX_STICKY);
+    value =
+        value & (VTSS_M_VOP_OAM_RX_STICKY_LTM_RX_STICKY | VTSS_M_VOP_OAM_RX_STICKY_LTR_RX_STICKY);
     REG_WR(VTSS_VOP_OAM_RX_STICKY(voe_idx), value);
 
     return (VTSS_RC_OK);
@@ -1340,8 +1207,7 @@ static vtss_rc fa_voe_lb_status_get(vtss_state_t         *vtss_state,
     REG_RD(VTSS_VOP_OAM_RX_STICKY(voe_idx), &value);
     status->lbm_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_LBM_RX_STICKY) != 0;
     status->lbr_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_LBR_RX_STICKY) != 0;
-    status->trans_unexp_seen =
-        (value & VTSS_M_VOP_OAM_RX_STICKY_LBR_TRANSID_ERR_STICKY) != 0;
+    status->trans_unexp_seen = (value & VTSS_M_VOP_OAM_RX_STICKY_LBR_TRANSID_ERR_STICKY) != 0;
 
     /* Clear the sticky bits that has been detected */
     value = value & (VTSS_M_VOP_OAM_RX_STICKY_LBM_RX_STICKY |
@@ -1374,8 +1240,8 @@ static vtss_rc fa_voe_laps_status_get(vtss_state_t           *vtss_state,
     /* Calculate the 'xxx_seen' - read the RX sticky bits */
     /* Generic [GENERIC_OFFSET_LAPS] is used for LAPS */
     REG_RD(VTSS_VOP_OAM_RX_STICKY2(voe_idx), &value);
-    status->seen = (VTSS_X_VOP_OAM_RX_STICKY2_GENERIC_RX_STICKY_MASK(value) &
-                    GENERIC_MASK_LAPS) != 0;
+    status->seen =
+        (VTSS_X_VOP_OAM_RX_STICKY2_GENERIC_RX_STICKY_MASK(value) & GENERIC_MASK_LAPS) != 0;
 
     /* Clear the sticky bits that has been detected */
     value = value & (VTSS_M_VOP_OAM_RX_STICKY2_GENERIC_RX_STICKY_MASK);
@@ -1389,8 +1255,7 @@ static vtss_rc fa_voe_counters_get(vtss_state_t              *vtss_state,
                                    vtss_voe_counters_t *const counters)
 {
     vtss_rc                           rc;
-    vtss_oam_voe_internal_counters_t *chipcnt =
-        &vtss_state->oam.voe_internal[voe_idx].counters;
+    vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
 
     if (voe_idx >= VTSS_VOE_CNT) {
         return VTSS_RC_ERROR;
@@ -1417,8 +1282,7 @@ static vtss_rc fa_voe_cc_counters_get(vtss_state_t           *vtss_state,
                                       vtss_voe_cc_counters_t *counters)
 {
     vtss_rc                           rc;
-    vtss_oam_voe_internal_counters_t *chipcnt =
-        &vtss_state->oam.voe_internal[voe_idx].counters;
+    vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
 
     if (voe_idx >= VTSS_VOE_CNT) {
         return VTSS_RC_ERROR;
@@ -1443,8 +1307,7 @@ static vtss_rc fa_voe_lb_counters_get(vtss_state_t           *vtss_state,
                                       vtss_voe_lb_counters_t *counters)
 {
     vtss_rc                           rc;
-    vtss_oam_voe_internal_counters_t *chipcnt =
-        &vtss_state->oam.voe_internal[voe_idx].counters;
+    vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
 
     if (voe_idx >= VTSS_VOE_CNT) {
         return VTSS_RC_ERROR;
@@ -1465,8 +1328,7 @@ static vtss_rc fa_voe_lb_counters_get(vtss_state_t           *vtss_state,
     return rc;
 }
 
-static vtss_rc fa_voe_counters_clear(vtss_state_t        *vtss_state,
-                                     const vtss_voe_idx_t voe_idx)
+static vtss_rc fa_voe_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -1474,14 +1336,12 @@ static vtss_rc fa_voe_counters_clear(vtss_state_t        *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    VTSS_RC(voe_counter_update(vtss_state, voe_idx,
-                               VTSS_OAM_CNT_VOE | VTSS_OAM_CNT_DIR_BOTH));
+    VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_VOE | VTSS_OAM_CNT_DIR_BOTH));
 
     return (VTSS_RC_OK);
 }
 
-static vtss_rc fa_voe_cc_counters_clear(vtss_state_t        *vtss_state,
-                                        const vtss_voe_idx_t voe_idx)
+static vtss_rc fa_voe_cc_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -1489,14 +1349,12 @@ static vtss_rc fa_voe_cc_counters_clear(vtss_state_t        *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    VTSS_RC(voe_counter_update(vtss_state, voe_idx,
-                               VTSS_OAM_CNT_CCM | VTSS_OAM_CNT_DIR_BOTH));
+    VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_CCM | VTSS_OAM_CNT_DIR_BOTH));
 
     return (VTSS_RC_OK);
 }
 
-static vtss_rc fa_voe_lb_counters_clear(vtss_state_t        *vtss_state,
-                                        const vtss_voe_idx_t voe_idx)
+static vtss_rc fa_voe_lb_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -1504,8 +1362,7 @@ static vtss_rc fa_voe_lb_counters_clear(vtss_state_t        *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    VTSS_RC(voe_counter_update(vtss_state, voe_idx,
-                               VTSS_OAM_CNT_LB | VTSS_OAM_CNT_DIR_BOTH));
+    VTSS_RC(voe_counter_update(vtss_state, voe_idx, VTSS_OAM_CNT_LB | VTSS_OAM_CNT_DIR_BOTH));
 
     return (VTSS_RC_OK);
 }
@@ -1531,9 +1388,7 @@ static vtss_rc fa_voi_alloc(vtss_state_t              *vtss_state,
         alloc_offset = &up_voi_alloc_offset;
     }
 
-    for (i = 0; i < count &&
-                vtss_state->oam.voi_alloc_data[start + *alloc_offset].allocated;
-         ++i) {
+    for (i = 0; i < count && vtss_state->oam.voi_alloc_data[start + *alloc_offset].allocated; ++i) {
         *alloc_offset = (*alloc_offset + 1) % count;
     }
     if (i == count) {
@@ -1553,8 +1408,7 @@ static vtss_rc fa_voi_alloc(vtss_state_t              *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc fa_voi_free(vtss_state_t        *vtss_state,
-                           const vtss_voi_idx_t voi_idx)
+static vtss_rc fa_voi_free(vtss_state_t *vtss_state, const vtss_voi_idx_t voi_idx)
 {
     vtss_voi_alloc_t *alloc_data;
 
@@ -1596,56 +1450,40 @@ static vtss_rc fa_voi_conf_set(vtss_state_t                *vtss_state,
     if (alloc_data->direction == VTSS_OAM_DIRECTION_DOWN) {
         value = conf->enable
                     ? (VTSS_F_ANA_CL_MIP_CFG_MEL_VAL(conf->meg_level) |
-                       VTSS_F_ANA_CL_MIP_CFG_LBM_REDIR_ENA(conf->lbm_cpu_redir
-                                                               ? 1
-                                                               : 0) |
-                       VTSS_F_ANA_CL_MIP_CFG_LTM_REDIR_ENA(conf->ltm_cpu_redir
-                                                               ? 1
-                                                               : 0) |
-                       VTSS_F_ANA_CL_MIP_CFG_RAPS_CFG(
-                           raps_handling_value(conf->raps_handling)) |
+                       VTSS_F_ANA_CL_MIP_CFG_LBM_REDIR_ENA(conf->lbm_cpu_redir ? 1 : 0) |
+                       VTSS_F_ANA_CL_MIP_CFG_LTM_REDIR_ENA(conf->ltm_cpu_redir ? 1 : 0) |
+                       VTSS_F_ANA_CL_MIP_CFG_RAPS_CFG(raps_handling_value(conf->raps_handling)) |
                        VTSS_F_ANA_CL_MIP_CFG_PIPELINE_PT(0))
                     : 0; /* Currently only inner MIP is supported */
-        mask = VTSS_M_ANA_CL_MIP_CFG_MEL_VAL |
-               VTSS_M_ANA_CL_MIP_CFG_LBM_REDIR_ENA |
-               VTSS_M_ANA_CL_MIP_CFG_LTM_REDIR_ENA |
-               VTSS_M_ANA_CL_MIP_CFG_RAPS_CFG |
+        mask = VTSS_M_ANA_CL_MIP_CFG_MEL_VAL | VTSS_M_ANA_CL_MIP_CFG_LBM_REDIR_ENA |
+               VTSS_M_ANA_CL_MIP_CFG_LTM_REDIR_ENA | VTSS_M_ANA_CL_MIP_CFG_RAPS_CFG |
                VTSS_M_ANA_CL_MIP_CFG_PIPELINE_PT;
         REG_WRM(VTSS_ANA_CL_MIP_CFG(mip_idx), value, mask);
 
-        value =
-            VTSS_F_ANA_CL_LBM_MAC_HIGH_LBM_MAC_HIGH((conf->unicast_mac.addr[0]
-                                                     << 8) |
-                                                    conf->unicast_mac.addr[1]);
+        value = VTSS_F_ANA_CL_LBM_MAC_HIGH_LBM_MAC_HIGH((conf->unicast_mac.addr[0] << 8) |
+                                                        conf->unicast_mac.addr[1]);
         REG_WR(VTSS_ANA_CL_LBM_MAC_HIGH(mip_idx), value);
-        value = (conf->unicast_mac.addr[2] << 24) |
-                (conf->unicast_mac.addr[3] << 16) |
+        value = (conf->unicast_mac.addr[2] << 24) | (conf->unicast_mac.addr[3] << 16) |
                 (conf->unicast_mac.addr[4] << 8) | conf->unicast_mac.addr[5];
         REG_WR(VTSS_ANA_CL_LBM_MAC_LOW(mip_idx), value);
         REG_WR(VTSS_ANA_CL_CCM_HMO_CTRL(mip_idx), 0);
         REG_WR(VTSS_ANA_CL_MIP_CL_VID_CTRL(mip_idx), 0);
     } else {
-        value =
-            conf->enable
-                ? (VTSS_F_REW_MIP_CFG_MEL_VAL(conf->meg_level) |
-                   VTSS_F_REW_MIP_CFG_LBM_REDIR_ENA(conf->lbm_cpu_redir ? 1
-                                                                        : 0) |
-                   VTSS_F_REW_MIP_CFG_LTM_REDIR_ENA(conf->ltm_cpu_redir ? 1
-                                                                        : 0) |
-                   VTSS_F_REW_MIP_CFG_RAPS_CFG(
-                       raps_handling_value(conf->raps_handling)) |
-                   VTSS_F_REW_MIP_CFG_PIPELINE_PT(0))
-                : 0; /* Currently only inner MIP is supported */
+        value = conf->enable
+                    ? (VTSS_F_REW_MIP_CFG_MEL_VAL(conf->meg_level) |
+                       VTSS_F_REW_MIP_CFG_LBM_REDIR_ENA(conf->lbm_cpu_redir ? 1 : 0) |
+                       VTSS_F_REW_MIP_CFG_LTM_REDIR_ENA(conf->ltm_cpu_redir ? 1 : 0) |
+                       VTSS_F_REW_MIP_CFG_RAPS_CFG(raps_handling_value(conf->raps_handling)) |
+                       VTSS_F_REW_MIP_CFG_PIPELINE_PT(0))
+                    : 0; /* Currently only inner MIP is supported */
         mask = VTSS_M_REW_MIP_CFG_MEL_VAL | VTSS_M_REW_MIP_CFG_LBM_REDIR_ENA |
                VTSS_M_REW_MIP_CFG_LTM_REDIR_ENA | VTSS_M_REW_MIP_CFG_RAPS_CFG |
                VTSS_M_REW_MIP_CFG_PIPELINE_PT;
         REG_WRM(VTSS_REW_MIP_CFG(mip_idx), value, mask);
-        value = VTSS_F_REW_LBM_MAC_HIGH_LBM_MAC_HIGH((conf->unicast_mac.addr[0]
-                                                      << 8) |
+        value = VTSS_F_REW_LBM_MAC_HIGH_LBM_MAC_HIGH((conf->unicast_mac.addr[0] << 8) |
                                                      conf->unicast_mac.addr[1]);
         REG_WR(VTSS_REW_LBM_MAC_HIGH(mip_idx), value);
-        value = (conf->unicast_mac.addr[2] << 24) |
-                (conf->unicast_mac.addr[3] << 16) |
+        value = (conf->unicast_mac.addr[2] << 24) | (conf->unicast_mac.addr[3] << 16) |
                 (conf->unicast_mac.addr[4] << 8) | conf->unicast_mac.addr[5];
         REG_WR(VTSS_REW_LBM_MAC_LOW(mip_idx), value);
         REG_WR(VTSS_REW_CCM_HMO_CTRL(mip_idx), 0);
@@ -1661,65 +1499,55 @@ static vtss_rc fa_voi_conf_set(vtss_state_t                *vtss_state,
 /* - Debug print --------------------------------------------------- */
 
 // D_COM: Debug COMmon; DR_COM: Debug Read COMmon. _I for Instance. Etc.
-#define D_COM(ss, name)                                                        \
-    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_VOP_##name),               \
-                      "COMMON:" #name)
-#define D_COM_I(ss, name, i)                                                   \
-    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_##name(i)), (i),  \
-                           "COMMON:" #name)
-#define D_VOE_I(ss, name, i)                                                   \
-    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_##name(i)), (i),  \
+#define D_COM(ss, name)                                                                            \
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_VOP_##name), "COMMON:" #name)
+#define D_COM_I(ss, name, i)                                                                       \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_##name(i)), (i), "COMMON:" #name)
+#define D_VOE_I(ss, name, i)                                                                       \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_##name(i)), (i), "VOE:" #name)
+#define D_VOE_II(ss, name, i1, i2)                                                                 \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_VOP_##name((i1), (i2))), (i2),            \
                            "VOE:" #name)
-#define D_VOE_II(ss, name, i1, i2)                                             \
-    vtss_fa_debug_reg_inst(vtss_state, ss,                                     \
-                           REG_ADDR(VTSS_VOP_##name((i1), (i2))), (i2),        \
-                           "VOE:" #name)
-#define DR_COM(name, v)                                                        \
-    {                                                                          \
-        REG_RD(VTSS_VOP_##name, &v);                                           \
+#define DR_COM(name, v)                                                                            \
+    {                                                                                              \
+        REG_RD(VTSS_VOP_##name, &v);                                                               \
     }
-#define DR_COM_I(name, i, v)                                                   \
-    {                                                                          \
-        REG_RD(VTSS_VOP_##name(i), &v);                                        \
+#define DR_COM_I(name, i, v)                                                                       \
+    {                                                                                              \
+        REG_RD(VTSS_VOP_##name(i), &v);                                                            \
     }
-#define DR_VOE_I(name, i, v)                                                   \
-    {                                                                          \
-        REG_RD(VTSS_VOP_##name(i), &v);                                        \
+#define DR_VOE_I(name, i, v)                                                                       \
+    {                                                                                              \
+        REG_RD(VTSS_VOP_##name(i), &v);                                                            \
     }
-#define DR_VOE_II(name, i1, i2, v)                                             \
-    {                                                                          \
-        REG_RD(VTSS_VOP_##name((i1), (i2)), &v);                               \
+#define DR_VOE_II(name, i1, i2, v)                                                                 \
+    {                                                                                              \
+        REG_RD(VTSS_VOP_##name((i1), (i2)), &v);                                                   \
     }
-#define D_D_MIP_I(ss, name, i)                                                 \
-    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_ANA_CL_##name(i)),    \
-                           (i), "DOWN_MIP:" #name)
-#define D_U_MIP_I(ss, name, i)                                                 \
-    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_REW_##name(i)), (i),  \
-                           "UP_MIP:" #name)
-#define D_D_MIP_S(ss, name)                                                    \
-    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_ANA_CL_##name),            \
-                      "DOWN_MIP:" #name)
-#define D_U_MIP_S(ss, name)                                                    \
-    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_REW_##name),               \
-                      "UP_MIP:" #name)
+#define D_D_MIP_I(ss, name, i)                                                                     \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_ANA_CL_##name(i)), (i), "DOWN_MIP:" #name)
+#define D_U_MIP_I(ss, name, i)                                                                     \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_REW_##name(i)), (i), "UP_MIP:" #name)
+#define D_D_MIP_S(ss, name)                                                                        \
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_ANA_CL_##name), "DOWN_MIP:" #name)
+#define D_U_MIP_S(ss, name)                                                                        \
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_REW_##name), "UP_MIP:" #name)
 
 static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
                             lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
-    u32 i, k, v, w, voe_idx, div, tx_counter, rx_counter, voe_cnt, umip_cnt,
-        dmip_cnt;
+    u32           i, k, v, w, voe_idx, div, tx_counter, rx_counter, voe_cnt, umip_cnt, dmip_cnt;
     lmu_fmt_buf_t buf;
-    BOOL show, vop, voe, status, clm, es0, isdx, lm_counters, d_mip, u_mip,
-        mip_status, resources;
+    BOOL show, vop, voe, status, clm, es0, isdx, lm_counters, d_mip, u_mip, mip_status, resources;
 
     div = 0;
     voe_idx = 0;
     tx_counter = 0;
     rx_counter = 0;
     voe_cnt = umip_cnt = dmip_cnt = 0;
-    show = vop = voe = status = clm = es0 = isdx = lm_counters = d_mip = u_mip =
-        mip_status = resources = FALSE;
+    show = vop = voe = status = clm = es0 = isdx = lm_counters = d_mip = u_mip = mip_status =
+        resources = FALSE;
 
     VTSS_D("has_action %u  action %u", info->has_action, info->action);
 
@@ -1729,8 +1557,7 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
         mip_status = (info->action == 2) ? TRUE : FALSE;
         resources = (info->action == 3) ? TRUE : FALSE;
 
-        if (info->action >
-            3) { /* This potentially a VOE config or VOE status action */
+        if (info->action > 3) { /* This potentially a VOE config or VOE status action */
             for (i = 0, div = 10000; i < 5; ++i, (div = div / 10)) {
                 voe = (info->action / div == 4) ? TRUE : FALSE;
                 status = (info->action / div == 5) ? TRUE : FALSE;
@@ -1750,8 +1577,7 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
 
     VTSS_D(
         "show %u  vop %u  voe %u  status %u  lm_counters %u  d_mip %u  u_mip %u  clm %u  es0 %u  isdx %u  mip_status  %u",
-        show, vop, voe, status, lm_counters, d_mip, u_mip, clm, es0, isdx,
-        mip_status);
+        show, vop, voe, status, lm_counters, d_mip, u_mip, clm, es0, isdx, mip_status);
 
     if (show) {
         pr("OAM Debug Group action:\n");
@@ -1816,8 +1642,7 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
     if (!info->has_action || voe) { /* VOE configuration must be printed */
         for (i = 0; i < VTSS_VOE_CNT; ++i) {
             if (voe && (div > 1) &&
-                (voe_idx !=
-                 i)) { /* A specific VOE must be printed - this is not the one */
+                (voe_idx != i)) { /* A specific VOE must be printed - this is not the one */
                 continue;
             }
             DR_VOE_I(VOE_MISC_CONFIG, i, v);
@@ -1868,8 +1693,7 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
     if (!info->has_action || status) { /* VOE status must be printed */
         for (i = 0; i < VTSS_VOE_CNT; ++i) {
             if (status && (div > 1) &&
-                (voe_idx !=
-                 i)) { /* A specific VOE must be printed - this is not the one */
+                (voe_idx != i)) { /* A specific VOE must be printed - this is not the one */
                 continue;
             }
             DR_VOE_I(VOE_MISC_CONFIG, i, v);
@@ -1917,18 +1741,15 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
         pr("\n");
     } /* Print VOE status */
 
-    if (!info->has_action ||
-        lm_counters) { /* VOE LM counters must be printed */
+    if (!info->has_action || lm_counters) { /* VOE LM counters must be printed */
         for (i = 0; i < VTSS_VOE_CNT; ++i) {
             if (lm_counters && (div > 1) &&
-                (voe_idx !=
-                 i)) { /* A specific VOE must be printed - this is not the one */
+                (voe_idx != i)) { /* A specific VOE must be printed - this is not the one */
                 continue;
             }
             DR_VOE_I(VOE_MISC_CONFIG, i, v);
             DR_VOE_I(VOE_COMMON_CFG, i, w);
-            if ((v & VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA) !=
-                0) { /* Only print for active VOEs */
+            if ((v & VTSS_M_VOP_VOE_MISC_CONFIG_VOE_ENA) != 0) { /* Only print for active VOEs */
                 pr("VOE_LM_COUNTERS %u\n", i);
                 pr("COS     TX counter      RX counter\n");
                 for (k = 0; k < VTSS_PRIO_ARRAY_SIZE;
@@ -1937,28 +1758,25 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
                     if ((w & VTSS_M_VOP_VOE_COMMON_CFG_UPMEP_ENA) !=
                         0) { /* This an Up-MEP (Service instance) */
                         tx_counter =
-                            REG_ADDR(VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB(
-                                (i * VTSS_PRIO_ARRAY_SIZE) + k));
-                        rx_counter = REG_ADDR(VTSS_REW_SRV_LM_CNT_LSB(
-                            (i * VTSS_PRIO_ARRAY_SIZE) + k));
-                    } else { /* This is Down-MEP */
-                        if (i >=
-                            VTSS_PORT_VOE_BASE_IDX) { /* This is port Down-MEP */
-                            tx_counter = REG_ADDR(VTSS_REW_SRV_LM_CNT_LSB(
-                                ((i - VTSS_PORT_VOE_BASE_IDX) *
-                                 VTSS_PRIO_ARRAY_SIZE) +
-                                k));
-                            rx_counter =
-                                REG_ADDR(VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB(
-                                    ((i - VTSS_PORT_VOE_BASE_IDX) *
-                                     VTSS_PRIO_ARRAY_SIZE) +
-                                    k));
+                            REG_ADDR(VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) +
+                                                                        k));
+                        rx_counter =
+                            REG_ADDR(VTSS_REW_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k));
+                    } else {                               /* This is Down-MEP */
+                        if (i >= VTSS_PORT_VOE_BASE_IDX) { /* This is port Down-MEP */
+                            tx_counter =
+                                REG_ADDR(VTSS_REW_SRV_LM_CNT_LSB(((i - VTSS_PORT_VOE_BASE_IDX) *
+                                                                  VTSS_PRIO_ARRAY_SIZE) +
+                                                                 k));
+                            rx_counter = REG_ADDR(VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB(
+                                ((i - VTSS_PORT_VOE_BASE_IDX) * VTSS_PRIO_ARRAY_SIZE) + k));
                         } else { /* This is a Service Down-MEP */
-                            tx_counter = REG_ADDR(VTSS_REW_SRV_LM_CNT_LSB(
-                                (i * VTSS_PRIO_ARRAY_SIZE) + k));
+                            tx_counter =
+                                REG_ADDR(VTSS_REW_SRV_LM_CNT_LSB((i * VTSS_PRIO_ARRAY_SIZE) + k));
                             rx_counter =
-                                REG_ADDR(VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB(
-                                    (i * VTSS_PRIO_ARRAY_SIZE) + k));
+                                REG_ADDR(VTSS_ANA_AC_OAM_MOD_SRV_LM_CNT_LSB((i *
+                                                                             VTSS_PRIO_ARRAY_SIZE) +
+                                                                            k));
                         }
                     }
                     vtss_fa_rd(vtss_state, tx_counter, &v);
@@ -2009,14 +1827,12 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
 
     if (!info->has_action || d_mip) { /* Down-MIP must be printed */
         for (i = 0; i < VTSS_DOWN_VOI_CNT; ++i) {
-            if (d_mip && (div > 1) &&
-                (voe_idx != i)) { /* A specific Down-MIP must be printed - this
-                                     is not the one */
+            if (d_mip && (div > 1) && (voe_idx != i)) { /* A specific Down-MIP must be printed -
+                                                           this is not the one */
                 continue;
             }
             REG_RD(VTSS_ANA_CL_MIP_CFG(i), &v);
-            if ((v & VTSS_M_ANA_CL_MIP_CFG_LBM_REDIR_ENA) !=
-                0) { /* Only print for active MIPs */
+            if ((v & VTSS_M_ANA_CL_MIP_CFG_LBM_REDIR_ENA) != 0) { /* Only print for active MIPs */
                 VTSS_FMT(buf, "DOWN_MIP_CONF %u", i);
                 vtss_fa_debug_reg_header(ss, buf.s);
                 D_D_MIP_I(ss, MIP_CFG, i);
@@ -2032,15 +1848,13 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
         for (i = 1; i < (VTSS_UP_VOI_CNT + 1);
              ++i) { /* Up MIP instance 0 is not used as it cannot be addressed
                        by ES0 action - 0 has the meaning of no MIB */
-            if (u_mip && (div > 1) &&
-                (voe_idx != i)) { /* A specific Up-MIP must be printed - this is
-                                     not the one */
+            if (u_mip && (div > 1) && (voe_idx != i)) { /* A specific Up-MIP must be printed - this
+                                                           is not the one */
                 continue;
             }
 
             REG_RD(VTSS_REW_MIP_CFG(i), &v);
-            if ((v & VTSS_M_REW_MIP_CFG_LBM_REDIR_ENA) !=
-                0) { /* Only print for active MIPs */
+            if ((v & VTSS_M_REW_MIP_CFG_LBM_REDIR_ENA) != 0) { /* Only print for active MIPs */
                 VTSS_FMT(buf, "UP_MIP_CONF %u", i);
                 vtss_fa_debug_reg_header(ss, buf.s);
                 D_U_MIP_I(ss, MIP_CFG, i);
@@ -2070,8 +1884,7 @@ vtss_rc vtss_fa_vop_debug_print(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_OAM, fa_debug_vop,
-                                  vtss_state, ss, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_OAM, fa_debug_vop, vtss_state, ss, info);
 }
 
 #undef D_COM
@@ -2088,8 +1901,7 @@ vtss_rc vtss_fa_vop_debug_print(vtss_state_t                  *vtss_state,
 /* - Initialization ------------------------------------------------ */
 /* - Initialization ------------------------------------------------ */
 
-static vtss_rc voe_default_set(vtss_state_t        *vtss_state,
-                               const vtss_voe_idx_t voe_idx)
+static vtss_rc voe_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     vtss_rc rc, ret_rc = VTSS_RC_OK;
 
@@ -2097,8 +1909,7 @@ static vtss_rc voe_default_set(vtss_state_t        *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    VTSS_MEMSET(&vtss_state->oam.voe_conf[voe_idx], 0,
-                sizeof(vtss_state->oam.voe_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voe_conf[voe_idx], 0, sizeof(vtss_state->oam.voe_conf[voe_idx]));
     VTSS_MEMSET(&vtss_state->oam.voe_cc_conf[voe_idx], 0,
                 sizeof(vtss_state->oam.voe_cc_conf[voe_idx]));
     VTSS_MEMSET(&vtss_state->oam.voe_rdi_conf[voe_idx], 0,
@@ -2112,31 +1923,26 @@ static vtss_rc voe_default_set(vtss_state_t        *vtss_state,
     VTSS_MEMSET(&vtss_state->oam.voe_event_mask[voe_idx], 0,
                 sizeof(vtss_state->oam.voe_event_mask[voe_idx]));
 
-    if ((rc = fa_voe_event_mask_set(vtss_state, voe_idx,
-                                    VTSS_VOE_EVENT_MASK_ALL, FALSE)) !=
+    if ((rc = fa_voe_event_mask_set(vtss_state, voe_idx, VTSS_VOE_EVENT_MASK_ALL, FALSE)) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
     if ((rc = fa_voe_cc_rdi_set(vtss_state, voe_idx, FALSE)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = fa_voe_cc_conf_set(vtss_state, voe_idx,
-                                 &vtss_state->oam.voe_cc_conf[voe_idx])) !=
+    if ((rc = fa_voe_cc_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_cc_conf[voe_idx])) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = fa_voe_lt_conf_set(vtss_state, voe_idx,
-                                 &vtss_state->oam.voe_lt_conf[voe_idx])) !=
+    if ((rc = fa_voe_lt_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_lt_conf[voe_idx])) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = fa_voe_lb_conf_set(vtss_state, voe_idx,
-                                 &vtss_state->oam.voe_lb_conf[voe_idx])) !=
+    if ((rc = fa_voe_lb_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_lb_conf[voe_idx])) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = fa_voe_laps_conf_set(vtss_state, voe_idx,
-                                   &vtss_state->oam.voe_laps_conf[voe_idx])) !=
+    if ((rc = fa_voe_laps_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_laps_conf[voe_idx])) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
@@ -2149,8 +1955,7 @@ static vtss_rc voe_default_set(vtss_state_t        *vtss_state,
     if ((rc = fa_voe_lb_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = fa_voe_conf_set(vtss_state, voe_idx,
-                              &vtss_state->oam.voe_conf[voe_idx])) !=
+    if ((rc = fa_voe_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_conf[voe_idx])) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
@@ -2158,8 +1963,7 @@ static vtss_rc voe_default_set(vtss_state_t        *vtss_state,
     return (ret_rc);
 }
 
-static vtss_rc voi_default_set(vtss_state_t        *vtss_state,
-                               const vtss_voe_idx_t voe_idx)
+static vtss_rc voi_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     vtss_rc rc;
 
@@ -2167,11 +1971,9 @@ static vtss_rc voi_default_set(vtss_state_t        *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    VTSS_MEMSET(&vtss_state->oam.voi_conf[voe_idx], 0,
-                sizeof(vtss_state->oam.voi_conf[voe_idx]));
+    VTSS_MEMSET(&vtss_state->oam.voi_conf[voe_idx], 0, sizeof(vtss_state->oam.voi_conf[voe_idx]));
 
-    rc = fa_voi_conf_set(vtss_state, voe_idx,
-                         &vtss_state->oam.voi_conf[voe_idx]);
+    rc = fa_voi_conf_set(vtss_state, voe_idx, &vtss_state->oam.voi_conf[voe_idx]);
 
     return (rc);
 }
@@ -2251,20 +2053,15 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
     }
 
     /* Configure LOC periods used for CCM LOC: */
-    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(
-               cc_loc_period_index(VTSS_VOE_CCM_PERIOD_3_3_MS)),
+    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_3_3_MS)),
            (3333ULL * 1000) / loc_base);
-    REG_WR(
-        VTSS_VOP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_10_MS)),
-        (10000ULL * 1000) / loc_base);
-    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(
-               cc_loc_period_index(VTSS_VOE_CCM_PERIOD_100_MS)),
+    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_10_MS)),
+           (10000ULL * 1000) / loc_base);
+    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_100_MS)),
            (100000ULL * 1000) / loc_base);
-    REG_WR(
-        VTSS_VOP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_1_SEC)),
-        (1000000ULL * 1000) / loc_base);
-    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(
-               cc_loc_period_index(VTSS_VOE_CCM_PERIOD_10_SEC)),
+    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_1_SEC)),
+           (1000000ULL * 1000) / loc_base);
+    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(cc_loc_period_index(VTSS_VOE_CCM_PERIOD_10_SEC)),
            (10000000ULL * 1000) / loc_base);
 
     /* Configure LOC periods used for CCM LOC: */
@@ -2273,12 +2070,10 @@ static vtss_rc fa_init(vtss_state_t *vtss_state)
     /* (must be configured with 2 x desired CCM-LM counter insertion period) */
     /* Use slightly slower CCM-LM counter insertion to make sure 1 sec and 100
      * ms CC frames always have LM counters inserted. */
-    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(
-               lm_loc_period_index(VTSS_VOE_CCM_PERIOD_100_MS)),
+    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(lm_loc_period_index(VTSS_VOE_CCM_PERIOD_100_MS)),
            (2 * 99900ULL * 1000) / loc_base); /* 2 x 100 ms */
-    REG_WR(
-        VTSS_VOP_LOC_PERIOD_CFG(lm_loc_period_index(VTSS_VOE_CCM_PERIOD_1_SEC)),
-        (2 * 999900ULL * 1000) / loc_base); /* 2 x 1 sec */
+    REG_WR(VTSS_VOP_LOC_PERIOD_CFG(lm_loc_period_index(VTSS_VOE_CCM_PERIOD_1_SEC)),
+           (2 * 999900ULL * 1000) / loc_base); /* 2 x 1 sec */
 
     /* This is to make down VOE looping (ex. LBM->LBR) possible without port
      * being member of the classified VLAN */

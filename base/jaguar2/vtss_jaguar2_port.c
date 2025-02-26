@@ -10,66 +10,53 @@
 #include "../omega/vtss_omega_clock_cil.h"
 #endif // defined(VTSS_ARCH_SERVAL_T)
 
-vtss_rc vtss_cil_port_counters_clear(vtss_state_t        *vtss_state,
-                                     const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 
-vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t        *vtss_state,
-                                            const vtss_port_no_t port_no,
-                                            vtss_port_clause_37_control_t
-                                                *const control)
+vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        *vtss_state,
+                                            const vtss_port_no_t                 port_no,
+                                            vtss_port_clause_37_control_t *const control)
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
     u32 tgt = VTSS_TO_DEV1G(port);
 
     JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt), &value);
-    control->enable =
-        VTSS_BOOL(VTSS_X_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(value));
-    value =
-        VTSS_X_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ADV_ABILITY(control->enable
-                                                                     ? value
-                                                                     : 0);
+    control->enable = VTSS_BOOL(VTSS_X_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(value));
+    value = VTSS_X_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ADV_ABILITY(control->enable ? value : 0);
     VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &control->advertisement));
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t        *vtss_state,
-                                            const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    vtss_port_clause_37_control_t *control =
-        &vtss_state->port.clause_37[port_no];
-    u32 value;
-    u32 port = VTSS_CHIP_PORT(port_no);
-    u32 tgt = VTSS_TO_DEV1G(port);
+    vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
+    u32                            value;
+    u32                            port = VTSS_CHIP_PORT(port_no);
+    u32                            tgt = VTSS_TO_DEV1G(port);
 
     /* Aneg capabilities for this port */
-    VTSS_RC(vtss_cmn_port_clause_37_adv_set(&value, &control->advertisement,
-                                            control->enable));
+    VTSS_RC(vtss_cmn_port_clause_37_adv_set(&value, &control->advertisement, control->enable));
 
     /* Set aneg capabilities, enable neg and restart */
     JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
            VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ADV_ABILITY(value) |
                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(1) |
-               VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(
-                   1));
+               VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1));
 
     if (!control->enable) {
         /* Disable Aneg */
-        JR2_WR(
-            VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
-            VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ADV_ABILITY(0) |
-                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(0) |
-                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(
-                    1));
+        JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
+               VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ADV_ABILITY(0) |
+                   VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(0) |
+                   VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1));
     }
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t        *vtss_state,
-                                           const vtss_port_no_t port_no,
-                                           vtss_port_clause_37_status_t
-                                               *const status)
+vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *vtss_state,
+                                           const vtss_port_no_t                port_no,
+                                           vtss_port_clause_37_status_t *const status)
 
 {
     u32                     value;
@@ -84,10 +71,7 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t        *vtss_state,
 
     /* Get the link state 'down' sticky bit  */
     JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY(tgt), &value);
-    status->link =
-        (JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY_LINK_DOWN_STICKY, value)
-             ? 0
-             : 1);
+    status->link = (JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY_LINK_DOWN_STICKY, value) ? 0 : 1);
     if (status->link == 0) {
         /* The link has been down. Clear the sticky bit and return the 'down'
          * value  */
@@ -95,10 +79,8 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t        *vtss_state,
                VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY_LINK_DOWN_STICKY);
     } else {
         JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS(tgt), &value);
-        status->link =
-            JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_LINK_STATUS,
-                   value) &&
-            JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_SYNC_STATUS, value);
+        status->link = JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_LINK_STATUS, value) &&
+                       JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_SYNC_STATUS, value);
     }
 
     /* Get PCS ANEG status register */
@@ -116,25 +98,20 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t        *vtss_state,
                             VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
                 JR2_WRM_SET(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
                             VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-                (void)vtss_cil_port_clause_37_control_set(vtss_state,
-                                                          port_no); /* Restart
-                                                                       Aneg */
+                (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no); /* Restart
+                                                                                   Aneg */
                 VTSS_MSLEEP(50);
-                JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt),
-                       &value);
+                JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
                 status->autoneg.complete =
-                    JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE,
-                           value);
+                    JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
             }
         }
     }
 
     /* Return partner advertisement ability */
-    value =
-        VTSS_X_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_LP_ADV_ABILITY(value);
+    value = VTSS_X_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_LP_ADV_ABILITY(value);
 
-    if (vtss_state->port.conf[port_no].if_type ==
-        VTSS_PORT_INTERFACE_SGMII_CISCO) {
+    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         sgmii_adv->link = ((value >> 15) == 1) ? 1 : 0;
         sgmii_adv->fdx = (((value >> 12) & 0x1) == 1) ? 1 : 0;
         value = ((value >> 10) & 3);
@@ -148,8 +125,7 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t        *vtss_state,
             status->link = sgmii_adv->link;
         }
     } else {
-        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value,
-                                                &status->autoneg.partner.cl37));
+        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner.cl37));
     }
 
     return VTSS_RC_OK;
@@ -168,8 +144,7 @@ static vtss_rc jr2_port_inst_get(vtss_state_t  *vtss_state,
     u32 t = 0, t0 = 0, t1 = 0, si = 0, st = 0, port = VTSS_CHIP_PORT(port_no);
 
     if ((serdes_inst == NULL) && (serdes_type == NULL) &&
-        (vtss_state->port.conf[port_no].if_type ==
-         VTSS_PORT_INTERFACE_NO_CONNECTION)) {
+        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_NO_CONNECTION)) {
         *tgt = VTSS_TO_DEV(port);
         return VTSS_RC_OK;
     }
@@ -260,18 +235,15 @@ static vtss_rc jr2_port_inst_get(vtss_state_t  *vtss_state,
             t1 = VTSS_TO_DEV2G5_1;
             t = 24;
         } else if (port >= VTSS_PORT_10G_START && port < VTSS_CHIP_PORTS) {
-            if (vtss_state->port.conf[port_no].if_type ==
-                VTSS_PORT_INTERFACE_SFI) {
+            if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SFI) {
                 // SFP+
                 st = JR2_SERDES_TYPE_10G;
                 si = (port - VTSS_PORT_10G_START);
                 t0 = VTSS_TO_DEV10G_0;
                 t1 = VTSS_TO_DEV10G_1;
                 t = (port - VTSS_PORT_10G_START);
-            } else if (vtss_state->port.conf[port_no].if_type ==
-                           VTSS_PORT_INTERFACE_XAUI ||
-                       vtss_state->port.conf[port_no].if_type ==
-                           VTSS_PORT_INTERFACE_RXAUI) {
+            } else if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_XAUI ||
+                       vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RXAUI) {
                 // XAUI/RXAUI
                 st = JR2_SERDES_TYPE_6G;
                 si = (port == 49)   ? 0xF0000
@@ -310,8 +282,7 @@ static vtss_rc jr2_port_inst_get(vtss_state_t  *vtss_state,
 /* - CIL functions ------------------------------------------------- */
 
 #if defined(VTSS_FEATURE_SYNCE)
-#define RCVRD_CLK_GPIO_NO                                                      \
-    33 // on servalt the 4 recovered clock outputs are GPIO 33-36
+#define RCVRD_CLK_GPIO_NO 33 // on servalt the 4 recovered clock outputs are GPIO 33-36
 vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t               *vtss_state,
                                      const vtss_synce_clk_port_t clk_port_par)
 {
@@ -324,8 +295,7 @@ vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t               *vtss_state,
         VTSS_E("Invalid clock port no: %d\n", clk_port);
         return VTSS_RC_ERROR;
     }
-    VTSS_D("clk_port %X  enable %u\n", clk_port,
-           vtss_state->synce.out_conf[clk_port].enable);
+    VTSS_D("clk_port %X  enable %u\n", clk_port, vtss_state->synce.out_conf[clk_port].enable);
 
 #if defined(VTSS_ARCH_SERVAL_T)
     switch (vtss_state->synce.out_conf[clk_port].divider) {
@@ -339,29 +309,25 @@ vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t               *vtss_state,
     }
 
 #if defined(VTSS_FEATURE_CLOCK)
-    rcvrd_clk_src_idx =
-        clk_port + 4; // In serval T with internal DPLL, recovered clock 4-7 are
-                      // used as clock inputs to the internal EEC Controller(s)
+    rcvrd_clk_src_idx = clk_port + 4; // In serval T with internal DPLL, recovered clock 4-7 are
+                                      // used as clock inputs to the internal EEC Controller(s)
 #else
-    rcvrd_clk_src_idx =
-        clk_port + 1; // In serval T with external DPLL, recovered clock 1-3 are
-                      // used as clock inputs to the external DPLL
+    rcvrd_clk_src_idx = clk_port + 1; // In serval T with external DPLL, recovered clock 1-3 are
+                                      // used as clock inputs to the external DPLL
 #endif
     VTSS_D("divider %d, div_mask %d, rcvrd_clk_src_idx %d\n",
-           vtss_state->synce.out_conf[clk_port].divider, div_mask,
-           rcvrd_clk_src_idx);
+           vtss_state->synce.out_conf[clk_port].divider, div_mask, rcvrd_clk_src_idx);
     JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG(rcvrd_clk_src_idx),
             VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RCVRD_CLK_DIV(div_mask) |
-                VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RCVRD_CLK_ENA(
-                    vtss_state->synce.out_conf[clk_port].enable),
+                VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RCVRD_CLK_ENA(vtss_state->synce
+                                                                        .out_conf[clk_port]
+                                                                        .enable),
             VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RCVRD_CLK_DIV |
                 VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RCVRD_CLK_ENA);
 #if !defined(VTSS_FEATURE_CLOCK)
-    if (VTSS_RC_OK != vtss_jr2_gpio_mode(vtss_state, 0,
-                                         RCVRD_CLK_GPIO_NO + rcvrd_clk_src_idx,
-                                         VTSS_GPIO_ALT_0)) {
-        VTSS_E("Failed to set GPIO mode for recovered clock[%d]\n",
-               rcvrd_clk_src_idx);
+    if (VTSS_RC_OK !=
+        vtss_jr2_gpio_mode(vtss_state, 0, RCVRD_CLK_GPIO_NO + rcvrd_clk_src_idx, VTSS_GPIO_ALT_0)) {
+        VTSS_E("Failed to set GPIO mode for recovered clock[%d]\n", rcvrd_clk_src_idx);
         return VTSS_RC_ERROR;
     }
 #endif
@@ -373,8 +339,9 @@ vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t               *vtss_state,
     }
     JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG(clk_port),
             VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RECO_CLK_DIV(div_mask) |
-                VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RECO_CLK_ENA(
-                    vtss_state->synce.out_conf[clk_port].enable),
+                VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RECO_CLK_ENA(vtss_state->synce
+                                                                       .out_conf[clk_port]
+                                                                       .enable),
             VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RECO_CLK_DIV |
                 VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RECO_CLK_ENA);
 #endif /* VTSS_ARCH_SERVAL_T */
@@ -389,9 +356,9 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t               *vtss_state,
     vtss_synce_clock_in_t *conf = &vtss_state->synce.in_conf[clk_port];
     u32                    serdes_type;
     u32                    tgt, serdes_instance, mask;
-    i32  new_chip_port = vtss_state->port.map[conf->port_no].chip_port;
-    i32  clk_src;
-    BOOL ena = conf->enable;
+    i32                    new_chip_port = vtss_state->port.map[conf->port_no].chip_port;
+    i32                    clk_src;
+    BOOL                   ena = conf->enable;
 #if defined(VTSS_ARCH_SERVAL_T)
     vtss_synce_clock_in_type_t port_type = conf->clk_in;
     u32                        rcvrd_clk_src_idx;
@@ -402,13 +369,11 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t               *vtss_state,
     }
 #if defined(VTSS_ARCH_SERVAL_T)
 #if defined(VTSS_FEATURE_CLOCK)
-    rcvrd_clk_src_idx =
-        clk_port + 4; // In serval T with internal DPLL, recovered clock 4-7 are
-                      // used as clock inputs to the internal EEC Controller(s)
+    rcvrd_clk_src_idx = clk_port + 4; // In serval T with internal DPLL, recovered clock 4-7 are
+                                      // used as clock inputs to the internal EEC Controller(s)
 #else
-    rcvrd_clk_src_idx =
-        clk_port + 1; // In serval T with external DPLL, recovered clock 1-3 are
-                      // used as clock inputs to the external DPLL
+    rcvrd_clk_src_idx = clk_port + 1; // In serval T with external DPLL, recovered clock 1-3 are
+                                      // used as clock inputs to the external DPLL
 #endif
     VTSS_D("rcvrd_clk_src_idx %d\n", rcvrd_clk_src_idx);
     if (port_type == VTSS_SYNCE_CLOCK_INTERFACE) {
@@ -419,8 +384,8 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t               *vtss_state,
         } else if (new_chip_port >= 9 && new_chip_port <= 10) {
             clk_src = new_chip_port + 6;
         } else {
-            VTSS_E("SyncE not supported for port_no %u, chip port %u",
-                   conf->port_no, new_chip_port);
+            VTSS_E("SyncE not supported for port_no %u, chip port %u", conf->port_no,
+                   new_chip_port);
             return VTSS_RC_ERROR;
         }
     } else if (port_type == VTSS_SYNCE_CLOCK_STATION_CLK) {
@@ -445,14 +410,12 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t               *vtss_state,
     } else if (new_chip_port >= 49 && new_chip_port <= 52) {
         clk_src = new_chip_port - 24;
     } else {
-        VTSS_E("SyncE not supported for port_no %u, chip port %u",
-               conf->port_no, new_chip_port);
+        VTSS_E("SyncE not supported for port_no %u, chip port %u", conf->port_no, new_chip_port);
         return VTSS_RC_ERROR;
     }
 #endif // VTSS_ARCH_SERVAL_T
-    VTSS_D(
-        "clk_port %X, port_no %u, chip port %u enable %u, squelsh %u, clk_src %d\n",
-        clk_port, conf->port_no, new_chip_port, ena, conf->squelsh, clk_src);
+    VTSS_D("clk_port %X, port_no %u, chip port %u enable %u, squelsh %u, clk_src %d\n", clk_port,
+           conf->port_no, new_chip_port, ena, conf->squelsh, clk_src);
 #if defined(VTSS_ARCH_SERVAL_T)
     /* In Serval-T recovered clock 4-7 are used as clock inputs to the internal
      * EEC Controller(s) */
@@ -472,81 +435,63 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t               *vtss_state,
     if (ena) {
         /* Enable input clock configuration - now configuring the new (or maybe
          * the same) input port */
-        if (VTSS_RC_OK == jr2_port_inst_get(vtss_state, conf->port_no, &tgt,
-                                            &serdes_instance, &serdes_type)) {
-            VTSS_D("port_no %u, tgt 0x%x, serdes_instance %u serdes_type %u\n",
-                   conf->port_no, tgt, serdes_instance, serdes_type);
+        if (VTSS_RC_OK ==
+            jr2_port_inst_get(vtss_state, conf->port_no, &tgt, &serdes_instance, &serdes_type)) {
+            VTSS_D("port_no %u, tgt 0x%x, serdes_instance %u serdes_type %u\n", conf->port_no, tgt,
+                   serdes_instance, serdes_type);
             mask = (1 << serdes_instance);
             if (serdes_type == JR2_SERDES_TYPE_1G) {
-                VTSS_RC(jr2_sd1g_read(vtss_state,
-                                      mask)); /* Readback the 1G common config
-                                                 register */
-                JR2_WRM(
-                    VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
-                    VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_SE_AUTO_SQUELCH_ENA(
-                        conf->squelsh),
-                    VTSS_M_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_SE_AUTO_SQUELCH_ENA);
+                VTSS_RC(jr2_sd1g_read(vtss_state, mask)); /* Readback the 1G common config
+                                                             register */
+                JR2_WRM(VTSS_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
+                        VTSS_F_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_SE_AUTO_SQUELCH_ENA(
+                            conf->squelsh),
+                        VTSS_M_HSIO_SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG_SE_AUTO_SQUELCH_ENA);
                 VTSS_RC(jr2_sd1g_write(vtss_state, mask)); /* transfer 1G common
                                                               config register */
             }
             if (serdes_type == JR2_SERDES_TYPE_6G) {
-                VTSS_RC(jr2_sd6g_read(vtss_state,
-                                      mask)); /* Readback the 1G common config
-                                                 register */
-                JR2_WRM(
-                    VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG,
-                    VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_SE_AUTO_SQUELCH_ENA(
-                        conf->squelsh),
-                    VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_SE_AUTO_SQUELCH_ENA);
+                VTSS_RC(jr2_sd6g_read(vtss_state, mask)); /* Readback the 1G common config
+                                                             register */
+                JR2_WRM(VTSS_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG,
+                        VTSS_F_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_SE_AUTO_SQUELCH_ENA(
+                            conf->squelsh),
+                        VTSS_M_HSIO_SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG_SE_AUTO_SQUELCH_ENA);
                 VTSS_RC(jr2_sd6g_write(vtss_state, mask)); /* transfer 6G common
                                                               config register */
             }
             if (serdes_type == JR2_SERDES_TYPE_10G) {
 #if defined(VTSS_ARCH_SERVAL_T)
-                if (vtss_state->port.conf[conf->port_no].speed ==
-                    VTSS_SPEED_1G) {
-                    JR2_WRM(
-                        VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG(
-                            serdes_instance),
-                        VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RCVRD_CLK_DIV(
-                            0) |
-                            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA(
-                                conf->squelsh),
-                        VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RCVRD_CLK_DIV |
-                            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA);
+                if (vtss_state->port.conf[conf->port_no].speed == VTSS_SPEED_1G) {
+                    JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG(serdes_instance),
+                            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RCVRD_CLK_DIV(0) |
+                                VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA(
+                                    conf->squelsh),
+                            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RCVRD_CLK_DIV |
+                                VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA);
                 } else {
-                    JR2_WRM(
-                        VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG(
-                            serdes_instance),
-                        VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RCVRD_CLK_DIV(
-                            1) |
-                            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA(
-                                conf->squelsh),
-                        VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RCVRD_CLK_DIV |
-                            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA);
+                    JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG(serdes_instance),
+                            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RCVRD_CLK_DIV(1) |
+                                VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA(
+                                    conf->squelsh),
+                            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RCVRD_CLK_DIV |
+                                VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA);
                 }
 #else
-                if (vtss_state->port.conf[conf->port_no].speed ==
-                    VTSS_SPEED_1G) {
-                    JR2_WRM(
-                        VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG(
-                            serdes_instance),
-                        VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RECO_CLK_DIV(
-                            0) |
-                            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA(
-                                conf->squelsh),
-                        VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RECO_CLK_DIV |
-                            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA);
+                if (vtss_state->port.conf[conf->port_no].speed == VTSS_SPEED_1G) {
+                    JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG(serdes_instance),
+                            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RECO_CLK_DIV(0) |
+                                VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA(
+                                    conf->squelsh),
+                            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RECO_CLK_DIV |
+                                VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA);
                 } else {
-                    JR2_WRM(
-                        VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG(
-                            serdes_instance),
-                        VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RECO_CLK_DIV(
-                            1) |
-                            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA(
-                                conf->squelsh),
-                        VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RECO_CLK_DIV |
-                            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA);
+                    JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG(serdes_instance),
+                            VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RECO_CLK_DIV(1) |
+                                VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA(
+                                    conf->squelsh),
+                            VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_RECO_CLK_DIV |
+                                VTSS_M_HSIO_SYNC_ETH_CFG_SYNC_ETH_SD10G_CFG_SD10G_AUTO_SQUELCH_ENA);
                 }
 #endif /* VTSS_ARCH_SERVAL_T */
             }
@@ -556,14 +501,12 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t               *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t *vtss_state,
-                                           const vtss_synce_clk_port_t
-                                               clk_port_par)
+vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t               *vtss_state,
+                                           const vtss_synce_clk_port_t clk_port_par)
 {
     u32                   div_mask = 0;
     vtss_synce_clk_port_t clk_port = clk_port_par;
-    VTSS_D("clk_port %X  enable %u\n", clk_port,
-           vtss_state->synce.out_conf[clk_port].enable);
+    VTSS_D("clk_port %X  enable %u\n", clk_port, vtss_state->synce.out_conf[clk_port].enable);
 
     switch (vtss_state->synce.station_clk_out_conf[clk_port].divider) {
     case VTSS_SYNCE_DIVIDER_1: div_mask = 6; break;
@@ -576,8 +519,8 @@ vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t *vtss_state,
     case VTSS_SYNCE_DIVIDER_25: div_mask = 5; break;
 #endif
     }
-    VTSS_D("divider %d, div_mask %d\n",
-           vtss_state->synce.station_clk_out_conf[clk_port].divider, div_mask);
+    VTSS_D("divider %d, div_mask %d\n", vtss_state->synce.station_clk_out_conf[clk_port].divider,
+           div_mask);
     // the station clock output is connected to output no 0 from the OMEGA HW.
 #if defined(VTSS_ARCH_SERVAL_T)
     JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG(clk_port),
@@ -593,8 +536,7 @@ vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t *vtss_state,
 #else
     JR2_WRM(VTSS_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG(clk_port),
             VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RECO_CLK_SRC(
-                17 +
-                vtss_state->synce.station_clk_out_conf[clk_port].dpll_out_no) |
+                17 + vtss_state->synce.station_clk_out_conf[clk_port].dpll_out_no) |
                 VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_SEL_RECO_CLK_DIV(div_mask) |
                 VTSS_F_HSIO_SYNC_ETH_CFG_SYNC_ETH_CFG_RECO_CLK_ENA(
                     vtss_state->synce.station_clk_out_conf[clk_port].enable),
@@ -612,9 +554,7 @@ vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t *vtss_state,
  *  Port control
  * ================================================================= */
 
-static vtss_rc vtss_jr2_vaui_lane_alignement(vtss_state_t *vtss_state,
-                                             u32           p,
-                                             BOOL          ena)
+static vtss_rc vtss_jr2_vaui_lane_alignement(vtss_state_t *vtss_state, u32 p, BOOL ena)
 {
     // VTSS_TO_VAUI0, Instance 0 maps to Serdes6G 16-19
     // VTSS_TO_VAUI0, Instance 1 maps to Serdes6G 20-23
@@ -623,19 +563,17 @@ static vtss_rc vtss_jr2_vaui_lane_alignement(vtss_state_t *vtss_state,
 #if !defined(VTSS_ARCH_SERVAL_T)
     if (VTSS_PORT_IS_10G(p)) {
         /* Disable/enable LANE alignment */
-        JR2_WRM(
-            VTSS_VAUI_CHANNEL_VAUI_CHANNEL_CFG_VAUI_CHANNEL_CFG(
-                p >= 51 ? VTSS_TO_VAUI0 : VTSS_TO_VAUI1, !(p % 2)),
-            VTSS_F_VAUI_CHANNEL_VAUI_CHANNEL_CFG_VAUI_CHANNEL_CFG_LANE_SYNC_ENA(
-                ena ? 0xf : 0),
-            VTSS_M_VAUI_CHANNEL_VAUI_CHANNEL_CFG_VAUI_CHANNEL_CFG_LANE_SYNC_ENA);
+        JR2_WRM(VTSS_VAUI_CHANNEL_VAUI_CHANNEL_CFG_VAUI_CHANNEL_CFG(p >= 51 ? VTSS_TO_VAUI0
+                                                                            : VTSS_TO_VAUI1,
+                                                                    !(p % 2)),
+                VTSS_F_VAUI_CHANNEL_VAUI_CHANNEL_CFG_VAUI_CHANNEL_CFG_LANE_SYNC_ENA(ena ? 0xf : 0),
+                VTSS_M_VAUI_CHANNEL_VAUI_CHANNEL_CFG_VAUI_CHANNEL_CFG_LANE_SYNC_ENA);
     }
 #endif /* VTSS_ARCH_SERVAL_T */
     return VTSS_RC_OK;
 }
 
-static BOOL port_is_in_10g_mode(vtss_state_t  *vtss_state,
-                                vtss_port_no_t port_no)
+static BOOL port_is_in_10g_mode(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SFI ||
         vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_XAUI ||
@@ -646,20 +584,17 @@ static BOOL port_is_in_10g_mode(vtss_state_t  *vtss_state,
     }
 }
 
-vtss_rc vtss_jr2_port_max_tags_set(vtss_state_t  *vtss_state,
-                                   vtss_port_no_t port_no)
+vtss_rc vtss_jr2_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_port_max_tags_t  max_tags = vtss_state->port.conf[port_no].max_tags;
-    vtss_vlan_port_type_t vlan_type =
-        vtss_state->l2.vlan_port_conf[port_no].port_type;
-    u32 etype, port = VTSS_CHIP_PORT(port_no);
+    vtss_vlan_port_type_t vlan_type = vtss_state->l2.vlan_port_conf[port_no].port_type;
+    u32                   etype, port = VTSS_CHIP_PORT(port_no);
 
     /* S-ports and VLAN unaware ports both support 0x88a8 (in addition to
      * 0x8100) */
-    etype = (vlan_type == VTSS_VLAN_PORT_TYPE_S_CUSTOM
-                 ? vtss_state->l2.vlan_conf.s_etype
-             : vlan_type == VTSS_VLAN_PORT_TYPE_C ? VTSS_ETYPE_TAG_C
-                                                  : VTSS_ETYPE_TAG_S);
+    etype = (vlan_type == VTSS_VLAN_PORT_TYPE_S_CUSTOM ? vtss_state->l2.vlan_conf.s_etype
+             : vlan_type == VTSS_VLAN_PORT_TYPE_C      ? VTSS_ETYPE_TAG_C
+                                                       : VTSS_ETYPE_TAG_S);
 
     if (VTSS_PORT_IS_10G(port)) {
         /* As 10G and 1G devices come in pairs, we must update both devices with
@@ -668,17 +603,22 @@ vtss_rc vtss_jr2_port_max_tags_set(vtss_state_t  *vtss_state,
          * 0x88A8) */
         JR2_WRM(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TAGS_CFG(VTSS_TO_DEV(port), 0),
                 VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_TAGS_CFG_TAG_ID(etype) |
-                    VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_TAGS_CFG_TAG_ENA(
-                        max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1),
+                    VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_TAGS_CFG_TAG_ENA(max_tags ==
+                                                                              VTSS_PORT_MAX_TAGS_NONE
+                                                                          ? 0
+                                                                          : 1),
                 VTSS_M_DEV10G_MAC_CFG_STATUS_MAC_TAGS_CFG_TAG_ID |
                     VTSS_M_DEV10G_MAC_CFG_STATUS_MAC_TAGS_CFG_TAG_ENA);
 
         JR2_WRM(VTSS_DEV10G_MAC_CFG_STATUS_MAC_NUM_TAGS_CFG(
                     VTSS_TO_DEV(port)), // Triple tags not currently supported
-                VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_NUM_TAGS_CFG_NUM_TAGS(
-                    max_tags == VTSS_PORT_MAX_TAGS_ONE   ? 1
-                    : max_tags == VTSS_PORT_MAX_TAGS_TWO ? 2
-                                                         : 0),
+                VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_NUM_TAGS_CFG_NUM_TAGS(max_tags ==
+                                                                               VTSS_PORT_MAX_TAGS_ONE
+                                                                           ? 1
+                                                                       : max_tags ==
+                                                                               VTSS_PORT_MAX_TAGS_TWO
+                                                                           ? 2
+                                                                           : 0),
                 VTSS_M_DEV10G_MAC_CFG_STATUS_MAC_NUM_TAGS_CFG_NUM_TAGS);
 
         JR2_WRM(VTSS_DEV10G_MAC_CFG_STATUS_MAC_MAXLEN_CFG(VTSS_TO_DEV(port)),
@@ -688,12 +628,14 @@ vtss_rc vtss_jr2_port_max_tags_set(vtss_state_t  *vtss_state,
     }
     JR2_WR(VTSS_DEV1G_MAC_CFG_STATUS_MAC_TAGS_CFG(VTSS_TO_DEV1G(port)),
            VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_TAGS_CFG_TAG_ID(etype) |
-               VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_TAGS_CFG_PB_ENA(
-                   max_tags == VTSS_PORT_MAX_TAGS_TWO
-                       ? 1
-                       : 0) | // Triple tags not currently supported
-               VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_TAGS_CFG_VLAN_AWR_ENA(
-                   max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1) |
+               VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_TAGS_CFG_PB_ENA(max_tags == VTSS_PORT_MAX_TAGS_TWO
+                                                                   ? 1
+                                                                   : 0) | // Triple tags not
+                                                                          // currently supported
+               VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_TAGS_CFG_VLAN_AWR_ENA(max_tags ==
+                                                                             VTSS_PORT_MAX_TAGS_NONE
+                                                                         ? 0
+                                                                         : 1) |
                VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_TAGS_CFG_VLAN_LEN_AWR_ENA(
                    max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1));
 
@@ -734,9 +676,7 @@ static vtss_rc jr2_miim_cmd(vtss_state_t          *vtss_state,
     case VTSS_MIIM_CONTROLLER_0: i = 0; break;
     case VTSS_MIIM_CONTROLLER_1: i = 1; break;
     case VTSS_MIIM_CONTROLLER_2: i = 2; break;
-    default:
-        VTSS_E("illegal miim_controller: %d", miim_controller);
-        return VTSS_RC_ERROR;
+    default:                     VTSS_E("illegal miim_controller: %d", miim_controller); return VTSS_RC_ERROR;
     }
 
     /* Set Start of frame field */
@@ -760,9 +700,8 @@ static vtss_rc jr2_miim_cmd(vtss_state_t          *vtss_state,
     /* Wait for access to complete */
     for (n = 0;; n++) {
         JR2_RD(VTSS_DEVCPU_GCB_MIIM_MII_STATUS(i), &value);
-        if ((value &
-             (VTSS_M_DEVCPU_GCB_MIIM_MII_STATUS_MIIM_STAT_PENDING_RD |
-              VTSS_M_DEVCPU_GCB_MIIM_MII_STATUS_MIIM_STAT_PENDING_WR)) == 0) {
+        if ((value & (VTSS_M_DEVCPU_GCB_MIIM_MII_STATUS_MIIM_STAT_PENDING_RD |
+                      VTSS_M_DEVCPU_GCB_MIIM_MII_STATUS_MIIM_STAT_PENDING_WR)) == 0) {
             break;
         }
         if (n == 1000) {
@@ -782,13 +721,12 @@ static vtss_rc jr2_miim_cmd(vtss_state_t          *vtss_state,
 
 mmd_error:
     if (report_errors) {
-        VTSS_E(
-            "miim failed, cmd: %s, miim_addr: %u, addr: %u, miim_controller:%u, sof:%u",
-            cmd == PHY_CMD_READ      ? "PHY_CMD_READ"
-            : cmd == PHY_CMD_WRITE   ? "PHY_CMD_WRITE"
-            : cmd == PHY_CMD_ADDRESS ? "PHY_CMD_ADDRESS"
-                                     : "PHY_CMD_READ_INC",
-            miim_addr, addr, miim_controller, sof);
+        VTSS_E("miim failed, cmd: %s, miim_addr: %u, addr: %u, miim_controller:%u, sof:%u",
+               cmd == PHY_CMD_READ      ? "PHY_CMD_READ"
+               : cmd == PHY_CMD_WRITE   ? "PHY_CMD_WRITE"
+               : cmd == PHY_CMD_ADDRESS ? "PHY_CMD_ADDRESS"
+                                        : "PHY_CMD_READ_INC",
+               miim_addr, addr, miim_controller, sof);
     }
 
     return VTSS_RC_ERROR;
@@ -801,8 +739,8 @@ vtss_rc vtss_cil_miim_read(vtss_state_t          *vtss_state,
                            u16                   *value,
                            BOOL                   report_errors)
 {
-    return jr2_miim_cmd(vtss_state, PHY_CMD_READ, 1, miim_controller, miim_addr,
-                        addr, value, report_errors);
+    return jr2_miim_cmd(vtss_state, PHY_CMD_READ, 1, miim_controller, miim_addr, addr, value,
+                        report_errors);
     //    return jr2_miim_read_write(vtss_state, TRUE, miim_controller,
     //    miim_addr, addr, value, report_errors);
 }
@@ -814,8 +752,8 @@ vtss_rc vtss_cil_miim_write(vtss_state_t          *vtss_state,
                             u16                    value,
                             BOOL                   report_errors)
 {
-    return jr2_miim_cmd(vtss_state, PHY_CMD_WRITE, 1, miim_controller,
-                        miim_addr, addr, &value, report_errors);
+    return jr2_miim_cmd(vtss_state, PHY_CMD_WRITE, 1, miim_controller, miim_addr, addr, &value,
+                        report_errors);
     //    return jr2_miim_read_write(vtss_state, FALSE, miim_controller,
     //    miim_addr, addr, &value, report_errors);
 }
@@ -829,14 +767,13 @@ vtss_rc vtss_cil_mmd_read(vtss_state_t          *vtss_state,
                           BOOL                   report_errors)
 {
 
-    VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller,
-                         miim_addr, mmd, &addr, report_errors));
-    if (jr2_miim_cmd(vtss_state, PHY_CMD_READ, 0, miim_controller, miim_addr,
-                     mmd, value, 0) != VTSS_RC_OK) {
+    VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller, miim_addr, mmd, &addr,
+                         report_errors));
+    if (jr2_miim_cmd(vtss_state, PHY_CMD_READ, 0, miim_controller, miim_addr, mmd, value, 0) !=
+        VTSS_RC_OK) {
         if (report_errors) {
-            VTSS_E(
-                "jr2_mmd_read failed, miim_controller:%d miim_addr:%x, mmd:%x, addr:%x",
-                miim_controller, miim_addr, mmd, addr);
+            VTSS_E("jr2_mmd_read failed, miim_controller:%d miim_addr:%x, mmd:%x, addr:%x",
+                   miim_controller, miim_addr, mmd, addr);
         }
         return VTSS_RC_ERROR;
     }
@@ -854,16 +791,16 @@ vtss_rc vtss_cil_mmd_read_inc(vtss_state_t          *vtss_state,
                               BOOL                   report_errors)
 {
 
-    VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller,
-                         miim_addr, mmd, &addr, report_errors));
+    VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller, miim_addr, mmd, &addr,
+                         report_errors));
     while (count > 1) {
-        VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_READ_INC, 0, miim_controller,
-                             miim_addr, mmd, buf, report_errors));
+        VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_READ_INC, 0, miim_controller, miim_addr, mmd, buf,
+                             report_errors));
         buf++;
         count--;
     }
-    VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_READ, 0, miim_controller,
-                         miim_addr, mmd, buf, report_errors));
+    VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_READ, 0, miim_controller, miim_addr, mmd, buf,
+                         report_errors));
     return VTSS_RC_OK;
 }
 
@@ -876,10 +813,10 @@ vtss_rc vtss_cil_mmd_write(vtss_state_t          *vtss_state,
                            u16                    data,
                            BOOL                   report_errors)
 {
-    VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller,
-                         miim_addr, mmd, &addr, report_errors));
-    return jr2_miim_cmd(vtss_state, PHY_CMD_WRITE, 0, miim_controller,
-                        miim_addr, mmd, &data, report_errors);
+    VTSS_RC(jr2_miim_cmd(vtss_state, PHY_CMD_ADDRESS, 0, miim_controller, miim_addr, mmd, &addr,
+                         report_errors));
+    return jr2_miim_cmd(vtss_state, PHY_CMD_WRITE, 0, miim_controller, miim_addr, mmd, &data,
+                        report_errors);
 }
 
 static BOOL vrfy_spd_iface(vtss_port_no_t        port_no,
@@ -893,36 +830,31 @@ static BOOL vrfy_spd_iface(vtss_port_no_t        port_no,
 
     case VTSS_PORT_INTERFACE_SERDES:
         if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_2500M) {
-            VTSS_E(
-                "Serdes port interface only supports 1000M speed (port:%u speed:%d)",
-                port_no, speed);
+            VTSS_E("Serdes port interface only supports 1000M speed (port:%u speed:%d)", port_no,
+                   speed);
             return 0;
         }
         break;
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_QSGMII:
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
-        if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M &&
-            speed != VTSS_SPEED_10M) {
-            VTSS_E(
-                "SGMII/QSGMII port interface only supports 10/100/1000M speeds (port:%u)",
-                port_no);
+        if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M) {
+            VTSS_E("SGMII/QSGMII port interface only supports 10/100/1000M speeds (port:%u)",
+                   port_no);
             return 0;
         }
         break;
     case VTSS_PORT_INTERFACE_SGMII_2G5:
-        if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M &&
-            speed != VTSS_SPEED_10M && speed != VTSS_SPEED_2500M) {
-            VTSS_E(
-                "SGMII/QSGMII port interface only supports 10/100/1000M/2.5G speeds (port:%u)",
-                port_no);
+        if (speed != VTSS_SPEED_1G && speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M &&
+            speed != VTSS_SPEED_2500M) {
+            VTSS_E("SGMII/QSGMII port interface only supports 10/100/1000M/2.5G speeds (port:%u)",
+                   port_no);
             return 0;
         }
         break;
     case VTSS_PORT_INTERFACE_100FX:
         if (speed != VTSS_SPEED_100M) {
-            VTSS_E("100FX port interface only supports 100M speed (port:%u)",
-                   port_no);
+            VTSS_E("100FX port interface only supports 100M speed (port:%u)", port_no);
             return 0;
         }
         break;
@@ -930,17 +862,14 @@ static BOOL vrfy_spd_iface(vtss_port_no_t        port_no,
     case VTSS_PORT_INTERFACE_RXAUI:
     case VTSS_PORT_INTERFACE_XAUI:
         if (speed != VTSS_SPEED_10G) {
-            VTSS_E(
-                "SFI/XAUI/RXAUI port interface only supports 10G speeds (port:%u)",
-                port_no);
+            VTSS_E("SFI/XAUI/RXAUI port interface only supports 10G speeds (port:%u)", port_no);
             return 0;
         }
         *port_10g = 1;
         break;
     case VTSS_PORT_INTERFACE_VAUI:
         if (speed != VTSS_SPEED_2500M) {
-            VTSS_E("VAUI port interface only supports 2.5G speed (port:%u)",
-                   port_no);
+            VTSS_E("VAUI port interface only supports 2.5G speed (port:%u)", port_no);
             return 0;
         }
         break;
@@ -996,13 +925,10 @@ u32 vtss_jr2_wm_high_get(vtss_state_t *vtss_state, u32 queue)
     JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((queue + 496 + 2048)),
            &wm_high); /* Shared egress high watermark for queue - common for all
                          dpls */
-    return wm_dec(wm_high) *
-           JR2_BUFFER_CELL_SZ; /* Convert from 176 byte chunks to bytes */
+    return wm_dec(wm_high) * JR2_BUFFER_CELL_SZ; /* Convert from 176 byte chunks to bytes */
 }
 
-static vtss_rc jr2_port_pfc(vtss_state_t     *vtss_state,
-                            u32               port,
-                            vtss_port_conf_t *conf)
+static vtss_rc jr2_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
     u32 q, pfc_mask = 0;
     u32 spd = (conf->speed == VTSS_SPEED_10G)     ? 1
@@ -1016,10 +942,8 @@ static vtss_rc jr2_port_pfc(vtss_state_t     *vtss_state,
         pfc_mask |= conf->flow_control.pfc[q] ? (1 << q) : 0;
     }
     JR2_WRM(VTSS_ASM_PFC_PFC_CFG(port),
-            VTSS_F_ASM_PFC_PFC_CFG_RX_PFC_ENA(pfc_mask) |
-                VTSS_F_ASM_PFC_PFC_CFG_FC_LINK_SPEED(spd),
-            VTSS_M_ASM_PFC_PFC_CFG_RX_PFC_ENA |
-                VTSS_M_ASM_PFC_PFC_CFG_FC_LINK_SPEED);
+            VTSS_F_ASM_PFC_PFC_CFG_RX_PFC_ENA(pfc_mask) | VTSS_F_ASM_PFC_PFC_CFG_FC_LINK_SPEED(spd),
+            VTSS_M_ASM_PFC_PFC_CFG_RX_PFC_ENA | VTSS_M_ASM_PFC_PFC_CFG_FC_LINK_SPEED);
 
     /*  HQOS Scheduling must be in 'normal' mode otherwise PFC will not work */
     /*  Use pfc status for the port on layer 1 */
@@ -1028,8 +952,7 @@ static vtss_rc jr2_port_pfc(vtss_state_t     *vtss_state,
             VTSS_M_HSCH_HSCH_MISC_PFC_CFG_PFC_LAYER);
 
     /*  Scheduler element = port in normal mode */
-    JR2_WRM(VTSS_HSCH_HSCH_MISC_PFC_CFG(port),
-            VTSS_F_HSCH_HSCH_MISC_PFC_CFG_PFC_SE(port),
+    JR2_WRM(VTSS_HSCH_HSCH_MISC_PFC_CFG(port), VTSS_F_HSCH_HSCH_MISC_PFC_CFG_PFC_SE(port),
             VTSS_M_HSCH_HSCH_MISC_PFC_CFG_PFC_SE);
 
     /*  ASM must not drop PFC frames as the PFC detection is done on the cellbus
@@ -1042,8 +965,7 @@ static vtss_rc jr2_port_pfc(vtss_state_t     *vtss_state,
     JR2_WRM(VTSS_QRES_RES_QOS_ADV_PFC_CFG(port),
             VTSS_F_QRES_RES_QOS_ADV_PFC_CFG_TX_PFC_ENA(pfc_mask),
             VTSS_M_QRES_RES_QOS_ADV_PFC_CFG_TX_PFC_ENA);
-    JR2_WRM(VTSS_DSM_CFG_ETH_PFC_CFG(port),
-            VTSS_F_DSM_CFG_ETH_PFC_CFG_PFC_ENA(VTSS_BOOL(pfc_mask)),
+    JR2_WRM(VTSS_DSM_CFG_ETH_PFC_CFG(port), VTSS_F_DSM_CFG_ETH_PFC_CFG_PFC_ENA(VTSS_BOOL(pfc_mask)),
             VTSS_M_DSM_CFG_ETH_PFC_CFG_PFC_ENA);
 
     /* When enabled let the queue system generate Pause frames to avoid HOL */
@@ -1067,24 +989,19 @@ static vtss_rc jr2_port_pfc(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_port_fc_setup(vtss_state_t     *vtss_state,
-                                 u32               port,
-                                 vtss_port_conf_t *conf)
+static vtss_rc jr2_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
     u8 *smac = &conf->flow_control.smac.addr[0];
-    u32 q, pause_start = 0x77F00, pause_stop = 0x77F00, rsrv_raw = 0x77F00,
-           atop_tot = 0x77F00, sum_port, sum_cpu, val;
-    BOOL pfc = 0, fc_gen = conf->flow_control.generate,
-         fc_obey = conf->flow_control.obey;
+    u32 q, pause_start = 0x77F00, pause_stop = 0x77F00, rsrv_raw = 0x77F00, atop_tot = 0x77F00,
+           sum_port, sum_cpu, val;
+    BOOL           pfc = 0, fc_gen = conf->flow_control.generate, fc_obey = conf->flow_control.obey;
     vtss_port_no_t port_no;
 
     for (q = 0; q < VTSS_PRIOS; q++) {
         if (conf->flow_control.pfc[q]) {
             pfc = 1;
             if (fc_gen || fc_obey) {
-                VTSS_E(
-                    "802.3X FC and 802.1Qbb PFC cannot both be enabled, chip port %u",
-                    port);
+                VTSS_E("802.3X FC and 802.1Qbb PFC cannot both be enabled, chip port %u", port);
                 return VTSS_RC_ERROR;
             }
         }
@@ -1094,8 +1011,7 @@ static vtss_rc jr2_port_fc_setup(vtss_state_t     *vtss_state,
     VTSS_RC(jr2_port_pfc(vtss_state, port, conf));
 
     /* Configure Standard 802.3X FC */
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (vtss_state->port.conf[port_no].flow_control.generate || pfc) {
             atop_tot = 0; //  Generate FC early if any port is in FC mode
         }
@@ -1110,25 +1026,20 @@ static vtss_rc jr2_port_fc_setup(vtss_state_t     *vtss_state,
         // CPU is congested.
 
         // Per port:
-        JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(0 /* ingress */ + 512 /* per port */ +
-                                          port),
-               &sum_port);
-        JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress  */ +
-                                          512 /* per port */ +
+        JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(0 /* ingress */ + 512 /* per port */ + port), &sum_port);
+        JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress  */ + 512 /* per port */ +
                                           VTSS_CHIP_PORT_CPU_0),
                &sum_cpu);
 
         // Per prio:
         for (q = 0; q < VTSS_PRIOS; q++) {
-            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(0 /* ingress */ +
-                                              port * VTSS_PRIOS /* per prio */ +
+            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(0 /* ingress */ + port * VTSS_PRIOS /* per prio */ +
                                               q),
                    &val);
             sum_port += val;
 
-            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(
-                       2048 /* egress  */ +
-                       VTSS_CHIP_PORT_CPU_0 * VTSS_PRIOS /* per prio */ + q),
+            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG(2048 /* egress  */ +
+                                              VTSS_CHIP_PORT_CPU_0 * VTSS_PRIOS /* per prio */ + q),
                    &val);
             sum_cpu += val;
         }
@@ -1140,8 +1051,7 @@ static vtss_rc jr2_port_fc_setup(vtss_state_t     *vtss_state,
 
         pause_stop = 4 * (VTSS_MAX_FRAME_LENGTH_STANDARD / JR2_BUFFER_CELL_SZ);
         if (conf->max_frame_length > VTSS_MAX_FRAME_LENGTH_STANDARD) {
-            rsrv_raw = pause_start + (3 * VTSS_MAX_FRAME_LENGTH_STANDARD) /
-                                         JR2_BUFFER_CELL_SZ;
+            rsrv_raw = pause_start + (3 * VTSS_MAX_FRAME_LENGTH_STANDARD) / JR2_BUFFER_CELL_SZ;
         } else {
             rsrv_raw = pause_start + 20000 / JR2_BUFFER_CELL_SZ;
         }
@@ -1155,19 +1065,15 @@ static vtss_rc jr2_port_fc_setup(vtss_state_t     *vtss_state,
                                                               // reset
 
     /* Set SMAC of Pause frame */
-    JR2_WR(VTSS_DSM_CFG_MAC_ADDR_BASE_HIGH_CFG(port),
-           (smac[0] << 16) | (smac[1] << 8) | smac[2]);
-    JR2_WR(VTSS_DSM_CFG_MAC_ADDR_BASE_LOW_CFG(port),
-           (smac[3] << 16) | (smac[4] << 8) | smac[5]);
+    JR2_WR(VTSS_DSM_CFG_MAC_ADDR_BASE_HIGH_CFG(port), (smac[0] << 16) | (smac[1] << 8) | smac[2]);
+    JR2_WR(VTSS_DSM_CFG_MAC_ADDR_BASE_LOW_CFG(port), (smac[3] << 16) | (smac[4] << 8) | smac[5]);
 
     /* Set HDX flowcontrol */
-    JR2_WRM(VTSS_DSM_CFG_MAC_CFG(port),
-            VTSS_F_DSM_CFG_MAC_CFG_HDX_BACKPRESSURE(!conf->fdx),
+    JR2_WRM(VTSS_DSM_CFG_MAC_CFG(port), VTSS_F_DSM_CFG_MAC_CFG_HDX_BACKPRESSURE(!conf->fdx),
             VTSS_M_DSM_CFG_MAC_CFG_HDX_BACKPRESSURE);
 
     /* Obey flowcontrol  */
-    JR2_WRM(VTSS_DSM_CFG_RX_PAUSE_CFG(port),
-            VTSS_F_DSM_CFG_RX_PAUSE_CFG_RX_PAUSE_EN(fc_obey),
+    JR2_WRM(VTSS_DSM_CFG_RX_PAUSE_CFG(port), VTSS_F_DSM_CFG_RX_PAUSE_CFG_RX_PAUSE_EN(fc_obey),
             VTSS_M_DSM_CFG_RX_PAUSE_CFG_RX_PAUSE_EN);
 
     /* No ingress dropping in flowontrol  */
@@ -1175,8 +1081,7 @@ static vtss_rc jr2_port_fc_setup(vtss_state_t     *vtss_state,
             VTSS_F_QFWD_SYSTEM_SWITCH_PORT_MODE_INGRESS_DROP_MODE(!fc_gen),
             VTSS_M_QFWD_SYSTEM_SWITCH_PORT_MODE_INGRESS_DROP_MODE);
 
-    JR2_WR(VTSS_QSYS_PAUSE_CFG_ATOP(port),
-           VTSS_F_QSYS_PAUSE_CFG_ATOP_ATOP(wm_enc(rsrv_raw)));
+    JR2_WR(VTSS_QSYS_PAUSE_CFG_ATOP(port), VTSS_F_QSYS_PAUSE_CFG_ATOP_ATOP(wm_enc(rsrv_raw)));
 
     /*  When 'port ATOP' and 'common ATOP_TOT' are exceeded, tail dropping is
      * activated on port */
@@ -1212,13 +1117,11 @@ static vtss_rc jr2_sd10g_xfi_mode(vtss_state_t      *vtss_state,
             VTSS_M_XFI_SHELL_XFI_CONTROL_XFI_MODE_SW_RST);
 
     JR2_WRM(VTSS_XFI_SHELL_XFI_CONTROL_XFI_MODE(tgt),
-            VTSS_F_XFI_SHELL_XFI_CONTROL_XFI_MODE_TX_INVERT(conf->serdes
-                                                                .tx_invert),
+            VTSS_F_XFI_SHELL_XFI_CONTROL_XFI_MODE_TX_INVERT(conf->serdes.tx_invert),
             VTSS_M_XFI_SHELL_XFI_CONTROL_XFI_MODE_TX_INVERT);
 
     JR2_WRM(VTSS_XFI_SHELL_XFI_CONTROL_XFI_MODE(tgt),
-            VTSS_F_XFI_SHELL_XFI_CONTROL_XFI_MODE_RX_INVERT(conf->serdes
-                                                                .rx_invert),
+            VTSS_F_XFI_SHELL_XFI_CONTROL_XFI_MODE_RX_INVERT(conf->serdes.rx_invert),
             VTSS_M_XFI_SHELL_XFI_CONTROL_XFI_MODE_RX_INVERT);
 
     JR2_WRM(VTSS_XFI_SHELL_XFI_CONTROL_XFI_MODE(tgt),
@@ -1240,19 +1143,17 @@ static vtss_rc jr2_serdes_cfg(vtss_state_t        *vtss_state,
                               const vtss_port_no_t port_no,
                               vtss_serdes_mode_t   mode)
 {
-    u32 serdes_inst, serdes_type, tgt, addr, port = VTSS_CHIP_PORT(port_no);
+    u32               serdes_inst, serdes_type, tgt, addr, port = VTSS_CHIP_PORT(port_no);
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
 
     if (mode == vtss_state->port.serdes_mode[port_no]) {
         return VTSS_RC_OK; // No change of Serdes
     }
 
-    VTSS_RC(jr2_port_inst_get(vtss_state, port_no, &tgt, &serdes_inst,
-                              &serdes_type));
+    VTSS_RC(jr2_port_inst_get(vtss_state, port_no, &tgt, &serdes_inst, &serdes_type));
 
-    VTSS_D(
-        "Configure Serdes chip port %u, serdes mode:%d serdes inst:%d, serdes type:%d)",
-        port, mode, serdes_inst, serdes_type);
+    VTSS_D("Configure Serdes chip port %u, serdes mode:%d serdes inst:%d, serdes type:%d)", port,
+           mode, serdes_inst, serdes_type);
 
     if (!VTSS_PORT_IS_10G(port) || mode == VTSS_SERDES_MODE_1000BaseX) {
         addr = (1 << serdes_inst);
@@ -1266,9 +1167,7 @@ static vtss_rc jr2_serdes_cfg(vtss_state_t        *vtss_state,
     }
 
     switch (serdes_type) {
-    case JR2_SERDES_TYPE_1G:
-        VTSS_RC(jr2_sd1g_cfg(vtss_state, port_no, mode, addr));
-        break;
+    case JR2_SERDES_TYPE_1G: VTSS_RC(jr2_sd1g_cfg(vtss_state, port_no, mode, addr)); break;
 
     case JR2_SERDES_TYPE_6G:
         if ((mode != VTSS_SERDES_MODE_QSGMII) ||
@@ -1282,21 +1181,18 @@ static vtss_rc jr2_serdes_cfg(vtss_state_t        *vtss_state,
         VTSS_RC(jr2_sd10g_cfg(vtss_state, mode, conf->serdes.media_type, port));
         /* Change to 100FX after Serdes config */
         if (mode == VTSS_SERDES_MODE_100FX) {
-            JR2_WRM(
-                VTSS_XFI_SHELL_XFI_CONTROL_XFI_MODE(VTSS_TO_10G_XFI_TGT(port)),
-                VTSS_F_XFI_SHELL_XFI_CONTROL_XFI_MODE_FX100_ENA(1),
-                VTSS_M_XFI_SHELL_XFI_CONTROL_XFI_MODE_FX100_ENA);
+            JR2_WRM(VTSS_XFI_SHELL_XFI_CONTROL_XFI_MODE(VTSS_TO_10G_XFI_TGT(port)),
+                    VTSS_F_XFI_SHELL_XFI_CONTROL_XFI_MODE_FX100_ENA(1),
+                    VTSS_M_XFI_SHELL_XFI_CONTROL_XFI_MODE_FX100_ENA);
 
-            JR2_WRM(
-                VTSS_XFI_SHELL_XFI_CONTROL_XFI_MODE(VTSS_TO_10G_XFI_TGT(port)),
-                VTSS_F_XFI_SHELL_XFI_CONTROL_XFI_MODE_TX_RESYNC_SHOT(1),
-                VTSS_M_XFI_SHELL_XFI_CONTROL_XFI_MODE_TX_RESYNC_SHOT);
+            JR2_WRM(VTSS_XFI_SHELL_XFI_CONTROL_XFI_MODE(VTSS_TO_10G_XFI_TGT(port)),
+                    VTSS_F_XFI_SHELL_XFI_CONTROL_XFI_MODE_TX_RESYNC_SHOT(1),
+                    VTSS_M_XFI_SHELL_XFI_CONTROL_XFI_MODE_TX_RESYNC_SHOT);
         }
 #if defined(VTSS_FEATURE_CLOCK)
         // whenever the serdes setup is changed, the tx clock
         // synchronizationmust be refreshed
-        VTSS_RC(vtss_omega_clock_output_filter_bw_refresh(vtss_state,
-                                                          serdes_inst));
+        VTSS_RC(vtss_omega_clock_output_filter_bw_refresh(vtss_state, serdes_inst));
 #endif /* VTSS_FEATURE_CLOCK */
 
         VTSS_D("Done");
@@ -1308,8 +1204,7 @@ static vtss_rc jr2_serdes_cfg(vtss_state_t        *vtss_state,
 }
 
 /* Poll port until all memory is freed */
-static vtss_rc jr2_port_flush_poll(vtss_state_t       *vtss_state,
-                                   vtss_phys_port_no_t port)
+static vtss_rc jr2_port_flush_poll(vtss_state_t *vtss_state, vtss_phys_port_no_t port)
 {
     u32 value, resource, prio, delay_cnt = 0;
 #if VTSS_OPT_TRACE
@@ -1374,15 +1269,13 @@ static vtss_rc jr2_port_flush_poll(vtss_state_t       *vtss_state,
                     idx = base + prio;
                     JR2_RD(VTSS_QRES_RES_CTRL_RES_STAT(idx), &value);
                     if (value) {
-                        LMU_SS_FMT(&buf.ss,
-                                   "res = %u, prio = %u => idx = %u val = %u\n",
-                                   resource, prio, idx, value);
+                        LMU_SS_FMT(&buf.ss, "res = %u, prio = %u => idx = %u val = %u\n", resource,
+                                   prio, idx, value);
                     }
                 }
             }
 
-            VTSS_E("Flush timeout chip port %u. %s queue not empty\n%s", port,
-                   failing_mem, buf.s);
+            VTSS_E("Flush timeout chip port %u. %s queue not empty\n%s", port, failing_mem, buf.s);
             break;
         }
 
@@ -1393,9 +1286,7 @@ static vtss_rc jr2_port_flush_poll(vtss_state_t       *vtss_state,
 }
 
 /* Port disable and flush procedure */
-static vtss_rc jr2_port_flush(vtss_state_t        *vtss_state,
-                              const vtss_port_no_t port_no,
-                              BOOL                 is_10g)
+static vtss_rc jr2_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port_no, BOOL is_10g)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 tgt = is_10g ? VTSS_TO_DEV(port) : VTSS_TO_DEV1G(port);
@@ -1429,16 +1320,13 @@ static vtss_rc jr2_port_flush(vtss_state_t        *vtss_state,
                 VTSS_M_QFWD_SYSTEM_SWITCH_PORT_MODE_PORT_ENA);
 
     /* 4: Disable dequeuing from the egress queues  */
-    JR2_WRM_SET(VTSS_HSCH_HSCH_MISC_PORT_MODE(port),
-                VTSS_M_HSCH_HSCH_MISC_PORT_MODE_DEQUEUE_DIS);
+    JR2_WRM_SET(VTSS_HSCH_HSCH_MISC_PORT_MODE(port), VTSS_M_HSCH_HSCH_MISC_PORT_MODE_DEQUEUE_DIS);
 
     /* 5: Disable Flowcontrol */
-    JR2_WRM_CLR(VTSS_QSYS_PAUSE_CFG_PAUSE_CFG(port),
-                VTSS_M_QSYS_PAUSE_CFG_PAUSE_CFG_PAUSE_ENA);
+    JR2_WRM_CLR(VTSS_QSYS_PAUSE_CFG_PAUSE_CFG(port), VTSS_M_QSYS_PAUSE_CFG_PAUSE_CFG_PAUSE_ENA);
 
     /* 5.1: Disable PFC */
-    JR2_WRM(VTSS_QRES_RES_QOS_ADV_PFC_CFG(port),
-            VTSS_F_QRES_RES_QOS_ADV_PFC_CFG_TX_PFC_ENA(0),
+    JR2_WRM(VTSS_QRES_RES_QOS_ADV_PFC_CFG(port), VTSS_F_QRES_RES_QOS_ADV_PFC_CFG_TX_PFC_ENA(0),
             VTSS_M_QRES_RES_QOS_ADV_PFC_CFG_TX_PFC_ENA);
 
     /* 6: Wait a worst case time 8ms (jumbo/10Mbit) *\/ */
@@ -1446,8 +1334,7 @@ static vtss_rc jr2_port_flush(vtss_state_t        *vtss_state,
 
     /* 7: Flush the queues accociated with the port */
 #if defined(VTSS_ARCH_JAGUAR_2_B)
-    JR2_WRM_SET(VTSS_HSCH_HSCH_MISC_PORT_MODE(port),
-                VTSS_M_HSCH_HSCH_MISC_PORT_MODE_FLUSH_ENA);
+    JR2_WRM_SET(VTSS_HSCH_HSCH_MISC_PORT_MODE(port), VTSS_M_HSCH_HSCH_MISC_PORT_MODE_FLUSH_ENA);
 #else // VTSS_ARCH_JAGUAR_2_C
     JR2_WRM(VTSS_HSCH_HSCH_MISC_FLUSH_CTRL,
             VTSS_F_HSCH_HSCH_MISC_FLUSH_CTRL_FLUSH_PORT(port) |
@@ -1461,8 +1348,7 @@ static vtss_rc jr2_port_flush(vtss_state_t        *vtss_state,
 #endif
 
     /* 8: Enable dequeuing from the egress queues */
-    JR2_WRM_CLR(VTSS_HSCH_HSCH_MISC_PORT_MODE(port),
-                VTSS_M_HSCH_HSCH_MISC_PORT_MODE_DEQUEUE_DIS);
+    JR2_WRM_CLR(VTSS_HSCH_HSCH_MISC_PORT_MODE(port), VTSS_M_HSCH_HSCH_MISC_PORT_MODE_DEQUEUE_DIS);
 
     /* 9: Wait until flushing is complete */
     VTSS_RC(jr2_port_flush_poll(vtss_state, port));
@@ -1488,8 +1374,7 @@ static vtss_rc jr2_port_flush(vtss_state_t        *vtss_state,
     }
     /* 11: Clear flushing */
 #if defined(VTSS_ARCH_JAGUAR_2_B)
-    JR2_WRM_CLR(VTSS_HSCH_HSCH_MISC_PORT_MODE(port),
-                VTSS_M_HSCH_HSCH_MISC_PORT_MODE_FLUSH_ENA);
+    JR2_WRM_CLR(VTSS_HSCH_HSCH_MISC_PORT_MODE(port), VTSS_M_HSCH_HSCH_MISC_PORT_MODE_FLUSH_ENA);
 #else
     JR2_WRM(VTSS_HSCH_HSCH_MISC_FLUSH_CTRL,
             VTSS_F_HSCH_HSCH_MISC_FLUSH_CTRL_FLUSH_PORT(port) |
@@ -1509,9 +1394,8 @@ static vtss_rc jr2_port_flush(vtss_state_t        *vtss_state,
                     VTSS_M_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_PCS_ENA);
 
         /* Disable SFI PCS */
-        JR2_WRM_CLR(
-            VTSS_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_CFG(VTSS_TO_10G_PCS_TGT(port)),
-            VTSS_M_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_CFG_PCS_ENA);
+        JR2_WRM_CLR(VTSS_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_CFG(VTSS_TO_10G_PCS_TGT(port)),
+                    VTSS_M_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_CFG_PCS_ENA);
     }
 #endif /* VTSS_ARCH_SERVAL_T */
     /* The port is disabled and flushed */
@@ -1529,8 +1413,7 @@ static vtss_rc srvlt_phy_config(vtss_state_t *vtss_state, u32 port, BOOL enable)
         return VTSS_RC_OK; // Not internal Phy
     }
     // Field: VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_ENA
-    JR2_WRM(VTSS_DEVCPU_GCB_PHY_PHY_CFG, enable ? VTSS_BIT(port) : 0,
-            VTSS_BIT(port));
+    JR2_WRM(VTSS_DEVCPU_GCB_PHY_PHY_CFG, enable ? VTSS_BIT(port) : 0, VTSS_BIT(port));
 
     // Change serdes to phy interrupt or vice versa in the ICPU DEV interrupt
     // vector
@@ -1564,8 +1447,7 @@ static vtss_rc srvlt_phy_config(vtss_state_t *vtss_state, u32 port, BOOL enable)
 #define AN_RATE_DET       8
 #define AN_WAIT_RATE_DONE 13
 
-vtss_rc vtss_cil_port_kr_fec_set(vtss_state_t        *vtss_state,
-                                 const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_kr_fec_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     BOOL fec = vtss_state->port.kr_fec[port_no].r_fec;
     u32  port = VTSS_CHIP_PORT(port_no);
@@ -1613,9 +1495,7 @@ vtss_rc vtss_cil_port_kr_status(vtss_state_t                *vtss_state,
     JR2_RD(VTSS_KR_DEV7_AN_SM_AN_SM(dev7), &an_sm);
     an_sm = VTSS_X_KR_DEV7_AN_SM_AN_SM_AN_SM(an_sm);
     JR2_RD(VTSS_KR_DEV7_KR_7X0001_KR_7X0001(dev7), &aneg);
-    JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(
-               VTSS_TO_10G_PCS_TGT(port)),
-           &pcs);
+    JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(port)), &pcs);
     JR2_RD(VTSS_XFI_SHELL_XFI_CONTROL_XFI_STATUS(xfi), &val);
 
     if (an_sm == AN_GOOD ||           // State: AN_GOOD
@@ -1624,35 +1504,29 @@ vtss_rc vtss_cil_port_kr_status(vtss_state_t                *vtss_state,
         // Aneg state machine is waiting, store and clear the speed requests to
         // let aneg finish
         JR2_RD(VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi), &sticky);
-        JR2_WR(
-            VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi),
-            VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_10G_STICKY(1) |
-                VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX10G_STICKY(1) |
-                VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_RX10G_STICKY(1) |
-                VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_1G_STICKY(1) |
-                VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX1G_STICKY(1) |
-                VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_RX1G_STICKY(1));
+        JR2_WR(VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi),
+               VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_10G_STICKY(1) |
+                   VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX10G_STICKY(1) |
+                   VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_RX10G_STICKY(1) |
+                   VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_1G_STICKY(1) |
+                   VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX1G_STICKY(1) |
+                   VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_RX1G_STICKY(1));
     }
 
     // Aneg status
-    status->aneg.complete =
-        (an_sm == AN_GOOD) &&
-        VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_COMPLETE(aneg) &&
-        VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs);
-    status->aneg.block_lock =
-        VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs);
+    status->aneg.complete = (an_sm == AN_GOOD) &&
+                            VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_COMPLETE(aneg) &&
+                            VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs);
+    status->aneg.block_lock = VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs);
     status->aneg.sm = an_sm;
-    status->aneg.lp_aneg_able =
-        VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_LP_ABLE(aneg);
-    status->aneg.active =
-        VTSS_X_XFI_SHELL_XFI_CONTROL_XFI_STATUS_ANEG_ACTIVE_STATUS(val);
+    status->aneg.lp_aneg_able = VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_LP_ABLE(aneg);
+    status->aneg.active = VTSS_X_XFI_SHELL_XFI_CONTROL_XFI_STATUS_ANEG_ACTIVE_STATUS(val);
 
     // Training status
     JR2_RD(VTSS_KR_DEV1_KR_1X0097_KR_1X0097(dev1), &val);
-    status->train.complete =
-        VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_RCVR_RDY(val) &&
-        !VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_TR_FAIL(val) &&
-        VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_LP_ABLE(aneg);
+    status->train.complete = VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_RCVR_RDY(val) &&
+                             !VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_TR_FAIL(val) &&
+                             VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_LP_ABLE(aneg);
     u32 tr_fail = VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_TR_FAIL(val) &&
                   VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_LP_ABLE(aneg);
 
@@ -1680,8 +1554,7 @@ vtss_rc vtss_cil_port_kr_status(vtss_state_t                *vtss_state,
     // Verify that the aneg state machine is not stuck
     if (an_sm == AN_ABIL_DET || (an_sm == AN_GOOD && !status->aneg.complete)) {
         JR2_RD(VTSS_KR_DEV7_AN_HIST_AN_HIST(dev7), &hist);
-        if ((hist & 0xFF7B) ==
-            0) { // mask out parallel detect and ability check
+        if ((hist & 0xFF7B) == 0) { // mask out parallel detect and ability check
             // Restart aneg
             VTSS_I("Port:%d. Stuck in %s.  Restart Aneg", port_no,
                    an_sm == AN_ABIL_DET ? "ABIL_DET" : "AN_GOOD");
@@ -1713,8 +1586,7 @@ vtss_rc vtss_cil_port_kr_status(vtss_state_t                *vtss_state,
     if (status->fec.r_fec_enable) {
         JR2_RD(VTSS_PCS_10GBASE_R_KR_FEC_HA_STATUS_KR_FEC_CORRECTED(br), &fec);
         status->fec.corrected_block_cnt = fec;
-        JR2_RD(VTSS_PCS_10GBASE_R_KR_FEC_HA_STATUS_KR_FEC_UNCORRECTED(br),
-               &fec);
+        JR2_RD(VTSS_PCS_10GBASE_R_KR_FEC_HA_STATUS_KR_FEC_UNCORRECTED(br), &fec);
         status->fec.uncorrected_block_cnt = fec;
     }
 
@@ -1732,19 +1604,16 @@ vtss_rc vtss_cil_port_kr_status(vtss_state_t                *vtss_state,
     // FEC request
     status->aneg.request_fec_change =
         VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_FEC_STICKY(val);
-    status->aneg.r_fec_enable =
-        VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_FEC_ENABLE(val);
+    status->aneg.r_fec_enable = VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_FEC_ENABLE(val);
 
     if (status->aneg.speed_req == VTSS_SPEED_UNDEFINED ||
         status->aneg.speed_req == VTSS_SPEED_10G) {
         // Workaround for 1G TX/RX sticky request
         if (VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX1G_STICKY(val) ||
             VTSS_X_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_RX1G_STICKY(val)) {
-            JR2_WR(
-                VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi),
-                VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX1G_STICKY(1) |
-                    VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX1G_STICKY(
-                        1));
+            JR2_WR(VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi),
+                   VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX1G_STICKY(1) |
+                       VTSS_F_XFI_SHELL_XFI_CONTROL_KR_CONTROL_KR_ANEG_TX1G_STICKY(1));
         }
     }
 
@@ -1758,8 +1627,7 @@ vtss_rc vtss_cil_port_kr_status(vtss_state_t                *vtss_state,
         status->train.cp_ob_tap_result = (u8)val;
 
         if (an_sm == AN_TRAIN) {
-            VTSS_I("Port:%d. Stuck in training  Restart Aneg. AN sm:%d",
-                   port_no, an_sm);
+            VTSS_I("Port:%d. Stuck in training  Restart Aneg. AN sm:%d", port_no, an_sm);
             if (vtss_state->port.kr_conf[port_no].aneg.enable) {
                 JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
                         VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE(1) |
@@ -1775,8 +1643,7 @@ vtss_rc vtss_cil_port_kr_status(vtss_state_t                *vtss_state,
         !VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs) &&
         status->aneg.lp_aneg_able) {
         // Workaround for FEC enable request
-        VTSS_I("Port:%d. Lost block lock. Restart Aneg. AN sm:%d", port_no,
-               an_sm);
+        VTSS_I("Port:%d. Lost block lock. Restart Aneg. AN sm:%d", port_no, an_sm);
         JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
                 VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART(1),
                 VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_RESTART);
@@ -1790,14 +1657,13 @@ vtss_rc vtss_cil_port_kr_status(vtss_state_t                *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t        *vtss_state,
-                                  const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_kr_conf_t *aneg = &vtss_state->port.kr_conf[port_no];
     u32                  port = VTSS_CHIP_PORT(port_no);
     u32                  dev7 = VTSS_TO_10G_KR_DEV7_TGT(port); // ANEG
     u32                  dev1 = VTSS_TO_10G_KR_DEV1_TGT(port); // Training
-    u32                  xfi = VTSS_TO_10G_XFI_TGT(port); // KR-Control/Stickies
+    u32                  xfi = VTSS_TO_10G_XFI_TGT(port);      // KR-Control/Stickies
     u32                  abil = 0;
     // Re-configure the serdes
     VTSS_RC(jr2_sd10g_cfg(vtss_state, vtss_state->port.serdes_mode[port_no],
@@ -1805,8 +1671,7 @@ vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t        *vtss_state,
     // Adjust the timers for JR2 core clock (frequency of 250Mhz)
     JR2_WR(VTSS_KR_DEV7_LFLONG_TMR_LFLONG_MSW(dev7), 322);
     JR2_WR(VTSS_KR_DEV7_TR_TMR_TR_MSW(dev7), 322);
-    JR2_WRM(VTSS_KR_DEV1_TR_CFG0_TR_CFG0(dev1),
-            VTSS_F_KR_DEV1_TR_CFG0_TR_CFG0_TMR_DVDR(6),
+    JR2_WRM(VTSS_KR_DEV1_TR_CFG0_TR_CFG0(dev1), VTSS_F_KR_DEV1_TR_CFG0_TR_CFG0_TMR_DVDR(6),
             VTSS_M_KR_DEV1_TR_CFG0_TR_CFG0_TMR_DVDR);
     JR2_WR(VTSS_KR_DEV1_WT_TMR_WT_TMR(dev1), 1712);
     JR2_WR(VTSS_KR_DEV1_MW_TMR_MW_TMR_LSW(dev1), 58521);
@@ -1817,8 +1682,7 @@ vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t        *vtss_state,
 
     if (aneg->aneg.enable) {
         /* AN Selector */
-        JR2_WR(VTSS_KR_DEV7_LD_ADV_KR_7X0010(dev7),
-               VTSS_F_KR_DEV7_LD_ADV_KR_7X0010_ADV0(0x0001));
+        JR2_WR(VTSS_KR_DEV7_LD_ADV_KR_7X0010(dev7), VTSS_F_KR_DEV7_LD_ADV_KR_7X0010_ADV0(0x0001));
 
         /* AN Technology aneg field bit 5=1000Base-KX,
            6=10GBase-KX4,
@@ -1827,23 +1691,21 @@ vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t        *vtss_state,
         abil = (0 ? VTSS_BIT(5) : 0) | /* 1G adv not supported */
                (aneg->aneg.adv_10g ? VTSS_BIT(7) : 0);
 
-        JR2_WRM(VTSS_KR_DEV7_LD_ADV_KR_7X0011(dev7),
-                VTSS_F_KR_DEV7_LD_ADV_KR_7X0011_ADV1(abil),
+        JR2_WRM(VTSS_KR_DEV7_LD_ADV_KR_7X0011(dev7), VTSS_F_KR_DEV7_LD_ADV_KR_7X0011_ADV1(abil),
                 VTSS_BIT(5) | VTSS_BIT(7));
 
         /* AN FEC aneg field bit 14 = fec aneg,
            15 = fec requested */
         abil = VTSS_BIT(14) | (aneg->aneg.r_fec_req ? VTSS_BIT(15) : 0);
-        JR2_WRM(VTSS_KR_DEV7_LD_ADV_KR_7X0012(dev7),
-                VTSS_F_KR_DEV7_LD_ADV_KR_7X0012_ADV2(abil),
+        JR2_WRM(VTSS_KR_DEV7_LD_ADV_KR_7X0012(dev7), VTSS_F_KR_DEV7_LD_ADV_KR_7X0012_ADV2(abil),
                 VTSS_BIT(14) | VTSS_BIT(15));
 
         // Freeze break link timer
         JR2_WRM(VTSS_KR_DEV1_TR_CFG1_TR_CFG1(dev1), VTSS_BIT(10), VTSS_BIT(10));
 
         // Freeze page detect timer (disable parallel detect)
-        JR2_WRM(VTSS_KR_DEV1_TR_CFG1_TR_CFG1(dev1),
-                aneg->aneg.no_pd ? VTSS_BIT(6) : 0, VTSS_BIT(6));
+        JR2_WRM(VTSS_KR_DEV1_TR_CFG1_TR_CFG1(dev1), aneg->aneg.no_pd ? VTSS_BIT(6) : 0,
+                VTSS_BIT(6));
     }
 
     // Disable Training if requested
@@ -1865,8 +1727,7 @@ vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t        *vtss_state,
                 VTSS_F_KR_DEV1_TR_MTHD_TR_MTHD_MTHD_CP(0) |
                     VTSS_F_KR_DEV1_TR_MTHD_TR_MTHD_MTHD_C0(0) |
                     VTSS_F_KR_DEV1_TR_MTHD_TR_MTHD_MTHD_CM(0),
-                VTSS_M_KR_DEV1_TR_MTHD_TR_MTHD_MTHD_CP |
-                    VTSS_M_KR_DEV1_TR_MTHD_TR_MTHD_MTHD_C0 |
+                VTSS_M_KR_DEV1_TR_MTHD_TR_MTHD_MTHD_CP | VTSS_M_KR_DEV1_TR_MTHD_TR_MTHD_MTHD_C0 |
                     VTSS_M_KR_DEV1_TR_MTHD_TR_MTHD_MTHD_CM);
 
         JR2_WRM(VTSS_KR_DEV1_TR_CFG0_TR_CFG0(dev1),
@@ -1878,35 +1739,29 @@ vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t        *vtss_state,
         JR2_WRM(VTSS_KR_DEV1_TR_CFG2_TR_CFG2(dev1),
                 VTSS_F_KR_DEV1_TR_CFG2_TR_CFG2_VP_MAX(0x1F) |
                     VTSS_F_KR_DEV1_TR_CFG2_TR_CFG2_V2_MIN(1),
-                VTSS_M_KR_DEV1_TR_CFG2_TR_CFG2_VP_MAX |
-                    VTSS_M_KR_DEV1_TR_CFG2_TR_CFG2_V2_MIN);
+                VTSS_M_KR_DEV1_TR_CFG2_TR_CFG2_VP_MAX | VTSS_M_KR_DEV1_TR_CFG2_TR_CFG2_V2_MIN);
 
         JR2_WRM(VTSS_KR_DEV1_TR_CFG3_TR_CFG3(dev1),
                 VTSS_F_KR_DEV1_TR_CFG3_TR_CFG3_CP_MAX(0x3f) |
                     VTSS_F_KR_DEV1_TR_CFG3_TR_CFG3_CP_MIN(0x35),
-                VTSS_M_KR_DEV1_TR_CFG3_TR_CFG3_CP_MAX |
-                    VTSS_M_KR_DEV1_TR_CFG3_TR_CFG3_CP_MIN);
+                VTSS_M_KR_DEV1_TR_CFG3_TR_CFG3_CP_MAX | VTSS_M_KR_DEV1_TR_CFG3_TR_CFG3_CP_MIN);
 
         JR2_WRM(VTSS_KR_DEV1_TR_CFG4_TR_CFG4(dev1),
                 VTSS_F_KR_DEV1_TR_CFG4_TR_CFG4_C0_MAX(0x1f) |
                     VTSS_F_KR_DEV1_TR_CFG4_TR_CFG4_C0_MIN(0xc),
-                VTSS_M_KR_DEV1_TR_CFG4_TR_CFG4_C0_MAX |
-                    VTSS_M_KR_DEV1_TR_CFG4_TR_CFG4_C0_MIN);
+                VTSS_M_KR_DEV1_TR_CFG4_TR_CFG4_C0_MAX | VTSS_M_KR_DEV1_TR_CFG4_TR_CFG4_C0_MIN);
 
         JR2_WRM(VTSS_KR_DEV1_TR_CFG5_TR_CFG5(dev1),
                 VTSS_F_KR_DEV1_TR_CFG5_TR_CFG5_CM_MAX(0) |
                     VTSS_F_KR_DEV1_TR_CFG5_TR_CFG5_CM_MIN(0x3a),
-                VTSS_M_KR_DEV1_TR_CFG5_TR_CFG5_CM_MAX |
-                    VTSS_M_KR_DEV1_TR_CFG5_TR_CFG5_CM_MIN);
+                VTSS_M_KR_DEV1_TR_CFG5_TR_CFG5_CM_MAX | VTSS_M_KR_DEV1_TR_CFG5_TR_CFG5_CM_MIN);
 
         JR2_WRM(VTSS_KR_DEV1_TR_CFG6_TR_CFG6(dev1),
                 VTSS_F_KR_DEV1_TR_CFG6_TR_CFG6_CP_INIT(0x38) |
                     VTSS_F_KR_DEV1_TR_CFG6_TR_CFG6_C0_INIT(0x14),
-                VTSS_M_KR_DEV1_TR_CFG6_TR_CFG6_CP_INIT |
-                    VTSS_M_KR_DEV1_TR_CFG6_TR_CFG6_C0_INIT);
+                VTSS_M_KR_DEV1_TR_CFG6_TR_CFG6_CP_INIT | VTSS_M_KR_DEV1_TR_CFG6_TR_CFG6_C0_INIT);
 
-        JR2_WRM(VTSS_KR_DEV1_TR_CFG7_TR_CFG7(dev1),
-                VTSS_F_KR_DEV1_TR_CFG7_TR_CFG7_CM_INIT(0x3e),
+        JR2_WRM(VTSS_KR_DEV1_TR_CFG7_TR_CFG7(dev1), VTSS_F_KR_DEV1_TR_CFG7_TR_CFG7_CM_INIT(0x3e),
                 VTSS_M_KR_DEV1_TR_CFG7_TR_CFG7_CM_INIT);
 
         JR2_WRM(VTSS_KR_DEV1_OBCFG_ADDR_OBCFG_ADDR(dev1),
@@ -1930,16 +1785,13 @@ vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t        *vtss_state,
             VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_CLKG_DISABLE);
 
     // Clear aneg history
-    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
-            VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(1),
+    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7), VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(1),
             VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
-    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
-            VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(0),
+    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7), VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(0),
             VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
 
     // Disable / Enable Auto-neg
-    JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7),
-            VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE(0),
+    JR2_WRM(VTSS_KR_DEV7_KR_7X0000_KR_7X0000(dev7), VTSS_F_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE(0),
             VTSS_M_KR_DEV7_KR_7X0000_KR_7X0000_AN_ENABLE);
 
     if (aneg->aneg.enable) {
@@ -1958,8 +1810,7 @@ vtss_rc vtss_cil_port_kr_conf_set(vtss_state_t        *vtss_state,
 
 #endif /* VTSS_FEATURE_PORT_KR */
 
-static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
-                                    const vtss_port_no_t port_no)
+static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t  *conf = &vtss_state->port.conf[port_no];
     u32                port = VTSS_CHIP_PORT(port_no);
@@ -1989,21 +1840,18 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
         sgmii = 1;
         break;
     case VTSS_PORT_INTERFACE_SGMII_2G5:
-        serdes_mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5
-                                                 : VTSS_SERDES_MODE_SGMII);
+        serdes_mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_SGMII);
         sgmii = (serdes_mode == VTSS_SERDES_MODE_SGMII ? 1 : 0);
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         serdes_mode = VTSS_SERDES_MODE_QSGMII;
         sgmii = 1;
-        JR2_WRM(VTSS_HSIO_HW_CFGSTAT_HW_CFG, VTSS_BIT(port / 4),
-                VTSS_BIT(port / 4));
+        JR2_WRM(VTSS_HSIO_HW_CFGSTAT_HW_CFG, VTSS_BIT(port / 4), VTSS_BIT(port / 4));
         if ((port % 4) == 0) {
             // BZ23738
             for (u32 p = port + 1; p <= port + 3; ++p)
-                JR2_WRM_CLR(
-                    VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(VTSS_TO_DEV(p)),
-                    VTSS_M_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_TX_RST);
+                JR2_WRM_CLR(VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(VTSS_TO_DEV(p)),
+                            VTSS_M_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_TX_RST);
         }
         break;
     case VTSS_PORT_INTERFACE_100FX:
@@ -2012,8 +1860,7 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
         break;
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         if (vtss_state->port.serdes_mode[port_no] == VTSS_SERDES_MODE_QSGMII) {
-            serdes_mode =
-                VTSS_SERDES_MODE_QSGMII; // Do not change the Serdes mode
+            serdes_mode = VTSS_SERDES_MODE_QSGMII; // Do not change the Serdes mode
         } else {
             serdes_mode = VTSS_SERDES_MODE_1000BaseX;
         }
@@ -2021,12 +1868,10 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
         break;
     case VTSS_PORT_INTERFACE_SERDES:
     case VTSS_PORT_INTERFACE_VAUI:
-        serdes_mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5
-                                                 : VTSS_SERDES_MODE_1000BaseX);
+        serdes_mode =
+            (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_1000BaseX);
         break;
-    default:
-        VTSS_E("illegal interface, port %u", port_no);
-        return VTSS_RC_ERROR;
+    default: VTSS_E("illegal interface, port %u", port_no); return VTSS_RC_ERROR;
     }
     // ports 32-48 can only be connected to QSGMII Serdes
     if (port >= 32 && port < 48) {
@@ -2040,15 +1885,12 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
 #if defined(VTSS_ARCH_SERVAL_T)
     if (port < 2 && !fdx) {
         // BZ20496: half-duplex not supported
-        VTSS_E("Half-duplex not supported on internal ports (port %u)",
-               port_no);
+        VTSS_E("Half-duplex not supported on internal ports (port %u)", port_no);
         return VTSS_RC_ERROR;
     }
     // Enable/disable the internal Phy of ServalT
     VTSS_RC(srvlt_phy_config(vtss_state, port,
-                             (conf->if_type == VTSS_PORT_INTERFACE_SGMII)
-                                 ? TRUE
-                                 : FALSE));
+                             (conf->if_type == VTSS_PORT_INTERFACE_SGMII) ? TRUE : FALSE));
 #endif
 
     if (VTSS_PORT_IS_10G(port)) {
@@ -2085,15 +1927,12 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
          * be forwarded to an up-mep */
         /* Instead the PCS is disabled, which forces link down and discards
          * frame forwarding */
-        JR2_WR(
-            VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
-            VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(1) |
-                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(
-                    1));
+        JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
+               VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(1) |
+                   VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1));
         // Update vtss_state database accordingly
         vtss_cil_port_clause_37_control_get(vtss_state, port_no,
-                                            &(vtss_state->port
-                                                  .clause_37[port_no]));
+                                            &(vtss_state->port.clause_37[port_no]));
 
         // Disable 100fx and 1000BaseX PCS
         JR2_WRM(VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
@@ -2120,8 +1959,7 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
     }
 
     /* Bugzilla 4388: disabling frame aging when in HDX */
-    JR2_WRM_CTL(VTSS_HSCH_HSCH_MISC_PORT_MODE(port), !fdx,
-                VTSS_M_HSCH_HSCH_MISC_PORT_MODE_AGE_DIS);
+    JR2_WRM_CTL(VTSS_HSCH_HSCH_MISC_PORT_MODE(port), !fdx, VTSS_M_HSCH_HSCH_MISC_PORT_MODE_AGE_DIS);
 
     /* GIG/FDX mode */
     if (fdx) {
@@ -2164,8 +2002,7 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
     /* Set MAC HDX late collision */
     JR2_WRM(VTSS_DEV1G_MAC_CFG_STATUS_MAC_HDX_CFG(tgt),
             VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_HDX_CFG_LATE_COL_POS(67) |
-                VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA(
-                    conf->exc_col_cont),
+                VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA(conf->exc_col_cont),
             VTSS_M_DEV1G_MAC_CFG_STATUS_MAC_HDX_CFG_LATE_COL_POS |
                 VTSS_M_DEV1G_MAC_CFG_STATUS_MAC_HDX_CFG_RETRY_AFTER_EXC_COL_ENA);
 
@@ -2174,14 +2011,10 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
 
         /* 100FX PCS */
         JR2_WRM(VTSS_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
-                VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_PCS_ENA(
-                    !disable) |
-                    VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_SEL(
-                        !conf->sd_internal) |
-                    VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_POL(
-                        conf->sd_active_high) |
-                    VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA(
-                        conf->sd_enable),
+                VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_PCS_ENA(!disable) |
+                    VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_SEL(!conf->sd_internal) |
+                    VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_POL(conf->sd_active_high) |
+                    VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA(conf->sd_enable),
                 VTSS_M_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_PCS_ENA |
                     VTSS_M_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_SEL |
                     VTSS_M_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_POL |
@@ -2192,29 +2025,23 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
                     VTSS_M_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_PCS_ENA);
 
         /* Choose SGMII or Serdes PCS mode */
-        JR2_WR(
-            VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_MODE_CFG(tgt),
-            VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_MODE_CFG_SGMII_MODE_ENA(sgmii));
+        JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_MODE_CFG(tgt),
+               VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_MODE_CFG_SGMII_MODE_ENA(sgmii));
 
         if (sgmii) {
             /* Set whole register */
-            JR2_WR(
-                VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
-                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1));
+            JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
+                   VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1));
         } else {
             /* Clear specific bit only */
-            JR2_WRM_CLR(
-                VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
-                VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_SW_RESOLVE_ENA);
+            JR2_WRM_CLR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
+                        VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_SW_RESOLVE_ENA);
         }
 
         JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
-               VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_POL(
-                   conf->sd_active_high) |
-                   VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA(
-                       conf->sd_enable) |
-                   VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_SEL(
-                       !conf->sd_internal));
+               VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_POL(conf->sd_active_high) |
+                   VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA(conf->sd_enable) |
+                   VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_SEL(!conf->sd_internal));
 
         /* Enable/disable PCS */
         JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
@@ -2225,14 +2052,11 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
             JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt), 0);
         } else if (conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
             /* Complete SGMII aneg */
-            JR2_WR(
-                VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
-                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ADV_ABILITY(0x0001) |
-                    VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(
-                        1) |
-                    VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(1) |
-                    VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(
-                        1));
+            JR2_WR(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG(tgt),
+                   VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ADV_ABILITY(0x0001) |
+                       VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1) |
+                       VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(1) |
+                       VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1));
 
             /* Clear the sticky bits */
             JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY(tgt), &value);
@@ -2249,14 +2073,12 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
 
     /* Set Max Length */
     JR2_WRM(VTSS_DEV1G_MAC_CFG_STATUS_MAC_MAXLEN_CFG(tgt),
-            VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_MAXLEN_CFG_MAX_LEN(
-                conf->max_frame_length),
+            VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_MAXLEN_CFG_MAX_LEN(conf->max_frame_length),
             VTSS_M_DEV1G_MAC_CFG_STATUS_MAC_MAXLEN_CFG_MAX_LEN);
 
     /* Configure frame length check (from ethertype / length field) */
     JR2_WRM(VTSS_DEV1G_MAC_CFG_STATUS_MAC_ADV_CHK_CFG(tgt),
-            VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_ADV_CHK_CFG_LEN_DROP_ENA(
-                conf->frame_length_chk),
+            VTSS_F_DEV1G_MAC_CFG_STATUS_MAC_ADV_CHK_CFG_LEN_DROP_ENA(conf->frame_length_chk),
             VTSS_M_DEV1G_MAC_CFG_STATUS_MAC_ADV_CHK_CFG_LEN_DROP_ENA);
 
     /* Configure MAC vlan awareness */
@@ -2264,8 +2086,10 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
 
     /* Must be 1 for 10/100 */
     JR2_WRM(VTSS_DSM_CFG_DEV_TX_STOP_WM_CFG(port),
-            VTSS_F_DSM_CFG_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM(
-                (speed == VTSS_SPEED_10M || speed == VTSS_SPEED_100M) ? 1 : 0),
+            VTSS_F_DSM_CFG_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM((speed == VTSS_SPEED_10M ||
+                                                              speed == VTSS_SPEED_100M)
+                                                                 ? 1
+                                                                 : 0),
             VTSS_M_DSM_CFG_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
 
     if (!disable) {
@@ -2284,10 +2108,9 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
         /* Take MAC, Port, Phy (intern) and PCS (SGMII/Serdes) clock out of
          * reset */
         JR2_WR(VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
-               VTSS_F_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL_SPEED_SEL(
-                   speed == VTSS_SPEED_10M    ? 0
-                   : speed == VTSS_SPEED_100M ? 1
-                                              : 2));
+               VTSS_F_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL_SPEED_SEL(speed == VTSS_SPEED_10M    ? 0
+                                                                  : speed == VTSS_SPEED_100M ? 1
+                                                                                             : 2));
 
         /* Core: This is a 1G/2G5 port (fwd_speed) and enable port for frame
          * transfer */
@@ -2295,17 +2118,17 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t        *vtss_state,
         /* The arbiter must know the port speed */
         JR2_WRM(VTSS_QFWD_SYSTEM_SWITCH_PORT_MODE(port),
                 VTSS_F_QFWD_SYSTEM_SWITCH_PORT_MODE_PORT_ENA(1) |
-                    VTSS_F_QFWD_SYSTEM_SWITCH_PORT_MODE_FWD_SPEED(
-                        speed == VTSS_SPEED_2500M ? 1 : 0),
+                    VTSS_F_QFWD_SYSTEM_SWITCH_PORT_MODE_FWD_SPEED(speed == VTSS_SPEED_2500M ? 1
+                                                                                            : 0),
                 VTSS_M_QFWD_SYSTEM_SWITCH_PORT_MODE_PORT_ENA |
                     VTSS_M_QFWD_SYSTEM_SWITCH_PORT_MODE_FWD_SPEED);
 #else
         JR2_WRM(VTSS_QFWD_SYSTEM_SWITCH_PORT_MODE(port),
                 VTSS_F_QFWD_SYSTEM_SWITCH_PORT_MODE_PORT_ENA(1) |
-                    VTSS_F_QFWD_SYSTEM_SWITCH_PORT_MODE_FWD_URGENCY(
-                        speed == VTSS_SPEED_2500M
-                            ? 41
-                            : 104), //( 270000/6400 - 1) : (672000/6400 - 1)
+                    VTSS_F_QFWD_SYSTEM_SWITCH_PORT_MODE_FWD_URGENCY(speed == VTSS_SPEED_2500M
+                                                                        ? 41
+                                                                        : 104), //( 270000/6400 - 1)
+                                                                                //: (672000/6400 - 1)
                 VTSS_M_QFWD_SYSTEM_SWITCH_PORT_MODE_PORT_ENA |
                     VTSS_M_QFWD_SYSTEM_SWITCH_PORT_MODE_FWD_URGENCY);
 #endif
@@ -2335,8 +2158,7 @@ static vtss_serdes_mode_t map_media_to_serdes(vtss_sd10g_media_type_t media)
     }
 }
 
-static vtss_rc jr2_port_conf_10g_set(vtss_state_t        *vtss_state,
-                                     const vtss_port_no_t port_no)
+static vtss_rc jr2_port_conf_10g_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     u32               port = VTSS_CHIP_PORT(port_no);
@@ -2345,7 +2167,7 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t        *vtss_state,
 #if !defined(VTSS_ARCH_SERVAL_T)
     BOOL rx_flip = conf->xaui_rx_lane_flip;
     BOOL tx_flip = conf->xaui_tx_lane_flip;
-    u32 bt_fld = (port == 49) ? 12 : (port == 50) ? 14 : (port == 51) ? 16 : 18;
+    u32  bt_fld = (port == 49) ? 12 : (port == 50) ? 14 : (port == 51) ? 16 : 18;
 #else  // Offset of Dev10G_MODE
     u32 bt_fld = (port == 9) ? 0 : 2;
 #endif /* VTSS_ARCH_SERVAL_T */
@@ -2385,8 +2207,7 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t        *vtss_state,
     }
 
     /* Configure the 10G Mux mode  */
-    JR2_WRM(VTSS_HSIO_HW_CFGSTAT_HW_CFG,
-            VTSS_ENCODE_BITFIELD(mode_10g, bt_fld, 2),
+    JR2_WRM(VTSS_HSIO_HW_CFGSTAT_HW_CFG, VTSS_ENCODE_BITFIELD(mode_10g, bt_fld, 2),
             VTSS_ENCODE_BITMASK(bt_fld, 2));
 
     /* This is a 10G port only */
@@ -2423,36 +2244,27 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t        *vtss_state,
 #if !defined(VTSS_ARCH_SERVAL_T)
         /* XAUI: Handle Signal Detect */
         JR2_WR(VTSS_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_SD_CFG(tgt),
-               VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_SD_CFG_SD_POL(
-                   conf->sd_active_high) |
-                   VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_SD_CFG_SD_SEL(
-                       !conf->sd_internal) |
-                   VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_SD_CFG_SD_ENA(
-                       conf->sd_enable));
+               VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_SD_CFG_SD_POL(conf->sd_active_high) |
+                   VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_SD_CFG_SD_SEL(!conf->sd_internal) |
+                   VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_SD_CFG_SD_ENA(conf->sd_enable));
 
         /* Enable XAUI PCS */
         JR2_WRM_SET(VTSS_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_CFG(tgt),
                     VTSS_M_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_CFG_PCS_ENA);
 
         /* XAUI Lane flipping  */
-        JR2_WRM(
-            VTSS_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG(tgt),
-            VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG_RX_FLIP_HMBUS(
-                rx_flip) |
-                VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG_TX_FLIP_HMBUS(
-                    tx_flip),
-            VTSS_M_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG_RX_FLIP_HMBUS |
-                VTSS_M_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG_TX_FLIP_HMBUS);
+        JR2_WRM(VTSS_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG(tgt),
+                VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG_RX_FLIP_HMBUS(rx_flip) |
+                    VTSS_F_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG_TX_FLIP_HMBUS(tx_flip),
+                VTSS_M_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG_RX_FLIP_HMBUS |
+                    VTSS_M_DEV10G_PCS_XAUI_CONFIGURATION_PCS_XAUI_EXT_CFG_TX_FLIP_HMBUS);
     } else if (conf->if_type == VTSS_PORT_INTERFACE_RXAUI) {
         /*  RXAUI: Enable RXAUI PCS and Handle Signal Detect */
         JR2_WRM(VTSS_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG(tgt),
                 VTSS_F_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_PCS_ENA(1) |
-                    VTSS_F_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_SD_POL(
-                        conf->sd_active_high) |
-                    VTSS_F_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_SD_SEL(
-                        !conf->sd_internal) |
-                    VTSS_F_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_SD_ENA(
-                        conf->sd_enable),
+                    VTSS_F_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_SD_POL(conf->sd_active_high) |
+                    VTSS_F_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_SD_SEL(!conf->sd_internal) |
+                    VTSS_F_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_SD_ENA(conf->sd_enable),
                 VTSS_M_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_PCS_ENA |
                     VTSS_M_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_SD_POL |
                     VTSS_M_DEV10G_PCS2X6G_CONFIGURATION_PCS2X6G_CFG_SD_SEL |
@@ -2460,19 +2272,14 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t        *vtss_state,
 #endif /* VTSS_ARCH_SERVAL_T */
     } else if (conf->if_type == VTSS_PORT_INTERFACE_SFI) {
         /* SFI: Handle Signal Detect */
-        JR2_WR(VTSS_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_SD_CFG(
-                   VTSS_TO_10G_PCS_TGT(port)),
-               VTSS_F_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_SD_CFG_SD_POL(
-                   conf->sd_active_high) |
-                   VTSS_F_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_SD_CFG_SD_SEL(
-                       !conf->sd_internal) |
-                   VTSS_F_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_SD_CFG_SD_ENA(
-                       conf->sd_enable));
+        JR2_WR(VTSS_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_SD_CFG(VTSS_TO_10G_PCS_TGT(port)),
+               VTSS_F_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_SD_CFG_SD_POL(conf->sd_active_high) |
+                   VTSS_F_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_SD_CFG_SD_SEL(!conf->sd_internal) |
+                   VTSS_F_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_SD_CFG_SD_ENA(conf->sd_enable));
 
         /* Enable SFI PCS */
-        JR2_WRM_SET(
-            VTSS_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_CFG(VTSS_TO_10G_PCS_TGT(port)),
-            VTSS_M_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_CFG_PCS_ENA);
+        JR2_WRM_SET(VTSS_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_CFG(VTSS_TO_10G_PCS_TGT(port)),
+                    VTSS_M_PCS_10GBASE_R_PCS_10GBR_CFG_PCS_CFG_PCS_ENA);
 
     } else {
         VTSS_E("Interface config not done yet");
@@ -2481,20 +2288,18 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t        *vtss_state,
 
     /* MAC Host loopback */
     JR2_WRM(VTSS_DEV10G_MAC_CFG_STATUS_MAC_LB_CFG(tgt),
-            VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_LB_CFG_XGMII_HOST_LB_ENA(
-                conf->loop == VTSS_PORT_LOOP_PCS_HOST),
+            VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_LB_CFG_XGMII_HOST_LB_ENA(conf->loop ==
+                                                                      VTSS_PORT_LOOP_PCS_HOST),
             VTSS_M_DEV10G_MAC_CFG_STATUS_MAC_LB_CFG_XGMII_HOST_LB_ENA);
 
     /* Set Max Length and maximum tags allowed */
     JR2_WRM(VTSS_DEV10G_MAC_CFG_STATUS_MAC_MAXLEN_CFG(tgt),
-            VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_MAXLEN_CFG_MAX_LEN(
-                conf->max_frame_length),
+            VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_MAXLEN_CFG_MAX_LEN(conf->max_frame_length),
             VTSS_M_DEV10G_MAC_CFG_STATUS_MAC_MAXLEN_CFG_MAX_LEN);
 
     /* Configure framelength check (from ethertype / length field) */
     JR2_WRM(VTSS_DEV10G_MAC_CFG_STATUS_MAC_ADV_CHK_CFG(tgt),
-            VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_ADV_CHK_CFG_INR_ERR_ENA(
-                conf->frame_length_chk),
+            VTSS_F_DEV10G_MAC_CFG_STATUS_MAC_ADV_CHK_CFG_INR_ERR_ENA(conf->frame_length_chk),
             VTSS_M_DEV10G_MAC_CFG_STATUS_MAC_ADV_CHK_CFG_INR_ERR_ENA);
 
     /* Configure MAC vlan awareness */
@@ -2514,28 +2319,25 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t        *vtss_state,
                 break;
             }
         }
-        JR2_WR(
-            VTSS_DEV10G_DEV_CFG_STATUS_PFC_PAUSE_MODE_CTRL(tgt),
-            VTSS_F_DEV10G_DEV_CFG_STATUS_PFC_PAUSE_MODE_CTRL_PFC_PAUSE_MODE_SELECT(
-                val));
+        JR2_WR(VTSS_DEV10G_DEV_CFG_STATUS_PFC_PAUSE_MODE_CTRL(tgt),
+               VTSS_F_DEV10G_DEV_CFG_STATUS_PFC_PAUSE_MODE_CTRL_PFC_PAUSE_MODE_SELECT(val));
 
         /* Enable MAC module */
         JR2_WR(VTSS_DEV10G_MAC_CFG_STATUS_MAC_ENA_CFG(tgt),
                VTSS_M_DEV10G_MAC_CFG_STATUS_MAC_ENA_CFG_RX_ENA |
                    VTSS_M_DEV10G_MAC_CFG_STATUS_MAC_ENA_CFG_TX_ENA);
 
-        JR2_WRM(
-            VTSS_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
-            VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_RX_RST(0) |
-                VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_TX_RST(0) |
-                VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_MAC_RX_RST(0) |
-                VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_MAC_TX_RST(0) |
-                VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_SPEED_SEL(link_speed),
-            VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_RX_RST |
-                VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_TX_RST |
-                VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_MAC_RX_RST |
-                VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_MAC_TX_RST |
-                VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_SPEED_SEL);
+        JR2_WRM(VTSS_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
+                VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_RX_RST(0) |
+                    VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_TX_RST(0) |
+                    VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_MAC_RX_RST(0) |
+                    VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_MAC_TX_RST(0) |
+                    VTSS_F_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_SPEED_SEL(link_speed),
+                VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_RX_RST |
+                    VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_PCS_TX_RST |
+                    VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_MAC_RX_RST |
+                    VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_MAC_TX_RST |
+                    VTSS_M_DEV10G_DEV_CFG_STATUS_DEV_RST_CTRL_SPEED_SEL);
 
         /* Core: This is a 10G port (fwd_speed) and enable port for frame
          * transfer */
@@ -2571,15 +2373,13 @@ static vtss_rc jr2_port_conf_10g_set(vtss_state_t        *vtss_state,
         /* Disable the power hungry serdes */
         VTSS_RC(jr2_serdes_cfg(vtss_state, port_no, VTSS_SERDES_MODE_DISABLE));
     }
-    vtss_state->port.current_mt[port_no] =
-        vtss_state->port.conf[port_no].serdes.media_type;
+    vtss_state->port.current_mt[port_no] = vtss_state->port.conf[port_no].serdes.media_type;
     VTSS_D("chip port: %u (10G),is configured", port);
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
-                               const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
     BOOL              port_10g;
@@ -2590,8 +2390,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
     u32 bt_fld = (port == 49) ? 12 : (port == 50) ? 14 : (port == 51) ? 16 : 18;
 #endif
 
-    VTSS_I("port_no:%d (port:%d), shutdown:%d", port_no, port,
-           conf->power_down);
+    VTSS_I("port_no:%d (port:%d), shutdown:%d", port_no, port, conf->power_down);
 
     if (!vrfy_spd_iface(port_no, conf->if_type, conf->speed, &port_10g)) {
         return VTSS_RC_ERROR;
@@ -2619,10 +2418,9 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
         }
     }
 
-    VTSS_D("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d", port_no,
-           port, VTSS_PORT_IS_10G(port) ? "10G" : "1G",
-           vtss_port_if_txt(conf->if_type), vtss_port_spd_txt(conf->speed),
-           conf->fdx ? "FDX" : "HDX", conf->power_down);
+    VTSS_D("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d", port_no, port,
+           VTSS_PORT_IS_10G(port) ? "10G" : "1G", vtss_port_if_txt(conf->if_type),
+           vtss_port_spd_txt(conf->speed), conf->fdx ? "FDX" : "HDX", conf->power_down);
 
     if (port_10g) {
         return jr2_port_conf_10g_set(vtss_state, port_no);
@@ -2658,12 +2456,9 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
 
         /* Link has been down if the are any error stickies */
         status->link_down =
-            VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SYNC_LOST_STICKY(
-                value) ||
-            VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_FEF_FOUND_STICKY(
-                value) ||
-            VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_PCS_ERROR_STICKY(
-                value) ||
+            VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SYNC_LOST_STICKY(value) ||
+            VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_FEF_FOUND_STICKY(value) ||
+            VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_PCS_ERROR_STICKY(value) ||
             VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_FEF_STATUS(value);
 
         /* BZ#22236 - One of 10G port link with 100FX SFP goes down in J2-24 and
@@ -2684,10 +2479,7 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
          */
         if (!VTSS_PORT_IS_10G(VTSS_CHIP_PORT(port_no))) {
             status->link_down |=
-                VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SSD_ERROR_STICKY(
-                    value)
-                    ? 1
-                    : 0;
+                VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SSD_ERROR_STICKY(value) ? 1 : 0;
         }
 
         if (status->link_down) {
@@ -2697,23 +2489,17 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
             JR2_RD(VTSS_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS(tgt), &value);
         }
         /* Link=1 if sync status=1 and no error stickies after a clear */
-        status->link =
-            VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SYNC_STATUS(value) &&
-            (!VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SYNC_LOST_STICKY(
-                 value) &&
-             !VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_FEF_FOUND_STICKY(
-                 value) &&
-             !VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_PCS_ERROR_STICKY(
-                 value) &&
-             !VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_FEF_STATUS(value));
+        status->link = VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SYNC_STATUS(value) &&
+                       (!VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SYNC_LOST_STICKY(value) &&
+                        !VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_FEF_FOUND_STICKY(value) &&
+                        !VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_PCS_ERROR_STICKY(value) &&
+                        !VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_FEF_STATUS(value));
 
         // BZ#23095
         if (!VTSS_PORT_IS_10G(VTSS_CHIP_PORT(port_no))) {
             status->link &=
-                (VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SYNC_STATUS(
-                     value) &&
-                 !VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SSD_ERROR_STICKY(
-                     value))
+                (VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SYNC_STATUS(value) &&
+                 !VTSS_X_DEV1G_PCS_FX100_STATUS_PCS_FX100_STATUS_SSD_ERROR_STICKY(value))
                     ? 1
                     : 0;
         }
@@ -2723,18 +2509,14 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
     case VTSS_PORT_INTERFACE_VAUI:
         /* Get the PCS status */
         JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS(tgt), &value);
-        status->link =
-            JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_LINK_STATUS,
-                   value) &&
-            JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_SYNC_STATUS, value);
+        status->link = JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_LINK_STATUS, value) &&
+                       JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_SYNC_STATUS, value);
         JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY(tgt), &value);
-        status->link_down =
-            JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY_LINK_DOWN_STICKY, value);
+        status->link_down = JR2_BF(DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY_LINK_DOWN_STICKY, value);
         if (status->link_down) {
             /* The link has been down. Clear the sticky bit */
-            JR2_WRM_SET(
-                VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY(tgt),
-                VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY_LINK_DOWN_STICKY);
+            JR2_WRM_SET(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY(tgt),
+                        VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_STICKY_LINK_DOWN_STICKY);
         }
         status->speed = VTSS_SPEED_2500M;
         break;
@@ -2744,22 +2526,18 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
         /* MAC10G Tx Monitor Sticky bit Register */
         JR2_RD(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(tgt), &value);
         /* Signal detect from the 10G Macro */
-        JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(
-                   VTSS_TO_10G_SRD_TGT(VTSS_CHIP_PORT(port_no))),
+        JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(VTSS_TO_10G_SRD_TGT(VTSS_CHIP_PORT(port_no))),
                &sd);
         if (value != 2) {
             /* The link is or has been down. Clear the sticky bit */
             status->link_down = 1;
-            JR2_WR(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(tgt),
-                   0xFFFFFFFF);
-            JR2_RD(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(tgt),
-                   &value);
+            JR2_WR(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(tgt), 0xFFFFFFFF);
+            JR2_RD(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(tgt), &value);
         }
         if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SFI) {
             /* IDLE_STATE_STICKY = 1 and no others stickys --> link on */
             status->link =
-                (value == 2 ? 1 : 0) &&
-                VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_IA_SDET(sd);
+                (value == 2 ? 1 : 0) && VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_IA_SDET(sd);
         } else {
             status->link = (value == 2 ? 1 : 0);
         }
@@ -2769,33 +2547,31 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
         status->link = 0;
         status->link_down = 0;
         break;
-    default:
-        VTSS_E("Status not supported for port: %u", port_no);
-        return VTSS_RC_ERROR;
+    default: VTSS_E("Status not supported for port: %u", port_no); return VTSS_RC_ERROR;
     }
     status->fdx = conf->fdx;
     return VTSS_RC_OK;
 }
 
-#define JR2_CNT_1G(name, i, cnt, clr)                                          \
-    {                                                                          \
-        u32 value;                                                             \
-        JR2_RD(VTSS_ASM_DEV_STATISTICS_##name##_CNT(i), &value);               \
-        vtss_cmn_counter_32_update(value, cnt, clr);                           \
+#define JR2_CNT_1G(name, i, cnt, clr)                                                              \
+    {                                                                                              \
+        u32 value;                                                                                 \
+        JR2_RD(VTSS_ASM_DEV_STATISTICS_##name##_CNT(i), &value);                                   \
+        vtss_cmn_counter_32_update(value, cnt, clr);                                               \
     }
 
-#define JR2_CNT_10G(name, i, cnt, clr)                                         \
-    {                                                                          \
-        u32 value;                                                             \
-        JR2_RD(VTSS_DEV10G_DEV_STATISTICS_##name##_CNT(i), &value);            \
-        vtss_cmn_counter_32_update(value, cnt, clr);                           \
+#define JR2_CNT_10G(name, i, cnt, clr)                                                             \
+    {                                                                                              \
+        u32 value;                                                                                 \
+        JR2_RD(VTSS_DEV10G_DEV_STATISTICS_##name##_CNT(i), &value);                                \
+        vtss_cmn_counter_32_update(value, cnt, clr);                                               \
     }
 
-#define JR2_CNT_ANA_AC(name, cnt, clr)                                         \
-    {                                                                          \
-        u32 value;                                                             \
-        JR2_RD(VTSS_ANA_AC_STAT_CNT_CFG_##name, &value);                       \
-        vtss_cmn_counter_32_update(value, cnt, clr);                           \
+#define JR2_CNT_ANA_AC(name, cnt, clr)                                                             \
+    {                                                                                              \
+        u32 value;                                                                                 \
+        JR2_RD(VTSS_ANA_AC_STAT_CNT_CFG_##name, &value);                                           \
+        vtss_cmn_counter_32_update(value, cnt, clr);                                               \
     }
 
 static vtss_rc vtss_jr2_qsys_counter_update(vtss_state_t        *vtss_state,
@@ -2857,8 +2633,7 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t               *vtss_state,
         JR2_CNT_1G(RX_UNDERSIZE, i, &c->rx_undersize, clr);
         JR2_CNT_1G(RX_FRAGMENTS, i, &c->rx_fragments, clr);
         JR2_CNT_1G(RX_IN_RANGE_LEN_ERR, i, &c->rx_in_range_len_err, clr);
-        JR2_CNT_1G(RX_OUT_OF_RANGE_LEN_ERR, i, &c->rx_out_of_range_len_err,
-                   clr);
+        JR2_CNT_1G(RX_OUT_OF_RANGE_LEN_ERR, i, &c->rx_out_of_range_len_err, clr);
         JR2_CNT_1G(RX_OVERSIZE, i, &c->rx_oversize, clr);
         JR2_CNT_1G(RX_JABBERS, i, &c->rx_jabbers, clr);
         JR2_CNT_1G(RX_SIZE64, i, &c->rx_size64, clr);
@@ -2905,8 +2680,7 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t               *vtss_state,
         JR2_CNT_10G(32BIT_RX_UNDERSIZE, i, &c->rx_undersize, clr);
         JR2_CNT_10G(32BIT_RX_FRAGMENTS, i, &c->rx_fragments, clr);
         JR2_CNT_10G(32BIT_RX_IN_RANGE_LEN_ERR, i, &c->rx_in_range_len_err, clr);
-        JR2_CNT_10G(32BIT_RX_OUT_OF_RANGE_LEN_ERR, i,
-                    &c->rx_out_of_range_len_err, clr);
+        JR2_CNT_10G(32BIT_RX_OUT_OF_RANGE_LEN_ERR, i, &c->rx_out_of_range_len_err, clr);
         JR2_CNT_10G(32BIT_RX_OVERSIZE, i, &c->rx_oversize, clr);
         JR2_CNT_10G(32BIT_RX_JABBERS, i, &c->rx_jabbers, clr);
         JR2_CNT_10G(32BIT_RX_SIZE64, i, &c->rx_size64, clr);
@@ -2934,11 +2708,9 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t               *vtss_state,
 
     /* QSYS counters */
 #if defined(VTSS_ARCH_JAGUAR_2_C)
-    JR2_WR(VTSS_XQS_SYSTEM_STAT_CFG,
-           VTSS_F_XQS_SYSTEM_STAT_CFG_STAT_VIEW(port));
+    JR2_WR(VTSS_XQS_SYSTEM_STAT_CFG, VTSS_F_XQS_SYSTEM_STAT_CFG_STAT_VIEW(port));
 #else
-    JR2_WR(VTSS_QSYS_SYSTEM_STAT_CFG,
-           VTSS_F_QSYS_SYSTEM_STAT_CFG_STAT_VIEW(port));
+    JR2_WR(VTSS_QSYS_SYSTEM_STAT_CFG, VTSS_F_QSYS_SYSTEM_STAT_CFG_STAT_VIEW(port));
 #endif /* VTSS_ARCH_JAGUAR_2_C */
 #if defined(VTSS_ARCH_JAGUAR_2_B)
     addr = 0;
@@ -2946,34 +2718,27 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t               *vtss_state,
     addr = 16;
 #endif /* VTSS_ARCH_JAGUAR_2_B */
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr,
-                                             &c->tx_green_drops[i], clr));
+        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->tx_green_drops[i], clr));
     }
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr,
-                                             &c->tx_yellow_drops[i], clr));
+        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->tx_yellow_drops[i], clr));
     }
     addr = 256;
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr,
-                                             &c->tx_green_class[i], clr));
+        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->tx_green_class[i], clr));
     }
     for (i = 0; i < VTSS_PRIOS; i++) {
-        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr,
-                                             &c->tx_yellow_class[i], clr));
+        VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->tx_yellow_class[i], clr));
     }
-    VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->tx_queue_drops,
-                                         clr));
+    VTSS_RC(vtss_jr2_qsys_counter_update(vtss_state, &addr, &c->tx_queue_drops, clr));
 
     /* ANA_AC counters */
-    JR2_CNT_ANA_AC(PORT_STAT_LSB_CNT(port, JR2_CNT_ANA_AC_PORT_FILTER),
-                   &c->rx_local_drops, clr);
-    JR2_CNT_ANA_AC(PORT_STAT_LSB_CNT(port, JR2_CNT_ANA_AC_PORT_POLICER_DROPS),
-                   &c->rx_policer_drops, clr);
+    JR2_CNT_ANA_AC(PORT_STAT_LSB_CNT(port, JR2_CNT_ANA_AC_PORT_FILTER), &c->rx_local_drops, clr);
+    JR2_CNT_ANA_AC(PORT_STAT_LSB_CNT(port, JR2_CNT_ANA_AC_PORT_POLICER_DROPS), &c->rx_policer_drops,
+                   clr);
     for (i = 0; i < VTSS_PRIOS; i++) {
-        JR2_CNT_ANA_AC(QUEUE_STAT_LSB_CNT(port * 8 + i,
-                                          JR2_CNT_ANA_AC_QUEUE_PRIO),
-                       &c->rx_class[i], clr);
+        JR2_CNT_ANA_AC(QUEUE_STAT_LSB_CNT(port * 8 + i, JR2_CNT_ANA_AC_QUEUE_PRIO), &c->rx_class[i],
+                       clr);
     }
 
     if (counters == NULL) {
@@ -2984,23 +2749,20 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t               *vtss_state,
     prop = &counters->prop;
     for (i = 0; i < VTSS_PRIOS; i++) {
         prop->rx_prio[i] = c->rx_class[i].value;
-        prop->tx_prio[i] =
-            (c->tx_yellow_class[i].value + c->tx_green_class[i].value);
+        prop->tx_prio[i] = (c->tx_yellow_class[i].value + c->tx_green_class[i].value);
     }
 
     /* RMON Rx counters */
     rmon = &counters->rmon;
     rmon->rx_etherStatsDropEvents = c->rx_policer_drops.value;
     rmon->rx_etherStatsOctets = (c->rx_ok_bytes.value + c->rx_bad_bytes.value);
-    rx_errors =
-        (c->rx_crc_err.value + c->rx_undersize.value + c->rx_oversize.value +
-         c->rx_symbol_err.value + c->rx_jabbers.value + c->rx_fragments.value);
+    rx_errors = (c->rx_crc_err.value + c->rx_undersize.value + c->rx_oversize.value +
+                 c->rx_symbol_err.value + c->rx_jabbers.value + c->rx_fragments.value);
     if (vtss_state->port.conf[port_no].frame_length_chk) {
-        rx_errors +=
-            (c->rx_in_range_len_err.value + c->rx_out_of_range_len_err.value);
+        rx_errors += (c->rx_in_range_len_err.value + c->rx_out_of_range_len_err.value);
     }
-    rmon->rx_etherStatsPkts = (c->rx_unicast.value + c->rx_multicast.value +
-                               c->rx_broadcast.value + rx_errors);
+    rmon->rx_etherStatsPkts =
+        (c->rx_unicast.value + c->rx_multicast.value + c->rx_broadcast.value + rx_errors);
     rmon->rx_etherStatsBroadcastPkts = c->rx_broadcast.value;
     rmon->rx_etherStatsMulticastPkts = c->rx_multicast.value;
     rmon->rx_etherStatsCRCAlignErrors = c->rx_crc_err.value;
@@ -3019,17 +2781,15 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t               *vtss_state,
     /* RMON Tx counters */
     rmon->tx_etherStatsDropEvents = c->tx_queue_drops.value;
     for (i = 0; i < VTSS_PRIOS; i++) {
-        rmon->tx_etherStatsDropEvents +=
-            (c->tx_green_drops[i].value + c->tx_yellow_drops[i].value);
+        rmon->tx_etherStatsDropEvents += (c->tx_green_drops[i].value + c->tx_yellow_drops[i].value);
     }
-    rmon->tx_etherStatsPkts = (c->tx_unicast.value + c->tx_multicast.value +
-                               c->tx_broadcast.value + c->tx_late_coll.value);
+    rmon->tx_etherStatsPkts = (c->tx_unicast.value + c->tx_multicast.value + c->tx_broadcast.value +
+                               c->tx_late_coll.value);
     rmon->tx_etherStatsOctets = c->tx_ok_bytes.value;
     rmon->tx_etherStatsBroadcastPkts = c->tx_broadcast.value;
     rmon->tx_etherStatsMulticastPkts = c->tx_multicast.value;
     rmon->tx_etherStatsCollisions =
-        (c->tx_multi_coll.value + c->tx_backoff1.value + c->tx_late_coll.value +
-         c->tx_xcoll.value);
+        (c->tx_multi_coll.value + c->tx_backoff1.value + c->tx_late_coll.value + c->tx_xcoll.value);
     rmon->tx_etherStatsPkts64Octets = c->tx_size64.value;
     rmon->tx_etherStatsPkts65to127Octets = c->tx_size65_127.value;
     rmon->tx_etherStatsPkts128to255Octets = c->tx_size128_255.value;
@@ -3055,8 +2815,7 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t               *vtss_state,
     if_group->ifOutBroadcastPkts = c->tx_broadcast.value;
     if_group->ifOutNUcastPkts = (c->tx_multicast.value + c->tx_broadcast.value);
     if_group->ifOutDiscards = rmon->tx_etherStatsDropEvents;
-    if_group->ifOutErrors =
-        (c->tx_late_coll.value + c->tx_csense.value + c->tx_xcoll.value);
+    if_group->ifOutErrors = (c->tx_late_coll.value + c->tx_csense.value + c->tx_xcoll.value);
 
     /* Ethernet-like Rx counters */
     elike = &counters->ethernet_like;
@@ -3082,8 +2841,8 @@ static vtss_rc jr2_port_counters_chip(vtss_state_t               *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_basic_counters_get(vtss_state_t        *vtss_state,
-                                         const vtss_port_no_t port_no,
+vtss_rc vtss_cil_port_basic_counters_get(vtss_state_t                *vtss_state,
+                                         const vtss_port_no_t         port_no,
                                          vtss_basic_counters_t *const counters)
 {
     // JR2-TBD: Stub
@@ -3096,19 +2855,15 @@ static vtss_rc jr2_port_counters(vtss_state_t               *vtss_state,
                                  BOOL                        clear)
 {
     return jr2_port_counters_chip(vtss_state, port_no,
-                                  &vtss_state->port.counters[port_no]
-                                       .counter.jr2,
-                                  counters, clear);
+                                  &vtss_state->port.counters[port_no].counter.jr2, counters, clear);
 }
 
-vtss_rc vtss_cil_port_counters_update(vtss_state_t        *vtss_state,
-                                      const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return jr2_port_counters(vtss_state, port_no, NULL, 0);
 }
 
-vtss_rc vtss_cil_port_counters_clear(vtss_state_t        *vtss_state,
-                                     const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return jr2_port_counters(vtss_state, port_no, NULL, 1);
 }
@@ -3121,23 +2876,20 @@ vtss_rc vtss_cil_port_counters_get(vtss_state_t               *vtss_state,
     return jr2_port_counters(vtss_state, port_no, counters, 0);
 }
 
-vtss_rc vtss_cil_port_forward_set(vtss_state_t        *vtss_state,
-                                  const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_forward_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_test_conf_set(vtss_state_t        *vtss_state,
-                                    const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    u32 tgt, serdes_inst, serdes_type, port = VTSS_CHIP_PORT(port_no);
+    u32                tgt, serdes_inst, serdes_type, port = VTSS_CHIP_PORT(port_no);
     vtss_serdes_mode_t mode = vtss_state->port.serdes_mode[port_no];
     vtss_port_lb_t     lb = vtss_state->port.test_conf[port_no].loopback;
     vtss_port_conf_t  *conf = &vtss_state->port.conf[port_no];
     u32                tgt_ana = VTSS_TO_10G_SRD_TGT(port);
 
-    VTSS_RC(jr2_port_inst_get(vtss_state, port_no, &tgt, &serdes_inst,
-                              &serdes_type));
+    VTSS_RC(jr2_port_inst_get(vtss_state, port_no, &tgt, &serdes_inst, &serdes_type));
 
     switch (serdes_type) {
     case JR2_SERDES_TYPE_1G:
@@ -3153,23 +2905,24 @@ vtss_rc vtss_cil_port_test_conf_set(vtss_state_t        *vtss_state,
     case JR2_SERDES_TYPE_10G:
         if (lb == VTSS_PORT_LB_EQUIPMENT || lb == VTSS_PORT_LB_DISABLED) {
             JR2_WRM(VTSS_SD10G65_SD10G65_OB_SD10G65_OB_CFG0(tgt_ana),
-                    VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP(
-                        lb != VTSS_PORT_LB_DISABLED),
+                    VTSS_F_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP(lb !=
+                                                                          VTSS_PORT_LB_DISABLED),
                     VTSS_M_SD10G65_SD10G65_OB_SD10G65_OB_CFG0_EN_PAD_LOOP);
 
             JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG0(tgt_ana),
-                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL(
-                        lb == VTSS_PORT_LB_DISABLED ? 0 : 2),
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL(lb == VTSS_PORT_LB_DISABLED
+                                                                             ? 0
+                                                                             : 2),
                     VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG0_IB_SIG_SEL);
 
             JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG3(tgt_ana),
-                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET(
-                        lb != VTSS_PORT_LB_DISABLED),
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET(lb !=
+                                                                          VTSS_PORT_LB_DISABLED),
                     VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG3_IB_SET_SDET);
 
             JR2_WRM(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(tgt_ana),
-                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC(
-                        lb != VTSS_PORT_LB_DISABLED),
+                    VTSS_F_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC(lb !=
+                                                                           VTSS_PORT_LB_DISABLED),
                     VTSS_M_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_LOOP_REC);
         } else {
             VTSS_E("Loopback not supported for port: %u", port_no);
@@ -3181,13 +2934,11 @@ vtss_rc vtss_cil_port_test_conf_set(vtss_state_t        *vtss_state,
 
     // Disable signal detect during loopback
     if (lb == VTSS_PORT_LB_DISABLED) {
-        JR2_WRM(
-            VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
-            VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA(conf->sd_enable),
-            VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA);
+        JR2_WRM(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
+                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA(conf->sd_enable),
+                VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG_SD_ENA);
         JR2_WRM(VTSS_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG(tgt),
-                VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA(
-                    conf->sd_enable),
+                VTSS_F_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA(conf->sd_enable),
                 VTSS_M_DEV1G_PCS_FX100_CONFIGURATION_PCS_FX100_CFG_SD_ENA);
     } else {
         JR2_WRM(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG(tgt),
@@ -3201,8 +2952,7 @@ vtss_rc vtss_cil_port_test_conf_set(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_ifh_set(vtss_state_t        *vtss_state,
-                              const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32              port = VTSS_CHIP_PORT(port_no);
     vtss_port_ifh_t *ifh = &vtss_state->port.ifh_conf[port_no];
@@ -3210,22 +2960,19 @@ vtss_rc vtss_cil_port_ifh_set(vtss_state_t        *vtss_state,
 
     /* Enable/Disable IFH parsing at ingress DMAC:SMAC:0x8880:0x0007:IFH:Frame */
     JR2_WRM(VTSS_ASM_CFG_PORT_CFG(port),
-            VTSS_F_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG(ifh->ena_inj_header ? 2
-                                                                       : 0) |
+            VTSS_F_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG(ifh->ena_inj_header ? 2 : 0) |
                 VTSS_F_ASM_CFG_PORT_CFG_SKIP_PREAMBLE_ENA(ifh->ena_inj_header),
-            VTSS_M_ASM_CFG_PORT_CFG_SKIP_PREAMBLE_ENA |
-                VTSS_M_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG);
+            VTSS_M_ASM_CFG_PORT_CFG_SKIP_PREAMBLE_ENA | VTSS_M_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG);
 
     /* Enable/Disable IFH prepend at egress DMAC:SMAC:0x8880:0x0007:IFH:Frame */
-    JR2_WRM(VTSS_REW_COMMON_PORT_CTRL(port),
-            VTSS_F_REW_COMMON_PORT_CTRL_KEEP_IFH_SEL(extr ? 2 : 0),
+    JR2_WRM(VTSS_REW_COMMON_PORT_CTRL(port), VTSS_F_REW_COMMON_PORT_CTRL_KEEP_IFH_SEL(extr ? 2 : 0),
             VTSS_M_REW_COMMON_PORT_CTRL_KEEP_IFH_SEL);
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_serdes_debug(vtss_state_t        *vtss_state,
-                                   const vtss_port_no_t port_no,
+vtss_rc vtss_cil_port_serdes_debug(vtss_state_t                         *vtss_state,
+                                   const vtss_port_no_t                  port_no,
                                    const vtss_port_serdes_debug_t *const conf)
 {
     return VTSS_RC_OK;
@@ -3255,8 +3002,7 @@ vtss_rc vtss_jr2_wm_update(vtss_state_t *vtss_state)
                           watermark to zero */
         } else {
             JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG((queue + 496 + 0)),
-                   vtss_state->port
-                       .buf_prio_shr[queue]); /* Restore initial value */
+                   vtss_state->port.buf_prio_shr[queue]); /* Restore initial value */
         }
     }
     return VTSS_RC_OK;
@@ -3267,30 +3013,27 @@ static vtss_rc jr2_port_buf_conf_set(vtss_state_t *vtss_state)
 {
     int q;
     u32 port_no, port, dp;
-    u32 buf_q_rsrv_i, buf_q_rsrv_e, ref_q_rsrv_i, ref_q_rsrv_e,
-        buf_prio_shr_i[8], buf_prio_shr_e[8];
-    u32 buf_p_rsrv_i, buf_p_rsrv_e, ref_p_rsrv_i, ref_p_rsrv_e, buf_col_shr_i,
-        buf_col_shr_e, ref_col_shr_i, ref_col_shr_e;
+    u32 buf_q_rsrv_i, buf_q_rsrv_e, ref_q_rsrv_i, ref_q_rsrv_e, buf_prio_shr_i[8],
+        buf_prio_shr_e[8];
+    u32 buf_p_rsrv_i, buf_p_rsrv_e, ref_p_rsrv_i, ref_p_rsrv_e, buf_col_shr_i, buf_col_shr_e,
+        ref_col_shr_i, ref_col_shr_e;
     u32 buf_prio_rsrv, guaranteed, q_rsrv_mask, prio_mem;
 
     /* Mode: Strict priority sharing. Higher priorities have right to use all
      * shared before lower */
 
     /* Reserved space. Buffer values are in BYTES */
-    buf_q_rsrv_i = 4000;  /* Ingress Queue reserved space (all prios) */
-    buf_p_rsrv_i = 15000; /* Ingress Port reserved space */
-    buf_q_rsrv_e = 4000;  /* Egress Queue reserved space (all prios)  */
-    buf_p_rsrv_e = 15000; /* Egress Port reserved space  */
+    buf_q_rsrv_i = 4000;               /* Ingress Queue reserved space (all prios) */
+    buf_p_rsrv_i = 15000;              /* Ingress Port reserved space */
+    buf_q_rsrv_e = 4000;               /* Egress Queue reserved space (all prios)  */
+    buf_p_rsrv_e = 15000;              /* Egress Port reserved space  */
     buf_col_shr_i = JR2_BUFFER_MEMORY; /* Coloring - disabled for now */
     buf_col_shr_e = JR2_BUFFER_MEMORY; /* Coloring - disabled for now */
-    buf_prio_rsrv =
-        6000; /* Distance between priority stops in the shared memory */
+    buf_prio_rsrv = 6000;              /* Distance between priority stops in the shared memory */
 
     /* Reserved frame reference. Values are NUMBER of FRAMES */
-    ref_q_rsrv_e =
-        4; /* Number of frames that can be pending at each egress queue   */
-    ref_q_rsrv_i =
-        4; /* Number of frames that can be pending at each ingress queue  */
+    ref_q_rsrv_e = 4;  /* Number of frames that can be pending at each egress queue   */
+    ref_q_rsrv_i = 4;  /* Number of frames that can be pending at each ingress queue  */
     ref_p_rsrv_e = 10; /* Number of frames that can be pending shared between
                           the QoS classes at egress */
     ref_p_rsrv_i = 10; /* Number of frames that can be pending shared between
@@ -3315,13 +3058,13 @@ static vtss_rc jr2_port_buf_conf_set(vtss_state_t *vtss_state)
             guaranteed += (buf_q_rsrv_i + buf_q_rsrv_e);
     }
 
-    if (((vtss_state->port_count + 1) * guaranteed * 100 /
-         BUF_OVERSUBSRIPTION_FACTOR) > JR2_BUFFER_MEMORY) {
+    if (((vtss_state->port_count + 1) * guaranteed * 100 / BUF_OVERSUBSRIPTION_FACTOR) >
+        JR2_BUFFER_MEMORY) {
         VTSS_E("Memory is oversubscribed");
     }
     /* Find the total amount of shared memory incl. oversubscription */
-    prio_mem = JR2_BUFFER_MEMORY - (vtss_state->port_count + 1) * guaranteed *
-                                       100 / BUF_OVERSUBSRIPTION_FACTOR;
+    prio_mem = JR2_BUFFER_MEMORY -
+               (vtss_state->port_count + 1) * guaranteed * 100 / BUF_OVERSUBSRIPTION_FACTOR;
 
     /* Find the prio watermarks */
     for (q = vtss_state->qos.conf.prios - 1; q >= 0; q--) {
@@ -3353,19 +3096,16 @@ static vtss_rc jr2_port_buf_conf_set(vtss_state_t *vtss_state)
         /* Reserved amount for PORT at index PORT + 512 */
         JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(port + 512 + 0),
                wm_enc(buf_p_rsrv_i / JR2_BUFFER_CELL_SZ));
-        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(port + 512 + 1024),
-               wm_enc(ref_p_rsrv_i));
+        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(port + 512 + 1024), wm_enc(ref_p_rsrv_i));
         JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(port + 512 + 2048),
                wm_enc(buf_p_rsrv_e / JR2_BUFFER_CELL_SZ));
-        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(port + 512 + 3072),
-               wm_enc(ref_p_rsrv_e));
+        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(port + 512 + 3072), wm_enc(ref_p_rsrv_e));
     }
 
     /* Maximum allowed use of the shared buffer for PRIO at index PRIO + 496 */
     for (q = 0; q < VTSS_PRIOS; q++) {
         /* Save initial encoded value of shared area for later use by WRED */
-        vtss_state->port.buf_prio_shr[q] =
-            wm_enc(buf_prio_shr_i[q] / JR2_BUFFER_CELL_SZ);
+        vtss_state->port.buf_prio_shr[q] = wm_enc(buf_prio_shr_i[q] / JR2_BUFFER_CELL_SZ);
 
         JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG((q + 496 + 0)),
                wm_enc(buf_prio_shr_i[q] / JR2_BUFFER_CELL_SZ));
@@ -3389,12 +3129,10 @@ static vtss_rc jr2_port_buf_conf_set(vtss_state_t *vtss_state)
     for (dp = 0; dp < 4; dp++) {
         JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(dp + 508 + 0),
                wm_enc(buf_col_shr_i / JR2_BUFFER_CELL_SZ));
-        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(dp + 508 + 1024),
-               wm_enc(ref_col_shr_i));
+        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(dp + 508 + 1024), wm_enc(ref_col_shr_i));
         JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(dp + 508 + 2048),
                wm_enc(buf_col_shr_e / JR2_BUFFER_CELL_SZ));
-        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(dp + 508 + 3072),
-               wm_enc(ref_col_shr_e));
+        JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG(dp + 508 + 3072), wm_enc(ref_col_shr_e));
         if (dp == 2) {
             // Green watermark should match the highest priority watermark.
             // Otherwise the will be no strict shared space per qos level
@@ -3464,8 +3202,8 @@ static vtss_rc jr2_port_buf_qlim_set(vtss_state_t *vtss_state)
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
         JR2_WR(VTSS_XQS_QLIMIT_PORT_QLIMIT_DIS_CFG(port),
                VTSS_F_XQS_QLIMIT_PORT_QLIMIT_DIS_CFG_QLIMIT_IGR_DIS(0) |
-                   VTSS_F_XQS_QLIMIT_PORT_QLIMIT_DIS_CFG_QLIMIT_EGR_DIS(
-                       port == VTSS_CHIP_PORT_VD1));
+                   VTSS_F_XQS_QLIMIT_PORT_QLIMIT_DIS_CFG_QLIMIT_EGR_DIS(port ==
+                                                                        VTSS_CHIP_PORT_VD1));
     }
 
     // Set 5,70,90,95,100 % of memory size (or wm1) for qlim,qdiv,ctop,atop,top
@@ -3477,16 +3215,11 @@ static vtss_rc jr2_port_buf_qlim_set(vtss_state_t *vtss_state)
             avail = JR2_BUFFER_MEMORY / (col ? 2 : 1);
         }
 
-        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_QLIM_CFG(0, col),
-               QLIM_WM(avail, 5));
-        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_QDIV_CFG(0, col),
-               QLIM_WM(avail, 70));
-        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_CTOP_CFG(0, col),
-               QLIM_WM(avail, 90));
-        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_ATOP_CFG(0, col),
-               QLIM_WM(avail, 95));
-        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_TOP_CFG(0, col),
-               QLIM_WM(avail, 100));
+        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_QLIM_CFG(0, col), QLIM_WM(avail, 5));
+        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_QDIV_CFG(0, col), QLIM_WM(avail, 70));
+        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_CTOP_CFG(0, col), QLIM_WM(avail, 90));
+        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_ATOP_CFG(0, col), QLIM_WM(avail, 95));
+        JR2_WR(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_TOP_CFG(0, col), QLIM_WM(avail, 100));
     }
 
     return VTSS_RC_OK;
@@ -3510,21 +3243,17 @@ static vtss_rc jr2_debug_wm_qlim(vtss_state_t                  *vtss_state,
         JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SE_CONG_CFG(shr_id), &sc_cells);
 
         for (col = 0; col < 2; col++) {
-            pr("%s Watermarks (Act:%2u, Cong:%2u, SE-Cong:%2u)\n",
-               col ? "Yellow" : "Green", aq_cells, cc_cells, sc_cells);
+            pr("%s Watermarks (Act:%2u, Cong:%2u, SE-Cong:%2u)\n", col ? "Yellow" : "Green",
+               aq_cells, cc_cells, sc_cells);
             JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_TOP_CFG(shr_id, col), &value);
             pr("Stop for all(*1)...............: %5u\n", value);
-            JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_ATOP_CFG(shr_id, col),
-                   &value);
+            JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_ATOP_CFG(shr_id, col), &value);
             pr("Stop for active schedulers(*2).: %5u\n", value);
-            JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_CTOP_CFG(shr_id, col),
-                   &value);
+            JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_CTOP_CFG(shr_id, col), &value);
             pr("Stop for active consumers(*3)..: %5u\n", value);
-            JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_QLIM_CFG(shr_id, col),
-                   &value);
+            JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_QLIM_CFG(shr_id, col), &value);
             pr("Stop for growing consumers(*4).: %5u\n", value);
-            JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_QDIV_CFG(shr_id, col),
-                   &value);
+            JR2_RD(VTSS_XQS_QLIMIT_SHR_QLIMIT_SHR_QDIV_CFG(shr_id, col), &value);
             pr("Amount to divide...............: %5u\n", value);
         }
 
@@ -3556,8 +3285,7 @@ static vtss_rc jr2_debug_wm_qlim(vtss_state_t                  *vtss_state,
         u32 qsz = VTSS_X_XQS_QLIMIT_QUEUE_QUEUE_SIZE_QUEUE_SIZE(qinf);
 
         if (killed || qsz) {
-            pr("%5u --> %2u, Prio %1u. Killed:%1u CurSize:%u\n", q, q / 64 / 8,
-               q % 8, killed, qsz);
+            pr("%5u --> %2u, Prio %1u. Killed:%1u CurSize:%u\n", q, q / 64 / 8, q % 8, killed, qsz);
         }
     }
 
@@ -3568,24 +3296,17 @@ static vtss_rc jr2_debug_wm_qlim(vtss_state_t                  *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-#define JR_DEBUG_MAC(ss, addr, i, name)                                        \
-    vtss_jr2_debug_reg_inst(vtss_state, ss,                                    \
-                            VTSS_DEV1G_MAC_CFG_STATUS_MAC_##addr, i,           \
-                            "MAC_" name)
-#define JR_DEBUG_PCS(ss, addr, i, name)                                        \
-    vtss_jr2_debug_reg_inst(vtss_state, ss,                                    \
-                            VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_##addr, i,       \
+#define JR_DEBUG_MAC(ss, addr, i, name)                                                            \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV1G_MAC_CFG_STATUS_MAC_##addr, i, "MAC_" name)
+#define JR_DEBUG_PCS(ss, addr, i, name)                                                            \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_##addr, i,           \
                             "PCS_" name)
-#define JR_DEBUG_PCS_XAUI(ss, addr, i, name)                                   \
-    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV10G_PCS_XAUI_##addr, i,    \
-                            "PCS_" name)
-#define JR_DEBUG_10G_MAC(ss, addr, i, name)                                    \
-    vtss_jr2_debug_reg_inst(vtss_state, ss,                                    \
-                            VTSS_DEV10G_MAC_CFG_STATUS_MAC_##addr, i,          \
-                            "MAC_" name)
-#define JR_DEBUG_FX100(ss, addr, i, name)                                      \
-    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV1G_PCS_FX100_##addr, i,    \
-                            name)
+#define JR_DEBUG_PCS_XAUI(ss, addr, i, name)                                                       \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV10G_PCS_XAUI_##addr, i, "PCS_" name)
+#define JR_DEBUG_10G_MAC(ss, addr, i, name)                                                        \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV10G_MAC_CFG_STATUS_MAC_##addr, i, "MAC_" name)
+#define JR_DEBUG_FX100(ss, addr, i, name)                                                          \
+    vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV1G_PCS_FX100_##addr, i, name)
 #define JR_DEBUG_HSIO(ss, addr, name) JR2_DEBUG_REG_NAME(ss, HSIO, addr, name)
 
 static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
@@ -3598,9 +3319,8 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
 
     VTSS_RC(jr2_port_inst_get(vtss_state, port_no, &tgt, &inst, &type));
     if (VTSS_PORT_IS_1G(port)) {
-        vtss_jr2_debug_reg_inst(vtss_state, ss,
-                                VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
-                                port, "DEV_RST_CTRL");
+        vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt), port,
+                                "DEV_RST_CTRL");
         JR_DEBUG_MAC(ss, ENA_CFG(tgt), port, "ENA_CFG");
         JR_DEBUG_MAC(ss, MODE_CFG(tgt), port, "MODE_CFG");
         JR_DEBUG_MAC(ss, MAXLEN_CFG(tgt), port, "MAXLEN_CFG");
@@ -3611,29 +3331,23 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
         JR_DEBUG_PCS(ss, ANEG_CFG(tgt), port, "ANEG_CFG");
         JR_DEBUG_PCS(ss, ANEG_STATUS(tgt), port, "ANEG_STATUS");
         JR_DEBUG_PCS(ss, LINK_STATUS(tgt), port, "LINK_STATUS");
-        JR_DEBUG_FX100(ss, CONFIGURATION_PCS_FX100_CFG(tgt), port,
-                       "PCS_FX100_CFG");
+        JR_DEBUG_FX100(ss, CONFIGURATION_PCS_FX100_CFG(tgt), port, "PCS_FX100_CFG");
         JR_DEBUG_FX100(ss, STATUS_PCS_FX100_STATUS(tgt), port, "FX100_STATUS");
     } else {
         if (port_is_in_10g_mode(vtss_state, port_no)) {
 #if !defined(VTSS_ARCH_SERVAL_T)
-            JR_DEBUG_PCS_XAUI(ss, CONFIGURATION_PCS_XAUI_EXT_CFG(tgt), port,
-                              "EXT_CFG");
+            JR_DEBUG_PCS_XAUI(ss, CONFIGURATION_PCS_XAUI_EXT_CFG(tgt), port, "EXT_CFG");
             JR_DEBUG_PCS_XAUI(ss, CONFIGURATION_PCS_XAUI_CFG(tgt), port, "CFG");
-            JR_DEBUG_PCS_XAUI(ss, CONFIGURATION_PCS_XAUI_SD_CFG(tgt), port,
-                              "SD_CFG");
-            JR_DEBUG_PCS_XAUI(ss, STATUS_PCS_XAUI_RX_STATUS(tgt), port,
-                              "XAUI_RX_STATUS");
+            JR_DEBUG_PCS_XAUI(ss, CONFIGURATION_PCS_XAUI_SD_CFG(tgt), port, "SD_CFG");
+            JR_DEBUG_PCS_XAUI(ss, STATUS_PCS_XAUI_RX_STATUS(tgt), port, "XAUI_RX_STATUS");
             JR_DEBUG_PCS_XAUI(ss, STATUS_PCS_XAUI_RX_ERROR_STATUS(tgt), port,
                               "XAUI_RX_ERROR_STATUS");
 #endif /* VTSS_ARCH_SERVAL_T */
-            JR_DEBUG_10G_MAC(ss, TX_MONITOR_STICKY(tgt), port,
-                             "TX_MONITOR_STICKY");
+            JR_DEBUG_10G_MAC(ss, TX_MONITOR_STICKY(tgt), port, "TX_MONITOR_STICKY");
             JR_DEBUG_10G_MAC(ss, ENA_CFG(tgt), port, "ENA_CFG");
             JR_DEBUG_10G_MAC(ss, MODE_CFG(tgt), port, "MODE_CFG");
         } else {
-            vtss_jr2_debug_reg_inst(vtss_state, ss,
-                                    VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
+            vtss_jr2_debug_reg_inst(vtss_state, ss, VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
                                     port, "DEV_RST_CTRL");
             JR_DEBUG_MAC(ss, ENA_CFG(tgt), port, "ENA_CFG");
             JR_DEBUG_MAC(ss, MODE_CFG(tgt), port, "MODE_CFG");
@@ -3645,10 +3359,8 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
             JR_DEBUG_PCS(ss, ANEG_CFG(tgt), port, "ANEG_CFG");
             JR_DEBUG_PCS(ss, ANEG_STATUS(tgt), port, "ANEG_STATUS");
             JR_DEBUG_PCS(ss, LINK_STATUS(tgt), port, "LINK_STATUS");
-            JR_DEBUG_FX100(ss, CONFIGURATION_PCS_FX100_CFG(tgt), port,
-                           "PCS_FX100_CFG");
-            JR_DEBUG_FX100(ss, STATUS_PCS_FX100_STATUS(tgt), port,
-                           "FX100_STATUS");
+            JR_DEBUG_FX100(ss, CONFIGURATION_PCS_FX100_CFG(tgt), port, "PCS_FX100_CFG");
+            JR_DEBUG_FX100(ss, STATUS_PCS_FX100_STATUS(tgt), port, "FX100_STATUS");
         }
     }
     JR2_DEBUG_REGX_NAME(ss, DSM, CFG_RX_PAUSE_CFG, port, "RX_PAUSE_CFG");
@@ -3661,94 +3373,50 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
         pr("APC status:\n");
         pr("port    gain    g.adj   ldlev   offs    agc     c       l       dfe1    dfe2    dfe3    dfe4\n");
         for (p = VTSS_PORT_10G_START; p < VTSS_CHIP_PORTS; p++) {
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS(
-                       VTSS_TO_10G_APC_TGT(p)),
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS(VTSS_TO_10G_APC_TGT(p)),
                    &value);
             u32 eqz_gain =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_EQZ_GAIN_ACTVAL(
-                    value);
+                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_EQZ_GAIN_ACTVAL(value);
             u32 eqz_gain_adj =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_EQZ_GAIN_ADJ_ACTVAL(
-                    value);
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS(
-                       VTSS_TO_10G_APC_TGT(p)),
+                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_EQZ_GAIN_ADJ_ACTVAL(value);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS(VTSS_TO_10G_APC_TGT(p)),
                    &value);
-            u32 ld_lev =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_LD_LEV_ACTVAL(
-                    value);
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL(
-                       VTSS_TO_10G_APC_TGT(p)),
-                   &value);
-            u32 eqz_offs =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL_EQZ_OFFS_ACTVAL(
-                    value);
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL(
-                       VTSS_TO_10G_APC_TGT(p)),
-                   &value);
-            u32 eqz_agc =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_ACTVAL(
-                    value);
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(
-                       VTSS_TO_10G_APC_TGT(p)),
-                   &value);
-            u32 eqz_c =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_ACTVAL(value);
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(
-                       VTSS_TO_10G_APC_TGT(p)),
-                   &value);
-            u32 eqz_l =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_ACTVAL(value);
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL(
-                       VTSS_TO_10G_APC_TGT(p)),
-                   &value);
-            u32 dfe1 =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL_DFE1_ACTVAL(value);
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL(
-                       VTSS_TO_10G_APC_TGT(p)),
-                   &value);
-            u32 dfe2 =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL_DFE2_ACTVAL(value);
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL(
-                       VTSS_TO_10G_APC_TGT(p)),
-                   &value);
-            u32 dfe3 =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL_DFE3_ACTVAL(value);
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL(
-                       VTSS_TO_10G_APC_TGT(p)),
-                   &value);
-            u32 dfe4 =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL_DFE4_ACTVAL(value);
-            pr("%-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d\n",
-               p, eqz_gain, eqz_gain_adj, ld_lev, eqz_offs, eqz_agc, eqz_c,
-               eqz_l, dfe1, dfe2, dfe3, dfe4);
+            u32 ld_lev = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_LD_LEV_ACTVAL(value);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL(VTSS_TO_10G_APC_TGT(p)), &value);
+            u32 eqz_offs = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL_EQZ_OFFS_ACTVAL(value);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL(VTSS_TO_10G_APC_TGT(p)), &value);
+            u32 eqz_agc = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_ACTVAL(value);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(VTSS_TO_10G_APC_TGT(p)), &value);
+            u32 eqz_c = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_ACTVAL(value);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(VTSS_TO_10G_APC_TGT(p)), &value);
+            u32 eqz_l = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_ACTVAL(value);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL(VTSS_TO_10G_APC_TGT(p)), &value);
+            u32 dfe1 = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL_DFE1_ACTVAL(value);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL(VTSS_TO_10G_APC_TGT(p)), &value);
+            u32 dfe2 = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_DFE2_CTRL_DFE2_ACTVAL(value);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL(VTSS_TO_10G_APC_TGT(p)), &value);
+            u32 dfe3 = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_DFE3_CTRL_DFE3_ACTVAL(value);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL(VTSS_TO_10G_APC_TGT(p)), &value);
+            u32 dfe4 = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_DFE4_CTRL_DFE4_ACTVAL(value);
+            pr("%-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d %-7d\n", p, eqz_gain,
+               eqz_gain_adj, ld_lev, eqz_offs, eqz_agc, eqz_c, eqz_l, dfe1, dfe2, dfe3, dfe4);
         }
 
         pr("\nLink status (MAC/SD/PCS):\n");
         pr("port          local_fault   remote_fault  idle_state    SD            rx_blk_lock   rx_hi_ber\n");
         for (p = VTSS_PORT_10G_START; p < VTSS_CHIP_PORTS; p++) {
-            JR2_RD(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(
-                       VTSS_TO_DEV(p)),
-                   &value);
-            JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(
-                       VTSS_TO_10G_SRD_TGT(p)),
-                   &sd);
-            JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(
-                       VTSS_TO_10G_PCS_TGT(p)),
-                   &pcs);
+            JR2_RD(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(VTSS_TO_DEV(p)), &value);
+            JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(VTSS_TO_10G_SRD_TGT(p)), &sd);
+            JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(p)), &pcs);
             pr("%-13d %-13d %-13d %-13d %-13d %-13d %-13d\n", p,
-               VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_LOCAL_ERR_STATE_STICKY(
-                   value),
-               VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_REMOTE_ERR_STATE_STICKY(
-                   value),
-               VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY(
-                   value),
+               VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_LOCAL_ERR_STATE_STICKY(value),
+               VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_REMOTE_ERR_STATE_STICKY(value),
+               VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY(value),
                VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_IA_SDET(sd),
-               VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(
-                   pcs),
+               VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs),
                VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_HI_BER(pcs));
             // Clear the stickies
-            JR2_WR(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(
-                       VTSS_TO_10G_PCS_TGT(p)),
+            JR2_WR(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(p)),
                    0xFFFFFFFF);
         }
     }
@@ -3767,19 +3435,16 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
             JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_IB_CFG, "IB_CFG");
             JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_OB_CFG, "OB_CFG");
             JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_SER_CFG, "SER_CFG");
-            JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG,
-                          "COMMON_CFG");
+            JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_COMMON_CFG, "COMMON_CFG");
             JR_DEBUG_HSIO(ss, SERDES1G_ANA_CFG_SERDES1G_PLL_CFG, "PLL_CFG");
             JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "100FX_MISC");
-            JR_DEBUG_HSIO(ss, SERDES1G_ANA_STATUS_SERDES1G_PLL_STATUS,
-                          "PLL_STATUS");
+            JR_DEBUG_HSIO(ss, SERDES1G_ANA_STATUS_SERDES1G_PLL_STATUS, "PLL_STATUS");
             JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG0, "DFT_CFG0");
             JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG1, "DFT_CFG1");
             JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_DFT_CFG2, "DFT_CFG2");
             JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_TP_CFG, "TP_CFG");
             JR_DEBUG_HSIO(ss, SERDES1G_DIG_CFG_SERDES1G_MISC_CFG, "MISC_CFG");
-            JR_DEBUG_HSIO(ss, SERDES1G_DIG_STATUS_SERDES1G_DFT_STATUS,
-                          "DFT_STATUS");
+            JR_DEBUG_HSIO(ss, SERDES1G_DIG_STATUS_SERDES1G_DFT_STATUS, "DFT_STATUS");
         } else if (type == JR2_SERDES_TYPE_6G) {
             VTSS_FMT(buf, "SerDes6G_%u", i);
             vtss_jr2_debug_reg_header(ss, buf.s);
@@ -3789,15 +3454,11 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
             JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG, "OB_CFG");
             JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_OB_CFG1, "OB_CFG1");
             JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_SER_CFG, "SER_CFG");
-            JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG,
-                          "COMMON_CFG");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_COMMON_CFG, "COMMON_CFG");
             JR_DEBUG_HSIO(ss, SERDES6G_ANA_CFG_SERDES6G_PLL_CFG, "PLL_CFG");
-            JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_IB_STATUS0,
-                          "IB_STATUS0");
-            JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_IB_STATUS1,
-                          "IB_STATUS1");
-            JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_PLL_STATUS,
-                          "PLL_STATUS");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_IB_STATUS0, "IB_STATUS0");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_IB_STATUS1, "IB_STATUS1");
+            JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_PLL_STATUS, "PLL_STATUS");
         } else {
         }
         pr("\n");
@@ -3838,15 +3499,14 @@ static vtss_rc jr2_debug_port(vtss_state_t                  *vtss_state,
 
         pr("\nVD0: %u Mbps, VD1: %u Mbps, CPU0: %u Mbps, CPU1: %u Mbps, IDLE = %u Mbps\n\n",
            250 * port_bw[VTSS_CHIP_PORT_VD0], 250 * port_bw[VTSS_CHIP_PORT_VD1],
-           250 * port_bw[VTSS_CHIP_PORT_CPU_0],
-           250 * port_bw[VTSS_CHIP_PORT_CPU_1], 250 * port_bw[p_idle]);
+           250 * port_bw[VTSS_CHIP_PORT_CPU_0], 250 * port_bw[VTSS_CHIP_PORT_CPU_1],
+           250 * port_bw[p_idle]);
     } else {
         pr("Auto calendar\n\n");
     }
 #endif /* defined(VTSS_CALENDAR_CALC) */
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (info->port_list[port_no] == 0)
             continue;
         port = VTSS_CHIP_PORT(port_no);
@@ -3857,8 +3517,8 @@ static vtss_rc jr2_debug_port(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_debug_port_counters(vtss_state_t *vtss_state,
-                                       lmu_ss_t     *ss,
+static vtss_rc jr2_debug_port_counters(vtss_state_t                  *vtss_state,
+                                       lmu_ss_t                      *ss,
                                        const vtss_debug_info_t *const info,
                                        vtss_port_no_t                 port_no)
 {
@@ -3870,8 +3530,7 @@ static vtss_rc jr2_debug_port_counters(vtss_state_t *vtss_state,
     VTSS_RC(jr2_port_counters_chip(vtss_state, port_no, &cnt, NULL, 0));
 
     if (port_no < vtss_state->port_count && (info->full || info->action != 3)) {
-        vtss_jr2_debug_cnt(ss, "ok_bytes", "out_bytes", &cnt.rx_ok_bytes,
-                           &cnt.tx_out_bytes);
+        vtss_jr2_debug_cnt(ss, "ok_bytes", "out_bytes", &cnt.rx_ok_bytes, &cnt.tx_out_bytes);
         vtss_jr2_debug_cnt(ss, "uc", "", &cnt.rx_unicast, &cnt.tx_unicast);
         vtss_jr2_debug_cnt(ss, "mc", "", &cnt.rx_multicast, &cnt.tx_multicast);
         vtss_jr2_debug_cnt(ss, "bc", "", &cnt.rx_broadcast, &cnt.tx_broadcast);
@@ -3879,61 +3538,44 @@ static vtss_rc jr2_debug_port_counters(vtss_state_t *vtss_state,
 
     if (port_no < vtss_state->port_count && (info->full || info->action == 2)) {
         vtss_jr2_debug_cnt(ss, "pause", "", &cnt.rx_pause, &cnt.tx_pause);
-        vtss_jr2_debug_cnt(ss, "unsup_opcode", NULL, &cnt.rx_unsup_opcode,
-                           NULL);
+        vtss_jr2_debug_cnt(ss, "unsup_opcode", NULL, &cnt.rx_unsup_opcode, NULL);
         vtss_jr2_debug_cnt(ss, "64", "", &cnt.rx_size64, &cnt.tx_size64);
-        vtss_jr2_debug_cnt(ss, "65_127", "", &cnt.rx_size65_127,
-                           &cnt.tx_size65_127);
-        vtss_jr2_debug_cnt(ss, "128_255", "", &cnt.rx_size128_255,
-                           &cnt.tx_size128_255);
-        vtss_jr2_debug_cnt(ss, "256_511", "", &cnt.rx_size256_511,
-                           &cnt.tx_size256_511);
-        vtss_jr2_debug_cnt(ss, "512_1023", "", &cnt.rx_size512_1023,
-                           &cnt.tx_size512_1023);
-        vtss_jr2_debug_cnt(ss, "1024_1526", "", &cnt.rx_size1024_1518,
-                           &cnt.tx_size1024_1518);
-        vtss_jr2_debug_cnt(ss, "jumbo", "", &cnt.rx_size1519_max,
-                           &cnt.tx_size1519_max);
+        vtss_jr2_debug_cnt(ss, "65_127", "", &cnt.rx_size65_127, &cnt.tx_size65_127);
+        vtss_jr2_debug_cnt(ss, "128_255", "", &cnt.rx_size128_255, &cnt.tx_size128_255);
+        vtss_jr2_debug_cnt(ss, "256_511", "", &cnt.rx_size256_511, &cnt.tx_size256_511);
+        vtss_jr2_debug_cnt(ss, "512_1023", "", &cnt.rx_size512_1023, &cnt.tx_size512_1023);
+        vtss_jr2_debug_cnt(ss, "1024_1526", "", &cnt.rx_size1024_1518, &cnt.tx_size1024_1518);
+        vtss_jr2_debug_cnt(ss, "jumbo", "", &cnt.rx_size1519_max, &cnt.tx_size1519_max);
         vtss_jr2_debug_cnt(ss, "crc", NULL, &cnt.rx_crc_err, NULL);
-        vtss_jr2_debug_cnt(ss, "undersize", "multi_coll", &cnt.rx_undersize,
-                           &cnt.tx_multi_coll);
-        vtss_jr2_debug_cnt(ss, "fragments", "late_coll", &cnt.rx_fragments,
-                           &cnt.tx_late_coll);
-        vtss_jr2_debug_cnt(ss, "inr_len_err", "xcoll", &cnt.rx_in_range_len_err,
-                           &cnt.tx_xcoll);
-        vtss_jr2_debug_cnt(ss, "oor_len_err", "defer",
-                           &cnt.rx_out_of_range_len_err, &cnt.tx_defer);
-        vtss_jr2_debug_cnt(ss, "oversize", "xdefer", &cnt.rx_oversize,
-                           &cnt.tx_xdefer);
-        vtss_jr2_debug_cnt(ss, "jabbers", "backoff1", &cnt.rx_jabbers,
-                           &cnt.tx_backoff1);
+        vtss_jr2_debug_cnt(ss, "undersize", "multi_coll", &cnt.rx_undersize, &cnt.tx_multi_coll);
+        vtss_jr2_debug_cnt(ss, "fragments", "late_coll", &cnt.rx_fragments, &cnt.tx_late_coll);
+        vtss_jr2_debug_cnt(ss, "inr_len_err", "xcoll", &cnt.rx_in_range_len_err, &cnt.tx_xcoll);
+        vtss_jr2_debug_cnt(ss, "oor_len_err", "defer", &cnt.rx_out_of_range_len_err, &cnt.tx_defer);
+        vtss_jr2_debug_cnt(ss, "oversize", "xdefer", &cnt.rx_oversize, &cnt.tx_xdefer);
+        vtss_jr2_debug_cnt(ss, "jabbers", "backoff1", &cnt.rx_jabbers, &cnt.tx_backoff1);
     }
 
     if (info->full || info->action == 1 || info->action == 3) {
         vtss_jr2_debug_cnt(ss, "local_drops", NULL, &cnt.rx_local_drops, NULL);
-        vtss_jr2_debug_cnt(ss, "policer_drops", "queue_drops",
-                           &cnt.rx_policer_drops, &cnt.tx_queue_drops);
+        vtss_jr2_debug_cnt(ss, "policer_drops", "queue_drops", &cnt.rx_policer_drops,
+                           &cnt.tx_queue_drops);
 
         for (i = 0; i < VTSS_PRIOS; i++) {
             VTSS_FMT(rx_buf, "class_%u", i);
             VTSS_FMT(tx_buf, "green_%u", i);
-            vtss_jr2_debug_cnt(ss, rx_buf.s, tx_buf.s, &cnt.rx_class[i],
-                               &cnt.tx_green_class[i]);
+            vtss_jr2_debug_cnt(ss, rx_buf.s, tx_buf.s, &cnt.rx_class[i], &cnt.tx_green_class[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
             VTSS_FMT(tx_buf, "yellow_%u", i);
-            vtss_jr2_debug_cnt(ss, NULL, tx_buf.s, NULL,
-                               &cnt.tx_yellow_class[i]);
+            vtss_jr2_debug_cnt(ss, NULL, tx_buf.s, NULL, &cnt.tx_yellow_class[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
             VTSS_FMT(tx_buf, "green_drops_%u", i);
-            vtss_jr2_debug_cnt(ss, NULL, tx_buf.s, NULL,
-                               &cnt.tx_green_drops[i]);
+            vtss_jr2_debug_cnt(ss, NULL, tx_buf.s, NULL, &cnt.tx_green_drops[i]);
         }
         for (i = 0; i < VTSS_PRIOS; i++) {
             VTSS_FMT(tx_buf, "yellow_drops_%u", i);
-            vtss_jr2_debug_cnt(ss, NULL, tx_buf.s, NULL,
-                               &cnt.tx_yellow_drops[i]);
+            vtss_jr2_debug_cnt(ss, NULL, tx_buf.s, NULL, &cnt.tx_yellow_drops[i]);
         }
     }
     pr("\n");
@@ -3958,13 +3600,11 @@ static vtss_rc jr2_debug_port_cnt(vtss_state_t                  *vtss_state,
         return VTSS_RC_OK;
     }
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count + 4;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count + 4; port_no++) {
         if (port_no < vtss_state->port_count) {
             if (info->port_list[port_no] == 0 || cpu_port)
                 continue;
-            pr("Counters for port: %u (chip_port: %u):\n\n", port_no,
-               VTSS_CHIP_PORT(port_no));
+            pr("Counters for port: %u (chip_port: %u):\n\n", port_no, VTSS_CHIP_PORT(port_no));
         } else {
             if (!cpu_port)
                 continue;
@@ -3999,8 +3639,7 @@ static char *jr2_chip_port_to_str(vtss_state_t       *vtss_state,
     case VTSS_CHIP_PORT_VD1: VTSS_FMT(buf, "VD1"); break;
 
     default:
-        port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no,
-                                                chip_port);
+        port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no, chip_port);
         if (port_no != VTSS_PORT_NO_NONE) {
             VTSS_FMT(buf, "%u", port_no);
         } else {
@@ -4046,22 +3685,18 @@ static void jr2_debug_qres_print(vtss_state_t       *vtss_state,
        jr2_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio, val);
 }
 
-vtss_rc vtss_jr2_port_debug_qres(vtss_state_t *vtss_state,
-                                 lmu_ss_t     *ss,
-                                 BOOL          res_stat_cur)
+vtss_rc vtss_jr2_port_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss, BOOL res_stat_cur)
 {
     vtss_phys_port_no_t chip_port;
-    u32 resource, resource_base, port_base, idx, prio, val, addr;
+    u32                 resource, resource_base, port_base, idx, prio, val, addr;
 
-    pr("\nQSYS Resource table (QRES:RES_CTRL[idx]:RES_STAT%s)\n",
-       res_stat_cur ? "_CUR" : "");
+    pr("\nQSYS Resource table (QRES:RES_CTRL[idx]:RES_STAT%s)\n", res_stat_cur ? "_CUR" : "");
     pr("Idx  Resource Port No Chip Port Prio Value\n");
     pr("---- -------- ------- --------- ---- ----------\n");
 
     // Print shared SRC-MEM, because up-flows with CL_DP == 1 are counted here
     // and not in the masquerade port counters.
-    addr = res_stat_cur ? VTSS_QRES_RES_CTRL_RES_STAT_CUR(511)
-                        : VTSS_QRES_RES_CTRL_RES_STAT(511);
+    addr = res_stat_cur ? VTSS_QRES_RES_CTRL_RES_STAT_CUR(511) : VTSS_QRES_RES_CTRL_RES_STAT(511);
     JR2_RD(addr, &val);
     jr2_debug_qres_print(vtss_state, ss, 511, -1, 0, 7, val);
 
@@ -4076,8 +3711,7 @@ vtss_rc vtss_jr2_port_debug_qres(vtss_state_t *vtss_state,
                 JR2_RD(addr, &val);
                 if (val) {
                     // Only print non-zero values or we will be flooded.
-                    jr2_debug_qres_print(vtss_state, ss, idx, chip_port,
-                                         resource, prio, val);
+                    jr2_debug_qres_print(vtss_state, ss, idx, chip_port, resource, prio, val);
                 }
             }
         }
@@ -4168,21 +3802,16 @@ static vtss_rc jr2_debug_chip_kr(vtss_state_t                  *vtss_state,
     JR2_RD(VTSS_KR_DEV7_AN_SM_AN_SM(dev7), &an_sm);
     JR2_RD(VTSS_KR_DEV7_AN_HIST_AN_HIST(dev7), &hist);
     JR2_RD(VTSS_KR_DEV7_KR_7X0001_KR_7X0001(dev7), &aneg);
-    JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(
-               VTSS_TO_10G_PCS_TGT(port)),
-           &pcs);
+    JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(port)), &pcs);
     JR2_RD(VTSS_XFI_SHELL_XFI_CONTROL_XFI_STATUS(xfi), &xfis);
     JR2_RD(VTSS_KR_DEV1_KR_1X0097_KR_1X0097(dev1), &tr);
     JR2_RD(VTSS_XFI_SHELL_XFI_CONTROL_KR_CONTROL(xfi), &krc);
 
-    pr("an_sm              :%s\n",
-       fa_kr_aneg_sm(VTSS_X_KR_DEV7_AN_SM_AN_SM_AN_SM(an_sm)));
-    pr("an_complete        :%d\n",
-       VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_COMPLETE(aneg));
+    pr("an_sm              :%s\n", fa_kr_aneg_sm(VTSS_X_KR_DEV7_AN_SM_AN_SM_AN_SM(an_sm)));
+    pr("an_complete        :%d\n", VTSS_X_KR_DEV7_KR_7X0001_KR_7X0001_AN_COMPLETE(aneg));
     pr("aneg_active:       :%d\n",
        VTSS_X_XFI_SHELL_XFI_CONTROL_XFI_STATUS_ANEG_ACTIVE_STATUS(xfis));
-    pr("an_hist            :0x%x  ",
-       VTSS_X_KR_DEV7_AN_HIST_AN_HIST_AN_SM_HIST(hist));
+    pr("an_hist            :0x%x  ", VTSS_X_KR_DEV7_AN_HIST_AN_HIST_AN_SM_HIST(hist));
     if (hist > 0) {
         print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 0, 1), "AN_ENA(0)");
         print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 1, 1), "XMI_DIS(1)");
@@ -4201,42 +3830,29 @@ static vtss_rc jr2_debug_chip_kr(vtss_state_t                  *vtss_state,
         print_reg_bit(ss, VTSS_EXTRACT_BITFIELD(hist, 14, 1), "NPRX(14)");
     }
     pr("\n");
-    pr("tr_rcvr_rdy:       :%d\n",
-       VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_RCVR_RDY(tr));
-    pr("tr_fail:           :%d\n",
-       VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_TR_FAIL(tr));
+    pr("tr_rcvr_rdy:       :%d\n", VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_RCVR_RDY(tr));
+    pr("tr_fail:           :%d\n", VTSS_X_KR_DEV1_KR_1X0097_KR_1X0097_TR_FAIL(tr));
     pr("kr_control:        :0x%x\n", krc);
 
-    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
-            VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(1),
+    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7), VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(1),
             VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
-    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7),
-            VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(0),
+    JR2_WRM(VTSS_KR_DEV7_AN_CFG0_AN_CFG0(dev7), VTSS_F_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR(0),
             VTSS_M_KR_DEV7_AN_CFG0_AN_CFG0_AN_SM_HIST_CLR);
 
-    JR2_RD(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(VTSS_TO_DEV(port)),
-           &value);
+    JR2_RD(VTSS_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY(VTSS_TO_DEV(port)), &value);
     pr("\nLink status: %d:\n", (value == 2));
     pr("port          local_fault   remote_fault  idle_state    SD            rx_blk_lock   rx_hi_ber\n");
-    JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(VTSS_TO_10G_SRD_TGT(port)),
-           &sd);
-    JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(
-               VTSS_TO_10G_PCS_TGT(port)),
-           &pcs);
+    JR2_RD(VTSS_SD10G65_SD10G65_IB_SD10G65_IB_CFG10(VTSS_TO_10G_SRD_TGT(port)), &sd);
+    JR2_RD(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(port)), &pcs);
     pr("%-13d %-13d %-13d %-13d %-13d %-13d %-13d\n", port,
-       VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_LOCAL_ERR_STATE_STICKY(
-           value),
-       VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_REMOTE_ERR_STATE_STICKY(
-           value),
-       VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY(
-           value),
+       VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_LOCAL_ERR_STATE_STICKY(value),
+       VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_REMOTE_ERR_STATE_STICKY(value),
+       VTSS_X_DEV10G_MAC_CFG_STATUS_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY(value),
        VTSS_X_SD10G65_SD10G65_IB_SD10G65_IB_CFG10_IB_IA_SDET(sd),
        VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_BLOCK_LOCK(pcs),
        VTSS_X_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS_RX_HI_BER(pcs));
     // Clear the stickies
-    JR2_WR(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(
-               VTSS_TO_10G_PCS_TGT(port)),
-           0xFFFFFFFF);
+    JR2_WR(VTSS_PCS_10GBASE_R_PCS_10GBR_STATUS_PCS_STATUS(VTSS_TO_10G_PCS_TGT(port)), 0xFFFFFFFF);
 
     return VTSS_RC_OK;
 }
@@ -4258,8 +3874,7 @@ static vtss_rc jr2_debug_kr(vtss_state_t                  *vtss_state,
         pr("5: Disable parallel detect\n");
         return VTSS_RC_OK;
     }
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (info->port_list[port_no] == 0)
             continue;
         if (!vtss_state->port.kr_conf[port_no].aneg.enable)
@@ -4271,11 +3886,7 @@ static vtss_rc jr2_debug_kr(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static void jr2_debug_wm_dump(lmu_ss_t   *ss,
-                              const char *reg_name,
-                              u32        *value,
-                              u32         i,
-                              u32         multiplier)
+static void jr2_debug_wm_dump(lmu_ss_t *ss, const char *reg_name, u32 *value, u32 i, u32 multiplier)
 {
     u32 q;
     pr("%-25s", reg_name);
@@ -4327,23 +3938,18 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
     pr("Total Frame References : %d\n", JR2_BUFFER_REFERENCE);
     pr("Cell size              : %d bytes\n", JR2_BUFFER_CELL_SZ);
     pr("Oversubsription factor : %d\n", BUF_OVERSUBSRIPTION_FACTOR / 100);
-    pr("Num of ports configured: %d (including 2 CPU ports)\n",
-       vtss_state->port_count + 2);
+    pr("Num of ports configured: %d (including 2 CPU ports)\n", vtss_state->port_count + 2);
     JR2_RD(VTSS_QSYS_PAUSE_CFG_PAUSE_TOT_CFG, &value);
     pr("FC Pause TOT_START     : %d bytes\n",
-       wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_TOT_CFG_PAUSE_TOT_START(value)) *
-           JR2_BUFFER_CELL_SZ);
+       wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_TOT_CFG_PAUSE_TOT_START(value)) * JR2_BUFFER_CELL_SZ);
     pr("FC Pause TOT_STOP      : %d bytes\n",
-       wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_TOT_CFG_PAUSE_TOT_STOP(value)) *
-           JR2_BUFFER_CELL_SZ);
+       wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_TOT_CFG_PAUSE_TOT_STOP(value)) * JR2_BUFFER_CELL_SZ);
     JR2_RD(VTSS_QSYS_PAUSE_CFG_ATOP_TOT_CFG, &value);
     pr("FC ATOP_TOT            : %d bytes\n",
-       wm_dec(VTSS_X_QSYS_PAUSE_CFG_ATOP_TOT_CFG_ATOP_TOT(value)) *
-           JR2_BUFFER_CELL_SZ);
+       wm_dec(VTSS_X_QSYS_PAUSE_CFG_ATOP_TOT_CFG_ATOP_TOT(value)) * JR2_BUFFER_CELL_SZ);
     pr("\n");
 
-    for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2);
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2); port_no++) {
         if (port_no >= vtss_state->port_count) { /* This is a CPU port */
             /* CPU port */
             if (!info->full)
@@ -4366,20 +3972,15 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
         pr("Flow Control:\n");
         pr("------------\n");
         JR2_RD(VTSS_DSM_CFG_ETH_PFC_CFG(port), &value);
-        pr("PFC ena             : %d\n",
-           VTSS_X_DSM_CFG_ETH_PFC_CFG_PFC_ENA(value));
+        pr("PFC ena             : %d\n", VTSS_X_DSM_CFG_ETH_PFC_CFG_PFC_ENA(value));
         JR2_RD(VTSS_DSM_CFG_RX_PAUSE_CFG(port), &value);
-        pr("FC Rx ena (standard): %d\n",
-           (VTSS_X_DSM_CFG_RX_PAUSE_CFG_RX_PAUSE_EN(value)));
+        pr("FC Rx ena (standard): %d\n", (VTSS_X_DSM_CFG_RX_PAUSE_CFG_RX_PAUSE_EN(value)));
         JR2_RD(VTSS_QSYS_PAUSE_CFG_PAUSE_CFG(port), &value);
-        pr("FC Tx ena (standard): %d\n",
-           VTSS_X_QSYS_PAUSE_CFG_PAUSE_CFG_PAUSE_ENA(value));
+        pr("FC Tx ena (standard): %d\n", VTSS_X_QSYS_PAUSE_CFG_PAUSE_CFG_PAUSE_ENA(value));
         pr("FC Start    (Bytes) : %d\n",
-           wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_CFG_PAUSE_START(value)) *
-               JR2_BUFFER_CELL_SZ);
+           wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_CFG_PAUSE_START(value)) * JR2_BUFFER_CELL_SZ);
         pr("FC Stop     (Bytes) : %d\n",
-           wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_CFG_PAUSE_STOP(value)) *
-               JR2_BUFFER_CELL_SZ);
+           wm_dec(VTSS_X_QSYS_PAUSE_CFG_PAUSE_CFG_PAUSE_STOP(value)) * JR2_BUFFER_CELL_SZ);
         JR2_RD(VTSS_QSYS_PAUSE_CFG_ATOP(port), &value);
         pr("FC Atop     (Bytes) : %d\n",
            wm_dec(VTSS_X_QSYS_PAUSE_CFG_ATOP_ATOP(value)) * JR2_BUFFER_CELL_SZ);
@@ -4387,28 +3988,20 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
 
         /* Reserved amount for (PORT,PRIO) at index 8 * PORT + PRIO */
         for (q = 0; q < VTSS_PRIOS; q++) {
-            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 0)),
-                   &q_val1[q]);
-            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 1024)),
-                   &q_val2[q]);
-            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 2048)),
-                   &q_val3[q]);
-            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 3072)),
-                   &q_val4[q]);
-            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 4096)),
-                   &q_val5[q]);
+            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 0)), &q_val1[q]);
+            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 1024)), &q_val2[q]);
+            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 2048)), &q_val3[q]);
+            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 3072)), &q_val4[q]);
+            JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port * VTSS_PRIOS + q + 4096)), &q_val5[q]);
         }
 
         jr2_debug_wm_dump(ss, "Queue level:", q_id, 8, 1);
         pr("-----------\n");
-        jr2_debug_wm_dump(ss, "Qu Ingr Buf Rsrv (Bytes) :", q_val1, 8,
-                          JR2_BUFFER_CELL_SZ);
+        jr2_debug_wm_dump(ss, "Qu Ingr Buf Rsrv (Bytes) :", q_val1, 8, JR2_BUFFER_CELL_SZ);
         jr2_debug_wm_dump(ss, "Qu Ingr Ref Rsrv (Frames):", q_val2, 8, 1);
-        jr2_debug_wm_dump(ss, "Qu Egr Buf Rsrv  (Bytes) :", q_val3, 8,
-                          JR2_BUFFER_CELL_SZ);
+        jr2_debug_wm_dump(ss, "Qu Egr Buf Rsrv  (Bytes) :", q_val3, 8, JR2_BUFFER_CELL_SZ);
         jr2_debug_wm_dump(ss, "Qu Egr Ref Rsrv  (Frames):", q_val4, 8, 1);
-        jr2_debug_wm_dump(ss, "Qu Ingr PFC      (Bytes) :", q_val5, 8,
-                          JR2_BUFFER_CELL_SZ);
+        jr2_debug_wm_dump(ss, "Qu Ingr PFC      (Bytes) :", q_val5, 8, JR2_BUFFER_CELL_SZ);
         pr("\n");
 
         /* Reserved amount for PORT at index PORT + 512 */
@@ -4419,14 +4012,11 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
         JR2_RD(VTSS_QRES_RES_CTRL_RES_CFG((port + 512 + 4096)), &p_val5);
         pr("Port level:\n");
         pr("-----------\n");
-        pr("Port Ingress Buf Rsrv       (Bytes) : %u\n",
-           wm_dec(p_val1) * JR2_BUFFER_CELL_SZ);
+        pr("Port Ingress Buf Rsrv       (Bytes) : %u\n", wm_dec(p_val1) * JR2_BUFFER_CELL_SZ);
         pr("Port Ingress Ref Rsrv       (Frames): %u\n", wm_dec(p_val2));
-        pr("Port Egress  Buf Rsrv       (Bytes) : %u\n",
-           wm_dec(p_val3) * JR2_BUFFER_CELL_SZ);
+        pr("Port Egress  Buf Rsrv       (Bytes) : %u\n", wm_dec(p_val3) * JR2_BUFFER_CELL_SZ);
         pr("Port Egress  Ref Rsrv       (Frames): %u\n", wm_dec(p_val4));
-        pr("Port Ingress Buf Rsrv - PFC (Bytes) : %u\n",
-           wm_dec(p_val5) * JR2_BUFFER_CELL_SZ);
+        pr("Port Ingress Buf Rsrv - PFC (Bytes) : %u\n", wm_dec(p_val5) * JR2_BUFFER_CELL_SZ);
         pr("\n");
     }
 
@@ -4442,14 +4032,11 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
     }
     jr2_debug_wm_dump(ss, "QoS level:", q_id, 8, 1);
     pr("-----------\n");
-    jr2_debug_wm_dump(ss, "QoS Ingr Buf       (Bytes) :", c_val1, 8,
-                      JR2_BUFFER_CELL_SZ);
+    jr2_debug_wm_dump(ss, "QoS Ingr Buf       (Bytes) :", c_val1, 8, JR2_BUFFER_CELL_SZ);
     jr2_debug_wm_dump(ss, "QoS Ingr Ref       (Frames):", c_val2, 8, 1);
-    jr2_debug_wm_dump(ss, "QoS Egr Buf        (Bytes) :", c_val3, 8,
-                      JR2_BUFFER_CELL_SZ);
+    jr2_debug_wm_dump(ss, "QoS Egr Buf        (Bytes) :", c_val3, 8, JR2_BUFFER_CELL_SZ);
     jr2_debug_wm_dump(ss, "QoS Egr Ref        (Frames):", c_val4, 8, 1);
-    jr2_debug_wm_dump(ss, "QoS Ingr Buf - PFC (Bytes) :", c_val5, 8,
-                      JR2_BUFFER_CELL_SZ);
+    jr2_debug_wm_dump(ss, "QoS Ingr Buf - PFC (Bytes) :", c_val5, 8, JR2_BUFFER_CELL_SZ);
     pr("\n");
 
     /* Configure shared space for all DP levels (green:3 yellow:0-2) */
@@ -4470,14 +4057,11 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
     }
     jr2_debug_wm_dump(ss, "DP level:", dp_id, 4, 1);
     pr("-----------\n");
-    jr2_debug_wm_dump(ss, "DP Ingr Buf        (Bytes) :", dp_val1, 4,
-                      JR2_BUFFER_CELL_SZ);
+    jr2_debug_wm_dump(ss, "DP Ingr Buf        (Bytes) :", dp_val1, 4, JR2_BUFFER_CELL_SZ);
     jr2_debug_wm_dump(ss, "DP Ingr Ref        (Frames):", dp_val2, 4, 1);
-    jr2_debug_wm_dump(ss, "DP Egr Buf         (Bytes) :", dp_val3, 4,
-                      JR2_BUFFER_CELL_SZ);
+    jr2_debug_wm_dump(ss, "DP Egr Buf         (Bytes) :", dp_val3, 4, JR2_BUFFER_CELL_SZ);
     jr2_debug_wm_dump(ss, "DP Egr Ref         (Frames):", dp_val4, 4, 1);
-    jr2_debug_wm_dump(ss, "DP Ingr Buf - PFC  (Bytes) :", dp_val5, 4,
-                      JR2_BUFFER_CELL_SZ);
+    jr2_debug_wm_dump(ss, "DP Ingr Buf - PFC  (Bytes) :", dp_val5, 4, JR2_BUFFER_CELL_SZ);
     pr("\n");
 
     if (info->full) {
@@ -4492,24 +4076,16 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
                        &wm_high); /* Shared egress high watermark for queue -
                                      common for all dpls */
                 for (dpl = 0; dpl < VTSS_WRED_DPL_CNT; dpl++) {
-                    JR2_RD(VTSS_QRES_RES_WRED_WRED_PROFILE((24 * group) +
-                                                           (8 * dpl) + queue),
+                    JR2_RD(VTSS_QRES_RES_WRED_WRED_PROFILE((24 * group) + (8 * dpl) + queue),
                            &value);
-                    u32 wm_red_low =
-                        VTSS_X_QRES_RES_WRED_WRED_PROFILE_WM_RED_LOW(value);
-                    u32 wm_red_high =
-                        VTSS_X_QRES_RES_WRED_WRED_PROFILE_WM_RED_HIGH(value);
-                    pr("%5d %5d %3d 0x%04x %7u 0x%04x %7u 0x%04x %7u\n", group,
-                       queue, dpl + 1, wm_high,
-                       wm_dec(wm_high) *
-                           JR2_BUFFER_CELL_SZ, /* Convert from 176 byte chunks
-                                                  to bytes */
-                       wm_red_low,
-                       wm_red_low *
-                           2816, /* Convert from 2816 byte chunks to bytes */
+                    u32 wm_red_low = VTSS_X_QRES_RES_WRED_WRED_PROFILE_WM_RED_LOW(value);
+                    u32 wm_red_high = VTSS_X_QRES_RES_WRED_WRED_PROFILE_WM_RED_HIGH(value);
+                    pr("%5d %5d %3d 0x%04x %7u 0x%04x %7u 0x%04x %7u\n", group, queue, dpl + 1,
+                       wm_high, wm_dec(wm_high) * JR2_BUFFER_CELL_SZ, /* Convert from 176 byte
+                                                                         chunks to bytes */
+                       wm_red_low, wm_red_low * 2816, /* Convert from 2816 byte chunks to bytes */
                        wm_red_high,
-                       wm_red_high *
-                           2816); /* Convert from 2816 byte chunks to bytes */
+                       wm_red_high * 2816); /* Convert from 2816 byte chunks to bytes */
                 }
             }
         }
@@ -4517,12 +4093,10 @@ static vtss_rc jr2_debug_wm(vtss_state_t                  *vtss_state,
     pr("\n");
 
     pr("Burst capacity expected for one port (prio 7): %d bytes\n",
-       wm_dec(c_val1[7]) * JR2_BUFFER_CELL_SZ +
-           wm_dec(p_val1) * JR2_BUFFER_CELL_SZ +
+       wm_dec(c_val1[7]) * JR2_BUFFER_CELL_SZ + wm_dec(p_val1) * JR2_BUFFER_CELL_SZ +
            wm_dec(p_val3) * JR2_BUFFER_CELL_SZ);
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         port = VTSS_CHIP_PORT(port_no);
 #if defined(VTSS_ARCH_JAGUAR_2_C)
         JR2_RD(VTSS_XQS_SYSTEM_FWD_DROP_EVENTS(port), &value);
@@ -4552,14 +4126,11 @@ vtss_rc vtss_jr2_port_debug_print(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, jr2_debug_port,
-                                   vtss_state, ss, info));
-    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT,
-                                   jr2_debug_port_cnt, vtss_state, ss, info));
-    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, jr2_debug_wm,
-                                   vtss_state, ss, info));
-    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_KR, jr2_debug_kr,
-                                   vtss_state, ss, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, jr2_debug_port, vtss_state, ss, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT, jr2_debug_port_cnt, vtss_state, ss,
+                                   info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, jr2_debug_wm, vtss_state, ss, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_KR, jr2_debug_kr, vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 
@@ -4597,23 +4168,15 @@ static vtss_rc jr2_init_ana(vtss_state_t *vtss_state)
 #endif
     JR2_WR(VTSS_ANA_AC_PS_STICKY_MASK_STICKY_MASK(0),
            VTSS_M_ANA_AC_PS_STICKY_MASK_STICKY_MASK_ZERO_DST_STICKY_MASK);
-    JR2_WR(
-        VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(
-            JR2_CNT_ANA_AC_PORT_FILTER),
-        VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(
-            1 << 0));
-    JR2_WR(
-        VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(
-            JR2_CNT_ANA_AC_PORT_POLICER_DROPS),
-        VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(
-            mask));
+    JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(JR2_CNT_ANA_AC_PORT_FILTER),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(1 << 0));
+    JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK(JR2_CNT_ANA_AC_PORT_POLICER_DROPS),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(mask));
     for (port = 0; port < VTSS_CHIP_PORTS_ALL; port++) {
-        JR2_WR(VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG(port,
-                                                      JR2_CNT_ANA_AC_PORT_FILTER),
+        JR2_WR(VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG(port, JR2_CNT_ANA_AC_PORT_FILTER),
                VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG_CFG_PRIO_MASK(0xff) |
                    VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG_CFG_CNT_FRM_TYPE(1));
-        JR2_WR(VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG(
-                   port, JR2_CNT_ANA_AC_PORT_POLICER_DROPS),
+        JR2_WR(VTSS_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG(port, JR2_CNT_ANA_AC_PORT_POLICER_DROPS),
                VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG_CFG_PRIO_MASK(0xff) |
                    VTSS_F_ANA_AC_STAT_CNT_CFG_PORT_STAT_CFG_CFG_CNT_FRM_TYPE(1));
     }
@@ -4624,11 +4187,8 @@ static vtss_rc jr2_init_ana(vtss_state_t *vtss_state)
             VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_PORT_FC_ENA);
 
     /* Setup ANA_AC to count non-FCS errors per queue */
-    JR2_WR(
-        VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG(
-            JR2_CNT_ANA_AC_QUEUE_PRIO),
-        VTSS_F_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG_GLOBAL_CFG_CNT_FRM_TYPE(
-            0));
+    JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG(JR2_CNT_ANA_AC_QUEUE_PRIO),
+           VTSS_F_ANA_AC_STAT_GLOBAL_CFG_QUEUE_GLOBAL_CNT_FRM_TYPE_CFG_GLOBAL_CFG_CNT_FRM_TYPE(0));
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
     if (!vtss_state->init_conf.vlan_counters_disable) {
@@ -4654,27 +4214,23 @@ static vtss_rc jr2_init_ana(vtss_state_t *vtss_state)
             // 0/3: Green, 1/4: Yellow, 2/5: Red
         }
         value = (1 << j);
-        JR2_WR(
-            VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG(i),
-            VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(
-                i < 3 ? 1 : 0));
-        JR2_WR(
-            VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK(i),
-            VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(
-                value));
+        JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG(i),
+               VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(i < 3 ? 1
+                                                                                            : 0));
+        JR2_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK(i),
+               VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ISDX_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(value));
     }
 
     /* Now, wait until initilization is complete */
 
     /* Await policer init */
 #if defined(VTSS_ARCH_SERVAL_T)
-    JR2_POLL_MASK(
-        VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG,
-        VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_STORM_FORCE_INIT |
-            //                   VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_PRIO_FORCE_INIT
-            //                   | // Not currently working - BJO
-            VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_ACL_FORCE_INIT |
-            VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_FORCE_INIT);
+    JR2_POLL_MASK(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG,
+                  VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_STORM_FORCE_INIT |
+                      //                   VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_PRIO_FORCE_INIT
+                      //                   | // Not currently working - BJO
+                      VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_ACL_FORCE_INIT |
+                      VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG_FORCE_INIT);
 #else
 
     JR2_POLL_MASK(VTSS_ANA_AC_POL_POL_ALL_CFG_POL_ALL_CFG,
@@ -4704,11 +4260,9 @@ static vtss_rc jr2_port_init(vtss_state_t *vtss_state)
     JR2_WR(VTSS_DEVCPU_GCB_PHY_PHY_CFG, 0);
 
     JR2_WRM(VTSS_DEVCPU_GCB_PHY_PHY_CFG,
-            VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_RESET(3) |
-                VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_ENA(3) |
+            VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_RESET(3) | VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_ENA(3) |
                 VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_COMMON_RESET(1),
-            VTSS_M_DEVCPU_GCB_PHY_PHY_CFG_PHY_RESET |
-                VTSS_M_DEVCPU_GCB_PHY_PHY_CFG_PHY_ENA |
+            VTSS_M_DEVCPU_GCB_PHY_PHY_CFG_PHY_RESET | VTSS_M_DEVCPU_GCB_PHY_PHY_CFG_PHY_ENA |
                 VTSS_M_DEVCPU_GCB_PHY_PHY_CFG_PHY_COMMON_RESET);
 
     // Bug in ServalT Rev. A chip. Sometime PLL is not running with correct
@@ -4720,8 +4274,7 @@ static vtss_rc jr2_port_init(vtss_state_t *vtss_state)
             JR2_RD(VTSS_DEVCPU_GCB_PHY_PHY_STAT, &val);
             VTSS_MSLEEP(1);
 
-            if (VTSS_X_DEVCPU_GCB_PHY_PHY_STAT_SUPERVISOR_COMPLETE(val) ||
-                (msec > 200)) {
+            if (VTSS_X_DEVCPU_GCB_PHY_PHY_STAT_SUPERVISOR_COMPLETE(val) || (msec > 200)) {
                 if (msec < 100) {
                     VTSS_E(
                         "---------------------> PHYs NOT working, please power cycle the board (Waited %d ms for Phy supervisor) <--------------------------\n",
@@ -4740,17 +4293,13 @@ static vtss_rc jr2_port_init(vtss_state_t *vtss_state)
         //        port));
     }
 #if defined(VTSS_ARCH_SERVAL_T)
-    VTSS_RC(jr2_sd6g_cfg(vtss_state, VTSS_PORT_NO_START,
-                         VTSS_SERDES_MODE_DISABLE,
+    VTSS_RC(jr2_sd6g_cfg(vtss_state, VTSS_PORT_NO_START, VTSS_SERDES_MODE_DISABLE,
                          0x3)); // 2 * 6G - From DS1185-Serval-T_port_conf.xlsx
-    VTSS_RC(jr2_sd1g_cfg(vtss_state, VTSS_PORT_NO_START,
-                         VTSS_SERDES_MODE_DISABLE,
+    VTSS_RC(jr2_sd1g_cfg(vtss_state, VTSS_PORT_NO_START, VTSS_SERDES_MODE_DISABLE,
                          0x1F)); // 5 * 1G - From DS1185-Serval-T_port_conf.xlsx
 #else
-    VTSS_RC(jr2_sd6g_cfg(vtss_state, VTSS_PORT_NO_START,
-                         VTSS_SERDES_MODE_DISABLE, 0xFFFFFF));
-    VTSS_RC(jr2_sd1g_cfg(vtss_state, VTSS_PORT_NO_START,
-                         VTSS_SERDES_MODE_DISABLE, 0xFF));
+    VTSS_RC(jr2_sd6g_cfg(vtss_state, VTSS_PORT_NO_START, VTSS_SERDES_MODE_DISABLE, 0xFFFFFF));
+    VTSS_RC(jr2_sd1g_cfg(vtss_state, VTSS_PORT_NO_START, VTSS_SERDES_MODE_DISABLE, 0xFF));
 #endif
 
     // Gotta disable ingress and egress queue limitation, because directed
@@ -4773,19 +4322,16 @@ static vtss_rc jr2_port_init(vtss_state_t *vtss_state)
 
     // Count QS drops at egress port
 #if defined(VTSS_ARCH_SERVAL_T)
-    JR2_WR(VTSS_QFWD_SYSTEM_STAT_CNT_CFG,
-           VTSS_F_QFWD_SYSTEM_STAT_CNT_CFG_DROP_COUNT_EGRESS(1));
+    JR2_WR(VTSS_QFWD_SYSTEM_STAT_CNT_CFG, VTSS_F_QFWD_SYSTEM_STAT_CNT_CFG_DROP_COUNT_EGRESS(1));
 #else
-    JR2_WR(VTSS_XQS_SYSTEM_STAT_CNT_CFG,
-           VTSS_F_XQS_SYSTEM_STAT_CNT_CFG_DROP_COUNT_EGRESS(1));
+    JR2_WR(VTSS_XQS_SYSTEM_STAT_CNT_CFG, VTSS_F_XQS_SYSTEM_STAT_CNT_CFG_DROP_COUNT_EGRESS(1));
 #endif
 
     // Make sure the ports are not VStaX aware, because that will cause the
     // switch to move a possible VStaX header from the frame into the IFH.
     // This is not NPI-port compatible.
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
-        JR2_WRM(VTSS_ASM_CFG_PORT_CFG(port),
-                VTSS_F_ASM_CFG_PORT_CFG_VSTAX2_AWR_ENA(0),
+        JR2_WRM(VTSS_ASM_CFG_PORT_CFG(port), VTSS_F_ASM_CFG_PORT_CFG_VSTAX2_AWR_ENA(0),
                 VTSS_M_ASM_CFG_PORT_CFG_VSTAX2_AWR_ENA);
     }
 

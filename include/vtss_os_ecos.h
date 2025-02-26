@@ -17,23 +17,21 @@
 #include <sys/types.h>
 
 #include <cyg/kernel/kapi.h>
-#include <cyg/hal/hal_cache.h> /* For cache line size and cache manipulation routines */
-#include <cyg/hal/hal_arch.h> /* For HAL_REORDER_BARRIER()                           */
+#include <cyg/hal/hal_cache.h>  /* For cache line size and cache manipulation routines */
+#include <cyg/hal/hal_arch.h>   /* For HAL_REORDER_BARRIER()                           */
 #include <cyg/hal/hal_endian.h> /* For endianness                                      */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define VTSS_MSLEEP(msec)                                                      \
-    HAL_DELAY_US(msec * 1000) /**< Sleep for "msec" milliseconds */
-#define VTSS_NSLEEP(nsec)                                                      \
-    HAL_DELAY_US((nsec) / 1000) /**< Sleep for "nsec" nanoseconds  */
+#define VTSS_MSLEEP(msec) HAL_DELAY_US(msec * 1000)   /**< Sleep for "msec" milliseconds */
+#define VTSS_NSLEEP(nsec) HAL_DELAY_US((nsec) / 1000) /**< Sleep for "nsec" nanoseconds  */
 
 typedef cyg_tick_count_t vtss_mtimer_t; /**< Timer */
-#define VTSS_MTIMER_START(pTimer, msec)                                        \
+#define VTSS_MTIMER_START(pTimer, msec)                                                            \
     *pTimer = cyg_current_time() + ((msec) / 10) + 1 /**< Starting Timer */
-#define VTSS_MTIMER_TIMEOUT(pTimer)                                            \
+#define VTSS_MTIMER_TIMEOUT(pTimer)                                                                \
     (cyg_current_time() > *(pTimer)) /**< Timer timeout                     */
 #define VTSS_MTIMER_CANCEL(pTimer)   /**< No action in this implementation. */
 
@@ -42,9 +40,8 @@ typedef struct {
     u32 sec; /**< Time of day in seconds */
 } vtss_timeofday_t;
 
-#define VTSS_TIME_OF_DAY(tod)                                                  \
-    (tod.sec = (cyg_current_time() /                                           \
-                CYGNUM_HAL_RTC_DENOMINATOR)) /**< Time of day macro */
+#define VTSS_TIME_OF_DAY(tod)                                                                      \
+    (tod.sec = (cyg_current_time() / CYGNUM_HAL_RTC_DENOMINATOR)) /**< Time of day macro */
 
 /**
  * \brief Obtain the absolute value of a long long integer.
@@ -54,12 +51,10 @@ typedef struct {
  */
 extern long long int llabs(long long int val);
 
-#define VTSS_DIV64(dividend, divisor)                                          \
-    ((dividend) / (divisor)) /**< support for 64 bit division */
-#define VTSS_MOD64(dividend, divisor)                                          \
-    ((dividend) % (divisor))       /**< support for 64 bit division */
-#define VTSS_LABS(arg)  labs(arg)  /**< long to abs */
-#define VTSS_LLABS(arg) llabs(arg) /**< long long to abs */
+#define VTSS_DIV64(dividend, divisor) ((dividend) / (divisor)) /**< support for 64 bit division */
+#define VTSS_MOD64(dividend, divisor) ((dividend) % (divisor)) /**< support for 64 bit division */
+#define VTSS_LABS(arg)                labs(arg)                /**< long to abs */
+#define VTSS_LLABS(arg)               llabs(arg)               /**< long long to abs */
 
 /**
  * Count trailing zeros of a 32-bit unsigned.
@@ -182,8 +177,7 @@ void vtss_callout_free(void *ptr, vtss_mem_flags_t flags);
  * Invalidate \@size bytes at virtual address \@virt_addr of the DCache.
  * After invalidation, the invalidated area will be fetched from RAM.
  */
-#define VTSS_OS_DCACHE_INVALIDATE(virt_addr, size)                             \
-    HAL_DCACHE_INVALIDATE(virt_addr, size)
+#define VTSS_OS_DCACHE_INVALIDATE(virt_addr, size) HAL_DCACHE_INVALIDATE(virt_addr, size)
 
 /**
  * Force a write of \@size bytes of dirty cache lines to RAM starting at
@@ -212,11 +206,9 @@ void vtss_callout_free(void *ptr, vtss_mem_flags_t flags);
 #else
 
 /* Yes, this looks clumsy, but its not possible to use <sys/byteorder.h> */
-#define VTSS_OS_NTOHL(v1)                                                      \
-    ((((v1) >> 24) & 0x000000FF) | (((v1) >> 8) & 0x0000FF00) |                \
-     (((v1) << 8) & 0x00FF0000) |                                              \
-     (((v1) << 24) &                                                           \
-      0xFF000000)) /**< Convert a 32-bit value from network to host order */
+#define VTSS_OS_NTOHL(v1)                                                                          \
+    ((((v1) >> 24) & 0x000000FF) | (((v1) >> 8) & 0x0000FF00) | (((v1) << 8) & 0x00FF0000) |       \
+     (((v1) << 24) & 0xFF000000)) /**< Convert a 32-bit value from network to host order */
 
 #endif
 

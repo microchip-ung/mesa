@@ -55,12 +55,11 @@ typedef struct vtss_sd10g65_jaguar2_lc_softctrl_cfg_t {
 /* ================================================================= *
  *  Function prototypes
  * ================================================================= */
-vtss_rc vtss_sd10g65_jaguar2_lc_softctrl_args_init(
-    vtss_sd10g65_jaguar2_lc_softctrl_args_t *const init_val);
-vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(
-    vtss_state_t                                 *vtss_state,
-    const vtss_sd10g65_jaguar2_lc_softctrl_args_t config,
-    const vtss_port_no_t                          port_no);
+vtss_rc vtss_sd10g65_jaguar2_lc_softctrl_args_init(vtss_sd10g65_jaguar2_lc_softctrl_args_t
+                                                       *const init_val);
+vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(vtss_state_t                                 *vtss_state,
+                                         const vtss_sd10g65_jaguar2_lc_softctrl_args_t config,
+                                         const vtss_port_no_t                          port_no);
 
 #endif
 #endif

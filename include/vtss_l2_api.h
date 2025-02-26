@@ -67,16 +67,15 @@ extern "C" {
 #endif
 
 #if defined(VTSS_FEATURE_VSTAX)
-#define VTSS_VSTAX_UPSIDS      (32) /**< Number of UPSIDs    */
-#define VTSS_VSTAX_UPSID_START (0)  /**< First UPSID value   */
+#define VTSS_VSTAX_UPSIDS      (32)                   /**< Number of UPSIDs    */
+#define VTSS_VSTAX_UPSID_START (0)                    /**< First UPSID value   */
 #define VTSS_VSTAX_UPSID_MIN   VTSS_VSTAX_UPSID_START /**< Minimum UPSID value */
-#define VTSS_VSTAX_UPSID_MAX                                                   \
+#define VTSS_VSTAX_UPSID_MAX                                                                       \
     (VTSS_VSTAX_UPSID_MIN + VTSS_VSTAX_UPSIDS - 1) /**< Maximum UPSID value */
-#define VTSS_VSTAX_UPSID_LEGAL(upsid)                                          \
-    (VTSS_VSTAX_UPSID_MIN <= (upsid) &&                                        \
+#define VTSS_VSTAX_UPSID_LEGAL(upsid)                                                              \
+    (VTSS_VSTAX_UPSID_MIN <= (upsid) &&                                                            \
      (upsid) <= VTSS_VSTAX_UPSID_MAX) /**< Checks if UPSIDs is legal */
-#define VTSS_VSTAX_UPSID_UNDEF                                                 \
-    (-1) /**< Undefined UPSID. Only applicable in selected contexts */
+#define VTSS_VSTAX_UPSID_UNDEF (-1)   /**< Undefined UPSID. Only applicable in selected contexts */
 
 #define VTSS_UPSPN_CPU  0xfffffffe /**< MAC address entry is from CPU */
 #define VTSS_UPSPN_NONE 0xffffffff /**< Used to indicate end of GLAG list */
@@ -84,11 +83,11 @@ extern "C" {
 
 /** \brief MAC address entry */
 typedef struct {
-    vtss_vid_mac_t vid_mac; /**< VLAN ID and MAC addr */
+    vtss_vid_mac_t vid_mac;                           /**< VLAN ID and MAC addr */
     BOOL           destination[VTSS_PORT_ARRAY_SIZE]; /**< Dest. ports */
-    BOOL           copy_to_cpu;      /**< CPU copy flag for DMAC lookup */
-    BOOL           copy_to_cpu_smac; /**< CPU copy flag for SMAC lookup */
-    BOOL           locked;           /**< Locked/static flag */
+    BOOL           copy_to_cpu;                       /**< CPU copy flag for DMAC lookup */
+    BOOL           copy_to_cpu_smac;                  /**< CPU copy flag for SMAC lookup */
+    BOOL           locked;                            /**< Locked/static flag */
 #if defined(VTSS_FEATURE_MAC_INDEX_TABLE)
     BOOL index_table; /**< Index table used */
 #endif
@@ -104,8 +103,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_mac_table_add(const vtss_inst_t                   inst,
-                           const vtss_mac_table_entry_t *const entry);
+vtss_rc vtss_mac_table_add(const vtss_inst_t inst, const vtss_mac_table_entry_t *const entry);
 
 /**
  * \brief Delete MAC address entry.
@@ -115,8 +113,7 @@ vtss_rc vtss_mac_table_add(const vtss_inst_t                   inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_mac_table_del(const vtss_inst_t           inst,
-                           const vtss_vid_mac_t *const vid_mac);
+vtss_rc vtss_mac_table_del(const vtss_inst_t inst, const vtss_vid_mac_t *const vid_mac);
 
 /**
  * \brief Get MAC address entry.
@@ -206,8 +203,7 @@ vtss_rc vtss_mac_table_flush(const vtss_inst_t inst);
  *
  * \return Return code.
  **/
-vtss_rc vtss_mac_table_port_flush(const vtss_inst_t    inst,
-                                  const vtss_port_no_t port_no);
+vtss_rc vtss_mac_table_port_flush(const vtss_inst_t inst, const vtss_port_no_t port_no);
 
 /**
  * \brief Delete MAC address entries learned on VLAN ID.
@@ -248,8 +244,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_mac_table_status_get(const vtss_inst_t              inst,
-                                  vtss_mac_table_status_t *const status);
+vtss_rc vtss_mac_table_status_get(const vtss_inst_t inst, vtss_mac_table_status_t *const status);
 
 /** \brief Learning mode */
 typedef struct {
@@ -324,9 +319,7 @@ vtss_rc vtss_port_state_get(const vtss_inst_t    inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_state_set(const vtss_inst_t    inst,
-                            const vtss_port_no_t port_no,
-                            BOOL                 state);
+vtss_rc vtss_port_state_set(const vtss_inst_t inst, const vtss_port_no_t port_no, BOOL state);
 
 /* - Spanning Tree ------------------------------------------------- */
 
@@ -390,10 +383,10 @@ vtss_rc vtss_stp_port_state_set(const vtss_inst_t      inst,
 /** \brief MSTP instance number */
 typedef u32 vtss_msti_t;
 
-#define VTSS_MSTIS           (65) /**<  Number of MSTP instances */
-#define VTSS_MSTI_START      (0)  /**< MSTI start number */
+#define VTSS_MSTIS           (65)                           /**<  Number of MSTP instances */
+#define VTSS_MSTI_START      (0)                            /**< MSTI start number */
 #define VTSS_MSTI_END        (VTSS_MSTI_START + VTSS_MSTIS) /**< MSTI end number */
-#define VTSS_MSTI_ARRAY_SIZE VTSS_MSTI_END /**< MSTI array size */
+#define VTSS_MSTI_ARRAY_SIZE VTSS_MSTI_END                  /**< MSTI array size */
 
 /**
  * \brief Get MSTP instance mapping for a VLAN.
@@ -513,8 +506,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_vlan_conf_get(const vtss_inst_t       inst,
-                           vtss_vlan_conf_t *const conf);
+vtss_rc vtss_vlan_conf_get(const vtss_inst_t inst, vtss_vlan_conf_t *const conf);
 
 /**
  * \brief Set VLAN configuration.
@@ -524,8 +516,7 @@ vtss_rc vtss_vlan_conf_get(const vtss_inst_t       inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_vlan_conf_set(const vtss_inst_t             inst,
-                           const vtss_vlan_conf_t *const conf);
+vtss_rc vtss_vlan_conf_set(const vtss_inst_t inst, const vtss_vlan_conf_t *const conf);
 
 /** \brief VLAN port type configuration */
 typedef enum {
@@ -537,11 +528,11 @@ typedef enum {
 
 /** \brief VLAN port configuration */
 typedef struct {
-    vtss_vlan_port_type_t port_type; /**< Port type (ingress and egress) */
-    vtss_vid_t            pvid;      /**< Port VLAN ID (PVID, ingress) */
-    vtss_vid_t        untagged_vid; /**< Port untagged VLAN ID (UVID, egress) */
-    vtss_vlan_frame_t frame_type;   /**< Acceptable frame type (ingress) */
-    BOOL              ingress_filter; /**< Ingress filtering */
+    vtss_vlan_port_type_t port_type;      /**< Port type (ingress and egress) */
+    vtss_vid_t            pvid;           /**< Port VLAN ID (PVID, ingress) */
+    vtss_vid_t            untagged_vid;   /**< Port untagged VLAN ID (UVID, egress) */
+    vtss_vlan_frame_t     frame_type;     /**< Acceptable frame type (ingress) */
+    BOOL                  ingress_filter; /**< Ingress filtering */
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_etype_t s_etype; /**< Alternative S-tag Ethernet Type, if non-zero */
 #endif
@@ -584,7 +575,7 @@ vtss_rc vtss_vlan_port_conf_set(const vtss_inst_t                  inst,
  **/
 vtss_rc vtss_vlan_port_members_get(const vtss_inst_t inst,
                                    const vtss_vid_t  vid,
-                                   BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                   BOOL              member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set VLAN membership.
@@ -597,7 +588,7 @@ vtss_rc vtss_vlan_port_members_get(const vtss_inst_t inst,
  **/
 vtss_rc vtss_vlan_port_members_set(const vtss_inst_t inst,
                                    const vtss_vid_t  vid,
-                                   const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                   const BOOL        member[VTSS_PORT_ARRAY_SIZE]);
 
 /** \brief VLAN ID configuration */
 typedef struct {
@@ -669,10 +660,9 @@ vtss_rc vtss_vlan_tx_tag_get(const vtss_inst_t  inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_vlan_tx_tag_set(const vtss_inst_t inst,
-                             const vtss_vid_t  vid,
-                             const vtss_vlan_tx_tag_t
-                                 tx_tag[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_vlan_tx_tag_set(const vtss_inst_t        inst,
+                             const vtss_vid_t         vid,
+                             const vtss_vlan_tx_tag_t tx_tag[VTSS_PORT_ARRAY_SIZE]);
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
 /** \brief Container for VLAN counters */
@@ -683,12 +673,9 @@ typedef struct {
 
 /** \brief VLAN counters */
 typedef struct {
-    vtss_vlan_counter_types_t
-        rx_vlan_unicast; /**< Number of received unicast frames or bytes */
-    vtss_vlan_counter_types_t
-        rx_vlan_multicast; /**< Number of received multicast frames or bytes */
-    vtss_vlan_counter_types_t
-        rx_vlan_broadcast; /**< Number of received broadcast frames or bytes */
+    vtss_vlan_counter_types_t rx_vlan_unicast;   /**< Number of received unicast frames or bytes */
+    vtss_vlan_counter_types_t rx_vlan_multicast; /**< Number of received multicast frames or bytes */
+    vtss_vlan_counter_types_t rx_vlan_broadcast; /**< Number of received broadcast frames or bytes */
 } vtss_vlan_counters_t;
 
 /**
@@ -745,7 +732,7 @@ vtss_rc vtss_vlan_counters_clear(const vtss_inst_t inst, const vtss_vid_t vid);
 
 /** \brief VCL port configuration */
 typedef struct {
-    BOOL dmac_dip; /**< Enable DMAC/DIP matching (default SMAC/SIP) */
+    BOOL                 dmac_dip; /**< Enable DMAC/DIP matching (default SMAC/SIP) */
     vtss_vcap_key_type_t key_type; /**< Key type for VCL lookup */
 } vtss_vcl_port_conf_t;
 
@@ -788,11 +775,10 @@ typedef enum {
 /** \brief VCE ID type */
 typedef u32 vtss_vce_id_t;
 
-#define VTSS_VCL_IDS      256 /**< Number of VCLs */
-#define VTSS_VCL_ID_START 0   /**< VCL ID start number */
-#define VTSS_VCL_ID_END                                                        \
-    (VTSS_VCL_ID_START + VTSS_VCL_IDS)      /**< VCL ID end number */
-#define VTSS_VCL_ARRAY_SIZE VTSS_VCL_ID_END /**< VCL ID array size */
+#define VTSS_VCL_IDS        256                                /**< Number of VCLs */
+#define VTSS_VCL_ID_START   0                                  /**< VCL ID start number */
+#define VTSS_VCL_ID_END     (VTSS_VCL_ID_START + VTSS_VCL_IDS) /**< VCL ID end number */
+#define VTSS_VCL_ARRAY_SIZE VTSS_VCL_ID_END                    /**< VCL ID array size */
 
 #define VTSS_VCE_ID_LAST 0 /**< Special value used to add last in list */
 
@@ -900,9 +886,8 @@ typedef struct {
     BOOL                 pop_enable; /**< Tag pop enable */
     u8                   pop_cnt;    /**< Tag pop count */
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-    vtss_imap_sel_t map_sel; /**< Ingress map selection */
-    vtss_qos_ingress_map_id_t
-        map_id; /**< Ingress map to use for classification */
+    vtss_imap_sel_t           map_sel; /**< Ingress map selection */
+    vtss_qos_ingress_map_id_t map_id;  /**< Ingress map to use for classification */
 #endif
 #if defined(VTSS_FEATURE_XFLOW)
     vtss_iflow_id_t   flow_id;    /**< Ingress flow ID */
@@ -938,9 +923,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_vce_init(const vtss_inst_t     inst,
-                      const vtss_vce_type_t type,
-                      vtss_vce_t *const     vce);
+vtss_rc vtss_vce_init(const vtss_inst_t inst, const vtss_vce_type_t type, vtss_vce_t *const vce);
 
 /**
  * \brief Add/modify VCE.
@@ -998,8 +981,7 @@ vtss_rc vtss_ingress_cnt_alloc(const vtss_inst_t            inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_ingress_cnt_free(const vtss_inst_t           inst,
-                              const vtss_ingress_cnt_id_t id);
+vtss_rc vtss_ingress_cnt_free(const vtss_inst_t inst, const vtss_ingress_cnt_id_t id);
 
 /** \brief Ingress counters */
 typedef struct {
@@ -1011,14 +993,12 @@ typedef struct {
 
     // The following counters are only valid in PSFP mode
 #if defined(VTSS_FEATURE_PSFP)
-    vtss_counter_t rx_match;     // MatchingFramesCount: Rx matching frames
-    vtss_counter_t rx_gate_pass; // PassingFramesCount: Rx passed gate
-    vtss_counter_t
-        rx_gate_discard; // NotPassingFramesCount: Rx discarded by gate
-    vtss_counter_t
-        rx_sdu_pass; // PassingSDUCount: Rx passed maximum SDU size filter
-    vtss_counter_t rx_sdu_discard; // NotPassingSDUCount: Rx discarded by
-                                   // maximum SDU size filter
+    vtss_counter_t rx_match;        // MatchingFramesCount: Rx matching frames
+    vtss_counter_t rx_gate_pass;    // PassingFramesCount: Rx passed gate
+    vtss_counter_t rx_gate_discard; // NotPassingFramesCount: Rx discarded by gate
+    vtss_counter_t rx_sdu_pass;     // PassingSDUCount: Rx passed maximum SDU size filter
+    vtss_counter_t rx_sdu_discard;  // NotPassingSDUCount: Rx discarded by
+                                    // maximum SDU size filter
 #endif
 
     // The following counters are valid in any mode
@@ -1084,8 +1064,7 @@ vtss_rc vtss_dlb_policer_alloc(const vtss_inst_t            inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_dlb_policer_free(const vtss_inst_t           inst,
-                              const vtss_dlb_policer_id_t id);
+vtss_rc vtss_dlb_policer_free(const vtss_inst_t inst, const vtss_dlb_policer_id_t id);
 
 /**
  * \brief Get DLB policer configuration.
@@ -1233,34 +1212,34 @@ typedef u16 vtss_eflow_id_t;
 /** \brief TCE Key */
 typedef struct {
     BOOL       port_list[VTSS_PORT_ARRAY_SIZE]; /**< Port list */
-    vtss_vid_t vid; /**< Classified VLAN ID (zero means any VID) */
+    vtss_vid_t vid;                             /**< Classified VLAN ID (zero means any VID) */
 #if defined(VTSS_FEATURE_XFLOW)
-    BOOL flow_enable;        /**< Enable ingress flow ID instead of VLAN ID */
-    vtss_iflow_id_t flow_id; /**< Ingress flow ID */
+    BOOL            flow_enable; /**< Enable ingress flow ID instead of VLAN ID */
+    vtss_iflow_id_t flow_id;     /**< Ingress flow ID */
 #endif
 } vtss_tce_key_t;
 
 /** \brief TCE TPID selection */
 typedef enum {
-    VTSS_TPID_SEL_PORT, /**< Tag pushed according to port VLAN configuration */
-    VTSS_TPID_SEL_NONE, /**< No tag pushed */
-    VTSS_TPID_SEL_C,    /**< C-tag pushed */
-    VTSS_TPID_SEL_S,    /**< S-tag pushed */
+    VTSS_TPID_SEL_PORT,    /**< Tag pushed according to port VLAN configuration */
+    VTSS_TPID_SEL_NONE,    /**< No tag pushed */
+    VTSS_TPID_SEL_C,       /**< C-tag pushed */
+    VTSS_TPID_SEL_S,       /**< S-tag pushed */
     VTSS_TPID_SEL_S_CUSTOM /**< S-custom tag pushed */
 } vtss_tpid_sel_t;
 
 /** \brief TCE PCP selection */
 typedef enum {
-    VTSS_PCP_SEL_PORT,  /**< PCP selected according to port QoS configuration */
-    VTSS_PCP_SEL_FIXED, /**< Fixed PCP value */
+    VTSS_PCP_SEL_PORT,       /**< PCP selected according to port QoS configuration */
+    VTSS_PCP_SEL_FIXED,      /**< Fixed PCP value */
     VTSS_PCP_SEL_CLASSIFIED, /**< Classified PCP value */
     VTSS_PCP_SEL_MAPPED      /**< Mapped PCP value */
 } vtss_pcp_sel_t;
 
 /** \brief TCE DEI selection */
 typedef enum {
-    VTSS_DEI_SEL_PORT,  /**< DEI selected according to port QoS configuration */
-    VTSS_DEI_SEL_FIXED, /**< Fixed DEI value */
+    VTSS_DEI_SEL_PORT,       /**< DEI selected according to port QoS configuration */
+    VTSS_DEI_SEL_FIXED,      /**< Fixed DEI value */
     VTSS_DEI_SEL_CLASSIFIED, /**< Classified DEI value */
     VTSS_DEI_SEL_MAPPED      /**< Mapped DEI value */
 } vtss_dei_sel_t;
@@ -1376,8 +1355,7 @@ vtss_rc vtss_egress_cnt_alloc(const vtss_inst_t           inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_egress_cnt_free(const vtss_inst_t          inst,
-                             const vtss_egress_cnt_id_t id);
+vtss_rc vtss_egress_cnt_free(const vtss_inst_t inst, const vtss_egress_cnt_id_t id);
 
 /** \brief Egress counters */
 typedef struct {
@@ -1503,41 +1481,32 @@ vtss_rc vtss_eflow_conf_set(const vtss_inst_t              inst,
 
     By default, no VLAN translation rules are setup.
 */
-#define VTSS_VLAN_TRANS_GROUP_MAX_CNT                                          \
-    VTSS_PORTS /**< Maximum VLAN Translation Groups count          */
-#define VTSS_VLAN_TRANS_MAX_CNT                                                \
-    256 /**< Maximum VLAN Translations per group count      */
-#define VTSS_VLAN_TRANS_NULL_GROUP_ID                                          \
-    0 /**< Special value for group ID                     */
-#define VTSS_VLAN_TRANS_FIRST_GROUP_ID                                         \
-    1 /**< First Group ID                                 */
-#define VTSS_VLAN_TRANS_VID_START                                              \
-    1 /**< First valid VLAN ID                            */
-#define VTSS_VLAN_TRANS_MAX_VLAN_ID                                            \
-    4095 /**< Last valid VLAN ID                             */
-#define VTSS_VLAN_TRANS_LAST_GROUP_ID                                          \
-    (VTSS_VLAN_TRANS_FIRST_GROUP_ID + VTSS_VLAN_TRANS_GROUP_MAX_CNT -          \
-     1) /**< Last valid Group ID */
+#define VTSS_VLAN_TRANS_GROUP_MAX_CNT                                                              \
+    VTSS_PORTS                              /**< Maximum VLAN Translation Groups count          */
+#define VTSS_VLAN_TRANS_MAX_CNT        256  /**< Maximum VLAN Translations per group count      */
+#define VTSS_VLAN_TRANS_NULL_GROUP_ID  0    /**< Special value for group ID                     */
+#define VTSS_VLAN_TRANS_FIRST_GROUP_ID 1    /**< First Group ID                                 */
+#define VTSS_VLAN_TRANS_VID_START      1    /**< First valid VLAN ID                            */
+#define VTSS_VLAN_TRANS_MAX_VLAN_ID    4095 /**< Last valid VLAN ID                             */
+#define VTSS_VLAN_TRANS_LAST_GROUP_ID                                                              \
+    (VTSS_VLAN_TRANS_FIRST_GROUP_ID + VTSS_VLAN_TRANS_GROUP_MAX_CNT - 1) /**< Last valid Group ID */
 
-#define VTSS_VLAN_TRANS_VALID_GROUP_CHECK(grp_id)                              \
-    (((grp_id < VTSS_VLAN_TRANS_FIRST_GROUP_ID) ||                             \
-      (grp_id > VTSS_VLAN_TRANS_LAST_GROUP_ID))                                \
-         ? FALSE                                                               \
+#define VTSS_VLAN_TRANS_VALID_GROUP_CHECK(grp_id)                                                  \
+    (((grp_id < VTSS_VLAN_TRANS_FIRST_GROUP_ID) || (grp_id > VTSS_VLAN_TRANS_LAST_GROUP_ID))       \
+         ? FALSE                                                                                   \
          : TRUE) /**< Macro to check valid group */
-#define VTSS_VLAN_TRANS_VALID_VLAN_CHECK(vid)                                  \
-    (((vid < VTSS_VLAN_TRANS_VID_START) ||                                     \
-      (vid > VTSS_VLAN_TRANS_MAX_VLAN_ID))                                     \
-         ? FALSE                                                               \
+#define VTSS_VLAN_TRANS_VALID_VLAN_CHECK(vid)                                                      \
+    (((vid < VTSS_VLAN_TRANS_VID_START) || (vid > VTSS_VLAN_TRANS_MAX_VLAN_ID))                    \
+         ? FALSE                                                                                   \
          : TRUE) /**< Macro to check valid VLAN ID  */
-#define VTSS_VLAN_TRANS_NULL_CHECK(ptr)                                        \
-    ((ptr == NULL) ? FALSE : TRUE) /**< Macro to check NULL Pointer */
-#define VTSS_VLAN_TRANS_PORT_BF_SIZE                                           \
-    ((VTSS_PORTS + 7) / 8) /**< Macro Same as VTSS_PORT_BF_SIZE */
-typedef u64 vtss_vt_id_t;  /**< VLAN Translation ID */
+#define VTSS_VLAN_TRANS_NULL_CHECK(ptr)                                                            \
+    ((ptr == NULL) ? FALSE : TRUE)                          /**< Macro to check NULL Pointer */
+#define VTSS_VLAN_TRANS_PORT_BF_SIZE ((VTSS_PORTS + 7) / 8) /**< Macro Same as VTSS_PORT_BF_SIZE */
+typedef u64 vtss_vt_id_t;                                   /**< VLAN Translation ID */
 
 /** \brief VLAN translation port-to-group configuration */
 typedef struct {
-    u16 group_id; /**< Group ID                        */
+    u16 group_id;                            /**< Group ID                        */
     u8  ports[VTSS_VLAN_TRANS_PORT_BF_SIZE]; /**< Ports Bitfield */
 } vtss_vlan_trans_port2grp_conf_t;
 
@@ -1550,10 +1519,10 @@ typedef enum {
 
 /** \brief VLAN translation group-to-VLAN configuration */
 typedef struct {
-    u16        group_id;  /**< Group ID */
-    vtss_vid_t vid;       /**< External VLAN ID (ingress key, egress data) */
-    vtss_vid_t trans_vid; /**< Internal VLAN ID (egress key, ingress data) */
-    vtss_vlan_trans_dir_t dir; /**< Direction */
+    u16                   group_id;  /**< Group ID */
+    vtss_vid_t            vid;       /**< External VLAN ID (ingress key, egress data) */
+    vtss_vid_t            trans_vid; /**< Internal VLAN ID (egress key, ingress data) */
+    vtss_vlan_trans_dir_t dir;       /**< Direction */
 } vtss_vlan_trans_grp2vlan_conf_t;
 
 /**
@@ -1564,9 +1533,8 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_vlan_trans_group_conf_add(const vtss_inst_t inst,
-                                       const vtss_vlan_trans_grp2vlan_conf_t
-                                           *const conf);
+vtss_rc vtss_vlan_trans_group_conf_add(const vtss_inst_t                            inst,
+                                       const vtss_vlan_trans_grp2vlan_conf_t *const conf);
 
 /**
  * \brief Delete VLAN Translation Group entry
@@ -1576,9 +1544,8 @@ vtss_rc vtss_vlan_trans_group_conf_add(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_vlan_trans_group_conf_del(const vtss_inst_t inst,
-                                       const vtss_vlan_trans_grp2vlan_conf_t
-                                           *const conf);
+vtss_rc vtss_vlan_trans_group_conf_del(const vtss_inst_t                            inst,
+                                       const vtss_vlan_trans_grp2vlan_conf_t *const conf);
 
 /**
  * \brief Create VLAN Translation Group entry.
@@ -1604,9 +1571,7 @@ vtss_rc vtss_vlan_trans_group_add(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_vlan_trans_group_del(const vtss_inst_t inst,
-                                  const u16         group_id,
-                                  const vtss_vid_t  vid);
+vtss_rc vtss_vlan_trans_group_del(const vtss_inst_t inst, const u16 group_id, const vtss_vid_t vid);
 
 /**
  * \brief Get VLAN Translation Group entry.
@@ -1631,9 +1596,8 @@ vtss_rc vtss_vlan_trans_group_get(const vtss_inst_t                inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_vlan_trans_group_to_port_set(const vtss_inst_t inst,
-                                          const vtss_vlan_trans_port2grp_conf_t
-                                              *conf);
+vtss_rc vtss_vlan_trans_group_to_port_set(const vtss_inst_t                      inst,
+                                          const vtss_vlan_trans_port2grp_conf_t *conf);
 
 /**
  * \brief VLAN Translation function to fetch all ports for a group.
@@ -1646,14 +1610,14 @@ vtss_rc vtss_vlan_trans_group_to_port_set(const vtss_inst_t inst,
  **/
 vtss_rc vtss_vlan_trans_group_to_port_get(const vtss_inst_t                inst,
                                           vtss_vlan_trans_port2grp_conf_t *conf,
-                                          BOOL next);
+                                          BOOL                             next);
 
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
 /** \brief VCAP port configuration */
 typedef struct {
     vtss_vcap_key_type_t key_type_is1_1; /**< Key type for second IS1 lookup */
-    BOOL dmac_dip_1; /**< Enable DMAC/DIP matching in second lookup (default
-                        SMAC/SIP) */
+    BOOL                 dmac_dip_1;     /**< Enable DMAC/DIP matching in second lookup (default
+                                            SMAC/SIP) */
 } vtss_vcap_port_conf_t;
 
 /**
@@ -1713,9 +1677,7 @@ vtss_rc vtss_vcap_port_conf_set(const vtss_inst_t                  inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_isolated_vlan_get(const vtss_inst_t inst,
-                               const vtss_vid_t  vid,
-                               BOOL *const       isolated);
+vtss_rc vtss_isolated_vlan_get(const vtss_inst_t inst, const vtss_vid_t vid, BOOL *const isolated);
 
 /**
  * \brief Set enable/disable port isolation for VLAN.
@@ -1726,9 +1688,7 @@ vtss_rc vtss_isolated_vlan_get(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_isolated_vlan_set(const vtss_inst_t inst,
-                               const vtss_vid_t  vid,
-                               const BOOL        isolated);
+vtss_rc vtss_isolated_vlan_set(const vtss_inst_t inst, const vtss_vid_t vid, const BOOL isolated);
 
 /**
  * \brief Get the isolated port member set.
@@ -1738,8 +1698,7 @@ vtss_rc vtss_isolated_vlan_set(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_isolated_port_members_get(const vtss_inst_t inst,
-                                       BOOL member[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_isolated_port_members_get(const vtss_inst_t inst, BOOL member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set the isolated port member set.
@@ -1750,7 +1709,7 @@ vtss_rc vtss_isolated_port_members_get(const vtss_inst_t inst,
  * \return Return code.
  **/
 vtss_rc vtss_isolated_port_members_set(const vtss_inst_t inst,
-                                       const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                       const BOOL        member[VTSS_PORT_ARRAY_SIZE]);
 
 /* - Private VLAN (PVLAN) ------------------------------------------ */
 
@@ -1773,12 +1732,11 @@ vtss_rc vtss_isolated_port_members_set(const vtss_inst_t inst,
 /** \brief Private VLAN Number */
 typedef u32 vtss_pvlan_no_t;
 
-#define VTSS_PVLANS         (VTSS_PORTS) /**< Number of PVLANs */
-#define VTSS_PVLAN_NO_START (0)          /**< PVLAN start number */
-#define VTSS_PVLAN_NO_END                                                      \
-    (VTSS_PVLAN_NO_START + VTSS_PVLANS)         /**< PVLAN end number */
-#define VTSS_PVLAN_ARRAY_SIZE VTSS_PVLAN_NO_END /**< PVLAN array size */
-#define VTSS_PVLAN_NO_DEFAULT (0)               /**< Default PVLAN */
+#define VTSS_PVLANS           (VTSS_PORTS)                        /**< Number of PVLANs */
+#define VTSS_PVLAN_NO_START   (0)                                 /**< PVLAN start number */
+#define VTSS_PVLAN_NO_END     (VTSS_PVLAN_NO_START + VTSS_PVLANS) /**< PVLAN end number */
+#define VTSS_PVLAN_ARRAY_SIZE VTSS_PVLAN_NO_END                   /**< PVLAN array size */
+#define VTSS_PVLAN_NO_DEFAULT (0)                                 /**< Default PVLAN */
 
 /**
  * \brief Get Private VLAN membership.
@@ -1791,7 +1749,7 @@ typedef u32 vtss_pvlan_no_t;
  **/
 vtss_rc vtss_pvlan_port_members_get(const vtss_inst_t     inst,
                                     const vtss_pvlan_no_t pvlan_no,
-                                    BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                    BOOL                  member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set Private VLAN membership.
@@ -1804,7 +1762,7 @@ vtss_rc vtss_pvlan_port_members_get(const vtss_inst_t     inst,
  **/
 vtss_rc vtss_pvlan_port_members_set(const vtss_inst_t     inst,
                                     const vtss_pvlan_no_t pvlan_no,
-                                    const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                    const BOOL            member[VTSS_PORT_ARRAY_SIZE]);
 
 /** \page layer2
 
@@ -1833,7 +1791,7 @@ vtss_rc vtss_pvlan_port_members_set(const vtss_inst_t     inst,
  **/
 vtss_rc vtss_apvlan_port_members_get(const vtss_inst_t    inst,
                                      const vtss_port_no_t port_no,
-                                     BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                     BOOL                 member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set Asymmetric Private VLAN membership.
@@ -1846,7 +1804,7 @@ vtss_rc vtss_apvlan_port_members_get(const vtss_inst_t    inst,
  **/
 vtss_rc vtss_apvlan_port_members_set(const vtss_inst_t    inst,
                                      const vtss_port_no_t port_no,
-                                     const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                     const BOOL           member[VTSS_PORT_ARRAY_SIZE]);
 
 /** \page layer2
 
@@ -1925,10 +1883,9 @@ vtss_rc vtss_dgroup_port_conf_set(const vtss_inst_t                    inst,
  * to vtss_sflow_port_conf_get().
  */
 typedef struct {
-    vtss_sflow_type_t
-        type; /**< Sample direction. Also used to turn off sampling.          */
-    u32 sampling_rate; /**< A value of N means: sample on average 1 out of N
-                          frames. 0 disables sampling. */
+    vtss_sflow_type_t type; /**< Sample direction. Also used to turn off sampling.          */
+    u32               sampling_rate; /**< A value of N means: sample on average 1 out of N
+                                        frames. 0 disables sampling. */
 } vtss_sflow_port_conf_t;
 
 /**
@@ -2012,7 +1969,7 @@ vtss_rc vtss_sflow_sampling_rate_convert(const vtss_inst_t inst,
  **/
 vtss_rc vtss_aggr_port_members_get(const vtss_inst_t    inst,
                                    const vtss_aggr_no_t aggr_no,
-                                   BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                   BOOL                 member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set aggregation port members.
@@ -2025,7 +1982,7 @@ vtss_rc vtss_aggr_port_members_get(const vtss_inst_t    inst,
  **/
 vtss_rc vtss_aggr_port_members_set(const vtss_inst_t    inst,
                                    const vtss_aggr_no_t aggr_no,
-                                   const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                   const BOOL           member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Get aggregation traffic distribution mode.
@@ -2035,8 +1992,7 @@ vtss_rc vtss_aggr_port_members_set(const vtss_inst_t    inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_aggr_mode_get(const vtss_inst_t       inst,
-                           vtss_aggr_mode_t *const mode);
+vtss_rc vtss_aggr_mode_get(const vtss_inst_t inst, vtss_aggr_mode_t *const mode);
 
 /**
  * \brief Set aggregation traffic distribution mode.
@@ -2046,8 +2002,7 @@ vtss_rc vtss_aggr_mode_get(const vtss_inst_t       inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_aggr_mode_set(const vtss_inst_t             inst,
-                           const vtss_aggr_mode_t *const mode);
+vtss_rc vtss_aggr_mode_set(const vtss_inst_t inst, const vtss_aggr_mode_t *const mode);
 
 /* - Mirroring ----------------------------------------------------- */
 
@@ -2089,8 +2044,8 @@ typedef enum {
 
 /** \brief Mirror configuration */
 typedef struct {
-    vtss_port_no_t port_no; /**< Mirror port or VTSS_PORT_NO_NONE */
-    BOOL fwd_enable; /**< Enable normal traffic forwarding to mirror port */
+    vtss_port_no_t port_no;    /**< Mirror port or VTSS_PORT_NO_NONE */
+    BOOL           fwd_enable; /**< Enable normal traffic forwarding to mirror port */
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
     vtss_mirror_tag_t tag; /**< Mirror tag type */
     vtss_vid_t        vid; /**< Mirror tag VID */
@@ -2107,8 +2062,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_mirror_conf_get(const vtss_inst_t         inst,
-                             vtss_mirror_conf_t *const conf);
+vtss_rc vtss_mirror_conf_get(const vtss_inst_t inst, vtss_mirror_conf_t *const conf);
 
 /**
  * \brief Set the mirror configuration.
@@ -2118,8 +2072,7 @@ vtss_rc vtss_mirror_conf_get(const vtss_inst_t         inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_mirror_conf_set(const vtss_inst_t               inst,
-                             const vtss_mirror_conf_t *const conf);
+vtss_rc vtss_mirror_conf_set(const vtss_inst_t inst, const vtss_mirror_conf_t *const conf);
 
 /**
  * \brief Get the mirror monitor port.
@@ -2129,8 +2082,7 @@ vtss_rc vtss_mirror_conf_set(const vtss_inst_t               inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_mirror_monitor_port_get(const vtss_inst_t     inst,
-                                     vtss_port_no_t *const port_no);
+vtss_rc vtss_mirror_monitor_port_get(const vtss_inst_t inst, vtss_port_no_t *const port_no);
 
 /**
  * \brief Set the mirror monitor port.
@@ -2140,8 +2092,7 @@ vtss_rc vtss_mirror_monitor_port_get(const vtss_inst_t     inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_mirror_monitor_port_set(const vtss_inst_t    inst,
-                                     const vtss_port_no_t port_no);
+vtss_rc vtss_mirror_monitor_port_set(const vtss_inst_t inst, const vtss_port_no_t port_no);
 
 /**
  * \brief Get the mirror ingress ports.
@@ -2152,8 +2103,7 @@ vtss_rc vtss_mirror_monitor_port_set(const vtss_inst_t    inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_mirror_ingress_ports_get(const vtss_inst_t inst,
-                                      BOOL member[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_mirror_ingress_ports_get(const vtss_inst_t inst, BOOL member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set the mirror ingress ports.
@@ -2165,7 +2115,7 @@ vtss_rc vtss_mirror_ingress_ports_get(const vtss_inst_t inst,
  * \return Return code.
  **/
 vtss_rc vtss_mirror_ingress_ports_set(const vtss_inst_t inst,
-                                      const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                      const BOOL        member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Get the mirror egress ports.
@@ -2176,8 +2126,7 @@ vtss_rc vtss_mirror_ingress_ports_set(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_mirror_egress_ports_get(const vtss_inst_t inst,
-                                     BOOL member[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_mirror_egress_ports_get(const vtss_inst_t inst, BOOL member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set the mirror egress ports.
@@ -2189,7 +2138,7 @@ vtss_rc vtss_mirror_egress_ports_get(const vtss_inst_t inst,
  * \return Return code.
  **/
 vtss_rc vtss_mirror_egress_ports_set(const vtss_inst_t inst,
-                                     const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                     const BOOL        member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Get the mirror CPU ingress.
@@ -2269,8 +2218,7 @@ vtss_rc vtss_mirror_cpu_egress_set(const vtss_inst_t inst, const BOOL member);
  *
  * \return Return code.
  **/
-vtss_rc vtss_uc_flood_members_get(const vtss_inst_t inst,
-                                  BOOL member[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_uc_flood_members_get(const vtss_inst_t inst, BOOL member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set unicast flood members.
@@ -2280,8 +2228,7 @@ vtss_rc vtss_uc_flood_members_get(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_uc_flood_members_set(const vtss_inst_t inst,
-                                  const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_uc_flood_members_set(const vtss_inst_t inst, const BOOL member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Get multicast flood members.
@@ -2291,8 +2238,7 @@ vtss_rc vtss_uc_flood_members_set(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_mc_flood_members_get(const vtss_inst_t inst,
-                                  BOOL member[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_mc_flood_members_get(const vtss_inst_t inst, BOOL member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set multicast flood members.
@@ -2302,8 +2248,7 @@ vtss_rc vtss_mc_flood_members_get(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_mc_flood_members_set(const vtss_inst_t inst,
-                                  const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_mc_flood_members_set(const vtss_inst_t inst, const BOOL member[VTSS_PORT_ARRAY_SIZE]);
 
 /* - IGMP ---------------------------------------------------- */
 
@@ -2343,8 +2288,7 @@ vtss_rc vtss_mc_flood_members_set(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_ipv4_mc_flood_members_get(const vtss_inst_t inst,
-                                       BOOL member[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_ipv4_mc_flood_members_get(const vtss_inst_t inst, BOOL member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set IPv4 multicast flood members.
@@ -2357,7 +2301,7 @@ vtss_rc vtss_ipv4_mc_flood_members_get(const vtss_inst_t inst,
  * \return Return code.
  **/
 vtss_rc vtss_ipv4_mc_flood_members_set(const vtss_inst_t inst,
-                                       const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                       const BOOL        member[VTSS_PORT_ARRAY_SIZE]);
 
 #if defined(VTSS_FEATURE_IPV4_MC_SIP)
 
@@ -2436,8 +2380,7 @@ vtss_rc vtss_ipv4_mc_del(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_ipv6_mc_flood_members_get(const vtss_inst_t inst,
-                                       BOOL member[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_ipv6_mc_flood_members_get(const vtss_inst_t inst, BOOL member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Set IPv6 multicast flood members.
@@ -2450,7 +2393,7 @@ vtss_rc vtss_ipv6_mc_flood_members_get(const vtss_inst_t inst,
  * \return Return code.
  **/
 vtss_rc vtss_ipv6_mc_flood_members_set(const vtss_inst_t inst,
-                                       const BOOL member[VTSS_PORT_ARRAY_SIZE]);
+                                       const BOOL        member[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * \brief Get IPv6 multicast control flooding mode.
@@ -2628,10 +2571,10 @@ vtss_rc vtss_eps_port_selector_set(const vtss_inst_t         inst,
 /** \brief ERPS instance number */
 typedef u32 vtss_erpi_t;
 
-#define VTSS_ERPIS           (64) /**< Number of ERPS instances */
-#define VTSS_ERPI_START      (0)  /**< ERPI start number */
+#define VTSS_ERPIS           (64)                           /**< Number of ERPS instances */
+#define VTSS_ERPI_START      (0)                            /**< ERPI start number */
 #define VTSS_ERPI_END        (VTSS_ERPI_START + VTSS_ERPIS) /**< ERPI end number */
-#define VTSS_ERPI_ARRAY_SIZE VTSS_ERPI_END /**< ERPI array size */
+#define VTSS_ERPI_ARRAY_SIZE VTSS_ERPI_END                  /**< ERPI array size */
 
 /**
  * \brief Get ERPS member state for a VLAN.
@@ -2729,23 +2672,23 @@ typedef enum {
 
 // RCE key
 typedef struct {
-    vtss_port_no_t   port_no;      // Ingress port
-    vtss_vid_t       vid;          // VID or zero for untagged/priority-tagged
-    vtss_vcap_bit_t  tagged;       // Outer tag
-    BOOL             smac;         // SMAC/DMAC lookup selection
-    vtss_vcap_u48_t  mac;          // SMAC/DMAC value
-    vtss_rcl_etype_t etype;        // Ethernet type
-    vtss_vcap_u16_t  frame_id;     // FrameId
-    vtss_vcap_u16_t  publisher_id; // PublisherId
+    vtss_port_no_t   port_no;         // Ingress port
+    vtss_vid_t       vid;             // VID or zero for untagged/priority-tagged
+    vtss_vcap_bit_t  tagged;          // Outer tag
+    BOOL             smac;            // SMAC/DMAC lookup selection
+    vtss_vcap_u48_t  mac;             // SMAC/DMAC value
+    vtss_rcl_etype_t etype;           // Ethernet type
+    vtss_vcap_u16_t  frame_id;        // FrameId
+    vtss_vcap_u16_t  publisher_id;    // PublisherId
     vtss_vcap_u16_t  writer_group_id; // WriterGroupId
 } vtss_rce_key_t;
 
 // RCE action
 typedef struct {
-    u16            rtp_id;      // RTP identifier
-    BOOL           rtp_sub_id;  // RTP sub-identifier
-    BOOL           rtp_inbound; // RTP inbound processing
-    BOOL           port_enable; // Enable port forwarding to egress port list
+    u16            rtp_id;                // RTP identifier
+    BOOL           rtp_sub_id;            // RTP sub-identifier
+    BOOL           rtp_inbound;           // RTP inbound processing
+    BOOL           port_enable;           // Enable port forwarding to egress port list
     BOOL           port_list[VTSS_PORTS]; // Egress port list
     BOOL           llct_enable;           // Enable Low-Latency Cut-Through
     vtss_port_no_t llct_port_no;          // LLCT egress port
@@ -2794,9 +2737,7 @@ typedef struct {
 // Get RedBox capabilities.
 // rb_id [IN]  RedBox ID.
 // cap [OUT]   RedBox capabilities.
-vtss_rc vtss_rb_cap_get(const vtss_inst_t    inst,
-                        const vtss_rb_id_t   rb_id,
-                        vtss_rb_cap_t *const cap);
+vtss_rc vtss_rb_cap_get(const vtss_inst_t inst, const vtss_rb_id_t rb_id, vtss_rb_cap_t *const cap);
 
 // RedBox mode
 typedef enum {
@@ -2820,20 +2761,20 @@ typedef enum {
 
 // RedBox configuration
 typedef struct {
-    vtss_rb_mode_t mode;   // Mode
-    vtss_port_no_t port_a; // Port A or VTSS_PORT_NO_NONE
-    vtss_port_no_t port_b; // Port B or VTSS_PORT_NO_NONE
-    u8 net_id; // NetId (0-7) used for HSR port Tx and Interlink Tx filtering
-               // (if non-zero)
+    vtss_rb_mode_t mode;       // Mode
+    vtss_port_no_t port_a;     // Port A or VTSS_PORT_NO_NONE
+    vtss_port_no_t port_b;     // Port B or VTSS_PORT_NO_NONE
+    u8             net_id;     // NetId (0-7) used for HSR port Tx and Interlink Tx filtering
+                               // (if non-zero)
     u8                 lan_id; // LanId (0/1) used for Interlink Tx for HSR-PRP
     BOOL               nt_dmac_disable; // Disable Node Table DMAC filtering
     vtss_rb_age_time_t nt_age_time;     // Node Table age time [seconds]
     vtss_rb_age_time_t pnt_age_time;    // Proxy Node Table age time [secondss]
-    vtss_rb_age_time_t dd_age_time; // Duplicate Discard age time [milliseconds]
-    vtss_rb_sv_t       sv; // LRE-to-Interlink Supervision frame forwarding
-    BOOL sv_discard;       // Interlink-to-LRE Supervision frame discard flag
-    BOOL mode_u; // Any HSR mode: Forward frames Rx'd on LRE with DMAC in PNT to
-                 // other LRE port
+    vtss_rb_age_time_t dd_age_time;     // Duplicate Discard age time [milliseconds]
+    vtss_rb_sv_t       sv;              // LRE-to-Interlink Supervision frame forwarding
+    BOOL               sv_discard;      // Interlink-to-LRE Supervision frame discard flag
+    BOOL               mode_u; // Any HSR mode: Forward frames Rx'd on LRE with DMAC in PNT to
+                               // other LRE port
 } vtss_rb_conf_t;
 
 // Get RedBox configuration.
@@ -2909,8 +2850,7 @@ vtss_rc vtss_rb_counters_get(const vtss_inst_t         inst,
 
 // Clear RedBox counters.
 // rb_id [IN]  RedBox ID.
-vtss_rc vtss_rb_counters_clear(const vtss_inst_t  inst,
-                               const vtss_rb_id_t rb_id);
+vtss_rc vtss_rb_counters_clear(const vtss_inst_t inst, const vtss_rb_id_t rb_id);
 
 // Node ID
 typedef u16 vtss_rb_node_id_t;

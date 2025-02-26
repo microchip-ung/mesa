@@ -9,9 +9,7 @@
 #include "meba_generic.h"
 
 /* Reset the PHY */
-mepa_rc meba_phy_reset(meba_inst_t               inst,
-                       mepa_port_no_t            port_no,
-                       const mepa_reset_param_t *rst_conf)
+mepa_rc meba_phy_reset(meba_inst_t inst, mepa_port_no_t port_no, const mepa_reset_param_t *rst_conf)
 {
     T_I(inst, "Called");
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
@@ -22,9 +20,7 @@ mepa_rc meba_phy_reset(meba_inst_t               inst,
 }
 
 /* Get the current status of the PHY. */
-mepa_rc meba_phy_status_poll(meba_inst_t    inst,
-                             mepa_port_no_t port_no,
-                             mepa_status_t *status)
+mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_status_t *status)
 {
     T_N(inst, "Called port %d", port_no);
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
@@ -35,9 +31,7 @@ mepa_rc meba_phy_status_poll(meba_inst_t    inst,
 }
 
 /* Set the configuration to the PHY. */
-mepa_rc meba_phy_conf_set(meba_inst_t        inst,
-                          mepa_port_no_t     port_no,
-                          const mepa_conf_t *conf)
+mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_conf_t *conf)
 
 {
     meba_port_cap_t   cap;
@@ -60,33 +54,27 @@ mepa_rc meba_phy_conf_set(meba_inst_t        inst,
             cf.aneg.speed_2g5_fdx = conf->speed == MESA_SPEED_AUTO &&
                                     (cap & MEBA_PORT_CAP_2_5G_FDX) &&
                                     !(cf.adv_dis & MEPA_ADV_DIS_2500M);
-            cf.aneg.speed_5g_fdx = conf->speed == MESA_SPEED_AUTO &&
-                                   (cap & MEBA_PORT_CAP_5G_FDX) &&
+            cf.aneg.speed_5g_fdx = conf->speed == MESA_SPEED_AUTO && (cap & MEBA_PORT_CAP_5G_FDX) &&
                                    !(cf.adv_dis & MEPA_ADV_DIS_5G);
             cf.aneg.speed_10g_fdx = conf->speed == MESA_SPEED_AUTO &&
                                     (cap & MEBA_PORT_CAP_10G_FDX) &&
                                     !(cf.adv_dis & MEPA_ADV_DIS_10G);
-            cf.aneg.speed_10m_hdx = conf->speed == MESA_SPEED_AUTO &&
-                                    (cap & MEBA_PORT_CAP_10M_HDX) &&
-                                    !(cf.adv_dis & MEPA_ADV_DIS_HDX) &&
-                                    !(cf.adv_dis & MEPA_ADV_DIS_10M);
-            cf.aneg.speed_10m_fdx = conf->speed == MESA_SPEED_AUTO &&
-                                    (cap & MEBA_PORT_CAP_10M_FDX) &&
-                                    !(cf.adv_dis & MEPA_ADV_DIS_FDX) &&
-                                    !(cf.adv_dis & MEPA_ADV_DIS_10M);
-            cf.aneg.speed_100m_hdx = conf->speed == MESA_SPEED_AUTO &&
-                                     (cap & MEBA_PORT_CAP_100M_HDX) &&
-                                     !(cf.adv_dis & MEPA_ADV_DIS_HDX) &&
-                                     !(cf.adv_dis & MEPA_ADV_DIS_100M);
-            cf.aneg.speed_100m_fdx = conf->speed == MESA_SPEED_AUTO &&
-                                     (cap & MEBA_PORT_CAP_100M_FDX) &&
-                                     !(cf.adv_dis & MEPA_ADV_DIS_FDX) &&
-                                     !(cf.adv_dis & MEPA_ADV_DIS_100M);
-            cf.aneg.speed_1g_fdx = ((cap & MEBA_PORT_CAP_1G_FDX) &&
-                                    !(conf->speed == MESA_SPEED_AUTO &&
-                                      conf->adv_dis & MEPA_ADV_DIS_1G));
-            cf.aneg.no_restart_aneg =
-                !!(cf.adv_dis & MEPA_ADV_DIS_RESTART_ANEG);
+            cf.aneg.speed_10m_hdx =
+                conf->speed == MESA_SPEED_AUTO && (cap & MEBA_PORT_CAP_10M_HDX) &&
+                !(cf.adv_dis & MEPA_ADV_DIS_HDX) && !(cf.adv_dis & MEPA_ADV_DIS_10M);
+            cf.aneg.speed_10m_fdx =
+                conf->speed == MESA_SPEED_AUTO && (cap & MEBA_PORT_CAP_10M_FDX) &&
+                !(cf.adv_dis & MEPA_ADV_DIS_FDX) && !(cf.adv_dis & MEPA_ADV_DIS_10M);
+            cf.aneg.speed_100m_hdx =
+                conf->speed == MESA_SPEED_AUTO && (cap & MEBA_PORT_CAP_100M_HDX) &&
+                !(cf.adv_dis & MEPA_ADV_DIS_HDX) && !(cf.adv_dis & MEPA_ADV_DIS_100M);
+            cf.aneg.speed_100m_fdx =
+                conf->speed == MESA_SPEED_AUTO && (cap & MEBA_PORT_CAP_100M_FDX) &&
+                !(cf.adv_dis & MEPA_ADV_DIS_FDX) && !(cf.adv_dis & MEPA_ADV_DIS_100M);
+            cf.aneg.speed_1g_fdx =
+                ((cap & MEBA_PORT_CAP_1G_FDX) &&
+                 !(conf->speed == MESA_SPEED_AUTO && conf->adv_dis & MEPA_ADV_DIS_1G));
+            cf.aneg.no_restart_aneg = !!(cf.adv_dis & MEPA_ADV_DIS_RESTART_ANEG);
         }
     }
 
@@ -94,9 +82,7 @@ mepa_rc meba_phy_conf_set(meba_inst_t        inst,
 }
 
 // Get the current phy port configuration
-mepa_rc meba_phy_conf_get(meba_inst_t        inst,
-                          mepa_port_no_t     port_no,
-                          mepa_conf_t *const conf)
+mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_conf_t *const conf)
 {
     T_I(inst, "Called port %d", port_no);
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
@@ -133,9 +119,7 @@ mepa_rc meba_phy_fefi_get(meba_inst_t             inst,
 }
 
 /* FEFI detection */
-mepa_rc meba_phy_fefi_detect(meba_inst_t        inst,
-                             mepa_port_no_t     port_no,
-                             mepa_bool_t *const detect)
+mepa_rc meba_phy_fefi_detect(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t *const detect)
 {
     T_I(inst, "Called port %d", port_no);
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
@@ -177,8 +161,8 @@ mepa_rc meba_phy_eee_status_get(meba_inst_t        inst,
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
-    return mepa_eee_status_get(inst->phy_devices[port_no], advertisement,
-                               rx_in_power_save_state, tx_in_power_save_state);
+    return mepa_eee_status_get(inst->phy_devices[port_no], advertisement, rx_in_power_save_state,
+                               tx_in_power_save_state);
 }
 
 /* Get the PHY interface based on speed.*/
@@ -211,13 +195,11 @@ mepa_rc meba_phy_i2c_read(meba_inst_t       inst,
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
 
-    return mepa_i2c_read(inst->phy_devices[port_no], i2c_mux, i2c_reg_addr,
-                         i2c_dev_addr, word_access, cnt, value);
+    return mepa_i2c_read(inst->phy_devices[port_no], i2c_mux, i2c_reg_addr, i2c_dev_addr,
+                         word_access, cnt, value);
 }
 /* Set the PHY interface based on inputs.*/
-mepa_rc meba_phy_if_set(meba_inst_t           inst,
-                        mepa_port_no_t        port_no,
-                        mepa_port_interface_t intf)
+mepa_rc meba_phy_if_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_port_interface_t intf)
 {
     T_I(inst, "Called port %d", port_no);
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
@@ -241,8 +223,8 @@ mepa_rc meba_phy_i2c_write(meba_inst_t          inst,
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
 
-    return mepa_i2c_write(inst->phy_devices[port_no], i2c_mux, i2c_reg_addr,
-                          i2c_dev_addr, word_access, cnt, value);
+    return mepa_i2c_write(inst->phy_devices[port_no], i2c_mux, i2c_reg_addr, i2c_dev_addr,
+                          word_access, cnt, value);
 }
 
 /* I2C Clock select */
@@ -260,9 +242,7 @@ mepa_rc meba_phy_i2c_clock_select(meba_inst_t                  inst,
 }
 
 /* Sets the power mode.*/
-mepa_rc meba_phy_power_set(meba_inst_t       inst,
-                           mepa_port_no_t    port_no,
-                           mepa_power_mode_t power)
+mepa_rc meba_phy_power_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_power_mode_t power)
 
 {
     T_D(inst, "Called");
@@ -273,9 +253,7 @@ mepa_rc meba_phy_power_set(meba_inst_t       inst,
 }
 
 /* Starts cable diagnostics.*/
-mepa_rc meba_phy_cable_diag_start(meba_inst_t    inst,
-                                  mepa_port_no_t port_no,
-                                  int            mode)
+mepa_rc meba_phy_cable_diag_start(meba_inst_t inst, mepa_port_no_t port_no, int mode)
 {
     T_D(inst, "Called");
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
@@ -392,9 +370,7 @@ mepa_rc meba_phy_event_enable_get(meba_inst_t         inst,
     return mepa_event_enable_get(inst->phy_devices[port_no], event);
 }
 // Obtain the phy event status
-mepa_rc meba_phy_event_poll(meba_inst_t         inst,
-                            mepa_port_no_t      port_no,
-                            mepa_event_t *const event)
+mepa_rc meba_phy_event_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_event_t *const event)
 {
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;
@@ -466,12 +442,12 @@ mepa_rc meba_phy_synce_clock_conf_set(meba_inst_t                    inst,
     return mepa_synce_clock_conf_set(inst->phy_devices[port_no], conf);
 }
 
-#define MESA_RC(expr)                                                          \
-    {                                                                          \
-        mesa_rc rc = expr;                                                     \
-        if (rc != MESA_RC_OK) {                                                \
-            return rc;                                                         \
-        }                                                                      \
+#define MESA_RC(expr)                                                                              \
+    {                                                                                              \
+        mesa_rc rc = expr;                                                                         \
+        if (rc != MESA_RC_OK) {                                                                    \
+            return rc;                                                                             \
+        }                                                                                          \
     }
 
 mepa_rc meba_port_status_get(meba_inst_t               inst,
@@ -525,8 +501,7 @@ mepa_rc meba_port_status_get(meba_inst_t               inst,
     // Check that it is Venice/Malibu - otherwise return
     if ((entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) == 0 ||
         vtss_phy_10g_id_get(NULL, port_no, &id) != MESA_RC_OK ||
-        (id.family != VTSS_PHY_FAMILY_VENICE &&
-         id.family != VTSS_PHY_FAMILY_MALIBU)) {
+        (id.family != VTSS_PHY_FAMILY_VENICE && id.family != VTSS_PHY_FAMILY_MALIBU)) {
         return MESA_RC_OK;
     }
 
@@ -539,13 +514,12 @@ mepa_rc meba_port_status_get(meba_inst_t               inst,
         vtss_phy_10g_clause_37_status_t    *host = &c37_status.host;
         vtss_phy_10g_clause_37_control_t    c37_ctrl;
         vtss_phy_10g_clause_37_adv_t       *adv = &c37_ctrl.advertisement;
-        vtss_phy_10g_clause_37_adv_t *lp = &line->autoneg.partner_advertisement;
+        vtss_phy_10g_clause_37_adv_t       *lp = &line->autoneg.partner_advertisement;
 
         MESA_RC(vtss_phy_10g_clause_37_status_get(NULL, port_no, &c37_status));
         if (host->link == 0 || line->link == 0) {
             // Link has been down, get current status
-            MESA_RC(vtss_phy_10g_clause_37_status_get(NULL, port_no,
-                                                      &c37_status));
+            MESA_RC(vtss_phy_10g_clause_37_status_get(NULL, port_no, &c37_status));
             status->link_down = 1;
         }
         if (host->link == 0 || line->link == 0) {
@@ -557,19 +531,16 @@ mepa_rc meba_port_status_get(meba_inst_t               inst,
         MESA_RC(vtss_phy_10g_clause_37_control_get(NULL, port_no, &c37_ctrl));
         if (c37_ctrl.enable) {
             // Auto-negotiation enabled
-            if (host->autoneg.complete && line->autoneg.complete && adv->fdx &&
-                lp->fdx) {
+            if (host->autoneg.complete && line->autoneg.complete && adv->fdx && lp->fdx) {
                 // Auto negotiation completed for FDX, return flow control result
                 status->aneg.obey_pause =
-                    (adv->symmetric_pause &&
-                             (lp->symmetric_pause ||
-                              (adv->asymmetric_pause && lp->asymmetric_pause))
+                    (adv->symmetric_pause && (lp->symmetric_pause ||
+                                              (adv->asymmetric_pause && lp->asymmetric_pause))
                          ? 1
                          : 0);
                 status->aneg.generate_pause =
-                    (lp->symmetric_pause &&
-                             (adv->symmetric_pause ||
-                              (adv->asymmetric_pause && lp->asymmetric_pause))
+                    (lp->symmetric_pause && (adv->symmetric_pause ||
+                                             (adv->asymmetric_pause && lp->asymmetric_pause))
                          ? 1
                          : 0);
 
@@ -621,10 +592,9 @@ mepa_rc meba_phy_debug_info_print(const meba_inst_t              inst,
     mepa_dbg.full = info->full;
     mepa_dbg.clear = info->clear;
     mepa_dbg.vml_format = info->vml_format;
-    mepa_dbg.layer =
-        (info->layer == MESA_DEBUG_LAYER_AIL   ? MEPA_DEBUG_LAYER_AIL
-         : info->layer == MESA_DEBUG_LAYER_CIL ? MEPA_DEBUG_LAYER_CIL
-                                               : MEPA_DEBUG_LAYER_ALL);
+    mepa_dbg.layer = (info->layer == MESA_DEBUG_LAYER_AIL   ? MEPA_DEBUG_LAYER_AIL
+                      : info->layer == MESA_DEBUG_LAYER_CIL ? MEPA_DEBUG_LAYER_CIL
+                                                            : MEPA_DEBUG_LAYER_ALL);
     if (info->group == MESA_DEBUG_GROUP_ALL) {
         mepa_dbg.group = MEPA_DEBUG_GROUP_ALL;
     } else if (info->group == MESA_DEBUG_GROUP_PHY) {
@@ -664,9 +634,7 @@ mepa_rc meba_phy_debug_info_print(const meba_inst_t              inst,
 }
 
 // Get the phy info
-mepa_rc meba_phy_info_get(meba_inst_t            inst,
-                          mepa_port_no_t         port_no,
-                          mepa_phy_info_t *const phy_info)
+mepa_rc meba_phy_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_info_t *const phy_info)
 {
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;
@@ -674,9 +642,7 @@ mepa_rc meba_phy_info_get(meba_inst_t            inst,
     return mepa_phy_info_get(inst->phy_devices[port_no], phy_info);
 }
 
-mepa_rc meba_isolate_mode_conf(meba_inst_t       inst,
-                               mepa_port_no_t    port_no,
-                               const mepa_bool_t iso_en)
+mepa_rc meba_isolate_mode_conf(meba_inst_t inst, mepa_port_no_t port_no, const mepa_bool_t iso_en)
 {
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;
@@ -685,9 +651,7 @@ mepa_rc meba_isolate_mode_conf(meba_inst_t       inst,
 }
 
 // Get Chip Temperature
-mepa_rc meba_phy_chip_temp_get(meba_inst_t    inst,
-                               mepa_port_no_t port_no,
-                               i16 *const     temp)
+mepa_rc meba_phy_chip_temp_get(meba_inst_t inst, mepa_port_no_t port_no, i16 *const temp)
 {
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;
@@ -696,9 +660,7 @@ mepa_rc meba_phy_chip_temp_get(meba_inst_t    inst,
 }
 
 // Get the SQI value
-mepa_rc meba_phy_sqi_read(meba_inst_t     inst,
-                          mepa_port_no_t  port_no,
-                          uint32_t *const value)
+mepa_rc meba_phy_sqi_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_t *const value)
 {
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;
@@ -707,8 +669,8 @@ mepa_rc meba_phy_sqi_read(meba_inst_t     inst,
 }
 
 // Set the sof parameters
-mepa_rc meba_phy_start_of_frame_conf_set(meba_inst_t    inst,
-                                         mepa_port_no_t port_no,
+mepa_rc meba_phy_start_of_frame_conf_set(meba_inst_t                       inst,
+                                         mepa_port_no_t                    port_no,
                                          mepa_start_of_frame_conf_t *const conf)
 {
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
@@ -718,8 +680,8 @@ mepa_rc meba_phy_start_of_frame_conf_set(meba_inst_t    inst,
 }
 
 // Get the sof parameters
-mepa_rc meba_phy_start_of_frame_conf_get(meba_inst_t    inst,
-                                         mepa_port_no_t port_no,
+mepa_rc meba_phy_start_of_frame_conf_get(meba_inst_t                       inst,
+                                         mepa_port_no_t                    port_no,
                                          mepa_start_of_frame_conf_t *const conf)
 {
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
@@ -787,8 +749,7 @@ mepa_rc meba_prbs_set(meba_inst_t                           inst,
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
-    return mepa_prbs_set(inst->phy_devices[port_no], type, direction,
-                         prbs_conf);
+    return mepa_prbs_set(inst->phy_devices[port_no], type, direction, prbs_conf);
 }
 
 // To Get PRBS
@@ -801,8 +762,7 @@ mepa_rc meba_prbs_get(meba_inst_t                           inst,
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
-    return mepa_prbs_get(inst->phy_devices[port_no], type, direction,
-                         prbs_conf);
+    return mepa_prbs_get(inst->phy_devices[port_no], type, direction, prbs_conf);
 }
 
 // To inject errors to PRBS
@@ -828,9 +788,7 @@ mepa_rc meba_prbs_monitor_get(meba_inst_t                         inst,
 }
 
 // To Get the PHY Capability
-uint32_t meba_capability(meba_inst_t    inst,
-                         mepa_port_no_t port_no,
-                         uint32_t       capability)
+uint32_t meba_capability(meba_inst_t inst, mepa_port_no_t port_no, uint32_t capability)
 {
     if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;

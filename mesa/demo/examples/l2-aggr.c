@@ -21,17 +21,14 @@ static struct {
 
 static int aggr_init(int argc, const char *argv[])
 {
-    mesa_port_no_t port1 =
-        ARGV_INT("port1", "Is the egress port 1 in the aggregation.");
-    mesa_port_no_t port2 =
-        ARGV_INT("port2", "Is the egress port 2 in the aggregation.");
-    uint32_t aggr_mode = ARGV_OPT_INT(
+    mesa_port_no_t port1 = ARGV_INT("port1", "Is the egress port 1 in the aggregation.");
+    mesa_port_no_t port2 = ARGV_INT("port2", "Is the egress port 2 in the aggregation.");
+    uint32_t       aggr_mode = ARGV_OPT_INT(
         "aggr-mode",
         "Is the selected aggregation mode. Default is 0\n   0 is SMAC\n 1 is DMAC\n   2 is SIP/DIP\n   3 is SPORT/DPORT",
         0);
     uint32_t aggr_no =
-        ARGV_OPT_INT("aggr-no",
-                     "Is the selected aggregation number. Default is 1", 1);
+        ARGV_OPT_INT("aggr-no", "Is the selected aggregation number. Default is 1", 1);
     mesa_port_list_t port_list;
     mesa_aggr_mode_t mode;
 

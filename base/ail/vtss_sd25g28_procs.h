@@ -15,10 +15,7 @@
  * ================================================================= */
 
 /** \brief Vitesse chip development name */
-typedef enum {
-    VTSS_SD25G28_CHIP_ANT,
-    VTSS_SD25G28_CHIP_LAST
-} vtss_sd25g28_chip_name_t;
+typedef enum { VTSS_SD25G28_CHIP_ANT, VTSS_SD25G28_CHIP_LAST } vtss_sd25g28_chip_name_t;
 
 /** \brief SerDes mode type for differnet configurations*/
 typedef enum {
@@ -103,16 +100,16 @@ typedef struct {
  **/
 
 typedef enum {
-    VTSS_SD25G28_ATE, /**< Setup be used for ATE testing, Not yet added > */
-    VTSS_SD25G28_ZR,  /**< ZR with APC software algorithm, Not yet added > */
-    VTSS_SD25G28_10GDAC3M, /**< Variable used for 3M DAC running at 10G speed >**/
-    VTSS_SD25G28_10GDAC5M, /**< Variable used for 5M DAC running at 10G speed >**/
-    VTSS_SD25G28_10GDAC1M, /**<Variable used for 1M DAC running at 10G speed>**/
-    VTSS_SD25G28_10GSR,    /**<Variable used for SFP-SR running at 10G speed>**/
-    VTSS_SD25G28_KR_HW,    /**< KR Backplane> */
-    VTSS_SD25G28_PRESET_NONE, /**<Variable used for SFP or RJ45 running at speed
-                                 lesser than 10G>**/
-    VTSS_SD25G28_25GSR, /**<Variable used for 25-SFP-SR running at 25G speed>**/
+    VTSS_SD25G28_ATE,          /**< Setup be used for ATE testing, Not yet added > */
+    VTSS_SD25G28_ZR,           /**< ZR with APC software algorithm, Not yet added > */
+    VTSS_SD25G28_10GDAC3M,     /**< Variable used for 3M DAC running at 10G speed >**/
+    VTSS_SD25G28_10GDAC5M,     /**< Variable used for 5M DAC running at 10G speed >**/
+    VTSS_SD25G28_10GDAC1M,     /**<Variable used for 1M DAC running at 10G speed>**/
+    VTSS_SD25G28_10GSR,        /**<Variable used for SFP-SR running at 10G speed>**/
+    VTSS_SD25G28_KR_HW,        /**< KR Backplane> */
+    VTSS_SD25G28_PRESET_NONE,  /**<Variable used for SFP or RJ45 running at speed
+                                  lesser than 10G>**/
+    VTSS_SD25G28_25GSR,        /**<Variable used for 25-SFP-SR running at 25G speed>**/
     VTSS_SD25G28_25GDAC2M,     /**<Variable used for 25G-DAC-2M- running at 25G
                                   speed>**/
     VTSS_SD25G28_10GDAC3M_PVT, /**<Variable used for 10G-DAC-3M- running at 10G
@@ -140,7 +137,7 @@ typedef struct {
     BOOL                  rxinvert; /**< Enable inversion of input data > */
     BOOL                  txmargin; /**< Set output level to  half/full */
     u16                   txswing;  /**< Set output level  */
-    BOOL mute; /**< Mute Output Buffer. >                                 */
+    BOOL                  mute;     /**< Mute Output Buffer. >                                 */
 } vtss_sd25g28_setup_args_t;
 
 typedef struct {
@@ -313,7 +310,7 @@ typedef struct {
  *  Function prototypes
  * ================================================================= */
 
-vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t mode,
+vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             mode,
                                         vtss_sd25g28_mode_args_t *const ret_val);
 
 // vtss_rc vtss_sd25g28_setup_tx_args_init(vtss_sd25g28_setup_tx_args_t *const
@@ -321,7 +318,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t mode,
 // vtss_sd25g28_setup_rx_args_init(vtss_sd25g28_setup_rx_args_t *const
 // init_val);
 
-vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t config,
+vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t    config,
                                      vtss_sd25g28_setup_struct_t *const ret_val);
 
 // vtss_rc vtss_calc_sd25g28_lane_pwr_down(vtss_sd25g28_lane_pwr_down_t *const

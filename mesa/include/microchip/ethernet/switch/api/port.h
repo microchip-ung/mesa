@@ -46,33 +46,25 @@ typedef struct {
 
 // Port map structure
 typedef struct {
-    int32_t        chip_port; // Set to -1 if not used
-    mesa_chip_no_t chip_no;   // Chip number, multi-chip targets
-    mesa_internal_bw_t max_bw
-        CAP(PORT_BW); // Max internal bandwidth reserved for the port
-    mesa_miim_controller_t miim_controller; // MII management controller
-    uint8_t miim_addr; // PHY address, ignored for MESA_MIIM_CONTROLLER_NONE
-    mesa_chip_no_t
-        miim_chip_no; // MII management chip number, multi-chip targets
-    mesa_port_sgpio_map_t sd_map
-        CAP(SGPIO_MAP); // PCS signal detect to SGPIO bit map
-    mesa_gpio_sd_map_t sd_gpio_map
-        CAP(GPIO_MAP); // PCS signal detect to GPIO SD map
+    int32_t                        chip_port;       // Set to -1 if not used
+    mesa_chip_no_t                 chip_no;         // Chip number, multi-chip targets
+    mesa_internal_bw_t max_bw      CAP(PORT_BW);    // Max internal bandwidth reserved for the port
+    mesa_miim_controller_t         miim_controller; // MII management controller
+    uint8_t                        miim_addr; // PHY address, ignored for MESA_MIIM_CONTROLLER_NONE
+    mesa_chip_no_t                 miim_chip_no;   // MII management chip number, multi-chip targets
+    mesa_port_sgpio_map_t sd_map   CAP(SGPIO_MAP); // PCS signal detect to SGPIO bit map
+    mesa_gpio_sd_map_t sd_gpio_map CAP(GPIO_MAP);  // PCS signal detect to GPIO SD map
 } mesa_port_map_t;
 
 // Set port map.
 // cnt [IN]       Number of entries in port_map. Must be equal to the configured
 // port count. port_map [IN]  Port map array.
-mesa_rc mesa_port_map_set(const mesa_inst_t      inst,
-                          uint32_t               cnt,
-                          const mesa_port_map_t *port_map);
+mesa_rc mesa_port_map_set(const mesa_inst_t inst, uint32_t cnt, const mesa_port_map_t *port_map);
 
 // Get port map.
 // cnt [IN]        Number of entries in port_map. Must be equal to the
 // configured port count. port_map [OUT]  Port map.
-mesa_rc mesa_port_map_get(const mesa_inst_t inst,
-                          uint32_t          cnt,
-                          mesa_port_map_t  *port_map);
+mesa_rc mesa_port_map_get(const mesa_inst_t inst, uint32_t cnt, mesa_port_map_t *port_map);
 
 /**
  * Advertisement Word (Refer to IEEE 802.3 Clause 37):
@@ -116,26 +108,23 @@ typedef struct {
 
 // Auto-negotiation control parameter struct
 typedef struct {
-    mesa_bool_t enable; // Enable of Autoneg
-    mesa_port_clause_37_adv_t
-        advertisement; // Clause 37 Advertisement control data
+    mesa_bool_t               enable;        // Enable of Autoneg
+    mesa_port_clause_37_adv_t advertisement; // Clause 37 Advertisement control data
 } mesa_port_clause_37_control_t;
 
 // Get clause 37 auto-negotiation Control word.
 // port_no [IN]   Port number.
 // control [OUT]  Control structure.
-mesa_rc mesa_port_clause_37_control_get(const mesa_inst_t    inst,
-                                        const mesa_port_no_t port_no,
-                                        mesa_port_clause_37_control_t
-                                            *const control);
+mesa_rc mesa_port_clause_37_control_get(const mesa_inst_t                    inst,
+                                        const mesa_port_no_t                 port_no,
+                                        mesa_port_clause_37_control_t *const control);
 
 // Set clause 37 auto-negotiation Control word.
 // port_no [IN]  Port number.
 // control [IN]  Control structure.
-mesa_rc mesa_port_clause_37_control_set(const mesa_inst_t    inst,
-                                        const mesa_port_no_t port_no,
-                                        const mesa_port_clause_37_control_t
-                                            *const control);
+mesa_rc mesa_port_clause_37_control_set(const mesa_inst_t                          inst,
+                                        const mesa_port_no_t                       port_no,
+                                        const mesa_port_clause_37_control_t *const control);
 
 // Flow control setup
 typedef struct {
@@ -196,25 +185,24 @@ typedef struct {
     // ports that are mapped together can be found in the chip data-sheet.
     mesa_port_interface_t if_type; // Interface type
 
-    mesa_bool_t            sd_enable;      // Signal detect enable
-    mesa_bool_t            sd_active_high; // External signal detect polarity
-    mesa_bool_t            sd_internal;    // Internal signal detect selection
-    mesa_port_frame_gaps_t frame_gaps;     // Inter frame gaps
-    mesa_bool_t            power_down;     // Disable and power down the port
-    mesa_port_speed_t      speed;          // Port speed
-    mesa_bool_t            fdx;            // Full duplex mode
+    mesa_bool_t                   sd_enable;        // Signal detect enable
+    mesa_bool_t                   sd_active_high;   // External signal detect polarity
+    mesa_bool_t                   sd_internal;      // Internal signal detect selection
+    mesa_port_frame_gaps_t        frame_gaps;       // Inter frame gaps
+    mesa_bool_t                   power_down;       // Disable and power down the port
+    mesa_port_speed_t             speed;            // Port speed
+    mesa_bool_t                   fdx;              // Full duplex mode
     mesa_port_flow_control_conf_t flow_control;     // Flow control setup
     uint32_t                      max_frame_length; // Maximum frame length
-    mesa_bool_t frame_length_chk;     // Enforce 802.3 frame length check (from
-                                      // ethertype field)
-    mesa_port_max_tags_t    max_tags; // VLAN awareness for length check
-    mesa_bool_t             exc_col_cont; // Excessive collision continuation
-    mesa_bool_t             xaui_rx_lane_flip; // Xaui Rx lane flip
-    mesa_bool_t             xaui_tx_lane_flip; // Xaui Tx lane flip
-    mesa_port_loop_t        loop;   // Enable/disable of port loop back
-    mesa_port_serdes_conf_t serdes; // Serdes settings (for SFI interface)
-    mesa_port_pcs_conf_t pcs
-        CAP(PORT_PCS_CONF); // Special 1G PCS settings, only supported for L26
+    mesa_bool_t                   frame_length_chk; // Enforce 802.3 frame length check (from
+                                                    // ethertype field)
+    mesa_port_max_tags_t     max_tags;              // VLAN awareness for length check
+    mesa_bool_t              exc_col_cont;          // Excessive collision continuation
+    mesa_bool_t              xaui_rx_lane_flip;     // Xaui Rx lane flip
+    mesa_bool_t              xaui_tx_lane_flip;     // Xaui Tx lane flip
+    mesa_port_loop_t         loop;                  // Enable/disable of port loop back
+    mesa_port_serdes_conf_t  serdes;                // Serdes settings (for SFI interface)
+    mesa_port_pcs_conf_t pcs CAP(PORT_PCS_CONF); // Special 1G PCS settings, only supported for L26
 } mesa_port_conf_t;
 
 // Set port configuration.
@@ -257,8 +245,7 @@ typedef enum {
 // 2. Configure ports in normal manner (configuration is not applied to HW)
 // 3. Apply bulk state (configuration is applied to HW)
 // bulk [IN]  bulk state (disable/enabled/apply)
-mesa_rc mesa_port_conf_bulk_set(const mesa_inst_t      inst,
-                                const mesa_port_bulk_t bulk)
+mesa_rc mesa_port_conf_bulk_set(const mesa_inst_t inst, const mesa_port_bulk_t bulk)
     CAP(PORT_CONF_BULK);
 
 /******************************************************************************/
@@ -270,47 +257,37 @@ typedef uint64_t mesa_port_counter_t;
 
 // RMON counter structure (RFC 2819)
 typedef struct {
-    mesa_port_counter_t rx_etherStatsDropEvents;     // Rx drop events
-    mesa_port_counter_t rx_etherStatsOctets;         // Rx octets
-    mesa_port_counter_t rx_etherStatsPkts;           // Rx packets
-    mesa_port_counter_t rx_etherStatsBroadcastPkts;  // Rx broadcasts
-    mesa_port_counter_t rx_etherStatsMulticastPkts;  // Rx multicasts
-    mesa_port_counter_t rx_etherStatsCRCAlignErrors; // Rx CRC/alignment errors
-    mesa_port_counter_t rx_etherStatsUndersizePkts;  // Rx undersize packets
-    mesa_port_counter_t rx_etherStatsOversizePkts;   // Rx oversize packets
-    mesa_port_counter_t rx_etherStatsFragments;      // Rx fragments
-    mesa_port_counter_t rx_etherStatsJabbers;        // Rx jabbers
-    mesa_port_counter_t rx_etherStatsPkts64Octets;   // Rx 64 byte packets
-    mesa_port_counter_t rx_etherStatsPkts65to127Octets; // Rx 65-127 byte packets
-    mesa_port_counter_t
-        rx_etherStatsPkts128to255Octets; // Rx 128-255 byte packets
-    mesa_port_counter_t
-        rx_etherStatsPkts256to511Octets; // Rx 256-511 byte packets
-    mesa_port_counter_t
-        rx_etherStatsPkts512to1023Octets; // Rx 512-1023 byte packet
-    mesa_port_counter_t
-        rx_etherStatsPkts1024to1518Octets; // Rx 1024-1518 byte packets
-    mesa_port_counter_t
-        rx_etherStatsPkts1519toMaxOctets; // Rx 1519- byte packets
+    mesa_port_counter_t rx_etherStatsDropEvents;           // Rx drop events
+    mesa_port_counter_t rx_etherStatsOctets;               // Rx octets
+    mesa_port_counter_t rx_etherStatsPkts;                 // Rx packets
+    mesa_port_counter_t rx_etherStatsBroadcastPkts;        // Rx broadcasts
+    mesa_port_counter_t rx_etherStatsMulticastPkts;        // Rx multicasts
+    mesa_port_counter_t rx_etherStatsCRCAlignErrors;       // Rx CRC/alignment errors
+    mesa_port_counter_t rx_etherStatsUndersizePkts;        // Rx undersize packets
+    mesa_port_counter_t rx_etherStatsOversizePkts;         // Rx oversize packets
+    mesa_port_counter_t rx_etherStatsFragments;            // Rx fragments
+    mesa_port_counter_t rx_etherStatsJabbers;              // Rx jabbers
+    mesa_port_counter_t rx_etherStatsPkts64Octets;         // Rx 64 byte packets
+    mesa_port_counter_t rx_etherStatsPkts65to127Octets;    // Rx 65-127 byte packets
+    mesa_port_counter_t rx_etherStatsPkts128to255Octets;   // Rx 128-255 byte packets
+    mesa_port_counter_t rx_etherStatsPkts256to511Octets;   // Rx 256-511 byte packets
+    mesa_port_counter_t rx_etherStatsPkts512to1023Octets;  // Rx 512-1023 byte packet
+    mesa_port_counter_t rx_etherStatsPkts1024to1518Octets; // Rx 1024-1518 byte packets
+    mesa_port_counter_t rx_etherStatsPkts1519toMaxOctets;  // Rx 1519- byte packets
 
-    mesa_port_counter_t tx_etherStatsDropEvents;        // Tx drop events
-    mesa_port_counter_t tx_etherStatsOctets;            // Tx octets
-    mesa_port_counter_t tx_etherStatsPkts;              // Tx packets
-    mesa_port_counter_t tx_etherStatsBroadcastPkts;     // Tx broadcasts
-    mesa_port_counter_t tx_etherStatsMulticastPkts;     // Tx multicasts
-    mesa_port_counter_t tx_etherStatsCollisions;        // Tx collisions
-    mesa_port_counter_t tx_etherStatsPkts64Octets;      // Tx 64 byte packets
-    mesa_port_counter_t tx_etherStatsPkts65to127Octets; // Tx 65-127 byte packets
-    mesa_port_counter_t
-        tx_etherStatsPkts128to255Octets; // Tx 128-255 byte packets
-    mesa_port_counter_t
-        tx_etherStatsPkts256to511Octets; // Tx 256-511 byte packets
-    mesa_port_counter_t
-        tx_etherStatsPkts512to1023Octets; // Tx 512-1023 byte packet
-    mesa_port_counter_t
-        tx_etherStatsPkts1024to1518Octets; // Tx 1024-1518 byte packets
-    mesa_port_counter_t
-        tx_etherStatsPkts1519toMaxOctets; // Tx 1519- byte packets
+    mesa_port_counter_t tx_etherStatsDropEvents;           // Tx drop events
+    mesa_port_counter_t tx_etherStatsOctets;               // Tx octets
+    mesa_port_counter_t tx_etherStatsPkts;                 // Tx packets
+    mesa_port_counter_t tx_etherStatsBroadcastPkts;        // Tx broadcasts
+    mesa_port_counter_t tx_etherStatsMulticastPkts;        // Tx multicasts
+    mesa_port_counter_t tx_etherStatsCollisions;           // Tx collisions
+    mesa_port_counter_t tx_etherStatsPkts64Octets;         // Tx 64 byte packets
+    mesa_port_counter_t tx_etherStatsPkts65to127Octets;    // Tx 65-127 byte packets
+    mesa_port_counter_t tx_etherStatsPkts128to255Octets;   // Tx 128-255 byte packets
+    mesa_port_counter_t tx_etherStatsPkts256to511Octets;   // Tx 256-511 byte packets
+    mesa_port_counter_t tx_etherStatsPkts512to1023Octets;  // Tx 512-1023 byte packet
+    mesa_port_counter_t tx_etherStatsPkts1024to1518Octets; // Tx 1024-1518 byte packets
+    mesa_port_counter_t tx_etherStatsPkts1519toMaxOctets;  // Tx 1519- byte packets
 } mesa_port_rmon_counters_t;
 
 // Interfaces Group counter structure (RFC 2863)
@@ -334,26 +311,19 @@ typedef struct {
 
 // Ethernet-like Interface counter structure (RFC 3635)
 typedef struct {
-    mesa_port_counter_t dot3StatsAlignmentErrors
-        CAP(PORT_CNT_ETHER_LIKE); // Rx alignment errors
-    mesa_port_counter_t dot3StatsFCSErrors
-        CAP(PORT_CNT_ETHER_LIKE); // Rx FCS errors
-    mesa_port_counter_t dot3StatsFrameTooLongs
-        CAP(PORT_CNT_ETHER_LIKE); // Rx too long
-    mesa_port_counter_t dot3StatsSymbolErrors
-        CAP(PORT_CNT_ETHER_LIKE); // Rx symbol errors
-    mesa_port_counter_t dot3ControlInUnknownOpcodes
-                        CAP(PORT_CNT_ETHER_LIKE); // Rx unknown opcodes
-    mesa_port_counter_t dot3InPauseFrames;        // Rx pause
+    mesa_port_counter_t dot3StatsAlignmentErrors    CAP(PORT_CNT_ETHER_LIKE); // Rx alignment errors
+    mesa_port_counter_t dot3StatsFCSErrors          CAP(PORT_CNT_ETHER_LIKE); // Rx FCS errors
+    mesa_port_counter_t dot3StatsFrameTooLongs      CAP(PORT_CNT_ETHER_LIKE); // Rx too long
+    mesa_port_counter_t dot3StatsSymbolErrors       CAP(PORT_CNT_ETHER_LIKE); // Rx symbol errors
+    mesa_port_counter_t dot3ControlInUnknownOpcodes CAP(PORT_CNT_ETHER_LIKE); // Rx unknown opcodes
+    mesa_port_counter_t                             dot3InPauseFrames;        // Rx pause
 
     mesa_port_counter_t dot3StatsSingleCollisionFrames
         CAP(PORT_CNT_ETHER_LIKE); // Tx single collisions
     mesa_port_counter_t dot3StatsMultipleCollisionFrames
         CAP(PORT_CNT_ETHER_LIKE); // Tx multiple collisions
-    mesa_port_counter_t dot3StatsDeferredTransmissions
-        CAP(PORT_CNT_ETHER_LIKE); // Tx deferred
-    mesa_port_counter_t dot3StatsLateCollisions
-        CAP(PORT_CNT_ETHER_LIKE); // Tx late collisions
+    mesa_port_counter_t dot3StatsDeferredTransmissions CAP(PORT_CNT_ETHER_LIKE); // Tx deferred
+    mesa_port_counter_t dot3StatsLateCollisions CAP(PORT_CNT_ETHER_LIKE); // Tx late collisions
     mesa_port_counter_t dot3StatsExcessiveCollisions
         CAP(PORT_CNT_ETHER_LIKE); // Tx excessive collisions
     mesa_port_counter_t dot3StatsCarrierSenseErrors
@@ -368,17 +338,15 @@ typedef struct {
 
 // Port counters per (PORT, PRIO)
 typedef struct {
-    mesa_port_counter_t           rx;                // Rx frames
-    mesa_port_counter_t           tx;                // Tx frames
-    mesa_port_counter_t rx_green  CAP(PORT_CNT_EVC); // Rx green frames
-    mesa_port_counter_t rx_yellow CAP(PORT_CNT_EVC); // Rx yellow frames
-    mesa_port_counter_t rx_red    CAP(PORT_CNT_EVC); // Rx red frames
-    mesa_port_counter_t rx_green_discard
-        CAP(PORT_CNT_EVC); // Rx green discarded frames
-    mesa_port_counter_t rx_yellow_discard
-        CAP(PORT_CNT_EVC); // Rx yellow discarded frames
-    mesa_port_counter_t tx_green  CAP(PORT_CNT_EVC); // Tx green frames
-    mesa_port_counter_t tx_yellow CAP(PORT_CNT_EVC); // Tx yellow frames
+    mesa_port_counter_t                   rx;                // Rx frames
+    mesa_port_counter_t                   tx;                // Tx frames
+    mesa_port_counter_t rx_green          CAP(PORT_CNT_EVC); // Rx green frames
+    mesa_port_counter_t rx_yellow         CAP(PORT_CNT_EVC); // Rx yellow frames
+    mesa_port_counter_t rx_red            CAP(PORT_CNT_EVC); // Rx red frames
+    mesa_port_counter_t rx_green_discard  CAP(PORT_CNT_EVC); // Rx green discarded frames
+    mesa_port_counter_t rx_yellow_discard CAP(PORT_CNT_EVC); // Rx yellow discarded frames
+    mesa_port_counter_t tx_green          CAP(PORT_CNT_EVC); // Tx green frames
+    mesa_port_counter_t tx_yellow         CAP(PORT_CNT_EVC); // Tx yellow frames
 } mesa_port_prio_counters_t;
 
 // Port 802.3br counter structure
@@ -393,25 +361,21 @@ typedef struct {
 
 // Port counter structure
 typedef struct {
-    mesa_port_rmon_counters_t     rmon;     // RMON counters
-    mesa_port_if_group_counters_t if_group; // Interfaces Group counters
-    mesa_port_ethernet_like_counters_t
-        ethernet_like;                  // Ethernet-like Interface counters
-    mesa_port_bridge_counters_t bridge; // Bridge counters
-    mesa_port_prio_counters_t   prio[MESA_PRIO_ARRAY_SIZE]; // Priority counters
-    mesa_port_dot3br_counters_t dot3br
-        CAP(QOS_FRAME_PREEMPTION); // 802.3br counters
+    mesa_port_rmon_counters_t          rmon;          // RMON counters
+    mesa_port_if_group_counters_t      if_group;      // Interfaces Group counters
+    mesa_port_ethernet_like_counters_t ethernet_like; // Ethernet-like Interface counters
+    mesa_port_bridge_counters_t        bridge;        // Bridge counters
+    mesa_port_prio_counters_t          prio[MESA_PRIO_ARRAY_SIZE]; // Priority counters
+    mesa_port_dot3br_counters_t dot3br CAP(QOS_FRAME_PREEMPTION);  // 802.3br counters
 } mesa_port_counters_t;
 
 // Update counters for port.
 // port_no [IN]  Port number.
-mesa_rc mesa_port_counters_update(const mesa_inst_t    inst,
-                                  const mesa_port_no_t port_no);
+mesa_rc mesa_port_counters_update(const mesa_inst_t inst, const mesa_port_no_t port_no);
 
 // Clear counters for port.
 // port_no [IN]  Port/aggregation number.
-mesa_rc mesa_port_counters_clear(const mesa_inst_t    inst,
-                                 const mesa_port_no_t port_no);
+mesa_rc mesa_port_counters_clear(const mesa_inst_t inst, const mesa_port_no_t port_no);
 
 // Get counters for port.
 // port_no [IN]    Port/aggregation number.
@@ -438,7 +402,7 @@ typedef enum {
     MESA_PORT_FORWARD_ENABLED,  // Forward in both directions
     MESA_PORT_FORWARD_DISABLED, // Forwarding and learning disabled
     MESA_PORT_FORWARD_INGRESS,  // Forward frames from port only
-    MESA_PORT_FORWARD_EGRESS // Forward frames to port only (learning disabled)
+    MESA_PORT_FORWARD_EGRESS    // Forward frames to port only (learning disabled)
 } mesa_port_forward_t;
 
 // Get port forwarding state.
@@ -460,8 +424,7 @@ mesa_rc mesa_port_forward_state_set(const mesa_inst_t         inst,
 typedef struct {
     mesa_bool_t ena_inj_header CAP(PORT_INJ_HDR); // Enable injection header
     mesa_bool_t ena_xtr_header CAP(PORT_XTR_HDR); // Enable extraction header
-    mesa_bool_t ena_ifh_header
-        CAP(PORT_XTR_HDR); // Same as ena_xtr_header (JR1 compatibility)
+    mesa_bool_t ena_ifh_header CAP(PORT_XTR_HDR); // Same as ena_xtr_header (JR1 compatibility)
 } mesa_port_ifh_t CAP(PORT_IFH);
 
 // Set port Internal Frame Header settings.
@@ -606,47 +569,44 @@ mesa_rc mesa_mmd_write(const mesa_inst_t            inst,
 
 // KR Aneg status
 typedef struct {
-    mesa_bool_t       complete;     // Aneg completed successfully
-    mesa_bool_t       active;       // Aneg is running
-    mesa_port_speed_t speed_req;    // Speed negotiated (needs to be configured)
-    mesa_bool_t request_fec_change; // FEC state change is negotiated (needs to
-                                    // be configured)
-    mesa_bool_t r_fec_enable;       // Base-R-FEC (Clause 74) is negotiated
-    mesa_bool_t rs_fec_enable
-                    CAP(PORT_KR_IRQ); // Base-RS-FEC (Clause 108) is negotiated
-    uint32_t        sm;               // (debug) Aneg state machine
-    uint32_t hist   CAP(PORT_KR_IRQ); // (debug) Aneg history
-    mesa_bool_t     lp_aneg_able;     // (debug) LP aneg ability
-    mesa_bool_t     block_lock;       // (debug) PCS block lock
-    uint16_t lp_bp0 CAP(PORT_KR_IRQ); // (debug) LP Base page 0-15
-    uint16_t lp_bp1 CAP(PORT_KR_IRQ); // (debug) LP Base page 16-31
-    uint16_t lp_bp2 CAP(PORT_KR_IRQ); // (debug) LP Base page 32-47
-    uint16_t lp_np0 CAP(PORT_KR_IRQ); // (debug) LP Next page 0-15
-    uint16_t lp_np1 CAP(PORT_KR_IRQ); // (debug) LP Next page 16-31
-    uint16_t lp_np2 CAP(PORT_KR_IRQ); // (debug) LP Next page 32-47
+    mesa_bool_t       complete;                 // Aneg completed successfully
+    mesa_bool_t       active;                   // Aneg is running
+    mesa_port_speed_t speed_req;                // Speed negotiated (needs to be configured)
+    mesa_bool_t       request_fec_change;       // FEC state change is negotiated (needs to
+                                                // be configured)
+    mesa_bool_t               r_fec_enable;     // Base-R-FEC (Clause 74) is negotiated
+    mesa_bool_t rs_fec_enable CAP(PORT_KR_IRQ); // Base-RS-FEC (Clause 108) is negotiated
+    uint32_t                  sm;               // (debug) Aneg state machine
+    uint32_t hist             CAP(PORT_KR_IRQ); // (debug) Aneg history
+    mesa_bool_t               lp_aneg_able;     // (debug) LP aneg ability
+    mesa_bool_t               block_lock;       // (debug) PCS block lock
+    uint16_t lp_bp0           CAP(PORT_KR_IRQ); // (debug) LP Base page 0-15
+    uint16_t lp_bp1           CAP(PORT_KR_IRQ); // (debug) LP Base page 16-31
+    uint16_t lp_bp2           CAP(PORT_KR_IRQ); // (debug) LP Base page 32-47
+    uint16_t lp_np0           CAP(PORT_KR_IRQ); // (debug) LP Next page 0-15
+    uint16_t lp_np1           CAP(PORT_KR_IRQ); // (debug) LP Next page 16-31
+    uint16_t lp_np2           CAP(PORT_KR_IRQ); // (debug) LP Next page 32-47
 } mesa_port_kr_status_aneg_t CAP(PORT_KR);
 
 // KR Training status
 typedef struct {
-    mesa_bool_t
-            complete; // Training completed successfully, tap settings applied.
-    uint8_t cm_ob_tap_result; // The minus 1 coefficient c(-1). 7-bit signed,
-                              // range: -32..31
-    uint8_t cp_ob_tap_result; // The 0 coefficient c(0).        7-bit signed,
-                              // range: -32..31
-    uint8_t c0_ob_tap_result; // The plus 1 coefficient c(1).   7-bit signed,
-                              // range: -32..31
+    mesa_bool_t complete;         // Training completed successfully, tap settings applied.
+    uint8_t     cm_ob_tap_result; // The minus 1 coefficient c(-1). 7-bit signed,
+                                  // range: -32..31
+    uint8_t cp_ob_tap_result;     // The 0 coefficient c(0).        7-bit signed,
+                                  // range: -32..31
+    uint8_t c0_ob_tap_result;     // The plus 1 coefficient c(1).   7-bit signed,
+                                  // range: -32..31
     uint32_t frame_sent   CAP(PORT_KR_IRQ); // Training frames sent
     uint16_t frame_errors CAP(PORT_KR_IRQ); // Training frames errors
 } mesa_port_kr_status_train_t CAP(PORT_KR);
 
 // KR FEC status
 typedef struct {
-    mesa_bool_t r_fec_enable; // FEC enabled (Clause 74)
-    mesa_bool_t rs_fec_enable
-             CAP(PORT_KR_IRQ);      // RS-FEC Enabled (Clause 108 / 25G)  */
-    uint32_t corrected_block_cnt;   // Corrected block count
-    uint32_t uncorrected_block_cnt; // Un-corrected block count
+    mesa_bool_t               r_fec_enable;          // FEC enabled (Clause 74)
+    mesa_bool_t rs_fec_enable CAP(PORT_KR_IRQ);      // RS-FEC Enabled (Clause 108 / 25G)  */
+    uint32_t                  corrected_block_cnt;   // Corrected block count
+    uint32_t                  uncorrected_block_cnt; // Un-corrected block count
 } mesa_port_kr_status_fec_t CAP(PORT_KR);
 
 // KR Aneg and Training structures
@@ -672,15 +632,13 @@ typedef struct {
 
 // KR Training config
 typedef struct {
-    mesa_bool_t           enable; // Enable KR training, BER method used
-    mesa_bool_t no_remote CAP(PORT_KR_IRQ); // Do not train remote, only local
-    mesa_bool_t no_eq_apply
-        CAP(PORT_KR_IRQ); // Do not apply EQ settings to HW (debug only)
-    mesa_bool_t use_ber_cnt
-        CAP(PORT_KR_IRQ); // Use BER count instead of eye height
-    mesa_bool_t test_mode CAP(PORT_KR_IRQ); // Debug only
-    uint32_t test_repeat  CAP(PORT_KR_IRQ); // Debug only
-    mesa_bool_t pcs_flap  CAP(PORT_KR_IRQ); // mesa-837
+    mesa_bool_t             enable;           // Enable KR training, BER method used
+    mesa_bool_t no_remote   CAP(PORT_KR_IRQ); // Do not train remote, only local
+    mesa_bool_t no_eq_apply CAP(PORT_KR_IRQ); // Do not apply EQ settings to HW (debug only)
+    mesa_bool_t use_ber_cnt CAP(PORT_KR_IRQ); // Use BER count instead of eye height
+    mesa_bool_t test_mode   CAP(PORT_KR_IRQ); // Debug only
+    uint32_t test_repeat    CAP(PORT_KR_IRQ); // Debug only
+    mesa_bool_t pcs_flap    CAP(PORT_KR_IRQ); // mesa-837
 } mesa_port_kr_train_t CAP(PORT_KR);
 
 // KR configuration structures
@@ -696,8 +654,7 @@ typedef struct {
 // conf [IN]  Configuration structure.
 mesa_rc mesa_port_kr_conf_set(const mesa_inst_t                inst,
                               const mesa_port_no_t             port_no,
-                              const mesa_port_kr_conf_t *const conf)
-    CAP(PORT_KR);
+                              const mesa_port_kr_conf_t *const conf) CAP(PORT_KR);
 
 // Get KR configuration
 // port_no [IN]   Port number.
@@ -711,8 +668,7 @@ mesa_rc mesa_port_kr_conf_get(const mesa_inst_t          inst,
 // status [OUT]  KR Aneg and Training status
 mesa_rc mesa_port_kr_status_get(const mesa_inst_t            inst,
                                 const mesa_port_no_t         port_no,
-                                mesa_port_kr_status_t *const status)
-    CAP(PORT_KR);
+                                mesa_port_kr_status_t *const status) CAP(PORT_KR);
 
 #define MESA_KR_AN_RATE         (0xF)
 #define MESA_KR_NP_REQ          (1 << 31)
@@ -819,14 +775,12 @@ typedef struct {
 
 mesa_rc mesa_port_kr_state_get(const mesa_inst_t           inst,
                                const mesa_port_no_t        port_no,
-                               mesa_port_kr_state_t *const state)
-    CAP(PORT_KR_IRQ);
+                               mesa_port_kr_state_t *const state) CAP(PORT_KR_IRQ);
 
 // KR FEC structure */
 typedef struct {
-    mesa_bool_t r_fec; /**< Enable/Disable Clause 74 R-FEC              */
-    mesa_bool_t rs_fec
-        CAP(PORT_KR_IRQ); /**< Enable/Disable Clause 108 RS-FEC (25G only) */
+    mesa_bool_t        r_fec;            /**< Enable/Disable Clause 74 R-FEC              */
+    mesa_bool_t rs_fec CAP(PORT_KR_IRQ); /**< Enable/Disable Clause 108 RS-FEC (25G only) */
 } mesa_port_kr_fec_t CAP(PORT_KR);
 
 // KR eye info
@@ -881,8 +835,7 @@ mesa_rc mesa_port_kr_event_enable(const mesa_inst_t    inst,
 // Get current KR interrupt status across all ports
 // mask    [OUT]  A mask with one bit for each port.
 
-mesa_rc mesa_port_kr_irq_activity(mesa_inst_t inst, uint32_t *const mask)
-    CAP(PORT_KR_IRQ);
+mesa_rc mesa_port_kr_irq_activity(mesa_inst_t inst, uint32_t *const mask) CAP(PORT_KR_IRQ);
 
 /**
  * \brief Get and clear KR interrupts
@@ -896,8 +849,7 @@ mesa_rc mesa_port_kr_irq_activity(mesa_inst_t inst, uint32_t *const mask)
  **/
 mesa_rc mesa_port_kr_eye_get(mesa_inst_t                   inst,
                              const mesa_port_no_t          port_no,
-                             mesa_port_kr_eye_dim_t *const eye)
-    CAP(PORT_KR_IRQ);
+                             mesa_port_kr_eye_dim_t *const eye) CAP(PORT_KR_IRQ);
 
 /**
  * \brief Start CTLE adjustment
@@ -908,8 +860,7 @@ mesa_rc mesa_port_kr_eye_get(mesa_inst_t                   inst,
  *
  * \return Return code.
  **/
-mesa_rc mesa_port_kr_ctle_adjust(mesa_inst_t inst, const mesa_port_no_t port_no)
-    CAP(PORT_KR_IRQ);
+mesa_rc mesa_port_kr_ctle_adjust(mesa_inst_t inst, const mesa_port_no_t port_no) CAP(PORT_KR_IRQ);
 
 /**
  * \brief Get CTLE config
@@ -969,12 +920,11 @@ typedef enum {
 //  are known. The purpose is to get the tap value for a specific
 //  port/speed/tap. port_no [IN]    Port number. speed   [IN]    Port speed. tap
 //  [IN]    Pre/main/post tap. value   [OUT]   The register value to be written.
-typedef mesa_rc (*mesa_port_serdes_tap_get_t)(const mesa_inst_t       inst,
-                                              const mesa_port_no_t    port_no,
-                                              const mesa_port_speed_t speed,
-                                              const mesa_port_serdes_tap_enum_t
-                                                              tap,
-                                              uint32_t *const value);
+typedef mesa_rc (*mesa_port_serdes_tap_get_t)(const mesa_inst_t                 inst,
+                                              const mesa_port_no_t              port_no,
+                                              const mesa_port_speed_t           speed,
+                                              const mesa_port_serdes_tap_enum_t tap,
+                                              uint32_t *const                   value);
 
 /** \brief Serdes debug parameters */
 typedef enum {
@@ -999,8 +949,8 @@ typedef struct {
  *
  * \return Return code.
  **/
-mesa_rc mesa_port_serdes_debug_set(const mesa_inst_t    inst,
-                                   const mesa_port_no_t port_no,
+mesa_rc mesa_port_serdes_debug_set(const mesa_inst_t                     inst,
+                                   const mesa_port_no_t                  port_no,
                                    const mesa_port_serdes_debug_t *const conf);
 
 #include <microchip/ethernet/hdr_end.h>

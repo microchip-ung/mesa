@@ -17,16 +17,14 @@
  *  AFI - Automatic Frame Injector
  * ================================================================= */
 
-#define VTSS_QSYS_TIMER_UNIT_PS 198400LLU /* Timer base period in picoseconds */
+#define VTSS_QSYS_TIMER_UNIT_PS 198400LLU        /* Timer base period in picoseconds */
 #define VTSS_PS_PER_SEC         1000000000000LLU /* Picoseconds per second */
-#define VTSS_AFI_SLOT_DIVIDER                                                  \
-    16 /* Where to place the slot divider (TIMED_ENTRY_FAST_CNT) */
-#define VTSS_AFI_SLOTS_PER_CC 8 /* Number of slots visited in one clock cycle */
+#define VTSS_AFI_SLOT_DIVIDER   16 /* Where to place the slot divider (TIMED_ENTRY_FAST_CNT) */
+#define VTSS_AFI_SLOTS_PER_CC   8  /* Number of slots visited in one clock cycle */
 
 // Unfortunately, the AFI timers aren't defined as a replication (due to
 // distinct defaults), so we have to define our own address.
-#define VTSS_QSYS_TIMED_FRAME_CFG_TFRM_TIMER_CFG(x)                            \
-    VTSS_IOREG(VTSS_TO_QSYS, 0x44c6 + (x))
+#define VTSS_QSYS_TIMED_FRAME_CFG_TFRM_TIMER_CFG(x) VTSS_IOREG(VTSS_TO_QSYS, 0x44c6 + (x))
 
 /**
  * srvl_afi_chip_port_to_str()
@@ -47,8 +45,7 @@ static char *srvl_afi_chip_port_to_str(vtss_state_t       *vtss_state,
     case VTSS_CHIP_PORT_CPU: VTSS_FMT(buf, "CPU"); break;
 
     default:
-        port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no,
-                                                chip_port);
+        port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no, chip_port);
         if (port_no != VTSS_PORT_NO_NONE) {
             VTSS_FMT(buf, "%u", port_no);
         } else {
@@ -96,10 +93,8 @@ static void srvl_afi_debug_qres_print(vtss_state_t       *vtss_state,
 {
     char buf[20];
 
-    pr("%4u %-8s %7s %9d %4u %5u %6u\n", idx,
-       srvl_afi_qsys_resource_to_str(resource),
-       srvl_afi_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio,
-       inuse, maxuse);
+    pr("%4u %-8s %7s %9d %4u %5u %6u\n", idx, srvl_afi_qsys_resource_to_str(resource),
+       srvl_afi_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio, inuse, maxuse);
 }
 
 /**
@@ -108,7 +103,7 @@ static void srvl_afi_debug_qres_print(vtss_state_t       *vtss_state,
 static vtss_rc srvl_afi_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss)
 {
     vtss_phys_port_no_t chip_port;
-    u32 resource, resource_base, port_base, idx, prio, val, inuse, addr;
+    u32                 resource, resource_base, port_base, idx, prio, val, inuse, addr;
 
     pr("\nQSYS Resource table (QSYS:RES_CTRL[idx]:RES_STAT)\n");
     pr("Idx  Resource Port No Chip Port Prio INUSE MAXUSE\n");
@@ -116,8 +111,8 @@ static vtss_rc srvl_afi_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss)
 
     addr = VTSS_QSYS_RES_CTRL_RES_STAT(255);
     SRVL_RD(addr, &val);
-    srvl_afi_debug_qres_print(vtss_state, ss, 255, (vtss_phys_port_no_t)-1, 0,
-                              7, VTSS_X_QSYS_RES_CTRL_RES_STAT_INUSE(val),
+    srvl_afi_debug_qres_print(vtss_state, ss, 255, (vtss_phys_port_no_t)-1, 0, 7,
+                              VTSS_X_QSYS_RES_CTRL_RES_STAT_INUSE(val),
                               VTSS_X_QSYS_RES_CTRL_RES_STAT_MAXUSE(val));
 
     for (resource = 0; resource < 4; resource++) {
@@ -131,9 +126,8 @@ static vtss_rc srvl_afi_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss)
                 inuse = VTSS_X_QSYS_RES_CTRL_RES_STAT_INUSE(val);
                 if (inuse) {
                     // Only print non-zero values or we will be flooded.
-                    srvl_afi_debug_qres_print(
-                        vtss_state, ss, idx, chip_port, resource, prio, inuse,
-                        VTSS_X_QSYS_RES_CTRL_RES_STAT_MAXUSE(val));
+                    srvl_afi_debug_qres_print(vtss_state, ss, idx, chip_port, resource, prio, inuse,
+                                              VTSS_X_QSYS_RES_CTRL_RES_STAT_MAXUSE(val));
                 }
             }
         }
@@ -157,8 +151,7 @@ static vtss_rc srvl_afi_cancel(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
     // Before cancelling this frame, make sure it indeed is known by the AFI H/W
     SRVL_RD(VTSS_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY(afi_id), &val);
     if ((val & VTSS_F_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY_TFRM_VLD) == 0) {
-        VTSS_IG(VTSS_TRACE_GROUP_AFI,
-                "Cancelling a frame (ID = %u) that is not in H/W", afi_id);
+        VTSS_IG(VTSS_TRACE_GROUP_AFI, "Cancelling a frame (ID = %u) that is not in H/W", afi_id);
         return VTSS_RC_OK;
     }
 
@@ -175,14 +168,12 @@ static vtss_rc srvl_afi_cancel(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
     while (1) {
         cnt++;
         SRVL_RD(VTSS_QSYS_TIMED_FRAME_CFG_TFRM_MISC, &val);
-        if ((val & VTSS_F_QSYS_TIMED_FRAME_CFG_TFRM_MISC_TIMED_CANCEL_1SHOT) ==
-            0) {
+        if ((val & VTSS_F_QSYS_TIMED_FRAME_CFG_TFRM_MISC_TIMED_CANCEL_1SHOT) == 0) {
             goto do_exit;
         }
 
         if (VTSS_MTIMER_TIMEOUT(&timer)) {
-            VTSS_EG(VTSS_TRACE_GROUP_AFI,
-                    "Timeout waiting for cancelling of frame (afi_id = %u)",
+            VTSS_EG(VTSS_TRACE_GROUP_AFI, "Timeout waiting for cancelling of frame (afi_id = %u)",
                     afi_id);
             rc = VTSS_RC_ERROR;
             goto do_exit;
@@ -207,8 +198,7 @@ static vtss_rc srvl_afi_link_state_change(vtss_state_t  *vtss_state,
     vtss_afi_id_t afi_id;
     BOOL          resume = *link_up;
 
-    VTSS_IG(VTSS_TRACE_GROUP_AFI, "Link %s event on iport %u",
-            *link_up ? "up" : "down", port_no);
+    VTSS_IG(VTSS_TRACE_GROUP_AFI, "Link %s event on iport %u", *link_up ? "up" : "down", port_no);
 
     // Gotta return the current link state in #link_up, which is an INOUT.
     if (port_no < VTSS_PORTS) {
@@ -237,8 +227,7 @@ static vtss_rc srvl_afi_link_state_change(vtss_state_t  *vtss_state,
             // switch core, but keep the software state.
             slot_conf->state = VTSS_AFI_SLOT_STATE_PAUSED;
 
-            VTSS_IG(VTSS_TRACE_GROUP_AFI,
-                    "iport = %u: Cancelling (pausing) afi_id = %u", port_no,
+            VTSS_IG(VTSS_TRACE_GROUP_AFI, "iport = %u: Cancelling (pausing) afi_id = %u", port_no,
                     afi_id);
             VTSS_RC(srvl_afi_cancel(vtss_state, afi_id));
         }
@@ -281,11 +270,8 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
     if (timer == VTSS_ARRSZ(vtss_state->afi.timers)) {
         // The smallest possible rate was not small enough
         // for the request.
-        VTSS_EG(VTSS_TRACE_GROUP_AFI,
-                "Requested %u fps, but couldn't go slower than %u fps",
-                dscr->fps,
-                vtss_state->afi.timers[VTSS_ARRSZ(vtss_state->afi.timers) - 1]
-                    .fps);
+        VTSS_EG(VTSS_TRACE_GROUP_AFI, "Requested %u fps, but couldn't go slower than %u fps",
+                dscr->fps, vtss_state->afi.timers[VTSS_ARRSZ(vtss_state->afi.timers) - 1].fps);
         return VTSS_RC_ERROR;
     }
 
@@ -336,19 +322,15 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
         // when absolutely necessary.
         for (sub_slot = 0; sub_slot < 8; sub_slot++) {
             for (slot = min_slot + sub_slot; slot <= max_slot; slot += 8) {
-                if (vtss_state->afi.slots[slot].state ==
-                    VTSS_AFI_SLOT_STATE_FREE) {
+                if (vtss_state->afi.slots[slot].state == VTSS_AFI_SLOT_STATE_FREE) {
                     // Also check that H/W doesn't have a frame now that it
                     // isn't supposed to have (can happen if the egress port is
                     // oversubscribed and the user hasn't called the hijack
                     // function).
-                    SRVL_RD(VTSS_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY(slot),
-                            &val);
-                    if ((val &
-                         VTSS_F_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY_TFRM_VLD) !=
-                        0) {
-                        VTSS_IG(VTSS_TRACE_GROUP_AFI,
-                                "Cancelling an unknown frame in slot %u", slot);
+                    SRVL_RD(VTSS_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY(slot), &val);
+                    if ((val & VTSS_F_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY_TFRM_VLD) != 0) {
+                        VTSS_IG(VTSS_TRACE_GROUP_AFI, "Cancelling an unknown frame in slot %u",
+                                slot);
                         VTSS_RC(srvl_afi_cancel(vtss_state, slot));
                     }
 
@@ -368,8 +350,7 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
 
         if (!found && attempt == 1) {
             // Out of slots.
-            VTSS_EG(VTSS_TRACE_GROUP_AFI,
-                    "Unable to find a usable AFI slot (fps = %u)",
+            VTSS_EG(VTSS_TRACE_GROUP_AFI, "Unable to find a usable AFI slot (fps = %u)",
                     dscr->actual_fps);
             return VTSS_RC_ERROR;
         }
@@ -381,9 +362,8 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
     // Update the S/W state
     timer_conf->ref_cnt++;
     slot_conf->timer_idx = timer;
-    slot_conf->state =
-        VTSS_AFI_SLOT_STATE_RESERVED; // Only reserved. We don't know the
-                                      // destination port yet.
+    slot_conf->state = VTSS_AFI_SLOT_STATE_RESERVED; // Only reserved. We don't know the
+                                                     // destination port yet.
     vtss_state->afi.fps_per_section[min_slot == 0 ? 0 : 1] += dscr->actual_fps;
 
     *afi_id = slot;
@@ -393,23 +373,20 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
 
     // Figure out the closest, smaller fps that we can obtain with the AFI at
     // hand.
-    ticks =
-        VTSS_DIV64(VTSS_PS_PER_SEC, ((u64)dscr->fps * VTSS_QSYS_TIMER_UNIT_PS));
+    ticks = VTSS_DIV64(VTSS_PS_PER_SEC, ((u64)dscr->fps * VTSS_QSYS_TIMER_UNIT_PS));
     if (ticks == 0) {
-        VTSS_EG(VTSS_TRACE_GROUP_AFI, "Got ticks == 0 with fps == %u",
-                dscr->fps);
+        VTSS_EG(VTSS_TRACE_GROUP_AFI, "Got ticks == 0 with fps == %u", dscr->fps);
         return VTSS_RC_ERROR;
     }
 
-    dscr->actual_fps =
-        VTSS_DIV64(VTSS_PS_PER_SEC, (ticks * VTSS_QSYS_TIMER_UNIT_PS));
+    dscr->actual_fps = VTSS_DIV64(VTSS_PS_PER_SEC, (ticks * VTSS_QSYS_TIMER_UNIT_PS));
 
     // Since we are truncating in the ticks computation, ticks will always be <=
     // than had we used floating point. This means that dscr->actual_fps will
     // always be >= dscr->fps.
     if (dscr->actual_fps < dscr->fps) {
-        VTSS_EG(VTSS_TRACE_GROUP_AFI, "Error: Assumption didn't hold %u/%u\n",
-                dscr->actual_fps, dscr->fps);
+        VTSS_EG(VTSS_TRACE_GROUP_AFI, "Error: Assumption didn't hold %u/%u\n", dscr->actual_fps,
+                dscr->fps);
         return VTSS_RC_ERROR;
     }
 
@@ -418,13 +395,11 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
         // We have promised (see public signature for dscr) that the actual
         // fps will be less than or equal to the desired fps.
         ticks++;
-        dscr->actual_fps =
-            VTSS_DIV64(VTSS_PS_PER_SEC, (ticks * VTSS_QSYS_TIMER_UNIT_PS));
+        dscr->actual_fps = VTSS_DIV64(VTSS_PS_PER_SEC, (ticks * VTSS_QSYS_TIMER_UNIT_PS));
     }
 
     if (ticks <= 0 || ticks > 0xFFFFFFFFULL) {
-        VTSS_EG(VTSS_TRACE_GROUP_AFI,
-                "Unable to fulfil user request for fps = %u", dscr->fps);
+        VTSS_EG(VTSS_TRACE_GROUP_AFI, "Unable to fulfil user request for fps = %u", dscr->fps);
         return VTSS_RC_ERROR;
     }
 
@@ -453,8 +428,7 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
 
     if (timer == VTSS_ARRSZ(vtss_state->afi.timers)) {
         // No free timers.
-        VTSS_EG(VTSS_TRACE_GROUP_AFI,
-                "Unable to find a usable AFI timer (fps = %u)",
+        VTSS_EG(VTSS_TRACE_GROUP_AFI, "Unable to find a usable AFI timer (fps = %u)",
                 dscr->actual_fps);
         return VTSS_RC_ERROR;
     }
@@ -475,10 +449,8 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
             // supposed to have (can happen if the egress port is oversubscribed
             // and the user hasn't called the hijack function).
             SRVL_RD(VTSS_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY(slot), &val);
-            if ((val & VTSS_F_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY_TFRM_VLD) !=
-                0) {
-                VTSS_IG(VTSS_TRACE_GROUP_AFI,
-                        "Cancelling an unknown frame in slot %u", slot);
+            if ((val & VTSS_F_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY_TFRM_VLD) != 0) {
+                VTSS_IG(VTSS_TRACE_GROUP_AFI, "Cancelling an unknown frame in slot %u", slot);
                 VTSS_RC(srvl_afi_cancel(vtss_state, slot));
             }
 
@@ -488,8 +460,7 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
 
     if (slot == max_slot + 1) {
         // Out of slots.
-        VTSS_EG(VTSS_TRACE_GROUP_AFI,
-                "Unable to find a usable AFI slot (fps = %u)",
+        VTSS_EG(VTSS_TRACE_GROUP_AFI, "Unable to find a usable AFI slot (fps = %u)",
                 dscr->actual_fps);
         return VTSS_RC_ERROR;
     }
@@ -506,9 +477,8 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
     timer_conf->ref_cnt++;
     timer_conf->fps = dscr->actual_fps;
     slot_conf->timer_idx = timer;
-    slot_conf->state =
-        VTSS_AFI_SLOT_STATE_RESERVED; // Only reserved. We don't know the
-                                      // destination port yet.
+    slot_conf->state = VTSS_AFI_SLOT_STATE_RESERVED; // Only reserved. We don't know the
+                                                     // destination port yet.
 
     *afi_id = slot;
     return VTSS_RC_OK;
@@ -535,8 +505,8 @@ static vtss_rc srvl_afi_free(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
 
         // Ask the switch core to stop it. It doesn't harm to stop
         // a slot that is just reserved and not active.
-        VTSS_IG(VTSS_TRACE_GROUP_AFI, "Freeing afi_id = %u on port_no = %u",
-                afi_id, slot_conf->port_no);
+        VTSS_IG(VTSS_TRACE_GROUP_AFI, "Freeing afi_id = %u on port_no = %u", afi_id,
+                slot_conf->port_no);
         VTSS_RC(srvl_afi_cancel(vtss_state, afi_id));
 
         slot_conf->state = VTSS_AFI_SLOT_STATE_FREE;
@@ -547,15 +517,13 @@ static vtss_rc srvl_afi_free(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
 #if VTSS_OPT_AFI_OPTIMIZE_FOR_TIMERS
         {
             u32 timer_fps = vtss_state->afi.timers[slot_conf->timer_idx].fps;
-            u32 section =
-                afi_id >= VTSS_AFI_SLOT_DIVIDER * VTSS_AFI_SLOTS_PER_CC ? 1 : 0;
+            u32 section = afi_id >= VTSS_AFI_SLOT_DIVIDER * VTSS_AFI_SLOTS_PER_CC ? 1 : 0;
             if (vtss_state->afi.fps_per_section[section] < timer_fps) {
                 VTSS_EG(
                     VTSS_TRACE_GROUP_AFI,
                     "AFI ID = %u: Error updating section info. afi.fps_per_section[0, 1] = %u, %u. Timer = %u. FPS = %u",
-                    afi_id, vtss_state->afi.fps_per_section[0],
-                    vtss_state->afi.fps_per_section[1], slot_conf->timer_idx,
-                    timer_fps);
+                    afi_id, vtss_state->afi.fps_per_section[0], vtss_state->afi.fps_per_section[1],
+                    slot_conf->timer_idx, timer_fps);
                 return VTSS_RC_ERROR;
             }
 
@@ -590,8 +558,7 @@ static vtss_rc srvl_afi_hijack(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
         // cancelled, e.g. by a link-down, before this function is invoked, so
         // not a real error, hence the use of VTSS_IG() rather than VTSS_EG()
         // and return of VTSS_RC_OK rather than VTSS_RC_ERROR.
-        VTSS_IG(VTSS_TRACE_GROUP_AFI,
-                "Frame with AFI ID %u has not been sent towards the AFI",
+        VTSS_IG(VTSS_TRACE_GROUP_AFI, "Frame with AFI ID %u has not been sent towards the AFI",
                 afi_id);
         return VTSS_RC_OK;
     }
@@ -611,17 +578,15 @@ static vtss_rc srvl_afi_hijack(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
     while (1) {
         cnt++;
         SRVL_RD(VTSS_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY(afi_id), &val);
-        if ((val & VTSS_F_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY_TFRM_VLD) !=
-            0) {
+        if ((val & VTSS_F_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY_TFRM_VLD) != 0) {
             // Hijacked.
             goto do_exit;
         }
 
         if (VTSS_MTIMER_TIMEOUT(&timer)) {
-            VTSS_EG(
-                VTSS_TRACE_GROUP_AFI,
-                "Timeout waiting for frame to hit the AFI (afi_id = %u). Reads so far = %u",
-                afi_id, cnt);
+            VTSS_EG(VTSS_TRACE_GROUP_AFI,
+                    "Timeout waiting for frame to hit the AFI (afi_id = %u). Reads so far = %u",
+                    afi_id, cnt);
             rc = VTSS_RC_ERROR;
             goto do_exit;
         }
@@ -653,9 +618,8 @@ static vtss_rc srvl_afi_init(vtss_state_t *vtss_state)
     vtss_state->afi.timers[1].fps = 100000;
     vtss_state->afi.timers[2].fps = 30000;
     vtss_state->afi.timers[3].fps = 3000;
-    vtss_state->afi.timers[4].fps =
-        300; // Want to support 3.33 ms CCM with a single frame flow to space
-             // frames evenly
+    vtss_state->afi.timers[4].fps = 300; // Want to support 3.33 ms CCM with a single frame flow to
+                                         // space frames evenly
     vtss_state->afi.timers[5].fps = 100; // Ditto with 10 ms CCM
     vtss_state->afi.timers[6].fps = 10;  // Ditto with 100 ms CCM
     vtss_state->afi.timers[7].fps =
@@ -664,8 +628,7 @@ static vtss_rc srvl_afi_init(vtss_state_t *vtss_state)
     // Configure the timers.
     for (timer = 0; timer < VTSS_ARRSZ(vtss_state->afi.timers); timer++) {
         ticks = VTSS_DIV64(VTSS_PS_PER_SEC,
-                           ((u64)vtss_state->afi.timers[timer].fps *
-                            VTSS_QSYS_TIMER_UNIT_PS)) +
+                           ((u64)vtss_state->afi.timers[timer].fps * VTSS_QSYS_TIMER_UNIT_PS)) +
                 1;
         SRVL_WR(VTSS_QSYS_TIMED_FRAME_CFG_TFRM_TIMER_CFG(timer), ticks);
 
@@ -678,8 +641,7 @@ static vtss_rc srvl_afi_init(vtss_state_t *vtss_state)
     // used, and why the following register needs to be set to
     // VTSS_AFI_SLOT_DIVIDER.
     SRVL_WRM(VTSS_QSYS_TIMED_FRAME_CFG_TFRM_MISC,
-             VTSS_F_QSYS_TIMED_FRAME_CFG_TFRM_MISC_TIMED_ENTRY_FAST_CNT(
-                 VTSS_AFI_SLOT_DIVIDER),
+             VTSS_F_QSYS_TIMED_FRAME_CFG_TFRM_MISC_TIMED_ENTRY_FAST_CNT(VTSS_AFI_SLOT_DIVIDER),
              VTSS_M_QSYS_TIMED_FRAME_CFG_TFRM_MISC_TIMED_ENTRY_FAST_CNT);
 #endif /* VTSS_OPT_AFI_OPTIMIZE_FOR_TIMERS */
 
@@ -706,9 +668,8 @@ static vtss_rc srvl_npi_mask_set(vtss_state_t *vtss_state)
                 qmask |= VTSS_BIT(i); /* NPI redirect */
             }
         }
-        val =
-            VTSS_F_QSYS_SYSTEM_EXT_CPU_CFG_EXT_CPU_PORT(VTSS_CHIP_PORT(port_no)) |
-            VTSS_F_QSYS_SYSTEM_EXT_CPU_CFG_EXT_CPUQ_MSK(qmask);
+        val = VTSS_F_QSYS_SYSTEM_EXT_CPU_CFG_EXT_CPU_PORT(VTSS_CHIP_PORT(port_no)) |
+              VTSS_F_QSYS_SYSTEM_EXT_CPU_CFG_EXT_CPUQ_MSK(qmask);
     }
     SRVL_WR(VTSS_QSYS_SYSTEM_EXT_CPU_CFG, val);
 
@@ -736,8 +697,7 @@ static vtss_rc srvl_npi_update(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_npi_conf_set(vtss_state_t *vtss_state,
-                                 const vtss_npi_conf_t *const new)
+static vtss_rc srvl_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
 {
     vtss_npi_conf_t *conf = &vtss_state->packet.npi_conf;
 
@@ -752,9 +712,7 @@ static vtss_rc srvl_npi_conf_set(vtss_state_t *vtss_state,
     return vtss_cmn_vlan_update_all(vtss_state);
 }
 
-static vtss_rc srvl_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state,
-                                             u32           phy_cnt,
-                                             u64          *ts_cnt)
+static vtss_rc srvl_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
 {
     VTSS_I("Not supported in this architecture");
     *ts_cnt = 0;
@@ -762,9 +720,7 @@ static vtss_rc srvl_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_packet_ns_to_ts_cnt(vtss_state_t *vtss_state,
-                                        u32           ns,
-                                        u64          *ts_cnt)
+static vtss_rc srvl_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u32              tc;
@@ -774,14 +730,13 @@ static vtss_rc srvl_packet_ns_to_ts_cnt(vtss_state_t *vtss_state,
         VTSS_I("Invalid ns value (%d)", ns);
     }
     _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc_64);
-    tc = tc_64 >> 16; /* The tc_64 returned by _vtss_ts_domain_timeofday_get()
-                         is in 16 bit fractions of nanoseconds */
+    tc = tc_64 >> 16;          /* The tc_64 returned by _vtss_ts_domain_timeofday_get()
+                                  is in 16 bit fractions of nanoseconds */
     if (ts.nanoseconds < ns) { // ns has wrapped
         ts.nanoseconds += VTSS_ONE_MIA;
     }
     tc = tc - ((ts.nanoseconds - ns) / VTSS_HW_TIME_NSEC_PR_CNT);
-    *ts_cnt =
-        (u64)tc << 16; /* Must return in 16 bit fractions of nanoseconds */
+    *ts_cnt = (u64)tc << 16; /* Must return in 16 bit fractions of nanoseconds */
 
     return VTSS_RC_OK;
 }
@@ -791,14 +746,13 @@ static u32 srvl_packet_unpack32(const u8 *buf)
     return (buf[0] << 24) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
 }
 
-static vtss_rc srvl_ptp_get_timestamp(vtss_state_t   *vtss_state,
-                                      const u8 *const frm,
+static vtss_rc srvl_ptp_get_timestamp(vtss_state_t                      *vtss_state,
+                                      const u8 *const                    frm,
                                       const vtss_packet_rx_info_t *const rx_info,
-                                      vtss_packet_ptp_message_type_t
-                                          message_type,
-                                      vtss_packet_timestamp_props_t ts_props,
-                                      u64                          *rxTime,
-                                      BOOL *timestamp_ok)
+                                      vtss_packet_ptp_message_type_t     message_type,
+                                      vtss_packet_timestamp_props_t      ts_props,
+                                      u64                               *rxTime,
+                                      BOOL                              *timestamp_ok)
 {
     vtss_ts_id_t ts_id;
     *rxTime = rx_info->hw_tstamp;
@@ -815,8 +769,7 @@ static vtss_rc srvl_ptp_get_timestamp(vtss_state_t   *vtss_state,
             VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
         }
     }
-    VTSS_D("Raw timestamp %" PRIu64 ", hw_tstamp_decoded %u", *rxTime,
-           *timestamp_ok);
+    VTSS_D("Raw timestamp %" PRIu64 ", hw_tstamp_decoded %u", *rxTime, *timestamp_ok);
     ts_id.ts_id = rx_info->tstamp_id;
     if (rx_info->tstamp_id_decoded) {
         (void)_vtss_rx_timestamp_id_release(0, &ts_id);
@@ -863,34 +816,28 @@ static vtss_rc srvl_rx_conf_set(vtss_state_t *vtss_state)
     /* Each CPU queue gets reserved extraction buffer space. No sharing at port
      * or buffer level */
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
-        SRVL_WR(VTSS_QSYS_RES_CTRL_RES_CFG(512 /* egress */ +
-                                           VTSS_CHIP_PORT_CPU * VTSS_PRIOS +
+        SRVL_WR(VTSS_QSYS_RES_CTRL_RES_CFG(512 /* egress */ + VTSS_CHIP_PORT_CPU * VTSS_PRIOS +
                                            queue),
                 conf->queue[queue].size / SRVL_BUFFER_CELL_SZ);
     }
-    SRVL_WR(VTSS_QSYS_RES_CTRL_RES_CFG(512 /* egress */ +
-                                       224 /* per-port reservation */ +
+    SRVL_WR(VTSS_QSYS_RES_CTRL_RES_CFG(512 /* egress */ + 224 /* per-port reservation */ +
                                        VTSS_CHIP_PORT_CPU),
             0); /* No extra shared space at port level */
 
     /* Rx IPMC, BPDU and GARP registrations */
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         port = VTSS_CHIP_PORT(port_no);
         port_conf = &vtss_state->packet.rx_port_conf[port_no];
         SRVL_WRM(VTSS_ANA_PORT_CPU_FWD_CFG(port),
-                 ((port_conf->ipmc_ctrl_reg == VTSS_PACKET_REG_NORMAL &&
-                   reg->ipmc_ctrl_cpu_copy) ||
+                 ((port_conf->ipmc_ctrl_reg == VTSS_PACKET_REG_NORMAL && reg->ipmc_ctrl_cpu_copy) ||
                           port_conf->ipmc_ctrl_reg == VTSS_PACKET_REG_CPU_COPY
                       ? VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_IPMC_CTRL_COPY_ENA
                       : 0) |
-                     ((port_conf->igmp_reg == VTSS_PACKET_REG_NORMAL &&
-                       reg->igmp_cpu_only) ||
+                     ((port_conf->igmp_reg == VTSS_PACKET_REG_NORMAL && reg->igmp_cpu_only) ||
                               port_conf->igmp_reg == VTSS_PACKET_REG_CPU_ONLY
                           ? VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_IGMP_REDIR_ENA
                           : 0) |
-                     ((port_conf->mld_reg == VTSS_PACKET_REG_NORMAL &&
-                       reg->mld_cpu_only) ||
+                     ((port_conf->mld_reg == VTSS_PACKET_REG_NORMAL && reg->mld_cpu_only) ||
                               port_conf->mld_reg == VTSS_PACKET_REG_CPU_ONLY
                           ? VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_MLD_REDIR_ENA
                           : 0),
@@ -898,10 +845,8 @@ static vtss_rc srvl_rx_conf_set(vtss_state_t *vtss_state)
                      VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_IGMP_REDIR_ENA |
                      VTSS_F_ANA_PORT_CPU_FWD_CFG_CPU_MLD_REDIR_ENA);
         for (i = 0, bpdu = 0, garp = 0; i < 16; i++) {
-            bpdu |= srvl_cpu_fwd_mask_get(port_conf->bpdu_reg[i],
-                                          reg->bpdu_cpu_only, i);
-            garp |= srvl_cpu_fwd_mask_get(port_conf->garp_reg[i],
-                                          reg->garp_cpu_only[i], i);
+            bpdu |= srvl_cpu_fwd_mask_get(port_conf->bpdu_reg[i], reg->bpdu_cpu_only, i);
+            garp |= srvl_cpu_fwd_mask_get(port_conf->garp_reg[i], reg->garp_cpu_only[i], i);
         }
         SRVL_WR(VTSS_ANA_PORT_CPU_FWD_BPDU_CFG(port), bpdu);
         SRVL_WR(VTSS_ANA_PORT_CPU_FWD_GARP_CFG(port), garp);
@@ -909,48 +854,37 @@ static vtss_rc srvl_rx_conf_set(vtss_state_t *vtss_state)
 
     /* Fixme - chipset has more queues of classification the API expose */
     value =
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_SFLOW(map->sflow_queue !=
-                                                      VTSS_PACKET_RX_QUEUE_NONE
-                                                  ? map->sflow_queue -
-                                                        VTSS_PACKET_RX_QUEUE_START
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_SFLOW(map->sflow_queue != VTSS_PACKET_RX_QUEUE_NONE
+                                                  ? map->sflow_queue - VTSS_PACKET_RX_QUEUE_START
                                                   : VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MIRROR(map->mac_vid_queue -
-                                               VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_LRN(map->learn_queue -
-                                            VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MAC_COPY(map->mac_vid_queue -
-                                                 VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_SRC_COPY(map->mac_vid_queue -
-                                                 VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_LOCKED_PORTMOVE(
-            map->mac_vid_queue - VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_ALLBRIDGE(map->bpdu_queue -
-                                                  VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MIRROR(map->mac_vid_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_LRN(map->learn_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MAC_COPY(map->mac_vid_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_SRC_COPY(map->mac_vid_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_LOCKED_PORTMOVE(map->mac_vid_queue -
+                                                        VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_ALLBRIDGE(map->bpdu_queue - VTSS_PACKET_RX_QUEUE_START) |
         VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_IPMC_CTRL(map->ipmc_ctrl_queue -
                                                   VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_IGMP(map->igmp_queue -
-                                             VTSS_PACKET_RX_QUEUE_START) |
-        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MLD(map->igmp_queue -
-                                            VTSS_PACKET_RX_QUEUE_START);
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_IGMP(map->igmp_queue - VTSS_PACKET_RX_QUEUE_START) |
+        VTSS_F_ANA_COMMON_CPUQ_CFG_CPUQ_MLD(map->igmp_queue - VTSS_PACKET_RX_QUEUE_START);
     SRVL_WR(VTSS_ANA_COMMON_CPUQ_CFG, value);
 
     /* Setup each of the BPDU, GARP and CCM 'address' extraction queues */
     for (i = 0; i < 16; i++) {
-        value = VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_BPDU_VAL(
-                    map->bpdu_queue - VTSS_PACKET_RX_QUEUE_START) |
-                VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_GARP_VAL(
-                    map->garp_queue - VTSS_PACKET_RX_QUEUE_START) |
-                VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_CCM_VAL(
-                    VTSS_PACKET_RX_QUEUE_START); /* Fixme */
+        value =
+            VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_BPDU_VAL(map->bpdu_queue -
+                                                          VTSS_PACKET_RX_QUEUE_START) |
+            VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_GARP_VAL(map->garp_queue -
+                                                          VTSS_PACKET_RX_QUEUE_START) |
+            VTSS_F_ANA_COMMON_CPUQ_8021_CFG_CPUQ_CCM_VAL(VTSS_PACKET_RX_QUEUE_START); /* Fixme */
         SRVL_WR(VTSS_ANA_COMMON_CPUQ_8021_CFG(i), value);
     }
 
     /* Configure Rx Queue #i to map to an Rx group. */
     for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
         if (conf->grp_map[i]) {
-            VTSS_E(
-                "Attempt to redirect queue %d - use vtss_dma_conf_set instead()",
-                i);
+            VTSS_E("Attempt to redirect queue %d - use vtss_dma_conf_set instead()", i);
         }
     }
 
@@ -973,12 +907,10 @@ static vtss_rc srvl_packet_mode_update(vtss_state_t *vtss_state)
         vtss_state->packet.manual_mode = 1;
         SRVL_WR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(0),
                 VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_MODE(1) |
-                    (byte_swap ? VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP
-                               : 0));
+                    (byte_swap ? VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP : 0));
         SRVL_WR(VTSS_DEVCPU_QS_INJ_INJ_GRP_CFG(0),
                 VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_MODE(1) |
-                    (byte_swap ? VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_BYTE_SWAP
-                               : 0));
+                    (byte_swap ? VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_BYTE_SWAP : 0));
         SRVL_WR(VTSS_SYS_SYSTEM_PORT_MODE(VTSS_CHIP_PORT_CPU_0),
                 VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_XTR_HDR(1) |
                     VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR(1));
@@ -1024,11 +956,10 @@ static vtss_rc srvl_rx_frame_discard_grp(vtss_state_t              *vtss_state,
         case XTR_EOF_1:
         case XTR_EOF_0:
             SRVL_RD(VTSS_DEVCPU_QS_XTR_XTR_RD(xtr_grp), &val); /* Last data */
-            done = TRUE; /* Last 1-4 bytes */
+            done = TRUE;                                       /* Last 1-4 bytes */
             break;
         case XTR_ESCAPE:
-            SRVL_RD(VTSS_DEVCPU_QS_XTR_XTR_RD(xtr_grp),
-                    &val); /* Escaped data */
+            SRVL_RD(VTSS_DEVCPU_QS_XTR_XTR_RD(xtr_grp), &val); /* Escaped data */
             break;
         case XTR_NOT_READY:
         default:            break;
@@ -1101,7 +1032,7 @@ static vtss_rc srvl_rx_frame_get_internal(vtss_state_t        *vtss_state,
                                           u32 *const           ifh,
                                           u8 *const            frame,
                                           const u32            buf_length,
-                                          u32 *frm_length) /* Including FCS */
+                                          u32                 *frm_length) /* Including FCS */
 {
     u32  i, val, bytes_got, bytes_valid, buf_len = buf_length;
     BOOL done = 0;
@@ -1112,8 +1043,7 @@ static vtss_rc srvl_rx_frame_get_internal(vtss_state_t        *vtss_state,
 
     /* Read IFH. It consists of 4 words */
     for (i = 0; i < 4; i++) {
-        if (srvl_rx_frame_word(vtss_state, grp, TRUE, &val, &bytes_valid) !=
-            0) {
+        if (srvl_rx_frame_word(vtss_state, grp, TRUE, &val, &bytes_valid) != 0) {
             /* We accept neither EOF nor ERROR when reading the IFH */
             return VTSS_RC_ERROR;
         }
@@ -1163,7 +1093,7 @@ static vtss_rc srvl_rx_frame_get_internal(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_tx_frame_ifh_vid(vtss_state_t *vtss_state,
+static vtss_rc srvl_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
                                      const vtss_packet_tx_ifh_t *const ifh,
                                      const u8 *const                   frame,
                                      const u32                         length,
@@ -1194,8 +1124,7 @@ static vtss_rc srvl_tx_frame_ifh_vid(vtss_state_t *vtss_state,
 
     /* Indicate SOF */
     SRVL_WR(VTSS_DEVCPU_QS_INJ_INJ_CTRL(grp),
-            VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_GAP_SIZE(1) |
-                VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_SOF);
+            VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_GAP_SIZE(1) | VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_SOF);
 
     // Write the IFH to the chip.
     for (w = 0; w < 4; w++) {
@@ -1208,8 +1137,7 @@ static vtss_rc srvl_tx_frame_ifh_vid(vtss_state_t *vtss_state,
     for (w = 0; w < count; w++, buf += 4) {
         if (w == 3 && vid != VTSS_VID_NULL) {
             /* Insert C-tag */
-            SRVL_WR(VTSS_DEVCPU_QS_INJ_INJ_WR(grp),
-                    VTSS_OS_NTOHL((0x8100U << 16) | vid));
+            SRVL_WR(VTSS_DEVCPU_QS_INJ_INJ_WR(grp), VTSS_OS_NTOHL((0x8100U << 16) | vid));
             w++;
         }
 #ifdef VTSS_OS_BIG_ENDIAN
@@ -1230,8 +1158,7 @@ static vtss_rc srvl_tx_frame_ifh_vid(vtss_state_t *vtss_state,
     /* Indicate EOF and valid bytes in last word */
     SRVL_WR(VTSS_DEVCPU_QS_INJ_INJ_CTRL(grp),
             VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_GAP_SIZE(1) |
-                VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_VLD_BYTES(length < 60 ? 0
-                                                                    : last) |
+                VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_VLD_BYTES(length < 60 ? 0 : last) |
                 VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_EOF);
 
     /* Add dummy CRC */
@@ -1257,7 +1184,7 @@ static vtss_rc srvl_tx_frame_ifh(vtss_state_t                     *vtss_state,
 
 static vtss_rc srvl_rx_hdr_decode(const vtss_state_t *const          state,
                                   const vtss_packet_rx_meta_t *const meta,
-                                  const u8 xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                  const u8                     xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
                                   vtss_packet_rx_info_t *const info)
 {
     u64                 ifh[2];
@@ -1271,14 +1198,10 @@ static vtss_rc srvl_rx_hdr_decode(const vtss_state_t *const          state,
 
     for (i = 0; i < 2; i++) {
         int offset = 8 * i;
-        ifh[i] = ((u64)xtr_hdr[offset + 0] << 56) |
-                 ((u64)xtr_hdr[offset + 1] << 48) |
-                 ((u64)xtr_hdr[offset + 2] << 40) |
-                 ((u64)xtr_hdr[offset + 3] << 32) |
-                 ((u64)xtr_hdr[offset + 4] << 24) |
-                 ((u64)xtr_hdr[offset + 5] << 16) |
-                 ((u64)xtr_hdr[offset + 6] << 8) |
-                 ((u64)xtr_hdr[offset + 7] << 0);
+        ifh[i] = ((u64)xtr_hdr[offset + 0] << 56) | ((u64)xtr_hdr[offset + 1] << 48) |
+                 ((u64)xtr_hdr[offset + 2] << 40) | ((u64)xtr_hdr[offset + 3] << 32) |
+                 ((u64)xtr_hdr[offset + 4] << 24) | ((u64)xtr_hdr[offset + 5] << 16) |
+                 ((u64)xtr_hdr[offset + 6] << 8) | ((u64)xtr_hdr[offset + 7] << 0);
     }
 
     VTSS_MEMSET(info, 0, sizeof(*info));
@@ -1299,13 +1222,11 @@ static vtss_rc srvl_rx_hdr_decode(const vtss_state_t *const          state,
     info->xtr_qu_mask = VTSS_EXTRACT_BITFIELD64(ifh[1], 20, 8);
     info->cos = VTSS_EXTRACT_BITFIELD64(ifh[1], 17, 3);
 
-    VTSS_RC(vtss_cmn_packet_hints_update(state, VTSS_TRACE_GROUP_PACKET,
-                                         meta->etype, info));
+    VTSS_RC(vtss_cmn_packet_hints_update(state, VTSS_TRACE_GROUP_PACKET, meta->etype, info));
 
     info->acl_hit = VTSS_EXTRACT_BITFIELD64(ifh[1], 31, 1);
 
-    rew_op =
-        VTSS_EXTRACT_BITFIELD64(ifh[0], IFH_OFF_REW_OP - 64, IFH_LEN_REW_OP);
+    rew_op = VTSS_EXTRACT_BITFIELD64(ifh[0], IFH_OFF_REW_OP - 64, IFH_LEN_REW_OP);
     rew_val = VTSS_EXTRACT_BITFIELD64(ifh[0], IFH_OFF_REW_VAL - 64, 32);
     rew_op_lsb = rew_op & 0x7;
 
@@ -1360,8 +1281,7 @@ static vtss_rc srvl_rx_frame(struct vtss_state_s   *vtss_state,
         vtss_packet_rx_meta_t meta;
 
         /* Get frame, separate IFH and frame data */
-        VTSS_RC(srvl_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen,
-                                           &length));
+        VTSS_RC(srvl_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen, &length));
 
         /* IFH is done separately because of alignment needs */
         VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
@@ -1376,8 +1296,7 @@ static vtss_rc srvl_rx_frame(struct vtss_state_s   *vtss_state,
 /*****************************************************************************/
 // srvl_oam_type_to_ifh()
 /*****************************************************************************/
-static vtss_rc srvl_oam_type_to_ifh(vtss_packet_oam_type_t oam_type,
-                                    u32                   *result)
+static vtss_rc srvl_oam_type_to_ifh(vtss_packet_oam_type_t oam_type, u32 *result)
 {
     vtss_rc rc = VTSS_RC_OK;
 
@@ -1407,9 +1326,7 @@ static vtss_rc srvl_oam_type_to_ifh(vtss_packet_oam_type_t oam_type,
 /*****************************************************************************/
 // srvl_ptp_action_to_ifh()
 /*****************************************************************************/
-static vtss_rc srvl_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action,
-                                      u8                       ptp_id,
-                                      u32                     *result)
+static vtss_rc srvl_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, u8 ptp_id, u32 *result)
 {
     vtss_rc rc = VTSS_RC_OK;
 
@@ -1420,9 +1337,7 @@ static vtss_rc srvl_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action,
                      // not set.
         break;
     case VTSS_PACKET_PTP_ACTION_TWO_STEP:
-        *result =
-            (3 | (ptp_id
-                  << 3)); // Select a PTP timestamp identifier for two-step PTP.
+        *result = (3 | (ptp_id << 3)); // Select a PTP timestamp identifier for two-step PTP.
         break;
     case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP: *result = 5; break;
     default:
@@ -1439,7 +1354,7 @@ static vtss_rc srvl_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action,
 static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
                                   const vtss_packet_tx_info_t *const info,
                                   u8 *const                          bin_hdr,
-                                  u32 *const bin_hdr_len)
+                                  u32 *const                         bin_hdr_len)
 {
     u64 inj_hdr[2];
     u32 isdx = info->iflow_id;
@@ -1455,8 +1370,7 @@ static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
 
     *bin_hdr_len = 16;
 
-    inj_hdr[0] =
-        VTSS_ENCODE_BITFIELD64(!info->switch_frm, 127 - 64, 1); // BYPASS
+    inj_hdr[0] = VTSS_ENCODE_BITFIELD64(!info->switch_frm, 127 - 64, 1); // BYPASS
     inj_hdr[1] = 0;
 
     if (info->switch_frm) {
@@ -1468,30 +1382,25 @@ static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
             }
 
             chip_port = VTSS_CHIP_PORT_FROM_STATE(state, info->masquerade_port);
-            inj_hdr[0] |=
-                VTSS_ENCODE_BITFIELD64(1, 126 - 64, 1); // Enable masquerading.
+            inj_hdr[0] |= VTSS_ENCODE_BITFIELD64(1, 126 - 64, 1); // Enable masquerading.
             inj_hdr[0] |= VTSS_ENCODE_BITFIELD64(chip_port, 122 - 64,
                                                  4); // Masquerade port.
         }
 
         if (info->tag.tpid) {
-            inj_hdr[1] |=
-                VTSS_ENCODE_BITFIELD64(1, 28 - 0,
-                                       2); // POP_CNT = 1, i.e. pop one tag,
-                                           // expected inserted by application.
+            inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(1, 28 - 0,
+                                                 2); // POP_CNT = 1, i.e. pop one tag,
+                                                     // expected inserted by application.
         }
     } else {
-        u32 mi_port, port_cnt, rew_op = 0, rew_val = 0,
-                               pop_cnt = 3 /* Disable rewriter */;
-        u64            chip_port_mask;
+        u32 mi_port, port_cnt, rew_op = 0, rew_val = 0, pop_cnt = 3 /* Disable rewriter */;
+        u64 chip_port_mask;
         vtss_chip_no_t chip_no;
         vtss_port_no_t stack_port_no, port_no;
         BOOL           miroring = FALSE;
 
-        VTSS_RC(vtss_cmn_logical_to_chip_port_mask(state, info->dst_port_mask,
-                                                   &chip_port_mask, &chip_no,
-                                                   &stack_port_no, &port_cnt,
-                                                   &port_no));
+        VTSS_RC(vtss_cmn_logical_to_chip_port_mask(state, info->dst_port_mask, &chip_port_mask,
+                                                   &chip_no, &stack_port_no, &port_cnt, &port_no));
 
         mi_port = state->l2.mirror_conf.port_no;
 #ifdef VTSS_FEATURE_MIRROR_CPU
@@ -1505,24 +1414,20 @@ static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
         // Add mirror port if egress mirroring is enabled on port in dst_port_mask
         if (mi_port < state->port_count) {
             for (u32 i = 0; i < state->port_count; i++) {
-                if ((info->dst_port_mask & (1 << i)) &&
-                    state->l2.mirror_egress[i]) {
+                if ((info->dst_port_mask & (1 << i)) && state->l2.mirror_egress[i]) {
                     // Egress mirroring on a destination port is enabled
                     miroring = TRUE;
                     break;
                 }
             }
         }
-        if (miroring &&
-            state->l2.port_state[mi_port]) { // Mirroring is requested and the
-                                             // link is up
-            chip_port_mask |=
-                VTSS_BIT64(VTSS_CHIP_PORT_FROM_STATE(state, mi_port));
+        if (miroring && state->l2.port_state[mi_port]) { // Mirroring is requested and the
+                                                         // link is up
+            chip_port_mask |= VTSS_BIT64(VTSS_CHIP_PORT_FROM_STATE(state, mi_port));
         }
 
         if (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE) {
-            VTSS_RC(srvl_ptp_action_to_ifh(info->ptp_action, info->ptp_id,
-                                           &rew_op));
+            VTSS_RC(srvl_ptp_action_to_ifh(info->ptp_action, info->ptp_id, &rew_op));
             rew_val = info->ptp_timestamp >> 16;
             pop_cnt = 0; // Don't disable rewriter.
         } else if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) {
@@ -1535,18 +1440,16 @@ static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
         }
 
 #if defined(VTSS_FEATURE_AFI_SWC)
-        if (info->ptp_action == VTSS_PACKET_PTP_ACTION_NONE &&
-            info->afi_id != VTSS_AFI_ID_NONE) {
+        if (info->ptp_action == VTSS_PACKET_PTP_ACTION_NONE && info->afi_id != VTSS_AFI_ID_NONE) {
             vtss_afi_slot_conf_t *slot_conf = &state->afi.slots[info->afi_id];
-            vtss_inst_t inst = state; // For VTSS_ENTER() and VTSS_EXIT()
+            vtss_inst_t           inst = state; // For VTSS_ENTER() and VTSS_EXIT()
 
             // The rew_val is re-used for AFI, so we can't periodically transmit
             // a frame if ptp_action != VTSS_PACKET_PTP_ACTION_NONE
             if (port_cnt != 1) {
-                VTSS_E(
-                    "When using AFI, exactly one port must be specified (dst_port_mask = 0x%" PRIu64
-                    ").",
-                    info->dst_port_mask);
+                VTSS_E("When using AFI, exactly one port must be specified (dst_port_mask = 0x%" PRIu64
+                       ").",
+                       info->dst_port_mask);
                 return VTSS_RC_ERROR;
             }
 
@@ -1571,8 +1474,7 @@ static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
             inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(1, 41, 1);
 
             rew_val = info->afi_id;
-            inj_hdr[1] |=
-                VTSS_ENCODE_BITFIELD64(slot_conf->timer_idx + 1, 37 - 0, 4);
+            inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(slot_conf->timer_idx + 1, 37 - 0, 4);
         }
 #endif
 
@@ -1580,10 +1482,9 @@ static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
                                              IFH_LEN_REW_OP); // REW_OP
         inj_hdr[0] |= VTSS_ENCODE_BITFIELD64(rew_val, IFH_OFF_REW_VAL - 64,
                                              32); // REW_VAL
-        inj_hdr[0] |=
-            VTSS_ENCODE_BITFIELD64(chip_port_mask >> 8, 64 - 64,
-                                   3); // Don't send to the CPU port (hence
-                                       // length == 3 and not 4)
+        inj_hdr[0] |= VTSS_ENCODE_BITFIELD64(chip_port_mask >> 8, 64 - 64,
+                                             3); // Don't send to the CPU port (hence
+                                                 // length == 3 and not 4)
         inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(chip_port_mask, 56 - 0, 8);
         if (isdx != VTSS_ISDX_NONE) {
             inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(isdx, 47 - 0, 9); // ISDX
@@ -1599,16 +1500,13 @@ static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
             inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(1, 41, 1); // acl_id[4].
         }
 
+        inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(info->dp, 30 - 0, 1); // Drop Precedence
+        inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(pop_cnt, 28 - 0, 2);  // POP_CNT
         inj_hdr[1] |=
-            VTSS_ENCODE_BITFIELD64(info->dp, 30 - 0, 1); // Drop Precedence
-        inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(pop_cnt, 28 - 0, 2); // POP_CNT
-        inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(info->cos >= 8 ? 7 : info->cos,
-                                             17 - 0, 3); // QOS Class
-        inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(info->tag.tpid == 0 ||
-                                                     info->tag.tpid == 0x8100
-                                                 ? 0
-                                                 : 1,
-                                             16 - 0, 1); // TAG_TYPE
+            VTSS_ENCODE_BITFIELD64(info->cos >= 8 ? 7 : info->cos, 17 - 0, 3); // QOS Class
+        inj_hdr[1] |=
+            VTSS_ENCODE_BITFIELD64(info->tag.tpid == 0 || info->tag.tpid == 0x8100 ? 0 : 1, 16 - 0,
+                                   1);                                  // TAG_TYPE
         inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(info->tag.pcp, 13 - 0, 3); // PCP
         inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(info->tag.dei, 12 - 0, 1); // DEI
         inj_hdr[1] |= VTSS_ENCODE_BITFIELD64(info->tag.vid, 0 - 0, 16); // VID
@@ -1640,21 +1538,16 @@ static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
 
 /* - Debug print --------------------------------------------------- */
 
-#define SRVL_DEBUG_CPU_FWD(ss, addr, i, name)                                  \
-    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_CPU_FWD_##addr, i,  \
-                             "FWD_" name)
-#define SRVL_DEBUG_XTR(ss, addr, name)                                         \
-    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr,         \
-                        "XTR_" name)
-#define SRVL_DEBUG_XTR_INST(ss, addr, i, name)                                 \
-    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr, i, \
-                             "XTR_" name)
-#define SRVL_DEBUG_INJ(ss, addr, name)                                         \
-    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr,         \
-                        "INJ_" name)
-#define SRVL_DEBUG_INJ_INST(ss, addr, i, name)                                 \
-    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr, i, \
-                             "INJ_" name)
+#define SRVL_DEBUG_CPU_FWD(ss, addr, i, name)                                                      \
+    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_PORT_CPU_FWD_##addr, i, "FWD_" name)
+#define SRVL_DEBUG_XTR(ss, addr, name)                                                             \
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr, "XTR_" name)
+#define SRVL_DEBUG_XTR_INST(ss, addr, i, name)                                                     \
+    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_XTR_XTR_##addr, i, "XTR_" name)
+#define SRVL_DEBUG_INJ(ss, addr, name)                                                             \
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr, "INJ_" name)
+#define SRVL_DEBUG_INJ_INST(ss, addr, i, name)                                                     \
+    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_QS_INJ_INJ_##addr, i, "INJ_" name)
 
 static vtss_rc srvl_debug_pkt(vtss_state_t                  *vtss_state,
                               lmu_ss_t                      *ss,
@@ -1678,8 +1571,7 @@ static vtss_rc srvl_debug_pkt(vtss_state_t                  *vtss_state,
     vtss_srvl_debug_reg_header(ss, "CPU Queues");
     vtss_srvl_debug_reg(vtss_state, ss, VTSS_ANA_COMMON_CPUQ_CFG, "CPUQ_CFG");
     for (i = 0; i < 16; i++)
-        vtss_srvl_debug_reg_inst(vtss_state, ss,
-                                 VTSS_ANA_COMMON_CPUQ_8021_CFG(i), i,
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_ANA_COMMON_CPUQ_8021_CFG(i), i,
                                  "CPUQ_8021_CFG");
     pr("\n");
 
@@ -1692,8 +1584,7 @@ static vtss_rc srvl_debug_pkt(vtss_state_t                  *vtss_state,
 #if defined(VTSS_DEVCPU_QS_XTR_XTR_CFG)
     SRVL_DEBUG_XTR(ss, CFG, "CFG");
 #endif
-    vtss_srvl_debug_reg(vtss_state, ss, VTSS_QSYS_SYSTEM_CPU_GROUP_MAP,
-                        "CPU_GROUP_MAP");
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_QSYS_SYSTEM_CPU_GROUP_MAP, "CPU_GROUP_MAP");
     SRVL_DEBUG_XTR(ss, DATA_PRESENT, "DATA_PRESENT");
     pr("\n");
 
@@ -1711,28 +1602,22 @@ static vtss_rc srvl_debug_pkt(vtss_state_t                  *vtss_state,
     vtss_srvl_debug_reg_header(ss, "DMA xtr/inj");
     vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG,
                         "XTRINJ_MANUAL_CFG");
-    vtss_srvl_debug_reg(vtss_state, ss,
-                        VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR_ENA,
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR_ENA,
                         "XTRINJ_MANUAL_INTR_ENA");
     vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR,
                         "XTRINJ_MANUAL_INTR");
-    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_FDMA_FDMA_EVT_ERR,
-                        "FDMA_EVT_ERR");
-    vtss_srvl_debug_reg_inst(vtss_state, ss,
-                             VTSS_SYS_SYSTEM_PORT_MODE(VTSS_CHIP_PORT_CPU_0),
+    vtss_srvl_debug_reg(vtss_state, ss, VTSS_ICPU_CFG_FDMA_FDMA_EVT_ERR, "FDMA_EVT_ERR");
+    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_SYS_SYSTEM_PORT_MODE(VTSS_CHIP_PORT_CPU_0),
                              VTSS_CHIP_PORT_CPU_0, "SYSTEM_PORT_MODE");
-    vtss_srvl_debug_reg_inst(vtss_state, ss,
-                             VTSS_SYS_SYSTEM_PORT_MODE(VTSS_CHIP_PORT_CPU_1),
+    vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_SYS_SYSTEM_PORT_MODE(VTSS_CHIP_PORT_CPU_1),
                              VTSS_CHIP_PORT_CPU_1, "SYSTEM_PORT_MODE");
     pr("\n");
 
     if (vtss_state->packet.npi_conf.enable) {
         vtss_srvl_debug_reg_header(ss, "NPI");
-        vtss_srvl_debug_reg(vtss_state, ss, VTSS_QSYS_SYSTEM_EXT_CPU_CFG,
-                            "EXT_CPU_CFG");
+        vtss_srvl_debug_reg(vtss_state, ss, VTSS_QSYS_SYSTEM_EXT_CPU_CFG, "EXT_CPU_CFG");
         port = VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no);
-        vtss_srvl_debug_reg_inst(vtss_state, ss,
-                                 VTSS_SYS_SYSTEM_PORT_MODE(port), port,
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_SYS_SYSTEM_PORT_MODE(port), port,
                                  "SYSTEM_PORT_MODE");
     }
 
@@ -1743,8 +1628,7 @@ vtss_rc vtss_srvl_packet_debug_print(vtss_state_t                  *vtss_state,
                                      lmu_ss_t                      *ss,
                                      const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, srvl_debug_pkt,
-                                  vtss_state, ss, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, srvl_debug_pkt, vtss_state, ss, info);
 }
 
 #if defined(VTSS_FEATURE_AFI_SWC)
@@ -1757,8 +1641,7 @@ static vtss_rc srvl_debug_afi(vtss_state_t                  *vtss_state,
     /* AFI Timers */
     vtss_srvl_debug_reg_header(ss, "Timers");
     for (timer = 0; timer < VTSS_ARRSZ(vtss_state->afi.timers); timer++) {
-        vtss_srvl_debug_reg_inst(vtss_state, ss,
-                                 VTSS_QSYS_TIMED_FRAME_CFG_TFRM_TIMER_CFG(timer),
+        vtss_srvl_debug_reg_inst(vtss_state, ss, VTSS_QSYS_TIMED_FRAME_CFG_TFRM_TIMER_CFG(timer),
                                  timer, "CFG");
     }
 
@@ -1776,8 +1659,7 @@ static vtss_rc srvl_debug_afi(vtss_state_t                  *vtss_state,
         u32 val;
 
         SRVL_RD(VTSS_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY(slot), &val);
-        if ((val & VTSS_F_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY_TFRM_VLD) ==
-            0) {
+        if ((val & VTSS_F_QSYS_TIMED_FRAME_DB_TIMED_FRAME_ENTRY_TFRM_VLD) == 0) {
             continue;
         }
 
@@ -1799,8 +1681,7 @@ static vtss_rc srvl_debug_afi(vtss_state_t                  *vtss_state,
     pr("\n\n");
 
     for (cnt = 0; cnt < VTSS_ARRSZ(vtss_state->afi.fps_per_section); cnt++) {
-        pr("Accumulated FPS for section %u = %u\n", cnt,
-           vtss_state->afi.fps_per_section[cnt]);
+        pr("Accumulated FPS for section %u = %u\n", cnt, vtss_state->afi.fps_per_section[cnt]);
     }
 
     VTSS_RC(srvl_afi_debug_qres(vtss_state, ss));
@@ -1812,8 +1693,7 @@ vtss_rc vtss_srvl_afi_debug_print(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_AFI, srvl_debug_afi,
-                                  vtss_state, ss, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_AFI, srvl_debug_afi, vtss_state, ss, info);
 }
 #endif /* VTSS_FEATURE_AFI_SWC */
 
@@ -1826,13 +1706,11 @@ static vtss_rc srvl_packet_init(vtss_state_t *vtss_state)
     /* Setup the CPU port as VLAN aware to support switching frames based on
      * tags */
     SRVL_WR(VTSS_ANA_PORT_VLAN_CFG(VTSS_CHIP_PORT_CPU),
-            VTSS_F_ANA_PORT_VLAN_CFG_VLAN_AWARE_ENA |
-                VTSS_F_ANA_PORT_VLAN_CFG_VLAN_POP_CNT(1) |
+            VTSS_F_ANA_PORT_VLAN_CFG_VLAN_AWARE_ENA | VTSS_F_ANA_PORT_VLAN_CFG_VLAN_POP_CNT(1) |
                 VTSS_F_ANA_PORT_VLAN_CFG_VLAN_VID(1));
 
     /* Disable learning (only RECV_ENA must be set) */
-    SRVL_WR(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU),
-            VTSS_F_ANA_PORT_PORT_CFG_RECV_ENA);
+    SRVL_WR(VTSS_ANA_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU), VTSS_F_ANA_PORT_PORT_CFG_RECV_ENA);
 
     /* Set-up default packet Rx endianness, position of status word, and who
      * will be extracting. */
@@ -1842,12 +1720,10 @@ static vtss_rc srvl_packet_init(vtss_state_t *vtss_state)
                      VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_STATUS_WORD_POS);
 #ifdef VTSS_OS_BIG_ENDIAN
         /* Big-endian */
-        SRVL_WRM_CLR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i),
-                     VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
+        SRVL_WRM_CLR(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i), VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
 #else
         /* Little-endian */
-        SRVL_WRM_SET(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i),
-                     VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
+        SRVL_WRM_SET(VTSS_DEVCPU_QS_XTR_XTR_GRP_CFG(i), VTSS_F_DEVCPU_QS_XTR_XTR_GRP_CFG_BYTE_SWAP);
 #endif
 
         if (!vtss_state->sys_config.using_vrap) {
@@ -1873,17 +1749,14 @@ static vtss_rc srvl_packet_init(vtss_state_t *vtss_state)
     for (i = 0; i < VTSS_PACKET_TX_GRP_CNT; i++) {
 #ifdef VTSS_OS_BIG_ENDIAN
         /* Big-endian */
-        SRVL_WRM_CLR(VTSS_DEVCPU_QS_INJ_INJ_GRP_CFG(i),
-                     VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_BYTE_SWAP);
+        SRVL_WRM_CLR(VTSS_DEVCPU_QS_INJ_INJ_GRP_CFG(i), VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_BYTE_SWAP);
 #else
         /* Little-endian */
-        SRVL_WRM_SET(VTSS_DEVCPU_QS_INJ_INJ_GRP_CFG(i),
-                     VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_BYTE_SWAP);
+        SRVL_WRM_SET(VTSS_DEVCPU_QS_INJ_INJ_GRP_CFG(i), VTSS_F_DEVCPU_QS_INJ_INJ_GRP_CFG_BYTE_SWAP);
 #endif
         /* According to datasheet, we must insert a small delay after every
          * end-of-frame when injecting to qs. */
-        SRVL_WR(VTSS_DEVCPU_QS_INJ_INJ_CTRL(i),
-                VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_GAP_SIZE(1));
+        SRVL_WR(VTSS_DEVCPU_QS_INJ_INJ_CTRL(i), VTSS_F_DEVCPU_QS_INJ_INJ_CTRL_GAP_SIZE(1));
 
         if (!vtss_state->sys_config.using_vrap) {
             /* If not using VRAP, default to do register-based injection. The
@@ -1900,15 +1773,13 @@ static vtss_rc srvl_packet_init(vtss_state_t *vtss_state)
     }
 
     /* Setup CPU port 0 and 1. Only do this if not using VRAP */
-    for (i = VTSS_CHIP_PORT_CPU_0;
-         i <= VTSS_CHIP_PORT_CPU_1 && !vtss_state->sys_config.using_vrap; i++) {
+    for (i = VTSS_CHIP_PORT_CPU_0; i <= VTSS_CHIP_PORT_CPU_1 && !vtss_state->sys_config.using_vrap;
+         i++) {
         /* Enable IFH insertion upon extraction */
-        SRVL_WRM_SET(VTSS_SYS_SYSTEM_PORT_MODE(i),
-                     VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_XTR_HDR(1));
+        SRVL_WRM_SET(VTSS_SYS_SYSTEM_PORT_MODE(i), VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_XTR_HDR(1));
 
         /* Enable IFH parsing upon injection */
-        SRVL_WRM_SET(VTSS_SYS_SYSTEM_PORT_MODE(i),
-                     VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR(1));
+        SRVL_WRM_SET(VTSS_SYS_SYSTEM_PORT_MODE(i), VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR(1));
     }
 
     /* Enable CPU port */
@@ -1922,21 +1793,17 @@ static vtss_rc srvl_packet_init(vtss_state_t *vtss_state)
      * of the VLAN tag (which is always inserted to get it switched on a given
      * VID), then controls the priority. */
     /* Enable looking into PCP bits */
-    SRVL_WR(VTSS_ANA_PORT_QOS_CFG(VTSS_CHIP_PORT_CPU),
-            VTSS_F_ANA_PORT_QOS_CFG_QOS_PCP_ENA);
+    SRVL_WR(VTSS_ANA_PORT_QOS_CFG(VTSS_CHIP_PORT_CPU), VTSS_F_ANA_PORT_QOS_CFG_QOS_PCP_ENA);
 
     /* Disable aging of Rx CPU queues to allow the frames to stay there longer
      * than on normal front ports. */
-    SRVL_WRM_SET(VTSS_REW_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU_0),
-                 VTSS_F_REW_PORT_PORT_CFG_AGE_DIS);
-    SRVL_WRM_SET(VTSS_REW_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU_1),
-                 VTSS_F_REW_PORT_PORT_CFG_AGE_DIS);
+    SRVL_WRM_SET(VTSS_REW_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU_0), VTSS_F_REW_PORT_PORT_CFG_AGE_DIS);
+    SRVL_WRM_SET(VTSS_REW_PORT_PORT_CFG(VTSS_CHIP_PORT_CPU_1), VTSS_F_REW_PORT_PORT_CFG_AGE_DIS);
 
     /* Set-up the one-to-one mapping */
     for (pcp = 0; pcp < VTSS_PCP_END - VTSS_PCP_START; pcp++) {
         for (dei = 0; dei < VTSS_DEI_END - VTSS_DEI_START; dei++) {
-            SRVL_WR(VTSS_ANA_PORT_QOS_PCP_DEI_MAP_CFG(VTSS_CHIP_PORT_CPU,
-                                                      (8 * dei + pcp)),
+            SRVL_WR(VTSS_ANA_PORT_QOS_PCP_DEI_MAP_CFG(VTSS_CHIP_PORT_CPU, (8 * dei + pcp)),
                     VTSS_F_ANA_PORT_QOS_PCP_DEI_MAP_CFG_QOS_PCP_DEI_VAL(pcp));
         }
     }

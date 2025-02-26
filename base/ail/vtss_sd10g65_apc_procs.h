@@ -65,37 +65,36 @@ typedef struct {
 
 /** \brief Parameters needed for setup_apc function */
 typedef struct {
-    vtss_chip_name_t chip_name;  /**< Name of the vitesse chip >  */
-    BOOL is_malibu_f2df_or_df2f; /** Set to True for malibu if target is a F2DF
-                                    or DF2F   */
-    vtss_sd10g65_f_pll_t f_pll; /**< targeted sample frequency / data rate >  */
-    u8 if_width; /**< interface width 8, 10, 16, 20, 32 or 40 bit > */
-    vtss_sd10g65_preset_t
-         preset;     /**< Setup macro with link specific presets >     */
-    BOOL skip_cal;   /**< Skip ib_lat_neutral sequence (use in case IB is aleady
-                        calibrated) > */
-    BOOL is_2pt_cal; /**< Use two point IS-calibration approach (default: single
-                        point calibration) > */
-    BOOL incl_ld_cal;     /**< Include legacy LD calibration     */
-    BOOL ib_cal_only;     /**< Perform only IB-calibration. APC is disabled
-                             afterwards > */
-    BOOL force_eqz_l;     /**< If TRUE, force_eqz_l_val is used > */
-    BOOL force_eqz_c;     /**< If TRUE, force_eqz_c_val is used > */
-    u8   force_eqz_l_val; /**< EQZ_L force value (range: 0..63) > */
-    u8   force_eqz_c_val; /**< EQZ_C force value (range: 0..31) > */
-    BOOL offset_guard;    /**< Enable offset guard > */
-    BOOL lc_softctrl; /**< Set eqz_l and eqz_c via LC softcontrol algorithm (do
-                         not use for ATE-pattern!) > */
-    BOOL throttle_mode; /**< Enable throttling mode. The relative operation time
-                           is set to 10% > */
-    BOOL ld_lev_ini;    /**< If TRUE, ld_lev_ini_val is used > */
-    u8   ld_lev_ini_val; /**< ld_lev_ini value (default: 24) > */
-    BOOL range_sel;      /**< If TRUE, range_sel_val is used > */
-    u8 range_sel_val; /**< Range_sel parameter (range 10..20; default: 12) > */
-    BOOL single_step; /**< Prepare for single-step operation (do not use
-                         together with -throttle_mode) > */
-    BOOL invert;      /**< Prepare APC for use with inverted data (should match
-                         invert option of sd10g65_setup_rx) > */
+    vtss_chip_name_t chip_name;              /**< Name of the vitesse chip >  */
+    BOOL             is_malibu_f2df_or_df2f; /** Set to True for malibu if target is a F2DF
+                                                or DF2F   */
+    vtss_sd10g65_f_pll_t  f_pll;             /**< targeted sample frequency / data rate >  */
+    u8                    if_width;          /**< interface width 8, 10, 16, 20, 32 or 40 bit > */
+    vtss_sd10g65_preset_t preset;            /**< Setup macro with link specific presets >     */
+    BOOL                  skip_cal; /**< Skip ib_lat_neutral sequence (use in case IB is aleady
+                                       calibrated) > */
+    BOOL is_2pt_cal;                /**< Use two point IS-calibration approach (default: single
+                                       point calibration) > */
+    BOOL incl_ld_cal;               /**< Include legacy LD calibration     */
+    BOOL ib_cal_only;               /**< Perform only IB-calibration. APC is disabled
+                                       afterwards > */
+    BOOL force_eqz_l;               /**< If TRUE, force_eqz_l_val is used > */
+    BOOL force_eqz_c;               /**< If TRUE, force_eqz_c_val is used > */
+    u8   force_eqz_l_val;           /**< EQZ_L force value (range: 0..63) > */
+    u8   force_eqz_c_val;           /**< EQZ_C force value (range: 0..31) > */
+    BOOL offset_guard;              /**< Enable offset guard > */
+    BOOL lc_softctrl;               /**< Set eqz_l and eqz_c via LC softcontrol algorithm (do
+                                       not use for ATE-pattern!) > */
+    BOOL throttle_mode;             /**< Enable throttling mode. The relative operation time
+                                       is set to 10% > */
+    BOOL ld_lev_ini;                /**< If TRUE, ld_lev_ini_val is used > */
+    u8   ld_lev_ini_val;            /**< ld_lev_ini value (default: 24) > */
+    BOOL range_sel;                 /**< If TRUE, range_sel_val is used > */
+    u8   range_sel_val;             /**< Range_sel parameter (range 10..20; default: 12) > */
+    BOOL single_step;               /**< Prepare for single-step operation (do not use
+                                       together with -throttle_mode) > */
+    BOOL invert;                    /**< Prepare APC for use with inverted data (should match
+                                       invert option of sd10g65_setup_rx) > */
 } vtss_sd10g65_setup_apc_args_t;
 
 typedef struct {
@@ -278,11 +277,9 @@ typedef struct {
 /* ================================================================= *
  *  Function prototypes
  * ================================================================= */
-vtss_rc vtss_sd10g65_setup_apc_args_init(vtss_sd10g65_setup_apc_args_t
-                                             *const init_val);
-vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t config,
-                                    vtss_sd10g65_setup_apc_struct_t
-                                        *const ret_val);
+vtss_rc vtss_sd10g65_setup_apc_args_init(vtss_sd10g65_setup_apc_args_t *const init_val);
+vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    config,
+                                    vtss_sd10g65_setup_apc_struct_t *const ret_val);
 
 #endif
 

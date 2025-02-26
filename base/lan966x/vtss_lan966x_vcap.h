@@ -27,8 +27,6 @@ void vtss_lan966x_vcap_action_set(struct vtss_lan966x_vcap_data *data,
                                   u32                            width,
                                   u32                            value);
 
-void vtss_lan966x_vcap_action_bit_set(struct vtss_lan966x_vcap_data *data,
-                                      u32                            offset,
-                                      u32                            value);
+void vtss_lan966x_vcap_action_bit_set(struct vtss_lan966x_vcap_data *data, u32 offset, u32 value);
 
 #endif /* _VTSS_LAN966X_VCAP_H_ */

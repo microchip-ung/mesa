@@ -117,31 +117,26 @@ mesa_rc mesa_l3_flush(const mesa_inst_t inst) CAP(L3);
 
 // Get common router configuration.
 // conf [OUT]    Common routing configurations.
-mesa_rc mesa_l3_common_get(const mesa_inst_t            inst,
-                           mesa_l3_common_conf_t *const conf) CAP(L3);
+mesa_rc mesa_l3_common_get(const mesa_inst_t inst, mesa_l3_common_conf_t *const conf) CAP(L3);
 
 // Set common router configuration.
 // conf [OUT]    Common routing configurations.
-mesa_rc mesa_l3_common_set(const mesa_inst_t                  inst,
-                           const mesa_l3_common_conf_t *const conf) CAP(L3);
+mesa_rc mesa_l3_common_set(const mesa_inst_t inst, const mesa_l3_common_conf_t *const conf) CAP(L3);
 
 // Get a specific configured router leg
 // vid  [IN]     VLAN ID of the router leg to get
 // conf [OUT]    Output buffer where the configuration is written
-mesa_rc mesa_l3_rleg_get_specific(const mesa_inst_t    inst,
-                                  mesa_vid_t           vid,
-                                  mesa_l3_rleg_conf_t *conf) CAP(L3);
+mesa_rc mesa_l3_rleg_get_specific(const mesa_inst_t inst, mesa_vid_t vid, mesa_l3_rleg_conf_t *conf)
+    CAP(L3);
 
 // Add a router leg on the given VLAN
 // conf [IN] Routing leg configuration.
-mesa_rc mesa_l3_rleg_add(const mesa_inst_t                inst,
-                         const mesa_l3_rleg_conf_t *const conf) CAP(L3);
+mesa_rc mesa_l3_rleg_add(const mesa_inst_t inst, const mesa_l3_rleg_conf_t *const conf) CAP(L3);
 
 // Update an existing router leg.
 // Will fail if an existing router leg with the same VLAN does not exists.
 // conf [IN] Routing leg configuration.
-mesa_rc mesa_l3_rleg_update(const mesa_inst_t                inst,
-                            const mesa_l3_rleg_conf_t *const conf) CAP(L3);
+mesa_rc mesa_l3_rleg_update(const mesa_inst_t inst, const mesa_l3_rleg_conf_t *const conf) CAP(L3);
 
 // Delete a router leg associated with VLAN
 // vlan [IN]     VLAN to delete router leg from
@@ -149,8 +144,7 @@ mesa_rc mesa_l3_rleg_del(const mesa_inst_t inst, const mesa_vid_t vlan) CAP(L3);
 
 // Add an entry to the routing table
 // entry [IN]    Route to add
-mesa_rc mesa_l3_route_add(const mesa_inst_t                 inst,
-                          const mesa_routing_entry_t *const entry) CAP(L3);
+mesa_rc mesa_l3_route_add(const mesa_inst_t inst, const mesa_routing_entry_t *const entry) CAP(L3);
 
 // Add a list of routes
 // cnt  [IN]      Length of 'entry'
@@ -163,8 +157,7 @@ mesa_rc mesa_l3_route_bulk_add(const mesa_inst_t           inst,
 
 // Delete an entry from the routing table
 // entry [IN]    Entry to delete.
-mesa_rc mesa_l3_route_del(const mesa_inst_t                 inst,
-                          const mesa_routing_entry_t *const entry) CAP(L3);
+mesa_rc mesa_l3_route_del(const mesa_inst_t inst, const mesa_routing_entry_t *const entry) CAP(L3);
 
 // Delete a list of routes
 // cnt  [IN]        Length of 'entry'
@@ -177,24 +170,22 @@ mesa_rc mesa_l3_route_bulk_del(const mesa_inst_t           inst,
 
 // Add a new entry to the neighbour cache.
 // entry [IN]    Entry to add.
-mesa_rc mesa_l3_neighbour_add(const mesa_inst_t                inst,
-                              const mesa_l3_neighbour_t *const entry) CAP(L3);
+mesa_rc mesa_l3_neighbour_add(const mesa_inst_t inst, const mesa_l3_neighbour_t *const entry)
+    CAP(L3);
 
 // Delete an entry from the neighbour  cache.
 // entry [IN]    Entry to delete.
-mesa_rc mesa_l3_neighbour_del(const mesa_inst_t                inst,
-                              const mesa_l3_neighbour_t *const entry) CAP(L3);
+mesa_rc mesa_l3_neighbour_del(const mesa_inst_t inst, const mesa_l3_neighbour_t *const entry)
+    CAP(L3);
 
 // Add an multicast entry to the routing table
 // entry [IN]    MC entry to add
-mesa_rc mesa_l3_mc_route_add(const mesa_inst_t                    inst,
-                             const mesa_routing_mc_entry_t *const entry)
+mesa_rc mesa_l3_mc_route_add(const mesa_inst_t inst, const mesa_routing_mc_entry_t *const entry)
     CAP(L3);
 
 // Delete an entry from the multicast routing table
 // entry [IN]    MC entry to delete.
-mesa_rc mesa_l3_mc_route_del(const mesa_inst_t                    inst,
-                             const mesa_routing_mc_entry_t *const entry)
+mesa_rc mesa_l3_mc_route_del(const mesa_inst_t inst, const mesa_routing_mc_entry_t *const entry)
     CAP(L3);
 
 // Add an router leg to an existing routing entry
@@ -202,14 +193,14 @@ mesa_rc mesa_l3_mc_route_del(const mesa_inst_t                    inst,
 // dest_rleg [IN]   Destination router leg to add to route
 mesa_rc mesa_l3_mc_route_rleg_add(const mesa_inst_t                    inst,
                                   const mesa_routing_mc_entry_t *const entry,
-                                  const mesa_vid_t dest_rleg) CAP(L3);
+                                  const mesa_vid_t                     dest_rleg) CAP(L3);
 
 // Remove an router leg from an routing entry
 // entry [IN]      MC route entry
 // dest_rleg [IN]  Destination router leg to remove from route
 mesa_rc mesa_l3_mc_route_rleg_del(const mesa_inst_t                    inst,
                                   const mesa_routing_mc_entry_t *const entry,
-                                  const mesa_vid_t dest_rleg) CAP(L3);
+                                  const mesa_vid_t                     dest_rleg) CAP(L3);
 
 // Get activity status on a mc route, i.e. if it has been used by mc transmitter.
 // Clear on read.
@@ -217,15 +208,15 @@ mesa_rc mesa_l3_mc_route_rleg_del(const mesa_inst_t                    inst,
 // active [OUT]   True (active) / False (not active) since last read.
 mesa_rc mesa_l3_mc_route_active_get(const mesa_inst_t                    inst,
                                     const mesa_routing_mc_entry_t *const entry,
-                                    mesa_bool_t *const active) CAP(L3);
+                                    mesa_bool_t *const                   active) CAP(L3);
 
 // Reset all router leg statistics counters
 mesa_rc mesa_l3_counters_reset(const mesa_inst_t inst) CAP(L3);
 
 // Get routing system counters
 // counters [OUT] Counters
-mesa_rc mesa_l3_counters_system_get(const mesa_inst_t         inst,
-                                    mesa_l3_counters_t *const counters) CAP(L3);
+mesa_rc mesa_l3_counters_system_get(const mesa_inst_t inst, mesa_l3_counters_t *const counters)
+    CAP(L3);
 
 // Get routing legs counters
 // vlan [IN]      Routing leg
@@ -236,8 +227,7 @@ mesa_rc mesa_l3_counters_rleg_get(const mesa_inst_t         inst,
 
 // Clear routing legs counters
 // vlan [IN]      Routing leg
-mesa_rc mesa_l3_counters_rleg_clear(const mesa_inst_t inst,
-                                    const mesa_vid_t  vlan) CAP(L3);
+mesa_rc mesa_l3_counters_rleg_clear(const mesa_inst_t inst, const mesa_vid_t vlan) CAP(L3);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_SWITCH_API_L3_

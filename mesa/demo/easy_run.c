@@ -254,10 +254,7 @@ int select_fd(int *nfds, fd_set *fds, struct fddata *fdd)
     return 1;
 }
 
-int select_fd_rd(int           *nfds,
-                 fd_set        *fds,
-                 struct fddata *fdd,
-                 struct fddata *fdd_extra)
+int select_fd_rd(int *nfds, fd_set *fds, struct fddata *fdd, struct fddata *fdd_extra)
 {
     // If it is a read, then we need to have some buffer space
     if (fdd->data_end == fdd->buf_end)
@@ -393,9 +390,7 @@ int line_timeout(struct fddata *from)
     return diff.tv_sec >= 1;
 }
 
-void copy_buf_to_buf(struct fddata *from,
-                     struct fddata *to,
-                     const char    *prefix_msg)
+void copy_buf_to_buf(struct fddata *from, struct fddata *to, const char *prefix_msg)
 {
     const char *lb;
     int         i, copy_size, to_free_size, from_valid_size, tx_full;
@@ -434,19 +429,19 @@ void copy_buf_to_buf(struct fddata *from,
 
         // Check and see if we have a complete line in the input buffer
         if (lb != from->data_end) {
-            prefix_size = snprintf(prefix_buf, PREFIX_SIZE, "ER-L-%05d-%s-%s ",
-                                   pid, ts(ts_buf, 32), prefix_msg_buf);
+            prefix_size = snprintf(prefix_buf, PREFIX_SIZE, "ER-L-%05d-%s-%s ", pid, ts(ts_buf, 32),
+                                   prefix_msg_buf);
             copy_to_tx = 1;
 
         } else if (line_is_too_long(from, to)) {
-            prefix_size = snprintf(prefix_buf, PREFIX_SIZE, "ER-C-%05d-%s-%s ",
-                                   pid, ts(ts_buf, 32), prefix_msg_buf);
+            prefix_size = snprintf(prefix_buf, PREFIX_SIZE, "ER-C-%05d-%s-%s ", pid, ts(ts_buf, 32),
+                                   prefix_msg_buf);
             line_size = MIN(line_size, LINE_SIZE_MAX);
             copy_to_tx = 1;
 
         } else if (line_timeout(from)) {
-            prefix_size = snprintf(prefix_buf, PREFIX_SIZE, "ER-T-%05d-%s-%s ",
-                                   pid, ts(ts_buf, 32), prefix_msg_buf);
+            prefix_size = snprintf(prefix_buf, PREFIX_SIZE, "ER-T-%05d-%s-%s ", pid, ts(ts_buf, 32),
+                                   prefix_msg_buf);
             copy_to_tx = 1;
         }
 
@@ -670,8 +665,7 @@ int main(int argc, char *const argv[], char *const envp[])
         char       ts_buf[32];
         str_init(&s, 1024);
 
-        str_pr_append(&s, "ER-M-%05d-%s-RUN    %s", pid, ts(ts_buf, 32),
-                      argv[child_arg_split + 1]);
+        str_pr_append(&s, "ER-M-%05d-%s-RUN    %s", pid, ts(ts_buf, 32), argv[child_arg_split + 1]);
 
         for (i = 2; i <= child_argc; ++i) {
             str_pr_append(&s, " %s", argv[child_arg_split + i]);

@@ -12,8 +12,7 @@
 // injected frame.
 typedef uint32_t mesa_afi_id_t;
 
-#define MESA_AFI_ID_NONE                                                       \
-    (0xFFFFFFFF) // Used to encode Tx headers for non-AFI frame
+#define MESA_AFI_ID_NONE (0xFFFFFFFF) // Used to encode Tx headers for non-AFI frame
 
 // AFI Frame description structure.
 // Contains properties that describe how a frame should be injected periodically.
@@ -84,8 +83,7 @@ mesa_rc mesa_afi_hijack(const mesa_inst_t inst, mesa_afi_id_t id) CAP(AFI_V1);
 // Fast injections
 // ----------------------------------------
 
-typedef uint32_t mesa_afi_fastid_t
-    CAP(AFI_V2); // Opaque type for IDs of fast injections
+typedef uint32_t mesa_afi_fastid_t CAP(AFI_V2); // Opaque type for IDs of fast injections
 
 // Structure defining properties of a fast injection.
 typedef struct {
@@ -117,12 +115,11 @@ typedef struct {
 // fastid [OUT]  ID used for referencing the allocated resource.
 mesa_rc mesa_afi_fast_inj_alloc(const mesa_inst_t                          inst,
                                 const mesa_afi_fast_inj_alloc_cfg_t *const cfg,
-                                mesa_afi_fastid_t *const fastid) CAP(AFI_V2);
+                                mesa_afi_fastid_t *const                   fastid) CAP(AFI_V2);
 
 // Free AFI fast injection resource. Before resources are freed, fast injection
 // must be stopped. fastid [IN]  Fast injection ID.
-mesa_rc mesa_afi_fast_inj_free(const mesa_inst_t inst, mesa_afi_fastid_t fastid)
-    CAP(AFI_V2);
+mesa_rc mesa_afi_fast_inj_free(const mesa_inst_t inst, mesa_afi_fastid_t fastid) CAP(AFI_V2);
 
 // Structure needed when hijacking frame.
 typedef struct {
@@ -137,10 +134,9 @@ typedef struct {
 // When a sequence of frames is configured, then the frame order is the order in
 // which frames are setup. fastid [IN]  Fast injection ID. cfg    [IN]  Frame
 // setup configuration.
-mesa_rc mesa_afi_fast_inj_frm_hijack(const mesa_inst_t inst,
-                                     mesa_afi_fastid_t fastid,
-                                     const mesa_afi_fast_inj_frm_cfg_t
-                                         *const cfg) CAP(AFI_V2);
+mesa_rc mesa_afi_fast_inj_frm_hijack(const mesa_inst_t                        inst,
+                                     mesa_afi_fastid_t                        fastid,
+                                     const mesa_afi_fast_inj_frm_cfg_t *const cfg) CAP(AFI_V2);
 
 // Structure defining properties of a fast injection.
 typedef struct {
@@ -166,16 +162,14 @@ typedef struct {
 // fastid [IN]   Fast injection ID.
 // cfg    [IN]   Fast injection configuration.
 // actual [OUT]  Actual fast injection rate.
-mesa_rc mesa_afi_fast_inj_start(const mesa_inst_t       inst,
-                                const mesa_afi_fastid_t fastid,
+mesa_rc mesa_afi_fast_inj_start(const mesa_inst_t                          inst,
+                                const mesa_afi_fastid_t                    fastid,
                                 const mesa_afi_fast_inj_start_cfg_t *const cfg,
-                                mesa_afi_fast_inj_start_actual_t *const actual)
-    CAP(AFI_V2);
+                                mesa_afi_fast_inj_start_actual_t *const    actual) CAP(AFI_V2);
 
 // Stop fast injection.
 // fastid [IN]  Fast injection ID.
-mesa_rc mesa_afi_fast_inj_stop(const mesa_inst_t inst, mesa_afi_fastid_t fastid)
-    CAP(AFI_V2);
+mesa_rc mesa_afi_fast_inj_stop(const mesa_inst_t inst, mesa_afi_fastid_t fastid) CAP(AFI_V2);
 
 // Get seq_cnt for fast injection.
 // If seq_cnt is set to 0 in mesa_afi_fast_inj_start() then the value read will
@@ -214,17 +208,15 @@ typedef struct {
 // slowid [OUT]  ID used for referencing the allocated resource.
 mesa_rc mesa_afi_slow_inj_alloc(const mesa_inst_t                          inst,
                                 const mesa_afi_slow_inj_alloc_cfg_t *const cfg,
-                                mesa_afi_slowid_t *const slowid) CAP(AFI_V2);
+                                mesa_afi_slowid_t *const                   slowid) CAP(AFI_V2);
 
 // Free AFI slow injection resource. Before resources are freed, slow injection
 // must be stopped. slowid [IN]  Slow injection ID.
-mesa_rc mesa_afi_slow_inj_free(const mesa_inst_t inst, mesa_afi_slowid_t slowid)
-    CAP(AFI_V2);
+mesa_rc mesa_afi_slow_inj_free(const mesa_inst_t inst, mesa_afi_slowid_t slowid) CAP(AFI_V2);
 
 // Setup frame for slow injection.
 // slowid [IN]  Slow injection ID.
-mesa_rc mesa_afi_slow_inj_frm_hijack(const mesa_inst_t inst,
-                                     mesa_afi_slowid_t slowid) CAP(AFI_V2);
+mesa_rc mesa_afi_slow_inj_frm_hijack(const mesa_inst_t inst, mesa_afi_slowid_t slowid) CAP(AFI_V2);
 
 // Structure defining properties of a slow injection.
 typedef struct {
@@ -249,15 +241,13 @@ typedef struct {
 // Start slow injection.
 // slowid [IN]  Slow injection ID.
 // cfg    [IN]  Slow injection configuration.
-mesa_rc mesa_afi_slow_inj_start(const mesa_inst_t inst,
-                                mesa_afi_slowid_t slowid,
-                                const mesa_afi_slow_inj_start_cfg_t *const cfg)
-    CAP(AFI_V2);
+mesa_rc mesa_afi_slow_inj_start(const mesa_inst_t                          inst,
+                                mesa_afi_slowid_t                          slowid,
+                                const mesa_afi_slow_inj_start_cfg_t *const cfg) CAP(AFI_V2);
 
 // Stop slow injection.
 // slowid [IN]  Slow injection ID.
-mesa_rc mesa_afi_slow_inj_stop(const mesa_inst_t inst, mesa_afi_slowid_t slowid)
-    CAP(AFI_V2);
+mesa_rc mesa_afi_slow_inj_stop(const mesa_inst_t inst, mesa_afi_slowid_t slowid) CAP(AFI_V2);
 
 // ========================================
 // Other functions
@@ -269,13 +259,11 @@ mesa_rc mesa_afi_slow_inj_stop(const mesa_inst_t inst, mesa_afi_slowid_t slowid)
 
 // (Re)start all injections for specific port.
 // port_no [IN]  Port number, use MESA_PORT_NO_NONE for VD1.
-mesa_rc mesa_afi_port_start(const mesa_inst_t inst, mesa_port_no_t port_no)
-    CAP(AFI_V2);
+mesa_rc mesa_afi_port_start(const mesa_inst_t inst, mesa_port_no_t port_no) CAP(AFI_V2);
 
 // Stop all injections for specific port
 // port_no [IN]  Port number, use MESA_PORT_NO_NONE for VD1.
-mesa_rc mesa_afi_port_stop(const mesa_inst_t inst, mesa_port_no_t port_no)
-    CAP(AFI_V2);
+mesa_rc mesa_afi_port_stop(const mesa_inst_t inst, mesa_port_no_t port_no) CAP(AFI_V2);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_SWITCH_API_AFI_

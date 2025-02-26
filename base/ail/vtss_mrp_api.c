@@ -27,14 +27,12 @@ vtss_rc vtss_mrp_add(const vtss_inst_t            inst,
 
     VTSS_ENTER();
 
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, conf->p_port)) !=
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, conf->p_port)) != VTSS_RC_OK) {
         VTSS_E("Invalid p_port %u", conf->p_port);
         goto do_exit;
     }
 
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, conf->s_port)) !=
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, conf->s_port)) != VTSS_RC_OK) {
         VTSS_E("Invalid s_port %u", conf->s_port);
         goto do_exit;
     }
@@ -376,8 +374,7 @@ vtss_rc vtss_mrp_best_mrm_set(const vtss_inst_t                inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((rc = VTSS_FUNC(mrp.mrp_best_mrm_set, mrp_idx, best)) ==
-            VTSS_RC_OK) {
+        if ((rc = VTSS_FUNC(mrp.mrp_best_mrm_set, mrp_idx, best)) == VTSS_RC_OK) {
             vtss_state->mrp.data[mrp_idx].best_mrm = *best;
         }
     }
@@ -454,8 +451,7 @@ vtss_rc vtss_mrp_tst_loc_conf_get(const vtss_inst_t              inst,
     return rc;
 }
 
-vtss_rc vtss_mrp_tst_hitme_once(const vtss_inst_t    inst,
-                                const vtss_mrp_idx_t mrp_idx)
+vtss_rc vtss_mrp_tst_hitme_once(const vtss_inst_t inst, const vtss_mrp_idx_t mrp_idx)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -474,8 +470,7 @@ vtss_rc vtss_mrp_tst_hitme_once(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_mrp_itst_hitme_once(const vtss_inst_t    inst,
-                                 const vtss_mrp_idx_t mrp_idx)
+vtss_rc vtss_mrp_itst_hitme_once(const vtss_inst_t inst, const vtss_mrp_idx_t mrp_idx)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -494,8 +489,8 @@ vtss_rc vtss_mrp_itst_hitme_once(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_mrp_tst_copy_conf_set(const vtss_inst_t    inst,
-                                   const vtss_mrp_idx_t mrp_idx,
+vtss_rc vtss_mrp_tst_copy_conf_set(const vtss_inst_t                     inst,
+                                   const vtss_mrp_idx_t                  mrp_idx,
                                    const vtss_mrp_tst_copy_conf_t *const copy)
 {
     vtss_state_t *vtss_state;
@@ -583,8 +578,7 @@ vtss_rc vtss_mrp_counters_get(const vtss_inst_t          inst,
     return rc;
 }
 
-vtss_rc vtss_mrp_counters_clear(const vtss_inst_t    inst,
-                                const vtss_mrp_idx_t mrp_idx)
+vtss_rc vtss_mrp_counters_clear(const vtss_inst_t inst, const vtss_mrp_idx_t mrp_idx)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -619,8 +613,7 @@ vtss_rc vtss_mrp_event_mask_set(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((rc = VTSS_FUNC(mrp.mrp_event_mask_set, mrp_idx, mask, enable)) ==
-            VTSS_RC_OK) {
+        if ((rc = VTSS_FUNC(mrp.mrp_event_mask_set, mrp_idx, mask, enable)) == VTSS_RC_OK) {
             if (enable) {
                 vtss_state->mrp.data[mrp_idx].event_mask |= mask;
             } else {
@@ -667,8 +660,7 @@ vtss_rc vtss_mrp_event_get(const vtss_inst_t       inst,
         return VTSS_RC_ERROR;
     }
 
-    VTSS_D("Enter  mrp_idx %u  p_mask %u  s_mask %u", mrp_idx, events->p_mask,
-           events->s_mask);
+    VTSS_D("Enter  mrp_idx %u  p_mask %u  s_mask %u", mrp_idx, events->p_mask, events->s_mask);
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -754,9 +746,8 @@ void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
         pr("MRP instance Config:\n\n");
 
         for (i = 0; i < VTSS_MRP_CNT; ++i) {
-            if (mrp && (div > 1) &&
-                (mrp_idx != i)) { /* A specific MRP instance must be printed -
-                                     this is not the one */
+            if (mrp && (div > 1) && (mrp_idx != i)) { /* A specific MRP instance must be printed -
+                                                         this is not the one */
                 continue;
             }
             if (info->full || vtss_state->mrp.data[i].active) {
@@ -765,15 +756,13 @@ void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
                 mrp_event_mask = vtss_state->mrp.data[i].event_mask;
 
                 pr("MRP:%4u  active:%s  tst_loc_idx: %u  itst_loc_idx: %u  ring_role:%s  in_ring_role:%s%s  p_port:%u  s_port:%u  i_port:%d\n",
-                   i, YN(mrp_data->active), mrp_data->tst_loc_idx,
-                   mrp_data->itst_loc_idx,
+                   i, YN(mrp_data->active), mrp_data->tst_loc_idx, mrp_data->itst_loc_idx,
                    debug_ring_role_string(mrp_data->conf.ring_role, FALSE),
                    debug_ring_role_string(mrp_data->conf.in_ring_role, TRUE),
                    mrp_data->conf.in_ring_role != VTSS_MRP_RING_ROLE_DISABLED
                        ? mrp_data->conf.in_rc_mode ? "-RC" : "-LC"
                        : "",
-                   mrp_data->conf.p_port, mrp_data->conf.s_port,
-                   mrp_data->conf.i_port);
+                   mrp_data->conf.p_port, mrp_data->conf.s_port, mrp_data->conf.i_port);
                 pr("------------------------------------------------------------------\n");
 
                 if (info->full || mrp_data->active) {
@@ -786,10 +775,8 @@ void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
 
                 if (info->full || mrp_data->active) {
                     pr("tst_interval:%u  tst_mon_count:%u  itst_interval:%u  itst_mon_count:%u\n",
-                       mrp_tst_loc_conf->tst_interval,
-                       mrp_tst_loc_conf->tst_mon_count,
-                       mrp_tst_loc_conf->itst_interval,
-                       mrp_tst_loc_conf->itst_mon_count);
+                       mrp_tst_loc_conf->tst_interval, mrp_tst_loc_conf->tst_mon_count,
+                       mrp_tst_loc_conf->itst_interval, mrp_tst_loc_conf->itst_mon_count);
                     pr("-----\n");
                 }
 
@@ -811,22 +798,19 @@ void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
 
         for (i = 0; i < VTSS_MRP_CNT; ++i) {
             if (status && (div > 1) &&
-                (mrp_idx !=
-                 i)) { /* A specific MRP must be printed - this is not the one */
+                (mrp_idx != i)) { /* A specific MRP must be printed - this is not the one */
                 continue;
             }
             if (info->full || vtss_state->mrp.data[i].active) {
                 mrp_data = &vtss_state->mrp.data[i];
 
                 pr("MRP:%4u  active:%s  ring_role:%s  in_ring_role:%s%s  p_port:%u  s_port:%u  i_port:%d\n",
-                   i, YN(mrp_data->active),
-                   debug_ring_role_string(mrp_data->conf.ring_role, FALSE),
+                   i, YN(mrp_data->active), debug_ring_role_string(mrp_data->conf.ring_role, FALSE),
                    debug_ring_role_string(mrp_data->conf.in_ring_role, TRUE),
                    mrp_data->conf.in_ring_role != VTSS_MRP_RING_ROLE_DISABLED
                        ? mrp_data->conf.in_rc_mode ? "-RC" : "-LC"
                        : "",
-                   mrp_data->conf.p_port, mrp_data->conf.s_port,
-                   mrp_data->conf.i_port);
+                   mrp_data->conf.p_port, mrp_data->conf.s_port, mrp_data->conf.i_port);
                 pr("------------------------------------------------------------------\n");
 
                 // Cannot get inactive status & counters without a trace error
@@ -834,48 +818,34 @@ void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
                     continue;
                 }
 
-                if (VTSS_FUNC(mrp.mrp_status_get, i, &mrp_status) ==
-                    VTSS_RC_OK) {
+                if (VTSS_FUNC(mrp.mrp_status_get, i, &mrp_status) == VTSS_RC_OK) {
                     pr("MRP status:\n");
                     pr("p-port: tst_loc %s  itst_loc %s  mrp_seen %s  mrp_proc_seen %s  dmac_err_seen %s  vers_err_seen %s\n",
-                       YN(mrp_status.p_status.tst_loc),
-                       YN(mrp_status.p_status.itst_loc),
-                       YN(mrp_status.p_status.mrp_seen),
-                       YN(mrp_status.p_status.mrp_proc_seen),
+                       YN(mrp_status.p_status.tst_loc), YN(mrp_status.p_status.itst_loc),
+                       YN(mrp_status.p_status.mrp_seen), YN(mrp_status.p_status.mrp_proc_seen),
                        YN(mrp_status.p_status.dmac_err_seen),
                        YN(mrp_status.p_status.vers_err_seen));
                     pr("s-port: tst_loc %s  itst_loc %s  mrp_seen %s  mrp_proc_seen %s  dmac_err_seen %s  vers_err_seen %s\n",
-                       YN(mrp_status.s_status.tst_loc),
-                       YN(mrp_status.s_status.itst_loc),
-                       YN(mrp_status.s_status.mrp_seen),
-                       YN(mrp_status.s_status.mrp_proc_seen),
+                       YN(mrp_status.s_status.tst_loc), YN(mrp_status.s_status.itst_loc),
+                       YN(mrp_status.s_status.mrp_seen), YN(mrp_status.s_status.mrp_proc_seen),
                        YN(mrp_status.s_status.dmac_err_seen),
                        YN(mrp_status.s_status.vers_err_seen));
                     pr("i-port: tst_loc %s  itst_loc %s  mrp_seen %s  mrp_proc_seen %s  dmac_err_seen %s  vers_err_seen %s\n",
-                       YN(mrp_status.i_status.tst_loc),
-                       YN(mrp_status.i_status.itst_loc),
-                       YN(mrp_status.i_status.mrp_seen),
-                       YN(mrp_status.i_status.mrp_proc_seen),
+                       YN(mrp_status.i_status.tst_loc), YN(mrp_status.i_status.itst_loc),
+                       YN(mrp_status.i_status.mrp_seen), YN(mrp_status.i_status.mrp_proc_seen),
                        YN(mrp_status.i_status.dmac_err_seen),
                        YN(mrp_status.i_status.vers_err_seen));
                     pr("-----\n");
                 }
 
-                if (VTSS_FUNC(mrp.mrp_counters_get, i, &mrp_counters) ==
-                    VTSS_RC_OK) {
+                if (VTSS_FUNC(mrp.mrp_counters_get, i, &mrp_counters) == VTSS_RC_OK) {
                     pr("MRP counters:\n");
-                    pr("p-port: tst_rx_count %" PRIu64
-                       "  itst_rx_count %" PRIu64 "\n",
-                       mrp_counters.p_counters.tst_rx_count,
-                       mrp_counters.p_counters.itst_rx_count);
-                    pr("s-port: tst_rx_count %" PRIu64
-                       "  itst_rx_count %" PRIu64 "\n",
-                       mrp_counters.s_counters.tst_rx_count,
-                       mrp_counters.s_counters.itst_rx_count);
-                    pr("i-port: tst_rx_count %" PRIu64
-                       "  itst_rx_count %" PRIu64 "\n",
-                       mrp_counters.i_counters.tst_rx_count,
-                       mrp_counters.i_counters.itst_rx_count);
+                    pr("p-port: tst_rx_count %" PRIu64 "  itst_rx_count %" PRIu64 "\n",
+                       mrp_counters.p_counters.tst_rx_count, mrp_counters.p_counters.itst_rx_count);
+                    pr("s-port: tst_rx_count %" PRIu64 "  itst_rx_count %" PRIu64 "\n",
+                       mrp_counters.s_counters.tst_rx_count, mrp_counters.s_counters.itst_rx_count);
+                    pr("i-port: tst_rx_count %" PRIu64 "  itst_rx_count %" PRIu64 "\n",
+                       mrp_counters.i_counters.tst_rx_count, mrp_counters.i_counters.itst_rx_count);
                     pr("-----\n");
                 }
                 pr("\n");

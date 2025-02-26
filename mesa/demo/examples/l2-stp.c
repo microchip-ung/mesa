@@ -44,11 +44,9 @@ static int init_port_configuration(mesa_port_no_t port)
 static int stp_init(int argc, const char *argv[])
 {
     mesa_port_no_t b_port = ARGV_INT("b-port", "Is the port in blocked state.");
-    mesa_port_no_t f_port =
-        ARGV_INT("f-port", "Is the port in forwarding state.");
+    mesa_port_no_t f_port = ARGV_INT("f-port", "Is the port in forwarding state.");
     mesa_port_no_t ing_port =
-        ARGV_OPT_INT("ing-port",
-                     "Is the ingress port when vid != 0. Default is 1", 1);
+        ARGV_OPT_INT("ing-port", "Is the ingress port when vid != 0. Default is 1", 1);
     uint32_t vid = ARGV_OPT_INT(
         "vid",
         "Is the classified VID of the MSTP VLAN. If != 0 then configured as MSTP. If == 0 then configured as STP. Default is 0",
@@ -66,10 +64,8 @@ static int stp_init(int argc, const char *argv[])
 
     if (vid == 0) {
         // snippet_begin ex-stp-state-set
-        RC(mesa_stp_port_state_set(NULL, state.b_port,
-                                   MESA_STP_STATE_DISCARDING));
-        RC(mesa_stp_port_state_set(NULL, state.f_port,
-                                   MESA_STP_STATE_FORWARDING));
+        RC(mesa_stp_port_state_set(NULL, state.b_port, MESA_STP_STATE_DISCARDING));
+        RC(mesa_stp_port_state_set(NULL, state.f_port, MESA_STP_STATE_FORWARDING));
         // snippet_end
     } else {
         // Only forward on relevant ports

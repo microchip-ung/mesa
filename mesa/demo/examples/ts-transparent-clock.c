@@ -24,9 +24,7 @@ static struct {
     mesa_timeinterval_t   delay_asymmetry[2];
 } state;
 
-static int init_port_configuration(mesa_port_no_t      port,
-                                   mesa_timeinterval_t asymmetry,
-                                   uint32_t            idx)
+static int init_port_configuration(mesa_port_no_t port, mesa_timeinterval_t asymmetry, uint32_t idx)
 {
     mesa_vlan_port_conf_t vlan_conf;
 
@@ -55,19 +53,14 @@ static int ts_init(int argc, const char *argv[])
     mesa_port_list_t port_list;
     mesa_ace_t       ace;
 
-    ing_port =
-        ARGV_INT("ing-port", "Is the ingress port for SYNC frame injection.");
-    eg_port =
-        ARGV_INT("eg-port",
-                 "Is the egress port for corrected SYNC frames extraction.");
+    ing_port = ARGV_INT("ing-port", "Is the ingress port for SYNC frame injection.");
+    eg_port = ARGV_INT("eg-port", "Is the egress port for corrected SYNC frames extraction.");
     delay_mode = ARGV_OPT_INT(
         "delay_mode",
         "Is the asymmetry delay mode. Value 0 means no delay - 1 means add delay - 2 means subtract delay. Default is 0",
         0);
     asymmetry =
-        ARGV_OPT_INT("asymmetry",
-                     "The asymmetry delay value in nano seconds. Default is 0",
-                     0);
+        ARGV_OPT_INT("asymmetry", "The asymmetry delay value in nano seconds. Default is 0", 0);
 
     EXAMPLE_BARRIER(argc);
 
@@ -91,10 +84,9 @@ static int ts_init(int argc, const char *argv[])
     RC(mesa_ace_init(NULL, MESA_ACE_TYPE_ETYPE, &ace));
     ace.id = acl_id;
     ace.port_list = port_list;
-    ace.action.ptp_action = (delay_mode == 0) ? MESA_ACL_PTP_ACTION_ONE_STEP
-                            : (delay_mode == 1)
-                                ? MESA_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY
-                                : MESA_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1;
+    ace.action.ptp_action = (delay_mode == 0)   ? MESA_ACL_PTP_ACTION_ONE_STEP
+                            : (delay_mode == 1) ? MESA_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY
+                                                : MESA_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1;
     RC(mesa_ace_add(NULL, MESA_ACE_ID_LAST, &ace));
     // snippet_end
 
@@ -108,10 +100,8 @@ static int ts_clean()
     RC(mesa_vlan_port_conf_set(NULL, state.ing_port, &state.vlan_conf[0]));
     RC(mesa_vlan_port_conf_set(NULL, state.eg_port, &state.vlan_conf[1]));
 
-    RC(mesa_ts_delay_asymmetry_set(NULL, state.ing_port,
-                                   &state.delay_asymmetry[0]));
-    RC(mesa_ts_delay_asymmetry_set(NULL, state.eg_port,
-                                   &state.delay_asymmetry[1]));
+    RC(mesa_ts_delay_asymmetry_set(NULL, state.ing_port, &state.delay_asymmetry[0]));
+    RC(mesa_ts_delay_asymmetry_set(NULL, state.eg_port, &state.delay_asymmetry[1]));
 
     mesa_port_list_clear(&port_list);
     RC(mesa_vlan_port_members_set(NULL, vid, &port_list));

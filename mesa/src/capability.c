@@ -13,89 +13,89 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 }
 
 #if defined(VTSS_ARCH_LUTON26)
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN                                     \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN                                                         \
     100 /* kbps.         1 *    100.000 =        100.000 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX                                     \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX                                                         \
     3276700 /* kbps.    0x7fff *    100.000 =  3.276.700.000 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN                                    \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN                                                        \
     4096 /* bytes.        1 *      4.096 =          4.096 bytes.     */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX                                    \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX                                                        \
     258048 /* bytes.     0x3f *      4.096 =        258.048 bytes.     */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN                                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN                                                       \
     100 /* fps.          1 *        100 =            100 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX                                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX                                                       \
     3276700 /* fps .    0x7fff *    100.000 =      3.276.700 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN                                  \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN                                                      \
     32 /* frames.       1 *       32,8 =             32,8 frames.  */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX                                  \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX                                                      \
     2067 /* frames.    0x3f *       32,8 =          2.066,4 frames.  */
 #elif defined(VTSS_ARCH_OCELOT)
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN                                     \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN                                                         \
     100 /* kbps.         1 *    100.000 =        100.000 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX                                     \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX                                                         \
     3276700 /* kbps.    0x7fff *    100.000 =  3.276.700.000 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN                                    \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN                                                        \
     4096 /* bytes.        1 *      4.096 =          4.096 bytes.     */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX                                    \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX                                                        \
     245760 /* bytes.     0x3c *      4.096 =        245.760 bytes.     */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN                                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN                                                       \
     100 /* fps.          1 *        100 =            100 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX                                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX                                                       \
     3276700 /* fps .    0x7fff *    100.000 =      3.276.700 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN                                  \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN                                                      \
     32 /* frames.       1 *       32,8 =             32,8 frames.  */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX                                  \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX                                                      \
     2067 /* frames.    0x3f *       32,8 =          2.066,4 frames.  */
 #elif defined(VTSS_ARCH_JAGUAR_2)
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN                                     \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN                                                         \
     25 /* kbps.         1 *     25.040 =         25.040 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX                                     \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX                                                         \
     13128147 /* kbps.   0x7ffff *     25.040 = 13.128.146.480 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN                                    \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN                                                        \
     8192 /* bytes.        1 *      8.192 =          8.192 bytes.     */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX                                    \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX                                                        \
     516096 /* bytes.     0x3f *      8.192 =        516.096 bytes.     */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN                                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN                                                       \
     10 /* fps.          1 *         10 =             10 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX                                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX                                                       \
     5242870 /* fps.    0x7ffff *         10 =      5.242.870 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN                                  \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN                                                      \
     3 /* frames.       1 *  8192/2504 ~              3,3 frames.  */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX                                  \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX                                                      \
     207 /* frames.    0x3f *  8192/2504 ~            206,1 frames.  */
 #elif defined(VTSS_ARCH_FA)
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN /* FA-FIXME */                      \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN /* FA-FIXME */                                          \
     25 /* kbps.         1 *     25.040 =         25.040 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX /* FA-FIXME */                      \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX /* FA-FIXME */                                          \
     13128147 /* kbps.   0x7ffff *     25.040 = 13.128.146.480 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN /* FA-FIXME */                     \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN /* FA-FIXME */                                         \
     8192 /* bytes.        1 *      8.192 =          8.192 bytes.     */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX /* FA-FIXME */                     \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX /* FA-FIXME */                                         \
     516096 /* bytes.     0x3f *      8.192 =        516.096 bytes.     */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN /* FA-FIXME */                    \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN /* FA-FIXME */                                        \
     10 /* fps.          1 *         10 =             10 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX /* FA-FIXME */                    \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX /* FA-FIXME */                                        \
     5242870 /* fps.    0x7ffff *         10 =      5.242.870 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN /* FA-FIXME */                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN /* FA-FIXME */                                       \
     3 /* frames.       1 *  8192/2504 ~              3,3 frames.  */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX /* FA-FIXME */                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX /* FA-FIXME */                                       \
     207 /* frames.    0x3f *  8192/2504 ~            206,1 frames.  */
 #elif defined(VTSS_ARCH_LAN966X)
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN                                     \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MIN                                                         \
     100 /* kbps.         1 *    100.000 =        100.000 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX                                     \
+#define VTSS_QOS_PORT_POLICER_BIT_RATE_MAX                                                         \
     3276700 /* kbps.    0x7fff *    100.000 =  3.276.700.000 bps.       */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN                                    \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MIN                                                        \
     4096 /* bytes.        1 *      4.096 =          4.096 bytes.     */
-#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX                                    \
+#define VTSS_QOS_PORT_POLICER_BIT_BURST_MAX                                                        \
     245760 /* bytes.     0x3c *      4.096 =        245.760 bytes.     */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN                                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN                                                       \
     100 /* fps.          1 *        100 =            100 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX                                   \
+#define VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX                                                       \
     3276700 /* fps .    0x7fff *    100.000 =      3.276.700 fps.       */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN                                  \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN                                                      \
     32 /* frames.       1 *       32,8 =             32,8 frames.  */
-#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX                                  \
+#define VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX                                                      \
     2067 /* frames.    0x3f *       32,8 =          2.066,4 frames.  */
 #else
 #error "Add architecture here!"
@@ -114,49 +114,49 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_QUEUE_POLICER_FRAME_BURST_MAX 0
 
 #if defined(VTSS_ARCH_LUTON26)
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN                                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN                                                          \
     100 /* kbps.         1 *    100.160 =        100.160 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX                                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX                                                          \
     3281943 /* kbps.    0x7fff *    100.160 =  3.281.942.720 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN                                     \
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN                                                         \
     4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX                                     \
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX                                                         \
     258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
 #elif defined(VTSS_ARCH_OCELOT)
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN                                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN                                                          \
     100 /* kbps.         1 *    100.000 =        100.000 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX                                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX                                                          \
     3281943 /* kbps.    0x7fff *    100.000 =  3.276.700.000 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN                                     \
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN                                                         \
     4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX                                     \
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX                                                         \
     258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
 #elif defined(VTSS_ARCH_JAGUAR_2)
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN                                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN                                                          \
     100 /* kbps.         1 *    100.000 =        100.000 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX                                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX                                                          \
     13107100 /* kbps.   0x1ffff *    100.000 = 13.107.100.000 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN                                     \
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN                                                         \
     4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX                                     \
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX                                                         \
     258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
 #elif defined(VTSS_ARCH_FA)
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN /* FA-FIXME */                       \
-    100 /* kbps.         1 *    100.000 =        100.000 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX /* FA-FIXME */                       \
-    13107100 /* kbps.   0x1ffff *    100.000 = 13.107.100.000 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN /* FA-FIXME */                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN /* FA-FIXME */                                           \
+    100                                   /* kbps.         1 *    100.000 =        100.000 bps.   */
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX /* FA-FIXME */                                           \
+    13107100                              /* kbps.   0x1ffff *    100.000 = 13.107.100.000 bps.   */
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN /* FA-FIXME */                                          \
     4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX /* FA-FIXME */                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX /* FA-FIXME */                                          \
     258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
 #elif defined(VTSS_ARCH_LAN966X)
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN                                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN                                                          \
     100 /* kbps.         1 *    100.000 =        100.000 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX                                      \
+#define VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX                                                          \
     3281943 /* kbps.    0x7fff *    100.000 =  3.276.700.000 bps.   */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN                                     \
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN                                                         \
     4096 /* bytes.        1 *      4.096 =          4.096 bytes. */
-#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX                                     \
+#define VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX                                                         \
     258048 /* bytes.     0x3f *      4.096 =        258.048 bytes. */
 #else
 #error "Add architecture here!"
@@ -166,8 +166,7 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_SHAPER_FRAME_RATE_MIN  1
 #define VTSS_QOS_PORT_SHAPER_FRAME_RATE_MAX  2600000
 #define VTSS_QOS_PORT_SHAPER_FRAME_BURST_MIN 1
-#define VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX                                   \
-    2000 // This is correct for SE_FRM_MODE = 2
+#define VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX 2000 // This is correct for SE_FRM_MODE = 2
 // #define VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX 18   // This is correct for
 // SE_FRM_MODE = 3
 #else
@@ -184,15 +183,12 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_QUEUE_SHAPER_BIT_BURST_MAX VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX
 
 /* Queue shaper frame rate is currently not supported */
-#define VTSS_QOS_QUEUE_SHAPER_FRAME_RATE_MIN VTSS_QOS_PORT_SHAPER_FRAME_RATE_MIN
-#define VTSS_QOS_QUEUE_SHAPER_FRAME_RATE_MAX VTSS_QOS_PORT_SHAPER_FRAME_RATE_MAX
-#define VTSS_QOS_QUEUE_SHAPER_FRAME_BURST_MIN                                  \
-    VTSS_QOS_PORT_SHAPER_FRAME_BURST_MIN
-#define VTSS_QOS_QUEUE_SHAPER_FRAME_BURST_MAX                                  \
-    VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX
+#define VTSS_QOS_QUEUE_SHAPER_FRAME_RATE_MIN  VTSS_QOS_PORT_SHAPER_FRAME_RATE_MIN
+#define VTSS_QOS_QUEUE_SHAPER_FRAME_RATE_MAX  VTSS_QOS_PORT_SHAPER_FRAME_RATE_MAX
+#define VTSS_QOS_QUEUE_SHAPER_FRAME_BURST_MIN VTSS_QOS_PORT_SHAPER_FRAME_BURST_MIN
+#define VTSS_QOS_QUEUE_SHAPER_FRAME_BURST_MAX VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) ||                 \
-    defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
 #define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN    0       /* undefined */
 #define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX    0       /* undefined */
 #define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN   0       /* undefined */
@@ -202,53 +198,38 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MIN 1       /* frames. */
 #define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX 32768   /* frames. */
 #elif defined(VTSS_ARCH_JAGUAR_2)                     /* Same as port policer */
-#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN  VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
-#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX  VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
-#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
-#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MAX VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
-#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MIN                                   \
-    VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
-#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MAX                                   \
-    VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
-#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MIN                                  \
-    VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
-#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX                                  \
-    VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
-#elif defined(VTSS_ARCH_FA)                /* Same as port policer */
-#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN /* FA-FIXME */                      \
-    VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
-#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX /* FA-FIXME */                      \
-    VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
-#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN /* FA-FIXME */                     \
-    VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
-#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MAX /* FA-FIXME */                     \
-    VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
-#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MIN /* FA-FIXME */                    \
-    VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
-#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MAX /* FA-FIXME */                    \
-    VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
-#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MIN /* FA-FIXME */                   \
-    VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
-#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX /* FA-FIXME */                   \
-    VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
+#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN    VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
+#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX    VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
+#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN   VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
+#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MAX   VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
+#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MIN  VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
+#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MAX  VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
+#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MIN VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
+#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
+#elif defined(VTSS_ARCH_FA) /* Same as port policer */
+#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN    /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
+#define VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX    /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
+#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN   /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
+#define VTSS_QOS_GLOBAL_STORM_BIT_BURST_MAX   /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
+#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MIN  /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
+#define VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MAX  /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
+#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MIN /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
+#define VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
 #else
 #error "Add architecture here!"
 #endif
 
-#if defined(VTSS_ARCH_JAGUAR_2_B) ||                                           \
-    defined(VTSS_ARCH_JAGUAR_2_C) /* Same as port policer */
-#define VTSS_QOS_PORT_STORM_BIT_RATE_MIN   VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
-#define VTSS_QOS_PORT_STORM_BIT_RATE_MAX   VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
-#define VTSS_QOS_PORT_STORM_BIT_BURST_MIN  VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
-#define VTSS_QOS_PORT_STORM_BIT_BURST_MAX  VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
-#define VTSS_QOS_PORT_STORM_FRAME_RATE_MIN VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
-#define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
-#define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN                                    \
-    VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
-#define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX                                    \
-    VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
-#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) ||               \
-    defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) /* Same as port policer */
+#define VTSS_QOS_PORT_STORM_BIT_RATE_MIN    VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
+#define VTSS_QOS_PORT_STORM_BIT_RATE_MAX    VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
+#define VTSS_QOS_PORT_STORM_BIT_BURST_MIN   VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
+#define VTSS_QOS_PORT_STORM_BIT_BURST_MAX   VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
+#define VTSS_QOS_PORT_STORM_FRAME_RATE_MIN  VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
+#define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX  VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
+#define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
+#define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
+#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T) ||    \
+    defined(VTSS_ARCH_LAN966X)
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MIN    0 /* undefined */
 #define VTSS_QOS_PORT_STORM_BIT_RATE_MAX    0 /* undefined */
 #define VTSS_QOS_PORT_STORM_BIT_BURST_MIN   0 /* undefined */
@@ -258,36 +239,26 @@ void mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook)
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN 0 /* undefined */
 #define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX 0 /* undefined */
 #elif defined(VTSS_ARCH_FA)
-#define VTSS_QOS_PORT_STORM_BIT_RATE_MIN /* FA-FIXME */                        \
-    VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
-#define VTSS_QOS_PORT_STORM_BIT_RATE_MAX /* FA-FIXME */                        \
-    VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
-#define VTSS_QOS_PORT_STORM_BIT_BURST_MIN /* FA-FIXME */                       \
-    VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
-#define VTSS_QOS_PORT_STORM_BIT_BURST_MAX /* FA-FIXME */                       \
-    VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
-#define VTSS_QOS_PORT_STORM_FRAME_RATE_MIN /* FA-FIXME */                      \
-    VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
-#define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX /* FA-FIXME */                      \
-    VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
-#define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN /* FA-FIXME */                     \
-    VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
-#define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX /* FA-FIXME */                     \
-    VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
+#define VTSS_QOS_PORT_STORM_BIT_RATE_MIN    /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_RATE_MIN
+#define VTSS_QOS_PORT_STORM_BIT_RATE_MAX    /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_RATE_MAX
+#define VTSS_QOS_PORT_STORM_BIT_BURST_MIN   /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_BURST_MIN
+#define VTSS_QOS_PORT_STORM_BIT_BURST_MAX   /* FA-FIXME */ VTSS_QOS_PORT_POLICER_BIT_BURST_MAX
+#define VTSS_QOS_PORT_STORM_FRAME_RATE_MIN  /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN
+#define VTSS_QOS_PORT_STORM_FRAME_RATE_MAX  /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX
+#define VTSS_QOS_PORT_STORM_FRAME_BURST_MIN /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN
+#define VTSS_QOS_PORT_STORM_FRAME_BURST_MAX /* FA-FIXME */ VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX
 #else
 #error "Add architecture here!"
 #endif
 
-#define MESA_EVENT_EXT_SYNC                                                    \
-    5 /* Local definition of external synchronisation event ID */
-#define MESA_BIT(x) (1 << (x))
+#define MESA_EVENT_EXT_SYNC 5 /* Local definition of external synchronisation event ID */
+#define MESA_BIT(x)         (1 << (x))
 
 #if defined(VTSS_ARCH_FA)
 static uint32_t mesa_feature(mesa_inst_t inst, uint32_t f)
 {
     vtss_state_t *vtss_state;
-    if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) ==
-        NULL) {
+    if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
         VTSS_E("Unable to get state from inst = %p", inst);
         MESA_ASSERT(0);
     }
@@ -345,8 +316,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PORT_INJ_HDR:
     case MESA_CAP_PORT_XTR_HDR:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_LAN966X)
         c = 1;
 #endif
         break;
@@ -394,8 +364,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PORT_LAST_FRAME_LEN_THRESHOLD:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) ||                 \
-    defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         c = 1526;
 #else
         c = 1518;
@@ -472,8 +441,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_MISC_CPU_TYPE: {
         vtss_state_t *vtss_state;
 
-        if ((vtss_state =
-                 vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
+        if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
             VTSS_E("Unable to get state from inst = %p", inst);
             MESA_ASSERT(0);
         }
@@ -575,22 +543,20 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_MASQ_PORT:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_JAGUAR_2) ||      \
+    defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;
 
     case MESA_CAP_PACKET_INS_TAG:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LUTON26)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LUTON26)
         c = 1;
 #endif
         break;
 
     case MESA_CAP_PACKET_PTP_ACTION:
-        c = (MESA_BIT(MESA_PACKET_PTP_ACTION_NONE) |
-             MESA_BIT(MESA_PACKET_PTP_ACTION_ONE_STEP) |
+        c = (MESA_BIT(MESA_PACKET_PTP_ACTION_NONE) | MESA_BIT(MESA_PACKET_PTP_ACTION_ONE_STEP) |
              MESA_BIT(MESA_PACKET_PTP_ACTION_TWO_STEP));
 #if defined(VTSS_ARCH_LUTON26)
         c |= MESA_BIT(MESA_PACKET_PTP_ACTION_ONE_AND_TWO_STEP);
@@ -604,8 +570,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_PACKET_AUTO_TAGGING:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_JAGUAR_2) ||      \
+    defined(VTSS_ARCH_FA)
         c = 1;
 #endif
         break;
@@ -739,9 +705,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_SFLOW_TESTED:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) ||                 \
-    defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||      \
+    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
         // SFLOW has been tested on architecture
         c = 1;
 #endif
@@ -756,8 +721,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
         c = 32767;
-#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) ||               \
-    defined(VTSS_ARCH_LAN966X)
+#elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         c = 4096;
 #endif
         break;
@@ -781,8 +745,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_L2_TPID_AWARE:
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) ||                 \
-    defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         /* Older devices are not fully VLAN aware */
 #else
         c = 1;
@@ -1113,24 +1076,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
 #endif
         break;
-    case MESA_CAP_QOS_PORT_POLICER_BIT_RATE_MIN:
-        c = VTSS_QOS_PORT_POLICER_BIT_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_POLICER_BIT_RATE_MAX:
-        c = VTSS_QOS_PORT_POLICER_BIT_RATE_MAX;
-        break;
-    case MESA_CAP_QOS_PORT_POLICER_BIT_BURST_MIN:
-        c = VTSS_QOS_PORT_POLICER_BIT_BURST_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_POLICER_BIT_BURST_MAX:
-        c = VTSS_QOS_PORT_POLICER_BIT_BURST_MAX;
-        break;
-    case MESA_CAP_QOS_PORT_POLICER_FRAME_RATE_MIN:
-        c = VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_POLICER_FRAME_RATE_MAX:
-        c = VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX;
-        break;
+    case MESA_CAP_QOS_PORT_POLICER_BIT_RATE_MIN:   c = VTSS_QOS_PORT_POLICER_BIT_RATE_MIN; break;
+    case MESA_CAP_QOS_PORT_POLICER_BIT_RATE_MAX:   c = VTSS_QOS_PORT_POLICER_BIT_RATE_MAX; break;
+    case MESA_CAP_QOS_PORT_POLICER_BIT_BURST_MIN:  c = VTSS_QOS_PORT_POLICER_BIT_BURST_MIN; break;
+    case MESA_CAP_QOS_PORT_POLICER_BIT_BURST_MAX:  c = VTSS_QOS_PORT_POLICER_BIT_BURST_MAX; break;
+    case MESA_CAP_QOS_PORT_POLICER_FRAME_RATE_MIN: c = VTSS_QOS_PORT_POLICER_FRAME_RATE_MIN; break;
+    case MESA_CAP_QOS_PORT_POLICER_FRAME_RATE_MAX: c = VTSS_QOS_PORT_POLICER_FRAME_RATE_MAX; break;
     case MESA_CAP_QOS_PORT_POLICER_FRAME_BURST_MIN:
         c = VTSS_QOS_PORT_POLICER_FRAME_BURST_MIN;
         break;
@@ -1138,18 +1089,10 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = VTSS_QOS_PORT_POLICER_FRAME_BURST_MAX;
         break;
 
-    case MESA_CAP_QOS_QUEUE_POLICER_BIT_RATE_MIN:
-        c = VTSS_QOS_QUEUE_POLICER_BIT_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_QUEUE_POLICER_BIT_RATE_MAX:
-        c = VTSS_QOS_QUEUE_POLICER_BIT_RATE_MAX;
-        break;
-    case MESA_CAP_QOS_QUEUE_POLICER_BIT_BURST_MIN:
-        c = VTSS_QOS_QUEUE_POLICER_BIT_BURST_MIN;
-        break;
-    case MESA_CAP_QOS_QUEUE_POLICER_BIT_BURST_MAX:
-        c = VTSS_QOS_QUEUE_POLICER_BIT_BURST_MAX;
-        break;
+    case MESA_CAP_QOS_QUEUE_POLICER_BIT_RATE_MIN:  c = VTSS_QOS_QUEUE_POLICER_BIT_RATE_MIN; break;
+    case MESA_CAP_QOS_QUEUE_POLICER_BIT_RATE_MAX:  c = VTSS_QOS_QUEUE_POLICER_BIT_RATE_MAX; break;
+    case MESA_CAP_QOS_QUEUE_POLICER_BIT_BURST_MIN: c = VTSS_QOS_QUEUE_POLICER_BIT_BURST_MIN; break;
+    case MESA_CAP_QOS_QUEUE_POLICER_BIT_BURST_MAX: c = VTSS_QOS_QUEUE_POLICER_BIT_BURST_MAX; break;
     case MESA_CAP_QOS_QUEUE_POLICER_FRAME_RATE_MIN:
         c = VTSS_QOS_QUEUE_POLICER_FRAME_RATE_MIN;
         break;
@@ -1163,49 +1106,21 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = VTSS_QOS_QUEUE_POLICER_FRAME_BURST_MAX;
         break;
 
-    case MESA_CAP_QOS_PORT_SHAPER_BIT_RATE_MIN:
-        c = VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_SHAPER_BIT_RATE_MAX:
-        c = VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX;
-        break;
-    case MESA_CAP_QOS_PORT_SHAPER_BIT_BURST_MIN:
-        c = VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_SHAPER_BIT_BURST_MAX:
-        c = VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX;
-        break;
-    case MESA_CAP_QOS_PORT_SHAPER_FRAME_RATE_MIN:
-        c = VTSS_QOS_PORT_SHAPER_FRAME_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_SHAPER_FRAME_RATE_MAX:
-        c = VTSS_QOS_PORT_SHAPER_FRAME_RATE_MAX;
-        break;
-    case MESA_CAP_QOS_PORT_SHAPER_FRAME_BURST_MIN:
-        c = VTSS_QOS_PORT_SHAPER_FRAME_BURST_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_SHAPER_FRAME_BURST_MAX:
-        c = VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX;
-        break;
+    case MESA_CAP_QOS_PORT_SHAPER_BIT_RATE_MIN:    c = VTSS_QOS_PORT_SHAPER_BIT_RATE_MIN; break;
+    case MESA_CAP_QOS_PORT_SHAPER_BIT_RATE_MAX:    c = VTSS_QOS_PORT_SHAPER_BIT_RATE_MAX; break;
+    case MESA_CAP_QOS_PORT_SHAPER_BIT_BURST_MIN:   c = VTSS_QOS_PORT_SHAPER_BIT_BURST_MIN; break;
+    case MESA_CAP_QOS_PORT_SHAPER_BIT_BURST_MAX:   c = VTSS_QOS_PORT_SHAPER_BIT_BURST_MAX; break;
+    case MESA_CAP_QOS_PORT_SHAPER_FRAME_RATE_MIN:  c = VTSS_QOS_PORT_SHAPER_FRAME_RATE_MIN; break;
+    case MESA_CAP_QOS_PORT_SHAPER_FRAME_RATE_MAX:  c = VTSS_QOS_PORT_SHAPER_FRAME_RATE_MAX; break;
+    case MESA_CAP_QOS_PORT_SHAPER_FRAME_BURST_MIN: c = VTSS_QOS_PORT_SHAPER_FRAME_BURST_MIN; break;
+    case MESA_CAP_QOS_PORT_SHAPER_FRAME_BURST_MAX: c = VTSS_QOS_PORT_SHAPER_FRAME_BURST_MAX; break;
 
-    case MESA_CAP_QOS_QUEUE_SHAPER_BIT_RATE_MIN:
-        c = VTSS_QOS_QUEUE_SHAPER_BIT_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_QUEUE_SHAPER_BIT_RATE_MAX:
-        c = VTSS_QOS_QUEUE_SHAPER_BIT_RATE_MAX;
-        break;
-    case MESA_CAP_QOS_QUEUE_SHAPER_BIT_BURST_MIN:
-        c = VTSS_QOS_QUEUE_SHAPER_BIT_BURST_MIN;
-        break;
-    case MESA_CAP_QOS_QUEUE_SHAPER_BIT_BURST_MAX:
-        c = VTSS_QOS_QUEUE_SHAPER_BIT_BURST_MAX;
-        break;
-    case MESA_CAP_QOS_QUEUE_SHAPER_FRAME_RATE_MIN:
-        c = VTSS_QOS_QUEUE_SHAPER_FRAME_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_QUEUE_SHAPER_FRAME_RATE_MAX:
-        c = VTSS_QOS_QUEUE_SHAPER_FRAME_RATE_MAX;
-        break;
+    case MESA_CAP_QOS_QUEUE_SHAPER_BIT_RATE_MIN:   c = VTSS_QOS_QUEUE_SHAPER_BIT_RATE_MIN; break;
+    case MESA_CAP_QOS_QUEUE_SHAPER_BIT_RATE_MAX:   c = VTSS_QOS_QUEUE_SHAPER_BIT_RATE_MAX; break;
+    case MESA_CAP_QOS_QUEUE_SHAPER_BIT_BURST_MIN:  c = VTSS_QOS_QUEUE_SHAPER_BIT_BURST_MIN; break;
+    case MESA_CAP_QOS_QUEUE_SHAPER_BIT_BURST_MAX:  c = VTSS_QOS_QUEUE_SHAPER_BIT_BURST_MAX; break;
+    case MESA_CAP_QOS_QUEUE_SHAPER_FRAME_RATE_MIN: c = VTSS_QOS_QUEUE_SHAPER_FRAME_RATE_MIN; break;
+    case MESA_CAP_QOS_QUEUE_SHAPER_FRAME_RATE_MAX: c = VTSS_QOS_QUEUE_SHAPER_FRAME_RATE_MAX; break;
     case MESA_CAP_QOS_QUEUE_SHAPER_FRAME_BURST_MIN:
         c = VTSS_QOS_QUEUE_SHAPER_FRAME_BURST_MIN;
         break;
@@ -1213,24 +1128,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = VTSS_QOS_QUEUE_SHAPER_FRAME_BURST_MAX;
         break;
 
-    case MESA_CAP_QOS_GLOBAL_STORM_BIT_RATE_MIN:
-        c = VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_GLOBAL_STORM_BIT_RATE_MAX:
-        c = VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX;
-        break;
-    case MESA_CAP_QOS_GLOBAL_STORM_BIT_BURST_MIN:
-        c = VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN;
-        break;
-    case MESA_CAP_QOS_GLOBAL_STORM_BIT_BURST_MAX:
-        c = VTSS_QOS_GLOBAL_STORM_BIT_BURST_MAX;
-        break;
-    case MESA_CAP_QOS_GLOBAL_STORM_FRAME_RATE_MIN:
-        c = VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_GLOBAL_STORM_FRAME_RATE_MAX:
-        c = VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MAX;
-        break;
+    case MESA_CAP_QOS_GLOBAL_STORM_BIT_RATE_MIN:   c = VTSS_QOS_GLOBAL_STORM_BIT_RATE_MIN; break;
+    case MESA_CAP_QOS_GLOBAL_STORM_BIT_RATE_MAX:   c = VTSS_QOS_GLOBAL_STORM_BIT_RATE_MAX; break;
+    case MESA_CAP_QOS_GLOBAL_STORM_BIT_BURST_MIN:  c = VTSS_QOS_GLOBAL_STORM_BIT_BURST_MIN; break;
+    case MESA_CAP_QOS_GLOBAL_STORM_BIT_BURST_MAX:  c = VTSS_QOS_GLOBAL_STORM_BIT_BURST_MAX; break;
+    case MESA_CAP_QOS_GLOBAL_STORM_FRAME_RATE_MIN: c = VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MIN; break;
+    case MESA_CAP_QOS_GLOBAL_STORM_FRAME_RATE_MAX: c = VTSS_QOS_GLOBAL_STORM_FRAME_RATE_MAX; break;
     case MESA_CAP_QOS_GLOBAL_STORM_FRAME_BURST_MIN:
         c = VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MIN;
         break;
@@ -1238,30 +1141,14 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = VTSS_QOS_GLOBAL_STORM_FRAME_BURST_MAX;
         break;
 
-    case MESA_CAP_QOS_PORT_STORM_BIT_RATE_MIN:
-        c = VTSS_QOS_PORT_STORM_BIT_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_STORM_BIT_RATE_MAX:
-        c = VTSS_QOS_PORT_STORM_BIT_RATE_MAX;
-        break;
-    case MESA_CAP_QOS_PORT_STORM_BIT_BURST_MIN:
-        c = VTSS_QOS_PORT_STORM_BIT_BURST_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_STORM_BIT_BURST_MAX:
-        c = VTSS_QOS_PORT_STORM_BIT_BURST_MAX;
-        break;
-    case MESA_CAP_QOS_PORT_STORM_FRAME_RATE_MIN:
-        c = VTSS_QOS_PORT_STORM_FRAME_RATE_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_STORM_FRAME_RATE_MAX:
-        c = VTSS_QOS_PORT_STORM_FRAME_RATE_MAX;
-        break;
-    case MESA_CAP_QOS_PORT_STORM_FRAME_BURST_MIN:
-        c = VTSS_QOS_PORT_STORM_FRAME_BURST_MIN;
-        break;
-    case MESA_CAP_QOS_PORT_STORM_FRAME_BURST_MAX:
-        c = VTSS_QOS_PORT_STORM_FRAME_BURST_MAX;
-        break;
+    case MESA_CAP_QOS_PORT_STORM_BIT_RATE_MIN:    c = VTSS_QOS_PORT_STORM_BIT_RATE_MIN; break;
+    case MESA_CAP_QOS_PORT_STORM_BIT_RATE_MAX:    c = VTSS_QOS_PORT_STORM_BIT_RATE_MAX; break;
+    case MESA_CAP_QOS_PORT_STORM_BIT_BURST_MIN:   c = VTSS_QOS_PORT_STORM_BIT_BURST_MIN; break;
+    case MESA_CAP_QOS_PORT_STORM_BIT_BURST_MAX:   c = VTSS_QOS_PORT_STORM_BIT_BURST_MAX; break;
+    case MESA_CAP_QOS_PORT_STORM_FRAME_RATE_MIN:  c = VTSS_QOS_PORT_STORM_FRAME_RATE_MIN; break;
+    case MESA_CAP_QOS_PORT_STORM_FRAME_RATE_MAX:  c = VTSS_QOS_PORT_STORM_FRAME_RATE_MAX; break;
+    case MESA_CAP_QOS_PORT_STORM_FRAME_BURST_MIN: c = VTSS_QOS_PORT_STORM_FRAME_BURST_MIN; break;
+    case MESA_CAP_QOS_PORT_STORM_FRAME_BURST_MAX: c = VTSS_QOS_PORT_STORM_FRAME_BURST_MAX; break;
 
     case MESA_CAP_DSCP_CNT: c = MESA_DSCP_CNT; break;
 
@@ -1293,9 +1180,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_ACL_PTP_DELAY:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||       \
+    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
         c = 1;
 #endif
         break;
@@ -1587,16 +1473,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_VOP_EVENT_SUPPORTED:
 #if defined(VTSS_FEATURE_VOP)
-        c = MESA_VOE_EVENT_MASK_CCM_PERIOD |
-            MESA_VOE_EVENT_MASK_CCM_ZERO_PERIOD |
+        c = MESA_VOE_EVENT_MASK_CCM_PERIOD | MESA_VOE_EVENT_MASK_CCM_ZERO_PERIOD |
             MESA_VOE_EVENT_MASK_CCM_PRIORITY | MESA_VOE_EVENT_MASK_CCM_LOC |
             MESA_VOE_EVENT_MASK_CCM_MEP_ID | MESA_VOE_EVENT_MASK_CCM_MEG_ID |
             MESA_VOE_EVENT_MASK_CCM_RX_RDI;
 #if defined(VTSS_FEATURE_VOP_V2)
-        c = c | MESA_VOE_EVENT_MASK_CCM_SRC_PORT_MOVE |
-            MESA_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS |
-            MESA_VOE_EVENT_MASK_CCM_TLV_IF_STATUS |
-            MESA_VOE_EVENT_MASK_CCM_MEG_LEVEL;
+        c = c | MESA_VOE_EVENT_MASK_CCM_SRC_PORT_MOVE | MESA_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS |
+            MESA_VOE_EVENT_MASK_CCM_TLV_IF_STATUS | MESA_VOE_EVENT_MASK_CCM_MEG_LEVEL;
 #endif
 #endif
         break;
@@ -1606,9 +1489,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         mesa_chip_id_t chip_id;
         mesa_rc        rc;
 
-        rc =
-            mesa_chip_id_get(inst,
-                             &chip_id); /* check if chip revision is >= rev B */
+        rc = mesa_chip_id_get(inst, &chip_id); /* check if chip revision is >= rev B */
         if (rc == MESA_RC_OK && chip_id.revision >= 1) {
             c = 1;
         }
@@ -1677,8 +1558,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_SYNCE_SEPARATE_TIMING_DOMAINS:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||      \
+    defined(VTSS_ARCH_LAN969X)
         c = 1;
 #endif
         break;
@@ -1795,7 +1676,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_ALT_CLOCK:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                                    \
     defined(VTSS_ARCH_FA) /* TBD_henrikb */
 #if defined(VTSS_ARCH_FA)
         c = mesa_feature(inst, FEATURE_TIMESTAMP);
@@ -1854,8 +1735,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_PHY_10GBASE_KR:                c = 0; break;
 
     case MESA_CAP_TS_PPS_VIA_CONFIGURABLE_IO_PINS:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||      \
+    defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1873,8 +1754,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_HAS_PTP_IO_PIN:
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||                \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||      \
+    defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1899,32 +1780,27 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
     case MESA_CAP_TS_TOD_INTERNAL_TC_MODE:
 #if defined(VTSS_ARCH_OCELOT)
-        c = (MESA_TS_TOD_INTERNAL_TC_MODE_30BIT) |
-            (MESA_TS_TOD_INTERNAL_TC_MODE_32BIT) |
+        c = (MESA_TS_TOD_INTERNAL_TC_MODE_30BIT) | (MESA_TS_TOD_INTERNAL_TC_MODE_32BIT) |
             (MESA_TS_TOD_INTERNAL_TC_MODE_44BIT);
 #elif defined(VTSS_ARCH_CARACAL)
         c = 0;
 #else
-        c = (MESA_TS_TOD_INTERNAL_TC_MODE_30BIT) |
-            (MESA_TS_TOD_INTERNAL_TC_MODE_32BIT) |
-            (MESA_TS_TOD_INTERNAL_TC_MODE_44BIT) |
-            (MESA_TS_TOD_INTERNAL_TC_MODE_48BIT);
+        c = (MESA_TS_TOD_INTERNAL_TC_MODE_30BIT) | (MESA_TS_TOD_INTERNAL_TC_MODE_32BIT) |
+            (MESA_TS_TOD_INTERNAL_TC_MODE_44BIT) | (MESA_TS_TOD_INTERNAL_TC_MODE_48BIT);
 
 #endif
         break;
 
     case MESA_CAP_TS_HW_FWD_P2P_1STEP:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||       \
+    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
 
     case MESA_CAP_TS_HW_FWD_E2E_1STEP_INTERNAL:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||       \
+    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -1936,9 +1812,8 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     case MESA_CAP_TS_INTERNAL_MODE_SUPPORTED:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||                 \
-    defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||       \
+    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
         c = 1;
 #endif
         break;
@@ -2137,8 +2012,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     default: {
         mesa_cap_callback_data_t *hook = NULL;
-        if (vtss_misc_appdata_get((vtss_inst_t)inst, (void **)&hook) ==
-                VTSS_RC_OK &&
+        if (vtss_misc_appdata_get((vtss_inst_t)inst, (void **)&hook) == VTSS_RC_OK &&
             hook != NULL) {
             c = hook->cb(hook->inst, cap);
         } else {
@@ -2151,7 +2025,4 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     return c;
 }
 
-uint32_t mesa_port_cnt(mesa_inst_t inst)
-{
-    return mesa_capability(inst, MESA_CAP_PORT_CNT);
-}
+uint32_t mesa_port_cnt(mesa_inst_t inst) { return mesa_capability(inst, MESA_CAP_PORT_CNT); }

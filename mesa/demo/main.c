@@ -60,8 +60,7 @@ static int i2c_adapter_open(int adapter_nr, int i2c_addr)
     if ((file = open(filename, O_RDWR)) >= 0) {
         T_I("Opened(%s)", filename);
         if (ioctl(file, I2C_SLAVE, i2c_addr) < 0) {
-            T_I("cannot specify i2c slave at 0x%02x! [%s]\n", i2c_addr,
-                strerror(errno));
+            T_I("cannot specify i2c slave at 0x%02x! [%s]\n", i2c_addr, strerror(errno));
         }
     } else {
         T_I("cannot open /dev/i2c-%d! [%s]\n", adapter_nr, strerror(errno));
@@ -116,8 +115,7 @@ static mesa_rc i2c_read(const mesa_port_no_t port_no,
         }
         close(file);
     }
-    T_D("i2c read port %d, addr 0x%x, %d bytes - RC %d", port_no, i2c_addr, cnt,
-        rc);
+    T_D("i2c read port %d, addr 0x%x, %d bytes - RC %d", port_no, i2c_addr, cnt, rc);
     return rc;
 }
 
@@ -158,8 +156,7 @@ static mesa_rc i2c_write(const mesa_port_no_t port_no,
         }
         close(file);
     }
-    T_D("i2c write port %d, addr 0x%x, %d bytes - RC %d", port_no, i2c_addr,
-        cnt, rc);
+    T_D("i2c write port %d, addr 0x%x, %d bytes - RC %d", port_no, i2c_addr, cnt, rc);
     return rc;
 }
 
@@ -214,8 +211,7 @@ void get_mac_addr(uint8_t *mac)
     uint32_t i, m[6];
 
     if (get_uboot_env("ethaddr", buf, sizeof(buf)) &&
-        sscanf(buf, "%2x:%2x:%2x:%2x:%2x:%2x", &m[0], &m[1], &m[2], &m[3],
-               &m[4], &m[5]) == 6) {
+        sscanf(buf, "%2x:%2x:%2x:%2x:%2x:%2x", &m[0], &m[1], &m[2], &m[3], &m[4], &m[5]) == 6) {
         for (i = 0; i < 6; i++) {
             mac[i] = m[i];
         }
@@ -306,10 +302,7 @@ static uint32_t get_fa_port_cnt_default(uint32_t target, uint32_t pcb)
     return 0;
 }
 
-static void get_fa_board_name(uint32_t    cnt,
-                              mesa_bool_t sparx5i,
-                              uint32_t    pcb,
-                              char       *buf)
+static void get_fa_board_name(uint32_t cnt, mesa_bool_t sparx5i, uint32_t pcb, char *buf)
 {
     char str[15];
 
@@ -326,8 +319,7 @@ static void get_fa_board_name(uint32_t    cnt,
     }
 }
 
-static mesa_target_type_t get_fa_target(const mesa_switch_bw_t bw,
-                                        mesa_bool_t            sparxi)
+static mesa_target_type_t get_fa_target(const mesa_switch_bw_t bw, mesa_bool_t sparxi)
 {
     switch (bw) {
     case MESA_SWITCH_BW_64:
@@ -370,10 +362,7 @@ static mesa_target_type_t get_fa_target(const mesa_switch_bw_t bw,
     return 0;
 }
 
-static mesa_rc board_dtree_get(const char *tag,
-                               char       *buf,
-                               size_t      bufsize,
-                               size_t     *buflen)
+static mesa_rc board_dtree_get(const char *tag, char *buf, size_t bufsize, size_t *buflen)
 {
     int    fd;
     char   fname[128];
@@ -399,10 +388,7 @@ static mesa_rc board_dtree_get(const char *tag,
 
 #define PCB_TYPE_NONE 10000
 
-static mesa_rc board_conf_get(const char *tag,
-                              char       *buf,
-                              size_t      bufsize,
-                              size_t     *buflen)
+static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t *buflen)
 {
     uint32_t    port_cnt = mesa_port_cnt(NULL); // Compiled
     const char *board = NULL;
@@ -554,8 +540,8 @@ static void board_debug(meba_trace_level_t level,
     if (group->level >= lvl) {
         va_start(ap, fmt);
         // The MEBA 'location' is the function name, and the file name is unknown
-        mscc_appl_trace_vprintf(trace_module.name, group->name, lvl,
-                                "meba_xxx.c", line_no, location, fmt, ap);
+        mscc_appl_trace_vprintf(trace_module.name, group->name, lvl, "meba_xxx.c", line_no,
+                                location, fmt, ap);
         va_end(ap);
     }
 }
@@ -629,8 +615,8 @@ static mesa_rc help_option(char *parm)
     for (i = 0; i < 2; i++) {
         for (opt = main_opt_list; opt != NULL; opt = opt->next) {
             if (i) {
-                printf("-%c %-*s : %s\n", opt->option[0], max_len,
-                       opt->parm ? opt->parm : "", opt->descr);
+                printf("-%c %-*s : %s\n", opt->option[0], max_len, opt->parm ? opt->parm : "",
+                       opt->descr);
             } else if (opt->parm && (len = strlen(opt->parm)) > max_len) {
                 max_len = len;
             }
@@ -639,8 +625,7 @@ static mesa_rc help_option(char *parm)
     return MESA_RC_ERROR;
 }
 
-static mscc_appl_opt_t main_opt = {"h", NULL, "Show this help text",
-                                   help_option};
+static mscc_appl_opt_t main_opt = {"h", NULL, "Show this help text", help_option};
 
 static int     run_in_foreground = 0;
 static mesa_rc option_foreground(char *parm)
@@ -649,8 +634,7 @@ static mesa_rc option_foreground(char *parm)
     return MESA_RC_OK;
 }
 
-static mscc_appl_opt_t main_opt_foreground = {"f", NULL, "Run in foreground",
-                                              option_foreground};
+static mscc_appl_opt_t main_opt_foreground = {"f", NULL, "Run in foreground", option_foreground};
 
 static mesa_bool_t warm_start_enable;
 
@@ -660,8 +644,7 @@ static mesa_rc warm_option(char *parm)
     return MESA_RC_OK;
 }
 
-static mscc_appl_opt_t main_opt_warm = {"w", NULL, "Allow warm start",
-                                        warm_option};
+static mscc_appl_opt_t main_opt_warm = {"w", NULL, "Allow warm start", warm_option};
 
 static mesa_rc loop_port_opt(char *parm)
 {
@@ -680,8 +663,8 @@ static mesa_rc loop_port_opt(char *parm)
     return MESA_RC_OK;
 }
 
-static mscc_appl_opt_t main_opt_loop_port = {
-    "l:", "<loop-port>", "Configure a loop-port", loop_port_opt};
+static mscc_appl_opt_t main_opt_loop_port = {"l:", "<loop-port>", "Configure a loop-port",
+                                             loop_port_opt};
 
 static void cli_cmd_warm_start(cli_req_t *req)
 {
@@ -726,9 +709,8 @@ static void cli_cmd_warm_start(cli_req_t *req)
 
 static void cli_cmd_board_dump(cli_req_t *req)
 {
-    int16_t     temp_celsius;
-    uint16_t    meba_cnt = MEBA_WRAP(meba_capability, appl_init.board_inst,
-                                     MEBA_CAP_BOARD_PORT_COUNT);
+    int16_t  temp_celsius;
+    uint16_t meba_cnt = MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_BOARD_PORT_COUNT);
     mesa_bool_t cap_sensor =
         MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_TEMP_SENSORS);
 
@@ -806,8 +788,8 @@ static mesa_rc reset_opt(char *parm)
     return MESA_RC_OK;
 }
 
-static mscc_appl_opt_t main_opt_reset = {
-    "r:", "<spidev>", "SPI device used for FPGA access", reset_opt};
+static mscc_appl_opt_t main_opt_reset = {"r:", "<spidev>", "SPI device used for FPGA access",
+                                         reset_opt};
 
 static int     SPI_REG_IO = 0;
 static char    SPI_DEVICE[512];
@@ -837,16 +819,15 @@ static mesa_rc spidev_opt(char *parm)
     SPI_DEVICE[sizeof(SPI_DEVICE) - 1] = 0;
     SPI_REG_IO = 1;
 
-    printf("Using SPI device: %s with %d padding byte%s at %d Hz\n", SPI_DEVICE,
-           SPI_PAD, (SPI_PAD == 1) ? "" : "s", SPI_FREQ);
+    printf("Using SPI device: %s with %d padding byte%s at %d Hz\n", SPI_DEVICE, SPI_PAD,
+           (SPI_PAD == 1) ? "" : "s", SPI_FREQ);
 
     return MESA_RC_OK;
 }
 
 static mscc_appl_opt_t main_opt_spidev = {
     "s:", "<spidev[@pad[@freq]]>",
-    "SPI device, padding bytes and frequency to use (instead of UIO which is default)",
-    spidev_opt};
+    "SPI device, padding bytes and frequency to use (instead of UIO which is default)", spidev_opt};
 
 static mesa_bool_t vlan_counters_disable;
 static mesa_bool_t psfp_counters_enable;
@@ -861,8 +842,7 @@ static mesa_rc vlan_counters_disable_option(char *parm)
 }
 
 static mscc_appl_opt_t main_opt_vlan_counters_disable = {
-    "v::", "[p]",
-    "Disable VLAN counters, optionally enable PSFP counters with -vp",
+    "v::", "[p]", "Disable VLAN counters, optionally enable PSFP counters with -vp",
     vlan_counters_disable_option};
 
 static void main_init(mscc_appl_init_t *init)
@@ -958,8 +938,8 @@ static mesa_rc gpio_func_info_get(const mesa_inst_t      inst,
                                   mesa_gpio_func_info_t *info)
 {
     if (appl_init.board_inst->api.meba_gpio_func_info_get != NULL) {
-        return appl_init.board_inst->api
-            .meba_gpio_func_info_get(appl_init.board_inst, gpio_func, info);
+        return appl_init.board_inst->api.meba_gpio_func_info_get(appl_init.board_inst, gpio_func,
+                                                                 info);
     } else {
         return MESA_RC_ERROR;
     }
@@ -972,17 +952,14 @@ static mesa_rc serdes_tap_get(const mesa_inst_t           inst,
                               uint32_t *const             value)
 {
     if (appl_init.board_inst->api.meba_serdes_tap_get != NULL) {
-        return appl_init.board_inst->api
-            .meba_serdes_tap_get(appl_init.board_inst, port_no, speed, tap,
-                                 value);
+        return appl_init.board_inst->api.meba_serdes_tap_get(appl_init.board_inst, port_no, speed,
+                                                             tap, value);
     } else {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 }
 
-mesa_bool_t poll_cnt_us(uint32_t  sleep_us,
-                        uint32_t *poll_cnt,
-                        uint32_t  wait_usec)
+mesa_bool_t poll_cnt_us(uint32_t sleep_us, uint32_t *poll_cnt, uint32_t wait_usec)
 {
     if ((sleep_us * *poll_cnt) % wait_usec == 0) {
         return 1;
@@ -1072,8 +1049,7 @@ int main(int argc, char **argv)
     board_info.conf_get = board_conf_get;
     board_info.debug = board_debug;
     board_info.trace = mscc_mepa_trace_printf;
-    if ((meba_inst = meba_initialize(sizeof(board_info), &board_info)) ==
-        NULL) {
+    if ((meba_inst = meba_initialize(sizeof(board_info), &board_info)) == NULL) {
         T_E("MEBA failed to Instantiate");
         return 1;
     }
@@ -1123,8 +1099,7 @@ int main(int argc, char **argv)
         return 1;
     }
     for (port_no = 0; port_no < port_cnt; port_no++) {
-        if (meba_inst->api.meba_port_entry_get(meba_inst, port_no,
-                                               &port_entry) != MESA_RC_OK) {
+        if (meba_inst->api.meba_port_entry_get(meba_inst, port_no, &port_entry) != MESA_RC_OK) {
             memset(&port_entry, 0, sizeof(port_entry));
             port_entry.map.chip_port = -1; // Unused
         }
@@ -1150,12 +1125,10 @@ int main(int argc, char **argv)
     init_modules(init);
 
     // Initialize fan and chip/board temperature sensors
-    if (MEBA_WRAP(meba_capability, appl_init.board_inst,
-                  MEBA_CAP_TEMP_SENSORS)) {
+    if (MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_TEMP_SENSORS)) {
         MEBA_WRAP(meba_reset, init->board_inst, MEBA_SENSOR_INITIALIZE);
     }
-    if (MEBA_WRAP(meba_capability, appl_init.board_inst,
-                  MEBA_CAP_FAN_SUPPORT)) {
+    if (MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_FAN_SUPPORT)) {
         MEBA_WRAP(meba_reset, init->board_inst, MEBA_FAN_INITIALIZE);
     }
     // Poll modules

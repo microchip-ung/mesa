@@ -11,8 +11,7 @@
 
 /* - Configuration ------------------------------------------------- */
 
-vtss_rc vtss_packet_rx_conf_get(const vtss_inst_t            inst,
-                                vtss_packet_rx_conf_t *const conf)
+vtss_rc vtss_packet_rx_conf_get(const vtss_inst_t inst, vtss_packet_rx_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -26,8 +25,7 @@ vtss_rc vtss_packet_rx_conf_get(const vtss_inst_t            inst,
     return rc;
 }
 
-vtss_rc vtss_packet_rx_conf_set(const vtss_inst_t                  inst,
-                                const vtss_packet_rx_conf_t *const conf)
+vtss_rc vtss_packet_rx_conf_set(const vtss_inst_t inst, const vtss_packet_rx_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -56,26 +54,23 @@ vtss_rc vtss_packet_rx_port_conf_get(const vtss_inst_t                 inst,
 
     VTSS_D("enter");
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *conf = vtss_state->packet.rx_port_conf[port_no];
     }
     VTSS_EXIT();
     return rc;
 }
 
-vtss_rc vtss_packet_rx_port_conf_set(const vtss_inst_t    inst,
-                                     const vtss_port_no_t port_no,
-                                     const vtss_packet_rx_port_conf_t
-                                         *const conf)
+vtss_rc vtss_packet_rx_port_conf_set(const vtss_inst_t                       inst,
+                                     const vtss_port_no_t                    port_no,
+                                     const vtss_packet_rx_port_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_D("enter");
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->packet.rx_port_conf[port_no] = *conf;
         rc = VTSS_FUNC_0(packet.rx_conf_set);
     }
@@ -115,8 +110,7 @@ vtss_rc vtss_packet_tx_frame(const vtss_inst_t                  inst,
     VTSS_ENTER();
     ifh.length = sizeof(ifh.ifh);
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
-        (rc = vtss_packet_tx_hdr_encode(inst, tx_info, (u8 *)ifh.ifh,
-                                        &ifh.length)) == VTSS_RC_OK) {
+        (rc = vtss_packet_tx_hdr_encode(inst, tx_info, (u8 *)ifh.ifh, &ifh.length)) == VTSS_RC_OK) {
         rc = VTSS_FUNC(packet.tx_frame_ifh, &ifh, frame, length);
     }
     VTSS_EXIT();
@@ -125,28 +119,26 @@ vtss_rc vtss_packet_tx_frame(const vtss_inst_t                  inst,
 
 /* - Frame filter -------------------------------------------------- */
 
-static vtss_rc vtss_packet_port_filter(vtss_state_t *state,
+static vtss_rc vtss_packet_port_filter(vtss_state_t                        *state,
                                        const vtss_packet_port_info_t *const info,
-                                       vtss_packet_port_filter_t
-                                            filter[VTSS_PORT_ARRAY_SIZE],
-                                       BOOL tx_filter)
+                                       vtss_packet_port_filter_t filter[VTSS_PORT_ARRAY_SIZE],
+                                       BOOL                      tx_filter)
 {
     vtss_port_no_t port_rx, port_tx;
     vtss_vid_t     vid, uvid;
     vtss_aggr_no_t aggr_no;
 
     vtss_packet_port_filter_t *port_filter;
-    BOOL                   vlan_filter = 0, vlan_member[VTSS_PORT_ARRAY_SIZE];
-    BOOL                   vlan_rx_filter = 0;
-    vtss_vlan_port_conf_t *vlan_port_conf;
+    BOOL                       vlan_filter = 0, vlan_member[VTSS_PORT_ARRAY_SIZE];
+    BOOL                       vlan_rx_filter = 0;
+    vtss_vlan_port_conf_t     *vlan_port_conf;
 
     port_rx = info->port_no;
     vid = info->vid;
     VTSS_MEMSET(vlan_member, 0, VTSS_PORT_ARRAY_SIZE); /* Please Lint */
     if (vid != VTSS_VID_NULL) {
         vlan_filter = 1;
-        vlan_rx_filter =
-            (state->l2.vlan_table[vid].flags & VLAN_FLAGS_FILTER ? 1 : 0);
+        vlan_rx_filter = (state->l2.vlan_table[vid].flags & VLAN_FLAGS_FILTER ? 1 : 0);
         VTSS_RC(vtss_cmn_vlan_members_get(state, vid, vlan_member));
     }
 
@@ -168,8 +160,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t *state,
             }
 
             if (vlan_filter && vlan_member[port_rx] == 0 &&
-                (vlan_rx_filter ||
-                 state->l2.vlan_port_conf[port_rx].ingress_filter)) {
+                (vlan_rx_filter || state->l2.vlan_port_conf[port_rx].ingress_filter)) {
                 /* VLAN/MSTP/ERPS/.. ingress filtering */
                 VTSS_N("port_rx %u not member of VLAN %u", port_rx, vid);
                 continue;
@@ -185,8 +176,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t *state,
             /* Ingress and egress port filtering (forwarding) */
             if (port_rx == port_tx) {
                 /* Source port filtering */
-                VTSS_N("port_rx %u and port_tx %u are identical", port_rx,
-                       port_tx);
+                VTSS_N("port_rx %u and port_tx %u are identical", port_rx, port_tx);
                 continue;
             }
 
@@ -194,8 +184,8 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t *state,
             if (info->aggr_rx_disable == 0 && aggr_no != VTSS_AGGR_NO_NONE &&
                 state->l2.port_aggr_no[port_tx] == aggr_no) {
                 /* Ingress LLAG filter */
-                VTSS_N("port_rx %u and port_tx %u are members of same LLAG %u",
-                       port_rx, port_tx, aggr_no);
+                VTSS_N("port_rx %u and port_tx %u are members of same LLAG %u", port_rx, port_tx,
+                       aggr_no);
                 continue;
             }
         }
@@ -222,18 +212,15 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t *state,
         /* Determine whether to send tagged or untagged */
         vlan_port_conf = &state->l2.vlan_port_conf[port_tx];
         uvid = vlan_port_conf->untagged_vid;
-        port_filter->filter =
-            (uvid != VTSS_VID_ALL && uvid != vid ? VTSS_PACKET_FILTER_TAGGED
-                                                 : VTSS_PACKET_FILTER_UNTAGGED);
+        port_filter->filter = (uvid != VTSS_VID_ALL && uvid != vid ? VTSS_PACKET_FILTER_TAGGED
+                                                                   : VTSS_PACKET_FILTER_UNTAGGED);
 
         /* Determine tag type */
         port_filter->tpid = VTSS_ETYPE_TAG_C;
         switch (vlan_port_conf->port_type) {
-        case VTSS_VLAN_PORT_TYPE_S: port_filter->tpid = VTSS_ETYPE_TAG_S; break;
-        case VTSS_VLAN_PORT_TYPE_S_CUSTOM:
-            port_filter->tpid = state->l2.vlan_conf.s_etype;
-            break;
-        default: break;
+        case VTSS_VLAN_PORT_TYPE_S:        port_filter->tpid = VTSS_ETYPE_TAG_S; break;
+        case VTSS_VLAN_PORT_TYPE_S_CUSTOM: port_filter->tpid = state->l2.vlan_conf.s_etype; break;
+        default:                           break;
         }
     } /* Port loop */
     return VTSS_RC_OK;
@@ -245,7 +232,7 @@ static vtss_rc vtss_packet_filter(vtss_state_t                         *state,
 {
     vtss_packet_port_info_t   port_info;
     vtss_packet_port_filter_t port_filter[VTSS_PORT_ARRAY_SIZE];
-    BOOL tx_filter = (info->port_tx == VTSS_PORT_NO_NONE ? 0 : 1);
+    BOOL                      tx_filter = (info->port_tx == VTSS_PORT_NO_NONE ? 0 : 1);
 
     /* Copy fields to port filter */
     port_info.port_no = info->port_no;
@@ -288,8 +275,7 @@ vtss_rc vtss_packet_port_info_init(vtss_packet_port_info_t *const info)
 
 vtss_rc vtss_packet_port_filter_get(const vtss_inst_t                    inst,
                                     const vtss_packet_port_info_t *const info,
-                                    vtss_packet_port_filter_t
-                                        filter[VTSS_PORT_ARRAY_SIZE])
+                                    vtss_packet_port_filter_t filter[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -300,9 +286,8 @@ vtss_rc vtss_packet_port_filter_get(const vtss_inst_t                    inst,
     return rc;
 }
 
-vtss_rc vtss_packet_vlan_filter_get(const vtss_inst_t inst,
-                                    vtss_packet_vlan_filter_t
-                                        filter[VTSS_PORT_ARRAY_SIZE])
+vtss_rc vtss_packet_vlan_filter_get(const vtss_inst_t         inst,
+                                    vtss_packet_vlan_filter_t filter[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_state_t  *vtss_state;
     vtss_rc        rc;
@@ -311,23 +296,18 @@ vtss_rc vtss_packet_vlan_filter_get(const vtss_inst_t inst,
     BOOL           member[VTSS_PORT_ARRAY_SIZE];
 
     if ((rc = vtss_inst_check_get(inst, &vtss_state)) == VTSS_RC_OK) {
-        VTSS_MEMSET(filter, 0,
-                    VTSS_PORT_ARRAY_SIZE * sizeof(vtss_packet_vlan_filter_t));
-        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++) {
+        VTSS_MEMSET(filter, 0, VTSS_PORT_ARRAY_SIZE * sizeof(vtss_packet_vlan_filter_t));
+        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             /* Rx and Tx forwarding */
             filter[port_no].rx_forward = vtss_state->l2.rx_forward[port_no];
             filter[port_no].tx_forward = vtss_state->l2.tx_forward[port_no];
         }
         for (vid = VTSS_VID_DEFAULT; vid < VTSS_VIDS; vid++) {
-            if (vtss_cmn_vlan_members_get(vtss_state, vid, member) ==
-                VTSS_RC_OK) {
-                for (port_no = VTSS_PORT_NO_START;
-                     port_no < vtss_state->port_count; port_no++) {
+            if (vtss_cmn_vlan_members_get(vtss_state, vid, member) == VTSS_RC_OK) {
+                for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
                     /* VLAN/MSTP/ERPS/.. filtering */
                     if (!member[port_no]) {
-                        filter[port_no].vlan_discard[vid / 8] |=
-                            (1 << (vid % 8));
+                        filter[port_no].vlan_discard[vid / 8] |= (1 << (vid % 8));
                     }
                 }
             }
@@ -336,8 +316,7 @@ vtss_rc vtss_packet_vlan_filter_get(const vtss_inst_t inst,
     return rc;
 }
 
-vtss_rc vtss_packet_vlan_status_get(const vtss_inst_t                inst,
-                                    vtss_packet_vlan_status_t *const status)
+vtss_rc vtss_packet_vlan_status_get(const vtss_inst_t inst, vtss_packet_vlan_status_t *const status)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -354,7 +333,7 @@ vtss_rc vtss_packet_vlan_status_get(const vtss_inst_t                inst,
  */
 vtss_rc vtss_packet_rx_hdr_decode(const vtss_inst_t                  inst,
                                   const vtss_packet_rx_meta_t *const meta,
-                                  const u8 hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                  const u8                     hdr[VTSS_PACKET_HDR_SIZE_BYTES],
                                   vtss_packet_rx_info_t *const info)
 {
     vtss_state_t *vtss_state = vtss_inst_check_no_persist(inst);
@@ -364,8 +343,7 @@ vtss_rc vtss_packet_rx_hdr_decode(const vtss_inst_t                  inst,
     }
 
     // This function executes without locking the API semaphore.
-    return VTSS_FUNC_FROM_STATE(vtss_state, packet.rx_hdr_decode, meta, hdr,
-                                info);
+    return VTSS_FUNC_FROM_STATE(vtss_state, packet.rx_hdr_decode, meta, hdr, info);
 }
 
 /*
@@ -374,7 +352,7 @@ vtss_rc vtss_packet_rx_hdr_decode(const vtss_inst_t                  inst,
 vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
                                   const vtss_packet_tx_info_t *const info,
                                   u8 *const                          bin_hdr,
-                                  u32 *const bin_hdr_len)
+                                  u32 *const                         bin_hdr_len)
 {
     vtss_state_t *vtss_state = vtss_inst_check_no_persist(inst);
 
@@ -385,15 +363,13 @@ vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
     // This function executes without locking the API semaphore.
     // The only parameter it uses from the state variable (#inst) is
     // the port map, which is assumed to be constant once booted.
-    return VTSS_FUNC_FROM_STATE(vtss_state, packet.tx_hdr_encode, info, bin_hdr,
-                                bin_hdr_len);
+    return VTSS_FUNC_FROM_STATE(vtss_state, packet.tx_hdr_encode, info, bin_hdr, bin_hdr_len);
 }
 
 /*
  * Initialize a packet_tx_info_t structure.
  */
-vtss_rc vtss_packet_tx_info_init(const vtss_inst_t            inst,
-                                 vtss_packet_tx_info_t *const info)
+vtss_rc vtss_packet_tx_info_init(const vtss_inst_t inst, vtss_packet_tx_info_t *const info)
 {
     if (info == NULL) {
         return VTSS_RC_ERROR;
@@ -428,8 +404,7 @@ vtss_rc vtss_npi_conf_get(const vtss_inst_t inst, vtss_npi_conf_t *const conf)
     return rc;
 }
 
-vtss_rc vtss_npi_conf_set(const vtss_inst_t            inst,
-                          const vtss_npi_conf_t *const conf)
+vtss_rc vtss_npi_conf_set(const vtss_inst_t inst, const vtss_npi_conf_t *const conf)
 {
     vtss_state_t   *vtss_state;
     vtss_rc         rc;
@@ -437,21 +412,17 @@ vtss_rc vtss_npi_conf_set(const vtss_inst_t            inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state,
-                                      conf->enable ? conf->port_no
-                                                   : VTSS_PORT_NO_START)) ==
+                                      conf->enable ? conf->port_no : VTSS_PORT_NO_START)) ==
         VTSS_RC_OK) {
         conf_old = vtss_state->packet.npi_conf;
         if ((rc = VTSS_FUNC_COLD(packet.npi_conf_set, conf)) == VTSS_RC_OK) {
             rc = vtss_update_masks(vtss_state, 1, 0, 0); // Update src masks
             /* Update VLAN configuration for old and new NPI port */
             if (rc == VTSS_RC_OK && conf_old.enable) {
-                rc =
-                    VTSS_RC_COLD(vtss_cmn_vlan_port_conf_set(vtss_state,
-                                                             conf_old.port_no));
+                rc = VTSS_RC_COLD(vtss_cmn_vlan_port_conf_set(vtss_state, conf_old.port_no));
             }
             if (rc == VTSS_RC_OK && conf->enable) {
-                rc = VTSS_RC_COLD(vtss_cmn_vlan_port_conf_set(vtss_state,
-                                                              conf->port_no));
+                rc = VTSS_RC_COLD(vtss_cmn_vlan_port_conf_set(vtss_state, conf->port_no));
             }
         }
     }
@@ -461,9 +432,7 @@ vtss_rc vtss_npi_conf_set(const vtss_inst_t            inst,
 
 /* - TOD ns to ts count -------------------------------------------- */
 
-vtss_rc vtss_packet_phy_cnt_to_ts_cnt(const vtss_inst_t inst,
-                                      const u32         phy_cnt,
-                                      u64              *ts_cnt)
+vtss_rc vtss_packet_phy_cnt_to_ts_cnt(const vtss_inst_t inst, const u32 phy_cnt, u64 *ts_cnt)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -480,9 +449,7 @@ vtss_rc vtss_packet_phy_cnt_to_ts_cnt(const vtss_inst_t inst,
 
 /* - TOD ns to ts count -------------------------------------------- */
 
-vtss_rc vtss_packet_ns_to_ts_cnt(const vtss_inst_t inst,
-                                 const u32         ns,
-                                 u64              *ts_cnt)
+vtss_rc vtss_packet_ns_to_ts_cnt(const vtss_inst_t inst, const u32 ns, u64 *ts_cnt)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -499,8 +466,8 @@ vtss_rc vtss_packet_ns_to_ts_cnt(const vtss_inst_t inst,
 
 /* - PTP get timestamp --------------------------------------------- */
 
-vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t inst,
-                               const u8          frm[VTSS_PTP_FRAME_TS_LENGTH],
+vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t                  inst,
+                               const u8                           frm[VTSS_PTP_FRAME_TS_LENGTH],
                                const vtss_packet_rx_info_t *const rx_info,
                                vtss_packet_ptp_message_type_t     message_type,
                                vtss_packet_timestamp_props_t      ts_props,
@@ -513,8 +480,8 @@ vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (rc == VTSS_RC_OK) {
-            rc = VTSS_FUNC(packet.ptp_get_timestamp, frm, rx_info, message_type,
-                           ts_props, rxTime, timestamp_ok);
+            rc = VTSS_FUNC(packet.ptp_get_timestamp, frm, rx_info, message_type, ts_props, rxTime,
+                           timestamp_ok);
         }
     }
     VTSS_EXIT();
@@ -580,12 +547,12 @@ vtss_rc vtss_packet_inst_create(vtss_state_t *vtss_state)
  * exactly 1.
  */
 vtss_rc vtss_cmn_logical_to_chip_port_mask(const vtss_state_t *const state,
-                                           u64             logical_port_mask,
-                                           u64            *chip_port_mask,
-                                           vtss_chip_no_t *chip_no,
-                                           vtss_port_no_t *stack_port_no,
-                                           u32            *port_cnt,
-                                           vtss_port_no_t *port_no)
+                                           u64                       logical_port_mask,
+                                           u64                      *chip_port_mask,
+                                           vtss_chip_no_t           *chip_no,
+                                           vtss_port_no_t           *stack_port_no,
+                                           u32                      *port_cnt,
+                                           vtss_port_no_t           *port_no)
 {
     u32 i, w, p;
 
@@ -612,16 +579,14 @@ vtss_rc vtss_cmn_logical_to_chip_port_mask(const vtss_state_t *const state,
             p += i;
 
             if (p >= state->port_count) {
-                VTSS_E("port = %u out of range (mask = 0x%" PRIx64 ")", p,
-                       logical_port_mask);
+                VTSS_E("port = %u out of range (mask = 0x%" PRIx64 ")", p, logical_port_mask);
                 return VTSS_RC_ERROR;
             }
 
             if (*chip_no == 0xFFFFFFFFUL) {
                 *chip_no = state->port.map[p].chip_no;
             } else if (*chip_no != state->port.map[p].chip_no) {
-                VTSS_E("Maps to two different devices (mask = 0x%" PRIx64 ")",
-                       logical_port_mask);
+                VTSS_E("Maps to two different devices (mask = 0x%" PRIx64 ")", logical_port_mask);
                 return VTSS_RC_ERROR;
             }
 
@@ -668,9 +633,8 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t *const    state,
                                      const vtss_etype_t           etype,
                                      vtss_packet_rx_info_t *const info)
 {
-    const vtss_vlan_port_conf_t *vlan_port_conf =
-        &state->l2.vlan_port_conf[info->port_no];
-    const vtss_vlan_entry_t *vlan_entry = &state->l2.vlan_table[info->tag.vid];
+    const vtss_vlan_port_conf_t *vlan_port_conf = &state->l2.vlan_port_conf[info->port_no];
+    const vtss_vlan_entry_t     *vlan_entry = &state->l2.vlan_table[info->tag.vid];
 
     if (info->port_no == VTSS_PORT_NO_NONE) {
         VTSS_EG(trc_grp, "Internal error");
@@ -683,8 +647,7 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t *const    state,
     case VTSS_VLAN_PORT_TYPE_C:
         if (etype == VTSS_ETYPE_TAG_C) {
             info->tag_type = VTSS_TAG_TYPE_C_TAGGED;
-        } else if (etype == VTSS_ETYPE_TAG_S ||
-                   etype == state->l2.vlan_conf.s_etype) {
+        } else if (etype == VTSS_ETYPE_TAG_S || etype == state->l2.vlan_conf.s_etype) {
             info->hints |= VTSS_PACKET_RX_HINTS_VLAN_TAG_MISMATCH;
         }
         break;
@@ -692,8 +655,7 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t *const    state,
     case VTSS_VLAN_PORT_TYPE_S:
         if (etype == VTSS_ETYPE_TAG_S) {
             info->tag_type = VTSS_TAG_TYPE_S_TAGGED;
-        } else if (etype == VTSS_ETYPE_TAG_C ||
-                   etype == state->l2.vlan_conf.s_etype) {
+        } else if (etype == VTSS_ETYPE_TAG_C || etype == state->l2.vlan_conf.s_etype) {
             info->hints |= VTSS_PACKET_RX_HINTS_VLAN_TAG_MISMATCH;
         }
         break;
@@ -717,8 +679,7 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t *const    state,
     }
 
     if (!VTSS_PORT_BF_GET(vlan_entry->member, info->port_no) &&
-        (vlan_port_conf->ingress_filter ||
-         (vlan_entry->flags & VLAN_FLAGS_FILTER))) {
+        (vlan_port_conf->ingress_filter || (vlan_entry->flags & VLAN_FLAGS_FILTER))) {
         info->hints |= VTSS_PACKET_RX_HINTS_VID_MISMATCH;
     }
 
@@ -761,8 +722,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
         vtss_packet_rx_port_conf_t *port_conf;
         BOOL                        header = 1;
 
-        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++) {
+        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             if (!info->port_list[port_no]) {
                 continue;
             }
@@ -784,8 +744,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
             }
 #if defined(VTSS_ARCH_OCELOT)
             pr("%-6s%-6s%s", vtss_packet_reg_txt(port_conf->ipmc_ctrl_reg),
-               vtss_packet_reg_txt(port_conf->igmp_reg),
-               vtss_packet_reg_txt(port_conf->mld_reg));
+               vtss_packet_reg_txt(port_conf->igmp_reg), vtss_packet_reg_txt(port_conf->mld_reg));
 #endif /* VTSS_ARCH_OCELOT */
             pr("\n");
         }
@@ -827,8 +786,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
     vtss_debug_print_header(ss, "NPI");
     vtss_debug_print_value(ss, "Enabled", vtss_state->packet.npi_conf.enable);
     if (vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE) {
-        vtss_debug_print_value(ss, "NPI_PORT",
-                               vtss_state->packet.npi_conf.port_no);
+        vtss_debug_print_value(ss, "NPI_PORT", vtss_state->packet.npi_conf.port_no);
         for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
             VTSS_FMT(buf, "REDIR:CPUQ_%u", i);
             vtss_debug_print_value(ss, buf.s, conf->queue[i].npi.enable);
@@ -838,8 +796,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
     vtss_debug_print_header(ss, "CPU Shaper");
-    vtss_debug_print_value(ss, "Enabled",
-                           !(conf->shaper_rate == VTSS_BITRATE_DISABLED));
+    vtss_debug_print_value(ss, "Enabled", !(conf->shaper_rate == VTSS_BITRATE_DISABLED));
     if (conf->shaper_rate != VTSS_BITRATE_DISABLED) {
         vtss_debug_print_value(ss, "Rate", conf->shaper_rate);
     }

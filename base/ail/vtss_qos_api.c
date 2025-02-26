@@ -48,8 +48,7 @@ vtss_rc vtss_qos_conf_get(const vtss_inst_t inst, vtss_qos_conf_t *const conf)
     return rc;
 }
 
-vtss_rc vtss_qos_conf_set(const vtss_inst_t            inst,
-                          const vtss_qos_conf_t *const conf)
+vtss_rc vtss_qos_conf_set(const vtss_inst_t inst, const vtss_qos_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -60,8 +59,7 @@ vtss_rc vtss_qos_conf_set(const vtss_inst_t            inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         /* Verify that prios is a power of two and not greater than prio_count
          * (which must also be a power of two) */
-        if ((prios != 0) && !(prios & (prios - 1)) &&
-            (prios <= vtss_state->qos.prio_count)) {
+        if ((prios != 0) && !(prios & (prios - 1)) && (prios <= vtss_state->qos.prio_count)) {
             changed = (vtss_state->qos.conf.prios != prios);
             vtss_state->qos.conf = *conf;
             rc = VTSS_FUNC_COLD(qos.conf_set, changed);
@@ -83,8 +81,7 @@ vtss_rc vtss_qos_port_conf_get(const vtss_inst_t           inst,
 
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *conf = vtss_state->qos.port_conf[port_no];
     }
     VTSS_EXIT();
@@ -101,8 +98,7 @@ vtss_rc vtss_qos_port_conf_set(const vtss_inst_t                 inst,
 
     VTSS_D("Enter - port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         port_conf = &vtss_state->qos.port_conf[port_no];
         vtss_state->qos.port_conf_old = *port_conf;
         *port_conf = *conf;
@@ -115,8 +111,7 @@ vtss_rc vtss_qos_port_conf_set(const vtss_inst_t                 inst,
     return rc;
 }
 
-vtss_rc vtss_qos_status_get(const vtss_inst_t        inst,
-                            vtss_qos_status_t *const status)
+vtss_rc vtss_qos_status_get(const vtss_inst_t inst, vtss_qos_status_t *const status)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -147,9 +142,7 @@ vtss_rc vtss_qos_shaper_calibrate(const vtss_inst_t inst)
 /* - QCL configuration --------------------------------------------- */
 
 #if defined(VTSS_FEATURE_QCL)
-vtss_rc vtss_qce_init(const vtss_inst_t     inst,
-                      const vtss_qce_type_t type,
-                      vtss_qce_t *const     qce)
+vtss_rc vtss_qce_init(const vtss_inst_t inst, const vtss_qce_type_t type, vtss_qce_t *const qce)
 {
     VTSS_D("type: %d", type);
 
@@ -167,8 +160,7 @@ vtss_rc vtss_qce_add(const vtss_inst_t       inst,
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
-    VTSS_D("qce_id: %u before %u %s", qce->id, qce_id,
-           qce_id == VTSS_QCE_ID_LAST ? "(last)" : "");
+    VTSS_D("qce_id: %u before %u %s", qce->id, qce_id, qce_id == VTSS_QCE_ID_LAST ? "(last)" : "");
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -178,9 +170,7 @@ vtss_rc vtss_qce_add(const vtss_inst_t       inst,
     return rc;
 }
 
-vtss_rc vtss_qce_del(const vtss_inst_t   inst,
-                     const vtss_qcl_id_t qcl_id,
-                     const vtss_qce_id_t qce_id)
+vtss_rc vtss_qce_del(const vtss_inst_t inst, const vtss_qcl_id_t qcl_id, const vtss_qce_id_t qce_id)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -198,8 +188,7 @@ vtss_rc vtss_qce_del(const vtss_inst_t   inst,
 
 /* - Common Ingress/Egress map functionality ----------------------- */
 
-#if defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                                   \
-    defined(VTSS_FEATURE_QOS_EGRESS_MAP)
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP) || defined(VTSS_FEATURE_QOS_EGRESS_MAP)
 static void vtss_cmn_qos_map_adm_init(vtss_qos_map_adm_t *m)
 {
 
@@ -217,10 +206,8 @@ static void vtss_cmn_qos_map_adm_init(vtss_qos_map_adm_t *m)
             continue; /* Resource not present */
         }
         for (i = 0; i < m->ix[res].entry_len; i++) {
-            m->ix[res].entry[i].id =
-                VTSS_QOS_MAP_ID_NONE; /* Mark ix as unused */
-            m->ix[res].entry[i].key =
-                VTSS_QOS_MAP_KEY_NONE; /* No key assigned */
+            m->ix[res].entry[i].id = VTSS_QOS_MAP_ID_NONE;   /* Mark ix as unused */
+            m->ix[res].entry[i].key = VTSS_QOS_MAP_KEY_NONE; /* No key assigned */
         }
         m->ix[res].free = 0;
     }
@@ -235,26 +222,22 @@ static int vtss_qos_map_compact(vtss_state_t       *vtss_state,
     u16 id, final_src, tmp_dst, src, dst = first_free;
     int i, len, free_cnt = 0;
 
-    VTSS_D("%s Map: res %u, first_free %u, first_used %u", m->name, res,
-           first_free, first_used);
+    VTSS_D("%s Map: res %u, first_free %u, first_used %u", m->name, res, first_free, first_used);
 
-    if (first_used ==
-        VTSS_QOS_MAP_ID_NONE) { /* No indexes after first_free are in use.
-                                   Nothing needs to be moved. */
+    if (first_used == VTSS_QOS_MAP_ID_NONE) { /* No indexes after first_free are in use.
+                                                 Nothing needs to be moved. */
         if (m->ix[res].free >= first_free) {
             free_cnt =
-                m->ix[res].free -
-                first_free; /* Prepare a later reinitialization of table. */
+                m->ix[res].free - first_free; /* Prepare a later reinitialization of table. */
             VTSS_D("%s Map: Prepare freeing %u entries", m->name, free_cnt);
         } else {
-            VTSS_E("%s Map: first_free (%u) is greater than m->ix[res].free (%u)!",
-                   m->name, first_free, m->ix[res].free);
+            VTSS_E("%s Map: first_free (%u) is greater than m->ix[res].free (%u)!", m->name,
+                   first_free, m->ix[res].free);
         }
     } else {
         for (src = first_used; src < m->ix[res].free; src += len) {
             if (dst >= src) {
-                VTSS_E("%s Map: Invalid move operation from %u to %u!", m->name,
-                       dst, src);
+                VTSS_E("%s Map: Invalid move operation from %u to %u!", m->name, dst, src);
                 return 0; /* Bail out */
             }
 
@@ -263,48 +246,41 @@ static int vtss_qos_map_compact(vtss_state_t       *vtss_state,
 
             if (id != VTSS_QOS_MAP_ID_NONE) { /* Index is in use */
 
-                if ((src - len) < dst) { /* Overlapping regions. Copy temporary
-                                            to area reserved for this purpose */
+                if ((src - len) < dst) {           /* Overlapping regions. Copy temporary
+                                                      to area reserved for this purpose */
                     tmp_dst = m->ix[res].reserved; /* Temporary destination */
 
-                    VTSS_D("%s Map: MOVE TO RES: id %u, src %u, dst %u, len %u",
-                           m->name, id, src, tmp_dst, len);
-                    if (m->hw_copy(vtss_state, res, src, tmp_dst, len) !=
-                        VTSS_RC_OK) {
-                        VTSS_E("%s Map: Unable to copy from %u to %u!", m->name,
-                               src, tmp_dst);
+                    VTSS_D("%s Map: MOVE TO RES: id %u, src %u, dst %u, len %u", m->name, id, src,
+                           tmp_dst, len);
+                    if (m->hw_copy(vtss_state, res, src, tmp_dst, len) != VTSS_RC_OK) {
+                        VTSS_E("%s Map: Unable to copy from %u to %u!", m->name, src, tmp_dst);
                         return 0; /* Bail out */
                     }
 
                     /* Update tables before updating vcap */
                     m->id.entry[id].ix = tmp_dst;
                     for (i = 0; i < len; i++) {
-                        m->ix[res].entry[tmp_dst + i] =
-                            m->ix[res].entry[src + i];
+                        m->ix[res].entry[tmp_dst + i] = m->ix[res].entry[src + i];
                     }
 
                     /* Update references in vcap rules */
                     if (m->vcap_update(vtss_state, id) != VTSS_RC_OK) {
-                        VTSS_E("%s Map: Unable to update vcap for id %u!",
-                               m->name, id);
+                        VTSS_E("%s Map: Unable to update vcap for id %u!", m->name, id);
                         return 0; /* Bail out */
                     }
 
-                    final_src =
-                        tmp_dst; /* Final source is from temporary destination */
-                } else { /* Regions do not overlap. Copy directly from source to
-                            destination */
+                    final_src = tmp_dst; /* Final source is from temporary destination */
+                } else {                 /* Regions do not overlap. Copy directly from source to
+                                            destination */
                     tmp_dst = VTSS_QOS_MAP_ID_NONE; /* Temporary destination is
                                                        not used */
-                    final_src = src; /* Final source is from original source */
+                    final_src = src;                /* Final source is from original source */
                 }
 
-                VTSS_D("%s Map: MOVE: id %u, src %u, dst %u, len %u", m->name,
-                       id, final_src, dst, len);
-                if (m->hw_copy(vtss_state, res, final_src, dst, len) !=
-                    VTSS_RC_OK) {
-                    VTSS_E("%s Map: Unable to copy from %u to %u!", m->name,
-                           final_src, dst);
+                VTSS_D("%s Map: MOVE: id %u, src %u, dst %u, len %u", m->name, id, final_src, dst,
+                       len);
+                if (m->hw_copy(vtss_state, res, final_src, dst, len) != VTSS_RC_OK) {
+                    VTSS_E("%s Map: Unable to copy from %u to %u!", m->name, final_src, dst);
                     return 0; /* Bail out */
                 }
 
@@ -316,8 +292,7 @@ static int vtss_qos_map_compact(vtss_state_t       *vtss_state,
 
                 /* Update references in vcap rules */
                 if (m->vcap_update(vtss_state, id) != VTSS_RC_OK) {
-                    VTSS_E("%s Map: Unable to update vcap for id %u!", m->name,
-                           id);
+                    VTSS_E("%s Map: Unable to update vcap for id %u!", m->name, id);
                     return 0; /* Bail out */
                 }
 
@@ -329,8 +304,7 @@ static int vtss_qos_map_compact(vtss_state_t       *vtss_state,
                     /* Clear the used part of the temporary area */
                     for (i = 0; i < len; i++) {
                         m->ix[res].entry[tmp_dst + i].id = VTSS_QOS_MAP_ID_NONE;
-                        m->ix[res].entry[tmp_dst + i].key =
-                            VTSS_QOS_MAP_KEY_NONE;
+                        m->ix[res].entry[tmp_dst + i].key = VTSS_QOS_MAP_KEY_NONE;
                     }
                 }
 
@@ -338,8 +312,7 @@ static int vtss_qos_map_compact(vtss_state_t       *vtss_state,
                                          same as the last move */
                 dst += len;
             } else {
-                VTSS_D("%s Map: IGNORE: id %u, src %u, dst %u, len %u", m->name,
-                       id, src, dst, len);
+                VTSS_D("%s Map: IGNORE: id %u, src %u, dst %u, len %u", m->name, id, src, dst, len);
             }
         }
     }
@@ -352,8 +325,8 @@ static int vtss_qos_map_compact(vtss_state_t       *vtss_state,
             m->ix[res].entry[m->ix[res].free + i].key = VTSS_QOS_MAP_KEY_NONE;
         }
     } else {
-        VTSS_E("%s Map: Corrupted table: m->ix.free %u, free_cnt %d!", m->name,
-               m->ix[res].free, free_cnt);
+        VTSS_E("%s Map: Corrupted table: m->ix.free %u, free_cnt %d!", m->name, m->ix[res].free,
+               free_cnt);
         return 0; /* Bail out */
     }
 
@@ -382,8 +355,8 @@ static u16 vtss_qos_map_new_ix(vtss_state_t       *vtss_state,
         id = m->ix[res].entry[ix].id;
         len = m->key2len(m->ix[res].entry[ix].key);
 
-        VTSS_D("%s Map: id %u, ix %u, len %u, new_len %u, free %u", m->name, id,
-               ix, len, new_len, m->ix[res].free);
+        VTSS_D("%s Map: id %u, ix %u, len %u, new_len %u, free %u", m->name, id, ix, len, new_len,
+               m->ix[res].free);
 
         if (len == 0) {
             VTSS_E("%s Map: Corrupted table: len is 0!", m->name);
@@ -392,14 +365,12 @@ static u16 vtss_qos_map_new_ix(vtss_state_t       *vtss_state,
 
         if (id == VTSS_QOS_MAP_ID_NONE) { /* Index is free */
             if (len == new_len) {
-                VTSS_D("%s Map: Returning unused ix %u, new_len %u", m->name,
-                       ix, new_len);
+                VTSS_D("%s Map: Returning unused ix %u, new_len %u", m->name, ix, new_len);
                 return ix;
             }
             free_cnt += len; /* Count the number of free indexes */
             if (first_free_ix == VTSS_QOS_MAP_ID_NONE) {
-                first_free_ix =
-                    ix; /* Remember the first free index we have found. */
+                first_free_ix = ix; /* Remember the first free index we have found. */
             }
         } else { /* Index is used */
             if ((first_free_ix != VTSS_QOS_MAP_ID_NONE) &&
@@ -415,28 +386,24 @@ static u16 vtss_qos_map_new_ix(vtss_state_t       *vtss_state,
         m->ix[res].reserved) { /* We have found enough space at the bottom */
         ix = m->ix[res].free;
         m->ix[res].free += new_len;
-        VTSS_D("%s Map: Returning free ix %u, new_len %u", m->name, ix,
-               new_len);
+        VTSS_D("%s Map: Returning free ix %u, new_len %u", m->name, ix, new_len);
         return ix;
     }
 
     /* 3) */
-    VTSS_D("%s Map: Compacting should get us %u free indexes", m->name,
-           free_cnt);
+    VTSS_D("%s Map: Compacting should get us %u free indexes", m->name, free_cnt);
     if ((m->ix[res].free + new_len - free_cnt) <=
         m->ix[res].reserved) { /* Compacting will give us enough space at the
                                   bottom */
-        int actual_cnt = vtss_qos_map_compact(vtss_state, m, res, first_used_ix,
-                                              first_free_ix);
+        int actual_cnt = vtss_qos_map_compact(vtss_state, m, res, first_used_ix, first_free_ix);
         if (actual_cnt == free_cnt) { /* Compact gave us what we expected */
             ix = m->ix[res].free;
             m->ix[res].free += new_len;
-            VTSS_D("%s Map: Returning free ix %u after compacting, new_len %u",
-                   m->name, ix, new_len);
+            VTSS_D("%s Map: Returning free ix %u after compacting, new_len %u", m->name, ix,
+                   new_len);
             return ix;
         } else {
-            VTSS_E("%s Map: Compact gave us %d but we expected %d!", m->name,
-                   actual_cnt, free_cnt);
+            VTSS_E("%s Map: Compact gave us %d but we expected %d!", m->name, actual_cnt, free_cnt);
         }
     }
 
@@ -469,9 +436,8 @@ vtss_rc vtss_cmn_qos_map_add(struct vtss_state_s *vtss_state,
     if (old_ix != VTSS_QOS_MAP_ID_NONE) { /* Id is in use */
 
         if (id != m->ix[old_res].entry[old_ix].id) {
-            VTSS_E(
-                "%s Map: Inconsistent tables id: %u, old_ix: %u, m->ix[%u].entry[old_ix].id: %u!",
-                m->name, id, old_ix, old_res, m->ix[old_res].entry[old_ix].id);
+            VTSS_E("%s Map: Inconsistent tables id: %u, old_ix: %u, m->ix[%u].entry[old_ix].id: %u!",
+                   m->name, id, old_ix, old_res, m->ix[old_res].entry[old_ix].id);
             return VTSS_RC_ERROR;
         }
 
@@ -504,8 +470,7 @@ vtss_rc vtss_cmn_qos_map_add(struct vtss_state_s *vtss_state,
 #if VTSS_OPT_TRACE
         old_free = m->ix[res].free;
 #endif
-        if ((new_ix = vtss_qos_map_new_ix(vtss_state, m, res, key)) !=
-            VTSS_QOS_MAP_ID_NONE) {
+        if ((new_ix = vtss_qos_map_new_ix(vtss_state, m, res, key)) != VTSS_QOS_MAP_ID_NONE) {
             /* If vtss_qos_map_compact() has been called by
              * vtss_qos_map_new_ix() then old_ix could move. Read it again */
             old_ix = m->id.entry[id].ix;
@@ -529,8 +494,7 @@ vtss_rc vtss_cmn_qos_map_add(struct vtss_state_s *vtss_state,
                     /* Try to delete old ix in hw tables. Actually not needed as
                      * the hw tables are not used if they are not referenced by
                      * any rule. */
-                    (void)m->hw_update(vtss_state, old_res, old_ix, old_len,
-                                       NULL);
+                    (void)m->hw_update(vtss_state, old_res, old_ix, old_len, NULL);
 
                     /* Mark the entry as unused. NEVER init the key unless it is
                      * the last entry. It is needed in order to traverse the
@@ -541,22 +505,19 @@ vtss_rc vtss_cmn_qos_map_add(struct vtss_state_s *vtss_state,
                     /* Update 'free' and end of table if entry was the last one */
                     if (m->ix[old_res].free == (old_ix + old_len)) {
                         int i;
-                        VTSS_D("%s Map: Update free in res %u from %u to %u",
-                               m->name, old_res, m->ix[old_res].free, old_ix);
+                        VTSS_D("%s Map: Update free in res %u from %u to %u", m->name, old_res,
+                               m->ix[old_res].free, old_ix);
                         m->ix[old_res].free = old_ix;
                         for (i = 0; i < old_len; i++) {
-                            m->ix[old_res].entry[old_ix + i].id =
-                                VTSS_QOS_MAP_ID_NONE;
-                            m->ix[old_res].entry[old_ix + i].key =
-                                VTSS_QOS_MAP_KEY_NONE;
+                            m->ix[old_res].entry[old_ix + i].id = VTSS_QOS_MAP_ID_NONE;
+                            m->ix[old_res].entry[old_ix + i].key = VTSS_QOS_MAP_KEY_NONE;
                             m->ix[old_res].entry[old_ix + i].flags = 0;
                         }
                     }
                 }
             }
-            VTSS_D(
-                "%s Map: New entry! id %u, res %u, oix %u, nix %u, of %u, nf %u",
-                m->name, id, res, old_ix, new_ix, old_free, m->ix[res].free);
+            VTSS_D("%s Map: New entry! id %u, res %u, oix %u, nix %u, of %u, nf %u", m->name, id,
+                   res, old_ix, new_ix, old_free, m->ix[res].free);
             return rc;
         }
     }
@@ -565,9 +526,7 @@ vtss_rc vtss_cmn_qos_map_add(struct vtss_state_s *vtss_state,
     return VTSS_RC_ERROR;
 }
 
-vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
-                             vtss_qos_map_adm_t  *m,
-                             const u16            id)
+vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t *m, const u16 id)
 {
     u16 ix, res;
     int len;
@@ -589,9 +548,8 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
     }
 
     if (id != m->ix[res].entry[ix].id) {
-        VTSS_E(
-            "%s Map: Inconsistent tables id %u, ix %u, m->ix[%u].entry[ix].id %u!",
-            m->name, id, ix, res, m->ix[res].entry[ix].id);
+        VTSS_E("%s Map: Inconsistent tables id %u, ix %u, m->ix[%u].entry[ix].id %u!", m->name, id,
+               ix, res, m->ix[res].entry[ix].id);
         return VTSS_RC_ERROR;
     }
 
@@ -610,8 +568,7 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
     /* Update 'free' and end of table if entry was the last one */
     if (m->ix[res].free == (ix + len)) {
         int i;
-        VTSS_D("%s Map: Update free in res %u from %u to %u", m->name, res,
-               m->ix[res].free, ix);
+        VTSS_D("%s Map: Update free in res %u from %u to %u", m->name, res, m->ix[res].free, ix);
         m->ix[res].free = ix;
         for (i = 0; i < len; i++) {
             m->ix[res].entry[ix + i].id = VTSS_QOS_MAP_ID_NONE;
@@ -620,8 +577,8 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
         }
     }
 
-    VTSS_D("%s Map: Deleted entry! id %u, res %u, ix %u, free %u", m->name, id,
-           res, ix, m->ix[res].free);
+    VTSS_D("%s Map: Deleted entry! id %u, res %u, ix %u, free %u", m->name, id, res, ix,
+           m->ix[res].free);
 
     /* Remove references in vcap rules */
     VTSS_RC(m->vcap_update(vtss_state, id));
@@ -632,7 +589,7 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
 
     return VTSS_RC_OK;
 }
-#endif /* defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                             \
+#endif /* defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                                                 \
           defined(VTSS_FEATURE_QOS_EGRESS_MAP) */
 
 /* - Ingress map configuration ------------------------------------- */
@@ -650,8 +607,7 @@ static int vtss_qos_ingress_map_key2len(int key)
     }
 }
 
-static vtss_rc vtss_qos_ingress_map_values_check(
-    const vtss_qos_ingress_map_values_t *const values)
+static vtss_rc vtss_qos_ingress_map_values_check(const vtss_qos_ingress_map_values_t *const values)
 {
     if (values->cos >= VTSS_PRIO_END) {
         VTSS_E("Invalid cos: %u!", values->cos);
@@ -688,9 +644,8 @@ static vtss_rc vtss_qos_ingress_map_values_check(
     return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_qos_ingress_map_check(vtss_state_t *vtss_state,
-                                          const vtss_qos_ingress_map_t
-                                              *const map)
+static vtss_rc vtss_qos_ingress_map_check(vtss_state_t                       *vtss_state,
+                                          const vtss_qos_ingress_map_t *const map)
 {
     int i, j;
 
@@ -698,8 +653,7 @@ static vtss_rc vtss_qos_ingress_map_check(vtss_state_t *vtss_state,
         VTSS_E("NULL map!");
         return VTSS_RC_ERROR;
     }
-    if ((map->id < VTSS_QOS_INGRESS_MAP_ID_START) ||
-        (map->id >= VTSS_QOS_INGRESS_MAP_ID_END)) {
+    if ((map->id < VTSS_QOS_INGRESS_MAP_ID_START) || (map->id >= VTSS_QOS_INGRESS_MAP_ID_END)) {
         VTSS_E("Invalid ingress map id: %u!", map->id);
         return VTSS_RC_ERROR;
     }
@@ -713,8 +667,7 @@ static vtss_rc vtss_qos_ingress_map_check(vtss_state_t *vtss_state,
     case VTSS_QOS_INGRESS_MAP_KEY_PCP_DEI:
         for (i = 0; i < 8; i++) {
             for (j = 0; j < 2; j++) {
-                VTSS_RC(vtss_qos_ingress_map_values_check(&map->maps
-                                                               .pcp_dei[i][j]));
+                VTSS_RC(vtss_qos_ingress_map_values_check(&map->maps.pcp_dei[i][j]));
             }
         }
         break;
@@ -729,8 +682,7 @@ static vtss_rc vtss_qos_ingress_map_check(vtss_state_t *vtss_state,
         }
         for (i = 0; i < 8; i++) {
             for (j = 0; j < 2; j++) {
-                VTSS_RC(vtss_qos_ingress_map_values_check(&map->maps.dpd
-                                                               .pcp_dei[i][j]));
+                VTSS_RC(vtss_qos_ingress_map_values_check(&map->maps.dpd.pcp_dei[i][j]));
             }
         }
         break;
@@ -739,9 +691,7 @@ static vtss_rc vtss_qos_ingress_map_check(vtss_state_t *vtss_state,
             VTSS_RC(vtss_qos_ingress_map_values_check(&map->maps.mpls_tc[i]));
         }
         break;
-    default:
-        VTSS_E("Invalid ingress map key: %u!", map->key);
-        return VTSS_RC_ERROR;
+    default: VTSS_E("Invalid ingress map key: %u!", map->key); return VTSS_RC_ERROR;
     }
 
     return VTSS_RC_OK;
@@ -753,10 +703,8 @@ vtss_rc vtss_qos_ingress_map_init(const vtss_inst_t                inst,
 {
     VTSS_D("key: %d", key);
 
-    if ((key != VTSS_QOS_INGRESS_MAP_KEY_PCP) &&
-        (key != VTSS_QOS_INGRESS_MAP_KEY_PCP_DEI) &&
-        (key != VTSS_QOS_INGRESS_MAP_KEY_DSCP) &&
-        (key != VTSS_QOS_INGRESS_MAP_KEY_DSCP_PCP_DEI) &&
+    if ((key != VTSS_QOS_INGRESS_MAP_KEY_PCP) && (key != VTSS_QOS_INGRESS_MAP_KEY_PCP_DEI) &&
+        (key != VTSS_QOS_INGRESS_MAP_KEY_DSCP) && (key != VTSS_QOS_INGRESS_MAP_KEY_DSCP_PCP_DEI) &&
         (key != VTSS_QOS_INGRESS_MAP_KEY_MPLS_TC)) {
         VTSS_E("Invalid key: %u!", key);
         return VTSS_RC_ERROR;
@@ -769,8 +717,7 @@ vtss_rc vtss_qos_ingress_map_init(const vtss_inst_t                inst,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_qos_ingress_map_add(const vtss_inst_t                   inst,
-                                 const vtss_qos_ingress_map_t *const map)
+vtss_rc vtss_qos_ingress_map_add(const vtss_inst_t inst, const vtss_qos_ingress_map_t *const map)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -787,8 +734,7 @@ vtss_rc vtss_qos_ingress_map_add(const vtss_inst_t                   inst,
     return rc;
 }
 
-vtss_rc vtss_qos_ingress_map_del(const vtss_inst_t               inst,
-                                 const vtss_qos_ingress_map_id_t id)
+vtss_rc vtss_qos_ingress_map_del(const vtss_inst_t inst, const vtss_qos_ingress_map_id_t id)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -797,8 +743,7 @@ vtss_rc vtss_qos_ingress_map_del(const vtss_inst_t               inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((id < VTSS_QOS_INGRESS_MAP_ID_START) ||
-            (id >= VTSS_QOS_INGRESS_MAP_ID_END)) {
+        if ((id < VTSS_QOS_INGRESS_MAP_ID_START) || (id >= VTSS_QOS_INGRESS_MAP_ID_END)) {
             VTSS_E("Invalid ingress map id: %u!", id);
             rc = VTSS_RC_ERROR;
         } else {
@@ -819,8 +764,7 @@ vtss_rc vtss_qos_ingress_map_del_all(const vtss_inst_t inst)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        for (id = VTSS_QOS_INGRESS_MAP_ID_START;
-             id < VTSS_QOS_INGRESS_MAP_ID_END; id++) {
+        for (id = VTSS_QOS_INGRESS_MAP_ID_START; id < VTSS_QOS_INGRESS_MAP_ID_END; id++) {
             (void)VTSS_FUNC(qos.ingress_map_del, id);
         }
         vtss_cmn_qos_map_adm_init(&vtss_state->qos.imap);
@@ -846,8 +790,7 @@ static int vtss_qos_egress_map_key2len(int key)
     }
 }
 
-static vtss_rc vtss_qos_egress_map_values_check(const vtss_qos_egress_map_values_t
-                                                    *const values)
+static vtss_rc vtss_qos_egress_map_values_check(const vtss_qos_egress_map_values_t *const values)
 {
     if (values->pcp >= VTSS_PCP_END) {
         VTSS_E("Invalid pcp: %u!", values->pcp);
@@ -872,7 +815,7 @@ static vtss_rc vtss_qos_egress_map_values_check(const vtss_qos_egress_map_values
     return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_qos_egress_map_check(vtss_state_t *vtss_state,
+static vtss_rc vtss_qos_egress_map_check(vtss_state_t                      *vtss_state,
                                          const vtss_qos_egress_map_t *const map)
 {
     int i, j;
@@ -881,8 +824,7 @@ static vtss_rc vtss_qos_egress_map_check(vtss_state_t *vtss_state,
         VTSS_E("NULL map!");
         return VTSS_RC_ERROR;
     }
-    if ((map->id < VTSS_QOS_EGRESS_MAP_ID_START) ||
-        (map->id >= VTSS_QOS_EGRESS_MAP_ID_END)) {
+    if ((map->id < VTSS_QOS_EGRESS_MAP_ID_START) || (map->id >= VTSS_QOS_EGRESS_MAP_ID_END)) {
         VTSS_E("Invalid egress map id: %u!", map->id);
         return VTSS_RC_ERROR;
     }
@@ -896,8 +838,7 @@ static vtss_rc vtss_qos_egress_map_check(vtss_state_t *vtss_state,
     case VTSS_QOS_EGRESS_MAP_KEY_COSID_DPL:
         for (i = 0; i < 8; i++) {
             for (j = 0; j < 4; j++) {
-                VTSS_RC(vtss_qos_egress_map_values_check(&map->maps
-                                                              .cosid_dpl[i][j]));
+                VTSS_RC(vtss_qos_egress_map_values_check(&map->maps.cosid_dpl[i][j]));
             }
         }
         break;
@@ -909,8 +850,7 @@ static vtss_rc vtss_qos_egress_map_check(vtss_state_t *vtss_state,
     case VTSS_QOS_EGRESS_MAP_KEY_DSCP_DPL:
         for (i = 0; i < 64; i++) {
             for (j = 0; j < 4; j++) {
-                VTSS_RC(vtss_qos_egress_map_values_check(&map->maps
-                                                              .dscp_dpl[i][j]));
+                VTSS_RC(vtss_qos_egress_map_values_check(&map->maps.dscp_dpl[i][j]));
             }
         }
         break;
@@ -922,15 +862,11 @@ static vtss_rc vtss_qos_egress_map_check(vtss_state_t *vtss_state,
     case VTSS_QOS_EGRESS_MAP_KEY_MPLS_TC_DPL:
         for (i = 0; i < 8; i++) {
             for (j = 0; j < 4; j++) {
-                VTSS_RC(vtss_qos_egress_map_values_check(&map->maps
-                                                              .mpls_tc_dpl[i]
-                                                                          [j]));
+                VTSS_RC(vtss_qos_egress_map_values_check(&map->maps.mpls_tc_dpl[i][j]));
             }
         }
         break;
-    default:
-        VTSS_E("Invalid egress map key: %u!", map->key);
-        return VTSS_RC_ERROR;
+    default: VTSS_E("Invalid egress map key: %u!", map->key); return VTSS_RC_ERROR;
     }
 
     return VTSS_RC_OK;
@@ -942,12 +878,9 @@ vtss_rc vtss_qos_egress_map_init(const vtss_inst_t               inst,
 {
     VTSS_D("key: %d", key);
 
-    if ((key != VTSS_QOS_EGRESS_MAP_KEY_COSID) &&
-        (key != VTSS_QOS_EGRESS_MAP_KEY_COSID_DPL) &&
-        (key != VTSS_QOS_EGRESS_MAP_KEY_DSCP) &&
-        (key != VTSS_QOS_EGRESS_MAP_KEY_DSCP_DPL) &&
-        (key != VTSS_QOS_EGRESS_MAP_KEY_MPLS_TC) &&
-        (key != VTSS_QOS_EGRESS_MAP_KEY_MPLS_TC_DPL)) {
+    if ((key != VTSS_QOS_EGRESS_MAP_KEY_COSID) && (key != VTSS_QOS_EGRESS_MAP_KEY_COSID_DPL) &&
+        (key != VTSS_QOS_EGRESS_MAP_KEY_DSCP) && (key != VTSS_QOS_EGRESS_MAP_KEY_DSCP_DPL) &&
+        (key != VTSS_QOS_EGRESS_MAP_KEY_MPLS_TC) && (key != VTSS_QOS_EGRESS_MAP_KEY_MPLS_TC_DPL)) {
         VTSS_E("Invalid key: %u!", key);
         return VTSS_RC_ERROR;
     }
@@ -959,8 +892,7 @@ vtss_rc vtss_qos_egress_map_init(const vtss_inst_t               inst,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_qos_egress_map_add(const vtss_inst_t                  inst,
-                                const vtss_qos_egress_map_t *const map)
+vtss_rc vtss_qos_egress_map_add(const vtss_inst_t inst, const vtss_qos_egress_map_t *const map)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -976,8 +908,7 @@ vtss_rc vtss_qos_egress_map_add(const vtss_inst_t                  inst,
     return rc;
 }
 
-vtss_rc vtss_qos_egress_map_del(const vtss_inst_t              inst,
-                                const vtss_qos_egress_map_id_t id)
+vtss_rc vtss_qos_egress_map_del(const vtss_inst_t inst, const vtss_qos_egress_map_id_t id)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -985,8 +916,7 @@ vtss_rc vtss_qos_egress_map_del(const vtss_inst_t              inst,
     VTSS_D("map_id: %u", id);
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (id < VTSS_QOS_EGRESS_MAP_ID_START ||
-            id >= VTSS_QOS_EGRESS_MAP_ID_END) {
+        if (id < VTSS_QOS_EGRESS_MAP_ID_START || id >= VTSS_QOS_EGRESS_MAP_ID_END) {
             VTSS_E("Invalid egress map id: %u!", id);
             rc = VTSS_RC_ERROR;
         } else {
@@ -1007,8 +937,7 @@ vtss_rc vtss_qos_egress_map_del_all(const vtss_inst_t inst)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        for (id = VTSS_QOS_EGRESS_MAP_ID_START; id < VTSS_QOS_EGRESS_MAP_ID_END;
-             id++) {
+        for (id = VTSS_QOS_EGRESS_MAP_ID_START; id < VTSS_QOS_EGRESS_MAP_ID_END; id++) {
             (void)VTSS_FUNC(qos.egress_map_del, id);
         }
         vtss_cmn_qos_map_adm_init(&vtss_state->qos.emap);
@@ -1027,8 +956,8 @@ vtss_rc vtss_evc_policer_id_check(vtss_state_t               *vtss_state,
 {
 #if defined(VTSS_ARCH_OCELOT)
     /* Allow reserved policers */
-    if (resv && (policer_id == VTSS_EVC_POLICER_ID_DISCARD ||
-                 policer_id == VTSS_EVC_POLICER_ID_NONE)) {
+    if (resv &&
+        (policer_id == VTSS_EVC_POLICER_ID_DISCARD || policer_id == VTSS_EVC_POLICER_ID_NONE)) {
         return VTSS_RC_OK;
     }
 #endif /* VTSS_ARCH_OCELOT */
@@ -1055,8 +984,8 @@ vtss_rc vtss_evc_policer_conf_get(const vtss_inst_t              inst,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_evc_policer_conf_set(const vtss_inst_t           inst,
-                                  const vtss_evc_policer_id_t policer_id,
+vtss_rc vtss_evc_policer_conf_set(const vtss_inst_t                    inst,
+                                  const vtss_evc_policer_id_t          policer_id,
                                   const vtss_evc_policer_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
@@ -1075,8 +1004,7 @@ vtss_rc vtss_evc_policer_conf_set(const vtss_inst_t           inst,
 
 /* - 802.1Qbv (Enhancements for Scheduled Traffic) ----------------- */
 #if defined(VTSS_FEATURE_QOS_TAS)
-vtss_rc vtss_qos_tas_conf_get(const vtss_inst_t          inst,
-                              vtss_qos_tas_conf_t *const conf)
+vtss_rc vtss_qos_tas_conf_get(const vtss_inst_t inst, vtss_qos_tas_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
 
@@ -1091,8 +1019,7 @@ vtss_rc vtss_qos_tas_conf_get(const vtss_inst_t          inst,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_qos_tas_conf_set(const vtss_inst_t                inst,
-                              const vtss_qos_tas_conf_t *const conf)
+vtss_rc vtss_qos_tas_conf_set(const vtss_inst_t inst, const vtss_qos_tas_conf_t *const conf)
 {
     vtss_state_t        *vtss_state;
     vtss_rc              rc;
@@ -1128,8 +1055,8 @@ vtss_rc vtss_qos_tas_port_conf_get(const vtss_inst_t               inst,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_qos_tas_port_conf_set(const vtss_inst_t    inst,
-                                   const vtss_port_no_t port_no,
+vtss_rc vtss_qos_tas_port_conf_set(const vtss_inst_t                     inst,
+                                   const vtss_port_no_t                  port_no,
                                    const vtss_qos_tas_port_conf_t *const conf)
 {
     vtss_state_t             *vtss_state;
@@ -1195,13 +1122,11 @@ vtss_rc vtss_qos_fp_port_conf_set(const vtss_inst_t                    inst,
 
     VTSS_D("Enter - port_no: %u", port_no);
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         fp_conf = &vtss_state->qos.fp.port_conf[port_no];
         fp_conf_old = *fp_conf;
         *fp_conf = *conf;
-        if ((rc = VTSS_FUNC_COLD(qos.fp_port_conf_set, port_no)) !=
-            VTSS_RC_OK) {
+        if ((rc = VTSS_FUNC_COLD(qos.fp_port_conf_set, port_no)) != VTSS_RC_OK) {
             *fp_conf = fp_conf_old;
         }
     }
@@ -1236,8 +1161,7 @@ vtss_rc vtss_qos_restart_sync(vtss_state_t *vtss_state)
 {
     vtss_port_no_t port_no;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_state->qos.port_conf_old = vtss_state->qos.port_conf[port_no];
         VTSS_FUNC_RC(qos.port_conf_set, port_no);
     }
@@ -1248,8 +1172,7 @@ vtss_rc vtss_qos_restart_sync(vtss_state_t *vtss_state)
     {
         vtss_evc_policer_id_t policer_id;
 
-        for (policer_id = 0; policer_id < vtss_state->qos.evc_policer_max;
-             policer_id++) {
+        for (policer_id = 0; policer_id < vtss_state->qos.evc_policer_max; policer_id++) {
             VTSS_FUNC_RC(qos.evc_policer_conf_set, policer_id);
         }
     }
@@ -1339,8 +1262,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
             int group, queue, dpl;
 
             for (group = 0; group < VTSS_WRED_GROUP_CNT; group++) {
-                for (queue = VTSS_QUEUE_START; queue < VTSS_QUEUE_END;
-                     queue++) {
+                for (queue = VTSS_QUEUE_START; queue < VTSS_QUEUE_END; queue++) {
                     for (dpl = 0; dpl < VTSS_WRED_DPL_CNT; dpl++) {
                         qos->red_v3[queue][dpl][group].enable = FALSE;
                         qos->red_v3[queue][dpl][group].min_fl = 0;
@@ -1360,8 +1282,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
     /* Port configuration initialization begin */
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
         vtss_qos_port_conf_t *qos = &vtss_state->qos.port_conf[port_no];
-        vtss_burst_level_t    level =
-            QOS_DEFAULT_BURST_LEVEL; /* Default burst level configuration */
+        vtss_burst_level_t level = QOS_DEFAULT_BURST_LEVEL; /* Default burst level configuration */
 
         for (i = 0; i < VTSS_PORT_POLICERS; i++) {
             qos->policer_port[i].level = level;
@@ -1387,7 +1308,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
             qos->policer_ext_port[i].unknown_multicast = TRUE;
             qos->policer_ext_port[i].unknown_broadcast = TRUE;
 #endif /* VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2 */
-#if defined(VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM) ||                          \
+#if defined(VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM) ||                                              \
     defined(VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2)
             qos->policer_ext_port[i].learning = TRUE;
             qos->policer_ext_port[i].to_cpu = TRUE;
@@ -1399,7 +1320,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
             }
             qos->policer_ext_port[i].limit_noncpu_traffic = TRUE;
             qos->policer_ext_port[i].limit_cpu_traffic = FALSE;
-#endif /* VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM ||                             \
+#endif /* VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM ||                                                 \
           VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2 */
             qos->policer_ext_port[i].flow_control = FALSE;
         }
@@ -1438,8 +1359,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
             int dei;
             for (dei = VTSS_DEI_START; dei < VTSS_DEI_ARRAY_SIZE; dei++) {
                 qos->qos_class_map[i][dei] = vtss_cmn_pcp2qos(i);
-                qos->dp_level_map[i][dei] =
-                    dei; // Defaults to same value as DEI
+                qos->dp_level_map[i][dei] = dei; // Defaults to same value as DEI
             }
         }
 
@@ -1458,8 +1378,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
             int dpl;
             for (dpl = 0; dpl < 2; dpl++) {
                 qos->tag_pcp_map[i][dpl] = vtss_cmn_pcp2qos(i);
-                qos->tag_dei_map[i][dpl] =
-                    dpl; // Defaults to same value as DP level
+                qos->tag_dei_map[i][dpl] = dpl; // Defaults to same value as DP level
             }
         }
 
@@ -1487,8 +1406,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
 
     /* Scheduled traffic port configuration initialization begin */
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
-        vtss_qos_tas_port_conf_t *conf =
-            &vtss_state->qos.tas.port_conf[port_no];
+        vtss_qos_tas_port_conf_t *conf = &vtss_state->qos.tas.port_conf[port_no];
 
         // All queues are open by default.
         for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; i++) {
@@ -1533,20 +1451,17 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         if (vtss_state->qos.ingress_map_vcap_update) {
             m->vcap_update = vtss_state->qos.ingress_map_vcap_update;
         } else {
-            VTSS_E(
-                "Missing function pointer: vtss_state->qos.ingress_map_vcap_update");
+            VTSS_E("Missing function pointer: vtss_state->qos.ingress_map_vcap_update");
         }
         if (vtss_state->qos.ingress_map_hw_update) {
             m->hw_update = vtss_state->qos.ingress_map_hw_update;
         } else {
-            VTSS_E(
-                "Missing function pointer: vtss_state->qos.ingress_map_hw_update");
+            VTSS_E("Missing function pointer: vtss_state->qos.ingress_map_hw_update");
         }
         if (vtss_state->qos.ingress_map_hw_copy) {
             m->hw_copy = vtss_state->qos.ingress_map_hw_copy;
         } else {
-            VTSS_E(
-                "Missing function pointer: vtss_state->qos.ingress_map_hw_copy");
+            VTSS_E("Missing function pointer: vtss_state->qos.ingress_map_hw_copy");
         }
 
         vtss_cmn_qos_map_adm_init(m);
@@ -1575,20 +1490,17 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         if (vtss_state->qos.egress_map_vcap_update) {
             m->vcap_update = vtss_state->qos.egress_map_vcap_update;
         } else {
-            VTSS_E(
-                "Missing function pointer: vtss_state->qos.egress_map_vcap_update");
+            VTSS_E("Missing function pointer: vtss_state->qos.egress_map_vcap_update");
         }
         if (vtss_state->qos.egress_map_hw_update) {
             m->hw_update = vtss_state->qos.egress_map_hw_update;
         } else {
-            VTSS_E(
-                "Missing function pointer: vtss_state->qos.egress_map_hw_update");
+            VTSS_E("Missing function pointer: vtss_state->qos.egress_map_hw_update");
         }
         if (vtss_state->qos.egress_map_hw_copy) {
             m->hw_copy = vtss_state->qos.egress_map_hw_copy;
         } else {
-            VTSS_E(
-                "Missing function pointer: vtss_state->qos.egress_map_hw_copy");
+            VTSS_E("Missing function pointer: vtss_state->qos.egress_map_hw_copy");
         }
 
         vtss_cmn_qos_map_adm_init(m);
@@ -1606,14 +1518,12 @@ u32 vtss_cmn_qos_chip_prio(vtss_state_t *vtss_state, const vtss_prio_t prio)
     if (prio < vtss_state->qos.prio_count) {
         return (prio * vtss_state->qos.conf.prios) / vtss_state->qos.prio_count;
     } else {
-        VTSS_E("illegal prio: %u  prio_count: %u", prio,
-               vtss_state->qos.prio_count);
+        VTSS_E("illegal prio: %u  prio_count: %u", prio, vtss_state->qos.prio_count);
         return 0;
     }
 }
 
-vtss_rc vtss_cmn_qos_port_conf_set(vtss_state_t        *vtss_state,
-                                   const vtss_port_no_t port_no)
+vtss_rc vtss_cmn_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_rc rc = VTSS_RC_ERROR;
 #if defined(VTSS_FEATURE_ES0)
@@ -1663,10 +1573,7 @@ vtss_rc vtss_cmn_qos_port_conf_set(vtss_state_t        *vtss_state,
  *
  * \return Return code.
  **/
-vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight,
-                                 u8               *cost,
-                                 u32               num,
-                                 u8                bit_width)
+vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, u32 num, u8 bit_width)
 {
     u32        i, c_max;
     vtss_pct_t w_min = 100;
@@ -1691,8 +1598,7 @@ vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight,
     return VTSS_RC_OK;
 }
 
-u32 vtss_cmn_qos_storm_mode(vtss_packet_rate_t        rate,
-                            vtss_storm_policer_mode_t mode)
+u32 vtss_cmn_qos_storm_mode(vtss_packet_rate_t rate, vtss_storm_policer_mode_t mode)
 {
     if (rate == VTSS_PACKET_RATE_DISABLED) {
         return 0; /* Disabled */
@@ -1701,11 +1607,9 @@ u32 vtss_cmn_qos_storm_mode(vtss_packet_rate_t        rate,
     switch (mode) {
     case VTSS_STORM_POLICER_MODE_PORTS_AND_CPU:
         return 3; /* Police both CPU and front port destinations */
-    case VTSS_STORM_POLICER_MODE_PORTS_ONLY:
-        return 2; /* Police front port destinations only */
-    case VTSS_STORM_POLICER_MODE_CPU_ONLY:
-        return 1;      /* Police CPU destination only */
-    default: return 0; /* Disabled */
+    case VTSS_STORM_POLICER_MODE_PORTS_ONLY: return 2; /* Police front port destinations only */
+    case VTSS_STORM_POLICER_MODE_CPU_ONLY:   return 1; /* Police CPU destination only */
+    default:                                 return 0;                                 /* Disabled */
     }
 }
 
@@ -1727,8 +1631,7 @@ u32 vtss_cmn_qos_packet_rate(vtss_packet_rate_t rate, u32 *unit)
     }
 
     for (i = 0; i < 10; i++) {
-        if ((u32)(1 << i) >=
-            new_rate) { /* 2^i is equal to or higher than new_rate */
+        if ((u32)(1 << i) >= new_rate) { /* 2^i is equal to or higher than new_rate */
             break;
         }
     }
@@ -1757,8 +1660,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t           *vtss_state,
     vtss_res_chg_t              res_chg;
     vtss_vcap_key_size_t        key_size = VTSS_VCAP_KEY_SIZE_FULL;
     vtss_vcap_range_chk_table_t range_new =
-        vtss_state->vcap
-            .range; /* Make a temporary working copy of the range table */
+        vtss_state->vcap.range; /* Make a temporary working copy of the range table */
 
     /* Check QCE ID */
     if (qce->id == VTSS_QCE_ID_LAST || qce->id == qce_id) {
@@ -1777,14 +1679,11 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t           *vtss_state,
         vtss_port_no_t port_no;
         is1->lookup = 2; /* Third lookup */
 
-        key->key_type =
-            VTSS_VCAP_KEY_TYPE_DOUBLE_TAG; /* Default if no ports assigned */
-        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++) {
+        key->key_type = VTSS_VCAP_KEY_TYPE_DOUBLE_TAG; /* Default if no ports assigned */
+        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             if (qce->key.port_list[port_no]) {
                 key->key_type = vtss_state->qos.port_conf[port_no].key_type;
-                VTSS_D("Using key_type %u from port %u", key->key_type,
-                       port_no);
+                VTSS_D("Using key_type %u from port %u", key->key_type, port_no);
                 break; /* Stop after first port */
             }
         }
@@ -1793,8 +1692,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t           *vtss_state,
 #endif
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-    if (vtss_state->arch == VTSS_ARCH_JR2 ||
-        vtss_state->arch == VTSS_ARCH_ANT) {
+    if (vtss_state->arch == VTSS_ARCH_JR2 || vtss_state->arch == VTSS_ARCH_ANT) {
         /* Jaguar-2 consumes full row */
         key->key_type = VTSS_VCAP_KEY_TYPE_MAC_IP_ADDR;
     }
@@ -1802,8 +1700,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t           *vtss_state,
 
     /* Check if main entry exists */
     VTSS_MEMSET(&res_chg, 0, sizeof(res_chg));
-    if (vtss_vcap_lookup(vtss_state, obj, user, qce->id, &data, NULL) ==
-        VTSS_RC_OK) {
+    if (vtss_vcap_lookup(vtss_state, obj, user, qce->id, &data, NULL) == VTSS_RC_OK) {
         is1->entry = &entry; /* NOTE: Restore entry pointer which was
                                 overwritten by vtss_vcap_lookup() */
         res_chg.del_key[key_size] = 1;
@@ -1855,14 +1752,13 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t           *vtss_state,
     }
 #if defined(VTSS_FEATURE_QCL_KEY_DMAC)
     key->mac.dmac = qce->key.mac.dmac;
-#endif /* defined(VTSS_FEATURE_QCL_KEY_DMAC) */
-    key->mac.smac =
-        qce->key.mac.smac; /* Only the 24 most significant bits (OUI) are
-                              supported on Jaguar1, rest are wildcards */
+#endif                                 /* defined(VTSS_FEATURE_QCL_KEY_DMAC) */
+    key->mac.smac = qce->key.mac.smac; /* Only the 24 most significant bits (OUI) are
+                                          supported on Jaguar1, rest are wildcards */
 
     key->tag.vid = qce->key.tag.vid;
-    VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->vid_range,
-                               VTSS_VCAP_RANGE_TYPE_VID, &key->tag.vid));
+    VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->vid_range, VTSS_VCAP_RANGE_TYPE_VID,
+                               &key->tag.vid));
     key->tag.pcp = qce->key.tag.pcp;
     key->tag.dei = qce->key.tag.dei;
     key->tag.tagged = qce->key.tag.tagged;
@@ -1870,8 +1766,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t           *vtss_state,
 
 #if defined(VTSS_FEATURE_QCL_KEY_INNER_TAG)
     key->inner_tag.vid = qce->key.inner_tag.vid;
-    (void)vtss_vcap_vr_rng2vm(&key->inner_tag
-                                   .vid); /* Value/mask is required here! */
+    (void)vtss_vcap_vr_rng2vm(&key->inner_tag.vid); /* Value/mask is required here! */
     key->inner_tag.pcp = qce->key.inner_tag.pcp;
     key->inner_tag.dei = qce->key.inner_tag.dei;
     key->inner_tag.tagged = qce->key.inner_tag.tagged;
@@ -1897,8 +1792,7 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t           *vtss_state,
         key->type = VTSS_IS1_TYPE_IPV4;
         key->frame.ipv4.fragment = qce->key.frame.ipv4.fragment;
         key->frame.ipv4.dscp = qce->key.frame.ipv4.dscp;
-        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dscp_range,
-                                   VTSS_VCAP_RANGE_TYPE_DSCP,
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dscp_range, VTSS_VCAP_RANGE_TYPE_DSCP,
                                    &key->frame.ipv4.dscp));
         key->frame.ipv4.proto = qce->key.frame.ipv4.proto;
         key->frame.ipv4.sip = qce->key.frame.ipv4.sip;
@@ -1906,19 +1800,16 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t           *vtss_state,
         key->frame.ipv4.dip = qce->key.frame.ipv4.dip;
 #endif /* defined(VTSS_FEATURE_QCL_KEY_DIP) */
         key->frame.ipv4.sport = qce->key.frame.ipv4.sport;
-        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->sport_range,
-                                   VTSS_VCAP_RANGE_TYPE_SPORT,
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->sport_range, VTSS_VCAP_RANGE_TYPE_SPORT,
                                    &key->frame.ipv4.sport));
         key->frame.ipv4.dport = qce->key.frame.ipv4.dport;
-        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dport_range,
-                                   VTSS_VCAP_RANGE_TYPE_DPORT,
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dport_range, VTSS_VCAP_RANGE_TYPE_DPORT,
                                    &key->frame.ipv4.dport));
         break;
     case VTSS_QCE_TYPE_IPV6:
         key->type = VTSS_IS1_TYPE_IPV6;
         key->frame.ipv6.dscp = qce->key.frame.ipv6.dscp;
-        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dscp_range,
-                                   VTSS_VCAP_RANGE_TYPE_DSCP,
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dscp_range, VTSS_VCAP_RANGE_TYPE_DSCP,
                                    &key->frame.ipv6.dscp));
         key->frame.ipv6.proto = qce->key.frame.ipv6.proto;
         key->frame.ipv6.sip = qce->key.frame.ipv6.sip;
@@ -1926,12 +1817,10 @@ vtss_rc vtss_cmn_qce_add(vtss_state_t           *vtss_state,
         key->frame.ipv6.dip = qce->key.frame.ipv6.dip;
 #endif /* defined(VTSS_FEATURE_QCL_KEY_DIP) */
         key->frame.ipv6.sport = qce->key.frame.ipv6.sport;
-        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->sport_range,
-                                   VTSS_VCAP_RANGE_TYPE_SPORT,
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->sport_range, VTSS_VCAP_RANGE_TYPE_SPORT,
                                    &key->frame.ipv6.sport));
         key->frame.ipv6.dport = qce->key.frame.ipv6.dport;
-        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dport_range,
-                                   VTSS_VCAP_RANGE_TYPE_DPORT,
+        VTSS_RC(vtss_vcap_vr_alloc(&range_new, &is1->dport_range, VTSS_VCAP_RANGE_TYPE_DPORT,
                                    &key->frame.ipv6.dport));
         break;
     default: VTSS_E("illegal type: %d", qce->key.type); return VTSS_RC_ERROR;
@@ -1955,8 +1844,7 @@ vtss_rc vtss_cmn_qce_del(vtss_state_t       *vtss_state,
     vtss_vcap_data_t data;
     vtss_is1_data_t *is1 = &data.u.is1;
 
-    if (vtss_vcap_lookup(vtss_state, obj, user, qce_id, &data, NULL) !=
-        VTSS_RC_OK) {
+    if (vtss_vcap_lookup(vtss_state, obj, user, qce_id, &data, NULL) != VTSS_RC_OK) {
         VTSS_E("qce_id: %u not found", qce_id);
         return VTSS_RC_ERROR;
     }
@@ -2016,8 +1904,8 @@ void vtss_qos_debug_print_dlb(vtss_state_t                  *vtss_state,
            pol_conf->type == VTSS_POLICER_TYPE_MEF      ? "MEF"
            : pol_conf->type == VTSS_POLICER_TYPE_SINGLE ? "SINGLE"
                                                         : "?",
-           cm, pol_conf->cf, pol_conf->line_rate ? "Line" : "Data",
-           pol_conf->cir, pol_conf->cbs, pol_conf->eir, pol_conf->ebs);
+           cm, pol_conf->cf, pol_conf->line_rate ? "Line" : "Data", pol_conf->cir, pol_conf->cbs,
+           pol_conf->eir, pol_conf->ebs);
 #if defined(VTSS_ARCH_LUTON26)
         pr("%-7u%u", pol_alloc->count, pol_alloc->policer);
 #endif /* VTSS_ARCH_LUTON26 */
@@ -2033,8 +1921,8 @@ static void vtss_debug_print_packet_rate(lmu_ss_t                      *ss,
                                          const vtss_debug_info_t *const info,
                                          const char                    *name,
                                          vtss_packet_rate_t             rate,
-                                         BOOL                      frame_rate,
-                                         vtss_storm_policer_mode_t mode)
+                                         BOOL                           frame_rate,
+                                         vtss_storm_policer_mode_t      mode)
 {
     const char *mode_txt;
 
@@ -2042,25 +1930,19 @@ static void vtss_debug_print_packet_rate(lmu_ss_t                      *ss,
     case VTSS_STORM_POLICER_MODE_PORTS_AND_CPU:
         mode_txt = "Police ports and CPU destinations";
         break;
-    case VTSS_STORM_POLICER_MODE_PORTS_ONLY:
-        mode_txt = "Police port destinations only";
-        break;
-    case VTSS_STORM_POLICER_MODE_CPU_ONLY:
-        mode_txt = "Police CPU destination only";
-        break;
-    default: mode_txt = "Invalid mode!"; break;
+    case VTSS_STORM_POLICER_MODE_PORTS_ONLY: mode_txt = "Police port destinations only"; break;
+    case VTSS_STORM_POLICER_MODE_CPU_ONLY:   mode_txt = "Police CPU destination only"; break;
+    default:                                 mode_txt = "Invalid mode!"; break;
     }
 
     if (rate == VTSS_PACKET_RATE_DISABLED) {
         pr("%-32s: Disabled. %s.\n", name, mode_txt);
     } else {
-        pr("%-32s: %u %s. %s.\n", name, rate, frame_rate ? "fps" : "kbps",
-           mode_txt);
+        pr("%-32s: %u %s. %s.\n", name, rate, frame_rate ? "fps" : "kbps", mode_txt);
     }
 }
 
-#if defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                                   \
-    defined(VTSS_FEATURE_QOS_EGRESS_MAP)
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP) || defined(VTSS_FEATURE_QOS_EGRESS_MAP)
 static void vtss_debug_print_map(lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info,
                                  const vtss_qos_map_adm_t      *m)
@@ -2100,12 +1982,10 @@ static void vtss_debug_print_map(lmu_ss_t                      *ss,
                 key = m->ix[res].entry[ix].key;
                 len = m->key2len(key);
                 flags = m->ix[res].entry[ix].flags;
-                if (info->full || (id != VTSS_QOS_MAP_ID_NONE) ||
-                    ((ix < m->ix[res].free) && len)) {
+                if (info->full || (id != VTSS_QOS_MAP_ID_NONE) || ((ix < m->ix[res].free) && len)) {
                     if (id != VTSS_QOS_MAP_ID_NONE) {
                         pr("%3u %3u %3u %3d x%02x", ix, id, key, len, flags);
-                        if ((ix != m->id.entry[id].ix) ||
-                            (res != m->id.entry[id].res)) {
+                        if ((ix != m->id.entry[id].ix) || (res != m->id.entry[id].res)) {
                             pr(" <-- INCONSISTENT TABLES!");
                         }
                         if (ix >= m->ix[res].free) {
@@ -2144,7 +2024,7 @@ static void vtss_debug_print_map(lmu_ss_t                      *ss,
 #endif
     }
 }
-#endif /* defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                             \
+#endif /* defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                                                 \
           defined(VTSS_FEATURE_QOS_EGRESS_MAP) */
 
 #if defined(VTSS_FEATURE_QOS_TAS)
@@ -2184,14 +2064,11 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
 
     vtss_debug_print_value(ss, "Number of priorities", conf->prios);
     vtss_debug_print_packet_rate(ss, info, "Storm Unicast", conf->policer_uc,
-                                 conf->policer_uc_frame_rate,
-                                 conf->policer_uc_mode);
+                                 conf->policer_uc_frame_rate, conf->policer_uc_mode);
     vtss_debug_print_packet_rate(ss, info, "Storm Multicast", conf->policer_mc,
-                                 conf->policer_mc_frame_rate,
-                                 conf->policer_mc_mode);
+                                 conf->policer_mc_frame_rate, conf->policer_mc_mode);
     vtss_debug_print_packet_rate(ss, info, "Storm Broadcast", conf->policer_bc,
-                                 conf->policer_bc_frame_rate,
-                                 conf->policer_bc_mode);
+                                 conf->policer_bc_frame_rate, conf->policer_bc_mode);
     pr("\n");
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
@@ -2210,12 +2087,10 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         for (queue = VTSS_QUEUE_START; queue < VTSS_QUEUE_END; queue++) {
             for (dpl = 0; dpl < 2; dpl++) {
                 pr("%5d %3d %3d %3d %3d %-s\n", queue, dpl,
-                   VTSS_BOOL(conf->red_v2[queue][dpl].enable),
-                   conf->red_v2[queue][dpl].min_fl,
+                   VTSS_BOOL(conf->red_v2[queue][dpl].enable), conf->red_v2[queue][dpl].min_fl,
                    conf->red_v2[queue][dpl].max,
-                   (conf->red_v2[queue][dpl].max_unit == VTSS_WRED_V2_MAX_DP)
-                       ? "Drop Probability"
-                       : "Fill Level");
+                   (conf->red_v2[queue][dpl].max_unit == VTSS_WRED_V2_MAX_DP) ? "Drop Probability"
+                                                                              : "Fill Level");
             }
         }
         pr("\n");
@@ -2232,10 +2107,8 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
                 for (dpl = 0; dpl < VTSS_WRED_DPL_CNT; dpl++) {
                     pr("%5d %5d %3d %3d %3d %3d %-s\n", group, queue, dpl + 1,
                        VTSS_BOOL(conf->red_v3[queue][dpl][group].enable),
-                       conf->red_v3[queue][dpl][group].min_fl,
-                       conf->red_v3[queue][dpl][group].max,
-                       (conf->red_v3[queue][dpl][group].max_unit ==
-                        VTSS_WRED_V2_MAX_DP)
+                       conf->red_v3[queue][dpl][group].min_fl, conf->red_v3[queue][dpl][group].max,
+                       (conf->red_v3[queue][dpl][group].max_unit == VTSS_WRED_V2_MAX_DP)
                            ? "Drop Probability"
                            : "Fill Level");
                 }
@@ -2250,8 +2123,8 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         pr("QoS DSCP Classification Config:\n\n");
         pr("DSCP Trust QoS DPL\n");
         for (i = 0; i < 64; i++) {
-            pr("%4d %5d %3u %3d\n", i, conf->dscp_trust[i],
-               conf->dscp_qos_class_map[i], conf->dscp_dp_level_map[i]);
+            pr("%4d %5d %3u %3d\n", i, conf->dscp_trust[i], conf->dscp_qos_class_map[i],
+               conf->dscp_dp_level_map[i]);
         }
         pr("\n");
     }
@@ -2302,8 +2175,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
 #endif /* VTSS_FEATURE_QOS_EGRESS_MAP */
     pr("\n");
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
         if (info->port_list[port_no] == 0) {
             continue;
@@ -2331,8 +2203,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
     pr("QoS Port Classification PCP, DEI to QoS class, DP level Mapping:\n\n");
     pr("Port QoS class (2*PCP+DEI)           DP level (2*PCP+DEI)\n");
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         int                   pcp, dei;
         lmu_fmt_buf_t         class_buf, dpl_buf;
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
@@ -2344,10 +2215,8 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         lmu_fmt_buf_init(&dpl_buf);
         for (pcp = VTSS_PCP_START; pcp < VTSS_PCP_END; pcp++) {
             for (dei = VTSS_DEI_START; dei < VTSS_DEI_END; dei++) {
-                LMU_SS_FMT(&class_buf.ss, "%s%u", delim,
-                           port_conf->qos_class_map[pcp][dei]);
-                LMU_SS_FMT(&dpl_buf.ss, "%s%u", delim,
-                           port_conf->dp_level_map[pcp][dei]);
+                LMU_SS_FMT(&class_buf.ss, "%s%u", delim, port_conf->qos_class_map[pcp][dei]);
+                LMU_SS_FMT(&dpl_buf.ss, "%s%u", delim, port_conf->dp_level_map[pcp][dei]);
                 delim = ",";
             }
         }
@@ -2358,8 +2227,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
     pr("QoS Port Ingress Policer Config:\n\n");
     pr("Port Policer Burst      Rate       FC");
     pr("\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
         int                   policer;
         if (info->port_list[port_no] == 0) {
@@ -2367,8 +2235,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         }
         pr("%4u ", port_no);
         for (policer = 0; policer < VTSS_PORT_POLICERS; policer++) {
-            pr("%7d 0x%08x 0x%08x %d\n     ", policer,
-               port_conf->policer_port[policer].level,
+            pr("%7d 0x%08x 0x%08x %d\n     ", policer, port_conf->policer_port[policer].level,
                port_conf->policer_port[policer].rate,
                port_conf->policer_ext_port[policer].flow_control);
         }
@@ -2378,8 +2245,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
 
     pr("QoS Queue Ingress Policer Config:\n\n");
     pr("Port Queue Burst      Rate\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
         int                   queue;
         if (info->port_list[port_no] == 0) {
@@ -2387,8 +2253,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         }
         pr("%4u ", port_no);
         for (queue = 0; queue < VTSS_QUEUE_ARRAY_SIZE; queue++) {
-            pr("%5d 0x%08x 0x%08x\n     ", queue,
-               port_conf->policer_queue[queue].level,
+            pr("%5d 0x%08x 0x%08x\n     ", queue, port_conf->policer_queue[queue].level,
                port_conf->policer_queue[queue].rate);
         }
         pr("\r");
@@ -2397,8 +2262,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
 
     pr("QoS Port Scheduler Config:\n\n");
     pr("Port Sch Mode  Cnt Q0  Q1  Q2  Q3  Q4  Q5  Q6  Q7\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
         int                   i;
         if (info->port_list[port_no] == 0) {
@@ -2425,8 +2289,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
     pr("EBS        EIR");
 #endif /* VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB */
     pr("\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
         if (info->port_list[port_no] == 0) {
             continue;
@@ -2434,8 +2297,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         pr("%4u 0x%08x 0x%08x ", port_no, port_conf->shaper_port.level,
            port_conf->shaper_port.rate);
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB)
-        pr("0x%08x 0x%08x ", port_conf->shaper_port.ebs,
-           port_conf->shaper_port.eir);
+        pr("0x%08x 0x%08x ", port_conf->shaper_port.ebs, port_conf->shaper_port.eir);
 #endif /* VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB */
         pr("\n");
     }
@@ -2456,8 +2318,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
     pr("CutThrough ");
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH */
     pr("\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
         int                   queue;
         if (info->port_list[port_no] == 0) {
@@ -2465,8 +2326,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         }
         pr("%4u ", port_no);
         for (queue = 0; queue < VTSS_QUEUE_ARRAY_SIZE; queue++) {
-            pr("%5d 0x%08x 0x%08x ", queue,
-               port_conf->shaper_queue[queue].level,
+            pr("%5d 0x%08x 0x%08x ", queue, port_conf->shaper_queue[queue].level,
                port_conf->shaper_queue[queue].rate);
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB)
             pr("0x%08x 0x%08x ", port_conf->shaper_queue[queue].ebs,
@@ -2489,8 +2349,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
 
     pr("QoS Port Tag Remarking Config:\n\n");
     pr("Port Mode       PCP DEI\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
         const char           *mode;
         if (info->port_list[port_no] == 0) {
@@ -2511,8 +2370,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
     pr("QoS Port Tag Remarking Map:\n\n");
     pr("Port PCP (2*QoS class+DPL)           DEI (2*QoS class+DPL)\n");
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         int class, dpl;
         lmu_fmt_buf_t         pcp_buf, dei_buf;
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
@@ -2524,10 +2382,8 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         lmu_fmt_buf_init(&dei_buf);
         for (class = VTSS_QUEUE_START; class < VTSS_QUEUE_END; class ++) {
             for (dpl = 0; dpl < 2; dpl++) {
-                LMU_SS_FMT(&pcp_buf.ss, "%s%u", delim,
-                           port_conf->tag_pcp_map[class][dpl]);
-                LMU_SS_FMT(&dei_buf.ss, "%s%u", delim,
-                           port_conf->tag_dei_map[class][dpl]);
+                LMU_SS_FMT(&pcp_buf.ss, "%s%u", delim, port_conf->tag_pcp_map[class][dpl]);
+                LMU_SS_FMT(&dei_buf.ss, "%s%u", delim, port_conf->tag_dei_map[class][dpl]);
                 delim = ",";
             }
         }
@@ -2538,8 +2394,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
     pr("QoS Port DSCP Remarking Config:\n\n");
     pr("Port I_Mode E_Mode T_EN\n");
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
         if (info->port_list[port_no] == 0) {
             continue;
@@ -2560,8 +2415,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
     pr("KeyType ");
 #endif
     pr("\n");
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_port_conf_t *port_conf = &vtss_state->qos.port_conf[port_no];
         if (info->port_list[port_no] == 0) {
             continue;
@@ -2576,7 +2430,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         pr("\n");
     }
     pr("\n");
-#endif /* defined(VTSS_FEATURE_QCL_DMAC_DIP) ||                                \
+#endif /* defined(VTSS_FEATURE_QCL_DMAC_DIP) ||                                                    \
           defined(VTSS_FEATURE_QCL_KEY_TYPE) */
 
 #if defined(VTSS_FEATURE_VCAP)
@@ -2590,23 +2444,19 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_QOS_TAS)
     pr("QoS Time Aware Shaper Config:\n\n");
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
-        vtss_qos_tas_port_conf_t *tas_port_conf =
-            &vtss_state->qos.tas.port_conf[port_no];
-        u32 i;
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+        vtss_qos_tas_port_conf_t *tas_port_conf = &vtss_state->qos.tas.port_conf[port_no];
+        u32                       i;
         if (info->port_list[port_no] == 0) {
             continue;
         }
         pr("Port %u:\n", port_no);
         pr("  GateEnabled      : %d\n", tas_port_conf->gate_enabled);
-        pr("  GateOpen         : 0x%x\n",
-           bool8_to_u8(tas_port_conf->gate_open));
+        pr("  GateOpen         : 0x%x\n", bool8_to_u8(tas_port_conf->gate_open));
         pr("  CycleTime        : %u\n", tas_port_conf->cycle_time);
         pr("  cycle_time_ext   : %u\n", tas_port_conf->cycle_time_ext);
         pr("  BaseTime         : %" PRIu64 " sec, %u nanosec\n",
-           ((u64)tas_port_conf->base_time.sec_msb << 32) +
-               tas_port_conf->base_time.seconds,
+           ((u64)tas_port_conf->base_time.sec_msb << 32) + tas_port_conf->base_time.seconds,
            tas_port_conf->base_time.nanoseconds);
         pr("  ConfigChange     : %d\n", tas_port_conf->config_change);
         pr("  MaxSDU Q7..0     : ");
@@ -2615,13 +2465,9 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         }
         pr("\n");
         pr("  GCL              : ");
-        for (i = 0;
-             i < MIN(tas_port_conf->gcl_length, VTSS_QOS_TAS_GCL_LEN_MAX);
-             i++) {
-            pr("%s, 0x%x, %u ",
-               debug_gate_operation_string(tas_port_conf->gcl[i].gate_operation),
-               bool8_to_u8(tas_port_conf->gcl[i].gate_open),
-               tas_port_conf->gcl[i].time_interval);
+        for (i = 0; i < MIN(tas_port_conf->gcl_length, VTSS_QOS_TAS_GCL_LEN_MAX); i++) {
+            pr("%s, 0x%x, %u ", debug_gate_operation_string(tas_port_conf->gcl[i].gate_operation),
+               bool8_to_u8(tas_port_conf->gcl[i].gate_open), tas_port_conf->gcl[i].time_interval);
         }
         if (!i) {
             pr("(empty)");
@@ -2635,8 +2481,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
     pr("QoS Frame Preemption Config/Status:\n\n");
     pr("Port  EnaTx  EnaQ[0-7]  VDisTx  VTime  AddFragSize  StatusVer  PreemptActive\n");
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_qos_fp_port_conf_t  *conf = &vtss_state->qos.fp.port_conf[port_no];
         vtss_qos_fp_port_status_t status;
         vtss_mm_status_verify_t   v;
@@ -2649,8 +2494,8 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         for (queue = 0; queue < VTSS_QUEUE_ARRAY_SIZE; queue++) {
             pr("%u", conf->admin_status[queue]);
         }
-        pr("   %-8u%-7u%-13u", VTSS_BOOL(conf->verify_disable_tx),
-           conf->verify_time, conf->add_frag_size);
+        pr("   %-8u%-7u%-13u", VTSS_BOOL(conf->verify_disable_tx), conf->verify_time,
+           conf->add_frag_size);
         if (VTSS_FUNC(qos.fp_port_status_get, port_no, &status) == VTSS_RC_OK) {
             v = status.status_verify;
             pr("%-11s%u",

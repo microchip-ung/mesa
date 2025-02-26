@@ -33,14 +33,12 @@ static mesa_rc dev_delete(meba_sfp_device_t *dev)
 
 static mesa_rc dev_reset(meba_sfp_device_t *dev) { return MESA_RC_OK; }
 
-static mesa_rc dev_poll(meba_sfp_device_t        *dev,
-                        meba_sfp_driver_status_t *status)
+static mesa_rc dev_poll(meba_sfp_device_t *dev, meba_sfp_driver_status_t *status)
 {
     sfp_data_t        *data = (sfp_data_t *)(dev->data);
     mesa_port_status_t mesa_status = {};
 
-    mesa_rc rc =
-        meba_port_status_get(data->meba_inst, data->port_no, &mesa_status);
+    mesa_rc rc = meba_port_status_get(data->meba_inst, data->port_no, &mesa_status);
     if (rc != MESA_RC_OK)
         return rc;
 
@@ -50,8 +48,7 @@ static mesa_rc dev_poll(meba_sfp_device_t        *dev,
     status->aneg = mesa_status.aneg;
 
     if (data->meba_inst->api.meba_sfp_status_get)
-        rc = data->meba_inst->api.meba_sfp_status_get(data->meba_inst,
-                                                      data->port_no, &dev->sfp);
+        rc = data->meba_inst->api.meba_sfp_status_get(data->meba_inst, data->port_no, &dev->sfp);
     if (rc != MESA_RC_OK)
         return rc;
 
@@ -68,8 +65,8 @@ static mesa_rc cisco_sgmii_phy_read(meba_inst_t    meba_inst,
 {
     uint8_t data[2];
 
-    mesa_rc rc = meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, false,
-                                                  0x56, addr, data, 2, true);
+    mesa_rc rc =
+        meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, false, 0x56, addr, data, 2, true);
     if (rc != MESA_RC_OK)
         return MESA_RC_ERROR;
 
@@ -87,13 +84,11 @@ static mesa_rc cisco_sgmii_phy_write(meba_inst_t    meba_inst,
 
     data[0] = ((value >> 8) & 0xff);
     data[1] = (value & 0xff);
-    return meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, true, 0x56,
-                                            addr, data, 2, true);
+    return meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, true, 0x56, addr, data, 2, true);
 }
 
 #define VTSS_MSLEEP(m) usleep((m) * 1000)
-static mesa_bool_t cisco_sgmii_set(meba_inst_t    meba_inst,
-                                   mesa_port_no_t port_no)
+static mesa_bool_t cisco_sgmii_set(meba_inst_t meba_inst, mesa_port_no_t port_no)
 {
     uint16_t    i, reg2 = 0, reg3 = 0;
     mesa_bool_t configure_phy;
@@ -128,9 +123,8 @@ static mesa_bool_t cisco_sgmii_set(meba_inst_t    meba_inst,
         return true;
     }
 
-    configure_phy =
-        (reg2 == 0x0141 && (reg3 & 0xFFF0) == 0x0CC0) || // Marvell 88EE1111
-        (reg2 == 0x0000 && reg3 == 0x0000); // Adtran/Methode Elec. SP7041-ADT
+    configure_phy = (reg2 == 0x0141 && (reg3 & 0xFFF0) == 0x0CC0) || // Marvell 88EE1111
+                    (reg2 == 0x0000 && reg3 == 0x0000); // Adtran/Methode Elec. SP7041-ADT
 
     if (!configure_phy) {
         // Nothing more to do.
@@ -139,8 +133,7 @@ static mesa_bool_t cisco_sgmii_set(meba_inst_t    meba_inst,
 
     // The following configures the SFP's PHY to SGMII mode
     for (i = 0; i < 10; i++) {
-        if (cisco_sgmii_phy_write(meba_inst, port_no, 27, 0x9084) ==
-                MESA_RC_OK && // SGMII mode
+        if (cisco_sgmii_phy_write(meba_inst, port_no, 27, 0x9084) == MESA_RC_OK && // SGMII mode
             cisco_sgmii_phy_write(meba_inst, port_no, 9, 0x0f00) ==
                 MESA_RC_OK && // Advertise 1000BASE-T Full/Half-Duplex
             cisco_sgmii_phy_write(meba_inst, port_no, 0, 0x8140) ==
@@ -158,8 +151,7 @@ static mesa_bool_t cisco_sgmii_set(meba_inst_t    meba_inst,
     return false;
 }
 
-static mesa_rc cisco_sgmii_conf_set(meba_sfp_device_t            *dev,
-                                    const meba_sfp_driver_conf_t *conf)
+static mesa_rc cisco_sgmii_conf_set(meba_sfp_device_t *dev, const meba_sfp_driver_conf_t *conf)
 {
     sfp_data_t *data = (sfp_data_t *)(dev->data);
 
@@ -181,9 +173,7 @@ static mesa_rc cisco_sgmii_if_get(meba_sfp_device_t     *dev,
     case MESA_SPEED_10M:
     case MESA_SPEED_100M:
     case MESA_SPEED_1G:
-    case MESA_SPEED_AUTO:
-        *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
-        return MESA_RC_OK;
+    case MESA_SPEED_AUTO: *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO; return MESA_RC_OK;
     default:
         // Set the same interface, even the user sets wrong speed,
         // so we will have one interface.
@@ -200,12 +190,8 @@ static mesa_rc cisco_sgmii_2g5_if_get(meba_sfp_device_t     *dev,
     case MESA_SPEED_10M:
     case MESA_SPEED_100M:
     case MESA_SPEED_1G:
-    case MESA_SPEED_AUTO:
-        *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
-        return MESA_RC_OK;
-    case MESA_SPEED_2500M:
-        *mac_if = MESA_PORT_INTERFACE_SERDES;
-        return MESA_RC_OK;
+    case MESA_SPEED_AUTO:  *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO; return MESA_RC_OK;
+    case MESA_SPEED_2500M: *mac_if = MESA_PORT_INTERFACE_SERDES; return MESA_RC_OK;
     default:
         // Set the same interface, even the user sets wrong speed,
         // so we will have one interface.
@@ -216,18 +202,17 @@ static mesa_rc cisco_sgmii_2g5_if_get(meba_sfp_device_t     *dev,
 
 static meba_sfp_device_t *dev_probe(meba_sfp_driver_t               *drv,
                                     const meba_sfp_driver_address_t *mode,
-                                    const meba_sfp_device_info_t *device_info)
+                                    const meba_sfp_device_info_t    *device_info)
 {
     meba_sfp_device_t *device;
     sfp_data_t        *data;
 
-    if (drv == NULL || mode == NULL ||
-        mode->mode != mscc_sfp_driver_address_mode || device_info == NULL) {
+    if (drv == NULL || mode == NULL || mode->mode != mscc_sfp_driver_address_mode ||
+        device_info == NULL) {
         return NULL;
     }
 
-    if ((device = (meba_sfp_device_t *)calloc(1, sizeof(meba_sfp_device_t))) ==
-        NULL) {
+    if ((device = (meba_sfp_device_t *)calloc(1, sizeof(meba_sfp_device_t))) == NULL) {
         goto out_device;
     }
 
@@ -259,17 +244,14 @@ static mesa_rc serdes_if_get(meba_sfp_device_t     *dev,
                              mesa_port_interface_t *mac_if)
 {
     switch (speed) {
-    case MESA_SPEED_100M:
-        *mac_if = MESA_PORT_INTERFACE_100FX;
-        return MESA_RC_OK;
+    case MESA_SPEED_100M: *mac_if = MESA_PORT_INTERFACE_100FX; return MESA_RC_OK;
     case MESA_SPEED_AUTO:
     case MESA_SPEED_1G:   *mac_if = MESA_PORT_INTERFACE_SERDES; return MESA_RC_OK;
     default:              *mac_if = MESA_PORT_INTERFACE_SERDES; return MESA_RC_ERROR;
     }
 }
 
-static mesa_rc serdes_conf_set(meba_sfp_device_t            *dev,
-                               const meba_sfp_driver_conf_t *conf)
+static mesa_rc serdes_conf_set(meba_sfp_device_t *dev, const meba_sfp_driver_conf_t *conf)
 {
     sfp_data_t                   *data = (sfp_data_t *)(dev->data);
     mesa_port_clause_37_control_t control = {};
@@ -281,16 +263,15 @@ static mesa_rc serdes_conf_set(meba_sfp_device_t            *dev,
     adv->hdx = false;
     adv->symmetric_pause = conf->flow_control;
     adv->asymmetric_pause = conf->flow_control;
-    adv->remote_fault = conf->admin.enable ? MESA_PORT_CLAUSE_37_RF_LINK_OK
-                                           : MESA_PORT_CLAUSE_37_RF_OFFLINE;
+    adv->remote_fault =
+        conf->admin.enable ? MESA_PORT_CLAUSE_37_RF_LINK_OK : MESA_PORT_CLAUSE_37_RF_OFFLINE;
     adv->acknowledge = 0;
     adv->next_page = 0;
 
     mesa_port_clause_37_control_t ctrl_now = {};
     mesa_port_clause_37_control_get(data->inst, data->port_no, &ctrl_now);
     if (memcmp(&control, &ctrl_now, sizeof(control)) != 0) {
-        return mesa_port_clause_37_control_set(data->inst, data->port_no,
-                                               &control);
+        return mesa_port_clause_37_control_set(data->inst, data->port_no, &control);
     }
 
     return MESA_RC_OK;
@@ -314,17 +295,13 @@ static mesa_rc sfi_if_get(meba_sfp_device_t     *dev,
 {
     switch (speed) {
     case MESA_SPEED_AUTO:
-    case MESA_SPEED_1G:   *mac_if = MESA_PORT_INTERFACE_SERDES; return MESA_RC_OK;
-    case MESA_SPEED_2500M:
-        *mac_if = MESA_PORT_INTERFACE_VAUI;
-        return MESA_RC_OK;
-    case MESA_SPEED_100M:
-        *mac_if = MESA_PORT_INTERFACE_100FX;
-        return MESA_RC_OK;
+    case MESA_SPEED_1G:    *mac_if = MESA_PORT_INTERFACE_SERDES; return MESA_RC_OK;
+    case MESA_SPEED_2500M: *mac_if = MESA_PORT_INTERFACE_VAUI; return MESA_RC_OK;
+    case MESA_SPEED_100M:  *mac_if = MESA_PORT_INTERFACE_100FX; return MESA_RC_OK;
     case MESA_SPEED_5G:
     case MESA_SPEED_10G:
-    case MESA_SPEED_25G: *mac_if = MESA_PORT_INTERFACE_SFI; return MESA_RC_OK;
-    default:             *mac_if = MESA_PORT_INTERFACE_SFI; return MESA_RC_ERROR;
+    case MESA_SPEED_25G:   *mac_if = MESA_PORT_INTERFACE_SFI; return MESA_RC_OK;
+    default:               *mac_if = MESA_PORT_INTERFACE_SFI; return MESA_RC_ERROR;
     }
 }
 
@@ -334,19 +311,14 @@ static mesa_rc tr_2g5_if_get(meba_sfp_device_t     *dev,
 {
     switch (speed) {
     case MESA_SPEED_AUTO:
-    case MESA_SPEED_1G:   *mac_if = MESA_PORT_INTERFACE_SERDES; return MESA_RC_OK;
-    case MESA_SPEED_100M:
-        *mac_if = MESA_PORT_INTERFACE_100FX;
-        return MESA_RC_OK;
-    case MESA_SPEED_2500M:
-        *mac_if = MESA_PORT_INTERFACE_VAUI;
-        return MESA_RC_OK;
-    default: *mac_if = MESA_PORT_INTERFACE_VAUI; return MESA_RC_ERROR;
+    case MESA_SPEED_1G:    *mac_if = MESA_PORT_INTERFACE_SERDES; return MESA_RC_OK;
+    case MESA_SPEED_100M:  *mac_if = MESA_PORT_INTERFACE_100FX; return MESA_RC_OK;
+    case MESA_SPEED_2500M: *mac_if = MESA_PORT_INTERFACE_VAUI; return MESA_RC_OK;
+    default:               *mac_if = MESA_PORT_INTERFACE_VAUI; return MESA_RC_ERROR;
     }
 }
 
-static mesa_rc sfi_mt_none_get(meba_sfp_device_t       *dev,
-                               mesa_sd10g_media_type_t *mt)
+static mesa_rc sfi_mt_none_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
 {
     *mt = MESA_SD10G_MEDIA_PR_NONE;
     return MESA_RC_OK;
@@ -358,65 +330,56 @@ static mesa_rc sfi_mt_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
     return MESA_RC_OK;
 }
 
-static mesa_rc sfi_mt_zr_get(meba_sfp_device_t       *dev,
-                             mesa_sd10g_media_type_t *mt)
+static mesa_rc sfi_mt_zr_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
 {
 
     *mt = MESA_SD10G_MEDIA_ZR;
     return MESA_RC_OK;
 }
 
-static mesa_rc sfi_mt_bp_get(meba_sfp_device_t       *dev,
-                             mesa_sd10g_media_type_t *mt)
+static mesa_rc sfi_mt_bp_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
 {
     *mt = MESA_SD10G_MEDIA_BP;
     return MESA_RC_OK;
 }
 
-static mesa_rc sfi_mt_dac_get(meba_sfp_device_t       *dev,
-                              mesa_sd10g_media_type_t *mt)
+static mesa_rc sfi_mt_dac_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
 {
     *mt = MESA_SD10G_MEDIA_DAC;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_1000_sx_get(meba_sfp_device_t        *dev,
-                              meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_1000_sx_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_1000BASE_SX;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_1000_lx_get(meba_sfp_device_t        *dev,
-                              meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_1000_lx_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_1000BASE_LX;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_1000_zx_get(meba_sfp_device_t        *dev,
-                              meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_1000_zx_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_1000BASE_ZX;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_1000_cx_get(meba_sfp_device_t        *dev,
-                              meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_1000_cx_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_1000BASE_CX;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_1000_t_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_1000_t_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_1000BASE_T;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_1000_x_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_1000_x_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_1000BASE_X;
     return MESA_RC_OK;
@@ -440,36 +403,31 @@ static mesa_rc tr_10g_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_10g_dac_get(meba_sfp_device_t        *dev,
-                              meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_10g_dac_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_10G_DAC;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_10g_sr_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_10g_sr_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_10G_SR;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_10g_lr_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_10g_lr_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_10G_LR;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_10g_er_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_10g_er_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_10G_ER;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_10g_lrm_get(meba_sfp_device_t        *dev,
-                              meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_10g_lrm_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_10G_LRM;
     return MESA_RC_OK;
@@ -481,64 +439,55 @@ static mesa_rc tr_25g_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_25g_cr_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_25g_cr_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_25G_DAC;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_25g_sr_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_25g_sr_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_25G_SR;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_25g_lr_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_25g_lr_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_25G_LR;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_25g_er_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_25g_er_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_25G_ER;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_25g_lrm_get(meba_sfp_device_t        *dev,
-                              meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_25g_lrm_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_25G_LRM;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_100_fx_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_100_fx_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_100FX;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_100_lx_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_100_lx_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_100BASE_LX;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_100_zx_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_100_zx_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_100BASE_ZX;
     return MESA_RC_OK;
 }
 
-static mesa_rc tr_100_sx_get(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr)
+static mesa_rc tr_100_sx_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_100BASE_SX;
     return MESA_RC_OK;
@@ -997,15 +946,12 @@ meba_sfp_drivers_t meba_mac_to_mac_driver_init()
     return result;
 }
 
-typedef mesa_rc (*tr_func_t)(meba_sfp_device_t        *dev,
-                             meba_sfp_transreceiver_t *tr);
+typedef mesa_rc (*tr_func_t)(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr);
 typedef mesa_rc (*if_func_t)(meba_sfp_device_t     *dev,
                              mesa_port_speed_t      speed,
                              mesa_port_interface_t *mac_if);
-typedef mesa_rc (*mt_func_t)(meba_sfp_device_t       *dev,
-                             mesa_sd10g_media_type_t *mt);
-typedef mesa_rc (*conf_func_t)(meba_sfp_device_t            *dev,
-                               const meba_sfp_driver_conf_t *conf);
+typedef mesa_rc (*mt_func_t)(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt);
+typedef mesa_rc (*conf_func_t)(meba_sfp_device_t *dev, const meba_sfp_driver_conf_t *conf);
 
 #define SFP_MSA_1000BASE_SX 0x01
 #define SFP_MSA_1000BASE_LX 0x02
@@ -1024,8 +970,7 @@ typedef mesa_rc (*conf_func_t)(meba_sfp_device_t            *dev,
 
 #define SFP_MSA_SFP_PLUS_PASSIVE 0x04
 #define SFP_MSA_SFP_PLUS_ACTIVE  0x08
-#define SFP_MSA_SFP_PLUS_CABLE                                                 \
-    (SFP_MSA_SFP_PLUS_PASSIVE | SFP_MSA_SFP_PLUS_ACTIVE)
+#define SFP_MSA_SFP_PLUS_CABLE   (SFP_MSA_SFP_PLUS_PASSIVE | SFP_MSA_SFP_PLUS_ACTIVE)
 
 #define SFP_MSA_25GBASE_SR    0x2
 #define SFP_MSA_25GBASE_LR    0x3
@@ -1036,13 +981,12 @@ typedef mesa_rc (*conf_func_t)(meba_sfp_device_t            *dev,
 static tr_func_t tr_func_get(uint8_t *rom)
 {
     // Values are are based on SFF-8472 - Table 5-3.
-    uint8_t eth_10g =
-        rom[3] & SFM_MSA_10G_ETHER; // SFP+ Ethernet Compliance Codes (only some
-                                    // codes are relevant)
-    uint8_t eth = rom[6];           // Ethernet Compliance Codes
-    uint8_t tech = rom[8];          // SFP+ Cable Technology
-    uint8_t speed = rom[12];        // Nominal speed [in units of 100MBd]
-    uint8_t eth_25g = rom[36];      // Extended Compliance Codes
+    uint8_t eth_10g = rom[3] & SFM_MSA_10G_ETHER; // SFP+ Ethernet Compliance Codes (only some
+                                                  // codes are relevant)
+    uint8_t eth = rom[6];                         // Ethernet Compliance Codes
+    uint8_t tech = rom[8];                        // SFP+ Cable Technology
+    uint8_t speed = rom[12];                      // Nominal speed [in units of 100MBd]
+    uint8_t eth_25g = rom[36];                    // Extended Compliance Codes
 
     if (tech & SFP_MSA_SFP_PLUS_CABLE) {
         if (speed >= 100 && speed < 250) {
@@ -1114,8 +1058,8 @@ static tr_func_t tr_func_get(uint8_t *rom)
             // This is a special SFP which is not defined in SFF-8472, but is
             // requested by a customer. See bugzilla#E2020
             return tr_100_zx_get;
-        } else if (rom[14] == 0x0 && rom[15] == 0x0 && rom[16] == 0xC8 &&
-                   rom[17] == 0xC8 && rom[18] == 0x0) {
+        } else if (rom[14] == 0x0 && rom[15] == 0x0 && rom[16] == 0xC8 && rom[17] == 0xC8 &&
+                   rom[18] == 0x0) {
             // This is a special SFP which is not defined in SFF-8472, but is
             // requested by a customer. See bugzilla#E2146
             if (speed == 0x1) {
@@ -1217,8 +1161,7 @@ static mt_func_t mt_func_get(meba_sfp_transreceiver_t tr)
 
 static conf_func_t conf_func_get(meba_sfp_transreceiver_t tr)
 {
-    return tr == MEBA_SFP_TRANSRECEIVER_1000BASE_T ? cisco_sgmii_conf_set
-                                                   : serdes_conf_set;
+    return tr == MEBA_SFP_TRANSRECEIVER_1000BASE_T ? cisco_sgmii_conf_set : serdes_conf_set;
 }
 
 // The size of destination array argument should at least be (len + 1)
@@ -1249,8 +1192,7 @@ static mesa_bool_t get_sfp_rom(meba_inst_t    meba_inst,
                                size_t         rom_size)
 {
     for (int i = 0; i < 10; ++i) {
-        if ((meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, false, 0x50,
-                                              0, rom, rom_size,
+        if ((meba_inst->api.meba_sfp_i2c_xfer(meba_inst, port_no, false, 0x50, 0, rom, rom_size,
                                               false) == MESA_RC_OK)) {
             // rom[0] == 0x03 means SFP or SFP+
             if (rom[0] == 0x03) {
@@ -1326,8 +1268,7 @@ mesa_bool_t meba_fill_driver(meba_inst_t             meba_inst,
     driver->meba_sfp_driver_mt_get =
         mt_func_get(device_info->transceiver); // SFP type -> 10G/25G media type
     driver->meba_sfp_driver_conf_set =
-        conf_func_get(device_info
-                          ->transceiver); // SFP type -> Serdes/Cisco-SGMII
+        conf_func_get(device_info->transceiver); // SFP type -> Serdes/Cisco-SGMII
 
     memcpy(driver->product_name, device_info->vendor_pn, 17);
 

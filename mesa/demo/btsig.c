@@ -69,11 +69,10 @@ static void btsig_program_info_print(FILE *fd, const btsig_entry_t *btsig_entry)
     tm_info = localtime_r(&cur_time, &timeinfo);
     strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M:%S", tm_info);
 
-    fprintf(
-        fd,
-        "\n%s: %s Thread ID %d of process ID %d with cmdline \"%s\" received signal %s (%d)\n",
-        btsig_entry->abort ? "Error" : "Info", time_buf, tid, pid, cmdline,
-        btsig_entry->name, btsig_entry->sig);
+    fprintf(fd,
+            "\n%s: %s Thread ID %d of process ID %d with cmdline \"%s\" received signal %s (%d)\n",
+            btsig_entry->abort ? "Error" : "Info", time_buf, tid, pid, cmdline, btsig_entry->name,
+            btsig_entry->sig);
 }
 
 /******************************************************************************/
@@ -94,8 +93,7 @@ static void btsig_backtrace_print(FILE *fd)
         return;
     }
 
-    for (i = 1 /* skip first, since that'll be here */; i < nsyms && symbols[i];
-         i++) {
+    for (i = 1 /* skip first, since that'll be here */; i < nsyms && symbols[i]; i++) {
         fprintf(fd, "[bt]: (%d) %s\n", i, symbols[i]);
     }
 
@@ -130,8 +128,7 @@ static void btsig_signal_handler(int sig)
     // Find a file handle to write to. We listen to two environment variables:
     // 1) BTSIG_ERR_FILE, used when we're aborting afterwards
     // 2) BTSIG_OUT_FILE, used when we're not aborting.
-    if ((filename = getenv(btsig_entry->abort ? "BTSIG_ERR_FILE"
-                                              : "BTSIG_OUT_FILE")) != NULL &&
+    if ((filename = getenv(btsig_entry->abort ? "BTSIG_ERR_FILE" : "BTSIG_OUT_FILE")) != NULL &&
         (fd = fopen(filename, "a")) != NULL) {
         // We're asked to write to a particular file.
         close_file = TRUE;

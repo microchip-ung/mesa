@@ -15,19 +15,13 @@ mepa_rc meba_phy_reset(meba_inst_t               inst,
                        const mepa_reset_param_t *rst_conf);
 
 // Get the current status of the PHY.
-mepa_rc meba_phy_status_poll(meba_inst_t    inst,
-                             mepa_port_no_t port_no,
-                             mepa_status_t *status);
+mepa_rc meba_phy_status_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_status_t *status);
 
 // Set the configuration to the PHY.
-mepa_rc meba_phy_conf_set(meba_inst_t        inst,
-                          mepa_port_no_t     port_no,
-                          const mepa_conf_t *conf);
+mepa_rc meba_phy_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_conf_t *conf);
 
 // Get the current PHY configuration.
-mepa_rc meba_phy_conf_get(meba_inst_t        inst,
-                          mepa_port_no_t     port_no,
-                          mepa_conf_t *const conf);
+mepa_rc meba_phy_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_conf_t *const conf);
 
 // Read the PHY using I2C
 mepa_rc meba_phy_i2c_read(meba_inst_t       inst,
@@ -61,19 +55,13 @@ mepa_rc meba_phy_if_get(meba_inst_t            inst,
                         mepa_port_interface_t *intf);
 
 // Set the PHY interface based on the inputs.
-mepa_rc meba_phy_if_set(meba_inst_t           inst,
-                        mepa_port_no_t        port_no,
-                        mepa_port_interface_t intf);
+mepa_rc meba_phy_if_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_port_interface_t intf);
 
 // Sets the power mode in PHY.
-mepa_rc meba_phy_power_set(meba_inst_t       inst,
-                           mepa_port_no_t    port_no,
-                           mepa_power_mode_t power);
+mepa_rc meba_phy_power_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_power_mode_t power);
 
 // Start cable diagnostics on PHY port.
-mepa_rc meba_phy_cable_diag_start(meba_inst_t    inst,
-                                  mepa_port_no_t port_no,
-                                  int            mode);
+mepa_rc meba_phy_cable_diag_start(meba_inst_t inst, mepa_port_no_t port_no, int mode);
 
 // Get the result of cable diagnostics.
 mepa_rc meba_phy_cable_diag_get(meba_inst_t               inst,
@@ -101,9 +89,7 @@ mepa_rc meba_phy_fefi_get(meba_inst_t             inst,
                           mepa_fefi_mode_t *const fefi_conf);
 
 // Detect FEFI occurance
-mepa_rc meba_phy_fefi_detect(meba_inst_t        inst,
-                             mepa_port_no_t     port_no,
-                             mepa_bool_t *const detect);
+mepa_rc meba_phy_fefi_detect(meba_inst_t inst, mepa_port_no_t port_no, mepa_bool_t *const detect);
 
 // Set EEE configurations
 mepa_rc meba_phy_eee_mode_conf_set(meba_inst_t               inst,
@@ -168,9 +154,7 @@ mepa_rc meba_phy_event_enable_get(meba_inst_t         inst,
                                   mepa_event_t *const event);
 
 // Get the current status of events enabled in phy.
-mepa_rc meba_phy_event_poll(meba_inst_t         inst,
-                            mepa_port_no_t      port_no,
-                            mepa_event_t *const event);
+mepa_rc meba_phy_event_poll(meba_inst_t inst, mepa_port_no_t port_no, mepa_event_t *const event);
 
 // Enable or disable the loopback in phy. Used for debugging purpose.
 mepa_rc meba_phy_loopback_set(meba_inst_t            inst,
@@ -225,31 +209,23 @@ mepa_rc meba_phy_info_get(meba_inst_t            inst,
                           mepa_phy_info_t *const phy_info);
 
 // Enable/Disable isolate mode
-mepa_rc meba_isolate_mode_conf(meba_inst_t       inst,
-                               mepa_port_no_t    port_no,
-                               const mepa_bool_t iso_en);
+mepa_rc meba_isolate_mode_conf(meba_inst_t inst, mepa_port_no_t port_no, const mepa_bool_t iso_en);
 
 // Read Chip Temperature
-mepa_rc meba_phy_chip_temp_get(meba_inst_t    inst,
-                               mepa_port_no_t port_no,
-                               int16_t *const temp);
+mepa_rc meba_phy_chip_temp_get(meba_inst_t inst, mepa_port_no_t port_no, int16_t *const temp);
 
 // Get the SQI value
-mepa_rc meba_phy_sqi_read(meba_inst_t     inst,
-                          mepa_port_no_t  port_no,
-                          uint32_t *const value);
+mepa_rc meba_phy_sqi_read(meba_inst_t inst, mepa_port_no_t port_no, uint32_t *const value);
 
 // Set the SOF value
-mepa_rc meba_phy_start_of_frame_conf_set(meba_inst_t    inst,
-                                         mepa_port_no_t port_no,
-                                         mepa_start_of_frame_conf_t
-                                             *const value);
+mepa_rc meba_phy_start_of_frame_conf_set(meba_inst_t                       inst,
+                                         mepa_port_no_t                    port_no,
+                                         mepa_start_of_frame_conf_t *const value);
 
 // Get the SOF value
-mepa_rc meba_phy_start_of_frame_conf_get(meba_inst_t    inst,
-                                         mepa_port_no_t port_no,
-                                         mepa_start_of_frame_conf_t
-                                             *const value);
+mepa_rc meba_phy_start_of_frame_conf_get(meba_inst_t                       inst,
+                                         mepa_port_no_t                    port_no,
+                                         mepa_start_of_frame_conf_t *const value);
 
 // PHY get Frame Preemption
 mepa_rc meba_phy_framepreempt_get(meba_inst_t        inst,

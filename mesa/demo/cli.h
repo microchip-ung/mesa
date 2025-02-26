@@ -84,24 +84,19 @@ char          *cli_mac_txt(const uint8_t *mac, char *buf);
 mesa_port_no_t iport2uport(mesa_port_no_t iport);
 mesa_port_no_t uport2iport(mesa_port_no_t uport);
 void           cli_table_header(const char *txt);
-int cli_parm_u8(cli_req_t *req, uint8_t *val, uint32_t min, uint32_t max);
-int cli_parm_u16(cli_req_t *req, uint16_t *val, uint32_t min, uint32_t max);
-int cli_parm_u32(cli_req_t *req, uint32_t *val, uint32_t min, uint32_t max);
-const char *cli_parse_find(const char *cmd, const char *stx);
-int         cli_parse_list(const char  *buf,
-                           mesa_bool_t *list,
-                           uint32_t     min,
-                           uint32_t     max,
-                           mesa_bool_t  def);
-int         cli_parse_values(const char *buf,
-                             uint32_t   *arr,
-                             uint32_t   *val_cnt,
-                             uint32_t    min,
-                             uint32_t    max,
-                             uint32_t    max_num);
+int            cli_parm_u8(cli_req_t *req, uint8_t *val, uint32_t min, uint32_t max);
+int            cli_parm_u16(cli_req_t *req, uint16_t *val, uint32_t min, uint32_t max);
+int            cli_parm_u32(cli_req_t *req, uint32_t *val, uint32_t min, uint32_t max);
+const char    *cli_parse_find(const char *cmd, const char *stx);
+int cli_parse_list(const char *buf, mesa_bool_t *list, uint32_t min, uint32_t max, mesa_bool_t def);
+int cli_parse_values(const char *buf,
+                     uint32_t   *arr,
+                     uint32_t   *val_cnt,
+                     uint32_t    min,
+                     uint32_t    max,
+                     uint32_t    max_num);
 char       *cli_port_list_txt(mesa_port_list_t *port_list, char *buf);
-mesa_bool_t cli_port_list_member(mesa_port_list_t *port_list,
-                                 mesa_port_no_t    iport);
+mesa_bool_t cli_port_list_member(mesa_port_list_t *port_list, mesa_port_no_t iport);
 int         cli_printf(const char *fmt, ...);
 
 #ifdef __cplusplus

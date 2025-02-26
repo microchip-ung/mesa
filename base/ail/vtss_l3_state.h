@@ -21,9 +21,8 @@ typedef struct {
 } vtss_l3_arp_row_t;
 
 typedef struct {
-    u16 row_cnt;
-    vtss_l3_arp_row_t
-        row[VTSS_L3_ARP_ROW_CNT + 1]; // At least one entry for LIGHT build
+    u16               row_cnt;
+    vtss_l3_arp_row_t row[VTSS_L3_ARP_ROW_CNT + 1]; // At least one entry for LIGHT build
 } vtss_l3_arp_info_t;
 
 typedef struct {
@@ -66,14 +65,12 @@ typedef struct vtss_l3_mc_rt_t {
 } vtss_l3_mc_rt_t;
 
 /* Table sizes */
-#define VTSS_L3_NH_MAX 8 /* Maximum number of next-hops per group */
-#define VTSS_L3_NH_CNT (VTSS_ARP_CNT + VTSS_L3_NH_MAX)
-#define VTSS_L3_NH_GRP_CNT                                                     \
-    ((VTSS_ARP_CNT / 2) + 1) /* Each group has at least two next-hops */
-#define VTSS_L3_NET_CNT VTSS_LPM_CNT
-#define VTSS_L3_NB_CNT                                                         \
-    VTSS_LPM_CNT /* Neighbours may be encoded directly in LPM table */
-#define VTSS_L3_MC_RT_CNT VTSS_LPM_MC_CNT
+#define VTSS_L3_NH_MAX     8 /* Maximum number of next-hops per group */
+#define VTSS_L3_NH_CNT     (VTSS_ARP_CNT + VTSS_L3_NH_MAX)
+#define VTSS_L3_NH_GRP_CNT ((VTSS_ARP_CNT / 2) + 1) /* Each group has at least two next-hops */
+#define VTSS_L3_NET_CNT    VTSS_LPM_CNT
+#define VTSS_L3_NB_CNT     VTSS_LPM_CNT /* Neighbours may be encoded directly in LPM table */
+#define VTSS_L3_MC_RT_CNT  VTSS_LPM_MC_CNT
 
 #define VTSS_L3_MC_RPF_DIS 0xFF /* ID for disabled RPF  */
 
@@ -139,11 +136,9 @@ typedef struct {
 } vtss_l3_statistics_t;
 
 // CIL functions
-vtss_rc vtss_cil_l3_rleg_counters_get(struct vtss_state_s *vtss_state,
-                                      const vtss_l3_rleg_id_t);
+vtss_rc vtss_cil_l3_rleg_counters_get(struct vtss_state_s *vtss_state, const vtss_l3_rleg_id_t);
 vtss_rc vtss_cil_l3_rleg_counters_reset(struct vtss_state_s *vtss_state);
-vtss_rc vtss_cil_l3_common_set(struct vtss_state_s *vtss_state,
-                               const vtss_l3_common_conf_t *const);
+vtss_rc vtss_cil_l3_common_set(struct vtss_state_s *vtss_state, const vtss_l3_common_conf_t *const);
 vtss_rc vtss_cil_l3_rleg_set(struct vtss_state_s *vtss_state,
                              const vtss_l3_rleg_id_t,
                              const vtss_l3_rleg_conf_t *const);
@@ -156,17 +151,11 @@ vtss_rc vtss_cil_l3_rt_add(struct vtss_state_s *vtss_state,
                            vtss_l3_nb_t        *nb,
                            u32                  cnt);
 vtss_rc vtss_cil_l3_rt_del(struct vtss_state_s *vtss_state, vtss_l3_net_t *net);
-vtss_rc vtss_cil_l3_mc_rt_add(struct vtss_state_s *vtss_state,
-                              vtss_l3_mc_rt_t     *net);
-vtss_rc vtss_cil_l3_mc_rt_del(struct vtss_state_s *vtss_state,
-                              vtss_l3_mc_rt_t     *net);
-vtss_rc vtss_cil_l3_mc_rt_rleg_add(struct vtss_state_s *vtss_state,
-                                   vtss_l3_mc_rt_t     *net);
-vtss_rc vtss_cil_l3_mc_rt_rleg_del(struct vtss_state_s *vtss_state,
-                                   vtss_l3_mc_rt_t     *net);
-vtss_rc vtss_cil_l3_arp_set(struct vtss_state_s *vtss_state,
-                            u32                  idx,
-                            vtss_l3_nb_t        *nb);
+vtss_rc vtss_cil_l3_mc_rt_add(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
+vtss_rc vtss_cil_l3_mc_rt_del(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
+vtss_rc vtss_cil_l3_mc_rt_rleg_add(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
+vtss_rc vtss_cil_l3_mc_rt_rleg_del(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
+vtss_rc vtss_cil_l3_arp_set(struct vtss_state_s *vtss_state, u32 idx, vtss_l3_nb_t *nb);
 vtss_rc vtss_cil_l3_debug_sticky_clear(struct vtss_state_s *vtss_state);
 
 typedef struct {
@@ -180,8 +169,7 @@ typedef struct {
     vtss_l3_nb_info_t     nb;
     vtss_l3_arp_info_t    arp;
     vtss_l3_mc_rt_info_t  mc_rt;
-    vtss_l3_mc_tbl_t
-        mc_tbl[VTSS_MC_TBL_CNT + 1]; // At least one entry for LIGHT build
+    vtss_l3_mc_tbl_t      mc_tbl[VTSS_MC_TBL_CNT + 1]; // At least one entry for LIGHT build
 } vtss_l3_state_t;
 
 vtss_rc vtss_l3_inst_create(struct vtss_state_s *vtss_state);

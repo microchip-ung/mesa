@@ -18,31 +18,21 @@
 #define eth_port_7           MESA_SYNCE_DEV_PORT(7, 0)
 #define station_clock_port_0 MESA_SYNCE_DEV_CLOCK_IN(8, 0)
 
-#define phy_mux_0_port_in_0                                                    \
-    MESA_SYNCE_DEV_MUX_PHY(100, MESA_SYNCE_DEV_INPUT | 2)
-#define phy_mux_0_port_in_1                                                    \
-    MESA_SYNCE_DEV_MUX_PHY(100, MESA_SYNCE_DEV_INPUT | 3)
-#define phy_mux_0_port_in_2                                                    \
-    MESA_SYNCE_DEV_MUX_PHY(100, MESA_SYNCE_DEV_INPUT | 0)
-#define phy_mux_0_port_in_3                                                    \
-    MESA_SYNCE_DEV_MUX_PHY(100, MESA_SYNCE_DEV_INPUT | 1)
+#define phy_mux_0_port_in_0  MESA_SYNCE_DEV_MUX_PHY(100, MESA_SYNCE_DEV_INPUT | 2)
+#define phy_mux_0_port_in_1  MESA_SYNCE_DEV_MUX_PHY(100, MESA_SYNCE_DEV_INPUT | 3)
+#define phy_mux_0_port_in_2  MESA_SYNCE_DEV_MUX_PHY(100, MESA_SYNCE_DEV_INPUT | 0)
+#define phy_mux_0_port_in_3  MESA_SYNCE_DEV_MUX_PHY(100, MESA_SYNCE_DEV_INPUT | 1)
 #define phy_mux_0_port_out_0 MESA_SYNCE_DEV_MUX_PHY(100, 0)
 #define phy_mux_0_port_out_1 MESA_SYNCE_DEV_MUX_PHY(100, 1)
 
-#define phy_mux_1_port_in_0                                                    \
-    MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 2)
-#define phy_mux_1_port_in_1                                                    \
-    MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 3)
-#define phy_mux_1_port_in_2                                                    \
-    MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 0)
-#define phy_mux_1_port_in_3                                                    \
-    MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 1)
-#define phy_mux_1_reco_clk_in_0                                                \
-    MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 4)
-#define phy_mux_1_reco_clk_in_1                                                \
-    MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 5)
-#define phy_mux_1_port_out_0 MESA_SYNCE_DEV_MUX_PHY(200, 0)
-#define phy_mux_1_port_out_1 MESA_SYNCE_DEV_MUX_PHY(200, 1)
+#define phy_mux_1_port_in_0     MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 2)
+#define phy_mux_1_port_in_1     MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 3)
+#define phy_mux_1_port_in_2     MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 0)
+#define phy_mux_1_port_in_3     MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 1)
+#define phy_mux_1_reco_clk_in_0 MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 4)
+#define phy_mux_1_reco_clk_in_1 MESA_SYNCE_DEV_MUX_PHY(200, MESA_SYNCE_DEV_INPUT | 5)
+#define phy_mux_1_port_out_0    MESA_SYNCE_DEV_MUX_PHY(200, 0)
+#define phy_mux_1_port_out_1    MESA_SYNCE_DEV_MUX_PHY(200, 1)
 
 #define dpll_port_0 MESA_SYNCE_DEV_DPLL(500, MESA_SYNCE_DEV_INPUT | 0)
 #define dpll_port_1 MESA_SYNCE_DEV_DPLL(500, MESA_SYNCE_DEV_INPUT | 1)
@@ -88,34 +78,17 @@ static const meba_synce_terminal_attr_t attr_8290_board[] = {
     MESA_SYNCE_ATTR(eth_port_5, MEBA_ATTR_FREQ_1G, MEBA_SYNCE_CLOCK_FREQ_125MHZ),
     MESA_SYNCE_ATTR(eth_port_6, MEBA_ATTR_FREQ_1G, MEBA_SYNCE_CLOCK_FREQ_125MHZ),
     MESA_SYNCE_ATTR(eth_port_7, MEBA_ATTR_FREQ_1G, MEBA_SYNCE_CLOCK_FREQ_125MHZ),
-    MESA_SYNCE_ATTR(eth_port_0,
-                    MEBA_ATTR_FREQ_100M,
-                    MEBA_SYNCE_CLOCK_FREQ_25MHZ),
-    MESA_SYNCE_ATTR(eth_port_1,
-                    MEBA_ATTR_FREQ_100M,
-                    MEBA_SYNCE_CLOCK_FREQ_25MHZ),
-    MESA_SYNCE_ATTR(eth_port_2,
-                    MEBA_ATTR_FREQ_100M,
-                    MEBA_SYNCE_CLOCK_FREQ_25MHZ),
-    MESA_SYNCE_ATTR(eth_port_3,
-                    MEBA_ATTR_FREQ_100M,
-                    MEBA_SYNCE_CLOCK_FREQ_25MHZ),
-    MESA_SYNCE_ATTR(eth_port_4,
-                    MEBA_ATTR_FREQ_100M,
-                    MEBA_SYNCE_CLOCK_FREQ_25MHZ),
-    MESA_SYNCE_ATTR(eth_port_5,
-                    MEBA_ATTR_FREQ_100M,
-                    MEBA_SYNCE_CLOCK_FREQ_25MHZ),
-    MESA_SYNCE_ATTR(eth_port_6,
-                    MEBA_ATTR_FREQ_100M,
-                    MEBA_SYNCE_CLOCK_FREQ_25MHZ),
-    MESA_SYNCE_ATTR(eth_port_7,
-                    MEBA_ATTR_FREQ_100M,
-                    MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_0, MEBA_ATTR_FREQ_100M, MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_1, MEBA_ATTR_FREQ_100M, MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_2, MEBA_ATTR_FREQ_100M, MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_3, MEBA_ATTR_FREQ_100M, MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_4, MEBA_ATTR_FREQ_100M, MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_5, MEBA_ATTR_FREQ_100M, MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_6, MEBA_ATTR_FREQ_100M, MEBA_SYNCE_CLOCK_FREQ_25MHZ),
+    MESA_SYNCE_ATTR(eth_port_7, MEBA_ATTR_FREQ_100M, MEBA_SYNCE_CLOCK_FREQ_25MHZ),
 };
 
-static mesa_rc meba_synce_graph_get(meba_inst_t                      inst,
-                                    const meba_synce_graph_t **const g)
+static mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const g)
 {
     static meba_synce_graph_t synce_graph;
 
@@ -144,10 +117,7 @@ static mesa_rc meba_synce_graph_get(meba_inst_t                      inst,
     return MESA_RC_OK;
 }
 
-static mesa_rc meba_synce_mux_set(meba_inst_t inst,
-                                  uint32_t    dev_id,
-                                  uint32_t    input,
-                                  uint32_t    output)
+static mesa_rc meba_synce_mux_set(meba_inst_t inst, uint32_t dev_id, uint32_t input, uint32_t output)
 {
     int                     board_type = inst->props.board_type;
     mepa_device_t          *phy_dev;
@@ -164,15 +134,14 @@ static mesa_rc meba_synce_mux_set(meba_inst_t inst,
         return MESA_RC_ERROR;
     }
 
-    if ((dev_id == 100) && ((input < (MESA_SYNCE_DEV_INPUT | 0)) ||
-                            (input > (MESA_SYNCE_DEV_INPUT | 3)))) {
+    if ((dev_id == 100) &&
+        ((input < (MESA_SYNCE_DEV_INPUT | 0)) || (input > (MESA_SYNCE_DEV_INPUT | 3)))) {
         // MESA_SYNCE_DEV_INPUT | (0-3) - Front port 1-4
         T_E(inst, "Invalid input.");
         return MESA_RC_ERROR;
     }
     if ((dev_id == 200) && input != 0 && input != 1 &&
-        ((input < (MESA_SYNCE_DEV_INPUT | 4)) ||
-         (input > (MESA_SYNCE_DEV_INPUT | 7)))) {
+        ((input < (MESA_SYNCE_DEV_INPUT | 4)) || (input > (MESA_SYNCE_DEV_INPUT | 7)))) {
         // 0 - clk1_in
         // 1 - clk2_in
         // MESA_SYNCE_DEV_INPUT | (4-7) - Front port 5-8
@@ -189,8 +158,7 @@ static mesa_rc meba_synce_mux_set(meba_inst_t inst,
         // disable the clk-out on device 100
         phy_dev = inst->phy_devices[0];
         conf.src = MEPA_SYNCE_CLOCK_SRC_DISABLED;
-        conf.dst =
-            (output == 0) ? MEPA_SYNCE_CLOCK_DST_1 : MEPA_SYNCE_CLOCK_DST_2;
+        conf.dst = (output == 0) ? MEPA_SYNCE_CLOCK_DST_1 : MEPA_SYNCE_CLOCK_DST_2;
         if (MESA_RC_OK != mepa_synce_clock_conf_set(phy_dev, &conf)) {
             T_E(inst, "Failed disabling device 100 for clock %d", conf.dst);
         }

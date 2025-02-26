@@ -41,19 +41,18 @@ static const meba_ptp_rs422_conf_t pcb8398_rs422_conf = {
     .ptp_rs422_ldsv_int_id = MEBA_EVENT_PTP_PIN_5,
     .serial_port = "/dev/ttyAT1"};
 
-static const meba_ptp_rs422_conf_t other_rs422_conf = {
-    .gpio_rs422_1588_mstoen = -1,
-    .gpio_rs422_1588_slvoen = -1,
-    .ptp_pin_ldst = 2,
-    .ptp_pin_ppso = 3,
-    .ptp_rs422_pps_int_id = MEBA_EVENT_PTP_PIN_2,
-    .ptp_rs422_ldsv_int_id = MEBA_EVENT_PTP_PIN_3,
-    .serial_port = "/dev/ttyAT1"};
+static const meba_ptp_rs422_conf_t other_rs422_conf = {.gpio_rs422_1588_mstoen = -1,
+                                                       .gpio_rs422_1588_slvoen = -1,
+                                                       .ptp_pin_ldst = 2,
+                                                       .ptp_pin_ppso = 3,
+                                                       .ptp_rs422_pps_int_id = MEBA_EVENT_PTP_PIN_2,
+                                                       .ptp_rs422_ldsv_int_id =
+                                                           MEBA_EVENT_PTP_PIN_3,
+                                                       .serial_port = "/dev/ttyAT1"};
 
 static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {
-    MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2,
-    MEBA_EVENT_PTP_PIN_3, MEBA_EVENT_PTP_PIN_4, MEBA_EVENT_PTP_PIN_5,
-    MEBA_EVENT_PTP_PIN_5, MEBA_EVENT_PTP_PIN_5};
+    MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3,
+    MEBA_EVENT_PTP_PIN_4, MEBA_EVENT_PTP_PIN_5, MEBA_EVENT_PTP_PIN_5, MEBA_EVENT_PTP_PIN_5};
 
 static const uint32_t pin_conf_pcb8398[VTSS_TS_IO_ARRAY_SIZE] = {
     (MEBA_PTP_IO_CAP_UNUSED), // Need to validate PIN_IN
@@ -65,11 +64,11 @@ static const uint32_t pin_conf_pcb8398[VTSS_TS_IO_ARRAY_SIZE] = {
     (MEBA_PTP_IO_CAP_UNUSED),
     (MEBA_PTP_IO_CAP_UNUSED)};
 
-#define LAGUNA_CAP_SFP                                                         \
-    (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SD_HIGH |                         \
-     MEBA_PORT_CAP_SFP_DETECT | MEBA_PORT_CAP_SFP_ONLY)
-#define LAGUNA_CAP_10G_FDX                                                     \
-    (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_5G_FDX | MEBA_PORT_CAP_SFP_2_5G |   \
+#define LAGUNA_CAP_SFP                                                                             \
+    (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SD_HIGH | MEBA_PORT_CAP_SFP_DETECT |                  \
+     MEBA_PORT_CAP_SFP_ONLY)
+#define LAGUNA_CAP_10G_FDX                                                                         \
+    (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_5G_FDX | MEBA_PORT_CAP_SFP_2_5G |                       \
      MEBA_PORT_CAP_FLOW_CTRL | LAGUNA_CAP_SFP)
 
 typedef enum { SFP_DETECT, SFP_FAULT, SFP_LOS } sfp_signal_t;
@@ -81,124 +80,122 @@ static port_map_t *meba_port_map = NULL;
 // port  | index | phy
 //---------------------------------------------------------------------------------------------------------------------------
 static port_map_t port_table_sunrise[] = {
-    {0, MESA_MIIM_CONTROLLER_1,    0, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0, 0, 0},
-    {1, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0, 0, 0},
-    {2, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0, 0, 0},
-    {3, MESA_MIIM_CONTROLLER_1,    3, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G, 0, 0, 0},
-    {8, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO,
-     MEBA_PORT_CAP_SFP_1G,           MESA_BW_1G, 0, 0, 0},
+    {0, MESA_MIIM_CONTROLLER_1,    0, MESA_PORT_INTERFACE_QSGMII,      MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G, 0, 0, 0},
+    {1, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_QSGMII,      MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G, 0, 0, 0},
+    {2, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_QSGMII,      MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G, 0, 0, 0},
+    {3, MESA_MIIM_CONTROLLER_1,    3, MESA_PORT_INTERFACE_QSGMII,      MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G, 0, 0, 0},
+    {8, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO, MEBA_PORT_CAP_SFP_1G,
+     MESA_BW_1G, 0, 0, 0},
 };
 
 static port_map_t port_table_pcb8398[] = {
-    {0,  MESA_MIIM_CONTROLLER_0,    4,  MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {1,  MESA_MIIM_CONTROLLER_0,    5,  MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {2,  MESA_MIIM_CONTROLLER_0,    6,  MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {3,  MESA_MIIM_CONTROLLER_0,    7,  MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {4,  MESA_MIIM_CONTROLLER_0,    8,  MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {5,  MESA_MIIM_CONTROLLER_0,    9,  MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {6,  MESA_MIIM_CONTROLLER_0,    10, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {7,  MESA_MIIM_CONTROLLER_0,    11, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {8,  MESA_MIIM_CONTROLLER_0,    12, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {9,  MESA_MIIM_CONTROLLER_0,    13, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {10, MESA_MIIM_CONTROLLER_0,    14, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {11, MESA_MIIM_CONTROLLER_0,    15, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {12, MESA_MIIM_CONTROLLER_0,    16, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {13, MESA_MIIM_CONTROLLER_0,    17, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {14, MESA_MIIM_CONTROLLER_0,    18, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {15, MESA_MIIM_CONTROLLER_0,    19, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {16, MESA_MIIM_CONTROLLER_0,    20, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {17, MESA_MIIM_CONTROLLER_0,    21, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {18, MESA_MIIM_CONTROLLER_0,    22, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {19, MESA_MIIM_CONTROLLER_0,    23, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {20, MESA_MIIM_CONTROLLER_0,    24, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {21, MESA_MIIM_CONTROLLER_0,    25, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {22, MESA_MIIM_CONTROLLER_0,    26, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {23, MESA_MIIM_CONTROLLER_0,    27, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 1},
-    {24, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 24, 0, 0},
-    {25, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 25, 1, 0},
-    {26, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 26, 2, 0},
-    {27, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 27, 3, 0},
-    {29, MESA_MIIM_CONTROLLER_0,    3,  MESA_PORT_INTERFACE_RGMII_TXID,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 0},
+    {0,  MESA_MIIM_CONTROLLER_0,    4,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {1,  MESA_MIIM_CONTROLLER_0,    5,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {2,  MESA_MIIM_CONTROLLER_0,    6,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {3,  MESA_MIIM_CONTROLLER_0,    7,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {4,  MESA_MIIM_CONTROLLER_0,    8,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {5,  MESA_MIIM_CONTROLLER_0,    9,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {6,  MESA_MIIM_CONTROLLER_0,    10, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {7,  MESA_MIIM_CONTROLLER_0,    11, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {8,  MESA_MIIM_CONTROLLER_0,    12, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {9,  MESA_MIIM_CONTROLLER_0,    13, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {10, MESA_MIIM_CONTROLLER_0,    14, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {11, MESA_MIIM_CONTROLLER_0,    15, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {12, MESA_MIIM_CONTROLLER_0,    16, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {13, MESA_MIIM_CONTROLLER_0,    17, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {14, MESA_MIIM_CONTROLLER_0,    18, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {15, MESA_MIIM_CONTROLLER_0,    19, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {16, MESA_MIIM_CONTROLLER_0,    20, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {17, MESA_MIIM_CONTROLLER_0,    21, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {18, MESA_MIIM_CONTROLLER_0,    22, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {19, MESA_MIIM_CONTROLLER_0,    23, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {20, MESA_MIIM_CONTROLLER_0,    24, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {21, MESA_MIIM_CONTROLLER_0,    25, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {22, MESA_MIIM_CONTROLLER_0,    26, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {23, MESA_MIIM_CONTROLLER_0,    27, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 1},
+    {24, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 24,
+     0,                                                                                                                     0},
+    {25, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 25,
+     1,                                                                                                                     0},
+    {26, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 26,
+     2,                                                                                                                     0},
+    {27, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 27,
+     3,                                                                                                                     0},
+    {29, MESA_MIIM_CONTROLLER_0,    3,  MESA_PORT_INTERFACE_RGMII_TXID, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                     0,  0, 0},
 };
 
 static port_map_t port_table_pcb8422[] = {
-    {0,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 0,  0, 0},
-    {4,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 4,  1, 0},
-    {8,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 8,  2, 0},
-    {12, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 12, 3, 0},
-    {16, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 16, 4, 0},
-    {20, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 20, 5, 0},
-    {24, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 24, 6, 0},
-    {25, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 25, 7, 0},
-    {26, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 26, 8, 0},
-    {27, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,
-     LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 27, 9, 0},
-    {29, MESA_MIIM_CONTROLLER_0,    3, MESA_PORT_INTERFACE_RGMII_TXID,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, MESA_BW_1G,  0,  0, 0},
+    {0,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 0,
+     0,                                                                                                                    0},
+    {4,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 4,
+     1,                                                                                                                    0},
+    {8,  MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 8,
+     2,                                                                                                                    0},
+    {12, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 12,
+     3,                                                                                                                    0},
+    {16, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 16,
+     4,                                                                                                                    0},
+    {20, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 20,
+     5,                                                                                                                    0},
+    {24, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 24,
+     6,                                                                                                                    0},
+    {25, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 25,
+     7,                                                                                                                    0},
+    {26, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 26,
+     8,                                                                                                                    0},
+    {27, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 27,
+     9,                                                                                                                    0},
+    {29, MESA_MIIM_CONTROLLER_0,    3, MESA_PORT_INTERFACE_RGMII_TXID, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     MESA_BW_1G,                                                                                                    0,  0, 0},
 };
 
 #define PCB8398_GPIO_FUNC_INFO_SIZE 8
-static const mesa_gpio_func_info_t
-    pcb8398_gpio_func_info[PCB8398_GPIO_FUNC_INFO_SIZE] = {
-        {.gpio_no = VTSS_GPIOS_MAX,   //             MESA_GPIO_FUNC_PTP_0
-         .alt = MESA_GPIO_FUNC_ALT_0  },
-        {.gpio_no = VTSS_GPIOS_MAX,   // MESA_GPIO_FUNC_PTP_1
-         .alt = MESA_GPIO_FUNC_ALT_0  },
-        {.gpio_no =
-             VTSS_GPIOS_MAX, //                         MESA_GPIO_FUNC_PTP_2
-         .alt = MESA_GPIO_FUNC_ALT_0},
-        {.gpio_no = 57,               // MESA_GPIO_FUNC_PTP_3
-         .alt = MESA_GPIO_FUNC_ALT_3              },
-        {.gpio_no = 58,               // MESA_GPIO_FUNC_PTP_4
-         .alt = MESA_GPIO_FUNC_ALT_3              },
-        {.gpio_no = 59,               // MESA_GPIO_FUNC_PTP_5
-         .alt = MESA_GPIO_FUNC_ALT_3              },
-        {.gpio_no = VTSS_GPIOS_MAX,   // MESA_GPIO_FUNC_PTP_6
-         .alt = MESA_GPIO_FUNC_ALT_0  },
-        {.gpio_no = VTSS_GPIOS_MAX,   // MESA_GPIO_FUNC_PTP_7
-         .alt = MESA_GPIO_FUNC_ALT_0  },
+static const mesa_gpio_func_info_t pcb8398_gpio_func_info[PCB8398_GPIO_FUNC_INFO_SIZE] = {
+    {.gpio_no = VTSS_GPIOS_MAX, //             MESA_GPIO_FUNC_PTP_0
+     .alt = MESA_GPIO_FUNC_ALT_0},
+    {.gpio_no = VTSS_GPIOS_MAX, // MESA_GPIO_FUNC_PTP_1
+     .alt = MESA_GPIO_FUNC_ALT_0},
+    {.gpio_no = VTSS_GPIOS_MAX, //                         MESA_GPIO_FUNC_PTP_2
+     .alt = MESA_GPIO_FUNC_ALT_0},
+    {.gpio_no = 57,             // MESA_GPIO_FUNC_PTP_3
+     .alt = MESA_GPIO_FUNC_ALT_3            },
+    {.gpio_no = 58,             // MESA_GPIO_FUNC_PTP_4
+     .alt = MESA_GPIO_FUNC_ALT_3            },
+    {.gpio_no = 59,             // MESA_GPIO_FUNC_PTP_5
+     .alt = MESA_GPIO_FUNC_ALT_3            },
+    {.gpio_no = VTSS_GPIOS_MAX, // MESA_GPIO_FUNC_PTP_6
+     .alt = MESA_GPIO_FUNC_ALT_0},
+    {.gpio_no = VTSS_GPIOS_MAX, // MESA_GPIO_FUNC_PTP_7
+     .alt = MESA_GPIO_FUNC_ALT_0},
 };
 
 static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
@@ -211,9 +208,7 @@ static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
     entry->map.max_bw = map->max_bw;
 }
 
-static void lan966x_init_port_table(meba_inst_t inst,
-                                    int         port_cnt,
-                                    port_map_t *map)
+static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_port_no_t      port_no;
@@ -401,12 +396,10 @@ static uint32_t lan969x_capability(meba_inst_t inst, int cap)
     case MEBA_CAP_POE_BT:                      return 1;
     case MEBA_CAP_CPU_PORTS_COUNT:             return 0;
     case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:
-        if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
-            board->type == BOARD_TYPE_LAGUNA_PCB8422) {
+        if (board->type == BOARD_TYPE_LAGUNA_PCB8398 || board->type == BOARD_TYPE_LAGUNA_PCB8422) {
             meba_synce_clock_hw_id_t dpll_type;
 
-            if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) ==
-                 MESA_RC_OK)) {
+            if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) == MESA_RC_OK)) {
                 return 1;
             } else {
                 return 0;
@@ -492,8 +485,7 @@ static mesa_bool_t get_sfp_status(meba_inst_t             inst,
 }
 
 // For backwards compatibility (use lan969x_sfp_status_get())
-static mesa_rc lan969x_sfp_insertion_status_get(meba_inst_t       inst,
-                                                mesa_port_list_t *present)
+static mesa_rc lan969x_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list_t *present)
 {
     mesa_rc                rc = MESA_RC_OK;
     meba_board_state_t    *board = INST2BOARD(inst);
@@ -507,8 +499,7 @@ static mesa_rc lan969x_sfp_insertion_status_get(meba_inst_t       inst,
         /* The 'Module Detect' is inverted i.e. '0' means detected */
         for (port_no = 0; port_no < board->port_cnt; port_no++) {
             if (is_sfp_port(board->port[port_no].map.cap)) {
-                mesa_bool_t detect =
-                    get_sfp_status(inst, port_no, data, SFP_DETECT);
+                mesa_bool_t detect = get_sfp_status(inst, port_no, data, SFP_DETECT);
                 mesa_port_list_set(present, port_no, detect);
                 T_N(inst, "port:%d, status:%d", port_no, detect);
             }
@@ -531,18 +522,16 @@ static mesa_rc lan969x_sfp_status_get(meba_inst_t        inst,
     }
 
     if ((rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
-        status->los = (data[sgport].value[0] ? 1 : 0); // SFP LOS, ACTIVE_HIGH
-        status->present =
-            (data[sgport].value[1] ? 0 : 1); // SFP MODDET, ACTIVE_LOW
-        status->tx_fault =
-            (data[sgport].value[2] ? 1 : 0); // SFP TXFAULT, ACTIVE_HIGH
+        status->los = (data[sgport].value[0] ? 1 : 0);      // SFP LOS, ACTIVE_HIGH
+        status->present = (data[sgport].value[1] ? 0 : 1);  // SFP MODDET, ACTIVE_LOW
+        status->tx_fault = (data[sgport].value[2] ? 1 : 0); // SFP TXFAULT, ACTIVE_HIGH
     }
     return rc;
 }
 
 // Applies only to SFPs where TxDisable is enabled/disabled
-static mesa_rc lan969x_port_admin_state_set(meba_inst_t    inst,
-                                            mesa_port_no_t port_no,
+static mesa_rc lan969x_port_admin_state_set(meba_inst_t                    inst,
+                                            mesa_port_no_t                 port_no,
                                             const meba_port_admin_state_t *state)
 {
     mesa_rc             rc = MESA_RC_OK;
@@ -562,10 +551,8 @@ static mesa_rc lan969x_port_admin_state_set(meba_inst_t    inst,
         sgmode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
     }
 
-    if (board->port[port_no].map.map.miim_controller ==
-            MESA_MIIM_CONTROLLER_NONE &&
-        sgport < MESA_SGPIO_PORTS &&
-        (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK)) {
+    if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE &&
+        sgport < MESA_SGPIO_PORTS && (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK)) {
         conf.port_conf[sgport].mode[2] = sgmode; // TxDisable maps to bit 2
         rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
@@ -590,14 +577,12 @@ static mesa_rc lan969x_port_led_update(meba_inst_t                    inst,
     }
 
     // Only SFP ports
-    if (board->port[port_no].map.map.miim_controller !=
-            MESA_MIIM_CONTROLLER_NONE ||
+    if (board->port[port_no].map.map.miim_controller != MESA_MIIM_CONTROLLER_NONE ||
         sgport >= MESA_SGPIO_PORTS) {
         return rc;
     }
 
-    if ((status->link != old_status->link ||
-         status->speed != old_status->speed) &&
+    if ((status->link != old_status->link || status->speed != old_status->speed) &&
         (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
         *old_status = *status;                               // Save status
         conf.port_conf[sgport].mode[0] = MESA_SGPIO_MODE_ON; // Green off */
@@ -605,11 +590,9 @@ static mesa_rc lan969x_port_led_update(meba_inst_t                    inst,
 
         if (status->link) {
             if (status->speed >= MESA_SPEED_1G) {
-                conf.port_conf[sgport].mode[0] =
-                    MESA_SGPIO_MODE_0_ACTIVITY; // Green on/blinking */
+                conf.port_conf[sgport].mode[0] = MESA_SGPIO_MODE_0_ACTIVITY; // Green on/blinking */
             } else {
-                conf.port_conf[sgport].mode[1] =
-                    MESA_SGPIO_MODE_0_ACTIVITY; // Red on/blinking */
+                conf.port_conf[sgport].mode[1] = MESA_SGPIO_MODE_0_ACTIVITY; // Red on/blinking */
             }
         }
         rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
@@ -631,13 +614,9 @@ static mesa_rc lan969x_status_led_set(meba_inst_t      inst,
     if (type == MEBA_LED_TYPE_FRONT && color < MEBA_LED_COLOR_COUNT) {
         T_I(inst, "LED:%d, color=%d", type, color);
         switch (color) {
-        case MEBA_LED_COLOR_OFF:
-            (void)mesa_gpio_write(NULL, 0, STATUSLED_G_GPIO, true);
-            break;
-        case MEBA_LED_COLOR_GREEN:
-            (void)mesa_gpio_write(NULL, 0, STATUSLED_R_GPIO, false);
-            break;
-        default: rc = MESA_RC_ERROR;
+        case MEBA_LED_COLOR_OFF:   (void)mesa_gpio_write(NULL, 0, STATUSLED_G_GPIO, true); break;
+        case MEBA_LED_COLOR_GREEN: (void)mesa_gpio_write(NULL, 0, STATUSLED_R_GPIO, false); break;
+        default:                   rc = MESA_RC_ERROR;
         }
     }
     return rc;
@@ -654,8 +633,7 @@ static mesa_rc lan969x_reset(meba_inst_t inst, meba_reset_point_t reset)
     case MEBA_PORT_RESET:            break;
     case MEBA_STATUS_LED_INITIALIZE: break;
     case MEBA_PORT_LED_INITIALIZE:
-        if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
-            board->type == BOARD_TYPE_LAGUNA_PCB8422) {
+        if (board->type == BOARD_TYPE_LAGUNA_PCB8398 || board->type == BOARD_TYPE_LAGUNA_PCB8422) {
             mepa_gpio_conf_t  conf = {};
             mesa_sgpio_conf_t sgconf;
             uint8_t           sgport;
@@ -686,10 +664,9 @@ static mesa_rc lan969x_reset(meba_inst_t inst, meba_reset_point_t reset)
             }
         } else if (board->type == BOARD_TYPE_SUNRISE) {
             for (uint32_t port_no = 0; port_no < board->port_cnt; port_no++) {
-                if (port_no % 4 == 0 && (board->port[port_no].map.mac_if ==
-                                         MESA_PORT_INTERFACE_QSGMII)) {
-                    if ((rc = vtss_phy_pre_reset(PHY_INST, port_no)) !=
-                        MESA_RC_OK) {
+                if (port_no % 4 == 0 &&
+                    (board->port[port_no].map.mac_if == MESA_PORT_INTERFACE_QSGMII)) {
+                    if ((rc = vtss_phy_pre_reset(PHY_INST, port_no)) != MESA_RC_OK) {
                         T_E(inst, "Could not pre reset phy %d", port_no);
                     }
                 }
@@ -745,8 +722,7 @@ static mesa_rc sgpio_handler(meba_inst_t         inst,
             for (bit = 0; bit < 3; bit++) {
                 if (sgpio_events[bit][sgport]) {
                     // Event detected, disable while handling it
-                    (void)mesa_sgpio_event_enable(NULL, 0, 0, sgport, bit,
-                                                  false);
+                    (void)mesa_sgpio_event_enable(NULL, 0, 0, sgport, bit, false);
                     event_detected = 1;
                 }
             }
@@ -760,9 +736,7 @@ static mesa_rc sgpio_handler(meba_inst_t         inst,
 }
 
 // IRQ Support
-static mesa_rc lan969x_event_enable(meba_inst_t  inst,
-                                    meba_event_t event_id,
-                                    mesa_bool_t  enable)
+static mesa_rc lan969x_event_enable(meba_inst_t inst, meba_event_t event_id, mesa_bool_t enable)
 {
     mesa_rc               rc = MESA_RC_OK;
     meba_board_state_t   *board = INST2BOARD(inst);
@@ -784,8 +758,7 @@ static mesa_rc lan969x_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_VOE:        return rc; // Dummy for now
 
     case MEBA_EVENT_LOS:
-        if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
-            board->type == BOARD_TYPE_LAGUNA_PCB8422) {
+        if (board->type == BOARD_TYPE_LAGUNA_PCB8398 || board->type == BOARD_TYPE_LAGUNA_PCB8422) {
             // bit 0: LOS
             // bit 1: ModDetect
             // bit 2: TxFault
@@ -801,12 +774,9 @@ static mesa_rc lan969x_event_enable(meba_inst_t  inst,
             }
             for (port_no = 0; port_no < board->port_cnt - 1; port_no++) {
                 if (is_phy_port(board->port[port_no].map.cap)) {
-                    if ((rc = meba_phy_event_enable_set(inst, port_no,
-                                                        MEPA_LINK_LOS,
-                                                        enable)) !=
+                    if ((rc = meba_phy_event_enable_set(inst, port_no, MEPA_LINK_LOS, enable)) !=
                         MESA_RC_OK) {
-                        T_E(inst, "Could not enable MEPA_LINK_LOS in phy (%d)",
-                            port_no);
+                        T_E(inst, "Could not enable MEPA_LINK_LOS in phy (%d)", port_no);
                     }
                 }
             }
@@ -815,12 +785,9 @@ static mesa_rc lan969x_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_FLNK:
         for (port_no = 0; port_no < board->port_cnt - 1; port_no++) {
             if (is_phy_port(board->port[port_no].map.cap)) {
-                if ((rc = meba_phy_event_enable_set(inst, port_no,
-                                                    VTSS_PHY_LINK_FFAIL_EV,
+                if ((rc = meba_phy_event_enable_set(inst, port_no, VTSS_PHY_LINK_FFAIL_EV,
                                                     enable)) != MESA_RC_OK) {
-                    T_E(inst,
-                        "Could not enable VTSS_PHY_LINK_FFAIL_EV in phy (%d)",
-                        port_no);
+                    T_E(inst, "Could not enable VTSS_PHY_LINK_FFAIL_EV in phy (%d)", port_no);
                 }
             }
         }
@@ -833,8 +800,7 @@ static mesa_rc lan969x_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_PTP_PIN_5:
     case MEBA_EVENT_CLK_TSTAMP:
         ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
-        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) !=
-            MESA_RC_OK) {
+        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
             T_E(inst, "mesa_ptp_event_enable = %d", rc);
         }
         break;
@@ -846,14 +812,12 @@ static mesa_rc lan969x_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_EGR_RW_FCS_ERR:
     case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED:
     case MEBA_EVENT_EGR_FIFO_OVERFLOW:      {
-        mepa_ts_event_t event =
-            meba_generic_phy_ts_source_to_event(inst, event_id);
+        mepa_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
         for (port_no = 0; port_no < board->port_cnt; port_no++) {
             if (board->port[port_no].ts_phy &&
-                (rc = meba_phy_ts_event_set(inst, port_no, enable, event)) !=
-                    MESA_RC_OK) {
-                T_E(inst, "vtss_phy_ts_event_enable_set(%d, %d, %d) = %d",
-                    port_no, enable, event, rc);
+                (rc = meba_phy_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
+                T_E(inst, "vtss_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable, event,
+                    rc);
             }
         }
     } break;
@@ -877,8 +841,7 @@ static mesa_rc ext0_handler(meba_inst_t         inst,
     mesa_port_no_t port_no;
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (is_phy_port(board->port[port_no].map.cap)) {
-            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) ==
-                MESA_RC_OK) {
+            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
                 T_D(inst, "port(%d) PHY IRQ handled", port_no);
                 handled++;
             }
@@ -897,13 +860,10 @@ static mesa_rc phy_interrupt_handler(meba_inst_t         inst,
     for (port_no = 0; port_no < board->port_cnt - 1; port_no++) {
         if (is_phy_port(board->port[port_no].map.cap)) {
             // Check for Cu Phy events
-            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) ==
-                MESA_RC_OK) {
+            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
                 handled++;
             }
-            if (meba_generic_phy_timestamp_check(inst, port_no,
-                                                 signal_notifier) ==
-                MESA_RC_OK) {
+            if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
                 handled++;
             }
         }
@@ -929,8 +889,7 @@ static mesa_rc gpio_handler(meba_inst_t         inst,
     case BOARD_TYPE_LAGUNA_PCB8398:
     case BOARD_TYPE_LAGUNA_PCB8422:
         if (gpio_events[2]) {
-            if ((rc = mesa_gpio_event_enable(NULL, 0, 2, false)) !=
-                MESA_RC_OK) {
+            if ((rc = mesa_gpio_event_enable(NULL, 0, 2, false)) != MESA_RC_OK) {
                 T_E(inst, "mesa_gpio_event_enable = %d", rc);
             }
             signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
@@ -950,32 +909,24 @@ static mesa_rc gpio_handler(meba_inst_t         inst,
 
         if (gpio_events[INDYPHY_INTERRUPT]) { // Interrupt from PHYs
             mesa_bool_t gpio_state;
-            while (MESA_RC_OK == mesa_gpio_read(NULL, 0, INDYPHY_INTERRUPT,
-                                                &gpio_state) &&
+            while (MESA_RC_OK == mesa_gpio_read(NULL, 0, INDYPHY_INTERRUPT, &gpio_state) &&
                    gpio_state == 0) {
-                T_I(inst, "Got interrupt from gpio #%u value: %d",
-                    INDYPHY_INTERRUPT, gpio_state);
+                T_I(inst, "Got interrupt from gpio #%u value: %d", INDYPHY_INTERRUPT, gpio_state);
 
-                if ((rc =
-                         phy_interrupt_handler(inst, board, signal_notifier)) ==
-                    MESA_RC_OK) {
+                if ((rc = phy_interrupt_handler(inst, board, signal_notifier)) == MESA_RC_OK) {
                     handled++;
                 }
             }
         }
         break;
 
-    default:
-        T_E(inst, "Board type (%d) not supported!", board->type);
-        return MESA_RC_ERROR;
+    default: T_E(inst, "Board type (%d) not supported!", board->type); return MESA_RC_ERROR;
     }
 
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
-static mesa_rc kr_irq2port(meba_inst_t     inst,
-                           mesa_irq_t      chip_irq,
-                           mesa_port_no_t *port_no)
+static mesa_rc kr_irq2port(meba_inst_t inst, mesa_irq_t chip_irq, mesa_port_no_t *port_no)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc             rc = MESA_RC_ERROR;
@@ -1030,17 +981,12 @@ static mesa_rc lan969x_irq_handler(meba_inst_t         inst,
 
     T_I(inst, "Called - irq %d", chip_irq);
     switch (chip_irq) {
-    case MESA_IRQ_PTP_SYNC:
-        return meba_generic_ptp_handler(inst, signal_notifier);
-    case MESA_IRQ_PTP_RDY:
-        signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0);
-        return MESA_RC_OK;
-    case MESA_IRQ_OAM:   signal_notifier(MEBA_EVENT_VOE, 0); return MESA_RC_OK;
-    case MESA_IRQ_SGPIO: return sgpio_handler(inst, board, signal_notifier);
-    case MESA_IRQ_EXT0:  return ext0_handler(inst, board, signal_notifier);
-    case MESA_IRQ_GPIO:
-        return gpio_handler(inst, board, signal_notifier);
-        return MESA_RC_OK;
+    case MESA_IRQ_PTP_SYNC:   return meba_generic_ptp_handler(inst, signal_notifier);
+    case MESA_IRQ_PTP_RDY:    signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0); return MESA_RC_OK;
+    case MESA_IRQ_OAM:        signal_notifier(MEBA_EVENT_VOE, 0); return MESA_RC_OK;
+    case MESA_IRQ_SGPIO:      return sgpio_handler(inst, board, signal_notifier);
+    case MESA_IRQ_EXT0:       return ext0_handler(inst, board, signal_notifier);
+    case MESA_IRQ_GPIO:       return gpio_handler(inst, board, signal_notifier); return MESA_RC_OK;
     case MESA_IRQ_KR_SD10G_0:
     case MESA_IRQ_KR_SD10G_1:
     case MESA_IRQ_KR_SD10G_2:
@@ -1050,9 +996,8 @@ static mesa_rc lan969x_irq_handler(meba_inst_t         inst,
     case MESA_IRQ_KR_SD10G_6:
     case MESA_IRQ_KR_SD10G_7:
     case MESA_IRQ_KR_SD10G_8:
-    case MESA_IRQ_KR_SD10G_9:
-        return kr_handler(inst, board, chip_irq, signal_notifier);
-    default: break;
+    case MESA_IRQ_KR_SD10G_9: return kr_handler(inst, board, chip_irq, signal_notifier);
+    default:                  break;
     }
     return MESA_RC_NOT_IMPLEMENTED;
 }
@@ -1083,8 +1028,7 @@ static mesa_rc lan969x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
     return rc;
 }
 
-static mesa_rc lan969x_ptp_rs422_conf_get(meba_inst_t            inst,
-                                          meba_ptp_rs422_conf_t *conf)
+static mesa_rc lan969x_ptp_rs422_conf_get(meba_inst_t inst, meba_ptp_rs422_conf_t *conf)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     T_N(inst, "Called");
@@ -1099,11 +1043,10 @@ static mesa_rc lan969x_ptp_rs422_conf_get(meba_inst_t            inst,
     return VTSS_RC_OK;
 }
 
-static mesa_rc lan969x_ptp_external_io_conf_get(meba_inst_t inst,
-                                                uint32_t    io_pin,
-                                                meba_ptp_io_cap_t
-                                                    *const board_assignment,
-                                                meba_event_t *const source_id)
+static mesa_rc lan969x_ptp_external_io_conf_get(meba_inst_t              inst,
+                                                uint32_t                 io_pin,
+                                                meba_ptp_io_cap_t *const board_assignment,
+                                                meba_event_t *const      source_id)
 {
     if (io_pin >= VTSS_TS_IO_ARRAY_SIZE) {
         return MESA_RC_ERROR;
@@ -1122,8 +1065,7 @@ static mesa_rc lan969x_gpio_func_info_get(meba_inst_t            inst,
     mesa_rc             rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
 
-    if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
-        board->type == BOARD_TYPE_LAGUNA_PCB8422) {
+    if (board->type == BOARD_TYPE_LAGUNA_PCB8398 || board->type == BOARD_TYPE_LAGUNA_PCB8422) {
         if (gpio_func < PCB8398_GPIO_FUNC_INFO_SIZE) {
             *info = pcb8398_gpio_func_info[gpio_func]; // PCB8398 and PCB8842
                                                        // have identical GPIOs
@@ -1139,10 +1081,7 @@ static mesa_rc lan969x_gpio_func_info_get(meba_inst_t            inst,
     return rc;
 }
 
-static mesa_rc lan969x_sensor_get(meba_inst_t   inst,
-                                  meba_sensor_t type,
-                                  int           six,
-                                  int          *value)
+static mesa_rc lan969x_sensor_get(meba_inst_t inst, meba_sensor_t type, int six, int *value)
 {
     mesa_rc rc = MESA_RC_ERROR;
     int16_t temp = 0;
@@ -1162,8 +1101,7 @@ static mesa_rc lan969x_sensor_get(meba_inst_t   inst,
     return rc;
 }
 
-meba_inst_t lan969x_initialize(meba_inst_t                   inst,
-                               const meba_board_interface_t *callouts)
+meba_inst_t lan969x_initialize(meba_inst_t inst, const meba_board_interface_t *callouts)
 {
     meba_board_state_t *board;
     int                 pcb, target, pcb_var, port_cnt = 0;
@@ -1194,8 +1132,7 @@ meba_inst_t lan969x_initialize(meba_inst_t                   inst,
         fprintf(stderr, "Port table malloc failure\n");
         goto error_out;
     }
-    if (board->type == BOARD_TYPE_LAGUNA_PCB8398 ||
-        board->type == BOARD_TYPE_LAGUNA_PCB8422) {
+    if (board->type == BOARD_TYPE_LAGUNA_PCB8398 || board->type == BOARD_TYPE_LAGUNA_PCB8422) {
         // This board has onboard DPLL for Synce/PTP
         // Use its 25Mhz ref clock for 1588 (and Core):
         inst->props.ref_freq = MESA_CORE_REF_CLK_25MHZ;
@@ -1223,9 +1160,8 @@ meba_inst_t lan969x_initialize(meba_inst_t                   inst,
     default: break;
     }
 
-    T_I(inst, "Board: %s, type %d, target %4x, mux %d, %d ports",
-        inst->props.name, board->type, inst->props.target, inst->props.mux_mode,
-        board->port_cnt);
+    T_I(inst, "Board: %s, type %d, target %4x, mux %d, %d ports", inst->props.name, board->type,
+        inst->props.target, inst->props.mux_mode, board->port_cnt);
 
     // Hook up board API functions
     T_D(inst, "Hooking up board API");

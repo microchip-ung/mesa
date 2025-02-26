@@ -21,15 +21,13 @@ typedef enum {
 
 // FRER member/compound stream configuration
 typedef struct {
-    mesa_bool_t              recovery; // Enable/disable recovery
-    mesa_frer_recovery_alg_t alg;      // frerSeqRcvyAlgorithm: Algorithm
-    uint8_t hlen; // frerSeqRcvyHistoryLength: History length, 2-32 (vector
-                  // algorithm)
-    uint16_t reset_time; // frerSeqRcvyResetMSec: Reset timeout (milliseconds)
-    mesa_bool_t
-        take_no_seq; // frerSeqRcvyTakeNoSequence: Accept frames without R-tag
-    mesa_frer_cstream_id_t
-        cstream_id; // Compound stream ID (valid for member stream only)
+    mesa_bool_t              recovery;  // Enable/disable recovery
+    mesa_frer_recovery_alg_t alg;       // frerSeqRcvyAlgorithm: Algorithm
+    uint8_t                  hlen;      // frerSeqRcvyHistoryLength: History length, 2-32 (vector
+                                        // algorithm)
+    uint16_t               reset_time;  // frerSeqRcvyResetMSec: Reset timeout (milliseconds)
+    mesa_bool_t            take_no_seq; // frerSeqRcvyTakeNoSequence: Accept frames without R-tag
+    mesa_frer_cstream_id_t cstream_id;  // Compound stream ID (valid for member stream only)
 } mesa_frer_stream_conf_t;
 
 // Get compound stream configuration.
@@ -66,8 +64,7 @@ mesa_rc mesa_frer_cstream_cnt_get(const mesa_inst_t            inst,
 
 // Clear compound stream Counters.
 // id [IN]  Compound stream ID.
-mesa_rc mesa_frer_cstream_cnt_clear(const mesa_inst_t            inst,
-                                    const mesa_frer_cstream_id_t id);
+mesa_rc mesa_frer_cstream_cnt_clear(const mesa_inst_t inst, const mesa_frer_cstream_id_t id);
 
 /* - FRER member streams ------------------------------------------- */
 
@@ -87,8 +84,7 @@ mesa_rc mesa_frer_mstream_alloc(const mesa_inst_t             inst,
 
 // Free FRER member stream ID block.
 // id [IN]    Member stream ID base.
-mesa_rc mesa_frer_mstream_free(const mesa_inst_t            inst,
-                               const mesa_frer_mstream_id_t id);
+mesa_rc mesa_frer_mstream_free(const mesa_inst_t inst, const mesa_frer_mstream_id_t id);
 
 // Get member stream configuration.
 // id [IN]       Member stream ID.
@@ -126,9 +122,9 @@ mesa_rc mesa_frer_mstream_cnt_clear(const mesa_inst_t            inst,
 
 // FRER ingress flow configuration
 typedef struct {
-    mesa_bool_t            mstream_enable; // Enable member stream
-    mesa_frer_mstream_id_t mstream_id;     // Member stream base ID
-    mesa_bool_t            generation;     // Enable/disable sequence generation
+    mesa_bool_t            mstream_enable;         // Enable member stream
+    mesa_frer_mstream_id_t mstream_id;             // Member stream base ID
+    mesa_bool_t            generation;             // Enable/disable sequence generation
     mesa_bool_t pop        CAP(L2_FRER_IFLOW_POP); // R-tag popping
 } mesa_frer_iflow_conf_t;
 
@@ -142,8 +138,8 @@ typedef struct {
     mesa_bool_t     gate_open;     // StreamGateState
     mesa_opt_prio_t prio;          // IPV: Priority
     uint32_t        time_interval; // TimeInterval: Time interval (nsec)
-    uint32_t octet_max; // IntervalOctetMax: Maximum number of octets permitted
-                        // (zero disables check)
+    uint32_t        octet_max;     // IntervalOctetMax: Maximum number of octets permitted
+                                   // (zero disables check)
 } mesa_psfp_gce_t;
 
 // Get PSFP Gate Control List.
@@ -168,10 +164,9 @@ mesa_rc mesa_psfp_gcl_conf_set(const mesa_inst_t            inst,
 
 // PSFP Gate Control List configuration
 typedef struct {
-    mesa_timestamp_t base_time;  // PSFPAdminBaseTime/PSFPOperBaseTime
-    uint32_t         cycle_time; // PSFPAdminCycleTime/PSFPOperCycleTime
-    uint32_t
-        cycle_time_ext; // PSFPAdminCycleTimeExtension/PSFPOperCycleTimeExtension
+    mesa_timestamp_t base_time;      // PSFPAdminBaseTime/PSFPOperBaseTime
+    uint32_t         cycle_time;     // PSFPAdminCycleTime/PSFPOperCycleTime
+    uint32_t         cycle_time_ext; // PSFPAdminCycleTimeExtension/PSFPOperCycleTimeExtension
 } mesa_psfp_gcl_conf_t;
 
 // PSFP gate configuration
@@ -205,14 +200,13 @@ mesa_rc mesa_psfp_gate_conf_set(const mesa_inst_t                  inst,
 
 // PSFP gate status
 typedef struct {
-    mesa_bool_t      gate_open; // PSFPOperGateStates: Current gate state
-    mesa_opt_prio_t  prio;      // PSFPOperIPV: Priority
-    mesa_timestamp_t config_change_time; // PSFPConfigChangeTime
-    mesa_timestamp_t current_time;       // PSFPCurrentTime
-    mesa_bool_t
-        config_pending; // PSFPConfigPending: Configuration active indication
-    mesa_bool_t close_invalid_rx;      // PSFPGateClosedDueToInvalidRx
-    mesa_bool_t close_octets_exceeded; // PSFPGateClosedDueOctetsExceeded
+    mesa_bool_t      gate_open;             // PSFPOperGateStates: Current gate state
+    mesa_opt_prio_t  prio;                  // PSFPOperIPV: Priority
+    mesa_timestamp_t config_change_time;    // PSFPConfigChangeTime
+    mesa_timestamp_t current_time;          // PSFPCurrentTime
+    mesa_bool_t      config_pending;        // PSFPConfigPending: Configuration active indication
+    mesa_bool_t      close_invalid_rx;      // PSFPGateClosedDueToInvalidRx
+    mesa_bool_t      close_octets_exceeded; // PSFPGateClosedDueOctetsExceeded
 } mesa_psfp_gate_status_t;
 
 // Get PSFP gate status.
@@ -229,7 +223,7 @@ typedef uint16_t mesa_psfp_filter_id_t;
 typedef struct {
     mesa_bool_t         gate_enable; // Enable gate mapping
     mesa_psfp_gate_id_t gate_id;     // StreamGateInstanceID: Gate ID mapping
-    uint16_t            max_sdu; // Maximum SDU size (zero disables SDU check)
+    uint16_t            max_sdu;     // Maximum SDU size (zero disables SDU check)
     mesa_opt_bool_t
         block_oversize; // StreamBlockedDueToOversizeFrameEnable/StreamBlockedDueToOversizeFrame
 } mesa_psfp_filter_conf_t;
@@ -281,13 +275,11 @@ typedef struct {
 
 // Get Time Aware Shaper (802.1Qbv) global configuration.
 // conf    [OUT] Scheduled Traffic configuration structure.
-mesa_rc mesa_qos_tas_conf_get(const mesa_inst_t          inst,
-                              mesa_qos_tas_conf_t *const conf) CAP(QOS_TAS);
+mesa_rc mesa_qos_tas_conf_get(const mesa_inst_t inst, mesa_qos_tas_conf_t *const conf) CAP(QOS_TAS);
 
 // Set Time Aware Shaper (802.1Qbv) global configuration.
 // conf    [IN] Scheduled Traffic configuration structure.
-mesa_rc mesa_qos_tas_conf_set(const mesa_inst_t                inst,
-                              const mesa_qos_tas_conf_t *const conf)
+mesa_rc mesa_qos_tas_conf_set(const mesa_inst_t inst, const mesa_qos_tas_conf_t *const conf)
     CAP(QOS_TAS);
 
 // Time Aware Shaper (802.1Qbv) Gate Control Operations
@@ -329,7 +321,7 @@ mesa_rc mesa_qos_tas_port_gcl_conf_get(const mesa_inst_t         inst,
                                        const mesa_port_no_t      port_no,
                                        const uint32_t            cnt,
                                        mesa_qos_tas_gce_t *const gcl,
-                                       uint32_t *const gce_cnt) CAP(QOS_TAS);
+                                       uint32_t *const           gce_cnt) CAP(QOS_TAS);
 
 // Set Time Aware Shaper (802.1Qbv) port Gate Control List.
 // port_no    [IN]  Port number.
@@ -338,8 +330,7 @@ mesa_rc mesa_qos_tas_port_gcl_conf_get(const mesa_inst_t         inst,
 mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t               inst,
                                        const mesa_port_no_t            port_no,
                                        const uint32_t                  gce_cnt,
-                                       const mesa_qos_tas_gce_t *const gcl)
-    CAP(QOS_TAS);
+                                       const mesa_qos_tas_gce_t *const gcl) CAP(QOS_TAS);
 
 // Time Aware Shaper (802.1Qbv) port configuration
 typedef struct {
@@ -397,16 +388,14 @@ typedef struct {
 // conf    [OUT] Scheduled Traffic configuration structure.
 mesa_rc mesa_qos_tas_port_conf_get(const mesa_inst_t               inst,
                                    const mesa_port_no_t            port_no,
-                                   mesa_qos_tas_port_conf_t *const conf)
-    CAP(QOS_TAS);
+                                   mesa_qos_tas_port_conf_t *const conf) CAP(QOS_TAS);
 
 // Set Time Aware Shaper (802.1Qbv) port configuration.
 // port_no [IN] Port number.
 // conf    [IN] Scheduled Traffic configuration structure.
-mesa_rc mesa_qos_tas_port_conf_set(const mesa_inst_t    inst,
-                                   const mesa_port_no_t port_no,
-                                   const mesa_qos_tas_port_conf_t *const conf)
-    CAP(QOS_TAS);
+mesa_rc mesa_qos_tas_port_conf_set(const mesa_inst_t                     inst,
+                                   const mesa_port_no_t                  port_no,
+                                   const mesa_qos_tas_port_conf_t *const conf) CAP(QOS_TAS);
 
 // Time Aware Shaper (802.1Qbv) port status.
 typedef struct {
@@ -433,8 +422,7 @@ typedef struct {
 // status  [OUT] Scheduled Traffic status structure.
 mesa_rc mesa_qos_tas_port_status_get(const mesa_inst_t                 inst,
                                      const mesa_port_no_t              port_no,
-                                     mesa_qos_tas_port_status_t *const status)
-    CAP(QOS_TAS);
+                                     mesa_qos_tas_port_status_t *const status) CAP(QOS_TAS);
 
 /* - Frame Preemption ---------------------------------------------- */
 
@@ -442,10 +430,10 @@ mesa_rc mesa_qos_tas_port_status_get(const mesa_inst_t                 inst,
 typedef struct {
     mesa_bool_t admin_status[MESA_QUEUE_ARRAY_SIZE]; // IEEE802.1Qbu:
                                                      // framePreemptionStatusTable
-    mesa_bool_t enable_tx;         // IEEE802.3br: aMACMergeEnableTx
-    mesa_bool_t verify_disable_tx; // IEEE802.3br: aMACMergeVerifyDisableTx
-    uint8_t     verify_time;       // IEEE802.3br: aMACMergeVerifyTime [msec]
-    uint8_t     add_frag_size;     // IEEE802.3br: aMACMergeAddFragSize
+    mesa_bool_t enable_tx;                           // IEEE802.3br: aMACMergeEnableTx
+    mesa_bool_t verify_disable_tx;                   // IEEE802.3br: aMACMergeVerifyDisableTx
+    uint8_t     verify_time;                         // IEEE802.3br: aMACMergeVerifyTime [msec]
+    uint8_t     add_frag_size;                       // IEEE802.3br: aMACMergeAddFragSize
 } mesa_qos_fp_port_conf_t CAP(QOS_FRAME_PREEMPTION);
 
 // Get 802.1Qbu and 802.3br (Frame Preemption) port configuration.
@@ -453,8 +441,7 @@ typedef struct {
 // conf    [OUT] Frame Preemption configuration structure.
 mesa_rc mesa_qos_fp_port_conf_get(const mesa_inst_t              inst,
                                   const mesa_port_no_t           port_no,
-                                  mesa_qos_fp_port_conf_t *const conf)
-    CAP(QOS_FRAME_PREEMPTION);
+                                  mesa_qos_fp_port_conf_t *const conf) CAP(QOS_FRAME_PREEMPTION);
 
 // Set 802.1Qbu and 802.3br (Frame Preemption) port configuration.
 // port_no [IN] Port number.
@@ -477,10 +464,10 @@ typedef enum {
 
 // 802.1Qbu and 802.3br (Frame Preemption) port status
 typedef struct {
-    uint32_t    hold_advance;      // TBD: IEEE802.1Qbu: holdAdvance [nsec]
-    uint32_t    release_advance;   // TBD: IEEE802.1Qbu: releaseAdvance [nsec]
-    mesa_bool_t preemption_active; // IEEE802.1Qbu: preemptionActive,
-                                   // IEEE802.3br: aMACMergeStatusTx
+    uint32_t    hold_advance;              // TBD: IEEE802.1Qbu: holdAdvance [nsec]
+    uint32_t    release_advance;           // TBD: IEEE802.1Qbu: releaseAdvance [nsec]
+    mesa_bool_t preemption_active;         // IEEE802.1Qbu: preemptionActive,
+                                           // IEEE802.3br: aMACMergeStatusTx
     uint8_t                 hold_request;  // TBD: IEEE802.1Qbu: holdRequest
     mesa_mm_status_verify_t status_verify; // IEEE802.3br: aMACMergeStatusVerify
 } mesa_qos_fp_port_status_t CAP(QOS_FRAME_PREEMPTION);

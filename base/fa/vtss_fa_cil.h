@@ -99,8 +99,7 @@
 #define RT_EXT_CLK_PIN                4 // PIN configuration for external clock
 #define RT_ALT_LDST_PIN               5
 #define RT_ALT_PPS_PIN                4
-#define RT_TOD_ACC_PIN                                                         \
-    7 // The last PTP pin is not connected to GPIO but can be used for TOD access
+#define RT_TOD_ACC_PIN                7 // The last PTP pin is not connected to GPIO but can be used for TOD access
 #elif defined(VTSS_ARCH_SPARX5)
 #define RT_CHIP_PORTS                 65
 #define RT_SERDES_10G_START           13
@@ -140,8 +139,7 @@
 #define RT_EXT_CLK_PIN                1 // PIN configuration for external clock
 #define RT_ALT_LDST_PIN               2
 #define RT_ALT_PPS_PIN                3
-#define RT_TOD_ACC_PIN                                                         \
-    4 // The last PTP pin is not connected to GPIO but can be used for TOD access
+#define RT_TOD_ACC_PIN                4 // The last PTP pin is not connected to GPIO but can be used for TOD access
 #else
 #define RT_CHIP_PORTS                 30
 #define RT_SERDES_10G_START           0
@@ -181,8 +179,7 @@
 #define RT_EXT_CLK_PIN                4 // PIN configuration for external clock
 #define RT_ALT_LDST_PIN               5
 #define RT_ALT_PPS_PIN                4
-#define RT_TOD_ACC_PIN                                                         \
-    7 // The last PTP pin is not connected to GPIO but can be used for TOD access
+#define RT_TOD_ACC_PIN                7 // The last PTP pin is not connected to GPIO but can be used for TOD access
 #endif
 
 // Buffer cell size
@@ -199,11 +196,10 @@
 
 // TAS constants
 #define RT_TAS_NUMBER_OF_ENTRIES_PER_BLOCK 32
-#define RT_TAS_NUMBER_OF_BLOCKS_PER_ROW                                        \
+#define RT_TAS_NUMBER_OF_BLOCKS_PER_ROW                                                            \
     (VTSS_QOS_TAS_GCL_LEN_MAX / VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK)
 #define RT_TAS_NUMBER_OF_ENTRIES_PER_ROW VTSS_QOS_TAS_GCL_LEN_MAX
-#define RT_TAS_NUMBER_OF_ROWS                                                  \
-    (VTSS_TAS_NUMBER_OF_ENTRIES / VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW)
+#define RT_TAS_NUMBER_OF_ROWS            (VTSS_TAS_NUMBER_OF_ENTRIES / VTSS_TAS_NUMBER_OF_ENTRIES_PER_ROW)
 
 // FA/LA runtimes macros
 #define VTSS_PORT_IS_2G5(port) fla_port_is_2G5(vtss_state, port)
@@ -215,13 +211,13 @@
 #define VTSS_TO_DEV5G(port)  vtss_to_dev5g(vtss_state, port)
 #define VTSS_TO_DEV10G(port) vtss_to_dev10g(vtss_state, port)
 #define VTSS_TO_DEV25G(port) vtss_to_dev25g(vtss_state, port)
-#define VTSS_TO_HIGH_DEV(port)                                                 \
-    VTSS_PORT_IS_5G(port)    ? VTSS_TO_DEV5G(port)                             \
-    : VTSS_PORT_IS_10G(port) ? VTSS_TO_DEV10G(port)                            \
+#define VTSS_TO_HIGH_DEV(port)                                                                     \
+    VTSS_PORT_IS_5G(port)    ? VTSS_TO_DEV5G(port)                                                 \
+    : VTSS_PORT_IS_10G(port) ? VTSS_TO_DEV10G(port)                                                \
                              : VTSS_TO_DEV25G(port)
-#define VTSS_TO_PCS_TGT(port)                                                  \
-    VTSS_PORT_IS_5G(port)    ? vtss_to_pcs5g(vtss_state, port)                 \
-    : VTSS_PORT_IS_10G(port) ? vtss_to_pcs10g(vtss_state, port)                \
+#define VTSS_TO_PCS_TGT(port)                                                                      \
+    VTSS_PORT_IS_5G(port)    ? vtss_to_pcs5g(vtss_state, port)                                     \
+    : VTSS_PORT_IS_10G(port) ? vtss_to_pcs10g(vtss_state, port)                                    \
                              : vtss_to_pcs25g(vtss_state, port)
 #define VTSS_TO_SD_CMU(indx)     vtss_to_sd_cmu(vtss_state, indx)
 #define VTSS_TO_SD_CMU_CFG(indx) vtss_to_sd_cmu_cfg(vtss_state, indx)
@@ -248,14 +244,7 @@ void    vtss_fa_reg_error(const char *file, int line, char *txt);
 // @param gc  - group repl count
 // @param rc  - register repl count
 
-static inline u32 __ioreg(int t,
-                          int o,
-                          int gi,
-                          int gw,
-                          int ri,
-                          int rw,
-                          int gc,
-                          int rc)
+static inline u32 __ioreg(int t, int o, int gi, int gw, int ri, int rw, int gc, int rc)
 {
 #if VTSS_OPT_TRACE
     if ((gi >= gc) || (ri >= rc)) {
@@ -266,59 +255,58 @@ static inline u32 __ioreg(int t,
     return (t + (o) + ((gi) * (gw)) + (ri) + (rw));
 }
 
-#define IOREG(t, o, gi, gw, ri, rw, gc, rc)                                    \
-    __ioreg(t, o, gi, gw, ri, rw, gc, rc)
+#define IOREG(t, o, gi, gw, ri, rw, gc, rc) __ioreg(t, o, gi, gw, ri, rw, gc, rc)
 
 #define REG_ADDR(p) IOREG(p)
 
 #define REG_RD(...) REG_RD_(__VA_ARGS__)
 #if VTSS_OPT_TRACE
-#define REG_RD_(tgt, off, gr, gw, r, ro, gc, rc, value)                        \
-    do {                                                                       \
-        u32     o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                  \
-        vtss_rc __rc = vtss_fa_rd(vtss_state, o, value);                       \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define REG_RD_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
+    do {                                                                                           \
+        u32     o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                      \
+        vtss_rc __rc = vtss_fa_rd(vtss_state, o, value);                                           \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     } while (0)
 #else
-#define REG_RD_(tgt, off, gr, gw, r, ro, gc, rc, value)                        \
-    do {                                                                       \
-        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                      \
-        (void)vtss_fa_rd(vtss_state, o, value);                                \
+#define REG_RD_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
+    do {                                                                                           \
+        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                          \
+        (void)vtss_fa_rd(vtss_state, o, value);                                                    \
     } while (0)
 #endif
 
 #define REG_WR(...) REG_WR_(__VA_ARGS__)
 #if VTSS_OPT_TRACE
-#define REG_WR_(tgt, off, gr, gw, r, ro, gc, rc, value)                        \
-    do {                                                                       \
-        u32     o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                  \
-        vtss_rc __rc = vtss_fa_wr(vtss_state, o, value);                       \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define REG_WR_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
+    do {                                                                                           \
+        u32     o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                      \
+        vtss_rc __rc = vtss_fa_wr(vtss_state, o, value);                                           \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     } while (0)
 #else
-#define REG_WR_(tgt, off, gr, gw, r, ro, gc, rc, value)                        \
-    do {                                                                       \
-        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                      \
-        (void)vtss_fa_wr(vtss_state, o, value);                                \
+#define REG_WR_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
+    do {                                                                                           \
+        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                          \
+        (void)vtss_fa_wr(vtss_state, o, value);                                                    \
     } while (0)
 #endif
 
 #define REG_WRM(...) REG_WRM_(__VA_ARGS__)
 #if VTSS_OPT_TRACE
-#define REG_WRM_(tgt, off, gr, gw, r, ro, gc, rc, value, mask)                 \
-    do {                                                                       \
-        u32     o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                  \
-        vtss_rc __rc = vtss_fa_wrm(vtss_state, o, value, mask);                \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define REG_WRM_(tgt, off, gr, gw, r, ro, gc, rc, value, mask)                                     \
+    do {                                                                                           \
+        u32     o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                      \
+        vtss_rc __rc = vtss_fa_wrm(vtss_state, o, value, mask);                                    \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     } while (0)
 #else
-#define REG_WRM_(tgt, off, gr, gw, r, ro, gc, rc, value, mask)                 \
-    do {                                                                       \
-        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                      \
-        (void)vtss_fa_wrm(vtss_state, o, value, mask);                         \
+#define REG_WRM_(tgt, off, gr, gw, r, ro, gc, rc, value, mask)                                     \
+    do {                                                                                           \
+        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                          \
+        (void)vtss_fa_wrm(vtss_state, o, value, mask);                                             \
     } while (0)
 #endif
 
@@ -326,65 +314,63 @@ static inline u32 __ioreg(int t,
 #define REG_WRM_CLR(p, mask)         REG_WRM(p, 0, mask)
 #define REG_WRM_CTL(p, _cond_, mask) REG_WRM(p, (_cond_) ? mask : 0, mask)
 
-#define DEV_RD(name, port, value)                                              \
-    {                                                                          \
-        if (vtss_fa_port_is_high_speed(vtss_state, port)) {                    \
-            REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value);         \
-        } else {                                                               \
-            REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);            \
-        }                                                                      \
+#define DEV_RD(name, port, value)                                                                  \
+    {                                                                                              \
+        if (vtss_fa_port_is_high_speed(vtss_state, port)) {                                        \
+            REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value);                             \
+        } else {                                                                                   \
+            REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);                                \
+        }                                                                                          \
     }
 
-#define DEV_WR(name, port, value)                                              \
-    {                                                                          \
-        REG_WR(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);                \
-        if (!VTSS_PORT_IS_2G5(port)) {                                         \
-            REG_WR(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value);         \
-        }                                                                      \
+#define DEV_WR(name, port, value)                                                                  \
+    {                                                                                              \
+        REG_WR(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);                                    \
+        if (!VTSS_PORT_IS_2G5(port)) {                                                             \
+            REG_WR(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value);                             \
+        }                                                                                          \
     }
 
-#define DEV_WRM(name, port, value, mask)                                       \
-    {                                                                          \
-        REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask);         \
-        if (!VTSS_PORT_IS_2G5(port)) {                                         \
-            REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value, mask);  \
-        }                                                                      \
+#define DEV_WRM(name, port, value, mask)                                                           \
+    {                                                                                              \
+        REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask);                             \
+        if (!VTSS_PORT_IS_2G5(port)) {                                                             \
+            REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value, mask);                      \
+        }                                                                                          \
     }
 
-#define DEV_RD_IDX(name, index, port, value)                                   \
-    {                                                                          \
-        if (vtss_fa_port_is_high_speed(vtss_state, port)) {                    \
-            REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value);  \
-        } else {                                                               \
-            REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value);     \
-        }                                                                      \
+#define DEV_RD_IDX(name, index, port, value)                                                       \
+    {                                                                                              \
+        if (vtss_fa_port_is_high_speed(vtss_state, port)) {                                        \
+            REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value);                      \
+        } else {                                                                                   \
+            REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value);                         \
+        }                                                                                          \
     }
 
-#define DEV_WRM_IDX(name, index, port, value, mask)                            \
-    {                                                                          \
-        REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value, mask);  \
-        if (!VTSS_PORT_IS_2G5(port)) {                                         \
-            REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value,  \
-                    mask);                                                     \
-        }                                                                      \
+#define DEV_WRM_IDX(name, index, port, value, mask)                                                \
+    {                                                                                              \
+        REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value, mask);                      \
+        if (!VTSS_PORT_IS_2G5(port)) {                                                             \
+            REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value, mask);               \
+        }                                                                                          \
     }
 
 /* Decode register bit field */
 #define REG_BF(name, value) ((VTSS_M_##name & value) ? 1 : 0)
 
 /* Poll bits in mask until all are zero */
-#define REG_POLL_MASK(_p_, _mask_)                                             \
-    {                                                                          \
-        u32 _x_, _cnt_ = 0;                                                    \
-        do {                                                                   \
-            REG_RD(_p_, &_x_);                                                 \
-            VTSS_MSLEEP(1);                                                    \
-            if (++_cnt_ == 100) {                                              \
-                VTSS_E("timeout, addr: %s, m: 0x%x, v: 0x%x", #_p_, (_mask_),  \
-                       _x_);                                                   \
-                return VTSS_RC_ERROR;                                          \
-            }                                                                  \
-        } while (_x_ & (_mask_));                                              \
+#define REG_POLL_MASK(_p_, _mask_)                                                                 \
+    {                                                                                              \
+        u32 _x_, _cnt_ = 0;                                                                        \
+        do {                                                                                       \
+            REG_RD(_p_, &_x_);                                                                     \
+            VTSS_MSLEEP(1);                                                                        \
+            if (++_cnt_ == 100) {                                                                  \
+                VTSS_E("timeout, addr: %s, m: 0x%x, v: 0x%x", #_p_, (_mask_), _x_);                \
+                return VTSS_RC_ERROR;                                                              \
+            }                                                                                      \
+        } while (_x_ & (_mask_));                                                                  \
     }
 
 // Determine instance count based on register field
@@ -397,66 +383,66 @@ static inline u32 __ioreg(int t,
  *  Port masks
  * ================================================================= */
 #if defined(VTSS_ARCH_SPARX5)
-#define REG_WR_PMASK(_t, _m)                                                   \
-    {                                                                          \
-        REG_WR(_t, (_m).m[0]);                                                 \
-        REG_WR(_t##1, (_m).m[1]);                                              \
-        REG_WR(_t##2, (_m).m[2]);                                              \
+#define REG_WR_PMASK(_t, _m)                                                                       \
+    {                                                                                              \
+        REG_WR(_t, (_m).m[0]);                                                                     \
+        REG_WR(_t##1, (_m).m[1]);                                                                  \
+        REG_WR(_t##2, (_m).m[2]);                                                                  \
     }
-#define REG_WRX_PMASK(_t, x, _m)                                               \
-    {                                                                          \
-        REG_WR(_t(x), (_m).m[0]);                                              \
-        REG_WR(_t##1(x), (_m).m[1]);                                           \
-        REG_WR(_t##2(x), (_m).m[2]);                                           \
+#define REG_WRX_PMASK(_t, x, _m)                                                                   \
+    {                                                                                              \
+        REG_WR(_t(x), (_m).m[0]);                                                                  \
+        REG_WR(_t##1(x), (_m).m[1]);                                                               \
+        REG_WR(_t##2(x), (_m).m[2]);                                                               \
     }
-#define REG_WRM_PMASK(_t, _v, _m)                                              \
-    {                                                                          \
-        REG_WRM(_t, (_v).m[0], (_m).m[0]);                                     \
-        REG_WRM(_t##1, (_v).m[1], (_m).m[1]);                                  \
-        REG_WRM(_t##2, (_v).m[2], (_m).m[2]);                                  \
+#define REG_WRM_PMASK(_t, _v, _m)                                                                  \
+    {                                                                                              \
+        REG_WRM(_t, (_v).m[0], (_m).m[0]);                                                         \
+        REG_WRM(_t##1, (_v).m[1], (_m).m[1]);                                                      \
+        REG_WRM(_t##2, (_v).m[2], (_m).m[2]);                                                      \
     }
-#define REG_RD_PMASK(_t, _m)                                                   \
-    {                                                                          \
-        REG_RD(_t, &(_m)->m[0]);                                               \
-        REG_RD(_t##1, &(_m)->m[1]);                                            \
-        REG_RD(_t##2, &(_m)->m[2]);                                            \
+#define REG_RD_PMASK(_t, _m)                                                                       \
+    {                                                                                              \
+        REG_RD(_t, &(_m)->m[0]);                                                                   \
+        REG_RD(_t##1, &(_m)->m[1]);                                                                \
+        REG_RD(_t##2, &(_m)->m[2]);                                                                \
     }
-#define REG_RDX_PMASK(_t, x, _m)                                               \
-    {                                                                          \
-        REG_RD(_t(x), &(_m)->m[0]);                                            \
-        REG_RD(_t##1(x), &(_m)->m[1]);                                         \
-        REG_RD(_t##2(x), &(_m)->m[2]);                                         \
+#define REG_RDX_PMASK(_t, x, _m)                                                                   \
+    {                                                                                              \
+        REG_RD(_t(x), &(_m)->m[0]);                                                                \
+        REG_RD(_t##1(x), &(_m)->m[1]);                                                             \
+        REG_RD(_t##2(x), &(_m)->m[2]);                                                             \
     }
-#define REG_WRXM_PMASK(_t, x, _v, _m)                                          \
-    {                                                                          \
-        REG_WRM(_t(x), (_v).m[0], (_m).m[0]);                                  \
-        REG_WRM(_t##1(x), (_v).m[1], (_m).m[1]);                               \
-        REG_WRM(_t##2(x), (_v).m[2], (_m).m[2]);                               \
+#define REG_WRXM_PMASK(_t, x, _v, _m)                                                              \
+    {                                                                                              \
+        REG_WRM(_t(x), (_v).m[0], (_m).m[0]);                                                      \
+        REG_WRM(_t##1(x), (_v).m[1], (_m).m[1]);                                                   \
+        REG_WRM(_t##2(x), (_v).m[2], (_m).m[2]);                                                   \
     }
 #else
-#define REG_WR_PMASK(_t, _m)                                                   \
-    {                                                                          \
-        REG_WR(_t, (_m).m[0]);                                                 \
+#define REG_WR_PMASK(_t, _m)                                                                       \
+    {                                                                                              \
+        REG_WR(_t, (_m).m[0]);                                                                     \
     }
-#define REG_WRX_PMASK(_t, x, _m)                                               \
-    {                                                                          \
-        REG_WR(_t(x), (_m).m[0]);                                              \
+#define REG_WRX_PMASK(_t, x, _m)                                                                   \
+    {                                                                                              \
+        REG_WR(_t(x), (_m).m[0]);                                                                  \
     }
-#define REG_WRM_PMASK(_t, _v, _m)                                              \
-    {                                                                          \
-        REG_WRM(_t, (_v).m[0], (_m).m[0]);                                     \
+#define REG_WRM_PMASK(_t, _v, _m)                                                                  \
+    {                                                                                              \
+        REG_WRM(_t, (_v).m[0], (_m).m[0]);                                                         \
     }
-#define REG_RD_PMASK(_t, _m)                                                   \
-    {                                                                          \
-        REG_RD(_t, &(_m)->m[0]);                                               \
+#define REG_RD_PMASK(_t, _m)                                                                       \
+    {                                                                                              \
+        REG_RD(_t, &(_m)->m[0]);                                                                   \
     }
-#define REG_RDX_PMASK(_t, x, _m)                                               \
-    {                                                                          \
-        REG_RD(_t(x), &(_m)->m[0]);                                            \
+#define REG_RDX_PMASK(_t, x, _m)                                                                   \
+    {                                                                                              \
+        REG_RD(_t(x), &(_m)->m[0]);                                                                \
     }
-#define REG_WRXM_PMASK(_t, x, _v, _m)                                          \
-    {                                                                          \
-        REG_WRM(_t(x), (_v).m[0], (_m).m[0]);                                  \
+#define REG_WRXM_PMASK(_t, x, _v, _m)                                                              \
+    {                                                                                              \
+        REG_WRM(_t(x), (_v).m[0], (_m).m[0]);                                                      \
     }
 #endif
 
@@ -466,39 +452,28 @@ static inline u32 fla_get_const(vtss_state_t *vtss_state, u32 constant)
 }
 
 #if VTSS_OPT_DEBUG_PRINT
-void vtss_fa_debug_print_port_header(vtss_state_t *vtss_state,
-                                     lmu_ss_t     *ss,
-                                     const char   *txt);
-void vtss_fa_debug_print_pmask(vtss_state_t     *vtss_state,
-                               lmu_ss_t         *ss,
-                               vtss_port_mask_t *pmask);
+void vtss_fa_debug_print_port_header(vtss_state_t *vtss_state, lmu_ss_t *ss, const char *txt);
+void vtss_fa_debug_print_pmask(vtss_state_t *vtss_state, lmu_ss_t *ss, vtss_port_mask_t *pmask);
 void vtss_fa_debug_reg_header(lmu_ss_t *ss, const char *name);
-void vtss_fa_debug_reg(vtss_state_t *vtss_state,
-                       lmu_ss_t     *ss,
-                       u32           addr,
-                       const char   *name);
+void vtss_fa_debug_reg(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 addr, const char *name);
 void vtss_fa_debug_reg_inst(vtss_state_t *vtss_state,
                             lmu_ss_t     *ss,
                             u32           addr,
                             u32           i,
                             const char   *name);
-void vtss_fa_debug_sticky(vtss_state_t *vtss_state,
-                          lmu_ss_t     *ss,
-                          u32           addr,
-                          const char   *name);
+void vtss_fa_debug_sticky(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 addr, const char *name);
 void vtss_fa_debug_cnt(lmu_ss_t            *ss,
                        const char          *col1,
                        const char          *col2,
                        vtss_chip_counter_t *c1,
                        vtss_chip_counter_t *c2);
 #endif
-#define FA_DEBUG_REG(pr, tgt, addr)                                            \
+#define FA_DEBUG_REG(pr, tgt, addr)                                                                \
     vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr), #addr)
-#define FA_DEBUG_REG_NAME(pr, tgt, addr, name)                                 \
+#define FA_DEBUG_REG_NAME(pr, tgt, addr, name)                                                     \
     vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr), name)
-#define FA_DEBUG_REGX_NAME(pr, tgt, addr, x, name)                             \
-    vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr(x)),   \
-                           x, name)
+#define FA_DEBUG_REGX_NAME(pr, tgt, addr, x, name)                                                 \
+    vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr(x)), x, name)
 
 /* MC PGIDs */
 #define PGID_BASE         RT_CHIP_PORTS
@@ -521,10 +496,8 @@ void vtss_fa_debug_cnt(lmu_ss_t            *ss,
 #define QFWD_FRAME_COPY_CFG_MIRROR_PROBE(probe_idx) (probe_idx + 9)
 
 /* sFlow H/W-related min/max */
-#define FA_SFLOW_MIN_SAMPLE_RATE                                               \
-    1 /**< Minimum allowable sampling rate for sFlow */
-#define FA_SFLOW_MAX_SAMPLE_RATE                                               \
-    32767 /**< Maximum allowable sampling rate for sFlow */
+#define FA_SFLOW_MIN_SAMPLE_RATE 1     /**< Minimum allowable sampling rate for sFlow */
+#define FA_SFLOW_MAX_SAMPLE_RATE 32767 /**< Maximum allowable sampling rate for sFlow */
 
 /* Bits used to control IFH.CL_RSLT from CLM/IS2 */
 #define FA_IFH_CL_RSLT_ACL_HIT  0x0001 /* ACL hit flag */
@@ -548,9 +521,7 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_port_debug_print(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
-vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state,
-                                lmu_ss_t     *ss,
-                                BOOL          res_stat_cur);
+vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss, BOOL res_stat_cur);
 #endif
 
 /* Port functions for index to address target */
@@ -586,16 +557,9 @@ vtss_rc vtss_fa_port2sd(vtss_state_t  *vtss_state,
                         u32           *sd_indx,
                         u32           *sd_type);
 u32     vtss_fa_sd_lane_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
-vtss_rc vtss_fa_sd_cfg(vtss_state_t      *vtss_state,
-                       vtss_port_no_t     port_no,
-                       vtss_serdes_mode_t mode);
-vtss_rc vtss_fa_cmu_cfg_wrm(vtss_state_t *vtss_state,
-                            u32           cmu,
-                            u32           value,
-                            u32           mask);
-u32     vtss_fa_sd10g28_get_cmu(vtss_state_t  *vtss_state,
-                                u8             cmu_type,
-                                vtss_port_no_t port_no);
+vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_serdes_mode_t mode);
+vtss_rc vtss_fa_cmu_cfg_wrm(vtss_state_t *vtss_state, u32 cmu, u32 value, u32 mask);
+u32     vtss_fa_sd10g28_get_cmu(vtss_state_t *vtss_state, u8 cmu_type, vtss_port_no_t port_no);
 u32     vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state);
 vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state);
@@ -611,13 +575,8 @@ vtss_rc fa_debug_serdes_set(vtss_state_t                         *vtss_state,
                             const vtss_port_no_t                  port_no,
                             const vtss_port_serdes_debug_t *const conf);
 BOOL    fa_is_target(vtss_state_t *vtss_state);
-vtss_rc fa_kr_eye_height(vtss_state_t  *vtss_state,
-                         vtss_port_no_t port_no,
-                         u32            action,
-                         u32           *ret_val);
-u32     fa_eye_height_num(vtss_state_t  *vtss_state,
-                          vtss_port_no_t port_no,
-                          u32            num);
+vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 action, u32 *ret_val);
+u32     fa_eye_height_num(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 num);
 vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
 #if VTSS_OPT_DEBUG_PRINT
                               lmu_ss_t *ss,
@@ -659,8 +618,7 @@ vtss_rc vtss_fa_misc_debug_print(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 #endif
-vtss_rc vtss_fa_chip_id_get(vtss_state_t         *vtss_state,
-                            vtss_chip_id_t *const chip_id);
+vtss_rc vtss_fa_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id);
 vtss_rc vtss_fa_gpio_mode(vtss_state_t          *vtss_state,
                           const vtss_chip_no_t   chip_no,
                           const vtss_gpio_no_t   gpio_no,
@@ -689,8 +647,7 @@ BOOL fa_is_high_speed_device(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent);
 #if defined(VTSS_FEATURE_QOS)
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
-vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t        *vtss_state,
-                                    const vtss_port_no_t port_no);
+vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
 vtss_rc vtss_fa_policer_conf_set(vtss_state_t            *vtss_state,
                                  u32                      lb_set_idx,
@@ -702,9 +659,7 @@ vtss_rc vtss_fa_qos_debug_print(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 #endif
-vtss_rc vtss_fa_qos_port_change(vtss_state_t  *vtss_state,
-                                vtss_port_no_t port_no,
-                                BOOL           is_reset);
+vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no, BOOL is_reset);
 vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s *vtss_state,
                                          const vtss_port_no_t port_no);
 #endif /* VTSS_FEATURE_QOS */
@@ -713,8 +668,7 @@ vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s *vtss_state,
 vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 u32     vtss_fa_vtss_pgid(const vtss_state_t *const vtss_state, u32 pgid);
 vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid);
-vtss_rc vtss_fa_rb_port_update(vtss_state_t  *vtss_state,
-                               vtss_port_no_t port_no);
+vtss_rc vtss_fa_rb_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_l2_debug_print(vtss_state_t                  *vtss_state,
                                lmu_ss_t                      *ss,
@@ -752,15 +706,13 @@ vtss_rc vtss_fa_afi_debug_print(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
 #if defined(VTSS_AFI_V2)
-vtss_rc vtss_fa_afi_init(vtss_state_t *const   vtss_state,
-                         const vtss_init_cmd_t cmd);
+vtss_rc vtss_fa_afi_init(vtss_state_t *const vtss_state, const vtss_init_cmd_t cmd);
 #endif /* VTSS_AFI_V2 */
 #endif /* VTSS_FEATURE_AFI_SWC */
 
 #if defined(VTSS_FEATURE_VOP)
 /* OAM functions */
-u32     vtss_fa_voi_idx_to_mip_idx(vtss_state_t  *vtss_state,
-                                   vtss_voi_idx_t voi_idx);
+u32     vtss_fa_voi_idx_to_mip_idx(vtss_state_t *vtss_state, vtss_voi_idx_t voi_idx);
 vtss_rc vtss_fa_vop_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_vop_debug_print(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
@@ -783,8 +735,7 @@ vtss_rc vtss_fa_vcap_port_key_set(vtss_state_t        *vtss_state,
                                   u32                  lookup,
                                   vtss_vcap_key_type_t key_type,
                                   BOOL                 dmac_dip);
-vtss_rc vtss_fa_vcap_port_update(vtss_state_t  *vtss_state,
-                                 vtss_port_no_t port_no);
+vtss_rc vtss_fa_vcap_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 #if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_vcap_debug_print(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
@@ -821,15 +772,13 @@ vtss_rc vtss_fa_ts_debug_print(vtss_state_t                  *vtss_state,
 vtss_rc vtss_timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub);
 vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano);
 vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano);
-BOOL    vtss_timestampLarger(const vtss_timestamp_t *ts1,
-                             const vtss_timestamp_t *ts2);
+BOOL    vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2);
 
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
 #if defined(VTSS_FEATURE_VOP)
 vtss_rc        vtss_fa_oam_vop_int_update(vtss_state_t *vtss_state);
-vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t       *vtss_state,
-                                         vtss_voe_function_t function);
+vtss_voe_idx_t vtss_fa_service_voe_alloc(vtss_state_t *vtss_state, vtss_voe_function_t function);
 vtss_rc        vtss_fa_voe_free(vtss_state_t       *vtss_state,
                                 vtss_voe_function_t function,
                                 vtss_voe_idx_t      voe_idx);

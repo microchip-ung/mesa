@@ -37,8 +37,7 @@ mesa_rc mesa_npi_conf_get(const mesa_inst_t inst, mesa_npi_conf_t *const conf);
 
 // Set NPI configuration.
 // conf [IN]  NPI port configuration.
-mesa_rc mesa_npi_conf_set(const mesa_inst_t            inst,
-                          const mesa_npi_conf_t *const conf);
+mesa_rc mesa_npi_conf_set(const mesa_inst_t inst, const mesa_npi_conf_t *const conf);
 
 // CPU Rx queue NPI configuration
 typedef struct {
@@ -52,10 +51,10 @@ typedef uint32_t mesa_packet_rx_queue_size_t;
 
 // CPU Rx queue configuration
 typedef struct {
-    mesa_packet_rx_queue_size_t     size;    // Queue size
-    mesa_packet_rx_queue_npi_conf_t npi;     // NPI configuration
-    mesa_packet_rx_grp_t            grp_map; // Queue to extraction group map
-    mesa_packet_rate_t rate CAP(QOS_CPU_QUEUE_SHAPER); // CPU queue packet rate
+    mesa_packet_rx_queue_size_t     size;                      // Queue size
+    mesa_packet_rx_queue_npi_conf_t npi;                       // NPI configuration
+    mesa_packet_rx_grp_t            grp_map;                   // Queue to extraction group map
+    mesa_packet_rate_t rate         CAP(QOS_CPU_QUEUE_SHAPER); // CPU queue packet rate
 } mesa_packet_rx_queue_conf_t;
 
 // CPU Rx packet registration
@@ -69,39 +68,34 @@ typedef struct {
 
 // CPU Rx queue map
 typedef struct {
-    mesa_packet_rx_queue_t bpdu_queue;          // BPDUs
-    mesa_packet_rx_queue_t garp_queue;          // GARP frames
-    mesa_packet_rx_queue_t learn_queue;         // Learn frames
-    mesa_packet_rx_queue_t igmp_queue;          // IGMP/MLD frames
-    mesa_packet_rx_queue_t ipmc_ctrl_queue;     // IP multicast control frames
-    mesa_packet_rx_queue_t mac_vid_queue;       // MAC address table
-    mesa_packet_rx_queue_t sflow_queue;         // SFlow-marked frames
-    mesa_packet_rx_queue_t lrn_all_queue;       // Learn-all queue
-    mesa_packet_rx_queue_t l3_uc_queue CAP(L3); // L3 routing unicast queue
-    mesa_packet_rx_queue_t l3_other_queue
-                                    CAP(L3); // L3 routing other frames queue
-    mesa_packet_rx_queue_t sv_queue CAP(L2_REDBOX_CNT); // Supervision frames
+    mesa_packet_rx_queue_t                bpdu_queue;         // BPDUs
+    mesa_packet_rx_queue_t                garp_queue;         // GARP frames
+    mesa_packet_rx_queue_t                learn_queue;        // Learn frames
+    mesa_packet_rx_queue_t                igmp_queue;         // IGMP/MLD frames
+    mesa_packet_rx_queue_t                ipmc_ctrl_queue;    // IP multicast control frames
+    mesa_packet_rx_queue_t                mac_vid_queue;      // MAC address table
+    mesa_packet_rx_queue_t                sflow_queue;        // SFlow-marked frames
+    mesa_packet_rx_queue_t                lrn_all_queue;      // Learn-all queue
+    mesa_packet_rx_queue_t l3_uc_queue    CAP(L3);            // L3 routing unicast queue
+    mesa_packet_rx_queue_t l3_other_queue CAP(L3);            // L3 routing other frames queue
+    mesa_packet_rx_queue_t sv_queue       CAP(L2_REDBOX_CNT); // Supervision frames
 } mesa_packet_rx_queue_map_t;
 
 // CPU Rx configuration
 typedef struct {
-    mesa_packet_rx_queue_conf_t
-                         queue[MESA_PACKET_RX_QUEUE_CNT]; // Queue configuration
-    mesa_packet_rx_reg_t reg;                             // Packet registration
-    mesa_packet_rx_queue_map_t map;                       // Queue mapping
-    mesa_bitrate_t shaper_rate
-        CAP(QOS_CPU_PORT_SHAPER); // CPU port shaper bitrate in kbps
+    mesa_packet_rx_queue_conf_t queue[MESA_PACKET_RX_QUEUE_CNT]; // Queue configuration
+    mesa_packet_rx_reg_t        reg;                             // Packet registration
+    mesa_packet_rx_queue_map_t  map;                             // Queue mapping
+    mesa_bitrate_t shaper_rate  CAP(QOS_CPU_PORT_SHAPER);        // CPU port shaper bitrate in kbps
 } mesa_packet_rx_conf_t;
 
 // Get Packet Rx configuration.
 // conf [IN]  Packet Rx configuration.
-mesa_rc mesa_packet_rx_conf_get(const mesa_inst_t            inst,
-                                mesa_packet_rx_conf_t *const conf);
+mesa_rc mesa_packet_rx_conf_get(const mesa_inst_t inst, mesa_packet_rx_conf_t *const conf);
 
 // Set CPU Rx queue configuration.
 // conf [IN]  CPU Rx queue configuration.
-mesa_rc mesa_packet_rx_conf_set(const mesa_inst_t                  inst,
-                                const mesa_packet_rx_conf_t *const conf);
+mesa_rc mesa_packet_rx_conf_set(const mesa_inst_t inst, const mesa_packet_rx_conf_t *const conf);
 
 // Get packet configuration for port.
 // port_no [IN]  Port number.
@@ -113,10 +107,9 @@ mesa_rc mesa_packet_rx_port_conf_get(const mesa_inst_t                 inst,
 // Set packet configuration for port.
 // port_no [IN]  Port number.
 // conf [IN]     Packet port configuration structure.
-mesa_rc mesa_packet_rx_port_conf_set(const mesa_inst_t    inst,
-                                     const mesa_port_no_t port_no,
-                                     const mesa_packet_rx_port_conf_t
-                                         *const conf);
+mesa_rc mesa_packet_rx_port_conf_set(const mesa_inst_t                       inst,
+                                     const mesa_port_no_t                    port_no,
+                                     const mesa_packet_rx_port_conf_t *const conf);
 
 /* - Tx frames ----------------------------------------------------- */
 
@@ -174,14 +167,13 @@ typedef struct {
 mesa_rc mesa_packet_port_filter_get(const mesa_inst_t                    inst,
                                     const mesa_packet_port_info_t *const info,
                                     const uint32_t                       cnt,
-                                    mesa_packet_port_filter_t *const filter);
+                                    mesa_packet_port_filter_t *const     filter);
 
 // VLAN filter information
 typedef struct {
-    mesa_bool_t rx_forward; // Ingress forwarding enabled
-    mesa_bool_t tx_forward; // Egress forwarding enabled
-    uint8_t     vlan_discard[MESA_VIDS /
-                         8]; // One bit per VLAN ID indicates whether to discard
+    mesa_bool_t rx_forward;                  // Ingress forwarding enabled
+    mesa_bool_t tx_forward;                  // Egress forwarding enabled
+    uint8_t     vlan_discard[MESA_VIDS / 8]; // One bit per VLAN ID indicates whether to discard
 } mesa_packet_vlan_filter_t;
 
 // Get VLAN ingress filter per port.
@@ -231,17 +223,17 @@ typedef enum {
 
 // PTP actions used when encoding an injection header.
 typedef enum {
-    MESA_PACKET_PTP_ACTION_NONE = 0,         // No-op
-    MESA_PACKET_PTP_ACTION_ONE_STEP,         // One-step PTP
-    MESA_PACKET_PTP_ACTION_TWO_STEP,         // Two-step PTP
-    MESA_PACKET_PTP_ACTION_ONE_AND_TWO_STEP, // Both one- and two-step PTP
-    MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP, // Update time-of-day in PTP
-                                             // frame's originTimestamp field
+    MESA_PACKET_PTP_ACTION_NONE = 0,             // No-op
+    MESA_PACKET_PTP_ACTION_ONE_STEP,             // One-step PTP
+    MESA_PACKET_PTP_ACTION_TWO_STEP,             // Two-step PTP
+    MESA_PACKET_PTP_ACTION_ONE_AND_TWO_STEP,     // Both one- and two-step PTP
+    MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP,     // Update time-of-day in PTP
+                                                 // frame's originTimestamp field
     MESA_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ, // Update time-of-day in PTP
                                                  // frame's originTimestamp
                                                  // field and sequence number
-    MESA_PACKET_PTP_ACTION_AFI_NONE, // Update sequence number in AFI but no PTP
-                                     // updates
+    MESA_PACKET_PTP_ACTION_AFI_NONE,             // Update sequence number in AFI but no PTP
+                                                 // updates
 } mesa_packet_ptp_action_t;
 
 // PDU encapsulation type
@@ -262,11 +254,10 @@ typedef struct {
 
 // Tag type the frame was received with.
 typedef enum {
-    MESA_TAG_TYPE_UNTAGGED =
-        0, // Frame was received untagged or on an unaware port or with a tag
-           // that didn't match the port type.
-    MESA_TAG_TYPE_C_TAGGED,        // Frame was received with a C-tag
-    MESA_TAG_TYPE_S_TAGGED,        // Frame was received with an S-tag
+    MESA_TAG_TYPE_UNTAGGED = 0, // Frame was received untagged or on an unaware port or with a tag
+                                // that didn't match the port type.
+    MESA_TAG_TYPE_C_TAGGED,     // Frame was received with a C-tag
+    MESA_TAG_TYPE_S_TAGGED,     // Frame was received with an S-tag
     MESA_TAG_TYPE_S_CUSTOM_TAGGED, // Frame was received with a custom S-tag
 } mesa_tag_type_t;
 
@@ -590,7 +581,7 @@ typedef struct {
 // info [OUT] Decoded extraction header.
 mesa_rc mesa_packet_rx_hdr_decode(const mesa_inst_t                  inst,
                                   const mesa_packet_rx_meta_t *const meta,
-                                  const uint8_t hdr[MESA_PACKET_HDR_SIZE_BYTES],
+                                  const uint8_t                hdr[MESA_PACKET_HDR_SIZE_BYTES],
                                   mesa_packet_rx_info_t *const info);
 
 // Compose binary injection/Tx header.
@@ -634,9 +625,9 @@ mesa_rc mesa_packet_rx_hdr_decode(const mesa_inst_t                  inst,
 //                        If bin_hdr is non-NULL, the actual number of bytes.
 mesa_rc mesa_packet_tx_hdr_encode(const mesa_inst_t                  inst,
                                   const mesa_packet_tx_info_t *const info,
-                                  const uint32_t  bin_hdr_max_len,
-                                  uint8_t *const  bin_hdr,
-                                  uint32_t *const bin_hdr_len);
+                                  const uint32_t                     bin_hdr_max_len,
+                                  uint8_t *const                     bin_hdr,
+                                  uint32_t *const                    bin_hdr_len);
 
 // Send frame using Tx information
 //
@@ -654,8 +645,7 @@ mesa_rc mesa_packet_tx_frame(const mesa_inst_t                  inst,
 // structure.
 //
 // info [OUT] Pointer to structure that gets initialized to defaults.
-mesa_rc mesa_packet_tx_info_init(const mesa_inst_t            inst,
-                                 mesa_packet_tx_info_t *const info);
+mesa_rc mesa_packet_tx_info_init(const mesa_inst_t inst, mesa_packet_tx_info_t *const info);
 
 /* - Rx frames ----------------------------------------------------- */
 
@@ -681,9 +671,7 @@ mesa_rc mesa_packet_phy_cnt_to_ts_cnt(const mesa_inst_t inst,
 //
 // ns            [IN]  Nanoseconds value
 // ts_cnt        [OUT] TS count. This is in 16 bit fraction of nano seconds.
-mesa_rc mesa_packet_ns_to_ts_cnt(const mesa_inst_t inst,
-                                 const uint32_t    ns,
-                                 uint64_t         *ts_cnt);
+mesa_rc mesa_packet_ns_to_ts_cnt(const mesa_inst_t inst, const uint32_t ns, uint64_t *ts_cnt);
 
 // Enumeration type representing the various types of PTP messages
 typedef enum {
@@ -704,26 +692,21 @@ typedef enum {
 // Struct holding values used for delay compensation
 // This is in 16 bit fraction of nano seconds.
 typedef struct {
-    uint64_t
-        delay_cnt; // Delay compensation (forward) used in case of Sync packets
+    uint64_t delay_cnt;     // Delay compensation (forward) used in case of Sync packets
     uint64_t asymmetry_cnt; // Delay asymmetry compensation used in case of Peer
                             // Delay Response packets
 } mesa_packet_ptp_delay_comp_t;
 
 // Struct holding time stamping related parameters
 typedef struct {
-    mesa_bool_t
-        ts_feature_is_PTS; // Configured timestamp feature is PHY timestamping
+    mesa_bool_t ts_feature_is_PTS;              // Configured timestamp feature is PHY timestamping
     mesa_packet_internal_tc_mode_t phy_ts_mode; // The mode of PHY timestamping
-    mesa_bool_t
-        backplane_port; // Indicates if port is a backplane port. On some
-                        // platforms backplane ports default to PHY timestamping
-    mesa_packet_ptp_delay_comp_t
-        delay_comp; // Structure holding values used for delay compensation
+    mesa_bool_t                    backplane_port; // Indicates if port is a backplane port. On some
+                                // platforms backplane ports default to PHY timestamping
+    mesa_packet_ptp_delay_comp_t delay_comp; // Structure holding values used for delay compensation
 } mesa_packet_timestamp_props_t;
 
-#define MESA_PTP_FRAME_TS_LENGTH                                               \
-    4 // Length of the PHY inserted RX time in the frame
+#define MESA_PTP_FRAME_TS_LENGTH 4 // Length of the PHY inserted RX time in the frame
 
 // Get PTP timestamp from packet or from timestamp FIFO or from rx_info
 //
@@ -733,8 +716,8 @@ typedef struct {
 // related parameters rxTime                       [OUT] Time stamp in 16 bit
 // fraction of nano seconds. timestamp_ok                 [OUT] Indication that
 // time stamp was extracted OK.
-mesa_rc mesa_ptp_get_timestamp(const mesa_inst_t inst,
-                               const uint8_t     frm[MESA_PTP_FRAME_TS_LENGTH],
+mesa_rc mesa_ptp_get_timestamp(const mesa_inst_t                  inst,
+                               const uint8_t                      frm[MESA_PTP_FRAME_TS_LENGTH],
                                const mesa_packet_rx_info_t *const rx_info,
                                mesa_packet_ptp_message_type_t     message_type,
                                mesa_packet_timestamp_props_t      ts_props,

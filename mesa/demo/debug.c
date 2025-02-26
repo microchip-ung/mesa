@@ -77,10 +77,8 @@ static void cli_cmd_debug_phy(cli_req_t *req, mesa_bool_t write)
             reg = ((mreq->page << 5) | addr);
             if (write) {
                 /* Write */
-                meba_phy_clause22_write(meba_global_inst, iport, reg,
-                                        mreq->value);
-            } else if (meba_phy_clause22_read(meba_global_inst, iport, reg,
-                                              &value) == MESA_RC_OK) {
+                meba_phy_clause22_write(meba_global_inst, iport, reg, mreq->value);
+            } else if (meba_phy_clause22_read(meba_global_inst, iport, reg, &value) == MESA_RC_OK) {
                 /* Read success */
                 if (first) {
                     first = 0;
@@ -89,8 +87,7 @@ static void cli_cmd_debug_phy(cli_req_t *req, mesa_bool_t write)
 
                 cli_printf("%-6u0x%02x  ", port, addr);
                 for (i = 15; i >= 0; i--)
-                    cli_printf("%d%s", value & (1 << i) ? 1 : 0,
-                               (i % 4) || i == 0 ? "" : ".");
+                    cli_printf("%d%s", value & (1 << i) ? 1 : 0, (i % 4) || i == 0 ? "" : ".");
                 cli_printf("  0x%04x\n", value);
             }
         }
@@ -114,32 +111,23 @@ static void cli_cmd_deb_phy_clause45_rd_wr(cli_req_t *req, mesa_bool_t write)
         if (write) {
             value = (uint16_t)mreq->value;
             meba_phy_clause45_write(meba_global_inst, iport, reg, value);
-        } else if (meba_phy_clause45_read(meba_global_inst, iport, reg,
-                                          &value) == MESA_RC_OK) {
+        } else if (meba_phy_clause45_read(meba_global_inst, iport, reg, &value) == MESA_RC_OK) {
             if (first) {
                 first = 0;
-                cli_table_header(
-                    "Port  Page  Address  15******8*7*******0  Value");
+                cli_table_header("Port  Page  Address  15******8*7*******0  Value");
             }
             cli_printf("%-6u%-6u0x%04x   ", port, mreq->page, mreq->addr);
             for (i = 15; i >= 0; i--) {
-                cli_printf("%d%s", value & (1 << i) ? 1 : 0,
-                           (i % 4) || i == 0 ? "" : ".");
+                cli_printf("%d%s", value & (1 << i) ? 1 : 0, (i % 4) || i == 0 ? "" : ".");
             }
             cli_printf("  0x%04x\n", value);
         }
     }
 }
 
-static void cli_cmd_debug_phy_read(cli_req_t *req)
-{
-    cli_cmd_debug_phy(req, 0);
-}
+static void cli_cmd_debug_phy_read(cli_req_t *req) { cli_cmd_debug_phy(req, 0); }
 
-static void cli_cmd_debug_phy_write(cli_req_t *req)
-{
-    cli_cmd_debug_phy(req, 1);
-}
+static void cli_cmd_debug_phy_write(cli_req_t *req) { cli_cmd_debug_phy(req, 1); }
 
 static void cli_cmd_debug_phy_clause45_read(cli_req_t *req)
 {
@@ -206,8 +194,7 @@ static void cli_cmd_debug_api(cli_req_t *req)
 
     if (mreq->group == MESA_DEBUG_GROUP_COUNT) {
         cli_printf("Legal groups are:\n\n");
-        for (group = MESA_DEBUG_GROUP_ALL; group < MESA_DEBUG_GROUP_COUNT;
-             group++) {
+        for (group = MESA_DEBUG_GROUP_ALL; group < MESA_DEBUG_GROUP_COUNT; group++) {
             if (cli_api_group_table[group]) {
                 cli_printf("%s\n", cli_api_group_table[group]);
             } else {
@@ -222,8 +209,7 @@ static void cli_cmd_debug_api(cli_req_t *req)
         info.has_action = mreq->has_action;
         info.action = mreq->value;
         for (iport = 0; iport < mesa_port_cnt(NULL); iport++)
-            mesa_port_list_set(&info.port_list, iport,
-                               req->port_list[iport2uport(iport)]);
+            mesa_port_list_set(&info.port_list, iport, req->port_list[iport2uport(iport)]);
         mesa_debug_info_print(NULL, cli_printf, &info);
         meba_phy_debug_info_print(req->inst, cli_printf, &info);
     }
@@ -246,36 +232,26 @@ static void cli_cmd_debug_mmd(cli_req_t *req, mesa_bool_t write)
                 continue;
             if (write) {
                 /* Write */
-                mesa_port_mmd_write(NULL, iport, mmd, mreq->mmd_addr,
-                                    mreq->value);
-            } else if (mesa_port_mmd_read(NULL, iport, mmd, mreq->mmd_addr,
-                                          &value) == MESA_RC_OK) {
+                mesa_port_mmd_write(NULL, iport, mmd, mreq->mmd_addr, mreq->value);
+            } else if (mesa_port_mmd_read(NULL, iport, mmd, mreq->mmd_addr, &value) == MESA_RC_OK) {
                 /* Read success */
                 if (first) {
                     first = 0;
-                    cli_printf(
-                        "Port  MMD   Addr    15******8*7*******0  Value\n");
+                    cli_printf("Port  MMD   Addr    15******8*7*******0  Value\n");
                 }
 
                 cli_printf("%-6u0x%02x  0x%04x  ", port, mmd, mreq->mmd_addr);
                 for (i = 15; i >= 0; i--)
-                    cli_printf("%d%s", value & (1 << i) ? 1 : 0,
-                               (i % 4) || i == 0 ? "" : ".");
+                    cli_printf("%d%s", value & (1 << i) ? 1 : 0, (i % 4) || i == 0 ? "" : ".");
                 cli_printf("  0x%04x\n", value);
             }
         }
     }
 }
 
-static void cli_cmd_debug_mmd_read(cli_req_t *req)
-{
-    cli_cmd_debug_mmd(req, 0);
-}
+static void cli_cmd_debug_mmd_read(cli_req_t *req) { cli_cmd_debug_mmd(req, 0); }
 
-static void cli_cmd_debug_mmd_write(cli_req_t *req)
-{
-    cli_cmd_debug_mmd(req, 1);
-}
+static void cli_cmd_debug_mmd_write(cli_req_t *req) { cli_cmd_debug_mmd(req, 1); }
 
 static void cli_cmd_debug_i2c(cli_req_t *req)
 {
@@ -296,16 +272,12 @@ static void cli_cmd_debug_i2c(cli_req_t *req)
             continue;
         }
         if (req->set) {
-            if (req->inst->api.meba_sfp_i2c_xfer(req->inst, iport, 1,
-                                                 mreq->i2c_addr, mreq->i2c_reg,
-                                                 &mreq->i2c_value, 1,
-                                                 0) != MESA_RC_OK) {
+            if (req->inst->api.meba_sfp_i2c_xfer(req->inst, iport, 1, mreq->i2c_addr, mreq->i2c_reg,
+                                                 &mreq->i2c_value, 1, 0) != MESA_RC_OK) {
                 cli_printf("I2C write failed for port %u\n", port);
             }
-        } else if (req->inst->api.meba_sfp_i2c_xfer(req->inst, iport, 0,
-                                                    mreq->i2c_addr,
-                                                    mreq->i2c_reg, buf, count,
-                                                    0) != MESA_RC_OK) {
+        } else if (req->inst->api.meba_sfp_i2c_xfer(req->inst, iport, 0, mreq->i2c_addr,
+                                                    mreq->i2c_reg, buf, count, 0) != MESA_RC_OK) {
             cli_printf("I2C read failed for port %u\n", port);
         } else {
             if (first) {
@@ -313,8 +285,8 @@ static void cli_cmd_debug_i2c(cli_req_t *req)
                 cli_table_header("Port  Addr  Value");
             }
             for (i = 0; i < count; i++) {
-                cli_printf("%-6u%-6u0x%02x %c\n", port, mreq->i2c_reg + i,
-                           buf[i], isprint(buf[i]) ? buf[i] : '.');
+                cli_printf("%-6u%-6u0x%02x %c\n", port, mreq->i2c_reg + i, buf[i],
+                           isprint(buf[i]) ? buf[i] : '.');
             }
         }
     }
@@ -334,10 +306,8 @@ static void cli_cmd_debug_serdes(cli_req_t *req)
 
         if (!mreq->has_dfe && !mreq->has_ctle && !mreq->has_txeq) {
             cli_printf("Usage:\n");
-            cli_printf(
-                "dfe:  For 10G: h1,h2,h3,h4,h5,0. For 25G: h1,h2,h3,h4,h5,dlev\n");
-            cli_printf(
-                "ctle: For 10G: r,c,vga,0         For 25G: vga_r,vga_c,c,gain\n");
+            cli_printf("dfe:  For 10G: h1,h2,h3,h4,h5,0. For 25G: h1,h2,h3,h4,h5,dlev\n");
+            cli_printf("ctle: For 10G: r,c,vga,0         For 25G: vga_r,vga_c,c,gain\n");
             cli_printf("txeq: tap_dly, tap_adv, amplitude\n");
             cli_printf("Syntax:\n");
             cli_printf(
@@ -350,12 +320,10 @@ static void cli_cmd_debug_serdes(cli_req_t *req)
                 "Error. Expecting 6 values for dfe (<h1,h2,h3,h4,h5,dlev> or <h1,h2,h3,h4,h5,0>\n");
             return;
         } else if (mreq->has_ctle && (mreq->value_cnt != 4)) {
-            cli_printf(
-                "Error. Expecting 4 values for ctle (<vga_r,vga_c,c,gain> or <r,c,vga,0>)\n");
+            cli_printf("Error. Expecting 4 values for ctle (<vga_r,vga_c,c,gain> or <r,c,vga,0>)\n");
             return;
         } else if (mreq->has_txeq && (mreq->value_cnt != 3)) {
-            cli_printf(
-                "Error. Expecting 3 values for txeq (<tap_dly,tap_adv,amplitude>)\n");
+            cli_printf("Error. Expecting 3 values for txeq (<tap_dly,tap_adv,amplitude>)\n");
             return;
         }
 
@@ -408,35 +376,31 @@ static void cli_cmd_debug_symreg_query(cli_req_t *req)
 static cli_cmd_t cli_cmd_table[] = {
     {"Debug API [<layer>] [<group>] [<port_list>] [full] [clear] [action] [<act_value>]",
      "Show API debug information", cli_cmd_debug_api, CLI_CMD_FLAG_ALL_PORTS},
-    {"Debug PHY Read <port_list> <addr_list> [<page>]", "Read PHY register",
-     cli_cmd_debug_phy_read, CLI_CMD_FLAG_ALL_PORTS},
-    {"Debug PHY Write <port_list> <addr_list> <value> [<page>]",
-     "Write PHY register", cli_cmd_debug_phy_write, CLI_CMD_FLAG_ALL_PORTS},
+    {"Debug PHY Read <port_list> <addr_list> [<page>]", "Read PHY register", cli_cmd_debug_phy_read,
+     CLI_CMD_FLAG_ALL_PORTS},
+    {"Debug PHY Write <port_list> <addr_list> <value> [<page>]", "Write PHY register",
+     cli_cmd_debug_phy_write, CLI_CMD_FLAG_ALL_PORTS},
     {"Debug MMD Read <port_list> <mmd_list> <mmd_addr>", "Read MMD register",
      cli_cmd_debug_mmd_read, CLI_CMD_FLAG_ALL_PORTS},
-    {"Debug MMD Write <port_list> <mmd_list> <mmd_addr> <value>",
-     "Write MMD register", cli_cmd_debug_mmd_write, CLI_CMD_FLAG_ALL_PORTS},
-    {"Debug I2C Read <port_list> <i2c_addr> <addr> [<count>]",
-     "Read I2C register", cli_cmd_debug_i2c, CLI_CMD_FLAG_ALL_PORTS},
-    {"Debug I2C Write <port_list> <i2c_addr> <addr> <value>",
-     "Write I2C register", cli_cmd_debug_i2c, CLI_CMD_FLAG_ALL_PORTS},
+    {"Debug MMD Write <port_list> <mmd_list> <mmd_addr> <value>", "Write MMD register",
+     cli_cmd_debug_mmd_write, CLI_CMD_FLAG_ALL_PORTS},
+    {"Debug I2C Read <port_list> <i2c_addr> <addr> [<count>]", "Read I2C register",
+     cli_cmd_debug_i2c, CLI_CMD_FLAG_ALL_PORTS},
+    {"Debug I2C Write <port_list> <i2c_addr> <addr> <value>", "Write I2C register",
+     cli_cmd_debug_i2c, CLI_CMD_FLAG_ALL_PORTS},
     {"Debug Chip ID", "Read chip ID", cli_cmd_debug_chip_id},
-    {"Debug Sym Read <word128>", "Read one/many switch register(s)",
-     cli_cmd_debug_symreg_read},
+    {"Debug Sym Read <word128>", "Read one/many switch register(s)", cli_cmd_debug_symreg_read},
     {"Debug Sym Write <word128> <value32>", "Write one/many switch register(s)",
      cli_cmd_debug_symreg_write},
-    {"Debug Sym Query <word128>", "Display the matched register(s)",
-     cli_cmd_debug_symreg_query},
+    {"Debug Sym Query <word128>", "Display the matched register(s)", cli_cmd_debug_symreg_query},
     {"Debug serdes <port_list> [dfe] [ctle] [txeq] <value_list>",
      "deb serdes <port> dfe h1,h2,h3,h4,h5,0 (10g) or h1,h2,h3,h4,h5,dlev (25g)\n "
      "deb serdes <port> ctle r,c,vga,0 (10g)  or vga_r,vga_c,c,gain (25g)\n "
      "deb serdes <port> txeq dly,adv,ampl\n ", cli_cmd_debug_serdes, CLI_CMD_FLAG_ALL_PORTS},
-    {"Debug PHY cls-45 Read <port_list> <page> <addr16>",
-     "Read PHY clause-45 register", cli_cmd_debug_phy_clause45_read,
-     CLI_CMD_FLAG_ALL_PORTS},
-    {"Debug PHY cls-45 Write <port_list> <page> <addr16> <value>",
-     "Write PHY clause-45 register", cli_cmd_debug_phy_clause45_write,
-     CLI_CMD_FLAG_ALL_PORTS},
+    {"Debug PHY cls-45 Read <port_list> <page> <addr16>", "Read PHY clause-45 register",
+     cli_cmd_debug_phy_clause45_read, CLI_CMD_FLAG_ALL_PORTS},
+    {"Debug PHY cls-45 Write <port_list> <page> <addr16> <value>", "Write PHY clause-45 register",
+     cli_cmd_debug_phy_clause45_write, CLI_CMD_FLAG_ALL_PORTS},
 };
 
 static int cli_parm_api_layer(cli_req_t *req)
@@ -445,10 +409,8 @@ static int cli_parm_api_layer(cli_req_t *req)
     const char      *ail_txt = "ail";
     const char      *cil_txt = "cil";
 
-    if (strstr(ail_txt, req->cmd) == ail_txt ||
-        strstr(cil_txt, req->cmd) == cil_txt) {
-        mreq->layer =
-            (req->cmd[0] == 'a' ? MESA_DEBUG_LAYER_AIL : MESA_DEBUG_LAYER_CIL);
+    if (strstr(ail_txt, req->cmd) == ail_txt || strstr(cil_txt, req->cmd) == cil_txt) {
+        mreq->layer = (req->cmd[0] == 'a' ? MESA_DEBUG_LAYER_AIL : MESA_DEBUG_LAYER_CIL);
         return 0;
     }
     return 1;
@@ -467,8 +429,7 @@ static int cli_parm_api_group(cli_req_t *req)
         return 0;
     }
 
-    for (group = MESA_DEBUG_GROUP_ALL; group < MESA_DEBUG_GROUP_COUNT;
-         group++) {
+    for (group = MESA_DEBUG_GROUP_ALL; group < MESA_DEBUG_GROUP_COUNT; group++) {
         txt = cli_api_group_table[group];
         if (txt != NULL && strstr(txt, req->cmd) == txt) {
             /* Found matching group */
@@ -539,8 +500,8 @@ static int cli_parm_mmd_list(cli_req_t *req)
 static int cli_parm_value_array(cli_req_t *req)
 {
     debug_cli_req_t *mreq = req->module_req;
-    return cli_parse_values(req->cmd, mreq->value_list, &mreq->value_cnt, 0,
-                            0xffffffff, CLI_VALUES_MAX);
+    return cli_parse_values(req->cmd, mreq->value_list, &mreq->value_cnt, 0, 0xffffffff,
+                            CLI_VALUES_MAX);
 }
 
 static int cli_parm_mmd_addr(cli_req_t *req)
@@ -581,8 +542,7 @@ static int cli_parm_reg_pattern(cli_req_t *req)
     cnt = strlen(req->cmd);
 
     if (cnt + 1 > sizeof(mreq->pattern)) {
-        cli_printf("Pattern length must be maximum %d characters!\n",
-                   sizeof(mreq->pattern) - 1);
+        cli_printf("Pattern length must be maximum %d characters!\n", sizeof(mreq->pattern) - 1);
         return 1;
     }
 
@@ -607,42 +567,37 @@ static int cli_parm_addr_16bit(cli_req_t *req)
 }
 
 static cli_parm_t cli_parm_table[] = {
-    {"<layer>", "API Layer, 'ail' or 'cil' (default: All layers)",
-     CLI_PARM_FLAG_NONE, cli_parm_api_layer},
-    {"<group>",
-     "API Function Group or 'show' to list groups (default: All groups)", CLI_PARM_FLAG_NONE, cli_parm_api_group},
+    {"<layer>", "API Layer, 'ail' or 'cil' (default: All layers)", CLI_PARM_FLAG_NONE,
+     cli_parm_api_layer},
+    {"<group>", "API Function Group or 'show' to list groups (default: All groups)",
+     CLI_PARM_FLAG_NONE, cli_parm_api_group},
     {"clear", "Clear sticky bits", CLI_PARM_FLAG_NONE, cli_parm_keyword},
     {"full", "Show full information", CLI_PARM_FLAG_NONE, cli_parm_keyword},
     {"action", "Give the action value", CLI_PARM_FLAG_NONE, cli_parm_keyword},
     {"<value>", "Value to be written to register (0-0xffff)", CLI_PARM_FLAG_SET,
      cli_parm_phy_value},
-    {"<act_value>", "Value of the debug action (0-0xffffffff)",
-     CLI_PARM_FLAG_SET, cli_parm_act_value},
+    {"<act_value>", "Value of the debug action (0-0xffffffff)", CLI_PARM_FLAG_SET,
+     cli_parm_act_value},
     {
      "<mmd_list>", "MMD address list (0-31)",
      CLI_PARM_FLAG_NONE, cli_parm_mmd_list,
      },
-    {"<mmd_addr>", "MMD register address (0-0xffff)", CLI_PARM_FLAG_NONE,
-     cli_parm_mmd_addr},
-    {"<addr_list>", "Register address list (0-31)", CLI_PARM_FLAG_NONE,
-     cli_parm_addr_list},
+    {"<mmd_addr>", "MMD register address (0-0xffff)", CLI_PARM_FLAG_NONE, cli_parm_mmd_addr},
+    {"<addr_list>", "Register address list (0-31)", CLI_PARM_FLAG_NONE, cli_parm_addr_list},
     {
      "<value_list>", "u32 list (0-0xffffffff)",
      CLI_PARM_FLAG_NONE, cli_parm_value_array,
      },
-    {"<page>", "Register page (0-0xffff), default: page 0", CLI_PARM_FLAG_NONE,
-     cli_parm_page},
-    {"<i2c_addr>", "I2C address (0-255)", CLI_PARM_FLAG_NONE,
-     cli_parm_i2c_addr},
+    {"<page>", "Register page (0-0xffff), default: page 0", CLI_PARM_FLAG_NONE, cli_parm_page},
+    {"<i2c_addr>", "I2C address (0-255)", CLI_PARM_FLAG_NONE, cli_parm_i2c_addr},
     {"<addr>", "I2C register (0-255)", CLI_PARM_FLAG_NONE, cli_parm_i2c_reg},
-    {"<value>", "I2C register value (0-255)", CLI_PARM_FLAG_SET,
-     cli_parm_i2c_value, cli_cmd_debug_i2c},
+    {"<value>", "I2C register value (0-255)", CLI_PARM_FLAG_SET, cli_parm_i2c_value,
+     cli_cmd_debug_i2c},
     {
      "<count>", "Number of I2C registers (1-255)",
      CLI_PARM_FLAG_NONE, cli_parm_i2c_count,
      },
-    {"<word128>",
-     "Register pattern on the form 'target[t]:reggrp[g]:reg[r]', where\n\
+    {"<word128>", "Register pattern on the form 'target[t]:reggrp[g]:reg[r]', where\n\
         'target' is the name of the target (e.g. dev).\n\
         'reggrp' is the name of the register group.\n\
         'reg'    is the name of the register.\n\
@@ -651,19 +606,17 @@ static cli_parm_t cli_parm_table[] = {
         r        is a list of register replications if applicable.\n\
         If a given replication (t, g, r) is omitted, all applicable replications will be accessed.\n\
         Both 'target', 'reggrp' and 'reg' may be omitted, which corresponds to wildcarding that part\n\
-        of the name. Matches are exact, but wildcards ('*', '?') are allowed.", CLI_PARM_FLAG_NONE, cli_parm_reg_pattern},
-    {"<value32>", "Value to be written to register (0-0xffffffff)",
-     CLI_PARM_FLAG_SET, cli_parm_reg_value},
+        of the name. Matches are exact, but wildcards ('*', '?') are allowed.",
+     CLI_PARM_FLAG_NONE, cli_parm_reg_pattern},
+    {"<value32>", "Value to be written to register (0-0xffffffff)", CLI_PARM_FLAG_SET,
+     cli_parm_reg_value},
     {"dfe",
-     "Rx equalization: deb serdes <port> dfe h1,h2,h3,h4,h5,0 (10g) or h1,h2,h3,h4,h5,dlev (25g)",
+     "Rx equalization: deb serdes <port> dfe h1,h2,h3,h4,h5,0 (10g) or h1,h2,h3,h4,h5,dlev (25g)", CLI_PARM_FLAG_NONE, cli_parm_keyword},
+    {"ctle", "Rx equalization: deb serdes <port> ctle r,c,vga,0 (10g) or vga_r,vga_c,c,gain (25g)",
      CLI_PARM_FLAG_NONE, cli_parm_keyword},
-    {"ctle",
-     "Rx equalization: deb serdes <port> ctle r,c,vga,0 (10g) or vga_r,vga_c,c,gain (25g)",
-     CLI_PARM_FLAG_NONE, cli_parm_keyword},
-    {"txeq", "Tx equalization: deb serdes <port> txeq dly,adv,ampl",
-     CLI_PARM_FLAG_NONE, cli_parm_keyword},
-    {"<addr16>", "16-bit address (0-65535)", CLI_PARM_FLAG_NONE,
-     cli_parm_addr_16bit},
+    {"txeq", "Tx equalization: deb serdes <port> txeq dly,adv,ampl", CLI_PARM_FLAG_NONE,
+     cli_parm_keyword},
+    {"<addr16>", "16-bit address (0-65535)", CLI_PARM_FLAG_NONE, cli_parm_addr_16bit},
 };
 
 static void debug_cli_init(void)

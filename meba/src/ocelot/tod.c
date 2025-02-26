@@ -19,10 +19,8 @@ mesa_rc meba_tod_phy_ts_clk_info(meba_inst_t           inst,
     /* default 1pps latency for the phy is 2 clock cycles (in the serval
      * environment the delay is split into output latency from Serval and input
      * latency in the PHY) */
-    *pps_load_delay =
-        (((mesa_timeinterval_t)MESA_ONE_MIA << 16) * 3LL) / clk_mhz[*freq];
-    *pps_save_delay =
-        (((mesa_timeinterval_t)MESA_ONE_MIA << 16) * 2LL) / clk_mhz[*freq];
+    *pps_load_delay = (((mesa_timeinterval_t)MESA_ONE_MIA << 16) * 3LL) / clk_mhz[*freq];
+    *pps_save_delay = (((mesa_timeinterval_t)MESA_ONE_MIA << 16) * 2LL) / clk_mhz[*freq];
 
     return MESA_RC_OK;
 }

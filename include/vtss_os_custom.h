@@ -15,25 +15,23 @@
 #define ulong unsigned long /**< Define API ulong - unsigned 32 bits */
 
 // Define how to do a 1 millisecond sleep
-#define VTSS_MSLEEP(msec)                                                      \
+#define VTSS_MSLEEP(msec)                                                                          \
     <your function> /**< Your function for sleeping for "msec" milli seconds */
 
 // Define Timer function
 typedef int vtss_mtimer_t; /**< Timer */
-#define VTSS_MTIMER_START(pTimer, msec)                                        \
-    <your impl> /**< Start the timer (pTimer) with a timeout after a number of \
+#define VTSS_MTIMER_START(pTimer, msec)                                                            \
+    <your impl> /**< Start the timer (pTimer) with a timeout after a number of                     \
                    milliseconds */
-#define VTSS_MTIMER_TIMEOUT(pTimer)                                            \
-    <your impl> /**< Check if timer has timed out (Return TRUE in case of      \
+#define VTSS_MTIMER_TIMEOUT(pTimer)                                                                \
+    <your impl> /**< Check if timer has timed out (Return TRUE in case of                          \
                    timeout else FALSE). */
 #define VTSS_MTIMER_CANCEL(pTimer) <your impl> /**< Stop the timer  */
 
-#define VTSS_DIV64(dividend, divisor)                                          \
-    <your impl> /**< support for 64 bit division */
-#define VTSS_MOD64(dividend, divisor)                                          \
-    <your impl>                     /**< support for 64 bit division */
-#define VTSS_LABS(arg)  <your impl> /**< long to abs */
-#define VTSS_LLABS(arg) <your impl> /**< long long to abs */
+#define VTSS_DIV64(dividend, divisor) <your impl> /**< support for 64 bit division */
+#define VTSS_MOD64(dividend, divisor) <your impl> /**< support for 64 bit division */
+#define VTSS_LABS(arg)                <your impl> /**< long to abs */
+#define VTSS_LLABS(arg)               <your impl> /**< long long to abs */
 
 /**
  * Count trailing zeros of a 32-bit unsigned.

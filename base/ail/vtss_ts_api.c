@@ -136,8 +136,7 @@ vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano)
     return VTSS_RC_OK;
 }
 
-BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1,
-                          const vtss_timestamp_t *ts2)
+BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2)
 {
     if (ts1->sec_msb > ts2->sec_msb) {
         return TRUE;
@@ -167,8 +166,7 @@ BOOL vtss_timestampLarger(const vtss_timestamp_t *ts1,
 }
 
 // TSN global configuration
-vtss_rc vtss_ts_conf_set(const vtss_inst_t           inst,
-                         const vtss_ts_conf_t *const conf)
+vtss_rc vtss_ts_conf_set(const vtss_inst_t inst, const vtss_ts_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -197,9 +195,7 @@ vtss_rc vtss_ts_conf_get(const vtss_inst_t inst, vtss_ts_conf_t *const conf)
 
 /* Get the current time in a Timestamp format, and the corresponding time
  * counter */
-vtss_rc vtss_ts_timeofday_get(const vtss_inst_t       inst,
-                              vtss_timestamp_t *const ts,
-                              u64 *const              tc)
+vtss_rc vtss_ts_timeofday_get(const vtss_inst_t inst, vtss_timestamp_t *const ts, u64 *const tc)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -214,9 +210,7 @@ vtss_rc vtss_ts_timeofday_get(const vtss_inst_t       inst,
 
 /* Get the current raw time (without compensation for outstanding adjustments)
  * in a Timestamp format, and the corresponding time counter */
-vtss_rc vtss_ts_timeofday_raw(const vtss_inst_t       inst,
-                              vtss_timestamp_t *const ts,
-                              u64 *const              tc)
+vtss_rc vtss_ts_timeofday_raw(const vtss_inst_t inst, vtss_timestamp_t *const ts, u64 *const tc)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -287,8 +281,7 @@ vtss_rc vtss_ts_multi_domain_timeofday_get(const vtss_inst_t       inst,
 }
 
 /* Get the time at the next 1PPS pulse edge in a Timestamp format. */
-vtss_rc vtss_ts_timeofday_next_pps_get(const vtss_inst_t       inst,
-                                       vtss_timestamp_t *const ts)
+vtss_rc vtss_ts_timeofday_next_pps_get(const vtss_inst_t inst, vtss_timestamp_t *const ts)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -302,8 +295,7 @@ vtss_rc vtss_ts_timeofday_next_pps_get(const vtss_inst_t       inst,
 }
 
 /* Get the time at the previous 1PPS pulse edge in a Timestamp format. */
-vtss_rc vtss_ts_timeofday_prev_pps_get(const vtss_inst_t       inst,
-                                       vtss_timestamp_t *const ts)
+vtss_rc vtss_ts_timeofday_prev_pps_get(const vtss_inst_t inst, vtss_timestamp_t *const ts)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -333,8 +325,7 @@ vtss_rc vtss_ts_domain_timeofday_next_pps_get(const vtss_inst_t       inst,
 }
 
 /* Set the current time in a Timestamp format */
-vtss_rc vtss_ts_timeofday_set(const vtss_inst_t       inst,
-                              const vtss_timestamp_t *ts)
+vtss_rc vtss_ts_timeofday_set(const vtss_inst_t inst, const vtss_timestamp_t *ts)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -390,8 +381,7 @@ vtss_rc vtss_ts_domain_timeofday_set_delta(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc =
-            VTSS_FUNC_COLD(ts.domain_timeofday_set_delta, domain, ts, negative);
+        rc = VTSS_FUNC_COLD(ts.domain_timeofday_set_delta, domain, ts, negative);
     }
     VTSS_EXIT();
     return rc;
@@ -428,8 +418,7 @@ vtss_rc vtss_ts_domain_timeofday_offset_set(const vtss_inst_t inst,
 }
 
 /* Do the one sec administration in the Timestamp function */
-vtss_rc vtss_ts_adjtimer_one_sec(const vtss_inst_t inst,
-                                 BOOL *const       ongoing_adjustment)
+vtss_rc vtss_ts_adjtimer_one_sec(const vtss_inst_t inst, BOOL *const ongoing_adjustment)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -449,8 +438,7 @@ vtss_rc vtss_ts_adjtimer_one_sec(const vtss_inst_t inst,
 }
 
 /* check if clock adjustment is ongoing */
-vtss_rc vtss_ts_ongoing_adjustment(const vtss_inst_t inst,
-                                   BOOL *const       ongoing_adjustment)
+vtss_rc vtss_ts_ongoing_adjustment(const vtss_inst_t inst, BOOL *const ongoing_adjustment)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -498,9 +486,7 @@ vtss_rc vtss_ts_adjtimer_get(const vtss_inst_t inst, i32 *const adj)
 }
 
 /* Adjust the clock timer ratio */
-vtss_rc vtss_ts_domain_adjtimer_set(const vtss_inst_t inst,
-                                    const u32         domain,
-                                    const i32         adj)
+vtss_rc vtss_ts_domain_adjtimer_set(const vtss_inst_t inst, const u32 domain, const i32 adj)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -515,9 +501,7 @@ vtss_rc vtss_ts_domain_adjtimer_set(const vtss_inst_t inst,
 }
 
 /* Get Adjust the clock timer ratio */
-vtss_rc vtss_ts_domain_adjtimer_get(const vtss_inst_t inst,
-                                    const u32         domain,
-                                    i32 *const        adj)
+vtss_rc vtss_ts_domain_adjtimer_get(const vtss_inst_t inst, const u32 domain, i32 *const adj)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -546,9 +530,8 @@ vtss_rc vtss_ts_freq_offset_get(const vtss_inst_t inst, i32 *const adj)
 }
 
 /* Get the external clock mode. */
-vtss_rc vtss_ts_external_clock_mode_get(const vtss_inst_t inst,
-                                        vtss_ts_ext_clock_mode_t
-                                            *const ext_clock_mode)
+vtss_rc vtss_ts_external_clock_mode_get(const vtss_inst_t               inst,
+                                        vtss_ts_ext_clock_mode_t *const ext_clock_mode)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -562,9 +545,8 @@ vtss_rc vtss_ts_external_clock_mode_get(const vtss_inst_t inst,
 }
 
 /* Set the external clock mode. */
-vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t inst,
-                                        const vtss_ts_ext_clock_mode_t
-                                            *const ext_clock_mode)
+vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t                     inst,
+                                        const vtss_ts_ext_clock_mode_t *const ext_clock_mode)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -582,8 +564,7 @@ vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t inst,
     return rc;
 }
 
-vtss_rc vtss_ts_external_clock_saved_get(const vtss_inst_t inst,
-                                         u32 *const        saved)
+vtss_rc vtss_ts_external_clock_saved_get(const vtss_inst_t inst, u32 *const saved)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -596,8 +577,8 @@ vtss_rc vtss_ts_external_clock_saved_get(const vtss_inst_t inst,
     return rc;
 }
 
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||           \
+    defined(VTSS_ARCH_LAN966X)
 vtss_rc vtss_ts_alt_clock_saved_get(const vtss_inst_t inst, u64 *const saved)
 {
     vtss_state_t *vtss_state;
@@ -612,8 +593,7 @@ vtss_rc vtss_ts_alt_clock_saved_get(const vtss_inst_t inst, u64 *const saved)
 }
 
 #if defined(VTSS_ARCH_OCELOT)
-vtss_rc vtss_ts_alt_clock_saved_timeofday_get(const vtss_inst_t       inst,
-                                              vtss_timestamp_t *const ts)
+vtss_rc vtss_ts_alt_clock_saved_timeofday_get(const vtss_inst_t inst, vtss_timestamp_t *const ts)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -628,9 +608,8 @@ vtss_rc vtss_ts_alt_clock_saved_timeofday_get(const vtss_inst_t       inst,
 #endif // defined(VTSS_ARCH_OCELOT)
 
 /* Get the alternative external clock mode. */
-vtss_rc vtss_ts_alt_clock_mode_get(const vtss_inst_t inst,
-                                   vtss_ts_alt_clock_mode_t
-                                       *const alt_clock_mode)
+vtss_rc vtss_ts_alt_clock_mode_get(const vtss_inst_t               inst,
+                                   vtss_ts_alt_clock_mode_t *const alt_clock_mode)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -644,9 +623,8 @@ vtss_rc vtss_ts_alt_clock_mode_get(const vtss_inst_t inst,
 }
 
 /* Set the alternative external clock mode. */
-vtss_rc vtss_ts_alt_clock_mode_set(const vtss_inst_t inst,
-                                   const vtss_ts_alt_clock_mode_t
-                                       *const alt_clock_mode)
+vtss_rc vtss_ts_alt_clock_mode_set(const vtss_inst_t                     inst,
+                                   const vtss_ts_alt_clock_mode_t *const alt_clock_mode)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -661,8 +639,7 @@ vtss_rc vtss_ts_alt_clock_mode_set(const vtss_inst_t inst,
 }
 
 /* Set the time at the next 1PPS pulse edge in a Timestamp format. */
-vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t             inst,
-                                       const vtss_timestamp_t *const ts)
+vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t inst, const vtss_timestamp_t *const ts)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -675,11 +652,10 @@ vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t             inst,
     return rc;
 }
 
-#endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||          \
+#endif /* defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                              \
           defined(VTSS_ARCH_SPARX5) */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LUTON26) ||                \
-    defined(VTSS_ARCH_OCELOT)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X) ||          \
+    defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 /*
  * Get the external io mode.
  */
@@ -705,10 +681,9 @@ vtss_rc vtss_ts_external_io_mode_get(const vtss_inst_t            inst,
 /*
  * Set the external io mode.
  */
-vtss_rc vtss_ts_external_io_mode_set(const vtss_inst_t inst,
-                                     const u32         io,
-                                     const vtss_ts_ext_io_mode_t
-                                         *const ext_io_mode)
+vtss_rc vtss_ts_external_io_mode_set(const vtss_inst_t                  inst,
+                                     const u32                          io,
+                                     const vtss_ts_ext_io_mode_t *const ext_io_mode)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -767,17 +742,15 @@ vtss_rc vtss_ts_output_clock_edge_offset_get(const vtss_inst_t inst,
 #endif // defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 
 /* Set the ingress latency */
-vtss_rc vtss_ts_ingress_latency_set(const vtss_inst_t    inst,
-                                    const vtss_port_no_t port_no,
-                                    const vtss_timeinterval_t
-                                        *const ingress_latency)
+vtss_rc vtss_ts_ingress_latency_set(const vtss_inst_t                inst,
+                                    const vtss_port_no_t             port_no,
+                                    const vtss_timeinterval_t *const ingress_latency)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->ts.port_conf[port_no].ingress_latency = *ingress_latency;
         rc = VTSS_FUNC_COLD(ts.ingress_latency_set, port_no);
     }
@@ -794,8 +767,7 @@ vtss_rc vtss_ts_ingress_latency_get(const vtss_inst_t          inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *ingress_latency = vtss_state->ts.port_conf[port_no].ingress_latency;
     }
     VTSS_EXIT();
@@ -811,8 +783,7 @@ vtss_rc vtss_ts_p2p_delay_set(const vtss_inst_t                inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->ts.port_conf[port_no].p2p_delay = *p2p_delay;
         rc = VTSS_FUNC_COLD(ts.p2p_delay_set, port_no);
     }
@@ -829,8 +800,7 @@ vtss_rc vtss_ts_p2p_delay_get(const vtss_inst_t          inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *p2p_delay = vtss_state->ts.port_conf[port_no].p2p_delay;
     }
     VTSS_EXIT();
@@ -838,17 +808,15 @@ vtss_rc vtss_ts_p2p_delay_get(const vtss_inst_t          inst,
 }
 
 /* Set the egress latency */
-vtss_rc vtss_ts_egress_latency_set(const vtss_inst_t    inst,
-                                   const vtss_port_no_t port_no,
-                                   const vtss_timeinterval_t
-                                       *const egress_latency)
+vtss_rc vtss_ts_egress_latency_set(const vtss_inst_t                inst,
+                                   const vtss_port_no_t             port_no,
+                                   const vtss_timeinterval_t *const egress_latency)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->ts.port_conf[port_no].egress_latency = *egress_latency;
         rc = VTSS_FUNC_COLD(ts.egress_latency_set, port_no);
     }
@@ -865,8 +833,7 @@ vtss_rc vtss_ts_egress_latency_get(const vtss_inst_t          inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *egress_latency = vtss_state->ts.port_conf[port_no].egress_latency;
     }
     VTSS_EXIT();
@@ -874,17 +841,15 @@ vtss_rc vtss_ts_egress_latency_get(const vtss_inst_t          inst,
 }
 
 /* Set the delay asymmetry */
-vtss_rc vtss_ts_delay_asymmetry_set(const vtss_inst_t    inst,
-                                    const vtss_port_no_t port_no,
-                                    const vtss_timeinterval_t
-                                        *const delay_asymmetry)
+vtss_rc vtss_ts_delay_asymmetry_set(const vtss_inst_t                inst,
+                                    const vtss_port_no_t             port_no,
+                                    const vtss_timeinterval_t *const delay_asymmetry)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->ts.port_conf[port_no].delay_asymmetry = *delay_asymmetry;
         rc = VTSS_FUNC_COLD(ts.delay_asymmetry_set, port_no);
     }
@@ -901,8 +866,7 @@ vtss_rc vtss_ts_delay_asymmetry_get(const vtss_inst_t          inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *delay_asymmetry = vtss_state->ts.port_conf[port_no].delay_asymmetry;
     }
     VTSS_EXIT();
@@ -910,23 +874,21 @@ vtss_rc vtss_ts_delay_asymmetry_get(const vtss_inst_t          inst,
 }
 
 /* Set the timestamping operation mode for a port */
-vtss_rc vtss_ts_operation_mode_set(const vtss_inst_t    inst,
-                                   const vtss_port_no_t port_no,
+vtss_rc vtss_ts_operation_mode_set(const vtss_inst_t                     inst,
+                                   const vtss_port_no_t                  port_no,
                                    const vtss_ts_operation_mode_t *const mode)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
         BOOL mode_domain_config;
-        mode_domain_config =
-            ((mode->domain != vtss_state->ts.port_conf[port_no].mode.domain) ||
-             (mode->mode != vtss_state->ts.port_conf[port_no].mode.mode))
-                ? TRUE
-                : FALSE;
+        mode_domain_config = ((mode->domain != vtss_state->ts.port_conf[port_no].mode.domain) ||
+                              (mode->mode != vtss_state->ts.port_conf[port_no].mode.mode))
+                                 ? TRUE
+                                 : FALSE;
         vtss_state->ts.port_conf[port_no].mode = *mode;
         rc = VTSS_FUNC_COLD(ts.operation_mode_set, port_no, mode_domain_config);
 #else
@@ -947,8 +909,7 @@ vtss_rc vtss_ts_operation_mode_get(const vtss_inst_t               inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         *mode = vtss_state->ts.port_conf[port_no].mode;
     }
     VTSS_EXIT();
@@ -956,8 +917,7 @@ vtss_rc vtss_ts_operation_mode_get(const vtss_inst_t               inst,
 }
 
 /* Set the timestamping internal mode */
-vtss_rc vtss_ts_internal_mode_set(const vtss_inst_t                    inst,
-                                  const vtss_ts_internal_mode_t *const mode)
+vtss_rc vtss_ts_internal_mode_set(const vtss_inst_t inst, const vtss_ts_internal_mode_t *const mode)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -972,8 +932,7 @@ vtss_rc vtss_ts_internal_mode_set(const vtss_inst_t                    inst,
 }
 
 /* Get the timestamping internal mode */
-vtss_rc vtss_ts_internal_mode_get(const vtss_inst_t              inst,
-                                  vtss_ts_internal_mode_t *const mode)
+vtss_rc vtss_ts_internal_mode_get(const vtss_inst_t inst, vtss_ts_internal_mode_t *const mode)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -1018,8 +977,7 @@ vtss_rc vtss_tx_timestamp_update(const vtss_inst_t inst)
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = VTSS_FUNC_0(ts.timestamp_get);
         VTSS_D("rc = %d", rc);
-        while ((port_idx < VTSS_PORT_ARRAY_SIZE) &&
-               (ts_idx < TS_IDS_RESERVED_FOR_SW)) {
+        while ((port_idx < VTSS_PORT_ARRAY_SIZE) && (ts_idx < TS_IDS_RESERVED_FOR_SW)) {
             if (vtss_state->ts.status[ts_idx].valid_mask !=
                 0) { /* We just check if any TS on this TS index */
                 port_mask = 1LL << port_idx;
@@ -1047,11 +1005,10 @@ vtss_rc vtss_tx_timestamp_update(const vtss_inst_t inst)
                         VTSS_ENTER();
                         vtss_state = my_vtss_state; /* restore context */
                     } else {
-                        VTSS_E("undefined TS callback port_idx %d, ts_idx %d",
-                               port_idx, ts_idx);
+                        VTSS_E("undefined TS callback port_idx %d, ts_idx %d", port_idx, ts_idx);
                     }
-                    VTSS_D("port_no %d, ts_id %d, ts %" PRIu64 "(%d)", port_idx,
-                           ts.id, ts.ts, ts.ts_valid);
+                    VTSS_D("port_no %d, ts_id %d, ts %" PRIu64 "(%d)", port_idx, ts.id, ts.ts,
+                           ts.ts_valid);
                 }
             } else {
                 port_idx = VTSS_PORT_ARRAY_SIZE; /* No TS on this TS index -
@@ -1112,8 +1069,7 @@ vtss_rc vtss_rx_timestamp_get(const vtss_inst_t          inst,
 }
 
 /* Release the FIFO rx timestamp id  */
-vtss_rc _vtss_rx_timestamp_id_release(const vtss_inst_t         inst,
-                                      const vtss_ts_id_t *const ts_id)
+vtss_rc _vtss_rx_timestamp_id_release(const vtss_inst_t inst, const vtss_ts_id_t *const ts_id)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -1131,8 +1087,7 @@ vtss_rc _vtss_rx_timestamp_id_release(const vtss_inst_t         inst,
 }
 
 /* Release the FIFO rx timestamp id  */
-vtss_rc vtss_rx_timestamp_id_release(const vtss_inst_t         inst,
-                                     const vtss_ts_id_t *const ts_id)
+vtss_rc vtss_rx_timestamp_id_release(const vtss_inst_t inst, const vtss_ts_id_t *const ts_id)
 {
     vtss_rc rc;
 
@@ -1164,10 +1119,9 @@ vtss_rc vtss_rx_master_timestamp_get(const vtss_inst_t          inst,
 }
 
 /* Allocate a timestamp id for a two step transmission */
-vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t inst,
-                                    const vtss_ts_timestamp_alloc_t
-                                        *const          alloc_parm,
-                                    vtss_ts_id_t *const ts_id)
+vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t                      inst,
+                                    const vtss_ts_timestamp_alloc_t *const alloc_parm,
+                                    vtss_ts_id_t *const                    ts_id)
 {
     vtss_state_t *vtss_state;
     int           port_idx = 0;
@@ -1179,24 +1133,19 @@ vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t inst,
         rc = VTSS_RC_ERROR;
         /* Find a free ts_id */
         for (id = 0; id < TS_IDS_RESERVED_FOR_SW; id++) {
-            if ((vtss_state->ts.status[id].reserved_mask &
-                 alloc_parm->port_mask) == 0) {
-                vtss_state->ts.status[id].reserved_mask |=
-                    alloc_parm->port_mask;
-                for (port_idx = 0; port_idx < VTSS_PORT_ARRAY_SIZE;
-                     port_idx++) {
+            if ((vtss_state->ts.status[id].reserved_mask & alloc_parm->port_mask) == 0) {
+                vtss_state->ts.status[id].reserved_mask |= alloc_parm->port_mask;
+                for (port_idx = 0; port_idx < VTSS_PORT_ARRAY_SIZE; port_idx++) {
                     if (alloc_parm->port_mask & (1LL << port_idx)) {
-                        vtss_state->ts.status[id].context[port_idx] =
-                            alloc_parm->context;
+                        vtss_state->ts.status[id].context[port_idx] = alloc_parm->context;
                         vtss_state->ts.status[id].cb[port_idx] = alloc_parm->cb;
                     }
                 }
                 vtss_state->ts.status[id].age = 0;
                 ts_id->ts_id = id;
-                VTSS_I("portmask = %" PRIx64 ", reserved_mask = %" PRIx64
-                       " id = %u",
-                       alloc_parm->port_mask,
-                       vtss_state->ts.status[id].reserved_mask, ts_id->ts_id);
+                VTSS_I("portmask = %" PRIx64 ", reserved_mask = %" PRIx64 " id = %u",
+                       alloc_parm->port_mask, vtss_state->ts.status[id].reserved_mask,
+                       ts_id->ts_id);
                 rc = VTSS_RC_OK;
                 break;
             }
@@ -1277,12 +1226,11 @@ vtss_rc vtss_timestamp_age(const vtss_inst_t inst)
                     VTSS_ENTER();
                     vtss_state = my_vtss_state; /* restore context */
                 } else {
-                    VTSS_D("Undefined TS callback port_idx %d, ts_idx %d",
-                           port_idx, id);
+                    VTSS_D("Undefined TS callback port_idx %d, ts_idx %d", port_idx, id);
                 }
 
-                VTSS_D("port_no %d, ts_id %d, ts %" PRIu64 "(%d)", port_idx,
-                       ts.id, ts.ts, ts.ts_valid);
+                VTSS_D("port_no %d, ts_id %d, ts %" PRIu64 "(%d)", port_idx, ts.id, ts.ts,
+                       ts.ts_valid);
             }
 
             port_idx++;
@@ -1305,8 +1253,7 @@ do_exit:
 
 /* Signal port status change (used to detect and compensate for the internal
  * ingress and egress latencies) */
-vtss_rc vtss_ts_status_change(const vtss_inst_t    inst,
-                              const vtss_port_no_t port_no)
+vtss_rc vtss_ts_status_change(const vtss_inst_t inst, const vtss_port_no_t port_no)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -1321,8 +1268,8 @@ vtss_rc vtss_ts_status_change(const vtss_inst_t    inst,
 
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
 /* Set auto response behavior pr. domain. */
-vtss_rc vtss_ts_autoresp_dom_cfg_set(const vtss_inst_t inst,
-                                     const u8          domain,
+vtss_rc vtss_ts_autoresp_dom_cfg_set(const vtss_inst_t                       inst,
+                                     const u8                                domain,
                                      const vtss_ts_autoresp_dom_cfg_t *const cfg)
 {
     vtss_state_t *vtss_state;
@@ -1333,8 +1280,8 @@ vtss_rc vtss_ts_autoresp_dom_cfg_set(const vtss_inst_t inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (domain < VTSS_TS_DOMAIN_ARRAY_SIZE) {
             vtss_state->ts.auto_resp_cfg[domain] = *cfg;
-            VTSS_D("domain %d, ptp_port_individual %d, ptp_port_msb %d, ",
-                   domain, cfg->ptp_port_individual, cfg->ptp_port_msb);
+            VTSS_D("domain %d, ptp_port_individual %d, ptp_port_msb %d, ", domain,
+                   cfg->ptp_port_individual, cfg->ptp_port_msb);
             rc = VTSS_FUNC(ts.autoresp_cfg_set, domain);
         } else {
             rc = VTSS_RC_ERROR;
@@ -1356,8 +1303,8 @@ vtss_rc vtss_ts_autoresp_dom_cfg_get(const vtss_inst_t                 inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (domain < VTSS_TS_DOMAIN_ARRAY_SIZE) {
             *cfg = vtss_state->ts.auto_resp_cfg[domain];
-            VTSS_D("domain %d, ptp_port_individual %d, ptp_port_msb %d, ",
-                   domain, cfg->ptp_port_individual, cfg->ptp_port_msb);
+            VTSS_D("domain %d, ptp_port_individual %d, ptp_port_msb %d, ", domain,
+                   cfg->ptp_port_individual, cfg->ptp_port_msb);
         }
     }
     VTSS_EXIT();
@@ -1373,8 +1320,7 @@ vtss_rc vtss_ts_smac_set(const vtss_inst_t       inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
         vtss_state->ts.port_conf[port_no].smac = *smac;
         rc = VTSS_FUNC_COLD(ts.smac_set, port_no);
@@ -1395,8 +1341,7 @@ vtss_rc vtss_ts_smac_get(const vtss_inst_t    inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) ==
-        VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
         *smac = vtss_state->ts.port_conf[port_no].smac;
 #else
@@ -1408,9 +1353,7 @@ vtss_rc vtss_ts_smac_get(const vtss_inst_t    inst,
 }
 #endif // defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
 
-vtss_rc vtss_ts_seq_cnt_get(const vtss_inst_t inst,
-                            const u32         sec_cntr,
-                            u16 *const        cnt_val)
+vtss_rc vtss_ts_seq_cnt_get(const vtss_inst_t inst, const u32 sec_cntr, u16 *const cnt_val)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -1474,20 +1417,17 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
     pr("One-Second Timer:\n");
     for (i = 0; i < VTSS_TS_DOMAIN_ARRAY_SIZE; i++) {
         pr("Adjustment rate[%u]: %i ppb, \nOne_pps mode: %s ExternalClockOut mode: %s freq %d Hz\nClock offset %d sec\n",
-           i, ts_conf->adj[i],
-           one_pps_mode_disp(ts_conf->ext_clock_mode.one_pps_mode),
-           ts_conf->ext_clock_mode.enable ? "enable" : "disable",
-           ts_conf->ext_clock_mode.freq, ts_conf->sec_offset);
+           i, ts_conf->adj[i], one_pps_mode_disp(ts_conf->ext_clock_mode.one_pps_mode),
+           ts_conf->ext_clock_mode.enable ? "enable" : "disable", ts_conf->ext_clock_mode.freq,
+           ts_conf->sec_offset);
     }
     pr("Port timestamp parameters:\n");
     pr("Port  IngressLatency  PeerDelay  EgressLatency  OperationMode\n");
     for (i = 0; i < VTSS_PORT_ARRAY_SIZE; i++) {
         ts_port_conf = &vtss_state->ts.port_conf[i];
-        pr("%-4d  %-14i  %-9i  %-13i  %-d\n", i,
-           VTSS_INTERVAL_NS(ts_port_conf->ingress_latency),
+        pr("%-4d  %-14i  %-9i  %-13i  %-d\n", i, VTSS_INTERVAL_NS(ts_port_conf->ingress_latency),
            VTSS_INTERVAL_NS(ts_port_conf->p2p_delay),
-           VTSS_INTERVAL_NS(ts_port_conf->egress_latency),
-           ts_port_conf->mode.mode);
+           VTSS_INTERVAL_NS(ts_port_conf->egress_latency), ts_port_conf->mode.mode);
     }
 
     (void)VTSS_FUNC_0(ts.timestamp_get);
@@ -1496,12 +1436,11 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
     for (i = 0; i < VTSS_TS_ID_SIZE; i++) {
         status = &vtss_state->ts.status[i];
         if (status->reserved_mask != 0) {
-            pr("Timestamp_id : %d  Reserved_mask: %" PRIx64 ", age %d\n", i,
-               status->reserved_mask, status->age);
+            pr("Timestamp_id : %d  Reserved_mask: %" PRIx64 ", age %d\n", i, status->reserved_mask,
+               status->age);
         }
         if (status->valid_mask != 0) {
-            pr("                    Valid_mask: %" PRIx64 "\n",
-               status->valid_mask);
+            pr("                    Valid_mask: %" PRIx64 "\n", status->valid_mask);
         }
         first = TRUE;
         for (j = 0; j < VTSS_PORT_ARRAY_SIZE; j++) {
@@ -1510,13 +1449,11 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
                     pr("Tx Port  time counter  time id\n");
                     first = FALSE;
                 }
-                pr("%-9d  %-14" PRIu64 " %-14d \n", j, status->tx_tc[j],
-                   status->tx_id[j]);
+                pr("%-9d  %-14" PRIu64 " %-14d \n", j, status->tx_tc[j], status->tx_id[j]);
             }
         }
         if (status->rx_tc_valid) {
-            pr("Rx Timestamp_id : %d  Rx timecounter: %d, \n", i,
-               status->rx_tc);
+            pr("Rx Timestamp_id : %d  Rx timecounter: %d, \n", i, status->rx_tc);
         }
     }
     pr("\n");

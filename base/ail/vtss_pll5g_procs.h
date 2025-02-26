@@ -67,10 +67,10 @@ typedef struct {
     vtss_pll5g_chip_name_t chip_name; // Name of the vitesse chip
     u8                     selbgv820; // Set the bandgap voltage value
     vtss_pll5g_side        side;
-    u32 f_ref_kHz; // Set reference clock frequency (in kHz) to adjust loop
-                   // bandwidth resistor
-    BOOL unlock;   // Unlock PLL from reference clock (no other cfg steps are
-                   // applied)
+    u32                    f_ref_kHz; // Set reference clock frequency (in kHz) to adjust loop
+                                      // bandwidth resistor
+    BOOL unlock;                      // Unlock PLL from reference clock (no other cfg steps are
+                                      // applied)
     BOOL lock; // Lock PLL to reference clock after unlock (no other cfg steps
                // are applied)
 } vtss_pll5g_setup_args_t;

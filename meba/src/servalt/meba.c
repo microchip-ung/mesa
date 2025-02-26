@@ -9,20 +9,17 @@
 
 #define SYNCE_STATION_CLOCK_IN_PIN  12 // GPIO used as station clock input
 #define SYNCE_STATION_CLOCK_OUT_PIN 33 // GPIO used as station clock output
-#define SYNCE_PTP_CLOCK_OUTPUT                                                 \
-    1 // Clock output used for PTP independent Phase/Frequency adjustment
-#define SYNCE_HO_POST_FILTERING_BW 8898 // Default holdover post filtering
-#define SYNCE_CLOCK_DPLL           0 // DPLL number for the DPLL used for SYNCE
-#define SYNCE_CLOCK_OUTPUT_CNT                                                 \
+#define SYNCE_PTP_CLOCK_OUTPUT      1 // Clock output used for PTP independent Phase/Frequency adjustment
+#define SYNCE_HO_POST_FILTERING_BW  8898 // Default holdover post filtering
+#define SYNCE_CLOCK_DPLL            0    // DPLL number for the DPLL used for SYNCE
+#define SYNCE_CLOCK_OUTPUT_CNT                                                                     \
     4 // Number of clock output references, including 10G ports, which must be
       // connected to the controller outputs
-#define SYNCE_CLOCK_EEC_OPTION_CNT                                             \
-    2 // Number of EEC options that can be selected
-#define SYNCE_RECVRD_CLK_SRC                                                   \
+#define SYNCE_CLOCK_EEC_OPTION_CNT 2 // Number of EEC options that can be selected
+#define SYNCE_RECVRD_CLK_SRC                                                                       \
     5 // 22: Select GPIO reference 0(5+17) is added to this value to select
       // REF_CLK0 from clock MUX
-#define SYNCE_RECVRD_CLK_ID                                                    \
-    3 // RCVRD_CLK3, configured by overlaid function SYNC_ETH_CFG[3]
+#define SYNCE_RECVRD_CLK_ID    3  // RCVRD_CLK3, configured by overlaid function SYNC_ETH_CFG[3]
 #define SYNCE_RECVRD_CLK_3_PIN 36 // GPIO used as RCVRD_CLK3
 
 /** \brief Number of Jaguar2 PTP pins, that can be used as 1PPS or clock
@@ -79,22 +76,19 @@ static const mesa_fan_conf_t fan_conf = {
     .ppr = 2,                               // 2 PPR
 };
 
-static const meba_ptp_rs422_conf_t rs422_conf = {
-    .gpio_rs422_1588_mstoen = 14,
-    .gpio_rs422_1588_slvoen = 15,
-    .ptp_pin_ldst = 2,
-    .ptp_pin_ppso = 3,
-    .ptp_rs422_pps_int_id = MEBA_EVENT_PTP_PIN_2,
-    .ptp_rs422_ldsv_int_id = MEBA_EVENT_PTP_PIN_3};
+static const meba_ptp_rs422_conf_t rs422_conf = {.gpio_rs422_1588_mstoen = 14,
+                                                 .gpio_rs422_1588_slvoen = 15,
+                                                 .ptp_pin_ldst = 2,
+                                                 .ptp_pin_ppso = 3,
+                                                 .ptp_rs422_pps_int_id = MEBA_EVENT_PTP_PIN_2,
+                                                 .ptp_rs422_ldsv_int_id = MEBA_EVENT_PTP_PIN_3};
 
 static const uint32_t pin_conf[VTSS_TS_IO_ARRAY_SIZE] = {
     (MEBA_PTP_IO_CAP_PIN_IN | MEBA_PTP_IO_CAP_PIN_OUT), MEBA_PTP_IO_CAP_PIN_IN,
-    (MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN),
-    MEBA_PTP_IO_CAP_TIME_IF_OUT};
+    (MEBA_PTP_IO_CAP_TIME_IF_IN | MEBA_PTP_IO_CAP_PIN_IN), MEBA_PTP_IO_CAP_TIME_IF_OUT};
 
 static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {
-    MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2,
-    MEBA_EVENT_PTP_PIN_3};
+    MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3};
 
 /* SGPIO LED mapping */
 typedef struct {
@@ -170,11 +164,10 @@ static mesa_rc servalt_port_entry_init(meba_inst_t        inst,
                 entry->map.miim_addr = port_no;
                 entry->map.miim_controller = MESA_MIIM_CONTROLLER_0;
                 entry->mac_if = MESA_PORT_INTERFACE_SGMII;
-                entry->cap = MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER |
-                             MEBA_PORT_CAP_INT_PHY;
-                entry->cap &= ~(MEBA_PORT_CAP_10M_HDX |
-                                MEBA_PORT_CAP_100M_HDX); // BZ20946: half-duplex
-                                                         // not supported
+                entry->cap = MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY;
+                entry->cap &=
+                    ~(MEBA_PORT_CAP_10M_HDX | MEBA_PORT_CAP_100M_HDX); // BZ20946: half-duplex
+                                                                       // not supported
             } else {
                 entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
                 entry->mac_if = MESA_PORT_INTERFACE_SERDES;
@@ -197,14 +190,12 @@ static mesa_rc servalt_port_entry_init(meba_inst_t        inst,
             entry->cap = MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_SFP_SD_HIGH;
         } else {
             /* Port 6-7 or 8-9: SFP+, chip port 9-10 */
-            entry->map.chip_port =
-                port_no + 1 + board->ports_1g - board->ports_2_5g;
+            entry->map.chip_port = port_no + 1 + board->ports_1g - board->ports_2_5g;
             entry->map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
             entry->map.max_bw = MESA_BW_10G; // 10G
             entry->mac_if = MESA_PORT_INTERFACE_SFI;
-            entry->cap = MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_SFP_2_5G |
-                         MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_SD_HIGH |
-                         MEBA_PORT_CAP_SERDES_TX_INVERT;
+            entry->cap = MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_SFP_2_5G | MEBA_PORT_CAP_FLOW_CTRL |
+                         MEBA_PORT_CAP_SFP_SD_HIGH | MEBA_PORT_CAP_SERDES_TX_INVERT;
         }
         rc = MESA_RC_OK;
     } else {
@@ -312,10 +303,8 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
                     continue;
                 }
 
-                conf.port_conf[port].int_pol_high[0] =
-                    true; // LOS is active high.
-                conf.port_conf[port].int_pol_high[1] =
-                    true; // TX_FAULT is active high.
+                conf.port_conf[port].int_pol_high[0] = true; // LOS is active high.
+                conf.port_conf[port].int_pol_high[1] = true; // TX_FAULT is active high.
             }
 
             conf.port_conf[4].int_pol_high[1] = true; // SFP10 TX_FAULT
@@ -330,29 +319,24 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
             void *const                    CLOCK_API_INST = 0;
 
             // GPIO used for Station clock input
-            if ((rc = mesa_gpio_mode_set(NULL, 0, SYNCE_STATION_CLOCK_IN_PIN,
-                                         MESA_GPIO_ALT_0)) != MESA_RC_OK) {
-                T_W(inst,
-                    "Could not configure GPIO for station clock input. Error code was: %x",
+            if ((rc = mesa_gpio_mode_set(NULL, 0, SYNCE_STATION_CLOCK_IN_PIN, MESA_GPIO_ALT_0)) !=
+                MESA_RC_OK) {
+                T_W(inst, "Could not configure GPIO for station clock input. Error code was: %x",
                     rc);
             }
 
             // GPIO used for Station clock output
-            if ((rc = mesa_gpio_mode_set(NULL, 0, SYNCE_RECVRD_CLK_3_PIN,
-                                         MESA_GPIO_ALT_0)) != MESA_RC_OK) {
-                T_W(inst,
-                    "Could not configure GPIO for station clock output. Error code was: %x",
+            if ((rc = mesa_gpio_mode_set(NULL, 0, SYNCE_RECVRD_CLK_3_PIN, MESA_GPIO_ALT_0)) !=
+                MESA_RC_OK) {
+                T_W(inst, "Could not configure GPIO for station clock output. Error code was: %x",
                     rc);
             }
 
             station_clk_conf.divider = MESA_SYNCE_DIVIDER_1;
             station_clk_conf.enable = true;
             station_clk_conf.dpll_out_no = SYNCE_RECVRD_CLK_SRC;
-            if ((rc =
-                     mesa_synce_synce_station_clk_out_set(CLOCK_API_INST,
-                                                          SYNCE_RECVRD_CLK_ID,
-                                                          &station_clk_conf)) !=
-                MESA_RC_OK) {
+            if ((rc = mesa_synce_synce_station_clk_out_set(CLOCK_API_INST, SYNCE_RECVRD_CLK_ID,
+                                                           &station_clk_conf)) != MESA_RC_OK) {
                 T_W(inst,
                     "Could not configure station clock output (divider, enable, etc.). Error code was: %x",
                     rc);
@@ -363,27 +347,20 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
     case MEBA_PORT_RESET_POST:       rc = vtss_phy_post_reset(PHY_INST, 0); break;
     case MEBA_STATUS_LED_INITIALIZE:
     case MEBA_PORT_LED_INITIALIZE:   break;
-    case MEBA_FAN_INITIALIZE:
-        rc = mesa_fan_controller_init(NULL, board->fan_spec);
-        break;
-    case MEBA_SENSOR_INITIALIZE:
-        rc = vtss_phy_chip_temp_init(PHY_INST, 0);
-        break;
+    case MEBA_FAN_INITIALIZE:        rc = mesa_fan_controller_init(NULL, board->fan_spec); break;
+    case MEBA_SENSOR_INITIALIZE:     rc = vtss_phy_chip_temp_init(PHY_INST, 0); break;
     case MEBA_INTERRUPT_INITIALIZE:  break;
     case MEBA_SYNCE_DPLL_INITIALIZE: {
         void *const CLOCK_API_INST = 0;
         mesa_rc     rc;
 
         // initialize the OMEGA IP
-        if ((rc = mesa_clock_global_enable_set(CLOCK_API_INST, true)) !=
-            MESA_RC_OK) {
-            T_W(inst, "Could not do global clock enable. Error code was: %x",
-                rc);
+        if ((rc = mesa_clock_global_enable_set(CLOCK_API_INST, true)) != MESA_RC_OK) {
+            T_W(inst, "Could not do global clock enable. Error code was: %x", rc);
         }
 
         if ((rc = mesa_clock_global_sw_reset(CLOCK_API_INST)) != MESA_RC_OK) {
-            T_W(inst, "Could not do global clock sw reset. Error code was: %x",
-                rc);
+            T_W(inst, "Could not do global clock sw reset. Error code was: %x", rc);
         }
 
         // enable DPLL 0 for synce use.
@@ -391,14 +368,10 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
         conf.mode = MESA_CLOCK_OPERATION_MODE_ENABLED;
         conf.holdoff = 0;  // Holdoff disabled as default
         conf.holdover = 0; // Not sure what it means ?
-        conf.wtr =
-            0; // default WTR value is 0 as it is not supported in ServalT rev 1
-        if ((rc = mesa_clock_operation_conf_set(CLOCK_API_INST,
-                                                SYNCE_CLOCK_DPLL, &conf)) !=
+        conf.wtr = 0;      // default WTR value is 0 as it is not supported in ServalT rev 1
+        if ((rc = mesa_clock_operation_conf_set(CLOCK_API_INST, SYNCE_CLOCK_DPLL, &conf)) !=
             MESA_RC_OK) {
-            T_W(inst,
-                "Could not do clock operation configuration set. Error code was: %x",
-                rc);
+            T_W(inst, "Could not do clock operation configuration set. Error code was: %x", rc);
         }
 
         // work around to avoid very long waiting time before entering Locked
@@ -406,11 +379,9 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
         mesa_clock_ho_stack_conf_t ho_conf;
         ho_conf.ho_post_filtering_bw = SYNCE_HO_POST_FILTERING_BW;
         ho_conf.ho_qual_time_conf = 0;
-        if ((rc = mesa_clock_ho_stack_conf_set(CLOCK_API_INST, SYNCE_CLOCK_DPLL,
-                                               &ho_conf)) != MESA_RC_OK) {
-            T_W(inst,
-                "Could not do HO stack configuration set. Error code was: %x",
-                rc);
+        if ((rc = mesa_clock_ho_stack_conf_set(CLOCK_API_INST, SYNCE_CLOCK_DPLL, &ho_conf)) !=
+            MESA_RC_OK) {
+            T_W(inst, "Could not do HO stack configuration set. Error code was: %x", rc);
         }
 
         // connect output 0 and 1 to DPLL 0
@@ -422,8 +393,8 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
             input.input_type = (clock_out == SYNCE_PTP_CLOCK_OUTPUT)
                                    ? MESA_CLOCK_INPUT_TYPE_PURE_DCO
                                    : MESA_CLOCK_INPUT_TYPE_DPLL;
-            if ((rc = mesa_clock_output_selector_set(CLOCK_API_INST, clock_out,
-                                                     &input)) != MESA_RC_OK) {
+            if ((rc = mesa_clock_output_selector_set(CLOCK_API_INST, clock_out, &input)) !=
+                MESA_RC_OK) {
                 T_W(inst,
                     "Could not do clock output selector set for clock output %d. Error code was: %x",
                     clock_out, rc);
@@ -456,34 +427,32 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
         cfm_conf.cfm_clr_ppb = 40000;
         uint8_t clock_in;
         for (clock_in = 0; clock_in < 2; clock_in++) {
-            if ((rc = mesa_clock_input_frequency_set(CLOCK_API_INST, clock_in,
-                                                     125000, true)) !=
+            if ((rc = mesa_clock_input_frequency_set(CLOCK_API_INST, clock_in, 125000, true)) !=
                 MESA_RC_OK) {
                 T_W(inst,
                     "Could not do clock input frequency set for clock input %d. Error code was: %x",
                     clock_in, rc);
             }
-            if ((rc = mesa_clock_input_alarm_conf_set(CLOCK_API_INST, clock_in,
-                                                      &alarm_conf)) !=
+            if ((rc = mesa_clock_input_alarm_conf_set(CLOCK_API_INST, clock_in, &alarm_conf)) !=
                 MESA_RC_OK) {
                 T_W(inst,
                     "Could not do clock input alarm configuration set for clock input %d. Error code was: %x",
                     clock_in, rc);
             }
-            if ((rc = mesa_clock_input_gst_conf_set(CLOCK_API_INST, clock_in,
-                                                    &gst_conf)) != MESA_RC_OK) {
+            if ((rc = mesa_clock_input_gst_conf_set(CLOCK_API_INST, clock_in, &gst_conf)) !=
+                MESA_RC_OK) {
                 T_W(inst,
                     "Could not do clock input GST configuration set for clock input %d. Error code was: %x",
                     clock_in, rc);
             }
-            if ((rc = mesa_clock_input_pfm_conf_set(CLOCK_API_INST, clock_in,
-                                                    &pfm_conf)) != MESA_RC_OK) {
+            if ((rc = mesa_clock_input_pfm_conf_set(CLOCK_API_INST, clock_in, &pfm_conf)) !=
+                MESA_RC_OK) {
                 T_W(inst,
                     "Could not do clock input PFM configuration set for clock input %d. Error code was: %x",
                     clock_in, rc);
             }
-            if ((rc = mesa_clock_input_cfm_conf_set(CLOCK_API_INST, clock_in,
-                                                    &cfm_conf)) != MESA_RC_OK) {
+            if ((rc = mesa_clock_input_cfm_conf_set(CLOCK_API_INST, clock_in, &cfm_conf)) !=
+                MESA_RC_OK) {
                 T_W(inst,
                     "Could not do clock input CFM configuration set for clock input %d. Error code was: %x",
                     clock_in, rc);
@@ -496,20 +465,16 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
             mesa_synce_station_clock_out_t station_clk_conf;
 
             // GPIO used for Station clock input
-            if ((rc = mesa_gpio_mode_set(CLOCK_API_INST, 0,
-                                         SYNCE_STATION_CLOCK_IN_PIN,
+            if ((rc = mesa_gpio_mode_set(CLOCK_API_INST, 0, SYNCE_STATION_CLOCK_IN_PIN,
                                          MESA_GPIO_ALT_0)) != MESA_RC_OK) {
-                T_W(inst,
-                    "Could not configure GPIO for station clock input. Error code was: %x",
+                T_W(inst, "Could not configure GPIO for station clock input. Error code was: %x",
                     rc);
             }
 
             // GPIO used for Station clock output
-            if ((rc = mesa_gpio_mode_set(CLOCK_API_INST, 0,
-                                         SYNCE_STATION_CLOCK_OUT_PIN,
+            if ((rc = mesa_gpio_mode_set(CLOCK_API_INST, 0, SYNCE_STATION_CLOCK_OUT_PIN,
                                          MESA_GPIO_ALT_0)) != MESA_RC_OK) {
-                T_W(inst,
-                    "Could not configure GPIO for station clock output. Error code was: %x",
+                T_W(inst, "Could not configure GPIO for station clock output. Error code was: %x",
                     rc);
             }
 
@@ -517,12 +482,9 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
             // an exted divide by 2 in the HW, this results in 10MHz clock output
             station_clk_conf.divider = MESA_SYNCE_DIVIDER_5;
             station_clk_conf.enable = true;
-            station_clk_conf.dpll_out_no =
-                0; // use dpll output no 0, this output is also used as
-                   // reference clocks for TX ports (< 10G)
-            if ((rc =
-                     mesa_synce_synce_station_clk_out_set(CLOCK_API_INST, 0,
-                                                          &station_clk_conf)) !=
+            station_clk_conf.dpll_out_no = 0; // use dpll output no 0, this output is also used as
+                                              // reference clocks for TX ports (< 10G)
+            if ((rc = mesa_synce_synce_station_clk_out_set(CLOCK_API_INST, 0, &station_clk_conf)) !=
                 MESA_RC_OK) {
                 T_W(inst,
                     "Could not configure station clock output (divider, enable, etc.). Error code was: %x",
@@ -541,10 +503,7 @@ static mesa_rc servalt_reset(meba_inst_t inst, meba_reset_point_t reset)
     return rc;
 }
 
-static mesa_rc servalt_sensor_get(meba_inst_t   inst,
-                                  meba_sensor_t type,
-                                  int           six,
-                                  int          *value)
+static mesa_rc servalt_sensor_get(meba_inst_t inst, meba_sensor_t type, int six, int *value)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc             rc = MESA_RC_ERROR;
@@ -593,23 +552,16 @@ static mesa_bool_t get_sfp_status(meba_inst_t             inst,
 {
     meba_board_state_t *board = INST2BOARD(inst);
     uint32_t            chip_port = board->port[port_no].map.map.chip_port;
-    uint32_t indx = (sfp == SFP_DETECT) ? 2 : (sfp == SFP_FAULT) ? 1 : 0;
+    uint32_t            indx = (sfp == SFP_DETECT) ? 2 : (sfp == SFP_FAULT) ? 1 : 0;
 
     switch (chip_port) {
-    case 0:
-        return (sfp == SFP_DETECT) ? !data[0].value[indx] : data[0].value[indx];
-    case 1:
-        return (sfp == SFP_DETECT) ? !data[1].value[indx] : data[1].value[indx];
-    case 2:
-        return (sfp == SFP_DETECT) ? !data[2].value[indx] : data[2].value[indx];
-    case 3:
-        return (sfp == SFP_DETECT) ? !data[3].value[indx] : data[3].value[indx];
-    case 5:
-        return (sfp == SFP_DETECT) ? !data[5].value[indx] : data[5].value[indx];
-    case 6:
-        return (sfp == SFP_DETECT) ? !data[6].value[indx] : data[6].value[indx];
-    case 9:
-        return (sfp == SFP_DETECT) ? !data[9].value[indx] : data[9].value[indx];
+    case 0: return (sfp == SFP_DETECT) ? !data[0].value[indx] : data[0].value[indx];
+    case 1: return (sfp == SFP_DETECT) ? !data[1].value[indx] : data[1].value[indx];
+    case 2: return (sfp == SFP_DETECT) ? !data[2].value[indx] : data[2].value[indx];
+    case 3: return (sfp == SFP_DETECT) ? !data[3].value[indx] : data[3].value[indx];
+    case 5: return (sfp == SFP_DETECT) ? !data[5].value[indx] : data[5].value[indx];
+    case 6: return (sfp == SFP_DETECT) ? !data[6].value[indx] : data[6].value[indx];
+    case 9: return (sfp == SFP_DETECT) ? !data[9].value[indx] : data[9].value[indx];
     case 10:
         return (sfp == SFP_DETECT)  ? !data[4].value[indx]
                : (sfp == SFP_FAULT) ? data[4].value[indx]
@@ -618,8 +570,7 @@ static mesa_bool_t get_sfp_status(meba_inst_t             inst,
     return false;
 }
 
-static mesa_rc servalt_sfp_insertion_status_get(meba_inst_t       inst,
-                                                mesa_port_list_t *present)
+static mesa_rc servalt_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list_t *present)
 {
     meba_board_state_t    *board = INST2BOARD(inst);
     mesa_rc                rc;
@@ -632,8 +583,7 @@ static mesa_rc servalt_sfp_insertion_status_get(meba_inst_t       inst,
         /* The status in 'data' is inverted i.e. '0' means detected */
         /* We return '1' when a module is detected */
         for (port_no = 0; port_no < board->port_cnt; port_no++) {
-            mesa_port_list_set(present, port_no,
-                               get_sfp_status(inst, port_no, data, SFP_DETECT));
+            mesa_port_list_set(present, port_no, get_sfp_status(inst, port_no, data, SFP_DETECT));
         }
     }
 
@@ -655,21 +605,19 @@ static mesa_rc servalt_sfp_status_get(meba_inst_t        inst,
             (entry->cap & MEBA_PORT_CAP_DUAL_SFP_DETECT)) {
             mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
             if ((rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
-                status->present =
-                    get_sfp_status(inst, port_no, data, SFP_DETECT);
-                status->tx_fault =
-                    get_sfp_status(inst, port_no, data, SFP_FAULT);
+                status->present = get_sfp_status(inst, port_no, data, SFP_DETECT);
+                status->tx_fault = get_sfp_status(inst, port_no, data, SFP_FAULT);
                 status->los = get_sfp_status(inst, port_no, data, SFP_LOS);
             }
         }
     }
-    T_N(inst, "port(%d): rc %d, present:%d los:%d tx_fault:%d", port_no, rc,
-        status->present, status->los, status->tx_fault);
+    T_N(inst, "port(%d): rc %d, present:%d los:%d tx_fault:%d", port_no, rc, status->present,
+        status->los, status->tx_fault);
     return rc;
 }
 
-static mesa_rc servalt_port_admin_state_set(meba_inst_t    inst,
-                                            mesa_port_no_t port_no,
+static mesa_rc servalt_port_admin_state_set(meba_inst_t                    inst,
+                                            mesa_port_no_t                 port_no,
                                             const meba_port_admin_state_t *state)
 {
     mesa_rc             rc = MESA_RC_ERROR;
@@ -677,9 +625,8 @@ static mesa_rc servalt_port_admin_state_set(meba_inst_t    inst,
 
     if (port_no < board->port_cnt) {
         mesa_sgpio_conf_t conf;
-        mesa_sgpio_mode_t sgpio_mode =
-            (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
-        uint32_t chip_port = board->port[port_no].map.map.chip_port;
+        mesa_sgpio_mode_t sgpio_mode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
+        uint32_t          chip_port = board->port[port_no].map.map.chip_port;
         if ((rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
             // Configure SFP TxDisable
             switch (chip_port) {
@@ -693,8 +640,8 @@ static mesa_rc servalt_port_admin_state_set(meba_inst_t    inst,
             case 10: conf.port_conf[15].mode[3] = sgpio_mode; break;
             default: return rc;
             }
-            T_D(inst, "Port %d: bmode_0: %d, bmode_1: %d, bit_count: %d",
-                port_no, conf.bmode[0], conf.bmode[1], conf.bit_count);
+            T_D(inst, "Port %d: bmode_0: %d, bmode_1: %d, bit_count: %d", port_no, conf.bmode[0],
+                conf.bmode[1], conf.bit_count);
             T_D(inst, "Port %d: p6b2: %d", port_no, conf.port_conf[6].mode[2]);
             T_D(inst, "Port %d: p6b3: %d", port_no, conf.port_conf[6].mode[3]);
             rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
@@ -711,9 +658,8 @@ static mesa_bool_t port_activity(meba_inst_t               inst,
     mesa_port_status_t *old_status = &board->port[port_no].status;
     mesa_bool_t         link_activity = false;
 
-    if (old_status->link != status->link ||
-        old_status->speed != status->speed || old_status->fdx != status->fdx ||
-        old_status->fiber != status->fiber) {
+    if (old_status->link != status->link || old_status->speed != status->speed ||
+        old_status->fdx != status->fdx || old_status->fiber != status->fiber) {
         link_activity = true;
         *old_status = *status;
     }
@@ -736,28 +682,20 @@ static mesa_rc servalt_status_led_set(meba_inst_t      inst,
             switch (color) {
             // Active high
             case MEBA_LED_COLOR_OFF:
-                conf.port_conf[STATUS_GREEN_PORT].mode[STATUS_GREEN_BIT] =
-                    MESA_SGPIO_MODE_OFF;
-                conf.port_conf[STATUS_RED_PORT].mode[STATUS_RED_BIT] =
-                    MESA_SGPIO_MODE_OFF;
+                conf.port_conf[STATUS_GREEN_PORT].mode[STATUS_GREEN_BIT] = MESA_SGPIO_MODE_OFF;
+                conf.port_conf[STATUS_RED_PORT].mode[STATUS_RED_BIT] = MESA_SGPIO_MODE_OFF;
                 break;
             case MEBA_LED_COLOR_GREEN:
-                conf.port_conf[STATUS_GREEN_PORT].mode[STATUS_GREEN_BIT] =
-                    MESA_SGPIO_MODE_ON;
-                conf.port_conf[STATUS_RED_PORT].mode[STATUS_RED_BIT] =
-                    MESA_SGPIO_MODE_OFF;
+                conf.port_conf[STATUS_GREEN_PORT].mode[STATUS_GREEN_BIT] = MESA_SGPIO_MODE_ON;
+                conf.port_conf[STATUS_RED_PORT].mode[STATUS_RED_BIT] = MESA_SGPIO_MODE_OFF;
                 break;
             case MEBA_LED_COLOR_RED:
-                conf.port_conf[STATUS_GREEN_PORT].mode[STATUS_GREEN_BIT] =
-                    MESA_SGPIO_MODE_OFF;
-                conf.port_conf[STATUS_RED_PORT].mode[STATUS_RED_BIT] =
-                    MESA_SGPIO_MODE_ON;
+                conf.port_conf[STATUS_GREEN_PORT].mode[STATUS_GREEN_BIT] = MESA_SGPIO_MODE_OFF;
+                conf.port_conf[STATUS_RED_PORT].mode[STATUS_RED_BIT] = MESA_SGPIO_MODE_ON;
                 break;
             case MEBA_LED_COLOR_YELLOW:
-                conf.port_conf[STATUS_GREEN_PORT].mode[STATUS_GREEN_BIT] =
-                    MESA_SGPIO_MODE_ON;
-                conf.port_conf[STATUS_RED_PORT].mode[STATUS_RED_BIT] =
-                    MESA_SGPIO_MODE_ON;
+                conf.port_conf[STATUS_GREEN_PORT].mode[STATUS_GREEN_BIT] = MESA_SGPIO_MODE_ON;
+                conf.port_conf[STATUS_RED_PORT].mode[STATUS_RED_BIT] = MESA_SGPIO_MODE_ON;
                 break;
             default: rc = MESA_RC_ERROR;
             }
@@ -780,16 +718,14 @@ static mesa_rc servalt_port_led_update(meba_inst_t                    inst,
     uint32_t             chip_port = portinfo->map.map.chip_port;
     uint8_t              bit_green = 0, bit_yellow = 1;
     mesa_sgpio_conf_t    conf;
-    mesa_sgpio_mode_t    mode_green = MESA_SGPIO_MODE_OFF,
-                      mode_yellow = MESA_SGPIO_MODE_OFF;
-    mesa_rc     rc;
-    mesa_bool_t update_led, tower_mode_changed, collision = false;
+    mesa_sgpio_mode_t    mode_green = MESA_SGPIO_MODE_OFF, mode_yellow = MESA_SGPIO_MODE_OFF;
+    mesa_rc              rc;
+    mesa_bool_t          update_led, tower_mode_changed, collision = false;
 
     update_led = port_activity(inst, port_no, status);
 
     // find out if tower mode has changed since the last time the port was served.
-    tower_mode_changed =
-        (portinfo->led_tower_mode_old != board->led_tower_mode);
+    tower_mode_changed = (portinfo->led_tower_mode_old != board->led_tower_mode);
     portinfo->led_tower_mode_old = board->led_tower_mode;
 
     /* Clear port count database whatever the current link status */
@@ -797,10 +733,8 @@ static mesa_rc servalt_port_led_update(meba_inst_t                    inst,
         portinfo->port_collision_cnt = false;
     }
 
-    if (board->led_tower_mode == LED_TOWER_MODE_DUPLEX_SPEED && status->link &&
-        !status->fdx &&
-        portinfo->port_collision_cnt !=
-            counters->rmon.tx_etherStatsCollisions) {
+    if (board->led_tower_mode == LED_TOWER_MODE_DUPLEX_SPEED && status->link && !status->fdx &&
+        portinfo->port_collision_cnt != counters->rmon.tx_etherStatsCollisions) {
         update_led = true;
         collision = true;
         portinfo->pre_collision_state = true;
@@ -823,12 +757,11 @@ static mesa_rc servalt_port_led_update(meba_inst_t                    inst,
 
     /* Return here if nothing has changed or in power saving mode */
     if ((!update_led && !tower_mode_changed) ||
-        (!tower_mode_changed &&
-         board->led_tower_mode == LED_TOWER_MODE_POWER_SAVE)) {
+        (!tower_mode_changed && board->led_tower_mode == LED_TOWER_MODE_POWER_SAVE)) {
         T_N(inst,
             "Port %d: DON'T NEED update led(update_led = %s, tower_mode_changed = %s, board->led_tower_mode = %d)",
-            port_no, update_led ? "TRUE" : "FALSE",
-            tower_mode_changed ? "TRUE" : "FALSE", board->led_tower_mode);
+            port_no, update_led ? "TRUE" : "FALSE", tower_mode_changed ? "TRUE" : "FALSE",
+            board->led_tower_mode);
         return MESA_RC_OK;
     }
 
@@ -932,26 +865,22 @@ static mesa_rc servalt_led_mode_set(meba_inst_t inst, uint32_t mode)
     if ((rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
         int i;
         for (i = 0; i < 4; i++) {
-            conf.port_conf[tower_led_mapping[i][0].port]
-                .mode[tower_led_mapping[i][0].bit] =
-                conf.port_conf[tower_led_mapping[i][1].port]
-                    .mode[tower_led_mapping[i][1].bit] = MESA_SGPIO_MODE_OFF;
+            conf.port_conf[tower_led_mapping[i][0].port].mode[tower_led_mapping[i][0].bit] =
+                conf.port_conf[tower_led_mapping[i][1].port].mode[tower_led_mapping[i][1].bit] =
+                    MESA_SGPIO_MODE_OFF;
         }
 
         i = board->led_tower_mode;
-        conf.port_conf[tower_led_mapping[i][0].port]
-            .mode[tower_led_mapping[i][0].bit] = MESA_SGPIO_MODE_ON;
-        T_D(inst, "p%db%d : %d", tower_led_mapping[i][0].port,
-            tower_led_mapping[i][0].bit,
-            conf.port_conf[tower_led_mapping[i][0].port]
-                .mode[tower_led_mapping[i][0].bit]);
+        conf.port_conf[tower_led_mapping[i][0].port].mode[tower_led_mapping[i][0].bit] =
+            MESA_SGPIO_MODE_ON;
+        T_D(inst, "p%db%d : %d", tower_led_mapping[i][0].port, tower_led_mapping[i][0].bit,
+            conf.port_conf[tower_led_mapping[i][0].port].mode[tower_led_mapping[i][0].bit]);
         rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
     return rc;
 }
 
-static mesa_rc servalt_led_intensity_set(meba_inst_t            inst,
-                                         vtss_phy_led_intensity intensity)
+static mesa_rc servalt_led_intensity_set(meba_inst_t inst, vtss_phy_led_intensity intensity)
 {
     return vtss_phy_led_intensity_set(PHY_INST, 0, intensity);
 }
@@ -973,19 +902,17 @@ static mesa_rc servalt_fan_conf_get(meba_inst_t inst, mesa_fan_conf_t *conf)
     return MESA_RC_OK;
 }
 
-static mesa_rc servalt_ptp_rs422_conf_get(meba_inst_t            inst,
-                                          meba_ptp_rs422_conf_t *conf)
+static mesa_rc servalt_ptp_rs422_conf_get(meba_inst_t inst, meba_ptp_rs422_conf_t *conf)
 {
     mesa_rc rc = MESA_RC_OK;
     T_N(inst, "Called");
     *conf = rs422_conf;
     return rc;
 }
-static mesa_rc servalt_ptp_external_io_conf_get(meba_inst_t inst,
-                                                uint32_t    io_pin,
-                                                meba_ptp_io_cap_t
-                                                    *const board_assignment,
-                                                meba_event_t *const source_id)
+static mesa_rc servalt_ptp_external_io_conf_get(meba_inst_t              inst,
+                                                uint32_t                 io_pin,
+                                                meba_ptp_io_cap_t *const board_assignment,
+                                                meba_event_t *const      source_id)
 
 {
     if (io_pin >= VTSS_TS_IO_ARRAY_SIZE) {
@@ -996,8 +923,7 @@ static mesa_rc servalt_ptp_external_io_conf_get(meba_inst_t inst,
     return MESA_RC_OK;
 }
 
-static mesa_port_no_t srvlt_map_sgpio_to_port(meba_board_state_t *board,
-                                              uint32_t            sgpio_port)
+static mesa_port_no_t srvlt_map_sgpio_to_port(meba_board_state_t *board, uint32_t sgpio_port)
 {
     mesa_port_no_t port_no;
 
@@ -1019,9 +945,7 @@ static mesa_port_no_t srvlt_map_sgpio_to_port(meba_board_state_t *board,
     return port_no;
 }
 
-static mesa_rc servalt_event_enable(meba_inst_t  inst,
-                                    meba_event_t event_id,
-                                    mesa_bool_t  enable)
+static mesa_rc servalt_event_enable(meba_inst_t inst, meba_event_t event_id, mesa_bool_t enable)
 {
     mesa_rc             rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
@@ -1041,11 +965,9 @@ static mesa_rc servalt_event_enable(meba_inst_t  inst,
         for (sgpio = 0; sgpio < 11; sgpio++) {
             port_no = srvlt_map_sgpio_to_port(board, sgpio);
             if (is_sfp_port(board->port[port_no].map.cap)) {
-                T_D(inst, "port(%d) %sable LOS sgpio %d", port_no,
-                    enable ? "en" : "dis", sgpio);
+                T_D(inst, "port(%d) %sable LOS sgpio %d", port_no, enable ? "en" : "dis", sgpio);
                 // Enable SGPIOs for SFP LOS
-                if (mesa_sgpio_event_enable(NULL, 0, 0, sgpio, 0, enable) !=
-                    MESA_RC_OK) {
+                if (mesa_sgpio_event_enable(NULL, 0, 0, sgpio, 0, enable) != MESA_RC_OK) {
                     T_E(inst, "Could not enable event for sgpio #%d", sgpio);
                 }
             }
@@ -1055,23 +977,17 @@ static mesa_rc servalt_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_FLNK:
         for (port_no = 0; port_no < board->port_cnt; port_no++) {
             if (is_phy_internal(board->port[port_no].map.cap)) {
-                T_D(inst, "port(%d) %sable DEV_ALL", port_no,
-                    enable ? "en" : "dis");
-                if ((rc = mesa_dev_all_event_enable(NULL, port_no,
-                                                    MESA_DEV_ALL_LINK_EV,
-                                                    enable)) != MESA_RC_OK) {
-                    T_E(inst, "Could not enable event for dev #%d = %d",
-                        port_no, rc);
+                T_D(inst, "port(%d) %sable DEV_ALL", port_no, enable ? "en" : "dis");
+                if ((rc = mesa_dev_all_event_enable(NULL, port_no, MESA_DEV_ALL_LINK_EV, enable)) !=
+                    MESA_RC_OK) {
+                    T_E(inst, "Could not enable event for dev #%d = %d", port_no, rc);
                 }
             }
             if (is_phy_port(board->port[port_no].map.cap)) {
-                T_D(inst, "port(%d) %sable FLNK", port_no,
-                    enable ? "en" : "dis");
-                if ((rc = vtss_phy_event_enable_set(PHY_INST, port_no,
-                                                    VTSS_PHY_LINK_FFAIL_EV,
+                T_D(inst, "port(%d) %sable FLNK", port_no, enable ? "en" : "dis");
+                if ((rc = vtss_phy_event_enable_set(PHY_INST, port_no, VTSS_PHY_LINK_FFAIL_EV,
                                                     enable)) != MESA_RC_OK) {
-                    T_E(inst, "Could not enable event for dev #%d = %d",
-                        port_no, rc);
+                    T_E(inst, "Could not enable event for dev #%d = %d", port_no, rc);
                 }
             }
         }
@@ -1087,10 +1003,8 @@ static mesa_rc servalt_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_PTP_PIN_2:
     case MEBA_EVENT_PTP_PIN_3:
     case MEBA_EVENT_CLK_TSTAMP: {
-        mesa_ptp_event_type_t ptp_event =
-            meba_generic_ptp_source_to_event(inst, event_id);
-        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) !=
-            MESA_RC_OK) {
+        mesa_ptp_event_type_t ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
+        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
             T_E(inst, "mesa_ptp_event_enable = %d", rc);
         }
     } break;
@@ -1098,8 +1012,7 @@ static mesa_rc servalt_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_PUSH_BUTTON:
         gpio = 13;
         if (gpio >= 0) {
-            T_I(inst, "%sable Push_button(GPIO_%d) interrupt",
-                enable ? "en" : "dis", gpio);
+            T_I(inst, "%sable Push_button(GPIO_%d) interrupt", enable ? "en" : "dis", gpio);
             if (mesa_gpio_event_enable(NULL, 0, gpio, enable) != MESA_RC_OK) {
                 T_E(inst, "Could not control event for gpio #%d", gpio);
             }
@@ -1122,21 +1035,17 @@ static mesa_rc sgpio_handler(meba_inst_t         inst,
     mesa_bool_t    sgpio_events_bit[MESA_SGPIO_PORTS];
 
     // Getting SGPIO bit 0 (see UG1058 Table 15)
-    if ((rc = mesa_sgpio_event_poll(NULL, 0, 0, 0, sgpio_events_bit)) !=
-        MESA_RC_OK) {
+    if ((rc = mesa_sgpio_event_poll(NULL, 0, 0, 0, sgpio_events_bit)) != MESA_RC_OK) {
         T_E(inst, "mesa_sgpio_event_poll = %d", rc);
         return true;
     }
 
     for (sgpio_port = 0; sgpio_port < 11; sgpio_port++) {
         port_no = srvlt_map_sgpio_to_port(board, sgpio_port);
-        if (is_sfp_port(board->port[port_no].map.cap) &&
-            sgpio_events_bit[sgpio_port]) {
-            T_I(inst, "Event on sgpio_port %d (iport = %u)", sgpio_port,
-                port_no);
+        if (is_sfp_port(board->port[port_no].map.cap) && sgpio_events_bit[sgpio_port]) {
+            T_I(inst, "Event on sgpio_port %d (iport = %u)", sgpio_port, port_no);
             // Disable the interrupt while handling the event
-            if ((rc = mesa_sgpio_event_enable(NULL, 0, 0, sgpio_port, 0,
-                                              false)) != MESA_RC_OK) {
+            if ((rc = mesa_sgpio_event_enable(NULL, 0, 0, sgpio_port, 0, false)) != MESA_RC_OK) {
                 T_E(inst, "mesa_sgpio_event_enable = %d", rc);
                 // Go on anyway
             }
@@ -1156,8 +1065,7 @@ static mesa_rc dev_all_handler(meba_inst_t         inst,
     mesa_port_no_t            port_no;
     int                       handled = 0;
 
-    if (mesa_dev_all_event_poll(NULL, MESA_DEV_ALL_POLL_ALL, dev_all_events) !=
-        MESA_RC_OK) {
+    if (mesa_dev_all_event_poll(NULL, MESA_DEV_ALL_POLL_ALL, dev_all_events) != MESA_RC_OK) {
         T_E(inst, "mesa_dev_all_event_poll failed");
         return MESA_RC_ERROR;
     }
@@ -1165,15 +1073,12 @@ static mesa_rc dev_all_handler(meba_inst_t         inst,
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (dev_all_events[port_no] & MESA_DEV_ALL_LINK_EV) {
             T_I(inst, "DEV %d intr", port_no);
-            if (mesa_dev_all_event_enable(NULL, port_no,
-                                          dev_all_events[port_no],
-                                          false) != MESA_RC_OK) {
+            if (mesa_dev_all_event_enable(NULL, port_no, dev_all_events[port_no], false) !=
+                MESA_RC_OK) {
                 T_E(inst, "mesa_dev_all_event_enable failed");
             }
             if (is_phy_port(board->port[port_no].map.cap)) {
-                if (meba_generic_phy_event_check(inst, port_no,
-                                                 signal_notifier) ==
-                    MESA_RC_OK) {
+                if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
                     T_D(inst, "port(%d) PHY IRQ handled", port_no);
                     handled++;
                 }
@@ -1192,8 +1097,7 @@ static mesa_rc ext1_handler(meba_inst_t         inst,
     mesa_port_no_t port_no;
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (is_phy_port(board->port[port_no].map.cap)) {
-            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) ==
-                MESA_RC_OK) {
+            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
                 T_D(inst, "port(%d) PHY IRQ handled", port_no);
                 handled++;
             }
@@ -1221,8 +1125,7 @@ static mesa_rc gpio_handler(meba_inst_t         inst,
         mesa_bool_t state = false;
         (void)mesa_gpio_read(NULL, 0, gpio, &state);
         if (state) { // Only IRQ on de-press (not de-press and release)
-            if ((rc = mesa_gpio_event_enable(NULL, 0, gpio, false)) !=
-                MESA_RC_OK) {
+            if ((rc = mesa_gpio_event_enable(NULL, 0, gpio, false)) != MESA_RC_OK) {
                 T_E(inst, "mesa_gpio_event_enable = %d", rc);
             }
             signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
@@ -1241,17 +1144,14 @@ static mesa_rc servalt_irq_handler(meba_inst_t         inst,
     T_D(inst, "Called - irq %d", chip_irq);
 
     switch (chip_irq) {
-    case MESA_IRQ_PTP_SYNC:
-        return meba_generic_ptp_handler(inst, signal_notifier);
-    case MESA_IRQ_PTP_RDY:
-        signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0);
-        return MESA_RC_OK;
-    case MESA_IRQ_OAM:     signal_notifier(MEBA_EVENT_VOE, 0); return MESA_RC_OK;
-    case MESA_IRQ_GPIO:    return gpio_handler(inst, board, signal_notifier);
-    case MESA_IRQ_SGPIO:   return sgpio_handler(inst, board, signal_notifier);
-    case MESA_IRQ_EXT1:    return ext1_handler(inst, board, signal_notifier);
-    case MESA_IRQ_DEV_ALL: return dev_all_handler(inst, board, signal_notifier);
-    default:               ;
+    case MESA_IRQ_PTP_SYNC: return meba_generic_ptp_handler(inst, signal_notifier);
+    case MESA_IRQ_PTP_RDY:  signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0); return MESA_RC_OK;
+    case MESA_IRQ_OAM:      signal_notifier(MEBA_EVENT_VOE, 0); return MESA_RC_OK;
+    case MESA_IRQ_GPIO:     return gpio_handler(inst, board, signal_notifier);
+    case MESA_IRQ_SGPIO:    return sgpio_handler(inst, board, signal_notifier);
+    case MESA_IRQ_EXT1:     return ext1_handler(inst, board, signal_notifier);
+    case MESA_IRQ_DEV_ALL:  return dev_all_handler(inst, board, signal_notifier);
+    default:                ;
     }
 
     return MESA_RC_NOT_IMPLEMENTED;
@@ -1273,23 +1173,21 @@ static mesa_rc servalt_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
     return rc;
 }
 
-meba_inst_t meba_initialize(size_t                        callouts_size,
-                            const meba_board_interface_t *callouts)
+meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *callouts)
 {
     meba_inst_t         inst;
     meba_board_state_t *board;
     mesa_port_no_t      port_no;
 
     if (callouts_size < sizeof(*callouts)) {
-        fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
-                sizeof(*callouts), callouts_size);
+        fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n", sizeof(*callouts),
+                callouts_size);
         return NULL;
     }
 
     // Allocate pulic state
-    if ((inst = meba_state_alloc(callouts, "Serval-T NID",
-                                 MESA_TARGET_SERVAL_TE10, sizeof(*board))) ==
-        NULL) {
+    if ((inst = meba_state_alloc(callouts, "Serval-T NID", MESA_TARGET_SERVAL_TE10,
+                                 sizeof(*board))) == NULL) {
         return NULL;
     }
 
@@ -1316,18 +1214,16 @@ meba_inst_t meba_initialize(size_t                        callouts_size,
     }
 
     // NPI + 1G + 2.5G + 10G
-    board->port_cnt =
-        1 + board->ports_1g + board->ports_2_5g + board->ports_10g;
+    board->port_cnt = 1 + board->ports_1g + board->ports_2_5g + board->ports_10g;
     inst->props.board_type = VTSS_BOARD_SERVALT_NID_REF; // Exposed temporarily
     board->fan_spec = &fan_conf;
-    board->port = (servalt_port_info_t *)calloc(board->port_cnt,
-                                                sizeof(servalt_port_info_t));
+    board->port = (servalt_port_info_t *)calloc(board->port_cnt, sizeof(servalt_port_info_t));
     if (board->port == NULL) {
         fprintf(stderr, "Port table malloc failure\n");
         goto error_out;
     }
-    T_I(inst, "Board: %s, target %4x, %d ports", inst->props.name,
-        inst->props.target, board->port_cnt);
+    T_I(inst, "Board: %s, target %4x, %d ports", inst->props.name, inst->props.target,
+        board->port_cnt);
 
     /* Fill out port mapping table */
     for (port_no = 0; port_no < board->port_cnt; port_no++) {

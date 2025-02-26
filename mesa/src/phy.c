@@ -53,17 +53,21 @@ mesa_rc mesa_conv2_vtss_phy_ts_mpls_flow_conf_t_to_mesa_phy_ts_mpls_flow_conf_t(
     const vtss_phy_ts_mpls_flow_conf_t *in,
     mesa_phy_ts_mpls_flow_conf_t       *out)
 {
-    mesa_conv_vtss_phy_ts_mpls_lvl_rng_t_to_mesa_phy_ts_mpls_lvl_rng_t(
-        &in->stack_level.top_down.top, &out->stack_level.top_down.top);
-    mesa_conv_vtss_phy_ts_mpls_lvl_rng_t_to_mesa_phy_ts_mpls_lvl_rng_t(
-        &in->stack_level.top_down.frst_lvl_after_top,
-        &out->stack_level.top_down.frst_lvl_after_top);
-    mesa_conv_vtss_phy_ts_mpls_lvl_rng_t_to_mesa_phy_ts_mpls_lvl_rng_t(
-        &in->stack_level.top_down.snd_lvl_after_top,
-        &out->stack_level.top_down.snd_lvl_after_top);
-    mesa_conv_vtss_phy_ts_mpls_lvl_rng_t_to_mesa_phy_ts_mpls_lvl_rng_t(
-        &in->stack_level.top_down.thrd_lvl_after_top,
-        &out->stack_level.top_down.thrd_lvl_after_top);
+    mesa_conv_vtss_phy_ts_mpls_lvl_rng_t_to_mesa_phy_ts_mpls_lvl_rng_t(&in->stack_level.top_down.top,
+                                                                       &out->stack_level.top_down
+                                                                            .top);
+    mesa_conv_vtss_phy_ts_mpls_lvl_rng_t_to_mesa_phy_ts_mpls_lvl_rng_t(&in->stack_level.top_down
+                                                                            .frst_lvl_after_top,
+                                                                       &out->stack_level.top_down
+                                                                            .frst_lvl_after_top);
+    mesa_conv_vtss_phy_ts_mpls_lvl_rng_t_to_mesa_phy_ts_mpls_lvl_rng_t(&in->stack_level.top_down
+                                                                            .snd_lvl_after_top,
+                                                                       &out->stack_level.top_down
+                                                                            .snd_lvl_after_top);
+    mesa_conv_vtss_phy_ts_mpls_lvl_rng_t_to_mesa_phy_ts_mpls_lvl_rng_t(&in->stack_level.top_down
+                                                                            .thrd_lvl_after_top,
+                                                                       &out->stack_level.top_down
+                                                                            .thrd_lvl_after_top);
     return VTSS_RC_OK;
 }
 
@@ -71,17 +75,21 @@ mesa_rc mesa_conv2_mesa_phy_ts_mpls_flow_conf_t_to_vtss_phy_ts_mpls_flow_conf_t(
     const mesa_phy_ts_mpls_flow_conf_t *in,
     vtss_phy_ts_mpls_flow_conf_t       *out)
 {
-    mesa_conv_mesa_phy_ts_mpls_lvl_rng_t_to_vtss_phy_ts_mpls_lvl_rng_t(
-        &in->stack_level.top_down.top, &out->stack_level.top_down.top);
-    mesa_conv_mesa_phy_ts_mpls_lvl_rng_t_to_vtss_phy_ts_mpls_lvl_rng_t(
-        &in->stack_level.top_down.frst_lvl_after_top,
-        &out->stack_level.top_down.frst_lvl_after_top);
-    mesa_conv_mesa_phy_ts_mpls_lvl_rng_t_to_vtss_phy_ts_mpls_lvl_rng_t(
-        &in->stack_level.top_down.snd_lvl_after_top,
-        &out->stack_level.top_down.snd_lvl_after_top);
-    mesa_conv_mesa_phy_ts_mpls_lvl_rng_t_to_vtss_phy_ts_mpls_lvl_rng_t(
-        &in->stack_level.top_down.thrd_lvl_after_top,
-        &out->stack_level.top_down.thrd_lvl_after_top);
+    mesa_conv_mesa_phy_ts_mpls_lvl_rng_t_to_vtss_phy_ts_mpls_lvl_rng_t(&in->stack_level.top_down.top,
+                                                                       &out->stack_level.top_down
+                                                                            .top);
+    mesa_conv_mesa_phy_ts_mpls_lvl_rng_t_to_vtss_phy_ts_mpls_lvl_rng_t(&in->stack_level.top_down
+                                                                            .frst_lvl_after_top,
+                                                                       &out->stack_level.top_down
+                                                                            .frst_lvl_after_top);
+    mesa_conv_mesa_phy_ts_mpls_lvl_rng_t_to_vtss_phy_ts_mpls_lvl_rng_t(&in->stack_level.top_down
+                                                                            .snd_lvl_after_top,
+                                                                       &out->stack_level.top_down
+                                                                            .snd_lvl_after_top);
+    mesa_conv_mesa_phy_ts_mpls_lvl_rng_t_to_vtss_phy_ts_mpls_lvl_rng_t(&in->stack_level.top_down
+                                                                            .thrd_lvl_after_top,
+                                                                       &out->stack_level.top_down
+                                                                            .thrd_lvl_after_top);
     return VTSS_RC_OK;
 }
 #endif // defined(VTSS_OPT_PHY_TIMESTAMP)

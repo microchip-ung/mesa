@@ -11,34 +11,25 @@
 void vtss_lan966x_reg_error(const char *file, int line)
 {
 #if VTSS_OPT_TRACE
-    vtss_callout_trace_printf(VTSS_TRACE_LAYER, VTSS_TRACE_GROUP_DEFAULT,
-                              VTSS_TRACE_LEVEL_ERROR, file, line, file,
-                              "Index exceed replication!");
+    vtss_callout_trace_printf(VTSS_TRACE_LAYER, VTSS_TRACE_GROUP_DEFAULT, VTSS_TRACE_LEVEL_ERROR,
+                              file, line, file, "Index exceed replication!");
 #endif
 }
 
 /* Read target register using current CPU interface */
-static inline vtss_rc lan966x_rd_direct(vtss_state_t *vtss_state,
-                                        u32           reg,
-                                        u32          *value)
+static inline vtss_rc lan966x_rd_direct(vtss_state_t *vtss_state, u32 reg, u32 *value)
 {
     return vtss_state->init_conf.reg_read(0, reg, value);
 }
 
 /* Write target register using current CPU interface */
-static inline vtss_rc lan966x_wr_direct(vtss_state_t *vtss_state,
-                                        u32           reg,
-                                        u32           value)
+static inline vtss_rc lan966x_wr_direct(vtss_state_t *vtss_state, u32 reg, u32 value)
 {
     return vtss_state->init_conf.reg_write(0, reg, value);
 }
 
-vtss_rc (*vtss_lan966x_wr)(vtss_state_t *vtss_state,
-                           u32           addr,
-                           u32           value) = lan966x_wr_direct;
-vtss_rc (*vtss_lan966x_rd)(vtss_state_t *vtss_state,
-                           u32           addr,
-                           u32          *value) = lan966x_rd_direct;
+vtss_rc (*vtss_lan966x_wr)(vtss_state_t *vtss_state, u32 addr, u32 value) = lan966x_wr_direct;
+vtss_rc (*vtss_lan966x_rd)(vtss_state_t *vtss_state, u32 addr, u32 *value) = lan966x_rd_direct;
 
 /* Read-modify-write target register using current CPU interface */
 vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask)
@@ -55,10 +46,7 @@ vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask)
 
 #if !defined(VTSS_OPT_FPGA)
 // Read or write register indirectly
-static vtss_rc lan966x_reg_indirect_access(vtss_state_t *vs,
-                                           u32           addr,
-                                           u32          *value,
-                                           BOOL          is_read)
+static vtss_rc lan966x_reg_indirect_access(vtss_state_t *vs, u32 addr, u32 *value, BOOL is_read)
 {
     u32 i, ctrl;
 
@@ -89,9 +77,7 @@ static vtss_rc lan966x_reg_indirect_access(vtss_state_t *vs,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_rd_indirect(vtss_state_t *vtss_state,
-                                   u32           reg,
-                                   u32          *value)
+static vtss_rc lan966x_rd_indirect(vtss_state_t *vtss_state, u32 reg, u32 *value)
 {
     return lan966x_reg_indirect_access(vtss_state, reg, value, TRUE);
 }
@@ -119,8 +105,7 @@ u32 vtss_lan966x_port_mask(vtss_state_t *vtss_state, const BOOL member[])
     vtss_port_no_t port_no;
     u32            port, mask = 0;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (member[port_no]) {
             port = VTSS_CHIP_PORT(port_no);
             mask |= VTSS_BIT(port);
@@ -148,9 +133,7 @@ vtss_rc vtss_lan966x_counter_update(vtss_state_t        *vtss_state,
  *  Debug print utility functions
  * ================================================================= */
 
-void vtss_lan966x_debug_print_port_header(vtss_state_t *vtss_state,
-                                          lmu_ss_t     *ss,
-                                          const char   *txt)
+void vtss_lan966x_debug_print_port_header(vtss_state_t *vtss_state, lmu_ss_t *ss, const char *txt)
 {
     vtss_debug_print_port_header(vtss_state, ss, txt, VTSS_CHIP_PORTS + 1, 1);
 }
@@ -160,8 +143,7 @@ void vtss_lan966x_debug_print_mask(lmu_ss_t *ss, u32 mask)
     u32 port;
 
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        pr("%s%s", port == 0 || (port & 7) ? "" : ".",
-           ((1 << port) & mask) ? "1" : "0");
+        pr("%s%s", port == 0 || (port & 7) ? "" : ".", ((1 << port) & mask) ? "1" : "0");
     }
     pr("  0x%08x\n", mask);
 }
@@ -174,10 +156,7 @@ void vtss_lan966x_debug_reg_header(lmu_ss_t *ss, const char *name)
     vtss_debug_print_reg_header(ss, buf.s);
 }
 
-void vtss_lan966x_debug_reg(vtss_state_t *vtss_state,
-                            lmu_ss_t     *ss,
-                            u32           addr,
-                            const char   *name)
+void vtss_lan966x_debug_reg(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 addr, const char *name)
 {
     u32           value;
     lmu_fmt_buf_t buf;
@@ -292,10 +271,7 @@ vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
     return vtss_lan966x_init_groups(vtss_state, VTSS_INIT_CMD_PORT_MAP);
 }
 
-vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state)
-{
-    return VTSS_RC_OK;
-}
+vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
 
 static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
 {
@@ -307,33 +283,27 @@ static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
         break;
     case VTSS_PORT_MUX_MODE_1:
         // 2xCu + 2x2,5G + 1xQSGMII
-        REG_WR(HSIO_HW_CFG,
-               HSIO_HW_CFG_SD6G_0_CFG(1) | HSIO_HW_CFG_SD6G_1_CFG(1) |
-                   HSIO_HW_CFG_GMII_ENA(3) | HSIO_HW_CFG_QSGMII_ENA(2));
-        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG,
-               CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
-                   CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
-                   CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
+        REG_WR(HSIO_HW_CFG, HSIO_HW_CFG_SD6G_0_CFG(1) | HSIO_HW_CFG_SD6G_1_CFG(1) |
+                                HSIO_HW_CFG_GMII_ENA(3) | HSIO_HW_CFG_QSGMII_ENA(2));
+        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG, CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
+                                              CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
+                                              CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
         break;
     case VTSS_PORT_MUX_MODE_2:
         // 2xCu/1G + 1x2,5G + 2xRGMII(dev2,dev3)
-        REG_WR(HSIO_HW_CFG,
-               HSIO_HW_CFG_RGMII_ENA(3) | HSIO_HW_CFG_GMII_ENA(0xf));
+        REG_WR(HSIO_HW_CFG, HSIO_HW_CFG_RGMII_ENA(3) | HSIO_HW_CFG_GMII_ENA(0xf));
 
-        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG,
-               CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
-                   CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
-                   CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
+        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG, CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
+                                              CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
+                                              CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
         break;
     case VTSS_PORT_MUX_MODE_5:
         // 2xCu + 3x1G
-        REG_WR(HSIO_HW_CFG,
-               HSIO_HW_CFG_SD6G_0_CFG(1) | HSIO_HW_CFG_SD6G_1_CFG(1) |
-                   HSIO_HW_CFG_GMII_ENA(3) | HSIO_HW_CFG_QSGMII_ENA(0));
-        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG,
-               CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
-                   CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
-                   CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
+        REG_WR(HSIO_HW_CFG, HSIO_HW_CFG_SD6G_0_CFG(1) | HSIO_HW_CFG_SD6G_1_CFG(1) |
+                                HSIO_HW_CFG_GMII_ENA(3) | HSIO_HW_CFG_QSGMII_ENA(0));
+        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG, CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
+                                              CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
+                                              CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
         break;
     default: VTSS_E("unknown mux mode"); return VTSS_RC_ERROR;
     }
@@ -362,8 +332,8 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     err = (diff != 0);
 #endif
     if (err) {
-        VTSS_E("Unexpected build id. Got: 0x%08x, Expected 0x%08x, diff: %u",
-               val, LAN966X_BUILD_ID, diff);
+        VTSS_E("Unexpected build id. Got: 0x%08x, Expected 0x%08x, diff: %u", val, LAN966X_BUILD_ID,
+               diff);
         return VTSS_RC_ERROR;
     }
 #else
@@ -387,8 +357,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 
     /* Initialize RAM */
     REG_WRM(SYS_RESET_CFG, SYS_RESET_CFG_CORE_ENA(0), SYS_RESET_CFG_CORE_ENA_M);
-    REG_WRM(SYS_RAM_INIT,
-            SYS_RAM_INIT_RAM_INIT(1) | SYS_RAM_INIT_RAM_CFG_HOOK(0),
+    REG_WRM(SYS_RAM_INIT, SYS_RAM_INIT_RAM_INIT(1) | SYS_RAM_INIT_RAM_CFG_HOOK(0),
             SYS_RAM_INIT_RAM_INIT_M | SYS_RAM_INIT_RAM_CFG_HOOK_M);
     do {
         REG_RD(SYS_RAM_INIT, &val);
@@ -400,10 +369,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     return vtss_lan966x_init_groups(vtss_state, VTSS_INIT_CMD_INIT);
 }
 
-vtss_rc vtss_cil_register_access_mode_set(vtss_state_t *vtss_state)
-{
-    return VTSS_RC_OK;
-}
+vtss_rc vtss_cil_register_access_mode_set(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
 
 vtss_rc vtss_lan966x_inst_create(vtss_state_t *vtss_state)
 {

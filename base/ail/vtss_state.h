@@ -16,23 +16,21 @@
 /* Bit field macros */
 #define VTSS_BF_SIZE(n)   ((n + 7) / 8)
 #define VTSS_BF_GET(a, n) ((a[(n) / 8] & (1 << ((n) % 8))) ? 1 : 0)
-#define VTSS_BF_SET(a, n, v)                                                   \
-    do {                                                                       \
-        if (v) {                                                               \
-            a[(n) / 8] |= (1U << ((n) % 8));                                   \
-        } else {                                                               \
-            a[(n) / 8] &= ~(1U << ((n) % 8));                                  \
-        }                                                                      \
+#define VTSS_BF_SET(a, n, v)                                                                       \
+    do {                                                                                           \
+        if (v) {                                                                                   \
+            a[(n) / 8] |= (1U << ((n) % 8));                                                       \
+        } else {                                                                                   \
+            a[(n) / 8] &= ~(1U << ((n) % 8));                                                      \
+        }                                                                                          \
     } while (0)
 #define VTSS_BF_CLR(a, n) (VTSS_MEMSET(a, 0, VTSS_BF_SIZE(n)))
 
 /* Port member bit field macros */
-#define VTSS_PORT_BF_SIZE VTSS_BF_SIZE(VTSS_PORTS)
-#define VTSS_PORT_BF_GET(a, port_no)                                           \
-    VTSS_BF_GET(a, (port_no) - VTSS_PORT_NO_START)
-#define VTSS_PORT_BF_SET(a, port_no, v)                                        \
-    VTSS_BF_SET(a, (port_no) - VTSS_PORT_NO_START, v)
-#define VTSS_PORT_BF_CLR(a) VTSS_BF_CLR(a, VTSS_PORTS)
+#define VTSS_PORT_BF_SIZE               VTSS_BF_SIZE(VTSS_PORTS)
+#define VTSS_PORT_BF_GET(a, port_no)    VTSS_BF_GET(a, (port_no) - VTSS_PORT_NO_START)
+#define VTSS_PORT_BF_SET(a, port_no, v) VTSS_BF_SET(a, (port_no) - VTSS_PORT_NO_START, v)
+#define VTSS_PORT_BF_CLR(a)             VTSS_BF_CLR(a, VTSS_PORTS)
 
 #if defined(VTSS_FEATURE_MISC)
 #include "vtss_misc_state.h"
@@ -85,129 +83,121 @@
 extern const char *vtss_func;
 
 /* Call Chip Interface Layer function if it exists */
-#define VTSS_FUNC(func, ...)                                                   \
-    (vtss_state->func == NULL ? VTSS_RC_ERROR                                  \
-                              : vtss_state->func(vtss_state, ##__VA_ARGS__))
+#define VTSS_FUNC(func, ...)                                                                       \
+    (vtss_state->func == NULL ? VTSS_RC_ERROR : vtss_state->func(vtss_state, ##__VA_ARGS__))
 
 /* Call Chip Interface Layer function if it exists, given the state as an
  * argument. This is useful for functions that don't require vtss_state to be
  * set-up. */
-#define VTSS_FUNC_FROM_STATE(state, func, ...)                                 \
-    ((state == NULL || state->func == NULL) ? VTSS_RC_ERROR                    \
-                                            : state->func(state, __VA_ARGS__))
+#define VTSS_FUNC_FROM_STATE(state, func, ...)                                                     \
+    ((state == NULL || state->func == NULL) ? VTSS_RC_ERROR : state->func(state, __VA_ARGS__))
 
 /* Call Chip Interface Layer function if it exists, return error code, if error */
-#define VTSS_FUNC_RC(func, ...)                                                \
-    {                                                                          \
-        vtss_rc __rc__ = (vtss_state->func == NULL                             \
-                              ? VTSS_RC_ERROR                                  \
-                              : vtss_state->func(vtss_state, ##__VA_ARGS__));  \
-        if (__rc__ < VTSS_RC_OK)                                               \
-            return __rc__;                                                     \
+#define VTSS_FUNC_RC(func, ...)                                                                    \
+    {                                                                                              \
+        vtss_rc __rc__ = (vtss_state->func == NULL ? VTSS_RC_ERROR                                 \
+                                                   : vtss_state->func(vtss_state, ##__VA_ARGS__)); \
+        if (__rc__ < VTSS_RC_OK)                                                                   \
+            return __rc__;                                                                         \
     }
 /* Call Chip Interface Layer function if it exists and we are in cold start mode
  */
-#define VTSS_FUNC_COLD(func, ...)                                              \
-    (vtss_state->func == NULL ? VTSS_RC_ERROR                                  \
-     : vtss_state->warm_start_cur                                              \
-         ? VTSS_RC_OK                                                          \
-         : vtss_state->func(vtss_state, ##__VA_ARGS__))
+#define VTSS_FUNC_COLD(func, ...)                                                                  \
+    (vtss_state->func == NULL     ? VTSS_RC_ERROR                                                  \
+     : vtss_state->warm_start_cur ? VTSS_RC_OK                                                     \
+                                  : vtss_state->func(vtss_state, ##__VA_ARGS__))
 
 /* The following macros are needed when only the 'vtss_state' is passed to the
    CIL function, to avoid warnings on certain compilers */
-#define VTSS_FUNC_0(func, ...)                                                 \
+#define VTSS_FUNC_0(func, ...)                                                                     \
     (vtss_state->func == NULL ? VTSS_RC_ERROR : vtss_state->func(vtss_state))
-#define VTSS_FUNC_COLD_0(func, ...)                                            \
-    (vtss_state->func == NULL     ? VTSS_RC_ERROR                              \
-     : vtss_state->warm_start_cur ? VTSS_RC_OK                                 \
+#define VTSS_FUNC_COLD_0(func, ...)                                                                \
+    (vtss_state->func == NULL     ? VTSS_RC_ERROR                                                  \
+     : vtss_state->warm_start_cur ? VTSS_RC_OK                                                     \
                                   : vtss_state->func(vtss_state))
-#define VTSS_FUNC_RC_0(func, ...)                                              \
-    {                                                                          \
-        vtss_rc __rc__ =                                                       \
-            (vtss_state->func == NULL ? VTSS_RC_ERROR                          \
-                                      : vtss_state->func(vtss_state));         \
-        if (__rc__ < VTSS_RC_OK)                                               \
-            return __rc__;                                                     \
+#define VTSS_FUNC_RC_0(func, ...)                                                                  \
+    {                                                                                              \
+        vtss_rc __rc__ =                                                                           \
+            (vtss_state->func == NULL ? VTSS_RC_ERROR : vtss_state->func(vtss_state));             \
+        if (__rc__ < VTSS_RC_OK)                                                                   \
+            return __rc__;                                                                         \
     }
 
 /* Call function in cold start mode only */
 #define VTSS_RC_COLD(expr) (vtss_state->warm_start_cur ? VTSS_RC_OK : (expr))
 
 /* Set currently selected device */
-#define VTSS_SELECT_CHIP(__chip_no__)                                          \
-    {                                                                          \
-        vtss_state->chip_no = (__chip_no__);                                   \
+#define VTSS_SELECT_CHIP(__chip_no__)                                                              \
+    {                                                                                              \
+        vtss_state->chip_no = (__chip_no__);                                                       \
     }
-#define VTSS_SELECT_CHIP_PORT_NO(port_no)                                      \
-    VTSS_SELECT_CHIP(vtss_state->port.map[port_no].chip_no)
+#define VTSS_SELECT_CHIP_PORT_NO(port_no) VTSS_SELECT_CHIP(vtss_state->port.map[port_no].chip_no)
 /* API enter/exit macros for protection */
-#define VTSS_ENTER(...)                                                        \
-    {                                                                          \
-        vtss_api_lock_t _lock;                                                 \
-        _lock.inst = inst;                                                     \
-        _lock.function = __FUNCTION__;                                         \
-        _lock.file = __FILE__;                                                 \
-        _lock.line = __LINE__;                                                 \
-        vtss_callout_lock(&_lock);                                             \
-        vtss_func = __FUNCTION__;                                              \
+#define VTSS_ENTER(...)                                                                            \
+    {                                                                                              \
+        vtss_api_lock_t _lock;                                                                     \
+        _lock.inst = inst;                                                                         \
+        _lock.function = __FUNCTION__;                                                             \
+        _lock.file = __FILE__;                                                                     \
+        _lock.line = __LINE__;                                                                     \
+        vtss_callout_lock(&_lock);                                                                 \
+        vtss_func = __FUNCTION__;                                                                  \
     }
-#define VTSS_EXIT(...)                                                         \
-    {                                                                          \
-        vtss_api_lock_t _lock;                                                 \
-        _lock.inst = inst;                                                     \
-        _lock.function = __FUNCTION__;                                         \
-        _lock.file = __FILE__;                                                 \
-        _lock.line = __LINE__;                                                 \
-        vtss_func = NULL;                                                      \
-        vtss_callout_unlock(&_lock);                                           \
+#define VTSS_EXIT(...)                                                                             \
+    {                                                                                              \
+        vtss_api_lock_t _lock;                                                                     \
+        _lock.inst = inst;                                                                         \
+        _lock.function = __FUNCTION__;                                                             \
+        _lock.file = __FILE__;                                                                     \
+        _lock.line = __LINE__;                                                                     \
+        vtss_func = NULL;                                                                          \
+        vtss_callout_unlock(&_lock);                                                               \
     }
-#define VTSS_EXIT_ENTER(...)                                                   \
-    {                                                                          \
-        vtss_state_t   *old_state = vtss_state;                                \
-        vtss_chip_no_t  old_chip = vtss_state->chip_no;                        \
-        vtss_api_lock_t _lock;                                                 \
-        _lock.function = __FUNCTION__;                                         \
-        _lock.file = __FILE__;                                                 \
-        _lock.line = __LINE__;                                                 \
-        vtss_callout_unlock(&_lock);                                           \
-        vtss_callout_lock(&_lock);                                             \
-        vtss_state = old_state;                                                \
-        vtss_state->chip_no = old_chip;                                        \
-    }
-
-#define VTSS_RC(expr)                                                          \
-    {                                                                          \
-        vtss_rc __rc__ = (expr);                                               \
-        if (__rc__ < VTSS_RC_OK)                                               \
-            return __rc__;                                                     \
+#define VTSS_EXIT_ENTER(...)                                                                       \
+    {                                                                                              \
+        vtss_state_t   *old_state = vtss_state;                                                    \
+        vtss_chip_no_t  old_chip = vtss_state->chip_no;                                            \
+        vtss_api_lock_t _lock;                                                                     \
+        _lock.function = __FUNCTION__;                                                             \
+        _lock.file = __FILE__;                                                                     \
+        _lock.line = __LINE__;                                                                     \
+        vtss_callout_unlock(&_lock);                                                               \
+        vtss_callout_lock(&_lock);                                                                 \
+        vtss_state = old_state;                                                                    \
+        vtss_state->chip_no = old_chip;                                                            \
     }
 
-#define VTSS_FMT(fmt_buf, fmt_str, ...)                                        \
-    do {                                                                       \
-        lmu_fmt_buf_init(&fmt_buf);                                            \
-        LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)         \
-        (&fmt_buf.ss, (fmt_str), ##__VA_ARGS__);                               \
+#define VTSS_RC(expr)                                                                              \
+    {                                                                                              \
+        vtss_rc __rc__ = (expr);                                                                   \
+        if (__rc__ < VTSS_RC_OK)                                                                   \
+            return __rc__;                                                                         \
+    }
+
+#define VTSS_FMT(fmt_buf, fmt_str, ...)                                                            \
+    do {                                                                                           \
+        lmu_fmt_buf_init(&fmt_buf);                                                                \
+        LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)                             \
+        (&fmt_buf.ss, (fmt_str), ##__VA_ARGS__);                                                   \
     } while (0)
 
 // Debug print
-#define pr(fmt_str, ...)                                                       \
-    LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)             \
+#define pr(fmt_str, ...)                                                                           \
+    LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)                                 \
     (ss, (fmt_str), ##__VA_ARGS__)
 
 #define VTSS_BOOL(expr) ((expr) ? 1 : 0)
 
-#define VTSS_CHIP_PORT(port_no) vtss_state->port.map[port_no].chip_port
-#define VTSS_CHIP_NO(port_no)   vtss_state->port.map[port_no].chip_no
-#define VTSS_CHIP_PORT_FROM_STATE(state, port_no)                              \
-    (state)->port.map[port_no].chip_port
-#define VTSS_CHIP_NO_FROM_STATE(state, port_no)                                \
-    (state)->port.map[port_no].chip_no
-#define VTSS_PORT_CHIP_SELECTED(port_no)                                       \
+#define VTSS_CHIP_PORT(port_no)                   vtss_state->port.map[port_no].chip_port
+#define VTSS_CHIP_NO(port_no)                     vtss_state->port.map[port_no].chip_no
+#define VTSS_CHIP_PORT_FROM_STATE(state, port_no) (state)->port.map[port_no].chip_port
+#define VTSS_CHIP_NO_FROM_STATE(state, port_no)   (state)->port.map[port_no].chip_no
+#define VTSS_PORT_CHIP_SELECTED(port_no)                                                           \
     (vtss_state->port.map[port_no].chip_no == vtss_state->chip_no)
 
 /* Get array size */
-#define VTSS_ARRSZ(t)          /*lint -e{574} */                               \
-    (sizeof(t) / sizeof(t[0])) /* Suppress Lint Warning 574: Signed-unsigned   \
+#define VTSS_ARRSZ(t)          /*lint -e{574} */                                                   \
+    (sizeof(t) / sizeof(t[0])) /* Suppress Lint Warning 574: Signed-unsigned                       \
                                   mix with relational */
 
 /* Target architecture */
@@ -243,7 +233,7 @@ typedef struct {
                              const vtss_port_no_t              port_no,
                              const vtss_eee_port_conf_t *const eee_conf);
     /* Configuration/state */
-    BOOL ena[VTSS_PORT_ARRAY_SIZE]; // Signaling current state in the switch api
+    BOOL ena[VTSS_PORT_ARRAY_SIZE];     // Signaling current state in the switch api
     BOOL ena_phy[VTSS_PORT_ARRAY_SIZE]; // Signaling current state in the phy api
     u32  timer_table[VTSS_EEE_TIMER_TABLE_CNT];
     BOOL timer_table_initialized;
@@ -253,8 +243,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_FAN)
 typedef struct {
     /* CIL function pointers */
-    vtss_rc (*controller_init)(struct vtss_state_s         *vtss_state,
-                               const vtss_fan_conf_t *const spec);
+    vtss_rc (*controller_init)(struct vtss_state_s *vtss_state, const vtss_fan_conf_t *const spec);
     vtss_rc (*cool_lvl_set)(struct vtss_state_s *vtss_state, u8 lvl);
     vtss_rc (*cool_lvl_get)(struct vtss_state_s *vtss_state, u8 *lvl);
     vtss_rc (*rotation_get)(struct vtss_state_s *vtss_state,
@@ -271,8 +260,7 @@ typedef struct {
 typedef struct {
     /* CIL function pointers */
     vtss_rc (*chip_temp_get)(struct vtss_state_s *vtss_state, i16 *chip_temp);
-    vtss_rc (*chip_temp_init)(struct vtss_state_s *vtss_state,
-                              const BOOL           enable);
+    vtss_rc (*chip_temp_init)(struct vtss_state_s *vtss_state, const BOOL enable);
 
     i16 chip_temp; // Chip temperature
 } vtss_temp_sensor_state_t;
@@ -281,29 +269,28 @@ typedef struct {
 #if defined(VTSS_FEATURE_SYNCE)
 typedef struct {
     /* Configuration/state */
-    u32                    old_port_no[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
-    vtss_synce_clock_in_t  in_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
-    vtss_synce_clock_out_t out_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
-    vtss_synce_station_clock_out_t
-        station_clk_out_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
+    u32                            old_port_no[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
+    vtss_synce_clock_in_t          in_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
+    vtss_synce_clock_out_t         out_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
+    vtss_synce_station_clock_out_t station_clk_out_conf[VTSS_SYNCE_CLK_PORT_ARRAY_SIZE];
 } vtss_synce_state_t;
 #endif /* VTSS_FEATURE_SYNCE */
 
 #if defined(VTSS_ARCH_FA)
 typedef enum {
-    FEATURE_VLAN_COUNTERS, // VLAN counters are only supported for SMB devices
+    FEATURE_VLAN_COUNTERS,        // VLAN counters are only supported for SMB devices
     FEATURE_QOS_FRAME_PREEMPTION, // Frame Preemption support (802.1Qbu and
                                   // 802.3br)
     FEATURE_SYNCE,                // SYNCE - L1 syncronization feature
-    FEATURE_FRER,   // IEEE 802.1CB: Frame Replication and Elimination for
-                    // Reliability
-    FEATURE_PSFP,   // IEEE 802.1Qci: Per-Stream Filtering and Policing
-    FEATURE_REDBOX, // PRP/HSR RedBox
-    FEATURE_QOS_OT, // Operational Technology traffic handling
-    FEATURE_MRP,    // IEC 62439-2 MRP
-    FEATURE_MRP_V1, // Version 1 MRP implementation
-    FEATURE_MAC_INDEX_TABLE, // Index-based MAC address table
-    FEATURE_TIMESTAMP,       // 1588 timestamp feature for PTP
+    FEATURE_FRER,                 // IEEE 802.1CB: Frame Replication and Elimination for
+                                  // Reliability
+    FEATURE_PSFP,                 // IEEE 802.1Qci: Per-Stream Filtering and Policing
+    FEATURE_REDBOX,               // PRP/HSR RedBox
+    FEATURE_QOS_OT,               // Operational Technology traffic handling
+    FEATURE_MRP,                  // IEC 62439-2 MRP
+    FEATURE_MRP_V1,               // Version 1 MRP implementation
+    FEATURE_MAC_INDEX_TABLE,      // Index-based MAC address table
+    FEATURE_TIMESTAMP,            // 1588 timestamp feature for PTP
     FEATURE_LAST
 } vtss_feature_t;
 #endif
@@ -496,8 +483,8 @@ char (*_check_ts_state)[sizeof(vtss_ts_state_t)] = 1;
 #endif
 
 /* Check instance */
-vtss_rc vtss_inst_check(const vtss_inst_t inst, vtss_state_t **vtss_state);
-vtss_rc vtss_inst_check_get(const vtss_inst_t inst, vtss_state_t **vtss_state);
+vtss_rc       vtss_inst_check(const vtss_inst_t inst, vtss_state_t **vtss_state);
+vtss_rc       vtss_inst_check_get(const vtss_inst_t inst, vtss_state_t **vtss_state);
 vtss_state_t *vtss_inst_check_no_persist(const vtss_inst_t inst);
 
 /* Check instance and port number */
@@ -547,28 +534,26 @@ extern vtss_trace_conf_t vtss_trace_conf[];
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_DEFAULT
 #endif /* VTSS_TRACE_GROUP */
 
-#define VTSS_T(_grp, _lvl, ...)                                                \
-    {                                                                          \
-        if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl)             \
-            vtss_callout_trace_printf(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__,  \
-                                      __LINE__, __FUNCTION__, __VA_ARGS__);    \
+#define VTSS_T(_grp, _lvl, ...)                                                                    \
+    {                                                                                              \
+        if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl)                                 \
+            vtss_callout_trace_printf(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__, __LINE__,            \
+                                      __FUNCTION__, __VA_ARGS__);                                  \
     }
 
-#define VTSS_HEX(_grp, _lvl, _byte_p, _byte_cnt)                               \
-    {                                                                          \
-        if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl)             \
-            vtss_callout_trace_hex_dump(VTSS_TRACE_LAYER, _grp, _lvl,          \
-                                        __FILE__, __LINE__, __FUNCTION__,      \
-                                        _byte_p, _byte_cnt);                   \
+#define VTSS_HEX(_grp, _lvl, _byte_p, _byte_cnt)                                                   \
+    {                                                                                              \
+        if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl)                                 \
+            vtss_callout_trace_hex_dump(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__, __LINE__,          \
+                                        __FUNCTION__, _byte_p, _byte_cnt);                         \
     }
 
 // Error trace
 #if VTSS_OPT_TRACE_ERROR
-#define VTSS_E(...) VTSS_EG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
-#define VTSS_E_HEX(_byte_p, _byte_cnt)                                         \
-    VTSS_EG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
-#define VTSS_EG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_ERROR, __VA_ARGS__)
-#define VTSS_EG_HEX(_grp, _byte_p, _byte_cnt)                                  \
+#define VTSS_E(...)                    VTSS_EG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
+#define VTSS_E_HEX(_byte_p, _byte_cnt) VTSS_EG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
+#define VTSS_EG(_grp, ...)             VTSS_T(_grp, VTSS_TRACE_LEVEL_ERROR, __VA_ARGS__)
+#define VTSS_EG_HEX(_grp, _byte_p, _byte_cnt)                                                      \
     VTSS_HEX(_grp, VTSS_TRACE_LEVEL_ERROR, _byte_p, _byte_cnt)
 #else
 #define VTSS_E(...)
@@ -584,22 +569,19 @@ extern vtss_trace_conf_t vtss_trace_conf[];
 #define VTSS_D(...) VTSS_DG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
 #define VTSS_N(...) VTSS_NG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
 
-#define VTSS_I_HEX(_byte_p, _byte_cnt)                                         \
-    VTSS_IG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
-#define VTSS_D_HEX(_byte_p, _byte_cnt)                                         \
-    VTSS_DG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
-#define VTSS_N_HEX(_byte_p, _byte_cnt)                                         \
-    VTSS_NG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
+#define VTSS_I_HEX(_byte_p, _byte_cnt) VTSS_IG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
+#define VTSS_D_HEX(_byte_p, _byte_cnt) VTSS_DG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
+#define VTSS_N_HEX(_byte_p, _byte_cnt) VTSS_NG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
 
 #define VTSS_IG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_INFO, __VA_ARGS__)
 #define VTSS_DG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_DEBUG, __VA_ARGS__)
 #define VTSS_NG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_NOISE, __VA_ARGS__)
 
-#define VTSS_IG_HEX(_grp, _byte_p, _byte_cnt)                                  \
+#define VTSS_IG_HEX(_grp, _byte_p, _byte_cnt)                                                      \
     VTSS_HEX(_grp, VTSS_TRACE_LEVEL_INFO, _byte_p, _byte_cnt)
-#define VTSS_DG_HEX(_grp, _byte_p, _byte_cnt)                                  \
+#define VTSS_DG_HEX(_grp, _byte_p, _byte_cnt)                                                      \
     VTSS_HEX(_grp, VTSS_TRACE_LEVEL_DEBUG, _byte_p, _byte_cnt)
-#define VTSS_NG_HEX(_grp, _byte_p, _byte_cnt)                                  \
+#define VTSS_NG_HEX(_grp, _byte_p, _byte_cnt)                                                      \
     VTSS_HEX(_grp, VTSS_TRACE_LEVEL_NOISE, _byte_p, _byte_cnt)
 
 #else /* VTSS_OPT_TRACE */

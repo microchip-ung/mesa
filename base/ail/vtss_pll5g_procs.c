@@ -41,9 +41,8 @@ vtss_rc vtss_pll5g_setup_args_init(vtss_pll5g_setup_args_t *const init_val)
 {
 
     init_val->chip_name = VTSS_PLL5G_CHIP_ES65XX;
-    init_val->selbgv820 =
-        4; /* must be 2 for  init_val->chip_name == VTSS_PLL5G_CHIP_VENICE &&
-              init_val->side == VTSS_LINE */
+    init_val->selbgv820 = 4; /* must be 2 for  init_val->chip_name == VTSS_PLL5G_CHIP_VENICE &&
+                                init_val->side == VTSS_LINE */
     init_val->side = VTSS_LINE;
     init_val->f_ref_kHz = 125000;
     init_val->unlock = FALSE;
@@ -93,10 +92,8 @@ vtss_rc vtss_calc_pll5g_setup(const vtss_pll5g_setup_args_t    config,
     ret_val->unlock[0] = config.unlock;
     ret_val->lock[0] = config.lock;
     // ----------------------------------------------------------------------
-    if (config.chip_name == VTSS_PLL5G_CHIP_ES6514 ||
-        config.chip_name == VTSS_PLL5G_CHIP_FERRET ||
-        config.chip_name == VTSS_PLL5G_CHIP_OCELOT ||
-        config.chip_name == VTSS_PLL5G_CHIP_JAGUAR2 ||
+    if (config.chip_name == VTSS_PLL5G_CHIP_ES6514 || config.chip_name == VTSS_PLL5G_CHIP_FERRET ||
+        config.chip_name == VTSS_PLL5G_CHIP_OCELOT || config.chip_name == VTSS_PLL5G_CHIP_JAGUAR2 ||
         config.chip_name == VTSS_PLL5G_CHIP_JAGUAR2C ||
         config.chip_name == VTSS_PLL5G_CHIP_SERVALT) {
         if (config.unlock) {

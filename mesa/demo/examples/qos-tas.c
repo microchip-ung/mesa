@@ -44,9 +44,9 @@ static int init_port_configuration(mesa_port_no_t port, uint32_t idx)
     mesa_qos_port_conf_t     qos_conf;
     mesa_qos_port_dpl_conf_t dpl_conf[4];
     uint32_t                 dpl_cnt;
-    static mesa_tagprio_t pcp[MESA_PRIO_ARRAY_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7};
-    static mesa_dei_t     dei1[MESA_PRIO_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
-    static mesa_dei_t     dei0[MESA_PRIO_ARRAY_SIZE] = {1, 1, 1, 1, 1, 1, 1, 1};
+    static mesa_tagprio_t    pcp[MESA_PRIO_ARRAY_SIZE] = {0, 1, 2, 3, 4, 5, 6, 7};
+    static mesa_dei_t        dei1[MESA_PRIO_ARRAY_SIZE] = {0, 0, 0, 0, 0, 0, 0, 0};
+    static mesa_dei_t        dei0[MESA_PRIO_ARRAY_SIZE] = {1, 1, 1, 1, 1, 1, 1, 1};
 
     dpl_cnt = mesa_capability(NULL, MESA_CAP_QOS_DPL_CNT);
 
@@ -82,8 +82,7 @@ static int init_port_configuration(mesa_port_no_t port, uint32_t idx)
     RC(mesa_qos_port_conf_set(NULL, port, &qos_conf));
 
     /* Configure egress prio and dpl mapping to 1:1 */
-    RC(mesa_qos_port_dpl_conf_get(NULL, port, dpl_cnt,
-                                  &state.dpl_conf[idx][0]));
+    RC(mesa_qos_port_dpl_conf_get(NULL, port, dpl_cnt, &state.dpl_conf[idx][0]));
     dpl_conf[0] = state.dpl_conf[idx][0];
     dpl_conf[1] = state.dpl_conf[idx][1];
     memcpy(dpl_conf[0].pcp, pcp, sizeof(dpl_conf[0].pcp));
@@ -97,28 +96,25 @@ static int init_port_configuration(mesa_port_no_t port, uint32_t idx)
 
 static int tas_init(int argc, const char *argv[])
 {
-    mesa_port_no_t           ing_port, eg_port;
-    uint64_t                 cycle_frames;
-    uint32_t                 frame_size, offset_time, cycle_time, gce_cnt;
-    uint32_t                 time_interval_0, time_interval_4, time_interval_7;
-    uint32_t                 frame_tx_time_nano, gce_count, tas_support;
-    mesa_qos_tas_gce_t      *gcl;
-    mesa_timestamp_t         base_time;
-    uint64_t                 tc;
-    mesa_qos_tas_port_conf_t tas_conf;
+    mesa_port_no_t             ing_port, eg_port;
+    uint64_t                   cycle_frames;
+    uint32_t                   frame_size, offset_time, cycle_time, gce_cnt;
+    uint32_t                   time_interval_0, time_interval_4, time_interval_7;
+    uint32_t                   frame_tx_time_nano, gce_count, tas_support;
+    mesa_qos_tas_gce_t        *gcl;
+    mesa_timestamp_t           base_time;
+    uint64_t                   tc;
+    mesa_qos_tas_port_conf_t   tas_conf;
     mesa_qos_tas_port_status_t tas_status;
     mesa_port_list_t           port_list;
 
     ing_port = ARGV_INT("ing-port", "Is the ingress port for frame injection.");
     eg_port = ARGV_INT("eg-port", "Is the egress port with configured GCL.");
-    cycle_frames =
-        ARGV_INT("cycle",
-                 "Is GCL cycle time in number of frames of size frame_size.");
+    cycle_frames = ARGV_INT("cycle", "Is GCL cycle time in number of frames of size frame_size.");
     frame_size = ARGV_INT(
         "size",
         "Used as MAX PDU size in bytes for calculation of guard band time and cycle time calculation.");
-    offset_time =
-        ARGV_OPT_INT("start", "Is GCL start offset time in seconds.", 3);
+    offset_time = ARGV_OPT_INT("start", "Is GCL start offset time in seconds.", 3);
 
     EXAMPLE_BARRIER(argc);
 
@@ -137,16 +133,14 @@ static int tas_init(int argc, const char *argv[])
     state.ing_port = ing_port;
     state.eg_port = eg_port;
 
-    frame_tx_time_nano =
-        (frame_size + 20) * 8; // One bit takes one nano sec to transmit at 1G
-    time_interval_0 = (cycle_frames * 10 * frame_tx_time_nano) /
-                      100; // number of nano for each interval
-    time_interval_4 = (cycle_frames * 30 * frame_tx_time_nano) /
-                      100; // number of nano for each interval
-    time_interval_7 = (cycle_frames * 60 * frame_tx_time_nano) /
-                      100; // number of nano for each interval
-    cycle_time =
-        time_interval_0 + time_interval_4 + time_interval_7; // GCL cycle time
+    frame_tx_time_nano = (frame_size + 20) * 8; // One bit takes one nano sec to transmit at 1G
+    time_interval_0 =
+        (cycle_frames * 10 * frame_tx_time_nano) / 100; // number of nano for each interval
+    time_interval_4 =
+        (cycle_frames * 30 * frame_tx_time_nano) / 100; // number of nano for each interval
+    time_interval_7 =
+        (cycle_frames * 60 * frame_tx_time_nano) / 100; // number of nano for each interval
+    cycle_time = time_interval_0 + time_interval_4 + time_interval_7; // GCL cycle time
 
     gcl = malloc(gce_count);
     if (gcl == NULL) {
@@ -210,8 +204,7 @@ static int tas_init(int argc, const char *argv[])
     // Check GCL is started
     RC(mesa_qos_tas_port_status_get(NULL, eg_port, &tas_status));
     if (tas_status.config_pending == TRUE) {
-        cli_printf("GCL unexpected config_pending = %u\n",
-                   tas_status.config_pending);
+        cli_printf("GCL unexpected config_pending = %u\n", tas_status.config_pending);
     }
     // snippet_end
 
@@ -241,8 +234,7 @@ static int tas_clean()
     // Check GCL is stopped
     RC(mesa_qos_tas_port_status_get(NULL, state.eg_port, &tas_status));
     if (tas_status.config_pending == TRUE) {
-        cli_printf("GCL unexpected config_pending = %u\n",
-                   tas_status.config_pending);
+        cli_printf("GCL unexpected config_pending = %u\n", tas_status.config_pending);
         return -1;
     }
     // snippet_end
@@ -250,14 +242,12 @@ static int tas_clean()
     RC(mesa_port_conf_set(NULL, state.ing_port, &state.port_conf[0]));
     RC(mesa_vlan_port_conf_set(NULL, state.ing_port, &state.vlan_conf[0]));
     RC(mesa_qos_port_conf_set(NULL, state.ing_port, &state.qos_conf[0]));
-    RC(mesa_qos_port_dpl_conf_set(NULL, state.ing_port, dpl_cnt,
-                                  &state.dpl_conf[0][0]));
+    RC(mesa_qos_port_dpl_conf_set(NULL, state.ing_port, dpl_cnt, &state.dpl_conf[0][0]));
 
     RC(mesa_port_conf_set(NULL, state.eg_port, &state.port_conf[1]));
     RC(mesa_vlan_port_conf_set(NULL, state.eg_port, &state.vlan_conf[1]));
     RC(mesa_qos_port_conf_set(NULL, state.eg_port, &state.qos_conf[1]));
-    RC(mesa_qos_port_dpl_conf_set(NULL, state.eg_port, dpl_cnt,
-                                  &state.dpl_conf[1][0]));
+    RC(mesa_qos_port_dpl_conf_set(NULL, state.eg_port, dpl_cnt, &state.dpl_conf[1][0]));
 
     return 0;
 }

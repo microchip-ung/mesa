@@ -62,8 +62,7 @@ static void cli_cmd_vlan_port_conf(cli_req_t *req, vlan_cli_cmd_t cmd)
     /* Set/show port configuration */
     for (iport = 0; iport < mesa_port_cnt(NULL); iport++) {
         uport = iport2uport(iport);
-        if (req->port_list[uport] == 0 ||
-            mesa_vlan_port_conf_get(NULL, iport, &conf) != MESA_RC_OK)
+        if (req->port_list[uport] == 0 || mesa_vlan_port_conf_get(NULL, iport, &conf) != MESA_RC_OK)
             continue;
 
         if (req->set) {
@@ -72,8 +71,7 @@ static void cli_cmd_vlan_port_conf(cli_req_t *req, vlan_cli_cmd_t cmd)
             } else if (cmd == CLI_CMD_VLAN_PVID) {
                 conf.pvid = req->vid;
             } else if (cmd == CLI_CMD_VLAN_UVID) {
-                conf.untagged_vid =
-                    (req->vid == MESA_VID_DEFAULT ? conf.pvid : req->vid);
+                conf.untagged_vid = (req->vid == MESA_VID_DEFAULT ? conf.pvid : req->vid);
             } else if (cmd == CLI_CMD_VLAN_FRAME) {
                 conf.frame_type = mreq->frame_type;
             } else if (cmd == CLI_CMD_VLAN_FILTER) {
@@ -152,18 +150,17 @@ static void cli_cmd_vlan_port_filter(cli_req_t *req)
 }
 
 static cli_cmd_t cli_cmd_table[] = {
-    {"VLAN Add <vid> <port_list>",                      "Add VLAN",                    cli_cmd_vlan_add        },
-    {"VLAN Delete <vid>",                               "Delete VLAN",                 cli_cmd_vlan_del        },
-    {"VLAN Type [<port_list>] [unaware|c-port|s-port]",
-     "Set or show VLAN port type",                                                     cli_cmd_vlan_port_type  },
-    {"VLAN PVID [<port_list>] [<vid>]",                 "Set or show port VLAN ID",
-     cli_cmd_vlan_port_pvid                                                                                    },
+    {"VLAN Add <vid> <port_list>",                      "Add VLAN",                           cli_cmd_vlan_add      },
+    {"VLAN Delete <vid>",                               "Delete VLAN",                        cli_cmd_vlan_del      },
+    {"VLAN Type [<port_list>] [unaware|c-port|s-port]", "Set or show VLAN port type",
+     cli_cmd_vlan_port_type                                                                                         },
+    {"VLAN PVID [<port_list>] [<vid>]",                 "Set or show port VLAN ID",           cli_cmd_vlan_port_pvid},
     {"VLAN UVID [<port_list>] [all|none|pvid]",         "Set or show Tx untagged VID",
-     cli_cmd_vlan_port_uvid                                                                                    },
-    {"VLAN Frame [<port_list>] [all|tagged|untagged]",
-     "Set or show accepted frame type",                                                cli_cmd_vlan_port_frame },
-    {"VLAN Filter [<port_list>] [enable|disable]",
-     "Set or show VLAN ingress filtering",                                             cli_cmd_vlan_port_filter},
+     cli_cmd_vlan_port_uvid                                                                                         },
+    {"VLAN Frame [<port_list>] [all|tagged|untagged]",  "Set or show accepted frame type",
+     cli_cmd_vlan_port_frame                                                                                        },
+    {"VLAN Filter [<port_list>] [enable|disable]",      "Set or show VLAN ingress filtering",
+     cli_cmd_vlan_port_filter                                                                                       },
 };
 
 static int cli_parm_keyword(cli_req_t *req)
@@ -198,12 +195,12 @@ static int cli_parm_keyword(cli_req_t *req)
 }
 
 static cli_parm_t cli_parm_table[] = {
-    {"unaware|c-port|s-port", "VLAN port type, default: Show type",
-     CLI_PARM_FLAG_SET, cli_parm_keyword},
-    {"all|none|pvid",         "VLAN egress tagging, default: Show mode",
-     CLI_PARM_FLAG_SET, cli_parm_keyword},
-    {"all|tagged|untagged",   "VLAN accepted frames, default: Show mode",
-     CLI_PARM_FLAG_SET, cli_parm_keyword},
+    {"unaware|c-port|s-port", "VLAN port type, default: Show type",       CLI_PARM_FLAG_SET,
+     cli_parm_keyword},
+    {"all|none|pvid",         "VLAN egress tagging, default: Show mode",  CLI_PARM_FLAG_SET,
+     cli_parm_keyword},
+    {"all|tagged|untagged",   "VLAN accepted frames, default: Show mode", CLI_PARM_FLAG_SET,
+     cli_parm_keyword},
 };
 
 static void vlan_cli_init(void)

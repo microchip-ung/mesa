@@ -35,10 +35,8 @@ typedef struct {
                            const u64            addr,
                            const u32            value);
 
-    vtss_rc (*chip_id_get)(struct vtss_state_s  *vtss_state,
-                           vtss_chip_id_t *const chip_id);
-    vtss_rc (*intr_sticky_clear)(const struct vtss_state_s *const state,
-                                 u32                              ext);
+    vtss_rc (*chip_id_get)(struct vtss_state_s *vtss_state, vtss_chip_id_t *const chip_id);
+    vtss_rc (*intr_sticky_clear)(const struct vtss_state_s *const state, u32 ext);
     vtss_rc (*poll_1sec)(struct vtss_state_s *vtss_state);
     vtss_rc (*ptp_event_poll)(struct vtss_state_s         *vtss_state,
                               vtss_ptp_event_type_t *const ev_mask);
@@ -105,28 +103,22 @@ typedef struct {
                         const BOOL           polarity,
                         const BOOL           enable);
     vtss_rc (*intr_pol_negation)(struct vtss_state_s *vtss_state);
-    vtss_rc (*intr_status_get)(struct vtss_state_s *vtss_state,
-                               vtss_intr_t         *status);
-    vtss_rc (*intr_mask_set)(struct vtss_state_s *vtss_state,
-                             vtss_intr_t         *mask);
+    vtss_rc (*intr_status_get)(struct vtss_state_s *vtss_state, vtss_intr_t *status);
+    vtss_rc (*intr_mask_set)(struct vtss_state_s *vtss_state, vtss_intr_t *mask);
 #endif // VTSS_FEATURE_INTERRUPTS
 #ifdef VTSS_FEATURE_IRQ_CONTROL
     vtss_rc (*irq_cfg)(struct vtss_state_s         *vtss_state,
                        const vtss_irq_t             irq,
                        const vtss_irq_conf_t *const conf);
-    vtss_rc (*irq_status)(struct vtss_state_s *vtss_state,
-                          vtss_irq_status_t   *status);
-    vtss_rc (*irq_enable)(const vtss_inst_t inst,
-                          const vtss_irq_t  irq,
-                          BOOL              enable);
+    vtss_rc (*irq_status)(struct vtss_state_s *vtss_state, vtss_irq_status_t *status);
+    vtss_rc (*irq_enable)(const vtss_inst_t inst, const vtss_irq_t irq, BOOL enable);
 #endif /* VTSS_FEATURE_IRQ_CONTROL */
     /* Configuration/state */
     vtss_chip_id_t chip_id;
     BOOL           jr2_a; /* Jaguar-2 revision A */
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
     vtss_sgpio_conf_t         sgpio_conf[VTSS_CHIP_CNT][VTSS_SGPIO_GROUPS];
-    vtss_sgpio_event_enable_t sgpio_event_enabled[VTSS_CHIP_CNT]
-                                                 [VTSS_SGPIO_GROUPS];
+    vtss_sgpio_event_enable_t sgpio_event_enabled[VTSS_CHIP_CNT][VTSS_SGPIO_GROUPS];
 #endif /* VTSS_FEATURE_SERIAL_GPIO */
 #ifdef VTSS_FEATURE_IRQ_CONTROL
     vtss_irq_conf_t irq_conf[VTSS_IRQ_MAX];
@@ -142,8 +134,8 @@ typedef struct {
                                const vtss_port_no_t            chip_port,
                                const vtss_vscope_conf_t *const conf);
 
-    vtss_rc (*vscope_scan_status_get)(struct vtss_state_s *vtss_state,
-                                      const vtss_port_no_t chip_port,
+    vtss_rc (*vscope_scan_status_get)(struct vtss_state_s             *vtss_state,
+                                      const vtss_port_no_t             chip_port,
                                       vtss_vscope_scan_status_t *const conf);
 #endif /* VTSS_FEATURE_VSCOPE */
 } vtss_misc_state_t;

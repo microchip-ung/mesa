@@ -45,28 +45,27 @@ typedef vtss_wred_max_t vtss_wred_v2_max_t;
  *dpl - switch global)
  **/
 typedef struct {
-    BOOL       enable; /**< Enable/disable RED */
-    vtss_pct_t min_fl; /**< Minimum fill level */
-    vtss_pct_t max;    /**< Maximum drop probability or fill level - selected by
-                          max_unit */
+    BOOL       enable;           /**< Enable/disable RED */
+    vtss_pct_t min_fl;           /**< Minimum fill level */
+    vtss_pct_t max;              /**< Maximum drop probability or fill level - selected by
+                                    max_unit */
     vtss_wred_v2_max_t max_unit; /**< Selects the unit for max */
 } vtss_wred_conf_t;
 
 /** \brief Backward compatibility */
 typedef vtss_wred_conf_t vtss_red_v2_t;
 
-#endif /* defined(VTSS_FEATURE_QOS_WRED_V2) ||                                 \
+#endif /* defined(VTSS_FEATURE_QOS_WRED_V2) ||                                                     \
           defined(VTSS_FEATURE_QOS_WRED_V3) */
 
 #if defined(VTSS_FEATURE_QOS_WRED_V3)
-#define VTSS_WRED_DPL_CNT                                                      \
-    3 /**< Number of dpl's. There are no profile for dpl 0, only for dpl 1 to  \
+#define VTSS_WRED_DPL_CNT                                                                          \
+    3 /**< Number of dpl's. There are no profile for dpl 0, only for dpl 1 to                      \
          3 */
-#define VTSS_WRED_GROUP_CNT 3 /**< Number of groups */
-typedef vtss_wred_conf_t
-    vtss_red_v3_t; /**< Version 3 uses the v2 struct (per queue, per dpl, per
-                      group - switch global */
-#endif             /* defined(VTSS_FEATURE_QOS_WRED_V3) */
+#define VTSS_WRED_GROUP_CNT 3           /**< Number of groups */
+typedef vtss_wred_conf_t vtss_red_v3_t; /**< Version 3 uses the v2 struct (per queue, per dpl, per
+                                           group - switch global */
+#endif                                  /* defined(VTSS_FEATURE_QOS_WRED_V3) */
 
 /** \page qos
 
@@ -84,61 +83,53 @@ typedef vtss_wred_conf_t
 typedef struct {
     vtss_prio_t prios; /**< Number of priorities (1/2/4/8) */
 
-    BOOL dscp_trust[64]; /**< Ingress: Only trusted DSCP values are used for QOS
-                            class and DP level classification  */
-    vtss_prio_t dscp_qos_class_map[64]; /**< Ingress: Mapping from DSCP value to
-                                           QOS class  */
+    BOOL dscp_trust[64];                   /**< Ingress: Only trusted DSCP values are used for QOS
+                                              class and DP level classification  */
+    vtss_prio_t dscp_qos_class_map[64];    /**< Ingress: Mapping from DSCP value to
+                                              QOS class  */
     vtss_dp_level_t dscp_dp_level_map[64]; /**< Ingress: Mapping from DSCP value
                                               to DP level */
 
-    vtss_dscp_t
-        dscp_qos_map[VTSS_PRIO_ARRAY_SIZE]; /**< Ingress: Mapping from QoS class
-                                               to DSCP (DP unaware or DP level =
-                                               0) */
-    vtss_dscp_t
-        dscp_qos_map_dp1[VTSS_PRIO_ARRAY_SIZE]; /**< Ingress: Mapping from QoS
-                                                   class to DSCP (DP aware and
-                                                   DP level = 1) */
+    vtss_dscp_t dscp_qos_map[VTSS_PRIO_ARRAY_SIZE];     /**< Ingress: Mapping from QoS class
+                                                           to DSCP (DP unaware or DP level =
+                                                           0) */
+    vtss_dscp_t dscp_qos_map_dp1[VTSS_PRIO_ARRAY_SIZE]; /**< Ingress: Mapping from QoS
+                                                           class to DSCP (DP aware and
+                                                           DP level = 1) */
 #if VTSS_DPLS == 4
-    vtss_dscp_t
-        dscp_qos_map_dp2[VTSS_PRIO_ARRAY_SIZE]; /**< Ingress: Mapping from QoS
-                                                   class to DSCP (DP aware and
-                                                   DP level = 2) */
-    vtss_dscp_t
-        dscp_qos_map_dp3[VTSS_PRIO_ARRAY_SIZE]; /**< Ingress: Mapping from QoS
-                                                   class to DSCP (DP aware and
-                                                   DP level = 3) */
-#endif                                          /* VTSS_DPLS == 4 */
+    vtss_dscp_t dscp_qos_map_dp2[VTSS_PRIO_ARRAY_SIZE]; /**< Ingress: Mapping from QoS
+                                                           class to DSCP (DP aware and
+                                                           DP level = 2) */
+    vtss_dscp_t dscp_qos_map_dp3[VTSS_PRIO_ARRAY_SIZE]; /**< Ingress: Mapping from QoS
+                                                           class to DSCP (DP aware and
+                                                           DP level = 3) */
+#endif                                                  /* VTSS_DPLS == 4 */
 
-    BOOL dscp_remark[64]; /**< Ingress: DSCP remarking enable. Used when
-                             port.dscp_mode = VTSS_DSCP_MODE_SEL */
+    BOOL dscp_remark[64];               /**< Ingress: DSCP remarking enable. Used when
+                                           port.dscp_mode = VTSS_DSCP_MODE_SEL */
     vtss_dscp_t dscp_translate_map[64]; /**< Ingress: Translated DSCP value. Used
                                            when port.dscp_translate = TRUE) */
-    vtss_dscp_t dscp_remap[64]; /**< Egress: Remap one DSCP to another (DP
-                                   unaware or DP level = 0) */
+    vtss_dscp_t dscp_remap[64];         /**< Egress: Remap one DSCP to another (DP
+                                           unaware or DP level = 0) */
 #if defined(VTSS_FEATURE_QOS_DSCP_REMARK_DP_AWARE)
     vtss_dscp_t dscp_remap_dp1[64]; /**< Egress: Remap one DSCP to another (DP
                                        aware and DP level = 1) */
-#endif /* defined(VTSS_FEATURE_QOS_DSCP_REMARK_DP_AWARE) */
+#endif                              /* defined(VTSS_FEATURE_QOS_DSCP_REMARK_DP_AWARE) */
 
-    vtss_packet_rate_t policer_uc; /**< Unicast packet storm policer */
-    BOOL policer_uc_frame_rate; /**< FALSE: Unit is kbps. TRUE: Unit is fps */
-    vtss_storm_policer_mode_t
-        policer_uc_mode;           /**< Unicast packet storm policer mode */
-    vtss_packet_rate_t policer_mc; /**< Multicast packet storm policer */
-    BOOL policer_mc_frame_rate; /**< FALSE: Unit is kbps. TRUE: Unit is fps */
-    vtss_storm_policer_mode_t
-        policer_mc_mode;           /**< Multicast packet storm policer mode */
-    vtss_packet_rate_t policer_bc; /**< Broadcast packet storm policer */
-    BOOL policer_bc_frame_rate; /**< FALSE: Unit is kbps. TRUE: Unit is fps */
-    vtss_storm_policer_mode_t
-        policer_bc_mode; /**< Broadcast packet storm policer mode */
+    vtss_packet_rate_t        policer_uc;            /**< Unicast packet storm policer */
+    BOOL                      policer_uc_frame_rate; /**< FALSE: Unit is kbps. TRUE: Unit is fps */
+    vtss_storm_policer_mode_t policer_uc_mode;       /**< Unicast packet storm policer mode */
+    vtss_packet_rate_t        policer_mc;            /**< Multicast packet storm policer */
+    BOOL                      policer_mc_frame_rate; /**< FALSE: Unit is kbps. TRUE: Unit is fps */
+    vtss_storm_policer_mode_t policer_mc_mode;       /**< Multicast packet storm policer mode */
+    vtss_packet_rate_t        policer_bc;            /**< Broadcast packet storm policer */
+    BOOL                      policer_bc_frame_rate; /**< FALSE: Unit is kbps. TRUE: Unit is fps */
+    vtss_storm_policer_mode_t policer_bc_mode;       /**< Broadcast packet storm policer mode */
 
 #if defined(VTSS_FEATURE_QOS_WRED_V2)
-    vtss_wred_conf_t red_v2[VTSS_QUEUE_ARRAY_SIZE]
-                           [2]; /**< Random Early Detection - per queue (0..7),
-                                   per dpl (0..1) */
-#endif                          /* defined(VTSS_FEATURE_QOS_WRED_V2) */
+    vtss_wred_conf_t red_v2[VTSS_QUEUE_ARRAY_SIZE][2]; /**< Random Early Detection - per queue
+                                                          (0..7), per dpl (0..1) */
+#endif                                                 /* defined(VTSS_FEATURE_QOS_WRED_V2) */
 
 #if defined(VTSS_FEATURE_QOS_WRED_V3)
     vtss_wred_conf_t red_v3[VTSS_QUEUE_ARRAY_SIZE] /**< Random Early Detection -
@@ -166,19 +157,15 @@ vtss_rc vtss_qos_conf_get(const vtss_inst_t inst, vtss_qos_conf_t *const conf);
  *
  * \return Return code.
  **/
-vtss_rc vtss_qos_conf_set(const vtss_inst_t            inst,
-                          const vtss_qos_conf_t *const conf);
+vtss_rc vtss_qos_conf_set(const vtss_inst_t inst, const vtss_qos_conf_t *const conf);
 
 /* Number of Port policers (per port) available in HW */
 #if defined(VTSS_ARCH_SERVAL_T)
-#define VTSS_PORT_POLICERS                                                     \
-    2 /**< Number of Port policers (per port) available in HW */
+#define VTSS_PORT_POLICERS 2 /**< Number of Port policers (per port) available in HW */
 #elif defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-#define VTSS_PORT_POLICERS                                                     \
-    4 /**< Number of Port policers (per port) available in HW */
+#define VTSS_PORT_POLICERS 4 /**< Number of Port policers (per port) available in HW */
 #else
-#define VTSS_PORT_POLICERS                                                     \
-    1 /**< Number of Port policers (per port) available in HW */
+#define VTSS_PORT_POLICERS 1 /**< Number of Port policers (per port) available in HW */
 #endif
 
 /**
@@ -189,8 +176,7 @@ typedef struct {
     vtss_bitrate_t     rate;  /**< Maximum rate */
 } vtss_policer_t;
 
-#define VTSS_PORT_POLICER_CPU_QUEUES                                           \
-    8 /**< Number of cpu queues pr port policer */
+#define VTSS_PORT_POLICER_CPU_QUEUES 8 /**< Number of cpu queues pr port policer */
 
 /**
  * \brief Policer Extensions
@@ -200,24 +186,24 @@ typedef struct {
                         per second */
 #if defined(VTSS_FEATURE_QOS_PORT_POLICER_EXT_DPBL)
     vtss_dp_level_t dp_bypass_level; /**< Drop Predence bypass level */
-#endif /* VTSS_FEATURE_QOS_PORT_POLICER_EXT_DPBL */
+#endif                               /* VTSS_FEATURE_QOS_PORT_POLICER_EXT_DPBL */
 #if defined(VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2)
-    BOOL known_unicast;     /**< Known unicast frames are policed */
-    BOOL known_multicast;   /**< Known multicast frames are policed */
-    BOOL known_broadcast;   /**< Known broadcast frames are policed */
-    BOOL unknown_unicast;   /**< Unknown unicast frames are policed */
-    BOOL unknown_multicast; /**< Unknown multicast frames are policed */
-    BOOL unknown_broadcast; /**< Unknown broadcast frames are policed */
-    BOOL learning;          /**< Learning frames are policed */
-    BOOL to_cpu;            /**< Frames to the CPU are policed */
+    BOOL known_unicast;                           /**< Known unicast frames are policed */
+    BOOL known_multicast;                         /**< Known multicast frames are policed */
+    BOOL known_broadcast;                         /**< Known broadcast frames are policed */
+    BOOL unknown_unicast;                         /**< Unknown unicast frames are policed */
+    BOOL unknown_multicast;                       /**< Unknown multicast frames are policed */
+    BOOL unknown_broadcast;                       /**< Unknown broadcast frames are policed */
+    BOOL learning;                                /**< Learning frames are policed */
+    BOOL to_cpu;                                  /**< Frames to the CPU are policed */
     BOOL cpu_queue[VTSS_PORT_POLICER_CPU_QUEUES]; /**< Enable each individual CPU
                                                      queue (if to_cpu is set) */
-    BOOL limit_noncpu_traffic; /**< Remove the front ports from the destination
-                                  set for a policed frame */
-    BOOL limit_cpu_traffic; /**< Remove the CPU ports from the destination set
-                               for a policed frame */
-#endif                      /* VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2 */
-    BOOL flow_control;      /**< Flow control is enabled */
+    BOOL limit_noncpu_traffic;                    /**< Remove the front ports from the destination
+                                                     set for a policed frame */
+    BOOL limit_cpu_traffic;                       /**< Remove the CPU ports from the destination set
+                                                     for a policed frame */
+#endif                                            /* VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2 */
+    BOOL flow_control;                            /**< Flow control is enabled */
 } vtss_policer_ext_t;
 
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
@@ -226,14 +212,14 @@ typedef struct {
     vtss_policer_type_t type;   /**< Policer type */
     BOOL                enable; /**< Enable/disable policer */
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-    BOOL cm;        /**< Colour Mode (TRUE means colour aware) */
-#endif              /* VTSS_ARCH_JAGUAR_2 */
-    BOOL cf;        /**< Coupling Flag */
-    BOOL line_rate; /**< Line rate policing (default is data rate policing) */
-    vtss_bitrate_t     cir; /**< Committed Information Rate */
-    vtss_burst_level_t cbs; /**< Committed Burst Size */
-    vtss_bitrate_t     eir; /**< Excess Information Rate */
-    vtss_burst_level_t ebs; /**< Excess Burst Size */
+    BOOL cm;                      /**< Colour Mode (TRUE means colour aware) */
+#endif                            /* VTSS_ARCH_JAGUAR_2 */
+    BOOL               cf;        /**< Coupling Flag */
+    BOOL               line_rate; /**< Line rate policing (default is data rate policing) */
+    vtss_bitrate_t     cir;       /**< Committed Information Rate */
+    vtss_burst_level_t cbs;       /**< Committed Burst Size */
+    vtss_bitrate_t     eir;       /**< Excess Information Rate */
+    vtss_burst_level_t ebs;       /**< Excess Burst Size */
 #if defined(VTSS_FEATURE_PSFP)
     BOOL            drop_yellow;  // DropOnYellow: Discard yellow frames
     vtss_opt_bool_t mark_all_red; // MarkAllFramesRedEnable/MarkAllFramesRed:
@@ -305,14 +291,13 @@ typedef enum {
 typedef struct {
     vtss_burst_level_t level; /**< CBS (Committed Burst Size).       Unit:
                                  bytes. frames if frame-rate */
-    vtss_bitrate_t
-        rate; /**< CIR (Committed Information Rate). Unit: kbps. frame/s if
-                 frame-rate. Use VTSS_BITRATE_DISABLED to disable shaper */
+    vtss_bitrate_t rate;      /**< CIR (Committed Information Rate). Unit: kbps. frame/s if
+                                 frame-rate. Use VTSS_BITRATE_DISABLED to disable shaper */
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB)
     vtss_burst_level_t ebs; /**< EBS (Excess Burst Size).          Unit: bytes */
-    vtss_bitrate_t eir; /**< EIR (Excess Information Rate).    Unit: kbps. Use
-                           VTSS_BITRATE_DISABLED to disable DLB */
-#endif                  /* VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB */
+    vtss_bitrate_t     eir; /**< EIR (Excess Information Rate).    Unit: kbps. Use
+                               VTSS_BITRATE_DISABLED to disable DLB */
+#endif                      /* VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB */
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT)
     vtss_shaper_mode_t mode; /**< RT (Rate type). Shaper rate type
                                 configuration: 0 = Line-rate, 1 = Data-rate */
@@ -326,10 +311,8 @@ typedef struct {
 /** \brief Tag Remark Mode */
 typedef enum {
     VTSS_TAG_REMARK_MODE_CLASSIFIED = 0, /**< Use classified PCP/DEI values */
-    VTSS_TAG_REMARK_MODE_DEFAULT =
-        2, /**< Use default (configured) PCP/DEI values */
-    VTSS_TAG_REMARK_MODE_MAPPED =
-        3 /**< Use mapped versions of classified QOS class and DP level */
+    VTSS_TAG_REMARK_MODE_DEFAULT = 2,    /**< Use default (configured) PCP/DEI values */
+    VTSS_TAG_REMARK_MODE_MAPPED = 3 /**< Use mapped versions of classified QOS class and DP level */
 } vtss_tag_remark_mode_t;
 
 /**
@@ -371,41 +354,36 @@ typedef enum {
 
 /** \brief QoS setup per port **/
 typedef struct {
-    vtss_policer_t
-        policer_port[VTSS_PORT_POLICERS]; /**< Ingress port policers */
+    vtss_policer_t policer_port[VTSS_PORT_POLICERS]; /**< Ingress port policers */
 
-    vtss_policer_ext_t
-        policer_ext_port[VTSS_PORT_POLICERS]; /**< Ingress port policers
-                                                 extensions */
+    vtss_policer_ext_t policer_ext_port[VTSS_PORT_POLICERS]; /**< Ingress port policers
+                                                                extensions */
 
-    vtss_policer_t
-        policer_queue[VTSS_QUEUE_ARRAY_SIZE]; /**< Ingress queue policers */
+    vtss_policer_t policer_queue[VTSS_QUEUE_ARRAY_SIZE]; /**< Ingress queue policers */
 
     vtss_shaper_t shaper_port; /**< Egress port shaper */
 
-    vtss_shaper_t
-        shaper_queue[VTSS_QUEUE_ARRAY_SIZE]; /**< Egress queue shapers */
+    vtss_shaper_t shaper_queue[VTSS_QUEUE_ARRAY_SIZE]; /**< Egress queue shapers */
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB)
     BOOL excess_enable[VTSS_QUEUE_ARRAY_SIZE]; /**< Allow this queue to use
                                                   excess bandwidth */
-#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
+#endif                                         /* VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_EB */
 
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
     BOOL cut_through_enable[VTSS_QUEUE_ARRAY_SIZE]; /**< Allow this queue to use
                                                        cut through feature */
-#endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH */
+#endif                                              /* VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH */
 
     vtss_prio_t    default_prio; /**< Default port priority (QoS class) */
     vtss_tagprio_t usr_prio;     /**< Default Ingress VLAN tag priority (PCP) */
 
-    vtss_dp_level_t default_dpl; /**< Default Ingress Drop Precedence level */
-    vtss_dei_t      default_dei; /**< Default Ingress DEI value  */
-    BOOL tag_class_enable; /**< Ingress classification of QoS class and DP level
-                              based PCP and DEI */
-    vtss_prio_t qos_class_map[VTSS_PCP_ARRAY_SIZE]
-                             [VTSS_DEI_ARRAY_SIZE]; /**< Ingress mapping for
-                                                       tagged frames from PCP
-                                                       and DEI to QOS class  */
+    vtss_dp_level_t default_dpl;      /**< Default Ingress Drop Precedence level */
+    vtss_dei_t      default_dei;      /**< Default Ingress DEI value  */
+    BOOL            tag_class_enable; /**< Ingress classification of QoS class and DP level
+                                         based PCP and DEI */
+    vtss_prio_t qos_class_map[VTSS_PCP_ARRAY_SIZE][VTSS_DEI_ARRAY_SIZE]; /**< Ingress mapping for
+                                                                            tagged frames from PCP
+                                                                            and DEI to QOS class  */
     vtss_dp_level_t dp_level_map[VTSS_PCP_ARRAY_SIZE]
                                 [VTSS_DEI_ARRAY_SIZE]; /**< Ingress mapping for
                                                           tagged frames from PCP
@@ -418,15 +396,13 @@ typedef struct {
     BOOL              dscp_translate; /**< Ingress: Translate DSCP value via
                                          dscp_translate_map[DSCP] before use */
 
-    vtss_tag_remark_mode_t tag_remark_mode; /**< Egress tag remark mode */
-    vtss_tagprio_t tag_default_pcp; /**< Default PCP value for Egress port */
-    vtss_dei_t     tag_default_dei; /**< Default DEI value for Egress port */
-    vtss_tagprio_t tag_pcp_map[VTSS_PRIO_ARRAY_SIZE]
-                              [2]; /**< Egress mapping from QOS class and (1
-                                      bit) DP level to PCP */
-    vtss_dei_t tag_dei_map[VTSS_PRIO_ARRAY_SIZE]
-                          [2]; /**< Egress mapping from QOS class and (1 bit) DP
-                                  level to DEI */
+    vtss_tag_remark_mode_t tag_remark_mode;              /**< Egress tag remark mode */
+    vtss_tagprio_t         tag_default_pcp;              /**< Default PCP value for Egress port */
+    vtss_dei_t             tag_default_dei;              /**< Default DEI value for Egress port */
+    vtss_tagprio_t tag_pcp_map[VTSS_PRIO_ARRAY_SIZE][2]; /**< Egress mapping from QOS class and (1
+                                                            bit) DP level to PCP */
+    vtss_dei_t tag_dei_map[VTSS_PRIO_ARRAY_SIZE][2]; /**< Egress mapping from QOS class and (1 bit)
+                                                        DP level to DEI */
 
     BOOL dwrr_enable; /**< Enable Weighted fairness queueing */
 #if defined(VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT)
@@ -436,17 +412,15 @@ typedef struct {
     vtss_pct_t queue_pct[VTSS_QUEUE_ARRAY_SIZE]; /**< Queue percentages */
 
 #if defined(VTSS_FEATURE_QOS_OT)
-    BOOL ot_dwrr_enable; /**< Enable DWRR fairness scheduling between OT queues.
-                          */
-    u8         ot_dwrr_cnt; /**< Number of OT queues running in DWRR mode. */
-    vtss_pct_t ot_queue_pct[VTSS_QUEUE_ARRAY_SIZE]; /**< OT Queue percentages */
-    vtss_shaper_t
-        ot_shaper_queue[VTSS_QUEUE_ARRAY_SIZE]; /**< OT egress queue shapers */
+    BOOL ot_dwrr_enable;       /**< Enable DWRR fairness scheduling between OT queues.
+                                */
+    u8            ot_dwrr_cnt; /**< Number of OT queues running in DWRR mode. */
+    vtss_pct_t    ot_queue_pct[VTSS_QUEUE_ARRAY_SIZE];    /**< OT Queue percentages */
+    vtss_shaper_t ot_shaper_queue[VTSS_QUEUE_ARRAY_SIZE]; /**< OT egress queue shapers */
 
     BOOL ot_it_dwrr_enable; /**< Enable DWRR fairness scheduling between OT and
                                IT traffic. */
-    vtss_pct_t
-        ot_pct; /**< The DWRR OT traffic percentage. Rest is IT traffic. */
+    vtss_pct_t ot_pct;      /**< The DWRR OT traffic percentage. Rest is IT traffic. */
 
     vtss_shaper_t ot_shaper; /**< Egress OT traffic shapers */
     vtss_shaper_t it_shaper; /**< Egress IT traffic shapers */
@@ -474,9 +448,8 @@ typedef struct {
 #endif                                     /* VTSS_FEATURE_QOS_INGRESS_MAP */
 
 #if (defined VTSS_FEATURE_QOS_EGRESS_MAP)
-    vtss_qos_egress_map_id_t
-        egress_map; /**< Egress map to use for remarking. Default is none. */
-#endif              /* VTSS_FEATURE_QOS_EGRESS_MAP */
+    vtss_qos_egress_map_id_t egress_map; /**< Egress map to use for remarking. Default is none. */
+#endif                                   /* VTSS_FEATURE_QOS_EGRESS_MAP */
 } vtss_qos_port_conf_t;
 
 /**
@@ -518,8 +491,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_qos_status_get(const vtss_inst_t        inst,
-                            vtss_qos_status_t *const status);
+vtss_rc vtss_qos_status_get(const vtss_inst_t inst, vtss_qos_status_t *const status);
 
 #if defined(VTSS_FEATURE_QCL)
 /** \page qos
@@ -549,11 +521,10 @@ vtss_rc vtss_qos_status_get(const vtss_inst_t        inst,
  **/
 typedef u32 vtss_qcl_id_t;
 
-#define VTSS_QCL_IDS      1 /**< Number of QCLs */
-#define VTSS_QCL_ID_START 0 /**< QCL ID start number */
-#define VTSS_QCL_ID_END                                                        \
-    (VTSS_QCL_ID_START + VTSS_QCL_IDS)      /**< QCL ID end number */
-#define VTSS_QCL_ARRAY_SIZE VTSS_QCL_ID_END /**< QCL ID array size */
+#define VTSS_QCL_IDS        1                                  /**< Number of QCLs */
+#define VTSS_QCL_ID_START   0                                  /**< QCL ID start number */
+#define VTSS_QCL_ID_END     (VTSS_QCL_ID_START + VTSS_QCL_IDS) /**< QCL ID end number */
+#define VTSS_QCL_ARRAY_SIZE VTSS_QCL_ID_END                    /**< QCL ID array size */
 
 #define VTSS_QCE_ID_LAST 0 /**< Special value used to add last in list */
 
@@ -608,12 +579,12 @@ typedef struct {
     vtss_vcap_bit_t fragment; /**< Fragment */
     vtss_vcap_vr_t  dscp;     /**< DSCP field (6 bit) */
     vtss_vcap_u8_t  proto;    /**< Protocol */
-    vtss_vcap_ip_t  sip; /**< Source IP address - Serval: key_type = normal,
-                            ip_addr and mac_ip_addr */
+    vtss_vcap_ip_t  sip;      /**< Source IP address - Serval: key_type = normal,
+                                 ip_addr and mac_ip_addr */
 #if defined(VTSS_FEATURE_QCL_KEY_DIP)
-    vtss_vcap_ip_t dip; /**< Destination IP address - Serval: key_type = ip_addr
-                           and mac_ip_addr */
-#endif                  /* defined(VTSS_FEATURE_QCL_KEY_DIP) */
+    vtss_vcap_ip_t dip;   /**< Destination IP address - Serval: key_type = ip_addr
+                             and mac_ip_addr */
+#endif                    /* defined(VTSS_FEATURE_QCL_KEY_DIP) */
     vtss_vcap_vr_t sport; /**< UDP/TCP: Source port - Serval: key_type = normal,
                              ip_addr and mac_ip_addr */
     vtss_vcap_vr_t dport; /**< UDP/TCP: Destination port - Serval: key_type =
@@ -662,22 +633,21 @@ typedef struct {
  * \brief QCE action
  **/
 typedef struct {
-    BOOL            prio_enable;      /**< Enable priority classification */
-    vtss_prio_t     prio;             /**< Priority value */
-    BOOL            dp_enable;        /**< Enable DP classification */
-    vtss_dp_level_t dp;               /**< DP value */
-    BOOL            dscp_enable;      /**< Enable DSCP classification */
-    vtss_dscp_t     dscp;             /**< DSCP value */
-    BOOL            pcp_dei_enable;   /**< Enable PCP and DEI classification */
-    vtss_tagprio_t  pcp;              /**< PCP value */
-    vtss_dei_t      dei;              /**< DEI value */
-    BOOL            policy_no_enable; /**< Enable ACL policy classification */
-    vtss_acl_policy_no_t policy_no;   /**< ACL policy number */
+    BOOL                 prio_enable;      /**< Enable priority classification */
+    vtss_prio_t          prio;             /**< Priority value */
+    BOOL                 dp_enable;        /**< Enable DP classification */
+    vtss_dp_level_t      dp;               /**< DP value */
+    BOOL                 dscp_enable;      /**< Enable DSCP classification */
+    vtss_dscp_t          dscp;             /**< DSCP value */
+    BOOL                 pcp_dei_enable;   /**< Enable PCP and DEI classification */
+    vtss_tagprio_t       pcp;              /**< PCP value */
+    vtss_dei_t           dei;              /**< DEI value */
+    BOOL                 policy_no_enable; /**< Enable ACL policy classification */
+    vtss_acl_policy_no_t policy_no;        /**< ACL policy number */
 #if (defined VTSS_FEATURE_QCL_MAP_ACTION)
-    BOOL map_id_enable; /**< Enable classification via ingress map */
-    vtss_qos_ingress_map_id_t
-        map_id; /**< Ingress map to use for classification */
-#endif          /* VTSS_FEATURE_QCL_MAP_ACTION */
+    BOOL                      map_id_enable; /**< Enable classification via ingress map */
+    vtss_qos_ingress_map_id_t map_id;        /**< Ingress map to use for classification */
+#endif                                       /* VTSS_FEATURE_QCL_MAP_ACTION */
 } vtss_qce_action_t;
 
 /**
@@ -698,9 +668,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_qce_init(const vtss_inst_t     inst,
-                      const vtss_qce_type_t type,
-                      vtss_qce_t *const     qce);
+vtss_rc vtss_qce_init(const vtss_inst_t inst, const vtss_qce_type_t type, vtss_qce_t *const qce);
 
 /**
  * \brief Add QCE to QCL.
@@ -732,21 +700,20 @@ vtss_rc vtss_qce_del(const vtss_inst_t   inst,
                      const vtss_qce_id_t qce_id);
 #endif // VTSS_FEATURE_QCL
 
-#if defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                                   \
-    defined(VTSS_FEATURE_QOS_EGRESS_MAP)
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP) || defined(VTSS_FEATURE_QOS_EGRESS_MAP)
 /** \brief Key that determines what to match */
 typedef enum {
-    VTSS_QOS_INGRESS_MAP_KEY_PCP, /**< Use PCP for tagged frames and none for
-                                     the rest */
-    VTSS_QOS_INGRESS_MAP_KEY_PCP_DEI, /**< Use PCP/DEI for tagged frames and
-                                         none for the rest */
-    VTSS_QOS_INGRESS_MAP_KEY_DSCP, /**< Use DSCP as key for IP frames and none
-                                      for the rest */
+    VTSS_QOS_INGRESS_MAP_KEY_PCP,          /**< Use PCP for tagged frames and none for
+                                              the rest */
+    VTSS_QOS_INGRESS_MAP_KEY_PCP_DEI,      /**< Use PCP/DEI for tagged frames and
+                                              none for the rest */
+    VTSS_QOS_INGRESS_MAP_KEY_DSCP,         /**< Use DSCP as key for IP frames and none
+                                              for the rest */
     VTSS_QOS_INGRESS_MAP_KEY_DSCP_PCP_DEI, /**< Use DSCP as key for IP frames,
                                               PCP/DEI for tagged frames and none
                                               for the rest */
-    VTSS_QOS_INGRESS_MAP_KEY_MPLS_TC /**< Use MPLS TC as key for MPLS frames and
-                                        none for the rest */
+    VTSS_QOS_INGRESS_MAP_KEY_MPLS_TC       /**< Use MPLS TC as key for MPLS frames and
+                                              none for the rest */
 } vtss_qos_ingress_map_key_t;
 
 /** \brief Actions that can be applied to classified values if the entry is
@@ -765,16 +732,11 @@ typedef struct {
 /** \brief Mapped values that can be applied to classified values if the entry
  * is matched */
 typedef struct {
-    vtss_cos_t
-        cos; /**< The classified COS is set to cos if action.cos is TRUE */
-    vtss_dpl_t
-        dpl; /**< The classified DPL is set to dpl if action.dpl is TRUE */
-    vtss_pcp_t
-        pcp; /**< The classified PCP is set to pcp if action.pcp is TRUE */
-    vtss_dei_t
-        dei; /**< The classified DEI is set to dei if action.dei is TRUE */
-    vtss_dscp_t
-        dscp; /**< The classified DSCP is set to dscp if action.dscp is TRUE */
+    vtss_cos_t   cos;        /**< The classified COS is set to cos if action.cos is TRUE */
+    vtss_dpl_t   dpl;        /**< The classified DPL is set to dpl if action.dpl is TRUE */
+    vtss_pcp_t   pcp;        /**< The classified PCP is set to pcp if action.pcp is TRUE */
+    vtss_dei_t   dei;        /**< The classified DEI is set to dei if action.dei is TRUE */
+    vtss_dscp_t  dscp;       /**< The classified DSCP is set to dscp if action.dscp is TRUE */
     vtss_cosid_t cosid;      /**< The classified COS ID is set to cosid if
                                 action.cosid is TRUE */
     vtss_cosid_t path_cosid; /**< Path COS ID value used by OAM MEP if
@@ -785,21 +747,17 @@ typedef struct {
 
 /** \brief Values for a combination of DSCP, PCP and DEI */
 typedef struct {
-    vtss_qos_ingress_map_values_t
-        dscp[64]; /**< Mapped values for each DSCP value */
-    vtss_qos_ingress_map_values_t
-        pcp_dei[8][2]; /**< Mapped values for each PCP/DEI value */
+    vtss_qos_ingress_map_values_t dscp[64];      /**< Mapped values for each DSCP value */
+    vtss_qos_ingress_map_values_t pcp_dei[8][2]; /**< Mapped values for each PCP/DEI value */
 } vtss_qos_ingress_map_dpd_t;
 
 /** \brief Union of mapped values for different keys */
 typedef union {
-    vtss_qos_ingress_map_values_t pcp[8]; /**< VTSS_QOS_INGRESS_MAP_KEY_PCP */
-    vtss_qos_ingress_map_values_t
-        pcp_dei[8][2]; /**< VTSS_QOS_INGRESS_MAP_KEY_PCP_DEI */
-    vtss_qos_ingress_map_values_t dscp[64]; /**< VTSS_QOS_INGRESS_MAP_KEY_DSCP */
-    vtss_qos_ingress_map_dpd_t dpd; /**< VTSS_QOS_INGRESS_MAP_KEY_DSCP_PCP_DEI */
-    vtss_qos_ingress_map_values_t
-        mpls_tc[8]; /**< VTSS_QOS_INGRESS_MAP_KEY_MPLS_TC */
+    vtss_qos_ingress_map_values_t pcp[8];        /**< VTSS_QOS_INGRESS_MAP_KEY_PCP */
+    vtss_qos_ingress_map_values_t pcp_dei[8][2]; /**< VTSS_QOS_INGRESS_MAP_KEY_PCP_DEI */
+    vtss_qos_ingress_map_values_t dscp[64];      /**< VTSS_QOS_INGRESS_MAP_KEY_DSCP */
+    vtss_qos_ingress_map_dpd_t    dpd;           /**< VTSS_QOS_INGRESS_MAP_KEY_DSCP_PCP_DEI */
+    vtss_qos_ingress_map_values_t mpls_tc[8];    /**< VTSS_QOS_INGRESS_MAP_KEY_MPLS_TC */
 } vtss_qos_ingress_map_maps_t;
 
 /** \brief The complete map. There is one of these per map id */
@@ -832,12 +790,9 @@ typedef struct {
 /** \brief Mapped values that can be applied to classified values if the entry
  * is matched */
 typedef struct {
-    vtss_pcp_t
-        pcp; /**< The classified PCP is set to pcp if action.pcp is TRUE */
-    vtss_dei_t
-        dei; /**< The classified DEI is set to dei if action.dei is TRUE */
-    vtss_dscp_t
-        dscp; /**< The classified DSCP is set to dscp if action.dscp is TRUE */
+    vtss_pcp_t   pcp;        /**< The classified PCP is set to pcp if action.pcp is TRUE */
+    vtss_dei_t   dei;        /**< The classified DEI is set to dei if action.dei is TRUE */
+    vtss_dscp_t  dscp;       /**< The classified DSCP is set to dscp if action.dscp is TRUE */
     vtss_cosid_t path_cosid; /**< Path COS ID value used by OAM MEP if
                                 action.path is TRUE */
     vtss_mpls_tc_t mpls_tc;  /**< The classified TC is set to mpls_tc if
@@ -846,16 +801,12 @@ typedef struct {
 
 /** \brief Union of mapped values for different keys */
 typedef union {
-    vtss_qos_egress_map_values_t cosid[8]; /**< VTSS_QOS_EGRESS_MAP_KEY_COSID */
-    vtss_qos_egress_map_values_t
-        cosid_dpl[8][4]; /**< VTSS_QOS_EGRESS_MAP_KEY_COSID_DPL */
-    vtss_qos_egress_map_values_t dscp[64]; /**< VTSS_QOS_EGRESS_MAP_KEY_DSCP */
-    vtss_qos_egress_map_values_t
-        dscp_dpl[64][4]; /**< VTSS_QOS_EGRESS_MAP_KEY_DSCP_DPL */
-    vtss_qos_egress_map_values_t
-        mpls_tc[8]; /**< VTSS_QOS_EGRESS_MAP_KEY_MPLS_TC */
-    vtss_qos_egress_map_values_t
-        mpls_tc_dpl[8][4]; /**< VTSS_QOS_EGRESS_MAP_KEY_MPLS_TC_DPL */
+    vtss_qos_egress_map_values_t cosid[8];          /**< VTSS_QOS_EGRESS_MAP_KEY_COSID */
+    vtss_qos_egress_map_values_t cosid_dpl[8][4];   /**< VTSS_QOS_EGRESS_MAP_KEY_COSID_DPL */
+    vtss_qos_egress_map_values_t dscp[64];          /**< VTSS_QOS_EGRESS_MAP_KEY_DSCP */
+    vtss_qos_egress_map_values_t dscp_dpl[64][4];   /**< VTSS_QOS_EGRESS_MAP_KEY_DSCP_DPL */
+    vtss_qos_egress_map_values_t mpls_tc[8];        /**< VTSS_QOS_EGRESS_MAP_KEY_MPLS_TC */
+    vtss_qos_egress_map_values_t mpls_tc_dpl[8][4]; /**< VTSS_QOS_EGRESS_MAP_KEY_MPLS_TC_DPL */
 } vtss_qos_egress_map_maps_t;
 
 /** \brief The complete map. There is one of these per map id */
@@ -865,7 +816,7 @@ typedef struct {
     vtss_qos_egress_map_action_t action; /**< Action enable/disable */
     vtss_qos_egress_map_maps_t   maps;   /**< Maps for specific key */
 } vtss_qos_egress_map_t;
-#endif /* defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                             \
+#endif /* defined(VTSS_FEATURE_QOS_INGRESS_MAP) ||                                                 \
           defined(VTSS_FEATURE_QOS_EGRESS_MAP) */
 
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
@@ -906,8 +857,7 @@ vtss_rc vtss_qos_ingress_map_init(const vtss_inst_t                inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_qos_ingress_map_add(const vtss_inst_t                   inst,
-                                 const vtss_qos_ingress_map_t *const map);
+vtss_rc vtss_qos_ingress_map_add(const vtss_inst_t inst, const vtss_qos_ingress_map_t *const map);
 
 /**
  * \brief Delete an ingress map.
@@ -917,8 +867,7 @@ vtss_rc vtss_qos_ingress_map_add(const vtss_inst_t                   inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_qos_ingress_map_del(const vtss_inst_t               inst,
-                                 const vtss_qos_ingress_map_id_t id);
+vtss_rc vtss_qos_ingress_map_del(const vtss_inst_t inst, const vtss_qos_ingress_map_id_t id);
 /**
  * \brief Delete all ingress maps.
  *
@@ -967,8 +916,7 @@ vtss_rc vtss_qos_egress_map_init(const vtss_inst_t               inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_qos_egress_map_add(const vtss_inst_t                  inst,
-                                const vtss_qos_egress_map_t *const map);
+vtss_rc vtss_qos_egress_map_add(const vtss_inst_t inst, const vtss_qos_egress_map_t *const map);
 
 /**
  * \brief Delete an egress map.
@@ -978,8 +926,7 @@ vtss_rc vtss_qos_egress_map_add(const vtss_inst_t                  inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_qos_egress_map_del(const vtss_inst_t              inst,
-                                const vtss_qos_egress_map_id_t id);
+vtss_rc vtss_qos_egress_map_del(const vtss_inst_t inst, const vtss_qos_egress_map_id_t id);
 /**
  * \brief Delete all egress maps.
  *
@@ -1027,12 +974,10 @@ typedef vtss_dlb_policer_conf_t vtss_evc_policer_conf_t;
 #endif
 
 #if defined(VTSS_ARCH_OCELOT)
-#define VTSS_EVC_POLICER_ID_DISCARD                                            \
-    4094 /**< EVC/ECE: Policer discards all frames */
-#define VTSS_EVC_POLICER_ID_NONE                                               \
-    4095 /**< EVC/ECE: Policer forwards all frames */
-#define VTSS_EVC_POLICER_ID_EVC 4096 /**< ECE only: Use EVC policer */
-#endif                               /* VTSS_ARCH_OCELOT */
+#define VTSS_EVC_POLICER_ID_DISCARD 4094 /**< EVC/ECE: Policer discards all frames */
+#define VTSS_EVC_POLICER_ID_NONE    4095 /**< EVC/ECE: Policer forwards all frames */
+#define VTSS_EVC_POLICER_ID_EVC     4096 /**< ECE only: Use EVC policer */
+#endif                                   /* VTSS_ARCH_OCELOT */
 
 /**
  * \brief Get EVC policer configuration.
@@ -1056,8 +1001,8 @@ vtss_rc vtss_evc_policer_conf_get(const vtss_inst_t              inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_evc_policer_conf_set(const vtss_inst_t           inst,
-                                  const vtss_evc_policer_id_t policer_id,
+vtss_rc vtss_evc_policer_conf_set(const vtss_inst_t                    inst,
+                                  const vtss_evc_policer_id_t          policer_id,
                                   const vtss_evc_policer_conf_t *const conf);
 #endif /* VTSS_FEATURE_EVC_POLICERS */
 

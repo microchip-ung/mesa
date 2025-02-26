@@ -44,13 +44,10 @@
 #define LU26_IRQ_DEST_EXT0 2 /* IRQ destination EXT0 */
 #define LU26_IRQ_DEST_EXT1 3 /* IRQ destination EXT1 */
 
-#define IRQ_DEST(conf)                                                         \
-    ((u32)((conf->external ? LU26_IRQ_DEST_EXT0 : LU26_IRQ_DEST_CPU0) +        \
-           conf->destination))
+#define IRQ_DEST(conf)                                                                             \
+    ((u32)((conf->external ? LU26_IRQ_DEST_EXT0 : LU26_IRQ_DEST_CPU0) + conf->destination))
 
-static void lu26_misc_owner_mask_update(vtss_state_t *vtss_state,
-                                        u32           destination,
-                                        u32           mask)
+static void lu26_misc_owner_mask_update(vtss_state_t *vtss_state, u32 destination, u32 mask)
 {
     if (destination == LU26_IRQ_DEST_CPU1) {
         vtss_state->misc.irq_user_space_owned_mask |= mask;
@@ -71,49 +68,39 @@ static vtss_rc lu26_misc_irq_cfg(vtss_state_t                *vtss_state,
         switch (irq) {
         case VTSS_IRQ_XTR:
             lu26_misc_owner_mask_update(vtss_state, destination,
-                                        VTSS_BIT(LU26_IRQ_XTR_RDY0) |
-                                            VTSS_BIT(LU26_IRQ_XTR_RDY1) |
+                                        VTSS_BIT(LU26_IRQ_XTR_RDY0) | VTSS_BIT(LU26_IRQ_XTR_RDY1) |
                                             VTSS_BIT(LU26_IRQ_XTR_RDY2) |
                                             VTSS_BIT(LU26_IRQ_XTR_RDY3));
             L26_WRM(VTSS_ICPU_CFG_INTR_XTR_RDY0_INTR_CFG,
-                    VTSS_F_ICPU_CFG_INTR_XTR_RDY0_INTR_CFG_XTR_RDY0_INTR_SEL(
-                        destination),
+                    VTSS_F_ICPU_CFG_INTR_XTR_RDY0_INTR_CFG_XTR_RDY0_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_XTR_RDY0_INTR_CFG_XTR_RDY0_INTR_SEL);
             L26_WRM(VTSS_ICPU_CFG_INTR_XTR_RDY1_INTR_CFG,
-                    VTSS_F_ICPU_CFG_INTR_XTR_RDY1_INTR_CFG_XTR_RDY1_INTR_SEL(
-                        destination),
+                    VTSS_F_ICPU_CFG_INTR_XTR_RDY1_INTR_CFG_XTR_RDY1_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_XTR_RDY1_INTR_CFG_XTR_RDY1_INTR_SEL);
             L26_WRM(VTSS_ICPU_CFG_INTR_XTR_RDY2_INTR_CFG,
-                    VTSS_F_ICPU_CFG_INTR_XTR_RDY2_INTR_CFG_XTR_RDY2_INTR_SEL(
-                        destination),
+                    VTSS_F_ICPU_CFG_INTR_XTR_RDY2_INTR_CFG_XTR_RDY2_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_XTR_RDY2_INTR_CFG_XTR_RDY2_INTR_SEL);
             L26_WRM(VTSS_ICPU_CFG_INTR_XTR_RDY0_INTR_CFG,
-                    VTSS_F_ICPU_CFG_INTR_XTR_RDY3_INTR_CFG_XTR_RDY3_INTR_SEL(
-                        destination),
+                    VTSS_F_ICPU_CFG_INTR_XTR_RDY3_INTR_CFG_XTR_RDY3_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_XTR_RDY3_INTR_CFG_XTR_RDY3_INTR_SEL);
             break;
 
         case VTSS_IRQ_EXT0:
-            lu26_misc_owner_mask_update(vtss_state, destination,
-                                        VTSS_BIT(LU26_IRQ_EXT0));
+            lu26_misc_owner_mask_update(vtss_state, destination, VTSS_BIT(LU26_IRQ_EXT0));
             L26_WRM(VTSS_ICPU_CFG_INTR_EXT_IRQ0_INTR_CFG,
-                    VTSS_F_ICPU_CFG_INTR_EXT_IRQ0_INTR_CFG_EXT_IRQ0_INTR_SEL(
-                        destination),
+                    VTSS_F_ICPU_CFG_INTR_EXT_IRQ0_INTR_CFG_EXT_IRQ0_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_EXT_IRQ0_INTR_CFG_EXT_IRQ0_INTR_SEL);
             break;
 
         case VTSS_IRQ_EXT1:
-            lu26_misc_owner_mask_update(vtss_state, destination,
-                                        VTSS_BIT(LU26_IRQ_EXT1));
+            lu26_misc_owner_mask_update(vtss_state, destination, VTSS_BIT(LU26_IRQ_EXT1));
             L26_WRM(VTSS_ICPU_CFG_INTR_EXT_IRQ1_INTR_CFG,
-                    VTSS_F_ICPU_CFG_INTR_EXT_IRQ1_INTR_CFG_EXT_IRQ1_INTR_SEL(
-                        destination),
+                    VTSS_F_ICPU_CFG_INTR_EXT_IRQ1_INTR_CFG_EXT_IRQ1_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_EXT_IRQ1_INTR_CFG_EXT_IRQ1_INTR_SEL);
             break;
 
         case VTSS_IRQ_FDMA_XTR: /* NB: XTR and INJ are lumped together */
-            lu26_misc_owner_mask_update(vtss_state, destination,
-                                        VTSS_BIT(LU26_IRQ_FDMA));
+            lu26_misc_owner_mask_update(vtss_state, destination, VTSS_BIT(LU26_IRQ_FDMA));
             L26_WRM(VTSS_ICPU_CFG_INTR_FDMA_INTR_CFG,
                     VTSS_F_ICPU_CFG_INTR_FDMA_INTR_CFG_FDMA_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_FDMA_INTR_CFG_FDMA_INTR_SEL);
@@ -121,8 +108,7 @@ static vtss_rc lu26_misc_irq_cfg(vtss_state_t                *vtss_state,
 
         case VTSS_IRQ_SOFTWARE:
             lu26_misc_owner_mask_update(vtss_state, destination,
-                                        VTSS_BIT(LU26_IRQ_SW0) |
-                                            VTSS_BIT(LU26_IRQ_SW1));
+                                        VTSS_BIT(LU26_IRQ_SW0) | VTSS_BIT(LU26_IRQ_SW1));
             L26_WRM(VTSS_ICPU_CFG_INTR_SW0_INTR_CFG,
                     VTSS_F_ICPU_CFG_INTR_SW0_INTR_CFG_SW0_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_SW0_INTR_CFG_SW0_INTR_SEL);
@@ -132,27 +118,21 @@ static vtss_rc lu26_misc_irq_cfg(vtss_state_t                *vtss_state,
             break;
 
         case VTSS_IRQ_PTP_SYNC:
-            lu26_misc_owner_mask_update(vtss_state, destination,
-                                        VTSS_BIT(LU26_IRQ_PTP_SYNC));
+            lu26_misc_owner_mask_update(vtss_state, destination, VTSS_BIT(LU26_IRQ_PTP_SYNC));
             L26_WRM(VTSS_ICPU_CFG_INTR_PTP_SYNC_INTR_CFG,
-                    VTSS_F_ICPU_CFG_INTR_PTP_SYNC_INTR_CFG_PTP_SYNC_INTR_SEL(
-                        destination),
+                    VTSS_F_ICPU_CFG_INTR_PTP_SYNC_INTR_CFG_PTP_SYNC_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_PTP_SYNC_INTR_CFG_PTP_SYNC_INTR_SEL);
             break;
         case VTSS_IRQ_SGPIO:
-            lu26_misc_owner_mask_update(vtss_state, destination,
-                                        VTSS_BIT(LU26_IRQ_SGPIO));
-            L26_WRM(
-                VTSS_ICPU_CFG_INTR_SGPIO_INTR_CFG,
-                VTSS_F_ICPU_CFG_INTR_SGPIO_INTR_CFG_SGPIO_INTR_SEL(destination),
-                VTSS_M_ICPU_CFG_INTR_SGPIO_INTR_CFG_SGPIO_INTR_SEL);
+            lu26_misc_owner_mask_update(vtss_state, destination, VTSS_BIT(LU26_IRQ_SGPIO));
+            L26_WRM(VTSS_ICPU_CFG_INTR_SGPIO_INTR_CFG,
+                    VTSS_F_ICPU_CFG_INTR_SGPIO_INTR_CFG_SGPIO_INTR_SEL(destination),
+                    VTSS_M_ICPU_CFG_INTR_SGPIO_INTR_CFG_SGPIO_INTR_SEL);
             break;
         case VTSS_IRQ_DEV_ALL:
-            lu26_misc_owner_mask_update(vtss_state, destination,
-                                        VTSS_BIT(LU26_IRQ_DEV_ALL));
+            lu26_misc_owner_mask_update(vtss_state, destination, VTSS_BIT(LU26_IRQ_DEV_ALL));
             L26_WRM(VTSS_ICPU_CFG_INTR_DEV_ALL_INTR_CFG,
-                    VTSS_F_ICPU_CFG_INTR_DEV_ALL_INTR_CFG_DEV_ALL_INTR_SEL(
-                        destination),
+                    VTSS_F_ICPU_CFG_INTR_DEV_ALL_INTR_CFG_DEV_ALL_INTR_SEL(destination),
                     VTSS_M_ICPU_CFG_INTR_DEV_ALL_INTR_CFG_DEV_ALL_INTR_SEL);
             L26_WRM(VTSS_ICPU_CFG_INTR_DEV_ENA, 0xfff, 0xfff);
             L26_WRM(VTSS_ICPU_CFG_INTR_DEV_POL, 0xfff, 0xfff);
@@ -164,8 +144,7 @@ static vtss_rc lu26_misc_irq_cfg(vtss_state_t                *vtss_state,
     return rc;
 }
 
-static vtss_rc lu26_misc_irq_status(vtss_state_t      *vtss_state,
-                                    vtss_irq_status_t *status)
+static vtss_rc lu26_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
 {
     u32 val, uio_irqs;
 
@@ -240,9 +219,7 @@ static vtss_rc lu26_misc_irq_enable(vtss_state_t    *vtss_state,
     case VTSS_IRQ_EXT1: mask = VTSS_BIT(LU26_IRQ_EXT1); break;
 
     case VTSS_IRQ_FDMA_XTR: mask = VTSS_BIT(LU26_IRQ_FDMA); break;
-    case VTSS_IRQ_SOFTWARE:
-        mask = VTSS_BIT(LU26_IRQ_SW0) | VTSS_BIT(LU26_IRQ_SW1);
-        break;
+    case VTSS_IRQ_SOFTWARE: mask = VTSS_BIT(LU26_IRQ_SW0) | VTSS_BIT(LU26_IRQ_SW1); break;
     case VTSS_IRQ_PTP_SYNC: mask = VTSS_BIT(LU26_IRQ_PTP_SYNC); break;
 
     case VTSS_IRQ_SGPIO:   mask = VTSS_BIT(LU26_IRQ_SGPIO); break;
@@ -280,8 +257,7 @@ static vtss_rc l26_reg_write(vtss_state_t        *vtss_state,
     return vtss_l26_wr(vtss_state, addr, value);
 }
 
-vtss_rc vtss_l26_chip_id_get(vtss_state_t         *vtss_state,
-                             vtss_chip_id_t *const chip_id)
+vtss_rc vtss_l26_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
     u32 value;
 
@@ -298,8 +274,7 @@ vtss_rc vtss_l26_chip_id_get(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ptp_event_poll(vtss_state_t          *vtss_state,
-                                  vtss_ptp_event_type_t *ev_mask)
+static vtss_rc l26_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
     u32 sticky, mask;
 
@@ -308,29 +283,23 @@ static vtss_rc l26_ptp_event_poll(vtss_state_t          *vtss_state,
     L26_RD(VTSS_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT, &sticky);
     L26_WR(VTSS_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT, sticky);
     L26_RD(VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG, &mask);
-    mask |=
-        VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_CLK_ADJ_UPD_STICKY; /* CLK ADJ
-                                                                       event has
-                                                                       no enable
-                                                                       bit - do
-                                                                       not
-                                                                       generate
-                                                                       interrupt
-                                                                     */
+    mask |= VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_CLK_ADJ_UPD_STICKY; /* CLK ADJ
+                                                                           event has
+                                                                           no enable
+                                                                           bit - do
+                                                                           not
+                                                                           generate
+                                                                           interrupt
+                                                                         */
     sticky &= mask; /* Only handle enabled sources */
 
-    *ev_mask |= (sticky & VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_SYNC_STAT)
-                    ? VTSS_PTP_SYNC_EV
+    *ev_mask |= (sticky & VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_SYNC_STAT) ? VTSS_PTP_SYNC_EV : 0;
+    *ev_mask |= (sticky & VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_EXT_SYNC_CURRENT_TIME_STICKY)
+                    ? VTSS_PTP_EXT_SYNC_EV
                     : 0;
-    *ev_mask |=
-        (sticky &
-         VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_EXT_SYNC_CURRENT_TIME_STICKY)
-            ? VTSS_PTP_EXT_SYNC_EV
-            : 0;
-    *ev_mask |=
-        (sticky & VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_CLK_ADJ_UPD_STICKY)
-            ? VTSS_PTP_CLK_ADJ_EV
-            : 0;
+    *ev_mask |= (sticky & VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_CLK_ADJ_UPD_STICKY)
+                    ? VTSS_PTP_CLK_ADJ_EV
+                    : 0;
     VTSS_I("sticky: 0x%x, ev_mask 0x%x", sticky, *ev_mask);
 
     return VTSS_RC_OK;
@@ -345,18 +314,14 @@ static vtss_rc l26_ptp_event_enable(vtss_state_t         *vtss_state,
 
     if (ev_mask & VTSS_PTP_SYNC_EV) {
         L26_WRM(VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG,
-                enable
-                    ? VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_SYNC_STAT_ENA
-                    : 0,
+                enable ? VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_SYNC_STAT_ENA : 0,
                 VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_SYNC_STAT_ENA);
     }
     if (ev_mask & VTSS_PTP_EXT_SYNC_EV) {
-        L26_WRM(
-            VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG,
-            enable
-                ? VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_EXT_SYNC_CURRENT_TIME_ENA
-                : 0,
-            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_EXT_SYNC_CURRENT_TIME_ENA);
+        L26_WRM(VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG,
+                enable ? VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_EXT_SYNC_CURRENT_TIME_ENA
+                       : 0,
+                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG_EXT_SYNC_CURRENT_TIME_ENA);
     }
     return VTSS_RC_OK;
 }
@@ -378,8 +343,7 @@ static vtss_rc l26_intr_cfg(vtss_state_t *vtss_state,
         if (intr_mask & (1 << intr_bit)) {
 
             // Setup interrupt polarity.
-            L26_WRM(VTSS_ICPU_CFG_INTR_DEV_POL, polarity << intr_bit,
-                    1 << intr_bit);
+            L26_WRM(VTSS_ICPU_CFG_INTR_DEV_POL, polarity << intr_bit, 1 << intr_bit);
 
             // Enable / Disable the interrupt
             if (vtss_state->misc.chip_id.revision == 0x1 && intr_bit == 28) {
@@ -387,11 +351,9 @@ static vtss_rc l26_intr_cfg(vtss_state_t *vtss_state,
                 // and should not be enabled.
                 L26_WRM(VTSS_ICPU_CFG_INTR_DEV_ENA, 0, 1 << 28);
             } else {
-                L26_WRM(VTSS_ICPU_CFG_INTR_DEV_ENA, enable << intr_bit,
-                        1 << intr_bit);
-                VTSS_D("enable:%d - 0x%X, intr_bit:%d, mask:0x%X, polarity:%d",
-                       enable, enable << intr_bit, intr_bit, intr_mask,
-                       polarity);
+                L26_WRM(VTSS_ICPU_CFG_INTR_DEV_ENA, enable << intr_bit, 1 << intr_bit);
+                VTSS_D("enable:%d - 0x%X, intr_bit:%d, mask:0x%X, polarity:%d", enable,
+                       enable << intr_bit, intr_bit, intr_mask, polarity);
             }
         }
     }
@@ -406,8 +368,7 @@ static vtss_rc l26_intr_pol_negation(vtss_state_t *vtss_state)
            &ident); /* Get active interrupt indications on Fast Link Fail */
     ident &= 0xFFF;
 
-    L26_RD(VTSS_ICPU_CFG_INTR_DEV_POL,
-           &polarity); /* Get polarity and negate the active ones */
+    L26_RD(VTSS_ICPU_CFG_INTR_DEV_POL, &polarity); /* Get polarity and negate the active ones */
     L26_WR(VTSS_ICPU_CFG_INTR_DEV_POL, polarity ^ ident);
 
     return VTSS_RC_OK;
@@ -424,8 +385,7 @@ static vtss_rc l26_dev_all_event_poll(vtss_state_t              *vtss_state,
     L26_RD(VTSS_ICPU_CFG_INTR_DEV_IDENT, &ident);
     VTSS_I("ident: 0x%x", ident);
 
-    for (api_port = VTSS_PORT_NO_START; api_port < vtss_state->port_count;
-         api_port++) {
+    for (api_port = VTSS_PORT_NO_START; api_port < vtss_state->port_count; api_port++) {
         ev_mask[api_port] = 0;
         chip_port = VTSS_CHIP_PORT(api_port);
         if (ident & (1 << chip_port)) {
@@ -453,8 +413,7 @@ static vtss_rc l26_dev_all_event_enable(vtss_state_t             *vtss_state,
                                         vtss_dev_all_event_type_t ev_mask,
                                         BOOL                      enable)
 {
-    u32 chip_port = VTSS_CHIP_PORT(port_no), mask = VTSS_BIT(chip_port),
-        dev_intr = chip_port;
+    u32 chip_port = VTSS_CHIP_PORT(port_no), mask = VTSS_BIT(chip_port), dev_intr = chip_port;
 
     if (!(ev_mask & VTSS_DEV_ALL_LINK_EV)) {
         VTSS_D("DEV event supported: 0x%x", ev_mask);
@@ -462,8 +421,7 @@ static vtss_rc l26_dev_all_event_enable(vtss_state_t             *vtss_state,
     }
 
     /* Enable/disable ICPU device interrupt */
-    L26_WRM(VTSS_ICPU_CFG_INTR_DEV_ENA,
-            VTSS_ENCODE_BITFIELD(enable, dev_intr, 1), mask);
+    L26_WRM(VTSS_ICPU_CFG_INTR_DEV_ENA, VTSS_ENCODE_BITFIELD(enable, dev_intr, 1), mask);
 
     /* Clear ICPU sticky bit */
     L26_WR(VTSS_ICPU_CFG_INTR_DEV_IDENT_STICKY, mask);
@@ -486,22 +444,18 @@ vtss_rc vtss_l26_gpio_mode(vtss_state_t          *vtss_state,
     case VTSS_GPIO_OUT:
     case VTSS_GPIO_IN:
     case VTSS_GPIO_IN_INT:
-        L26_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(0),
-                    mask); /* GPIO mode 0b00 */
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(0), mask); /* GPIO mode 0b00 */
         L26_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(1), mask); /* -"- */
-        L26_WRM(VTSS_DEVCPU_GCB_GPIO_GPIO_OE, mode == VTSS_GPIO_OUT ? mask : 0,
-                mask);
+        L26_WRM(VTSS_DEVCPU_GCB_GPIO_GPIO_OE, mode == VTSS_GPIO_OUT ? mask : 0, mask);
         if (mode == VTSS_GPIO_IN_INT)
             L26_WRM_SET(VTSS_DEVCPU_GCB_GPIO_GPIO_INTR_ENA, mask);
         return VTSS_RC_OK;
     case VTSS_GPIO_ALT_0:
-        L26_WRM_SET(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(0),
-                    mask); /* GPIO mode 0b01 */
+        L26_WRM_SET(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(0), mask); /* GPIO mode 0b01 */
         L26_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(1), mask); /* -"- */
         return VTSS_RC_OK;
     case VTSS_GPIO_ALT_1:
-        L26_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(0),
-                    mask); /* GPIO mode 0b10 */
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(0), mask); /* GPIO mode 0b10 */
         L26_WRM_SET(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(1), mask); /* -"- */
         return VTSS_RC_OK;
     default: break;
@@ -569,8 +523,7 @@ static vtss_rc l26_sgpio_event_enable(vtss_state_t            *vtss_state,
         data &= pol;             /* Now data '1' means active interrupt */
         if (!(data & 1 << port)) /* Only enable if not active interrupt - as
                                     interrupt pending cannot be cleared */
-            L26_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_PORT_INT_ENA, 1 << port,
-                    1 << port);
+            L26_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_PORT_INT_ENA, 1 << port, 1 << port);
         L26_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG,
                 VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_INT_ENA(1 << bit),
                 VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_INT_ENA(1 << bit));
@@ -581,8 +534,7 @@ static vtss_rc l26_sgpio_event_enable(vtss_state_t            *vtss_state,
                 break;
         if (i == 32)
             L26_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG, 0,
-                    VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_INT_ENA(1
-                                                                      << bit));
+                    VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_INT_ENA(1 << bit));
     }
 
     return VTSS_RC_OK;
@@ -634,13 +586,11 @@ static vtss_rc l26_sgpio_conf_set(vtss_state_t                  *vtss_state,
     }
 
     /* Configure "LD" polarity signal to 0 (active low) for input SGPIO */
-    val =
-        (VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_BMODE_0(bmode[0]) |
-         VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_BMODE_1(bmode[1]) |
-         VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_BURST_GAP(0x0) |
-         VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_PORT_WIDTH(conf->bit_count -
-                                                              1) |
-         VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_AUTO_REPEAT);
+    val = (VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_BMODE_0(bmode[0]) |
+           VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_BMODE_1(bmode[1]) |
+           VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_BURST_GAP(0x0) |
+           VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_PORT_WIDTH(conf->bit_count - 1) |
+           VTSS_F_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_AUTO_REPEAT);
     L26_WRM(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG, val,
             ~VTSS_M_DEVCPU_GCB_SIO_CTRL_SIO_CONFIG_SIO_INT_ENA);
 
@@ -656,8 +606,7 @@ static vtss_rc l26_sgpio_conf_set(vtss_state_t                  *vtss_state,
     for (port = 0; port < 32; port++) {
         for (val = 0, bit_idx = 0; bit_idx < 4; bit_idx++) {
             /* Set output bit n */
-            val |= VTSS_ENCODE_BITFIELD(conf->port_conf[port].mode[bit_idx],
-                                        (bit_idx * 3), 3);
+            val |= VTSS_ENCODE_BITFIELD(conf->port_conf[port].mode[bit_idx], (bit_idx * 3), 3);
         }
         L26_WR(VTSS_DEVCPU_GCB_SIO_CTRL_SIO_PORT_CONFIG(port), val);
     }
@@ -695,8 +644,8 @@ static vtss_rc l26_sgpio_read(vtss_state_t            *vtss_state,
  *
  * Return : VTSS_RC_OK if configuration done else error code.
  */
-static vtss_rc l26_eee_port_conf_set(vtss_state_t        *vtss_state,
-                                     const vtss_port_no_t port_no,
+static vtss_rc l26_eee_port_conf_set(vtss_state_t                     *vtss_state,
+                                     const vtss_port_no_t              port_no,
                                      const vtss_eee_port_conf_t *const conf)
 {
     u32            closest_match_index, closest_match, i, requested_time;
@@ -713,27 +662,22 @@ static vtss_rc l26_eee_port_conf_set(vtss_state_t        *vtss_state,
     if (!vtss_state->eee.timer_table_initialized) {
         vtss_state->eee.timer_table_initialized = TRUE;
         for (i = 0; i < VTSS_EEE_TIMER_TABLE_CNT; i++) {
-            vtss_state->eee.timer_table[i] =
-                (1 << (2 * (i / 16UL))) * (i % 16UL);
+            vtss_state->eee.timer_table[i] = (1 << (2 * (i / 16UL))) * (i % 16UL);
         }
     }
 
     if ((vtss_state->misc.chip_id.revision == 1) && (chip_port < 12) &&
-        (chip_port < VTSS_PORT_ARRAY_SIZE) &&
-        (vtss_state->eee.ena[port_no] != conf->eee_ena)) {
-        vtss_state->eee.ena[port_no] =
-            conf->eee_ena; // On RevB the Fast Link Fail signal interrupt from
-                           // internal PHY (12 ports) must be disabled when EEE
-                           // is enabled
+        (chip_port < VTSS_PORT_ARRAY_SIZE) && (vtss_state->eee.ena[port_no] != conf->eee_ena)) {
+        vtss_state->eee.ena[port_no] = conf->eee_ena; // On RevB the Fast Link Fail signal interrupt
+                                                      // from internal PHY (12 ports) must be
+                                                      // disabled when EEE is enabled
         VTSS_N("conf->eee_ena:%d", conf->eee_ena);
-        VTSS_RC(l26_intr_cfg(vtss_state, (0x01 << chip_port), 0,
-                             !conf->eee_ena));
+        VTSS_RC(l26_intr_cfg(vtss_state, (0x01 << chip_port), 0, !conf->eee_ena));
     }
 
     // Make sure that we don't get out of bound
     if (port_no >= VTSS_PORT_ARRAY_SIZE) {
-        VTSS_E("Out of bounds: Port:%u, VTSS_PORT_ARRAY_SIZE:%d", port_no,
-               VTSS_PORT_ARRAY_SIZE);
+        VTSS_E("Out of bounds: Port:%u, VTSS_PORT_ARRAY_SIZE:%d", port_no, VTSS_PORT_ARRAY_SIZE);
         return VTSS_RC_ERROR;
     }
 
@@ -747,14 +691,11 @@ static vtss_rc l26_eee_port_conf_set(vtss_state_t        *vtss_state,
         //  EEE in the MAC (No LPI signal to the PHY) when the PHY has auto
         //  negotiated and have found that the link partner supports EEE.
         if (conf->lp_advertisement == 0) {
-            VTSS_D(
-                "Link partner doesn't support EEE - Keeping EEE disabled. Port:%u",
-                chip_port);
+            VTSS_D("Link partner doesn't support EEE - Keeping EEE disabled. Port:%u", chip_port);
         } else if (!(vtss_state->port.conf[port_no].fdx)) {
             // EEE and Half duplex are not supposed to work together, so we
             // disables EEE in the case where the port is in HDX mode.
-            VTSS_D("EEE disabled due to that port is in HDX mode, port:%u",
-                   chip_port);
+            VTSS_D("EEE disabled due to that port is in HDX mode, port:%u", chip_port);
 
         } else if ((vtss_state->port.conf[port_no].flow_control.obey ||
                     vtss_state->port.conf[port_no].flow_control.generate) &&
@@ -790,8 +731,7 @@ static vtss_rc l26_eee_port_conf_set(vtss_state_t        *vtss_state,
         closest_match_index = 127;
     }
 
-    eee_cfg_reg |=
-        VTSS_F_SYS_SYSTEM_EEE_CFG_EEE_TIMER_WAKEUP(closest_match_index);
+    eee_cfg_reg |= VTSS_F_SYS_SYSTEM_EEE_CFG_EEE_TIMER_WAKEUP(closest_match_index);
 
     // Set the latency depending upon what the user prefer (power saving vs. low
     // traffic latency)
@@ -806,14 +746,13 @@ static vtss_rc l26_eee_port_conf_set(vtss_state_t        *vtss_state,
                    VTSS_F_SYS_SYSTEM_EEE_CFG_EEE_TIMER_AGE(eee_timer_age);
 
     // EEE fast queues
-    eee_cfg_reg |=
-        VTSS_F_SYS_SYSTEM_EEE_CFG_EEE_FAST_QUEUES(conf->eee_fast_queues);
+    eee_cfg_reg |= VTSS_F_SYS_SYSTEM_EEE_CFG_EEE_FAST_QUEUES(conf->eee_fast_queues);
 
     // Registers write
     L26_WR(VTSS_SYS_SYSTEM_EEE_CFG(chip_port), eee_cfg_reg);
 
-    VTSS_I("chip_port:%u, eee_cfg_reg = 0x%X, conf->tx_tw = %d, eee_timer_age:%d",
-           chip_port, eee_cfg_reg, conf->tx_tw, eee_timer_age);
+    VTSS_I("chip_port:%u, eee_cfg_reg = 0x%X, conf->tx_tw = %d, eee_timer_age:%d", chip_port,
+           eee_cfg_reg, conf->tx_tw, eee_timer_age);
 
     // Setting Buffer size to 12.2 Kbyte & 255 frames.
     L26_WR(VTSS_SYS_SYSTEM_EEE_THRES, 0xFFFF);
@@ -833,8 +772,7 @@ static vtss_rc l26_eee_port_conf_set(vtss_state_t        *vtss_state,
  * In :  spec  - Fan specifications
  *
  */
-static vtss_rc l26_fan_controller_init(vtss_state_t                *vtss_state,
-                                       const vtss_fan_conf_t *const spec)
+static vtss_rc l26_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_conf_t *const spec)
 {
     // Set GPIO alternate functions. PWM is bit 29.
     (void)vtss_l26_gpio_mode(vtss_state, 0, 29, VTSS_GPIO_ALT_0);
@@ -857,13 +795,11 @@ static vtss_rc l26_fan_controller_init(vtss_state_t                *vtss_state,
     // Set fan speed measurement
     if (spec->type == VTSS_FAN_3_WIRE_TYPE) {
         // Enable gating for 3-wire fan types.
-        L26_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG, 1,
-                VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_GATE_ENA);
+        L26_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG, 1, VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_GATE_ENA);
     } else {
         //  For 4-wire fan types we need to disable gating (2-wire types doesn't
         //  matter)
-        L26_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG, 0,
-                VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_GATE_ENA);
+        L26_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG, 0, VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_GATE_ENA);
     }
 
     // Set GPIO alternate functions. ROTA is bit 4.
@@ -882,8 +818,7 @@ static vtss_rc l26_fan_controller_init(vtss_state_t                *vtss_state,
 static vtss_rc l26_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
 {
     // Set PWM duty cycle (fan speed)
-    L26_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG,
-            VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_DUTY_CYCLE(lvl),
+    L26_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG, VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_DUTY_CYCLE(lvl),
             VTSS_M_DEVCPU_GCB_FAN_CFG_FAN_CFG_DUTY_CYCLE);
 
     return VTSS_RC_OK;
@@ -923,9 +858,7 @@ static vtss_rc l26_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
  * data, else error code
  *
  */
-static vtss_rc l26_fan_rotation(vtss_state_t *vtss_state,
-                                BOOL          update,
-                                u32          *value)
+static vtss_rc l26_fan_rotation(vtss_state_t *vtss_state, BOOL update, u32 *value)
 {
     static u32 last_cnt = 0, one_sec_cnt = 0;
     u32        cnt = 0;
@@ -933,8 +866,7 @@ static vtss_rc l26_fan_rotation(vtss_state_t *vtss_state,
     if (update) {
         L26_RD(VTSS_DEVCPU_GCB_FAN_STAT_FAN_CNT, &cnt);
         one_sec_cnt = cnt - last_cnt;
-        VTSS_I("one_sec_cnt:%d, last_cnt:%d, cnt:%d", one_sec_cnt, last_cnt,
-               cnt);
+        VTSS_I("one_sec_cnt:%d, last_cnt:%d, cnt:%d", one_sec_cnt, last_cnt, cnt);
         last_cnt = cnt;
         return VTSS_RC_OK;
     }
@@ -986,17 +918,13 @@ static void l26_debug_tgt(lmu_ss_t *ss, const char *name, u32 to)
 }
 
 #define L26_DEBUG_TGT(ss, name) l26_debug_tgt(ss, #name, VTSS_TO_##name)
-#define L26_DEBUG_GPIO(ss, addr, name)                                         \
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_GPIO_GPIO_##addr,       \
-                       "GPIO_" name)
-#define L26_DEBUG_SIO(ss, addr, name)                                          \
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr,    \
-                       "SIO_" name)
-#define L26_DEBUG_SIO_INST(ss, addr, i, name)                                  \
-    vtss_l26_debug_reg_inst(vtss_state, ss,                                    \
-                            VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr, i,            \
-                            "SIO_" name)
-#define L26_DEBUG_REG_NAME(ss, tgt, addr, name)                                \
+#define L26_DEBUG_GPIO(ss, addr, name)                                                             \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_GPIO_GPIO_##addr, "GPIO_" name)
+#define L26_DEBUG_SIO(ss, addr, name)                                                              \
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr, "SIO_" name)
+#define L26_DEBUG_SIO_INST(ss, addr, i, name)                                                      \
+    vtss_l26_debug_reg_inst(vtss_state, ss, VTSS_DEVCPU_GCB_SIO_CTRL_SIO_##addr, i, "SIO_" name)
+#define L26_DEBUG_REG_NAME(ss, tgt, addr, name)                                                    \
     vtss_l26_debug_reg(vtss_state, ss, VTSS_##tgt##_##addr, name)
 
 static vtss_rc l26_debug_misc(vtss_state_t                  *vtss_state,
@@ -1063,19 +991,14 @@ static vtss_rc l26_debug_misc(vtss_state_t                  *vtss_state,
     L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, EXT_IRQ0_IDENT, "EXT_IRQ0_IDENT");
     L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, EXT_IRQ1_IDENT, "EXT_IRQ1_IDENT");
 
-    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY0_INTR_CFG,
-                       "XTR_RDY0_INTR_CFG");
-    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY1_INTR_CFG,
-                       "XTR_RDY1_INTR_CFG");
-    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY2_INTR_CFG,
-                       "XTR_RDY2_INTR_CFG");
-    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY3_INTR_CFG,
-                       "XTR_RDY3_INTR_CFG");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY0_INTR_CFG, "XTR_RDY0_INTR_CFG");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY1_INTR_CFG, "XTR_RDY1_INTR_CFG");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY2_INTR_CFG, "XTR_RDY2_INTR_CFG");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, XTR_RDY3_INTR_CFG, "XTR_RDY3_INTR_CFG");
     L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, FDMA_INTR_CFG, "FDMA_INTR_CFG");
     L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, SW0_INTR_CFG, "SW0_INTR_CFG");
     L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, SW1_INTR_CFG, "SW1_INTR_CFG");
-    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, PTP_SYNC_INTR_CFG,
-                       "PTP_SYNC_INTR_CFG");
+    L26_DEBUG_REG_NAME(ss, ICPU_CFG_INTR, PTP_SYNC_INTR_CFG, "PTP_SYNC_INTR_CFG");
 
     return VTSS_RC_OK;
 }
@@ -1084,8 +1007,7 @@ vtss_rc vtss_l26_misc_debug_print(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, l26_debug_misc,
-                                  vtss_state, ss, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, l26_debug_misc, vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */
@@ -1099,13 +1021,11 @@ static vtss_rc l26_misc_poll_1sec(vtss_state_t *vtss_state)
         if (!(enable & 1 << port))
             for (bit = 0; bit < 4; ++bit) /* port is not enabled - check if it
                                              is configured to be */
-                if (vtss_state->misc.sgpio_event_enabled[0][0]
-                        .enable[port][bit]) {
-                    rc =
-                        l26_sgpio_event_enable(vtss_state, 0, 0, port, bit,
-                                               TRUE); /* this port,bit is
-                                                         configured to be enabled
-                                                         - try and enable */
+                if (vtss_state->misc.sgpio_event_enabled[0][0].enable[port][bit]) {
+                    rc = l26_sgpio_event_enable(vtss_state, 0, 0, port, bit,
+                                                TRUE); /* this port,bit is
+                                                          configured to be enabled
+                                                          - try and enable */
                 }
 
     VTSS_RC(l26_fan_rotation_update(vtss_state));

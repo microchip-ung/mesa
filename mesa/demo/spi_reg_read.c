@@ -19,8 +19,8 @@ static int spi_padding = 1;
 
 /* MEBA callouts */
 #define TO_SPI(_a_)     (_a_ & 0x00FFFFFF) /* 24 bit SPI address */
-#define SPI_NR_BYTES    7  /* Number of bytes to transmit or receive */
-#define SPI_PADDING_MAX 15 /* Maximum number of optional padding bytes */
+#define SPI_NR_BYTES    7                  /* Number of bytes to transmit or receive */
+#define SPI_PADDING_MAX 15                 /* Maximum number of optional padding bytes */
 
 int spi_reg_read(const uint32_t addr, uint32_t *const value)
 {
@@ -49,15 +49,13 @@ int spi_reg_read(const uint32_t addr, uint32_t *const value)
         return -1;
     }
 
-    uint32_t rxword = (rx[3 + spi_padding] << 24) |
-                      (rx[4 + spi_padding] << 16) | (rx[5 + spi_padding] << 8) |
-                      (rx[6 + spi_padding] << 0);
+    uint32_t rxword = (rx[3 + spi_padding] << 24) | (rx[4 + spi_padding] << 16) |
+                      (rx[5 + spi_padding] << 8) | (rx[6 + spi_padding] << 0);
 
     *value = rxword;
 
-    printf("RX: %02x %02x %02x-%02x %02x %02x %02x\n", tx[0], tx[1], tx[2],
-           rx[3 + spi_padding], rx[4 + spi_padding], rx[5 + spi_padding],
-           rx[6 + spi_padding]);
+    printf("RX: %02x %02x %02x-%02x %02x %02x %02x\n", tx[0], tx[1], tx[2], rx[3 + spi_padding],
+           rx[4 + spi_padding], rx[5 + spi_padding], rx[6 + spi_padding]);
 
     return 0;
 }
@@ -89,19 +87,18 @@ int spi_reg_write(const uint32_t addr, const uint32_t value)
 
     ret = ioctl(spi_fd, SPI_IOC_MESSAGE(1), &tr);
     if (ret < 1) {
-        printf("TX: %02x %02x %02x-%02x %02x %02x %02x -> ERROR\n", tx[0],
-               tx[1], tx[2], tx[3], tx[4], tx[5], tx[6]);
+        printf("TX: %02x %02x %02x-%02x %02x %02x %02x -> ERROR\n", tx[0], tx[1], tx[2], tx[3],
+               tx[4], tx[5], tx[6]);
         printf("ERROR:%d> spi_write: %s=n\n", __LINE__, strerror(errno));
         return -1;
     }
 
-    printf("TX: %02x %02x %02x-%02x %02x %02x %02x -> OK\n", tx[0], tx[1],
-           tx[2], tx[3], tx[4], tx[5], tx[6]);
+    printf("TX: %02x %02x %02x-%02x %02x %02x %02x -> OK\n", tx[0], tx[1], tx[2], tx[3], tx[4],
+           tx[5], tx[6]);
 
     spi_reg_read(addr, &read_back);
     if (value != read_back) {
-        printf("Read back error: expect: %08x actual: %08x\n", value,
-               read_back);
+        printf("Read back error: expect: %08x actual: %08x\n", value, read_back);
     }
 
     return 0;
@@ -118,8 +115,7 @@ int spi_reg_io_init(char *spi_dev)
     }
     spi_fd = open(spi_dev, O_RDWR);
     if (spi_fd < 0) {
-        printf("ERROR:%d> could not open device %s=n\n", __LINE__,
-               strerror(errno));
+        printf("ERROR:%d> could not open device %s=n\n", __LINE__, strerror(errno));
         return -1;
     }
 

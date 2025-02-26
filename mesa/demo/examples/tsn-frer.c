@@ -20,12 +20,12 @@ static struct {
 
 static int frer_init(int argc, const char *argv[])
 {
-    mesa_port_no_t    uport = ARGV_INT("uport", "Untagged port");
-    mesa_port_no_t    rport = ARGV_INT("rport", "R-tagged port");
-    mesa_port_no_t    cport = ARGV_INT("cport", "C-tagged port (inner R-tag)");
-    mesa_port_list_t  port_list;
-    mesa_iflow_id_t  *iflow_id;
-    mesa_iflow_conf_t iflow_conf;
+    mesa_port_no_t          uport = ARGV_INT("uport", "Untagged port");
+    mesa_port_no_t          rport = ARGV_INT("rport", "R-tagged port");
+    mesa_port_no_t          cport = ARGV_INT("cport", "C-tagged port (inner R-tag)");
+    mesa_port_list_t        port_list;
+    mesa_iflow_id_t        *iflow_id;
+    mesa_iflow_conf_t       iflow_conf;
     mesa_frer_stream_conf_t stream_conf;
     mesa_frer_mstream_id_t *mid;
     mesa_vlan_vid_conf_t    vid_conf;

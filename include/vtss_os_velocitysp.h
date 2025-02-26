@@ -60,10 +60,8 @@ void   *lm_mesa_pseudo_malloc(uint32_t size);
 #define VTSS_LABS(arg)  ((arg > 0) ? arg : -arg)
 #define VTSS_LLABS(arg) ((arg > 0) ? arg : -arg)
 
-#define VTSS_TOUPPER(arg)                                                      \
-    (('a' <= arg && arg <= 'z') ? ((char)(arg - 'a' + 'A')) : arg)
-#define VTSS_TOLOWER(arg)                                                      \
-    (('A' <= arg && arg <= 'Z') ? ((char)(arg - 'A' + 'a')) : arg)
+#define VTSS_TOUPPER(arg) (('a' <= arg && arg <= 'z') ? ((char)(arg - 'a' + 'A')) : arg)
+#define VTSS_TOLOWER(arg) (('A' <= arg && arg <= 'Z') ? ((char)(arg - 'A' + 'a')) : arg)
 
 /**
  * Count trailing zeros of a 32-bit unsigned.
@@ -80,35 +78,33 @@ void   *lm_mesa_pseudo_malloc(uint32_t size);
  */
 #define VTSS_OS_CTZ(val32) ((val32) == 0 ? 32 : __builtin_ctz(val32))
 
-#define VTSS_MSLEEP(msec)                                                      \
-    {                                                                          \
-        lm_os_nssleep(msec * 1000000);                                         \
+#define VTSS_MSLEEP(msec)                                                                          \
+    {                                                                                              \
+        lm_os_nssleep(msec * 1000000);                                                             \
     }
-#define VTSS_NSLEEP(nsec)                                                      \
-    {                                                                          \
-        lm_os_nssleep(nsec);                                                   \
-    }
-
-#define VTSS_TIMERCMP(time_a, time_b, cmp)                                     \
-    ((time_a.tv_sec cmp time_b.tv_sec) ? TRUE : FALSE)
-
-#define VTSS_MTIMER_START(timer, msec)                                         \
-    {                                                                          \
-        lm_mesa_timeval_init(&((timer)->timeout));                             \
-        (timer)->timeout.tv_usec += msec * 1000;                               \
-        if ((timer)->timeout.tv_usec >= 1000000) {                             \
-            (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;     \
-            (timer)->timeout.tv_usec %= 1000000;                               \
-        }                                                                      \
+#define VTSS_NSLEEP(nsec)                                                                          \
+    {                                                                                              \
+        lm_os_nssleep(nsec);                                                                       \
     }
 
-#define VTSS_MTIMER_TIMEOUT(timer)                                             \
-    (lm_mesa_timeval_init(&((timer)->now)) &&                                  \
-     VTSS_TIMERCMP((timer)->now, (timer)->timeout, >))
+#define VTSS_TIMERCMP(time_a, time_b, cmp) ((time_a.tv_sec cmp time_b.tv_sec) ? TRUE : FALSE)
 
-#define VTSS_TIME_OF_DAY(time)                                                 \
-    {                                                                          \
-        lm_mesa_timeval_init((time));                                          \
+#define VTSS_MTIMER_START(timer, msec)                                                             \
+    {                                                                                              \
+        lm_mesa_timeval_init(&((timer)->timeout));                                                 \
+        (timer)->timeout.tv_usec += msec * 1000;                                                   \
+        if ((timer)->timeout.tv_usec >= 1000000) {                                                 \
+            (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;                         \
+            (timer)->timeout.tv_usec %= 1000000;                                                   \
+        }                                                                                          \
+    }
+
+#define VTSS_MTIMER_TIMEOUT(timer)                                                                 \
+    (lm_mesa_timeval_init(&((timer)->now)) && VTSS_TIMERCMP((timer)->now, (timer)->timeout, >))
+
+#define VTSS_TIME_OF_DAY(time)                                                                     \
+    {                                                                                              \
+        lm_mesa_timeval_init((time));                                                              \
     }
 
 #define VTSS_OS_NTOHL(X) lmu_ntohl(X)

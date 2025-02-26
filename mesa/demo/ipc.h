@@ -11,13 +11,7 @@
 // #define IPC_EOT 4 // End Of Transmission
 // #define MSG_BUF_MAX 1024
 
-enum {
-    IPC_STDOUT = 0,
-    IPC_STDERR = 1,
-    IPC_RETURN = 2,
-    IPC_ARG_CNT = 3,
-    IPC_ARG = 4
-};
+enum { IPC_STDOUT = 0, IPC_STDERR = 1, IPC_RETURN = 2, IPC_ARG_CNT = 3, IPC_ARG = 4 };
 
 struct ipc_msg {
     uint32_t type;

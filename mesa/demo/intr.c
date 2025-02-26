@@ -196,8 +196,7 @@ static void intr_callback(int fd, void *ref)
             }
             T_I("map: %s", map->name);
             map->cnt++;
-            if (MEBA_WRAP(meba_irq_handler, meba_global_inst, map->irq,
-                          intr_event) == MESA_RC_OK) {
+            if (MEBA_WRAP(meba_irq_handler, meba_global_inst, map->irq, intr_event) == MESA_RC_OK) {
                 enable = 1;
             }
             break;
@@ -245,8 +244,7 @@ static void intr_init(void)
     conf.external = (cap == MESA_CPU_TYPE_EXTERNAL ? 1 : 0);
     conf.destination = 0;
     for (irq = (mesa_irq_t)0; irq < MESA_IRQ_MAX; irq++) {
-        if (MEBA_WRAP(meba_irq_requested, meba_global_inst, irq) ==
-            MESA_RC_OK) {
+        if (MEBA_WRAP(meba_irq_requested, meba_global_inst, irq) == MESA_RC_OK) {
             (void)mesa_irq_conf_set(NULL, irq, &conf);
         }
     }

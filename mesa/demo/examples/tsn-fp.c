@@ -102,19 +102,14 @@ static void fp_port_stat(mesa_port_no_t port_no)
     }
     cli_printf("Port %u counters:\n", port_no);
     fp_stat("Packets", "", c.rmon.rx_etherStatsPkts, c.rmon.tx_etherStatsPkts);
-    fp_stat("Octets", "", c.rmon.rx_etherStatsOctets,
-            c.rmon.tx_etherStatsOctets);
+    fp_stat("Octets", "", c.rmon.rx_etherStatsOctets, c.rmon.tx_etherStatsOctets);
     fp_stat("Unicast", "", c.if_group.ifInUcastPkts, c.if_group.ifOutUcastPkts);
-    fp_stat("Multicast", "", c.rmon.rx_etherStatsMulticastPkts,
-            c.rmon.tx_etherStatsMulticastPkts);
-    fp_stat("Broadcast", "", c.rmon.rx_etherStatsBroadcastPkts,
-            c.rmon.tx_etherStatsBroadcastPkts);
+    fp_stat("Multicast", "", c.rmon.rx_etherStatsMulticastPkts, c.rmon.tx_etherStatsMulticastPkts);
+    fp_stat("Broadcast", "", c.rmon.rx_etherStatsBroadcastPkts, c.rmon.tx_etherStatsBroadcastPkts);
     fp_stat("AssError", NULL, c.dot3br.aMACMergeFrameAssErrorCount, 0);
     fp_stat("SmdError", NULL, c.dot3br.aMACMergeFrameSmdErrorCount, 0);
-    fp_stat("AssOk", "HoldCount", c.dot3br.aMACMergeFrameAssOkCount,
-            c.dot3br.aMACMergeHoldCount);
-    fp_stat("FragCount", "", c.dot3br.aMACMergeFragCountRx,
-            c.dot3br.aMACMergeFragCountTx);
+    fp_stat("AssOk", "HoldCount", c.dot3br.aMACMergeFrameAssOkCount, c.dot3br.aMACMergeHoldCount);
+    fp_stat("FragCount", "", c.dot3br.aMACMergeFragCountRx, c.dot3br.aMACMergeFragCountTx);
     cli_printf("\n");
 }
 

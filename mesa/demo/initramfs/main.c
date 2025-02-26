@@ -40,10 +40,7 @@ int noise(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 unsigned int g_log_level = LOG_INFO;
 
-int pivot_root(const char *n, const char *o)
-{
-    return syscall(__NR_pivot_root, n, o);
-}
+int pivot_root(const char *n, const char *o) { return syscall(__NR_pivot_root, n, o); }
 
 void print_time()
 {
@@ -145,8 +142,8 @@ void fatal_(unsigned line, const char *format, ...)
 {
     printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
            "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-    printf("!!!! FATAL-ERROR at line: %d, errno: %d error: %s\n!!!! MSG: ",
-           line, errno, strerror(errno));
+    printf("!!!! FATAL-ERROR at line: %d, errno: %d error: %s\n!!!! MSG: ", line, errno,
+           strerror(errno));
     va_list args;
     va_start(args, format);
     (void)vprintf(format, args);
@@ -157,18 +154,18 @@ void fatal_(unsigned line, const char *format, ...)
     reboot(LINUX_REBOOT_CMD_RESTART);
 }
 
-#define FATAL(CMD, MSG)                                                        \
-    {                                                                          \
-        int res = CMD;                                                         \
-        if (res != 0)                                                          \
-            fatal_(__LINE__, MSG);                                             \
+#define FATAL(CMD, MSG)                                                                            \
+    {                                                                                              \
+        int res = CMD;                                                                             \
+        if (res != 0)                                                                              \
+            fatal_(__LINE__, MSG);                                                                 \
     }
 
-#define WARN(CMD, MSG)                                                         \
-    {                                                                          \
-        int res = CMD;                                                         \
-        if (res != 0)                                                          \
-            warn_(__LINE__, MSG);                                              \
+#define WARN(CMD, MSG)                                                                             \
+    {                                                                                              \
+        int res = CMD;                                                                             \
+        if (res != 0)                                                                              \
+            warn_(__LINE__, MSG);                                                                  \
     }
 
 // find the last occurence of needle in haystack
@@ -244,11 +241,11 @@ static void basic_linux_system_init()
     putenv((char *)"SHELL=/bin/sh");
     putenv((char *)"USER=root");
 
-#define DO(X)                                                                  \
-    res = X;                                                                   \
-    if (res == -1) {                                                           \
-        line = __LINE__;                                                       \
-        goto ERROR;                                                            \
+#define DO(X)                                                                                      \
+    res = X;                                                                                       \
+    if (res == -1) {                                                                               \
+        line = __LINE__;                                                                           \
+        goto ERROR;                                                                                \
     }
 
     // Mount proc and sysfs as we need this to find the NAND flash.
@@ -323,8 +320,7 @@ void change_root(const char *dev)
     FATAL(mount("proc", "/proc", "proc", 0, 0), "Mount failed");
     FATAL(mount("sysfs", "/sys", "sysfs", 0, 0), "Mount failed");
 
-    FATAL(mount("ramfs", "/tmp", "ramfs", 0, "size=8388608,mode=1777"),
-          "Mount failed");
+    FATAL(mount("ramfs", "/tmp", "ramfs", 0, "size=8388608,mode=1777"), "Mount failed");
 
     (void)mkdir("/dev/pts", 0755);
     FATAL(mount("devpts", "/dev/pts", "devpts", 0, 0), "Mount failed");

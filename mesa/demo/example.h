@@ -36,15 +36,15 @@ int         mesa_example_arg_int(int         run,
                                  const char *argv[]);
 meba_inst_t mesa_example_meba_inst();
 
-#define RC(expr)                                                               \
-    {                                                                          \
-        mesa_rc _rc = (expr);                                                  \
-        if (_rc != MESA_RC_OK) {                                               \
-            EXAMPLE_FATAL_ERROR = 1;                                           \
-            EXAMPLE_FATAL_ERROR_LINE = __LINE__;                               \
-            EXAMPLE_FATAL_ERROR_FILE = __FUNCTION__;                           \
-            return _rc;                                                        \
-        }                                                                      \
+#define RC(expr)                                                                                   \
+    {                                                                                              \
+        mesa_rc _rc = (expr);                                                                      \
+        if (_rc != MESA_RC_OK) {                                                                   \
+            EXAMPLE_FATAL_ERROR = 1;                                                               \
+            EXAMPLE_FATAL_ERROR_LINE = __LINE__;                                                   \
+            EXAMPLE_FATAL_ERROR_FILE = __FUNCTION__;                                               \
+            return _rc;                                                                            \
+        }                                                                                          \
     }
 
 #ifndef TRUE
@@ -56,47 +56,41 @@ meba_inst_t mesa_example_meba_inst();
 #endif
 
 // Example with poll function
-#define EXAMPLE_EXT(in_name, in_init, in_run, in_uninit, in_poll, in_help)     \
-    static mesa_example_register_t mesa_example_##in_name = {.name = #in_name, \
-                                                             .init = in_init,  \
-                                                             .run = in_run,    \
-                                                             .uninit =         \
-                                                                 in_uninit,    \
-                                                             .poll = in_poll,  \
-                                                             .help = in_help,  \
-                                                             .next = NULL};    \
-                                                                               \
-    __attribute__((constructor)) static void                                   \
-        mesa_example_##in_name##_register()                                    \
-    {                                                                          \
-        mesa_example_register(&mesa_example_##in_name);                        \
+#define EXAMPLE_EXT(in_name, in_init, in_run, in_uninit, in_poll, in_help)                         \
+    static mesa_example_register_t mesa_example_##in_name = {.name = #in_name,                     \
+                                                             .init = in_init,                      \
+                                                             .run = in_run,                        \
+                                                             .uninit = in_uninit,                  \
+                                                             .poll = in_poll,                      \
+                                                             .help = in_help,                      \
+                                                             .next = NULL};                        \
+                                                                                                   \
+    __attribute__((constructor)) static void mesa_example_##in_name##_register()                   \
+    {                                                                                              \
+        mesa_example_register(&mesa_example_##in_name);                                            \
     }
 
 // Example without poll function
-#define EXAMPLE(in_name, in_init, in_run, in_uninit, in_help)                  \
+#define EXAMPLE(in_name, in_init, in_run, in_uninit, in_help)                                      \
     EXAMPLE_EXT(in_name, in_init, in_run, in_uninit, NULL, in_help)
 
-#define ARGV_OPT_INT(key, help, def)                                           \
-    mesa_example_arg_int(0, 0, def, key, help, argc, argv)
+#define ARGV_OPT_INT(key, help, def) mesa_example_arg_int(0, 0, def, key, help, argc, argv)
 
-#define ARGV_INT(key, help)                                                    \
-    mesa_example_arg_int(0, 1, -1, key, help, argc, argv)
+#define ARGV_INT(key, help) mesa_example_arg_int(0, 1, -1, key, help, argc, argv)
 
-#define ARGV_RUN_OPT_INT(key, help, def)                                       \
-    mesa_example_arg_int(1, 0, def, key, help, argc, argv)
+#define ARGV_RUN_OPT_INT(key, help, def) mesa_example_arg_int(1, 0, def, key, help, argc, argv)
 
-#define ARGV_RUN_INT(key, help)                                                \
-    mesa_example_arg_int(1, 1, -1, key, help, argc, argv)
+#define ARGV_RUN_INT(key, help) mesa_example_arg_int(1, 1, -1, key, help, argc, argv)
 
-#define EXAMPLE_BARRIER(argc)                                                  \
-    if (argc == 0) {                                                           \
-        return 0;                                                              \
-    }                                                                          \
-    if (EXAMPLE_ARGV_FAILED != 0) {                                            \
-        cli_printf("Missing or invalid arguments\n");                          \
-        cli_printf("\n");                                                      \
-        cli_printf("USAGE: %s\n", EXAMPLE_SYNTAX);                             \
-        return -1;                                                             \
+#define EXAMPLE_BARRIER(argc)                                                                      \
+    if (argc == 0) {                                                                               \
+        return 0;                                                                                  \
+    }                                                                                              \
+    if (EXAMPLE_ARGV_FAILED != 0) {                                                                \
+        cli_printf("Missing or invalid arguments\n");                                              \
+        cli_printf("\n");                                                                          \
+        cli_printf("USAGE: %s\n", EXAMPLE_SYNTAX);                                                 \
+        return -1;                                                                                 \
     }
 
 #ifdef __cplusplus

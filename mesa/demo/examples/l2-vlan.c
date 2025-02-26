@@ -18,11 +18,10 @@ static struct {
 
 static int vlan_init(int argc, const char *argv[])
 {
-    mesa_port_no_t uport = ARGV_INT("uport", "Unaware port, VID 10");
-    mesa_port_no_t aport = ARGV_INT("aport", "Access port, VID 20");
-    mesa_port_no_t tport = ARGV_INT("tport", "Trunk port, VID 10 and 20");
-    mesa_port_no_t hport =
-        ARGV_INT("hport", "Hybrid port, VID 10 (untagged) and VID 20");
+    mesa_port_no_t        uport = ARGV_INT("uport", "Unaware port, VID 10");
+    mesa_port_no_t        aport = ARGV_INT("aport", "Access port, VID 20");
+    mesa_port_no_t        tport = ARGV_INT("tport", "Trunk port, VID 10 and 20");
+    mesa_port_no_t        hport = ARGV_INT("hport", "Hybrid port, VID 10 (untagged) and VID 20");
     mesa_vlan_port_conf_t conf;
     mesa_port_list_t      port_list;
 

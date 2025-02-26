@@ -34,9 +34,8 @@ static vtss_rc fa_fdma_qu_redirect_set(vtss_state_t          *vtss_state,
 {
     // If the NPI port has taken over the queue, simply cache the FDMA's wanted
     // setting.
-    BOOL npi_redirect =
-        vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE &&
-        vtss_state->packet.rx_conf.queue[qu].npi.enable;
+    BOOL npi_redirect = vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE &&
+                        vtss_state->packet.rx_conf.queue[qu].npi.enable;
 
     if (!npi_redirect) {
         // Not taken over by NPI. Do redirect to port specified by FDMA.
@@ -57,15 +56,12 @@ static vtss_rc fa_npi_mask_set(vtss_state_t *vtss_state)
     vtss_packet_rx_queue_t qu;
 
     for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
-        BOOL npi_redirect = npi_conf->port_no != VTSS_PORT_NO_NONE &&
-                            rx_conf->queue[qu].npi.enable;
+        BOOL npi_redirect = npi_conf->port_no != VTSS_PORT_NO_NONE && rx_conf->queue[qu].npi.enable;
 
         VTSS_RC(fa_npi_redirect_qu_to_port(vtss_state, qu,
                                            npi_redirect
-                                               ? VTSS_CHIP_PORT(npi_conf
-                                                                    ->port_no)
-                                               : vtss_state->packet
-                                                     .default_qu_redirect[qu]));
+                                               ? VTSS_CHIP_PORT(npi_conf->port_no)
+                                               : vtss_state->packet.default_qu_redirect[qu]));
     }
 
     return VTSS_RC_OK;
@@ -81,19 +77,16 @@ static vtss_rc fa_npi_update(vtss_state_t *vtss_state)
         u32 port = VTSS_CHIP_PORT(conf->port_no);
 
         // Control IFH insertion and parsing, use short prefix if enabled.
-        REG_WRM(VTSS_REW_IFH_CTRL(port),
-                VTSS_F_REW_IFH_CTRL_KEEP_IFH_SEL(conf->enable ? 2 : 0),
+        REG_WRM(VTSS_REW_IFH_CTRL(port), VTSS_F_REW_IFH_CTRL_KEEP_IFH_SEL(conf->enable ? 2 : 0),
                 VTSS_M_REW_IFH_CTRL_KEEP_IFH_SEL);
-        REG_WRM(VTSS_ASM_PORT_CFG(port),
-                VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(conf->enable ? 2 : 0),
+        REG_WRM(VTSS_ASM_PORT_CFG(port), VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(conf->enable ? 2 : 0),
                 VTSS_M_ASM_PORT_CFG_INJ_FORMAT_CFG);
     }
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_npi_conf_set(vtss_state_t *vtss_state,
-                               const vtss_npi_conf_t *const new)
+static vtss_rc fa_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
 {
     vtss_npi_conf_t *conf = &vtss_state->packet.npi_conf;
 
@@ -108,9 +101,7 @@ static vtss_rc fa_npi_conf_set(vtss_state_t *vtss_state,
     return vtss_cmn_vlan_update_all(vtss_state);
 }
 
-static vtss_rc fa_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state,
-                                           u32           frame_cnt,
-                                           u64          *ts_cnt)
+static vtss_rc fa_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_cnt, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u64              tc;
@@ -122,25 +113,20 @@ static vtss_rc fa_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state,
     /* The time of day is sampled 2 or more times pr sec, assumed frame stamping
      * belong to domain 0 */
     _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc);
-    tod_cnt = ts.nanoseconds +
-              (VTSS_ONE_MIA * ts.seconds); /* tod_cnt is now a TOD 32 bit
-                                              wrapping nano second counter */
+    tod_cnt = ts.nanoseconds + (VTSS_ONE_MIA * ts.seconds); /* tod_cnt is now a TOD 32 bit
+                                                               wrapping nano second counter */
 
-    diff = tod_cnt - frame_cnt; /* Calculate the difference between FRAME and
-                                   TOD 32 bit wrapping nano second counter */
-    *ts_cnt =
-        tc -
-        (u64)((u64)diff << 16); /* Difference in 16 bit nano second fragments */
-    VTSS_I("frame_cnt %u  tod_cnt %u  ts_cnt %" PRIu64
-           "  diff %u  ts.sec %u  ts.ns %u  tc %" PRIu64 "",
+    diff = tod_cnt - frame_cnt;            /* Calculate the difference between FRAME and
+                                              TOD 32 bit wrapping nano second counter */
+    *ts_cnt = tc - (u64)((u64)diff << 16); /* Difference in 16 bit nano second fragments */
+    VTSS_I("frame_cnt %u  tod_cnt %u  ts_cnt %" PRIu64 "  diff %u  ts.sec %u  ts.ns %u  tc %" PRIu64
+           "",
            frame_cnt, tod_cnt, *ts_cnt, diff, ts.seconds, ts.nanoseconds, tc);
 
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_packet_ns_to_ts_cnt(vtss_state_t *vtss_state,
-                                      u32           frame_ns,
-                                      u64          *ts_cnt)
+static vtss_rc fa_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_ns, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u64              tc;
@@ -159,21 +145,18 @@ static vtss_rc fa_packet_ns_to_ts_cnt(vtss_state_t *vtss_state,
      * belong to domain 0 */
     _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc);
     if (ts.nanoseconds < frame_ns) {
-        tod_ns = ts.nanoseconds +
-                 VTSS_ONE_MIA; /* TOD nanoseconds is smaller than the frame_ns
-                                  from the frame. TOD nanoseconds has wrapped */
+        tod_ns = ts.nanoseconds + VTSS_ONE_MIA; /* TOD nanoseconds is smaller than the frame_ns
+                                                   from the frame. TOD nanoseconds has wrapped */
         tc += ((u64)VTSS_ONE_MIA) << 16;
     } else {
         tod_ns = ts.nanoseconds;
     }
 
-    diff = tod_ns - frame_ns; /* Calculate the difference between FRAME and TOD
-                                 30 bit wrapping nano second counter */
-    *ts_cnt =
-        tc -
-        (u64)((u64)diff << 16); /* Difference in 16 bit nano second fragments */
-    VTSS_I("frame_ns %u  tod_ns %u  ts_cnt %" PRIu64
-           "  diff %u  ts.sec %u  ts.ns %u  tc %" PRIu64 "",
+    diff = tod_ns - frame_ns;              /* Calculate the difference between FRAME and TOD
+                                              30 bit wrapping nano second counter */
+    *ts_cnt = tc - (u64)((u64)diff << 16); /* Difference in 16 bit nano second fragments */
+    VTSS_I("frame_ns %u  tod_ns %u  ts_cnt %" PRIu64 "  diff %u  ts.sec %u  ts.ns %u  tc %" PRIu64
+           "",
            frame_ns, tod_ns, *ts_cnt, diff, ts.seconds, ts.nanoseconds, tc);
 
     return VTSS_RC_OK;
@@ -184,13 +167,13 @@ static u32 fa_packet_unpack32(const u8 *buf)
     return (buf[0] << 24) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
 }
 
-static vtss_rc fa_ptp_get_timestamp(vtss_state_t   *vtss_state,
-                                    const u8 *const frm,
+static vtss_rc fa_ptp_get_timestamp(vtss_state_t                      *vtss_state,
+                                    const u8 *const                    frm,
                                     const vtss_packet_rx_info_t *const rx_info,
-                                    vtss_packet_ptp_message_type_t message_type,
-                                    vtss_packet_timestamp_props_t  ts_props,
-                                    u64                           *ts_cnt,
-                                    BOOL                          *timestamp_ok)
+                                    vtss_packet_ptp_message_type_t     message_type,
+                                    vtss_packet_timestamp_props_t      ts_props,
+                                    u64                               *ts_cnt,
+                                    BOOL                              *timestamp_ok)
 {
     if (ts_props.ts_feature_is_PTS) {
         u32 packet_ns = fa_packet_unpack32(frm);
@@ -207,9 +190,8 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t   *vtss_state,
             VTSS_D("ts_cnt after %" PRIu64, *ts_cnt);
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_44BIT) {
-            VTSS_I(
-                "ts_cnt can not be retrieved from the packet supress warning for mode %d ",
-                ts_props.phy_ts_mode);
+            VTSS_I("ts_cnt can not be retrieved from the packet supress warning for mode %d ",
+                   ts_props.phy_ts_mode);
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_48BIT) {
             // 'ts_cnt' should be similar 'tc' returned from
             // fa_ts_io_pin_timeofday_get.
@@ -256,8 +238,7 @@ static vtss_rc fa_l2cp_conf_set(vtss_state_t        *vtss_state,
     }
     REG_WR(VTSS_ANA_CL_L2CP_ENTRY_CFG(profile * 32 + l2cp),
            VTSS_F_ANA_CL_L2CP_ENTRY_CFG_COSID_VAL(conf->cosid) |
-               VTSS_F_ANA_CL_L2CP_ENTRY_CFG_COSID_ENA(conf->cosid_enable ? 1
-                                                                         : 0) |
+               VTSS_F_ANA_CL_L2CP_ENTRY_CFG_COSID_ENA(conf->cosid_enable ? 1 : 0) |
                VTSS_F_ANA_CL_L2CP_ENTRY_CFG_CPU_FWD_CFG(reg) |
                VTSS_F_ANA_CL_L2CP_ENTRY_CFG_CPU_L2CP_QU(conf->queue));
     return VTSS_RC_OK;
@@ -287,17 +268,15 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
 
     // Setup Rx registrations that we only have per-switch API support for (not
     // per-port)
-    cap_cfg =
-        VTSS_F_ANA_CL_CAPTURE_CFG_CPU_MLD_REDIR_ENA(reg->mld_cpu_only) |
-        VTSS_F_ANA_CL_CAPTURE_CFG_CPU_IP4_MC_COPY_ENA(reg->ipmc_ctrl_cpu_copy) |
-        VTSS_F_ANA_CL_CAPTURE_CFG_CPU_IGMP_REDIR_ENA(reg->igmp_cpu_only);
+    cap_cfg = VTSS_F_ANA_CL_CAPTURE_CFG_CPU_MLD_REDIR_ENA(reg->mld_cpu_only) |
+              VTSS_F_ANA_CL_CAPTURE_CFG_CPU_IP4_MC_COPY_ENA(reg->ipmc_ctrl_cpu_copy) |
+              VTSS_F_ANA_CL_CAPTURE_CFG_CPU_IGMP_REDIR_ENA(reg->igmp_cpu_only);
 
     // Calculate offset for port L2CP profiles
     offs = (FA_TGT ? 64 : 16);
 
     // Setup Rx registrations that we have per-port
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         port = VTSS_CHIP_PORT(port_no);
         port_conf = &vtss_state->packet.rx_port_conf[port_no];
 
@@ -327,8 +306,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
             }
             if (l2cp_conf.reg == VTSS_PACKET_REG_NORMAL) {
                 // Use global registration
-                l2cp_conf.reg = (cpu_only ? VTSS_PACKET_REG_CPU_ONLY
-                                          : VTSS_PACKET_REG_FORWARD);
+                l2cp_conf.reg = (cpu_only ? VTSS_PACKET_REG_CPU_ONLY : VTSS_PACKET_REG_FORWARD);
             }
             /* Use L2CP profile at offset for ports */
             VTSS_RC(fa_l2cp_conf_set(vtss_state, port + offs, i, &l2cp_conf));
@@ -338,16 +316,13 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
 
     // IGMP and IPMC queues:
     REG_WR(VTSS_ANA_CL_CPU_PROTO_QU_CFG,
-           VTSS_F_ANA_CL_CPU_PROTO_QU_CFG_CPU_IP6_MC_CTRL_QU(
-               map->ipmc_ctrl_queue) |
+           VTSS_F_ANA_CL_CPU_PROTO_QU_CFG_CPU_IP6_MC_CTRL_QU(map->ipmc_ctrl_queue) |
                VTSS_F_ANA_CL_CPU_PROTO_QU_CFG_CPU_MLD_QU(map->igmp_queue) |
-               VTSS_F_ANA_CL_CPU_PROTO_QU_CFG_CPU_IP4_MC_CTRL_QU(
-                   map->ipmc_ctrl_queue) |
+               VTSS_F_ANA_CL_CPU_PROTO_QU_CFG_CPU_IP4_MC_CTRL_QU(map->ipmc_ctrl_queue) |
                VTSS_F_ANA_CL_CPU_PROTO_QU_CFG_CPU_IGMP_QU(map->igmp_queue));
 
     // Learn queue:
-    REG_WRM(VTSS_ANA_L2_LRN_CFG,
-            VTSS_F_ANA_L2_LRN_CFG_CPU_LRN_QU(map->learn_queue),
+    REG_WRM(VTSS_ANA_L2_LRN_CFG, VTSS_F_ANA_L2_LRN_CFG_CPU_LRN_QU(map->learn_queue),
             VTSS_M_ANA_L2_LRN_CFG_CPU_LRN_QU);
 
     // Enable forwarding to CPU of MAC-table SMAC hits, where the MAC-table
@@ -366,8 +341,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
     REG_WR(VTSS_ANA_L3_CPU_QU_CFG,
            VTSS_F_ANA_L3_CPU_QU_CFG_CPU_RLEG_QU(map->l3_uc_queue) |
                VTSS_F_ANA_L3_CPU_QU_CFG_CPU_RLEG_IP_OPT_QU(map->l3_other_queue) |
-               VTSS_F_ANA_L3_CPU_QU_CFG_CPU_RLEG_IP_HDR_FAIL_QU(
-                   map->l3_other_queue) |
+               VTSS_F_ANA_L3_CPU_QU_CFG_CPU_RLEG_IP_HDR_FAIL_QU(map->l3_other_queue) |
                VTSS_F_ANA_L3_CPU_QU_CFG_CPU_SIP_RPF_QU(map->l3_other_queue) |
                VTSS_F_ANA_L3_CPU_QU_CFG_CPU_IP_LEN_QU(map->l3_other_queue) |
                VTSS_F_ANA_L3_CPU_QU_CFG_CPU_MC_FAIL_QU(map->l3_other_queue) |
@@ -379,18 +353,15 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
         // RedBox CPU queues
         for (i = 0; i < VTSS_REDBOX_CNT; i++) {
             j = RB_TGT(i);
-            REG_WR(VTSS_RB_CPU_CFG(j),
-                   VTSS_F_RB_CPU_CFG_SPV_CPUQ(map->sv_queue) |
-                       VTSS_F_RB_CPU_CFG_BPDU_CPUQ(map->bpdu_queue));
+            REG_WR(VTSS_RB_CPU_CFG(j), VTSS_F_RB_CPU_CFG_SPV_CPUQ(map->sv_queue) |
+                                           VTSS_F_RB_CPU_CFG_BPDU_CPUQ(map->bpdu_queue));
         }
     }
 #endif
     // Configure Rx Queue #i to map to an Rx group.
     for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
         if (conf->grp_map[i]) {
-            VTSS_E(
-                "Attempt to redirect queue %d - use vtss_dma_conf_set() instead",
-                i);
+            VTSS_E("Attempt to redirect queue %d - use vtss_dma_conf_set() instead", i);
         }
     }
 
@@ -421,11 +392,9 @@ static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
                VTSS_F_DEVCPU_QS_INJ_GRP_CFG_MODE(1) |
                    VTSS_F_DEVCPU_QS_INJ_GRP_CFG_BYTE_SWAP(byte_swap));
         REG_WR(VTSS_ASM_PORT_CFG(port),
-               VTSS_F_ASM_PORT_CFG_NO_PREAMBLE_ENA(1) |
-                   VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(1));
+               VTSS_F_ASM_PORT_CFG_NO_PREAMBLE_ENA(1) | VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(1));
         // Kernel driver changes this for FDMA, so change it back
-        REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port),
-                VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM(0),
+        REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port), VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM(0),
                 VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
 
         for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
@@ -460,8 +429,7 @@ static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
 #define XTR_VALID_BYTES(x) (4 - (((x) >> 24) & 3))
 #endif
 
-static vtss_rc fa_rx_frame_discard_grp(vtss_state_t              *vtss_state,
-                                       const vtss_packet_rx_grp_t xtr_grp)
+static vtss_rc fa_rx_frame_discard_grp(vtss_state_t *vtss_state, const vtss_packet_rx_grp_t xtr_grp)
 {
     BOOL done = FALSE;
     u32  val;
@@ -552,7 +520,7 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
                                         u32 *const           ifh,
                                         u8 *const            frame,
                                         const u32            buf_length,
-                                        u32 *frm_length) /* Including FCS */
+                                        u32                 *frm_length) /* Including FCS */
 {
     u32  i, val, bytes_got, bytes_valid, buf_len = buf_length;
     BOOL done = 0;
@@ -615,8 +583,8 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
 
 #endif /* VTSS_ARCH_LAIKA */
 
-#define VSTAX                                                                  \
-    73 /* The IFH bit position of the first VSTAX bit. This is because the     \
+#define VSTAX                                                                                      \
+    73 /* The IFH bit position of the first VSTAX bit. This is because the                         \
           VSTAX bit positions in Data sheet is starting from zero. */
 
 // The overall IFH layout for FireAnt and Laguna is the same, for example DST
@@ -642,7 +610,7 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
 
 static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
                                 const vtss_packet_rx_meta_t *const meta,
-                                const u8 xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                const u8                     xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
                                 vtss_packet_rx_info_t *const info)
 {
     u16                 vstax_hi, vstax_one, rb = 0;
@@ -668,14 +636,14 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
     xtr_hdr_2 = xtr_hdr[2] & 0x3F; /* For some reason bit6-7 is occasionally
                                       unexpectedly set. Must be cleared */
     tstamp = ((u64)xtr_hdr_2 << 32);
-    tstamp |= ((u64)xtr_hdr[3] << 24) | ((u64)xtr_hdr[4] << 16) |
-              ((u64)xtr_hdr[5] << 8) | ((u64)xtr_hdr[6] << 0);
+    tstamp |= ((u64)xtr_hdr[3] << 24) | ((u64)xtr_hdr[4] << 16) | ((u64)xtr_hdr[5] << 8) |
+              ((u64)xtr_hdr[6] << 0);
 
     // DST is bit 153-231 (79 bits), but we only read the 63 LSB for now
-    dst = ((u64)xtr_hdr[9] << 56) | ((u64)xtr_hdr[10] << 48) |
-          ((u64)xtr_hdr[11] << 40) | ((u64)xtr_hdr[12] << 32);
-    dst |= ((u64)xtr_hdr[13] << 24) | ((u64)xtr_hdr[14] << 16) |
-           ((u64)xtr_hdr[15] << 8) | ((u64)xtr_hdr[16] << 0);
+    dst = ((u64)xtr_hdr[9] << 56) | ((u64)xtr_hdr[10] << 48) | ((u64)xtr_hdr[11] << 40) |
+          ((u64)xtr_hdr[12] << 32);
+    dst |= ((u64)xtr_hdr[13] << 24) | ((u64)xtr_hdr[14] << 16) | ((u64)xtr_hdr[15] << 8) |
+           ((u64)xtr_hdr[16] << 0);
     vstax_one = (dst & 1); // Bit 152 is the MSB of VSTAX, which must be 1
     dst = (dst >> 1);
 
@@ -683,20 +651,19 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
     // above)
     vstax_hi = ((u16)xtr_hdr[17] << 8) | ((u16)xtr_hdr[18] << 0);
     vstax_hi = (vstax_hi >> 1);
-    vstax_lo = ((u64)xtr_hdr[19] << 56) | ((u64)xtr_hdr[20] << 48) |
-               ((u64)xtr_hdr[21] << 40) | ((u64)xtr_hdr[22] << 32);
-    vstax_lo |= ((u64)xtr_hdr[23] << 24) | ((u64)xtr_hdr[24] << 16) |
-                ((u64)xtr_hdr[25] << 8) | ((u64)xtr_hdr[26] << 0);
+    vstax_lo = ((u64)xtr_hdr[19] << 56) | ((u64)xtr_hdr[20] << 48) | ((u64)xtr_hdr[21] << 40) |
+               ((u64)xtr_hdr[22] << 32);
+    vstax_lo |= ((u64)xtr_hdr[23] << 24) | ((u64)xtr_hdr[24] << 16) | ((u64)xtr_hdr[25] << 8) |
+                ((u64)xtr_hdr[26] << 0);
     vstax_lo = (vstax_lo >> 1);
 
     // FWD is bit 45-72 (28 bits), but we only read the 27 LSB for now
-    fwd = ((u32)xtr_hdr[27] << 24) | ((u32)xtr_hdr[28] << 16) |
-          ((u32)xtr_hdr[29] << 8) | ((u32)xtr_hdr[30] << 0);
+    fwd = ((u32)xtr_hdr[27] << 24) | ((u32)xtr_hdr[28] << 16) | ((u32)xtr_hdr[29] << 8) |
+          ((u32)xtr_hdr[30] << 0);
     fwd = (fwd >> 5);
 
     // MISC is bit 29-44 (16 bits)
-    misc = ((u32)xtr_hdr[30] << 16) | ((u32)xtr_hdr[31] << 8) |
-           ((u32)xtr_hdr[32] << 0);
+    misc = ((u32)xtr_hdr[30] << 16) | ((u32)xtr_hdr[31] << 8) | ((u32)xtr_hdr[32] << 0);
     misc = (misc >> 5);
 
     // The VStaX header's MSbit must be 1.
@@ -714,9 +681,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
     chip_port = VTSS_EXTRACT_BITFIELD(fwd, 1, SRC_PORT_WID); // FWD:SRC_PORT
     info->port_no = vtss_cmn_chip_to_logical_port(state, 0, chip_port);
     if (chip_port == RT_CHIP_PORT_CPU_0 || chip_port == RT_CHIP_PORT_CPU_1) {
-        VTSS_IG(
-            trc_grp,
-            "This frame is transmitted by the CPU itself and should be discarded.");
+        VTSS_IG(trc_grp, "This frame is transmitted by the CPU itself and should be discarded.");
     }
 
     //     VTSS_IG(trc_grp, "Received on xtr_qu = %u, chip_no = %d, chip_port =
@@ -735,8 +700,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
 
     info->xtr_qu_mask = VTSS_EXTRACT_BITFIELD(misc, 0, 8); // MISC:CPU_MASK
 
-    if (VTSS_EXTRACT_BITFIELD64(dst, DST_CL_RSLT_POS, 16) &
-        FA_IFH_CL_RSLT_ACL_HIT) {
+    if (VTSS_EXTRACT_BITFIELD64(dst, DST_CL_RSLT_POS, 16) & FA_IFH_CL_RSLT_ACL_HIT) {
         // ACL hit signalled in DST:MATCH_ID_GRP_IDX
         info->acl_hit = 1;
     }
@@ -778,8 +742,7 @@ static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
         vtss_packet_rx_meta_t meta;
 
         /* Get frame, separate IFH and frame data */
-        VTSS_RC(fa_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen,
-                                         &length));
+        VTSS_RC(fa_rx_frame_get_internal(vtss_state, grp, ifh, data, buflen, &length));
 
         /* IFH is done separately because of alignment needs */
         VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
@@ -793,8 +756,7 @@ static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
 
 #endif /* VTSS_ARCH_LAIKA */
 
-static u32 fa_plpt_to_ifh(vtss_state_t             *vtss_state,
-                          vtss_packet_pipeline_pt_t plpt)
+static u32 fa_plpt_to_ifh(vtss_state_t *vtss_state, vtss_packet_pipeline_pt_t plpt)
 {
     if (FA_TGT) {
         switch (plpt) {
@@ -864,7 +826,7 @@ static u32 fa_plpt_to_ifh(vtss_state_t             *vtss_state,
 static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action,
                                     u8                       ptp_domain,
                                     BOOL                     afi,
-                                    u32 *result) /* TBD_henrikb */
+                                    u32                     *result) /* TBD_henrikb */
 {
     vtss_rc rc = VTSS_RC_OK;
 
@@ -901,40 +863,32 @@ static void IFH_ENCODE_BITFIELD(u8 *const bin_hdr, u64 value, u32 pos, u32 width
 
     u32 byte = (35 - (pos / 8)); /* Calculate the Start IFH byte position of
                                     this IFH bit position */
-    u32 bit =
-        (pos % 8); /* Calculate the Start bit position in the Start IFH byte */
-    u64 encode =
-        VTSS_ENCODE_BITFIELD64(value, bit, width); /* Encode the bit field into
-                                                      a 32 bit variable. */
+    u32 bit = (pos % 8);         /* Calculate the Start bit position in the Start IFH byte */
+    u64 encode = VTSS_ENCODE_BITFIELD64(value, bit, width); /* Encode the bit field into
+                                                               a 32 bit variable. */
 
     if (encode & 0xFF) {
-        bin_hdr[byte] |=
-            (u8)((encode & 0xFF)); /* The b0-b7 goes into the start IFH byte */
+        bin_hdr[byte] |= (u8)((encode & 0xFF)); /* The b0-b7 goes into the start IFH byte */
     }
     if (encode & 0xFF00) {
         bin_hdr[byte - 1] |=
-            (u8)((encode & 0xFF00) >>
-                 8); /* The b8-b15 goes into the next IFH byte */
+            (u8)((encode & 0xFF00) >> 8); /* The b8-b15 goes into the next IFH byte */
     }
     if (encode & 0xFF0000) {
         bin_hdr[byte - 2] |=
-            (u8)((encode & 0xFF0000) >>
-                 16); /* The b16-b23 goes into the next IFH byte */
+            (u8)((encode & 0xFF0000) >> 16); /* The b16-b23 goes into the next IFH byte */
     }
     if (encode & 0xFF000000) {
         bin_hdr[byte - 3] |=
-            (u8)((encode & 0xFF000000) >>
-                 24); /* The b24-b31 goes into the next IFH byte */
+            (u8)((encode & 0xFF000000) >> 24); /* The b24-b31 goes into the next IFH byte */
     }
     if (encode & 0xFF00000000) {
         bin_hdr[byte - 4] |=
-            (u8)((encode & 0xFF00000000) >>
-                 32); /* The b32-b39 goes into the next IFH byte */
+            (u8)((encode & 0xFF00000000) >> 32); /* The b32-b39 goes into the next IFH byte */
     }
     if (encode & 0xFF0000000000) {
         bin_hdr[byte - 5] |=
-            (u8)((encode & 0xFF0000000000) >>
-                 40); /* The b40-b47 goes into the next IFH byte */
+            (u8)((encode & 0xFF0000000000) >> 40); /* The b40-b47 goes into the next IFH byte */
     }
 }
 
@@ -975,8 +929,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
     vtss_prio_t         cos;
     vtss_phys_port_no_t chip_port;
     BOOL                rewrite = TRUE, setup_cl = FALSE, afi = FALSE;
-    u32                 mi_port, pl_pt = 0, pl_act = 0, vid, pdu_type = 0,
-                 isdx = info->iflow_id;
+    u32                 mi_port, pl_pt = 0, pl_act = 0, vid, pdu_type = 0, isdx = info->iflow_id;
 
     if (bin_hdr == NULL) {
         // Caller wants us to return the number of bytes required to fill
@@ -989,9 +942,8 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
     }
 
     *bin_hdr_len = FA_IFH_BYTES;
-    VTSS_MEMSET(bin_hdr, 0,
-                FA_IFH_BYTES); /* IFH is all zero. From now on bits can be set
-                                  by OR. No bit clear should be required */
+    VTSS_MEMSET(bin_hdr, 0, FA_IFH_BYTES); /* IFH is all zero. From now on bits can be set
+                                              by OR. No bit clear should be required */
 
     IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX + 79,
                         1); // VSTAX.RSV = 1. MSBit must be 1
@@ -1021,8 +973,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
             // to TN1258 (EVC Baseline)
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Masqueraded OAM/Y1564 Injecting");
 
-            chip_port =
-                VTSS_CHIP_PORT_FROM_STATE(vtss_state, info->masquerade_port);
+            chip_port = VTSS_CHIP_PORT_FROM_STATE(vtss_state, info->masquerade_port);
             IFH_ENCODE_BITFIELD(bin_hdr, chip_port % 32, VSTAX + 0,
                                 5); // VSTAX.SRC.SRC_UPSPN = masquerade chip port
             IFH_ENCODE_BITFIELD(bin_hdr, chip_port / 32, VSTAX + 5,
@@ -1032,8 +983,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
             setup_cl = TRUE;                   // Setup classified fields later
             pl_pt = info->pipeline_pt;
             if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE &&
-                pl_pt != VTSS_PACKET_PIPELINE_PT_NONE &&
-                pl_pt != VTSS_PACKET_PIPELINE_PT_ANA_CLM) {
+                pl_pt != VTSS_PACKET_PIPELINE_PT_NONE && pl_pt != VTSS_PACKET_PIPELINE_PT_ANA_CLM) {
                 pdu_type = 1; // DST.PDU_TYPE = OAM_Y1731
             }
         } else {
@@ -1049,11 +999,9 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
         // dst_port is enabled.
         mi_port = vtss_state->l2.mirror_conf.port_no;
         if ((mi_port < vtss_state->port_count) &&
-            (vtss_state->l2.mirror_cpu_ingress ||
-             vtss_state->l2.mirror_egress[info->dst_port]) &&
+            (vtss_state->l2.mirror_cpu_ingress || vtss_state->l2.mirror_egress[info->dst_port]) &&
             vtss_state->l2.port_state[mi_port]) {
-            IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1,
-                                FWD_MIRROR_PROBE,
+            IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1, FWD_MIRROR_PROBE,
                                 2); /* FWD.MIRROR_PROBE = Ingress mirror probe.
                                        1-based in this field */
         }
@@ -1065,13 +1013,10 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
             u32 rew_cmd;
 
             rewrite = TRUE;
-            VTSS_DG(VTSS_TRACE_GROUP_PACKET,
-                    "Injecting with PTP action: %d, pdu_offset %u",
+            VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Injecting with PTP action: %d, pdu_offset %u",
                     info->ptp_action, info->pdu_offset);
-            VTSS_RC(fa_ptp_action_to_ifh(info->ptp_action, info->ptp_domain,
-                                         afi, &rew_cmd));
-            VTSS_DG(VTSS_TRACE_GROUP_PACKET,
-                    "Injecting rew_cmd: 0x%x, ptp_timestamp %" PRIu64 "",
+            VTSS_RC(fa_ptp_action_to_ifh(info->ptp_action, info->ptp_domain, afi, &rew_cmd));
+            VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Injecting rew_cmd: 0x%x, ptp_timestamp %" PRIu64 "",
                     rew_cmd, info->ptp_timestamp);
             IFH_ENCODE_BITFIELD(bin_hdr, rew_cmd, VSTAX + 32,
                                 10); // VSTAX.REW_CMD = PTP rewrite command.
@@ -1128,8 +1073,7 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
                                     1); // VSTAX.TAG.TAG_TYPE = 1. S-TAG
             }
         } else if (info->pipeline_pt == VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE &&
-                   info->oam_type != VTSS_PACKET_OAM_TYPE_NONE &&
-                   isdx == VTSS_ISDX_NONE) {
+                   info->oam_type != VTSS_PACKET_OAM_TYPE_NONE && isdx == VTSS_ISDX_NONE) {
             // ESO_ISDX_KEY_ENA is configured to the opposite of the requested.
             // Try not to hit ES0 when no rewriting is calculated
             IFH_ENCODE_BITFIELD(bin_hdr, 1, FWD_ESO_ISDX_KEY_ENA,
@@ -1147,13 +1091,12 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
 
     if (pdu_type) {
         if (info->pdu_offset == 0 || (info->pdu_offset % 2) != 0) {
-            VTSS_E(
-                "Invalid pdu_offset %u. It must be an even number greater than 0",
-                info->pdu_offset);
+            VTSS_E("Invalid pdu_offset %u. It must be an even number greater than 0",
+                   info->pdu_offset);
             return VTSS_RC_ERROR;
         }
         IFH_ENCODE_BITFIELD(bin_hdr, info->pdu_offset / 2, DST_PDU_W16_OFFSET,
-                            6); // DST.PDU_W16_OFFSET
+                            6);                                  // DST.PDU_W16_OFFSET
         IFH_ENCODE_BITFIELD(bin_hdr, pdu_type, DST_PDU_TYPE, 4); // DST.PDU_TYPE
     }
 
@@ -1183,8 +1126,8 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
                                 12); // VSTAX.MISH.ISDX = isdx
         }
     }
-    IFH_ENCODE_BITFIELD(bin_hdr, ((info->ptp_timestamp >> 8) & 0xFFFFFFFFFF),
-                        232, 40); // TS = 40 bits PTP time stamp
+    IFH_ENCODE_BITFIELD(bin_hdr, ((info->ptp_timestamp >> 8) & 0xFFFFFFFFFF), 232,
+                        40); // TS = 40 bits PTP time stamp
 
 #if defined(VTSS_FEATURE_REDBOX)
     if (vtss_state->vtss_features[FEATURE_REDBOX]) {
@@ -1242,8 +1185,8 @@ static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
     }
 
     /* Indicate SOF */
-    REG_WR(VTSS_DEVCPU_QS_INJ_CTRL(grp), VTSS_F_DEVCPU_QS_INJ_CTRL_GAP_SIZE(1) |
-                                             VTSS_M_DEVCPU_QS_INJ_CTRL_SOF);
+    REG_WR(VTSS_DEVCPU_QS_INJ_CTRL(grp),
+           VTSS_F_DEVCPU_QS_INJ_CTRL_GAP_SIZE(1) | VTSS_M_DEVCPU_QS_INJ_CTRL_SOF);
 
     // Write the IFH to the chip.
     for (w = 0; w < FA_IFH_WORDS; w++) {
@@ -1256,8 +1199,7 @@ static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
     for (w = 0; w < count; w++, buf += 4) {
         if (w == 3 && vid != VTSS_VID_NULL) {
             /* Insert C-tag */
-            REG_WR(VTSS_DEVCPU_QS_INJ_WR(grp),
-                   VTSS_OS_NTOHL((0x8100U << 16) | vid));
+            REG_WR(VTSS_DEVCPU_QS_INJ_WR(grp), VTSS_OS_NTOHL((0x8100U << 16) | vid));
             w++;
         }
 #ifdef VTSS_OS_BIG_ENDIAN
@@ -1311,16 +1253,13 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
     vtss_fa_debug_reg_header(ss, "FRAME_COPY_CFG");
     for (qu = 0; qu < 12; qu++) {
         if (qu < 8) {
-            vtss_fa_debug_reg_inst(vtss_state, ss,
-                                   REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
+            vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_CPU_QU");
         } else if (qu == 8) {
-            vtss_fa_debug_reg_inst(vtss_state, ss,
-                                   REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
+            vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_LRN_ALL");
         } else {
-            vtss_fa_debug_reg_inst(vtss_state, ss,
-                                   REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
+            vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_MIRROR_PROBE");
         }
     }
@@ -1330,8 +1269,7 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
     for (qu = 0; qu < 4; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
 
-        vtss_fa_debug_reg_inst(vtss_state, ss,
-                               REG_ADDR(VTSS_REW_IFH_CTRL(port)), port,
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_REW_IFH_CTRL(port)), port,
                                "KEEP_IFH_SEL");
     }
     pr("\n");
@@ -1339,17 +1277,14 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
     vtss_fa_debug_reg_header(ss, "PORT_CFG");
     for (qu = 0; qu < 4; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
-        vtss_fa_debug_reg_inst(vtss_state, ss,
-                               REG_ADDR(VTSS_ASM_PORT_CFG(port)), port,
-                               "PORT_CFG");
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_ASM_PORT_CFG(port)), port, "PORT_CFG");
     }
     pr("\n");
 
     vtss_fa_debug_reg_header(ss, "PORT_STATUS");
     for (qu = 0; qu < 4; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
-        vtss_fa_debug_reg_inst(vtss_state, ss,
-                               REG_ADDR(VTSS_ASM_PORT_STICKY(port)), port,
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_ASM_PORT_STICKY(port)), port,
                                "PORT_STATUS");
         REG_WR(VTSS_ASM_PORT_STICKY(port), 0xFFFFFFFF);
     }
@@ -1357,18 +1292,14 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
 
 #if !defined(VTSS_ARCH_LAIKA)
     vtss_fa_debug_reg_header(ss, "DEVCPU_QS");
-    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_CFG),
-                      "XTR_CFG");
-    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_VTSS_DBG),
-                      "INJ_FRM_CNT");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_CFG), "XTR_CFG");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_VTSS_DBG), "INJ_FRM_CNT");
     vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_DATA_PRESENT),
                       "XTR_DATA_PRESENT");
     for (i = 0; i < 2; i++) {
-        vtss_fa_debug_reg_inst(vtss_state, ss,
-                               REG_ADDR(VTSS_DEVCPU_QS_XTR_GRP_CFG(i)), i,
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_GRP_CFG(i)), i,
                                "XTR_GRP_CFG");
-        vtss_fa_debug_reg_inst(vtss_state, ss,
-                               REG_ADDR(VTSS_DEVCPU_QS_INJ_GRP_CFG(i)), i,
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_INJ_GRP_CFG(i)), i,
                                "INJ_GRP_CFG");
     }
     pr("\n");
@@ -1376,8 +1307,7 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
 
     vtss_fa_debug_reg_header(ss, "QFWD");
     for (i = RT_CHIP_PORT_CPU_0; i <= RT_CHIP_PORT_CPU_1; i++) {
-        vtss_fa_debug_reg_inst(vtss_state, ss,
-                               REG_ADDR(VTSS_QFWD_SWITCH_PORT_MODE(i)), i,
+        vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_QFWD_SWITCH_PORT_MODE(i)), i,
                                "PORT_MODE");
     }
     pr("\n");
@@ -1389,8 +1319,7 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
             REG_RD(VTSS_QRES_RES_CFG(j), &cfg);
             REG_RD(VTSS_QRES_RES_STAT_CUR(j), &cur);
             REG_RD(VTSS_QRES_RES_STAT(j), &max);
-            pr("%-6u%u (CPU_%u_%u)  %-6u%-6u%-6u\n", j, i, i - RT_CHIP_PORT_CPU,
-               qu, cfg, cur, max);
+            pr("%-6u%u (CPU_%u_%u)  %-6u%-6u%-6u\n", j, i, i - RT_CHIP_PORT_CPU, qu, cfg, cur, max);
         }
     }
     pr("\n");
@@ -1402,8 +1331,7 @@ vtss_rc vtss_fa_packet_debug_print(vtss_state_t                  *vtss_state,
                                    lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, fa_debug_pkt,
-                                  vtss_state, ss, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, fa_debug_pkt, vtss_state, ss, info);
 }
 #endif
 
@@ -1424,13 +1352,11 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
         i = QFWD_FRAME_COPY_CFG_CPU_QU(qu);
         REG_RD(VTSS_QFWD_FRAME_COPY_CFG(i), &val);
-        vtss_state->packet.default_qu_redirect[qu] =
-            VTSS_X_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(val);
+        vtss_state->packet.default_qu_redirect[qu] = VTSS_X_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(val);
         REG_WRM(VTSS_QFWD_FRAME_COPY_CFG(i),
                 VTSS_F_QFWD_FRAME_COPY_CFG_FRMC_QOS_VAL(qu) |
                     VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_QOS_ENA,
-                VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_QOS_VAL |
-                    VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_QOS_ENA);
+                VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_QOS_VAL | VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_QOS_ENA);
     }
 
     // Setup CPU port 0 and 1 to allow for classification of transmission of
@@ -1441,16 +1367,13 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     // VID), then controls the priority.
     // Enable looking into PCP and DEI bits
     REG_WRM(VTSS_ANA_CL_QOS_CFG(RT_CHIP_PORT_CPU),
-            VTSS_F_ANA_CL_QOS_CFG_PCP_DEI_DP_ENA(1) |
-                VTSS_F_ANA_CL_QOS_CFG_PCP_DEI_QOS_ENA(1),
-            VTSS_M_ANA_CL_QOS_CFG_PCP_DEI_DP_ENA |
-                VTSS_M_ANA_CL_QOS_CFG_PCP_DEI_QOS_ENA);
+            VTSS_F_ANA_CL_QOS_CFG_PCP_DEI_DP_ENA(1) | VTSS_F_ANA_CL_QOS_CFG_PCP_DEI_QOS_ENA(1),
+            VTSS_M_ANA_CL_QOS_CFG_PCP_DEI_DP_ENA | VTSS_M_ANA_CL_QOS_CFG_PCP_DEI_QOS_ENA);
 
     // Set-up the one-to-one PCP->QoS mapping
     for (pcp = 0; pcp < VTSS_PCP_END - VTSS_PCP_START; pcp++) {
         for (dei = 0; dei < VTSS_DEI_END - VTSS_DEI_START; dei++) {
-            REG_WR(VTSS_ANA_CL_PCP_DEI_MAP_CFG(RT_CHIP_PORT_CPU,
-                                               (8 * dei + pcp)),
+            REG_WR(VTSS_ANA_CL_PCP_DEI_MAP_CFG(RT_CHIP_PORT_CPU, (8 * dei + pcp)),
                    VTSS_F_ANA_CL_PCP_DEI_MAP_CFG_PCP_DEI_QOS_VAL(pcp));
         }
     }
@@ -1460,14 +1383,12 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
         // longer than on normal front ports.
         REG_WRM(VTSS_HSCH_PORT_MODE(i), VTSS_F_HSCH_PORT_MODE_AGE_DIS(1),
                 VTSS_M_HSCH_PORT_MODE_AGE_DIS);
-        REG_WRM(VTSS_DSM_BUF_CFG(i), VTSS_F_DSM_BUF_CFG_AGING_ENA(0),
-                VTSS_M_DSM_BUF_CFG_AGING_ENA);
+        REG_WRM(VTSS_DSM_BUF_CFG(i), VTSS_F_DSM_BUF_CFG_AGING_ENA(0), VTSS_M_DSM_BUF_CFG_AGING_ENA);
         REG_WRM(VTSS_ASM_PORT_CFG(i), VTSS_F_ASM_PORT_CFG_FRM_AGING_DIS(1),
                 VTSS_M_ASM_PORT_CFG_FRM_AGING_DIS);
 
         // Enable stacking on CPU ports for VLAN classification purposes
-        REG_WRM(VTSS_ANA_CL_STACKING_CTRL(i),
-                VTSS_F_ANA_CL_STACKING_CTRL_STACKING_AWARE_ENA(1),
+        REG_WRM(VTSS_ANA_CL_STACKING_CTRL(i), VTSS_F_ANA_CL_STACKING_CTRL_STACKING_AWARE_ENA(1),
                 VTSS_M_ANA_CL_STACKING_CTRL_STACKING_AWARE_ENA);
         REG_WRM(VTSS_ANA_CL_STACKING_CTRL(i),
                 VTSS_F_ANA_CL_STACKING_CTRL_STACKING_HEADER_DISCARD_ENA(0),
@@ -1478,11 +1399,9 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
         // the frame's VStaX header, but that won't work for stacking solutions.
         // We also set it to pop one tag.
         REG_WRM(VTSS_ANA_CL_VLAN_CTRL(i),
-                VTSS_F_ANA_CL_VLAN_CTRL_PORT_VID(0) |
-                    VTSS_F_ANA_CL_VLAN_CTRL_VLAN_AWARE_ENA(1) |
+                VTSS_F_ANA_CL_VLAN_CTRL_PORT_VID(0) | VTSS_F_ANA_CL_VLAN_CTRL_VLAN_AWARE_ENA(1) |
                     VTSS_F_ANA_CL_VLAN_CTRL_VLAN_POP_CNT(1),
-                VTSS_M_ANA_CL_VLAN_CTRL_PORT_VID |
-                    VTSS_M_ANA_CL_VLAN_CTRL_VLAN_AWARE_ENA |
+                VTSS_M_ANA_CL_VLAN_CTRL_PORT_VID | VTSS_M_ANA_CL_VLAN_CTRL_VLAN_AWARE_ENA |
                     VTSS_M_ANA_CL_VLAN_CTRL_VLAN_POP_CNT);
 
         // Disable IGMP redirect for CPU ports

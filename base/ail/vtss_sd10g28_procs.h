@@ -73,17 +73,17 @@ typedef enum {
  **/
 
 typedef enum {
-    VTSS_SD10G28_ATE, /**< Setup be used for ATE testing,Not yet configured > */
-    VTSS_SD10G28_ZR,  /**< ZR,Not yet configured  > */
-    VTSS_SD10G28_DAC3M, /**< Variable used for running DAC 3m at 10G speed > */
-    VTSS_SD10G28_DAC5M, /**< Variable used for running DAC 5m at 10G speed > */
-    VTSS_SD10G28_DAC2M, /**< Variable used for running DAC 2m at 10G speed > */
-    VTSS_SD10G28_DAC1M, /**< Variable used for running DAC 1m at 10G speed > */
-    VTSS_SD10G28_SR,    /**< Variable used for running SFP_SR at 10G speed > */
-    VTSS_SD10G28_DAC3M_PVT, /**<Variable used for running PVT using DAC3M at 10G
-                               speed>*/
-    VTSS_SD10G28_KR,        /**< KR Backplane, not yet configured> */
-    VTSS_SD10G28_FX100,     /**< 100FX settings> */
+    VTSS_SD10G28_ATE,        /**< Setup be used for ATE testing,Not yet configured > */
+    VTSS_SD10G28_ZR,         /**< ZR,Not yet configured  > */
+    VTSS_SD10G28_DAC3M,      /**< Variable used for running DAC 3m at 10G speed > */
+    VTSS_SD10G28_DAC5M,      /**< Variable used for running DAC 5m at 10G speed > */
+    VTSS_SD10G28_DAC2M,      /**< Variable used for running DAC 2m at 10G speed > */
+    VTSS_SD10G28_DAC1M,      /**< Variable used for running DAC 1m at 10G speed > */
+    VTSS_SD10G28_SR,         /**< Variable used for running SFP_SR at 10G speed > */
+    VTSS_SD10G28_DAC3M_PVT,  /**<Variable used for running PVT using DAC3M at 10G
+                                speed>*/
+    VTSS_SD10G28_KR,         /**< KR Backplane, not yet configured> */
+    VTSS_SD10G28_FX100,      /**< 100FX settings> */
     VTSS_SD10G28_PRESET_NONE /**< Variable used for running using SFp, RJ45 at
                                 speed lesser than 10G> */
 } vtss_sd10g28_preset_t;
@@ -156,36 +156,35 @@ typedef struct {
     vtss_sd10g28_mode_t      mode;      /**< Mode parameter.      */
     // u32                  datarate;       /**< optional parameter; if this is
     // specified if_width must also be specified > */
-    u8   if_width; /**< UDL interface width 10, 16, 20, 32 or 64 bit >     */
-    BOOL skip_cmu_cfg; /* Enable/disable CMU configuration for this serdes*/
+    u8                 if_width;       /**< UDL interface width 10, 16, 20, 32 or 64 bit >     */
+    BOOL               skip_cmu_cfg;   /* Enable/disable CMU configuration for this serdes*/
     vtss_sd10g28_cmu_t cmu_sel;        /* This needs to be handled based on the
                                           Device/Mode serdes uses*/
     BOOL                  no_pwrcycle; /**< Omit initial power-cycle > */
     vtss_sd10g28_ls_t     slave_loop;  /**< Enable input loop LS1/Ls2/LS3 >  */
     vtss_sd10g28_lm_t     master_loop; /**< Enable pad loop LM1  > */
     vtss_sd10g28_preset_t preset;      /**< Preset Media Type  >      */
-    BOOL                  txinvert; /**< Enable inversion of output data >    */
-    BOOL                  rxinvert; /**< Enable inversion of input data >    */
-    BOOL                  txmargin; /**< Set output level to  half/full    */
-    u16                   txswing;  /**< Set output level     */
+    BOOL                  txinvert;    /**< Enable inversion of output data >    */
+    BOOL                  rxinvert;    /**< Enable inversion of input data >    */
+    BOOL                  txmargin;    /**< Set output level to  half/full    */
+    u16                   txswing;     /**< Set output level     */
     u8                    dfe_enable;
-    BOOL mute; /**< Mute Output Buffer. >                                 */
-    BOOL is_6g;
+    BOOL                  mute; /**< Mute Output Buffer. >                                 */
+    BOOL                  is_6g;
 } vtss_sd10g28_setup_args_t;
 //
 typedef struct {
     vtss_sd10g28_mode_t mode; /**< Mode parameter. */
     // u32                  datarate;       /**< optional parameter; if this is
     // specified if_width must also be specified > */
-    u8 bitwidth; /**< UDL interface width 10, 16, 20, 32 or 64 bit > */
-    vtss_sd10g28_cmu_t
-         cmu_sel; /* This needs to handled based on the Device/Mode it used*/
-    BOOL skip_cmu_cfg; /* Enable/disable CMU configuration for this serdes*/
-    u8   rate;         /**< Rate of network interface >         */
-    u8   dfe_tap;      /**< Enable inversion of output data >      */
-    u8   pi_bw_gen1;   /**< Enable inversion of input data >   */
-    u8   duty_cycle;   /**< Set output level to  half/full   */
-    BOOL dfe_enable;
+    u8                 bitwidth;     /**< UDL interface width 10, 16, 20, 32 or 64 bit > */
+    vtss_sd10g28_cmu_t cmu_sel;      /* This needs to handled based on the Device/Mode it used*/
+    BOOL               skip_cmu_cfg; /* Enable/disable CMU configuration for this serdes*/
+    u8                 rate;         /**< Rate of network interface >         */
+    u8                 dfe_tap;      /**< Enable inversion of output data >      */
+    u8                 pi_bw_gen1;   /**< Enable inversion of input data >   */
+    u8                 duty_cycle;   /**< Set output level to  half/full   */
+    BOOL               dfe_enable;
 } vtss_sd10g28_mode_args_t;
 
 /** \brief return values of setup function */
@@ -253,7 +252,7 @@ typedef struct {
     u8 cfg_sum_setcm_en[1];
 
     // r_misc_reg
-    u8 cfg_en_preemph[1]; // Unused in current IP as per Tony 08/29/2018.
+    u8 cfg_en_preemph[1];            // Unused in current IP as per Tony 08/29/2018.
     u8 cfg_itx_ippreemp_base_1_0[1]; // Unused in current IP as per Tony
                                      // 08/29/2018.
 
@@ -266,10 +265,10 @@ typedef struct {
     u8 cfg_dis_2ndOrder[1];       //  2nd order CDR disable signal.
     u8 cfg_rx_ssc_lh[1];          //  CDR operation rate selection
     u8 cfg_pi_floop_steps_1_0[1]; //  Frequency loop PI step selection
-    u8 cfg_pi_ext_dac_23_16[1];  //  2nd order CDR digital lowpass filter select
-    u8 cfg_pi_ext_dac_15_8[1];   //  2nd order CDR digital lowpass filter select
-    u8 cfg_iscan_ext_dac_7_0[1]; // CDR clock phase tuning parameter; Silicon
-                                 // Dependend;
+    u8 cfg_pi_ext_dac_23_16[1];   //  2nd order CDR digital lowpass filter select
+    u8 cfg_pi_ext_dac_15_8[1];    //  2nd order CDR digital lowpass filter select
+    u8 cfg_iscan_ext_dac_7_0[1];  // CDR clock phase tuning parameter; Silicon
+                                  // Dependend;
 
     // RX CDR  and TX driver register Settings
     u8 cfg_cdr_kf_gen1_2_0[1]; // CDR 1st order Gain Adjust GEN1
@@ -375,8 +374,8 @@ typedef struct {
  *  Function prototypes
  * ================================================================= */
 
-vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                is_6g,
-                                        vtss_sd10g28_mode_t mode,
+vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
+                                        vtss_sd10g28_mode_t             mode,
                                         vtss_sd10g28_mode_args_t *const ret_val);
 
 // vtss_rc vtss_sd10g28_setup_tx_args_init(vtss_sd10g28_setup_tx_args_t *const
@@ -384,14 +383,11 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                is_6g,
 // vtss_sd10g28_setup_rx_args_init(vtss_sd10g28_setup_rx_args_t *const
 // init_val);
 
-vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t config,
+vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
                                      vtss_sd10g28_setup_struct_t *const ret_val);
 
-vtss_rc vtss_calc_sd10g28_cmu_type(int                            cmu_num,
-                                   vtss_sd10g28_cmu_type_t *const ret_val);
-vtss_rc vtss_calc_sd10g28_lane_pwr_down(vtss_sd10g28_lane_pwr_down_t
-                                            *const ret_val);
-vtss_rc vtss_calc_sd10g28_cmu_pwr_down(vtss_sd10g28_cmu_pwr_down_t
-                                           *const ret_val);
+vtss_rc vtss_calc_sd10g28_cmu_type(int cmu_num, vtss_sd10g28_cmu_type_t *const ret_val);
+vtss_rc vtss_calc_sd10g28_lane_pwr_down(vtss_sd10g28_lane_pwr_down_t *const ret_val);
+vtss_rc vtss_calc_sd10g28_cmu_pwr_down(vtss_sd10g28_cmu_pwr_down_t *const ret_val);
 
 #endif

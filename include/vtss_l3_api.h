@@ -315,8 +315,7 @@ vtss_rc vtss_l3_flush(const vtss_inst_t inst);
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_common_get(const vtss_inst_t            inst,
-                           vtss_l3_common_conf_t *const conf);
+vtss_rc vtss_l3_common_get(const vtss_inst_t inst, vtss_l3_common_conf_t *const conf);
 
 /**
  * \brief Set common router configuration.
@@ -326,8 +325,7 @@ vtss_rc vtss_l3_common_get(const vtss_inst_t            inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_common_set(const vtss_inst_t                  inst,
-                           const vtss_l3_common_conf_t *const conf);
+vtss_rc vtss_l3_common_set(const vtss_inst_t inst, const vtss_l3_common_conf_t *const conf);
 
 /**
  * \brief Get a specific configured router leg
@@ -350,8 +348,7 @@ vtss_rc vtss_l3_rleg_get_specific(const vtss_inst_t    inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_rleg_add(const vtss_inst_t                inst,
-                         const vtss_l3_rleg_conf_t *const conf);
+vtss_rc vtss_l3_rleg_add(const vtss_inst_t inst, const vtss_l3_rleg_conf_t *const conf);
 
 /**
  * \brief Update an existing router leg.
@@ -363,8 +360,7 @@ vtss_rc vtss_l3_rleg_add(const vtss_inst_t                inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_rleg_update(const vtss_inst_t                inst,
-                            const vtss_l3_rleg_conf_t *const conf);
+vtss_rc vtss_l3_rleg_update(const vtss_inst_t inst, const vtss_l3_rleg_conf_t *const conf);
 
 /**
  * \brief Delete a router leg associated with VLAN
@@ -384,8 +380,7 @@ vtss_rc vtss_l3_rleg_del(const vtss_inst_t inst, const vtss_vid_t vlan);
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_route_add(const vtss_inst_t                 inst,
-                          const vtss_routing_entry_t *const entry);
+vtss_rc vtss_l3_route_add(const vtss_inst_t inst, const vtss_routing_entry_t *const entry);
 
 /**
  * \brief Add a list of routes
@@ -410,8 +405,7 @@ vtss_rc vtss_l3_route_bulk_add(const vtss_inst_t           inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_route_del(const vtss_inst_t                 inst,
-                          const vtss_routing_entry_t *const entry);
+vtss_rc vtss_l3_route_del(const vtss_inst_t inst, const vtss_routing_entry_t *const entry);
 
 /**
  * \brief Deletes a list of routes
@@ -436,8 +430,7 @@ vtss_rc vtss_l3_route_bulk_del(const vtss_inst_t           inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_neighbour_add(const vtss_inst_t                inst,
-                              const vtss_l3_neighbour_t *const entry);
+vtss_rc vtss_l3_neighbour_add(const vtss_inst_t inst, const vtss_l3_neighbour_t *const entry);
 
 /**
  * \brief Delete an entry from the neighbour  cache.
@@ -447,8 +440,7 @@ vtss_rc vtss_l3_neighbour_add(const vtss_inst_t                inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_neighbour_del(const vtss_inst_t                inst,
-                              const vtss_l3_neighbour_t *const entry);
+vtss_rc vtss_l3_neighbour_del(const vtss_inst_t inst, const vtss_l3_neighbour_t *const entry);
 
 /**
  * \brief Add an multicast entry to the routing table
@@ -458,8 +450,7 @@ vtss_rc vtss_l3_neighbour_del(const vtss_inst_t                inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_mc_route_add(const vtss_inst_t                    inst,
-                             const vtss_routing_mc_entry_t *const entry);
+vtss_rc vtss_l3_mc_route_add(const vtss_inst_t inst, const vtss_routing_mc_entry_t *const entry);
 
 /**
  * \brief Delete an entry from the multicast routing table
@@ -469,8 +460,7 @@ vtss_rc vtss_l3_mc_route_add(const vtss_inst_t                    inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_mc_route_del(const vtss_inst_t                    inst,
-                             const vtss_routing_mc_entry_t *const entry);
+vtss_rc vtss_l3_mc_route_del(const vtss_inst_t inst, const vtss_routing_mc_entry_t *const entry);
 
 /**
  * \brief Get activity status on a mc route, i.e. if it has been used by mc
@@ -484,7 +474,7 @@ vtss_rc vtss_l3_mc_route_del(const vtss_inst_t                    inst,
  **/
 vtss_rc vtss_l3_mc_route_active_get(const vtss_inst_t                    inst,
                                     const vtss_routing_mc_entry_t *const entry,
-                                    BOOL *const active);
+                                    BOOL *const                          active);
 
 /**
  * \brief Add an router leg to an existing routing entry
@@ -497,7 +487,7 @@ vtss_rc vtss_l3_mc_route_active_get(const vtss_inst_t                    inst,
  **/
 vtss_rc vtss_l3_mc_route_rleg_add(const vtss_inst_t                    inst,
                                   const vtss_routing_mc_entry_t *const entry,
-                                  const vtss_vid_t dest_rleg);
+                                  const vtss_vid_t                     dest_rleg);
 
 /**
  * \brief Remove an router leg from an routing entry
@@ -510,7 +500,7 @@ vtss_rc vtss_l3_mc_route_rleg_add(const vtss_inst_t                    inst,
  **/
 vtss_rc vtss_l3_mc_route_rleg_del(const vtss_inst_t                    inst,
                                   const vtss_routing_mc_entry_t *const entry,
-                                  const vtss_vid_t dest_rleg);
+                                  const vtss_vid_t                     dest_rleg);
 
 /**
  * \brief Reset all routing leg statistics counters
@@ -529,8 +519,7 @@ vtss_rc vtss_l3_counters_reset(const vtss_inst_t inst);
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_counters_system_get(const vtss_inst_t         inst,
-                                    vtss_l3_counters_t *const counters);
+vtss_rc vtss_l3_counters_system_get(const vtss_inst_t inst, vtss_l3_counters_t *const counters);
 
 /**
  * \brief Get routing legs counters
@@ -553,8 +542,7 @@ vtss_rc vtss_l3_counters_rleg_get(const vtss_inst_t         inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_l3_counters_rleg_clear(const vtss_inst_t inst,
-                                    const vtss_vid_t  vlan);
+vtss_rc vtss_l3_counters_rleg_clear(const vtss_inst_t inst, const vtss_vid_t vlan);
 
 #ifdef __cplusplus
 }

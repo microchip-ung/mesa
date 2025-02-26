@@ -92,9 +92,8 @@ static void mesa_printf_trace_head(const mesa_trace_layer_t layer,
                                    const char              *lcont)
 {
     printf_trace_head(layer == MESA_TRACE_LAYER_AIL ? "ail" : "cil",
-                      group < TRACE_GROUP_CNT ? trace_groups_ail[group].name
-                                              : "?",
-                      level, file, line, function, lcont);
+                      group < TRACE_GROUP_CNT ? trace_groups_ail[group].name : "?", level, file,
+                      line, function, lcont);
 }
 
 void mesa_callout_trace_printf(const mesa_trace_layer_t layer,
@@ -124,8 +123,7 @@ void mscc_appl_trace_printf(const char              *mname,
     va_list args;
 
     va_start(args, format);
-    mscc_appl_trace_vprintf(mname, gname, level, file, line, function, format,
-                            args);
+    mscc_appl_trace_vprintf(mname, gname, level, file, line, function, format, args);
     va_end(args);
 }
 
@@ -141,16 +139,14 @@ void mscc_phy_vtrace_printf(mepa_trace_group_t group,
     mesa_trace_level_t lvl;
 
     // Map from MEPA to MESA trace group/level
-    grp = (group == MEPA_TRACE_GRP_TS ? MESA_TRACE_GROUP_TS
-                                      : MESA_TRACE_GROUP_PHY);
+    grp = (group == MEPA_TRACE_GRP_TS ? MESA_TRACE_GROUP_TS : MESA_TRACE_GROUP_PHY);
     lvl = (level > MEPA_TRACE_LVL_ERROR     ? MESA_TRACE_LEVEL_NONE
            : level > MEPA_TRACE_LVL_WARNING ? MESA_TRACE_LEVEL_ERROR
            : level > MEPA_TRACE_LVL_DEBUG   ? MESA_TRACE_LEVEL_INFO
            : level > MEPA_TRACE_LVL_NOISE   ? MESA_TRACE_LEVEL_DEBUG
                                             : MESA_TRACE_LEVEL_NOISE);
     if (trace_groups_cil[grp].level >= lvl) {
-        mesa_callout_trace_printf(layer, grp, lvl, "x.c", line, location,
-                                  format, args);
+        mesa_callout_trace_printf(layer, grp, lvl, "x.c", line, location, format, args);
     }
 }
 
@@ -170,8 +166,8 @@ void mscc_phy_trace_printf(mepa_trace_group_t group,
 
 void mscc_mepa_trace_printf(const mepa_trace_data_t *data, va_list args)
 {
-    mscc_phy_vtrace_printf(data->group, data->level, data->location, data->line,
-                           data->format, args);
+    mscc_phy_vtrace_printf(data->group, data->level, data->location, data->line, data->format,
+                           args);
 }
 
 void mscc_appl_trace_vprintf(const char              *mname,
@@ -258,14 +254,12 @@ static void trace_control(char              *module_name,
     mesa_trace_conf_t         conf;
 
     for (module = trace_module_list; module != NULL; module = module->next) {
-        if (strlen(module_name) != 0 &&
-            strstr(module->name, module_name) != module->name) {
+        if (strlen(module_name) != 0 && strstr(module->name, module_name) != module->name) {
             continue;
         }
 
         for (group = module->group_list; group != NULL; group = group->next) {
-            if (strlen(group_name) != 0 &&
-                strstr(group->name, group_name) != group->name) {
+            if (strlen(group_name) != 0 && strstr(group->name, group_name) != group->name) {
                 continue;
             }
             if (set) {
@@ -309,10 +303,7 @@ static cli_cmd_t cli_cmd_table[] = {
      "Set or show the trace level for group", cli_cmd_debug_trace},
 };
 
-static int cli_parm_wildcard(cli_req_t *req)
-{
-    return (strcmp(req->cmd, "*") == 0);
-}
+static int cli_parm_wildcard(cli_req_t *req) { return (strcmp(req->cmd, "*") == 0); }
 
 static int cli_parm_trace_module(cli_req_t *req)
 {
@@ -386,10 +377,9 @@ static int cli_parm_keyword(cli_req_t *req)
 }
 
 static cli_parm_t cli_parm_table[] = {
-    {"<module>", "Trace module, default: All modules", CLI_PARM_FLAG_NONE,
-     cli_parm_trace_module},
-    {"<group>", "Trace group name, default: All groups", CLI_PARM_FLAG_NONE,
-     cli_parm_trace_group, cli_cmd_debug_trace},
+    {"<module>", "Trace module, default: All modules", CLI_PARM_FLAG_NONE, cli_parm_trace_module},
+    {"<group>", "Trace group name, default: All groups", CLI_PARM_FLAG_NONE, cli_parm_trace_group,
+     cli_cmd_debug_trace},
     {"off|error|info|debug|noise",
      "off     : No trace\n"
      "error   : Error trace level\n"
@@ -452,12 +442,11 @@ void mscc_appl_trace_register(mscc_appl_trace_module_t *module,
     module->group_list = NULL;
     for (i = 0; i < group_count; i++) {
         group = &group_table[i];
-        for (cur = module->group_list, prev = NULL; cur != NULL;
-             prev = cur, cur = cur->next) {
+        for (cur = module->group_list, prev = NULL; cur != NULL; prev = cur, cur = cur->next) {
             cmp = strcmp(cur->name, group->name);
             if (cmp == 0) {
-                fprintf(stderr, "duplicate trace group: %s for module: %s\n",
-                        cur->name, module->name);
+                fprintf(stderr, "duplicate trace group: %s for module: %s\n", cur->name,
+                        module->name);
                 return;
             } else if (cmp > 0) {
                 // Found greater name
@@ -513,8 +502,7 @@ static mesa_rc trace_option(char *parm)
 
 static mscc_appl_opt_t trace_opt = {
     "t:", "<module>:<group>:<level>",
-    "Set trace level for <module> and <group>, use '*' for wildcard",
-    trace_option};
+    "Set trace level for <module> and <group>, use '*' for wildcard", trace_option};
 
 void mscc_appl_trace_init(mscc_appl_init_t *init)
 {
@@ -526,10 +514,8 @@ void mscc_appl_trace_init(mscc_appl_init_t *init)
         for (i = 0; i < TRACE_GROUP_CNT; i++) {
             trace_groups_cil[i] = trace_groups_ail[i];
         }
-        mscc_appl_trace_register(&trace_module_ail, trace_groups_ail,
-                                 TRACE_GROUP_CNT);
-        mscc_appl_trace_register(&trace_module_cil, trace_groups_cil,
-                                 TRACE_GROUP_CNT);
+        mscc_appl_trace_register(&trace_module_ail, trace_groups_ail, TRACE_GROUP_CNT);
+        mscc_appl_trace_register(&trace_module_cil, trace_groups_cil, TRACE_GROUP_CNT);
 
         // Register startup options
         mscc_appl_opt_reg(&trace_opt);

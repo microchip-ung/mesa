@@ -35,10 +35,9 @@
 /* ================================================================= *
  *  Helper functions
  * ================================================================= */
-static vtss_rc vtss_sd10g65_jaguar2_apc_print_results(vtss_state_t *vtss_state,
-                                                      const vtss_port_no_t
-                                                                 port_no,
-                                                      const BOOL header)
+static vtss_rc vtss_sd10g65_jaguar2_apc_print_results(vtss_state_t        *vtss_state,
+                                                      const vtss_port_no_t port_no,
+                                                      const BOOL           header)
 {
     u32 tgt_dig;
     u32 rd_val;
@@ -65,29 +64,21 @@ static vtss_rc vtss_sd10g65_jaguar2_apc_print_results(vtss_state_t *vtss_state,
     tgt_dig = VTSS_TO_10G_APC_TGT(port_no);
 
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig), &rd_val);
-    freeze_apc =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC(rd_val);
+    freeze_apc = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC(rd_val);
     JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0(tgt_dig),
             VTSS_F_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC(1),
             VTSS_M_SD10G65_DIG_SD10G65_APC_APC_COMMON_CFG0_FREEZE_APC);
 
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS(tgt_dig), &rd_val);
-    eqz_gain =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_EQZ_GAIN_ACTVAL(
-            rd_val);
+    eqz_gain = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_EQZ_GAIN_ACTVAL(rd_val);
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS(tgt_dig), &rd_val);
-    eqz_gain_adj =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_EQZ_GAIN_ADJ_ACTVAL(
-            rd_val);
+    eqz_gain_adj = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_EQZ_GAIN_ADJ_ACTVAL(rd_val);
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS(tgt_dig), &rd_val);
-    ld_lev =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_LD_LEV_ACTVAL(rd_val);
+    ld_lev = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_CTRL_STATUS_LD_LEV_ACTVAL(rd_val);
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL(tgt_dig), &rd_val);
-    eqz_offs =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL_EQZ_OFFS_ACTVAL(rd_val);
+    eqz_offs = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_OFFS_CTRL_EQZ_OFFS_ACTVAL(rd_val);
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL(tgt_dig), &rd_val);
-    eqz_agc =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_ACTVAL(rd_val);
+    eqz_agc = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_ACTVAL(rd_val);
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig), &rd_val);
     eqz_c = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_ACTVAL(rd_val);
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig), &rd_val);
@@ -116,18 +107,16 @@ static vtss_rc vtss_sd10g65_jaguar2_apc_print_results(vtss_state_t *vtss_state,
         VTSS_I(
             "---------------------   Printing LC-softcontrol results for SerDes #%d (Port #%d) ----------------------",
             port_no, port_no + 1);
-        VTSS_I("# %4s  %8s  %7s  %6s  %5s  %5s  %5s  %5s  %5s  %5s  %5s  %5s",
-               "gain", "gain_adj", "lev_det", "offs", "agc", "l", "c", "dfe1",
-               "dfe2", "dfe3", "dfe4", "D/dfe");
+        VTSS_I("# %4s  %8s  %7s  %6s  %5s  %5s  %5s  %5s  %5s  %5s  %5s  %5s", "gain", "gain_adj",
+               "lev_det", "offs", "agc", "l", "c", "dfe1", "dfe2", "dfe3", "dfe4", "D/dfe");
     }
-    VTSS_I("# %4d  %8d  %7d  %6d  %5d  %5d  %5d  %5d  %5d  %5d  %5d  %5d",
-           eqz_gain, eqz_gain_adj, ld_lev, eqz_offs, eqz_agc, eqz_l, eqz_c,
-           dfe1, dfe2, dfe3, dfe4, d_dfe);
+    VTSS_I("# %4d  %8d  %7d  %6d  %5d  %5d  %5d  %5d  %5d  %5d  %5d  %5d", eqz_gain, eqz_gain_adj,
+           ld_lev, eqz_offs, eqz_agc, eqz_l, eqz_c, dfe1, dfe2, dfe3, dfe4, d_dfe);
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_sd10g65_jaguar2_lc_softctrl_args_init(
-    vtss_sd10g65_jaguar2_lc_softctrl_args_t *const init_val)
+vtss_rc vtss_sd10g65_jaguar2_lc_softctrl_args_init(vtss_sd10g65_jaguar2_lc_softctrl_args_t
+                                                       *const init_val)
 {
 
     init_val->mode = 1;
@@ -144,10 +133,9 @@ vtss_rc vtss_sd10g65_jaguar2_lc_softctrl_args_init(
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(
-    vtss_state_t                                 *vtss_state,
-    const vtss_sd10g65_jaguar2_lc_softctrl_args_t config,
-    const vtss_port_no_t                          port_no)
+vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(vtss_state_t                                 *vtss_state,
+                                         const vtss_sd10g65_jaguar2_lc_softctrl_args_t config,
+                                         const vtss_port_no_t                          port_no)
 {
     u32 tgt_dig;
     u32 rd_val;
@@ -165,8 +153,7 @@ vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(
     tgt_dig = VTSS_TO_10G_APC_TGT(port_no);
 
     if ((config.mode < 1) || (config.mode > 2)) {
-        VTSS_E("vtss_sd10g65_jaguar2_lc_softctrl: illegal mode selected %u",
-               config.mode);
+        VTSS_E("vtss_sd10g65_jaguar2_lc_softctrl: illegal mode selected %u", config.mode);
         return VTSS_RC_ERROR;
     }
 
@@ -176,24 +163,18 @@ vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(
 
     /* get min/max values for L and C */
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG(tgt_dig), &rd_val);
-    eqz_l_max =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MAX(rd_val);
-    eqz_l_min =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MIN(rd_val);
+    eqz_l_max = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MAX(rd_val);
+    eqz_l_min = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_MIN(rd_val);
     JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG(tgt_dig), &rd_val);
-    eqz_c_max =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MAX(rd_val);
-    eqz_c_min =
-        VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MIN(rd_val);
+    eqz_c_max = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MAX(rd_val);
+    eqz_c_min = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_MIN(rd_val);
 
     for (iter = 0; iter < config.iterations; iter++) {
         JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig), &rd_val);
-        eqz_l =
-            VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_ACTVAL(rd_val);
+        eqz_l = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_ACTVAL(rd_val);
 
         JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig), &rd_val);
-        eqz_c =
-            VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_ACTVAL(rd_val);
+        eqz_c = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_ACTVAL(rd_val);
 
         JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL(tgt_dig), &rd_val);
         dfe1 = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_DFE1_CTRL_DFE1_ACTVAL(rd_val);
@@ -204,30 +185,23 @@ vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(
         if (config.mode == 1) {
             /******************************************************* */
             /* eqz_l_control */
-            if ((dfe1 < (config.dfe1_target - (eqz_l / config.eqz_l_div))) &&
-                (eqz_l < eqz_l_max)) {
+            if ((dfe1 < (config.dfe1_target - (eqz_l / config.eqz_l_div))) && (eqz_l < eqz_l_max)) {
                 eqz_l++;
-            } else if ((dfe1 >
-                        (config.dfe1_target - (eqz_l / config.eqz_l_div))) &&
+            } else if ((dfe1 > (config.dfe1_target - (eqz_l / config.eqz_l_div))) &&
                        (eqz_l > eqz_l_min)) {
                 eqz_l--;
             }
             /******************************************************* */
             /* eqz_c_control */
-            if ((dfe2 < (config.dfe2_target + (eqz_l / config.eqz_l_div))) &&
-                (eqz_c < eqz_c_max)) {
+            if ((dfe2 < (config.dfe2_target + (eqz_l / config.eqz_l_div))) && (eqz_c < eqz_c_max)) {
                 eqz_c++;
-            } else if ((dfe2 >
-                        (config.dfe2_target + (eqz_l / config.eqz_l_div))) &&
+            } else if ((dfe2 > (config.dfe2_target + (eqz_l / config.eqz_l_div))) &&
                        (eqz_c > eqz_c_min)) {
                 eqz_c--;
             }
         } else { /*config.mode == 2*/
-            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL(tgt_dig),
-                   &rd_val);
-            eqz_agc =
-                VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_ACTVAL(
-                    rd_val);
+            JR2_RD(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL(tgt_dig), &rd_val);
+            eqz_agc = VTSS_X_SD10G65_DIG_SD10G65_APC_APC_EQZ_AGC_CTRL_EQZ_AGC_ACTVAL(rd_val);
 
             /******************************************************* */
             /* eqz_l_control */
@@ -236,8 +210,7 @@ vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(
             } else if ((dfe1 <= config.dfe1_target - config.dfe1_threshold) &&
                        (eqz_l < eqz_l_max)) {
                 eqz_l++;
-            } else if ((dfe1 > config.dfe1_target + config.dfe1_threshold) &&
-                       (eqz_l > eqz_l_min)) {
+            } else if ((dfe1 > config.dfe1_target + config.dfe1_threshold) && (eqz_l > eqz_l_min)) {
                 eqz_l--;
             }
             /******************************************************* */
@@ -247,8 +220,7 @@ vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(
             } else if ((dfe2 <= config.dfe2_target - config.dfe2_threshold) &&
                        (eqz_c < eqz_c_max)) {
                 eqz_c++;
-            } else if ((dfe2 > config.dfe2_target + config.dfe2_threshold) &&
-                       (eqz_c > eqz_c_min)) {
+            } else if ((dfe2 > config.dfe2_target + config.dfe2_threshold) && (eqz_c > eqz_c_min)) {
                 eqz_c--;
             }
         }
@@ -265,33 +237,27 @@ vtss_rc vtss_sd10g65_jaguar2_lc_softctrl(
         if (iter == 0) {
             /* stop automatic control of L and C via pattern matching */
             /* (needs to be done only after the 1st iterations) */
-            JR2_WRM(
-                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG(tgt_dig),
-                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE(
-                    1),
-                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE); /* use fix values */
-            JR2_WRM(
-                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG(tgt_dig),
-                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE(
-                    1),
-                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE); /* use fix values */
-            JR2_WRM(
-                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig),
-                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE(0),
-                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE); /* no auto-ctrl */
-            JR2_WRM(
-                VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig),
-                VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE(0),
-                VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE); /* no auto-ctrl */
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE(1),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_PAR_CFG_EQZ_L_CHG_MODE); /* use fix
+                                                                                         values */
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE(1),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_PAR_CFG_EQZ_C_CHG_MODE); /* use fix
+                                                                                         values */
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE(0),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_L_CTRL_EQZ_L_SYNC_MODE); /* no auto-ctrl */
+            JR2_WRM(VTSS_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL(tgt_dig),
+                    VTSS_F_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE(0),
+                    VTSS_M_SD10G65_DIG_SD10G65_APC_APC_EQZ_C_CTRL_EQZ_C_SYNC_MODE); /* no auto-ctrl */
 
             if (config.observe == TRUE) {
-                vtss_sd10g65_jaguar2_apc_print_results(vtss_state, port_no,
-                                                       TRUE);
+                vtss_sd10g65_jaguar2_apc_print_results(vtss_state, port_no, TRUE);
             }
         } else {
             if (config.observe == TRUE) {
-                vtss_sd10g65_jaguar2_apc_print_results(vtss_state, port_no,
-                                                       FALSE);
+                vtss_sd10g65_jaguar2_apc_print_results(vtss_state, port_no, FALSE);
             }
         }
         /* wait n ms */

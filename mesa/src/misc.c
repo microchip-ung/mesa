@@ -5,30 +5,24 @@
 #include <vtss_api.h>
 #include <mesa.h>
 
-mesa_rc mesa_conv_vtss_symreg_data_t_to_mesa_symreg_data_t(
-    const vtss_symreg_data_t *in,
-    mesa_symreg_data_t       *out)
+mesa_rc mesa_conv_vtss_symreg_data_t_to_mesa_symreg_data_t(const vtss_symreg_data_t *in,
+                                                           mesa_symreg_data_t       *out)
 {
 #ifdef __cplusplus
-    static_assert(sizeof(vtss_symreg_data_t) == sizeof(mesa_symreg_data_t),
-                  "Check size");
-    static_assert(sizeof(vtss_symreg_target_t) == sizeof(mesa_symreg_target_t),
-                  "Check size");
+    static_assert(sizeof(vtss_symreg_data_t) == sizeof(mesa_symreg_data_t), "Check size");
+    static_assert(sizeof(vtss_symreg_target_t) == sizeof(mesa_symreg_target_t), "Check size");
 #endif
     const mesa_symreg_data_t *d = (const mesa_symreg_data_t *)in;
     *out = *d;
     return VTSS_RC_OK;
 }
 
-mesa_rc mesa_conv_mesa_symreg_data_t_to_vtss_symreg_data_t(
-    const mesa_symreg_data_t *in,
-    vtss_symreg_data_t       *out)
+mesa_rc mesa_conv_mesa_symreg_data_t_to_vtss_symreg_data_t(const mesa_symreg_data_t *in,
+                                                           vtss_symreg_data_t       *out)
 {
 #ifdef __cplusplus
-    static_assert(sizeof(vtss_symreg_data_t) == sizeof(mesa_symreg_data_t),
-                  "Check size");
-    static_assert(sizeof(vtss_symreg_target_t) == sizeof(mesa_symreg_target_t),
-                  "Check size");
+    static_assert(sizeof(vtss_symreg_data_t) == sizeof(mesa_symreg_data_t), "Check size");
+    static_assert(sizeof(vtss_symreg_target_t) == sizeof(mesa_symreg_target_t), "Check size");
 #endif
     const vtss_symreg_data_t *d = (const vtss_symreg_data_t *)in;
     *out = *d;
@@ -45,11 +39,10 @@ mesa_rc mesa_sgpio_read(const mesa_inst_t        inst,
     vtss_sgpio_port_data_t vtss_data[VTSS_SGPIO_PORTS];
     uint32_t               port;
 
-    if ((rc = vtss_sgpio_read((const vtss_inst_t)inst, chip_no, group,
-                              vtss_data)) == VTSS_RC_OK) {
+    if ((rc = vtss_sgpio_read((const vtss_inst_t)inst, chip_no, group, vtss_data)) == VTSS_RC_OK) {
         for (port = 0; port < VTSS_SGPIO_PORTS; port++) {
-            mesa_conv_vtss_sgpio_port_data_t_to_mesa_sgpio_port_data_t(
-                &vtss_data[port], &data[port]);
+            mesa_conv_vtss_sgpio_port_data_t_to_mesa_sgpio_port_data_t(&vtss_data[port],
+                                                                       &data[port]);
         }
     }
     return rc;
@@ -86,8 +79,7 @@ void vtss_callout_trace_printf(const vtss_trace_layer_t layer,
     mesa_conv_vtss_trace_group_t_to_mesa_trace_group_t(&group, &m_group);
     mesa_conv_vtss_trace_level_t_to_mesa_trace_level_t(&level, &m_level);
     va_start(args, format);
-    mesa_callout_trace_printf(m_layer, m_group, m_level, file, line, function,
-                              format, args);
+    mesa_callout_trace_printf(m_layer, m_group, m_level, file, line, function, format, args);
     va_end(args);
 }
 
@@ -107,8 +99,7 @@ void vtss_callout_trace_hex_dump(const vtss_trace_layer_t layer,
     mesa_conv_vtss_trace_layer_t_to_mesa_trace_layer_t(&layer, &m_layer);
     mesa_conv_vtss_trace_group_t_to_mesa_trace_group_t(&group, &m_group);
     mesa_conv_vtss_trace_level_t_to_mesa_trace_level_t(&level, &m_level);
-    mesa_callout_trace_hex_dump(m_layer, m_group, m_level, file, line, function,
-                                byte_p, byte_cnt);
+    mesa_callout_trace_hex_dump(m_layer, m_group, m_level, file, line, function, byte_p, byte_cnt);
 }
 
 void vtss_callout_lock(const vtss_api_lock_t *const lock)

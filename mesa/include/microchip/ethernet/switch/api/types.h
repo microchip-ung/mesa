@@ -12,8 +12,7 @@
 // Policer packet rate in PPS
 typedef uint32_t mesa_packet_rate_t;
 
-#define MESA_PACKET_RATE_DISABLED                                              \
-    0xffffffff // Special value for disabling packet policer
+#define MESA_PACKET_RATE_DISABLED 0xffffffff // Special value for disabling packet policer
 
 // Physical port number
 typedef uint32_t mesa_phys_port_no_t;
@@ -87,8 +86,8 @@ typedef uint32_t mesa_burst_level_t;
 typedef enum {
     MESA_STORM_POLICER_MODE_PORTS_AND_CPU, // Police both CPU and front port
                                            // destinations
-    MESA_STORM_POLICER_MODE_PORTS_ONLY, // Police front port destinations only
-    MESA_STORM_POLICER_MODE_CPU_ONLY    // Police CPU destination only
+    MESA_STORM_POLICER_MODE_PORTS_ONLY,    // Police front port destinations only
+    MESA_STORM_POLICER_MODE_CPU_ONLY       // Police CPU destination only
 } mesa_storm_policer_mode_t;
 
 // DSCP value (0-63)
@@ -109,8 +108,7 @@ typedef uint16_t mesa_evc_policer_id_t;
 // WRED group number
 typedef uint32_t mesa_wred_group_t;
 
-#define MESA_QOS_MAP_ID_NONE                                                   \
-    0xfff // ID for unallocated/unused ingress or egress map
+#define MESA_QOS_MAP_ID_NONE 0xfff // ID for unallocated/unused ingress or egress map
 
 // Ingress map ID
 typedef uint16_t mesa_qos_ingress_map_id_t;
@@ -134,10 +132,10 @@ typedef struct {
  * VLAN types
  ****************************************************************************/
 
-#define MESA_VID_NULL     ((const mesa_vid_t)0)     // NULL VLAN ID
-#define MESA_VID_DEFAULT  ((const mesa_vid_t)1)     // Default VLAN ID
-#define MESA_VID_RESERVED ((const mesa_vid_t)0xFFF) // Reserved VLAN ID
-#define MESA_VIDS         ((const mesa_vid_t)4096)  // Number of VLAN IDs
+#define MESA_VID_NULL     ((const mesa_vid_t)0)      // NULL VLAN ID
+#define MESA_VID_DEFAULT  ((const mesa_vid_t)1)      // Default VLAN ID
+#define MESA_VID_RESERVED ((const mesa_vid_t)0xFFF)  // Reserved VLAN ID
+#define MESA_VIDS         ((const mesa_vid_t)4096)   // Number of VLAN IDs
 #define MESA_VID_ALL      ((const mesa_vid_t)0x1000) // Untagged VID: All VLAN IDs
 
 // VLAN acceptable frame type
@@ -388,28 +386,20 @@ typedef struct {
 
 // Routing interface statics counter
 typedef struct {
-    uint64_t
-        ipv4uc_received_octets; // IPv4UC octets received and hardware forwarded
-    uint64_t
-        ipv4uc_received_frames; // IPv4UC frames received and hardware forwarded
-    uint64_t
-        ipv6uc_received_octets; // IPv6UC octets received and hardware forwarded
-    uint64_t
-        ipv6uc_received_frames; // IPv6UC frames received and hardware forwarded
+    uint64_t ipv4uc_received_octets; // IPv4UC octets received and hardware forwarded
+    uint64_t ipv4uc_received_frames; // IPv4UC frames received and hardware forwarded
+    uint64_t ipv6uc_received_octets; // IPv6UC octets received and hardware forwarded
+    uint64_t ipv6uc_received_frames; // IPv6UC frames received and hardware forwarded
 
     uint64_t ipv4uc_transmitted_octets; // IPv4UC octets transmitted
     uint64_t ipv4uc_transmitted_frames; // IPv4UC frames transmitted
     uint64_t ipv6uc_transmitted_octets; // IPv6UC octets transmitted
     uint64_t ipv6uc_transmitted_frames; // IPv6UC frames transmitted
 
-    uint64_t
-        ipv4mc_received_octets; // IPv4MC octets received and hardware forwarded
-    uint64_t
-        ipv4mc_received_frames; // IPv4MC frames received and hardware forwarded
-    uint64_t
-        ipv6mc_received_octets; // IPv6MC octets received and hardware forwarded
-    uint64_t
-        ipv6mc_received_frames; // IPv6MC frames received and hardware forwarded
+    uint64_t ipv4mc_received_octets; // IPv4MC octets received and hardware forwarded
+    uint64_t ipv4mc_received_frames; // IPv4MC frames received and hardware forwarded
+    uint64_t ipv6mc_received_octets; // IPv6MC octets received and hardware forwarded
+    uint64_t ipv6mc_received_frames; // IPv6MC frames received and hardware forwarded
 
     uint64_t ipv4mc_transmitted_octets; // IPv4MC octets transmitted
     uint64_t ipv4mc_transmitted_frames; // IPv4MC frames transmitted
@@ -493,8 +483,8 @@ typedef enum {
     MESA_VCAP_VR_TYPE_VALUE_MASK,      // Used as value/mask
     MESA_VCAP_VR_TYPE_RANGE_INCLUSIVE, // Used as inclusive range: low <= range
                                        // <= high
-    MESA_VCAP_VR_TYPE_RANGE_EXCLUSIVE // Used as exclusive range: range < low or
-                                      // range > high
+    MESA_VCAP_VR_TYPE_RANGE_EXCLUSIVE  // Used as exclusive range: range < low or
+                                       // range > high
 } mesa_vcap_vr_type_t;
 
 // VCAP universal value or range type
@@ -576,24 +566,20 @@ typedef int64_t mesa_clk_adj_rate_t;
 #define MESA_ONE_MILL         1000000              // One million
 #define MESA_MAX_TIMEINTERVAL 0x7fffffffffffffffLL // Maximum time interval
 
-#define MESA_INTERVAL_SEC(t)                                                   \
+#define MESA_INTERVAL_SEC(t)                                                                       \
     ((int32_t)MESA_DIV64((t) >> 16, MESA_ONE_MIA)) // One Second time interval
-#define MESA_INTERVAL_MS(t)                                                    \
-    ((int32_t)MESA_DIV64((t) >> 16,                                            \
-                         MESA_ONE_MILL)) // One millisecond time interval
-#define MESA_INTERVAL_US(t)                                                    \
-    ((int32_t)MESA_DIV64((t) >> 16, 1000)) // One microsecond time interval
-#define MESA_INTERVAL_NS(t)                                                    \
-    ((int32_t)MESA_MOD64((t) >> 16,                                            \
-                         MESA_ONE_MIA)) // This returns the ns part of the
-                                        // interval, not the total number of ns
-#define MESA_INTERVAL_PS(t)                                                    \
-    (((((int32_t)(t & 0xffff)) * 1000) + 0x8000) /                             \
+#define MESA_INTERVAL_MS(t)                                                                        \
+    ((int32_t)MESA_DIV64((t) >> 16, MESA_ONE_MILL))                // One millisecond time interval
+#define MESA_INTERVAL_US(t) ((int32_t)MESA_DIV64((t) >> 16, 1000)) // One microsecond time interval
+#define MESA_INTERVAL_NS(t)                                                                        \
+    ((int32_t)MESA_MOD64((t) >> 16, MESA_ONE_MIA)) // This returns the ns part of the
+                                                   // interval, not the total number of ns
+#define MESA_INTERVAL_PS(t)                                                                        \
+    (((((int32_t)(t & 0xffff)) * 1000) + 0x8000) /                                                 \
      0x10000) // This returns the ps part of the interval, not the total number
               // of ps
-#define MESA_SEC_NS_INTERVAL(s, n)                                             \
-    (((mesa_timeinterval_t)(n) + (mesa_timeinterval_t)(s) * MESA_ONE_MIA)      \
-     << 16) // TBD
+#define MESA_SEC_NS_INTERVAL(s, n)                                                                 \
+    (((mesa_timeinterval_t)(n) + (mesa_timeinterval_t)(s) * MESA_ONE_MIA) << 16) // TBD
 
 // Time stamp in seconds and nanoseconds
 typedef struct {

@@ -74,9 +74,8 @@ typedef struct {
     uint8_t auto_copy_lbr     CAP(VOP_V2); // PDU Loop Back Reply
 
     // CPU extraction queues to use for the various packet types
-    mesa_packet_rx_queue_t voe_queue_ccm;
-    mesa_packet_rx_queue_t voe_queue_lt
-        CAP(VOP_CFM); // LTM, LTR common settings
+    mesa_packet_rx_queue_t               voe_queue_ccm;
+    mesa_packet_rx_queue_t voe_queue_lt  CAP(VOP_CFM); // LTM, LTR common settings
     mesa_packet_rx_queue_t voe_queue_lbm CAP(VOP_CFM);
     mesa_packet_rx_queue_t voe_queue_lbr CAP(VOP_CFM);
     mesa_packet_rx_queue_t voe_queue_aps CAP(VOP_CFM); // LAPS and RAPS
@@ -88,11 +87,9 @@ typedef struct {
 // Set VOP configuration.
 // inst [IN] Target instance reference.
 // conf [IN] New configuration for the VOP.
-mesa_rc mesa_vop_conf_set(const mesa_inst_t            inst,
-                          const mesa_vop_conf_t *const conf) CAP(VOP);
+mesa_rc mesa_vop_conf_set(const mesa_inst_t inst, const mesa_vop_conf_t *const conf) CAP(VOP);
 
-mesa_rc mesa_vop_conf_get(const mesa_inst_t inst, mesa_vop_conf_t *const conf)
-    CAP(VOP);
+mesa_rc mesa_vop_conf_get(const mesa_inst_t inst, mesa_vop_conf_t *const conf) CAP(VOP);
 
 // -------------------------------------------------------------------------
 // --- VOE - Versatile OAM End point ---------------------------------------
@@ -127,8 +124,7 @@ mesa_rc mesa_voe_alloc(const mesa_inst_t                  inst,
 // Free a VOE.
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of previously allocated VOE instance.
-mesa_rc mesa_voe_free(const mesa_inst_t inst, const mesa_voe_idx_t voe_idx)
-    CAP(VOP);
+mesa_rc mesa_voe_free(const mesa_inst_t inst, const mesa_voe_idx_t voe_idx) CAP(VOP);
 
 // Kind of DMAC check to perform on incoming OAM PDUs.
 // When DMAC check is failing the frame is discarded
@@ -137,24 +133,22 @@ typedef enum {
                                    // 'unicast_mac'. Multicast is discarded.
     MESA_VOE_DMAC_CHECK_MULTICAST, // Check multicast DMAC against VOP configured
                                    // 'multicast_dmac'. Unicast is discarded.
-    MESA_VOE_DMAC_CHECK_BOTH, // Check both unicast and multicast DMAC.
-    MESA_VOE_DMAC_CHECK_NONE  // No Check of DMAC.
+    MESA_VOE_DMAC_CHECK_BOTH,      // Check both unicast and multicast DMAC.
+    MESA_VOE_DMAC_CHECK_NONE       // No Check of DMAC.
 } mesa_voe_dmac_check_t CAP(VOP);
 
 // VOE Basic configuration structure.
 typedef struct {
-    mesa_bool_t           enable;          // Enable the VOE
-    mesa_mac_t            unicast_mac;     // The VOE unicast MAC
-    uint8_t               meg_level;       // MEG Level (MEL)
-    mesa_voe_dmac_check_t dmac_check_type; // Kind of DMAC check to perform
-    mesa_iflow_id_t loop_iflow_id
-        CAP(VOP_CFM); // Loop ingress flow ID or MESA_IFLOW_ID_NONE
+    mesa_bool_t                   enable;          // Enable the VOE
+    mesa_mac_t                    unicast_mac;     // The VOE unicast MAC
+    uint8_t                       meg_level;       // MEG Level (MEL)
+    mesa_voe_dmac_check_t         dmac_check_type; // Kind of DMAC check to perform
+    mesa_iflow_id_t loop_iflow_id CAP(VOP_CFM);    // Loop ingress flow ID or MESA_IFLOW_ID_NONE
 
     // Block OAM PDUs with MEG level higher than the VOE MEG level
     mesa_bool_t block_mel_high CAP(VOP_V2);
 
-    mesa_port_max_tags_t tagging
-        CAP(VOP_TAGGING); // OAM PDU is behind this many tags
+    mesa_port_max_tags_t tagging CAP(VOP_TAGGING); // OAM PDU is behind this many tags
 } mesa_voe_conf_t CAP(VOP);
 
 // Set VOE Basic configuration.
@@ -241,8 +235,8 @@ mesa_rc mesa_voe_cc_rdi_get(const mesa_inst_t    inst,
 // VOE Continuity Check copy next received CC PDU to CPU set.
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of the VOE instance.
-mesa_rc mesa_voe_cc_cpu_copy_next_set(const mesa_inst_t    inst,
-                                      const mesa_voe_idx_t voe_idx) CAP(VOP);
+mesa_rc mesa_voe_cc_cpu_copy_next_set(const mesa_inst_t inst, const mesa_voe_idx_t voe_idx)
+    CAP(VOP);
 
 // VOE Link Trace configuration.
 typedef struct {
@@ -318,8 +312,7 @@ typedef struct {
 // conf     [IN] Configuration parameters for LAPS.
 mesa_rc mesa_voe_laps_conf_set(const mesa_inst_t                 inst,
                                const mesa_voe_idx_t              voe_idx,
-                               const mesa_voe_laps_conf_t *const conf)
-    CAP(VOP_CFM);
+                               const mesa_voe_laps_conf_t *const conf) CAP(VOP_CFM);
 
 mesa_rc mesa_voe_laps_conf_get(const mesa_inst_t           inst,
                                const mesa_voe_idx_t        voe_idx,
@@ -334,8 +327,7 @@ typedef struct {
     mesa_bool_t tx_level_low_seen  CAP(VOP_CFM); // Tx with level low
     mesa_bool_t version_unexp_seen CAP(VOP_V2);
     mesa_bool_t rx_level_low_seen  CAP(VOP_V2); // Rx with level low
-    mesa_bool_t rx_level_high_seen
-        CAP(VOP_V2); // Only if 'block_mel_high' is configured
+    mesa_bool_t rx_level_high_seen CAP(VOP_V2); // Only if 'block_mel_high' is configured
 } mesa_voe_status_t CAP(VOP);
 
 // VOE status information get.
@@ -361,8 +353,7 @@ typedef struct {
     uint64_t tx_selected_counter CAP(VOP_CFM);
 
     // Rx/Tx PDUs that are discarded due to filtering
-    uint64_t rx_discard_counter
-        CAP(VOP_V2); // Check of MEL or DMAC or Version or CCM
+    uint64_t rx_discard_counter CAP(VOP_V2); // Check of MEL or DMAC or Version or CCM
     uint64_t tx_discard_counter CAP(VOP_V2); // Check of MEL
 } mesa_voe_counters_t CAP(VOP);
 
@@ -378,8 +369,7 @@ mesa_rc mesa_voe_counters_get(const mesa_inst_t    inst,
 // Clear counters in mesa_voe_counters_t
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of the VOE instance.
-mesa_rc mesa_voe_counters_clear(const mesa_inst_t    inst,
-                                const mesa_voe_idx_t voe_idx) CAP(VOP);
+mesa_rc mesa_voe_counters_clear(const mesa_inst_t inst, const mesa_voe_idx_t voe_idx) CAP(VOP);
 
 // VOE CC status
 typedef struct {
@@ -479,8 +469,7 @@ mesa_rc mesa_voe_cc_counters_get(const mesa_inst_t       inst,
 // Clear CC counters in mesa_voe_cc_counters_t
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of the VOE instance.
-mesa_rc mesa_voe_cc_counters_clear(const mesa_inst_t    inst,
-                                   const mesa_voe_idx_t voe_idx) CAP(VOP);
+mesa_rc mesa_voe_cc_counters_clear(const mesa_inst_t inst, const mesa_voe_idx_t voe_idx) CAP(VOP);
 
 // VOE Link Trace status
 typedef struct {
@@ -502,10 +491,9 @@ mesa_rc mesa_voe_lt_status_get(const mesa_inst_t     inst,
 typedef struct {
     // Indications that an LB PDU has been seen.
     // Are cleared during call to mesa_voe_lb_status_get()
-    mesa_bool_t lbm_seen;
-    mesa_bool_t lbr_seen;
-    mesa_bool_t trans_unexp_seen
-        CAP(VOP_V2); // LBR PDU with unexpected transaction ID
+    mesa_bool_t                  lbm_seen;
+    mesa_bool_t                  lbr_seen;
+    mesa_bool_t trans_unexp_seen CAP(VOP_V2); // LBR PDU with unexpected transaction ID
 
     uint32_t tx_trans_id; // The next transmitted transaction ID
     uint32_t rx_trans_id; // The last received transaction ID
@@ -523,12 +511,11 @@ mesa_rc mesa_voe_lb_status_get(const mesa_inst_t     inst,
 typedef struct {
     // LB PDU Rx and Tx counters
     // Are cleared during call to mesa_voe_lb_counters_clear()
-    uint64_t rx_lbr_counter;
-    uint64_t tx_lbm_counter;
-    uint64_t rx_lbr_oo_counter; // Out of Order sequence numbers counter
-    uint64_t rx_lbr_crc_counter
-                            CAP(VOP_V2); // Test TLV that has CRC error counter
-    uint64_t tx_lbr_counter CAP(VOP_V2);
+    uint64_t                    rx_lbr_counter;
+    uint64_t                    tx_lbm_counter;
+    uint64_t                    rx_lbr_oo_counter; // Out of Order sequence numbers counter
+    uint64_t rx_lbr_crc_counter CAP(VOP_V2);       // Test TLV that has CRC error counter
+    uint64_t tx_lbr_counter     CAP(VOP_V2);
 } mesa_voe_lb_counters_t CAP(VOP_CFM);
 
 // Get VOE Loop Back counters.
@@ -543,8 +530,8 @@ mesa_rc mesa_voe_lb_counters_get(const mesa_inst_t       inst,
 // Clear LB counters in mesa_voe_lb_status_t
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of the VOE instance.
-mesa_rc mesa_voe_lb_counters_clear(const mesa_inst_t    inst,
-                                   const mesa_voe_idx_t voe_idx) CAP(VOP_CFM);
+mesa_rc mesa_voe_lb_counters_clear(const mesa_inst_t inst, const mesa_voe_idx_t voe_idx)
+    CAP(VOP_CFM);
 
 // VOE Linear Automatic Protection Switch status
 typedef struct {
@@ -649,8 +636,7 @@ mesa_rc mesa_voi_alloc(const mesa_inst_t                  inst,
 // Free a VOI.
 // inst      [IN] Target instance reference.
 // voi_idx   [IN] Index of previously allocated VOI instance.
-mesa_rc mesa_voi_free(const mesa_inst_t inst, const mesa_voi_idx_t voi_idx)
-    CAP(VOP_V2);
+mesa_rc mesa_voi_free(const mesa_inst_t inst, const mesa_voi_idx_t voi_idx) CAP(VOP_V2);
 
 // VOI APS PDU handling.
 typedef enum {

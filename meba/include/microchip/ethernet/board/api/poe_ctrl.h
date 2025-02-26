@@ -116,8 +116,7 @@ typedef enum {
 
 // PoE Port status as defined by 802.3.
 typedef enum {
-    MEBA_POE_IEEE_PORT_STATE_NOT_SUPPORTED =
-        0, // no part of rfc3621 (not to be used)
+    MEBA_POE_IEEE_PORT_STATE_NOT_SUPPORTED = 0, // no part of rfc3621 (not to be used)
     MEBA_POE_IEEE_PORT_STATE_DISABLED = 1,
     MEBA_POE_IEEE_PORT_STATE_SEARCHING = 2,
     MEBA_POE_IEEE_PORT_STATE_DELIVERING_POWER = 3,
@@ -130,15 +129,15 @@ typedef enum {
  * \brief PoE Port status type
  */
 typedef enum {
-    MEBA_POE_UNKNOWN_STATE = 0,     // Unknown state.
-    MEBA_POE_POWER_BUDGET_EXCEEDED, // PoE is turned OFF due to power budget
-                                    // exceeded on PSE.
-    MEBA_POE_NO_PD_DETECTED,        // No PD detected.
-    MEBA_POE_PD_ON,                 // PSE supplying power to PD-BT through PoE.
-    MEBA_POE_PD_OVERLOAD,   // PD consumes more power than the maximum limit
-                            // configured on the PSE port.
-    MEBA_POE_NOT_SUPPORTED, // PoE feature is not supported.
-    MEBA_POE_DISABLED,      // PoE feature is disabled on PSE.
+    MEBA_POE_UNKNOWN_STATE = 0,           // Unknown state.
+    MEBA_POE_POWER_BUDGET_EXCEEDED,       // PoE is turned OFF due to power budget
+                                          // exceeded on PSE.
+    MEBA_POE_NO_PD_DETECTED,              // No PD detected.
+    MEBA_POE_PD_ON,                       // PSE supplying power to PD-BT through PoE.
+    MEBA_POE_PD_OVERLOAD,                 // PD consumes more power than the maximum limit
+                                          // configured on the PSE port.
+    MEBA_POE_NOT_SUPPORTED,               // PoE feature is not supported.
+    MEBA_POE_DISABLED,                    // PoE feature is disabled on PSE.
     MEBA_POE_DISABLED_INTERFACE_SHUTDOWN, // PoE disabled due to interface
                                           // shutdown
     MEBA_POE_PD_FAULT,                    // PoE PD fault
@@ -378,10 +377,7 @@ typedef enum {
     MEBA_POE_FIRMWARE_TYPE_BT
 } meba_poe_firmware_type_t;
 
-typedef enum {
-    MEBA_POE_PS_INTERNAL = 0,
-    MEBA_POE_PS_EXTERNAL
-} meba_power_supply_int_ext_t;
+typedef enum { MEBA_POE_PS_INTERNAL = 0, MEBA_POE_PS_EXTERNAL } meba_power_supply_int_ext_t;
 
 /**
  * \brief Types of port PoE mode
@@ -462,8 +458,8 @@ typedef struct {
     meba_poe_port_cable_length_t cable_length;
 
     uint8_t bt_en;
-    uint8_t ignored_inrush_check; // Inrush ignored CFG1[0..3] -  BT: 0x1 Legacy:
-                                  // 0x2     - set by Port Operation Mode AT/BT
+    uint8_t ignored_inrush_check;         // Inrush ignored CFG1[0..3] -  BT: 0x1 Legacy:
+                                          // 0x2     - set by Port Operation Mode AT/BT
     uint8_t ignore_pd_auto_class_request; //- set by AutoClass global var
     uint8_t bt_port_pm_mode;              //- meba_poe_bt_port_pm_mode_t
     uint8_t class_error_selection;        //- set by Port Operation Mode AT/BT
@@ -580,21 +576,19 @@ typedef struct // parameters taken from DB according to PN read from PoEMCU
                // serial number
 {
     mesa_bool_t use_poe_static_parameters;
-    uint8_t max_poe_ports; // Max number of POE channels ( 6/12/24/48) based on
-                           // product det (serial number)
+    uint8_t     max_poe_ports; // Max number of POE channels ( 6/12/24/48) based on
+                               // product det (serial number)
     meba_power_supply_int_ext_t ePower_supply_internal_external;
-    uint16_t power_supply_default_power_limit; // Midspan Power Supply
-                                               // Max-Power(Watt) - after
-                                               // decrementing internal power
-                                               // consumption ( 450 -> 430,etc )
-    uint16_t
-        power_supply_max_power_w; // Midspan maximum Power Supply power (Watt)
+    uint16_t                    power_supply_default_power_limit; // Midspan Power Supply
+                                                                  // Max-Power(Watt) - after
+                                                                  // decrementing internal power
+                                                                  // consumption ( 450 -> 430,etc )
+    uint16_t power_supply_max_power_w; // Midspan maximum Power Supply power (Watt)
     uint16_t power_supply_internal_pwr_usage;
 
-    char product_name_string[MAX_PORD_NAME_STR_LEN +
-                             1]; // Product name - retrieved from DB according
-                                 // to product being detected
-    meba_poe_firmware_type_t eMeba_poe_firmware_type; // AF/AT ,BT
+    char product_name_string[MAX_PORD_NAME_STR_LEN + 1]; // Product name - retrieved from DB
+                                                         // according to product being detected
+    meba_poe_firmware_type_t eMeba_poe_firmware_type;    // AF/AT ,BT
 } meba_poe_init_params_t;
 
 // PoE port pd version 3,4 data.
@@ -849,10 +843,9 @@ typedef struct {
 // Get PoE controller firmware version.
 // max_size [IN]  The maximum size of firmware version.
 // version  [OUT] The firmware version.
-typedef mesa_rc (*meba_poe_ctrl_version_get_t)(const meba_poe_ctrl_inst_t
-                                                   *const inst,
-                                               uint32_t   max_size,
-                                               char      *version);
+typedef mesa_rc (*meba_poe_ctrl_version_get_t)(const meba_poe_ctrl_inst_t *const inst,
+                                               uint32_t                          max_size,
+                                               char                             *version);
 
 // Firmware upgrade.
 //
@@ -874,11 +867,10 @@ typedef mesa_rc (*meba_poe_ctrl_version_get_t)(const meba_poe_ctrl_inst_t
 //                    not be interrupted.
 // size  [IN]  Size of date in bytes.
 // firmware [IN] Firmware to load.
-typedef mesa_rc (*meba_poe_ctrl_firmware_upgrade_t)(const meba_poe_ctrl_inst_t
-                                                        *const  inst,
-                                                    mesa_bool_t reset,
-                                                    uint32_t    size,
-                                                    const char *firmware);
+typedef mesa_rc (*meba_poe_ctrl_firmware_upgrade_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                    mesa_bool_t                       reset,
+                                                    uint32_t                          size,
+                                                    const char                       *firmware);
 
 // Preparation of Firmware upgrade.
 //
@@ -890,59 +882,48 @@ typedef mesa_rc (*meba_poe_ctrl_firmware_upgrade_t)(const meba_poe_ctrl_inst_t
 //                            is diffferent from the currently loaded.
 // size          [IN]  Size of date in bytes.
 // firmware      [IN]  Firmware to load.
-typedef mesa_rc (*meba_poe_ctrl_prepare_firmware_upgrade_t)(
-    const meba_poe_ctrl_inst_t *const inst,
-    mesa_bool_t                       version_check,
-    uint32_t                          size,
-    const char                       *firmware);
+typedef mesa_rc (*meba_poe_ctrl_prepare_firmware_upgrade_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                            mesa_bool_t version_check,
+                                                            uint32_t    size,
+                                                            const char *firmware);
 
 // Get PoE port status.
-typedef mesa_rc (*meba_poe_ctrl_port_status_get_t)(
-    const meba_poe_ctrl_inst_t *const inst,
-    meba_poe_port_handle_t            handle,
-    meba_poe_port_status_t *const     status);
+typedef mesa_rc (*meba_poe_ctrl_port_status_get_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                   meba_poe_port_handle_t            handle,
+                                                   meba_poe_port_status_t *const     status);
 
 // Set a PoE port configuration.
-typedef mesa_rc (*meba_poe_ctrl_port_cfg_set_t)(const meba_poe_ctrl_inst_t
-                                                    *const             inst,
-                                                meba_poe_port_handle_t handle,
-                                                meba_poe_port_cfg_t   *cfg);
+typedef mesa_rc (*meba_poe_ctrl_port_cfg_set_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                meba_poe_port_handle_t            handle,
+                                                meba_poe_port_cfg_t              *cfg);
 
 // Set a PoE controller configuration.
-typedef mesa_rc (*meba_poe_ctrl_cfg_set_t)(const meba_poe_ctrl_inst_t
-                                               *const             inst,
-                                           meba_poe_global_cfg_t *cfg);
+typedef mesa_rc (*meba_poe_ctrl_cfg_set_t)(const meba_poe_ctrl_inst_t *const inst,
+                                           meba_poe_global_cfg_t            *cfg);
 
 // Get PoE controller status.
-typedef mesa_rc (*meba_poe_ctrl_status_get_t)(const meba_poe_ctrl_inst_t
-                                                  *const         inst,
-                                              meba_poe_status_t *status);
+typedef mesa_rc (*meba_poe_ctrl_status_get_t)(const meba_poe_ctrl_inst_t *const inst,
+                                              meba_poe_status_t                *status);
 
 // Get PoE controller capabilities.
 // status [OUT] Controller capabilities.
-typedef mesa_rc (*meba_poe_ctrl_capabilities_get_t)(const meba_poe_ctrl_inst_t
-                                                        *const inst,
-                                                    meba_poe_ctrl_cap_t
-                                                        *capabilities);
+typedef mesa_rc (*meba_poe_ctrl_capabilities_get_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                    meba_poe_ctrl_cap_t              *capabilities);
 
 // Send a reset command to Poe controller.
-typedef mesa_rc (*meba_poe_ctrl_reset_command_t)(const meba_poe_ctrl_inst_t
-                                                     *const inst);
+typedef mesa_rc (*meba_poe_ctrl_reset_command_t)(const meba_poe_ctrl_inst_t *const inst);
 
 // Save PoE controller parameters
-typedef mesa_rc (*meba_poe_ctrl_save_command_t)(const meba_poe_ctrl_inst_t
-                                                    *const inst);
+typedef mesa_rc (*meba_poe_ctrl_save_command_t)(const meba_poe_ctrl_inst_t *const inst);
 
 // Perform chip detection.
-typedef mesa_rc (*meba_poe_ctrl_do_detection_t)(const meba_poe_ctrl_inst_t
-                                                    *const inst);
+typedef mesa_rc (*meba_poe_ctrl_do_detection_t)(const meba_poe_ctrl_inst_t *const inst);
 
 // This function perform initialization of the controller chip
 // and setting the operatinal mode to default.
-typedef mesa_rc (*meba_poe_ctrl_chip_initialization_t)(
-    const meba_poe_ctrl_inst_t *const inst,
-    mesa_bool_t                       interruptible_power,
-    int16_t                           restart_cause);
+typedef mesa_rc (*meba_poe_ctrl_chip_initialization_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                       mesa_bool_t interruptible_power,
+                                                       int16_t     restart_cause);
 
 // This function will perform synchronization of the communication
 // between the application and the PoE controller. It is used during the
@@ -952,31 +933,28 @@ typedef mesa_rc (*meba_poe_ctrl_sync_t)(const meba_poe_ctrl_inst_t *const inst);
 // Get PoE chipset information.
 // handle     [IN]  Port handle
 // chip_state [OUT] Chipset detection state.
-typedef mesa_rc (*meba_poe_ctrl_chipset_get_t)(const meba_poe_ctrl_inst_t
-                                                   *const             inst,
-                                               meba_poe_port_handle_t handle,
-                                               meba_poe_chip_state_t
-                                                   *chip_state);
+typedef mesa_rc (*meba_poe_ctrl_chipset_get_t)(const meba_poe_ctrl_inst_t *const inst,
+                                               meba_poe_port_handle_t            handle,
+                                               meba_poe_chip_state_t            *chip_state);
 
 // Enable debug traces.
 // trace_buf [OUT] Buffer to receive debug traces
 // buf_size  [IN]  Size of buffer.
 typedef mesa_rc (*meba_poe_ctrl_debug_t)(const meba_poe_ctrl_inst_t *const inst,
                                          char                             *var,
-                                         uint32_t str_len,
-                                         char    *title,
-                                         char    *tx_str,
-                                         char    *rx_str,
-                                         char    *msg,
-                                         int      max_msg_len);
+                                         uint32_t                          str_len,
+                                         char                             *title,
+                                         char                             *tx_str,
+                                         char                             *rx_str,
+                                         char                             *msg,
+                                         int                               max_msg_len);
 
 // Get PoE port capabilities
 // handle        [IN]  Port handle
 // capabilities  [OUT] Port capabilities
-typedef mesa_rc (*meba_poe_ctrl_port_capabilities_get_t)(
-    const meba_poe_ctrl_inst_t *const inst,
-    meba_poe_port_handle_t            handle,
-    meba_poe_port_cap_t              *capabilities);
+typedef mesa_rc (*meba_poe_ctrl_port_capabilities_get_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                         meba_poe_port_handle_t            handle,
+                                                         meba_poe_port_cap_t *capabilities);
 
 // Set PoE PD configuration.
 // This function shall be called when the PoE application receives a LLDP pdu
@@ -985,10 +963,9 @@ typedef mesa_rc (*meba_poe_ctrl_port_capabilities_get_t)(
 //
 // port_no   [IN]  Port handle
 // pd_data   [IN]  PD data to configure.
-typedef mesa_rc (*meba_poe_ctrl_port_pd_data_set_t)(
-    const meba_poe_ctrl_inst_t *const inst,
-    meba_poe_port_handle_t            handle,
-    meba_poe_pd_data_t               *pd_data);
+typedef mesa_rc (*meba_poe_ctrl_port_pd_data_set_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                    meba_poe_port_handle_t            handle,
+                                                    meba_poe_pd_data_t               *pd_data);
 
 // Set PoE PD configuration.
 // This function shall be called when the PoE application receives a type 3 or
@@ -997,63 +974,59 @@ typedef mesa_rc (*meba_poe_ctrl_port_pd_data_set_t)(
 //
 // port_no   [IN]  Port handle
 // pd_data   [IN]  PD data to configure.
-typedef mesa_rc (*meba_poe_ctrl_port_pd_bt_data_set_t)(
-    const meba_poe_ctrl_inst_t *const inst,
-    meba_poe_port_handle_t            handle,
-    meba_poe_pd_bt_data_t            *pd_data);
+typedef mesa_rc (*meba_poe_ctrl_port_pd_bt_data_set_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                       meba_poe_port_handle_t            handle,
+                                                       meba_poe_pd_bt_data_t            *pd_data);
 
 // Clear PoE PD configuration.
 // This function shall be called when a LLDP neighbour disappears (either due to
 // timeout or due to link-down).
 //
 // port_no   [IN]  Port handle
-typedef mesa_rc (*meba_poe_ctrl_port_pd_data_clear_t)(const meba_poe_ctrl_inst_t
-                                                          *const inst,
-                                                      meba_poe_port_handle_t
-                                                          handle);
+typedef mesa_rc (*meba_poe_ctrl_port_pd_data_clear_t)(const meba_poe_ctrl_inst_t *const inst,
+                                                      meba_poe_port_handle_t            handle);
 
 // List of PoE controller APIs
-#define MEBA_LIST_OF_POE_CTRL_CALLS                                            \
-    X(meba_poe_ctrl_do_detection)                                              \
-    X(meba_poe_ctrl_chip_initialization)                                       \
-    X(meba_poe_ctrl_sync)                                                      \
-    X(meba_poe_ctrl_version_get)                                               \
-    X(meba_poe_ctrl_port_cfg_set)                                              \
-    X(meba_poe_ctrl_port_status_get)                                           \
-    X(meba_poe_ctrl_cfg_set)                                                   \
-    X(meba_poe_ctrl_status_get)                                                \
-    X(meba_poe_ctrl_reset_command)                                             \
-    X(meba_poe_ctrl_save_command)                                              \
-    X(meba_poe_ctrl_chipset_get)                                               \
-    X(meba_poe_ctrl_debug)                                                     \
-    X(meba_poe_ctrl_firmware_upgrade)                                          \
-    X(meba_poe_ctrl_prepare_firmware_upgrade)                                  \
-    X(meba_poe_ctrl_port_capabilities_get)                                     \
-    X(meba_poe_ctrl_port_pd_data_set)                                          \
-    X(meba_poe_ctrl_port_pd_bt_data_set)                                       \
+#define MEBA_LIST_OF_POE_CTRL_CALLS                                                                \
+    X(meba_poe_ctrl_do_detection)                                                                  \
+    X(meba_poe_ctrl_chip_initialization)                                                           \
+    X(meba_poe_ctrl_sync)                                                                          \
+    X(meba_poe_ctrl_version_get)                                                                   \
+    X(meba_poe_ctrl_port_cfg_set)                                                                  \
+    X(meba_poe_ctrl_port_status_get)                                                               \
+    X(meba_poe_ctrl_cfg_set)                                                                       \
+    X(meba_poe_ctrl_status_get)                                                                    \
+    X(meba_poe_ctrl_reset_command)                                                                 \
+    X(meba_poe_ctrl_save_command)                                                                  \
+    X(meba_poe_ctrl_chipset_get)                                                                   \
+    X(meba_poe_ctrl_debug)                                                                         \
+    X(meba_poe_ctrl_firmware_upgrade)                                                              \
+    X(meba_poe_ctrl_prepare_firmware_upgrade)                                                      \
+    X(meba_poe_ctrl_port_capabilities_get)                                                         \
+    X(meba_poe_ctrl_port_pd_data_set)                                                              \
+    X(meba_poe_ctrl_port_pd_bt_data_set)                                                           \
     X(meba_poe_ctrl_port_pd_data_clear)
 
 // Board functions struct
 typedef struct meba_poe_ctrl_api {
-    meba_poe_ctrl_do_detection_t        meba_poe_ctrl_do_detection;
-    meba_poe_ctrl_chip_initialization_t meba_poe_ctrl_chip_initialization;
-    meba_poe_ctrl_sync_t                meba_poe_ctrl_sync;
-    meba_poe_ctrl_version_get_t         meba_poe_ctrl_version_get;
-    meba_poe_ctrl_port_cfg_set_t        meba_poe_ctrl_port_cfg_set;
-    meba_poe_ctrl_port_status_get_t     meba_poe_ctrl_port_status_get;
-    meba_poe_ctrl_cfg_set_t             meba_poe_ctrl_cfg_set;
-    meba_poe_ctrl_status_get_t          meba_poe_ctrl_status_get;
-    meba_poe_ctrl_reset_command_t       meba_poe_ctrl_reset_command;
-    meba_poe_ctrl_save_command_t        meba_poe_ctrl_save_command;
-    meba_poe_ctrl_chipset_get_t         meba_poe_ctrl_chipset_get;
-    meba_poe_ctrl_debug_t               meba_poe_ctrl_debug;
-    meba_poe_ctrl_firmware_upgrade_t    meba_poe_ctrl_firmware_upgrade;
-    meba_poe_ctrl_prepare_firmware_upgrade_t
-        meba_poe_ctrl_prepare_firmware_upgrade;
-    meba_poe_ctrl_port_capabilities_get_t meba_poe_ctrl_port_capabilities_get;
-    meba_poe_ctrl_port_pd_data_set_t      meba_poe_ctrl_port_pd_data_set;
-    meba_poe_ctrl_port_pd_bt_data_set_t   meba_poe_ctrl_port_pd_bt_data_set;
-    meba_poe_ctrl_port_pd_data_clear_t    meba_poe_ctrl_port_pd_data_clear;
+    meba_poe_ctrl_do_detection_t             meba_poe_ctrl_do_detection;
+    meba_poe_ctrl_chip_initialization_t      meba_poe_ctrl_chip_initialization;
+    meba_poe_ctrl_sync_t                     meba_poe_ctrl_sync;
+    meba_poe_ctrl_version_get_t              meba_poe_ctrl_version_get;
+    meba_poe_ctrl_port_cfg_set_t             meba_poe_ctrl_port_cfg_set;
+    meba_poe_ctrl_port_status_get_t          meba_poe_ctrl_port_status_get;
+    meba_poe_ctrl_cfg_set_t                  meba_poe_ctrl_cfg_set;
+    meba_poe_ctrl_status_get_t               meba_poe_ctrl_status_get;
+    meba_poe_ctrl_reset_command_t            meba_poe_ctrl_reset_command;
+    meba_poe_ctrl_save_command_t             meba_poe_ctrl_save_command;
+    meba_poe_ctrl_chipset_get_t              meba_poe_ctrl_chipset_get;
+    meba_poe_ctrl_debug_t                    meba_poe_ctrl_debug;
+    meba_poe_ctrl_firmware_upgrade_t         meba_poe_ctrl_firmware_upgrade;
+    meba_poe_ctrl_prepare_firmware_upgrade_t meba_poe_ctrl_prepare_firmware_upgrade;
+    meba_poe_ctrl_port_capabilities_get_t    meba_poe_ctrl_port_capabilities_get;
+    meba_poe_ctrl_port_pd_data_set_t         meba_poe_ctrl_port_pd_data_set;
+    meba_poe_ctrl_port_pd_bt_data_set_t      meba_poe_ctrl_port_pd_bt_data_set;
+    meba_poe_ctrl_port_pd_data_clear_t       meba_poe_ctrl_port_pd_data_clear;
 } meba_poe_ctrl_api_t;
 
 #include <microchip/ethernet/board/api/hdr_end.h>

@@ -43,8 +43,7 @@ vtss_rc vtss_npi_conf_get(const vtss_inst_t inst, vtss_npi_conf_t *const conf);
  *
  * \return Return code.
  **/
-vtss_rc vtss_npi_conf_set(const vtss_inst_t            inst,
-                          const vtss_npi_conf_t *const conf);
+vtss_rc vtss_npi_conf_set(const vtss_inst_t inst, const vtss_npi_conf_t *const conf);
 
 /** \brief CPU Rx queue NPI configuration */
 typedef struct {
@@ -93,12 +92,10 @@ typedef struct {
 
 /** \brief CPU Rx configuration */
 typedef struct {
-    vtss_packet_rx_queue_conf_t
-        queue[VTSS_PACKET_RX_QUEUE_CNT]; /**< Queue configuration */
-    vtss_packet_rx_reg_t       reg;      /**< Packet registration */
-    vtss_packet_rx_queue_map_t map;      /**< Queue mapping */
-    vtss_packet_rx_grp_t
-        grp_map[VTSS_PACKET_RX_QUEUE_CNT]; /**< Queue to extraction group map */
+    vtss_packet_rx_queue_conf_t queue[VTSS_PACKET_RX_QUEUE_CNT]; /**< Queue configuration */
+    vtss_packet_rx_reg_t        reg;                             /**< Packet registration */
+    vtss_packet_rx_queue_map_t  map;                             /**< Queue mapping */
+    vtss_packet_rx_grp_t grp_map[VTSS_PACKET_RX_QUEUE_CNT]; /**< Queue to extraction group map */
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
     vtss_bitrate_t shaper_rate; /**< CPU port shaper bitrate in kbps */
 #endif                          /* defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER) */
@@ -112,8 +109,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_packet_rx_conf_get(const vtss_inst_t            inst,
-                                vtss_packet_rx_conf_t *const conf);
+vtss_rc vtss_packet_rx_conf_get(const vtss_inst_t inst, vtss_packet_rx_conf_t *const conf);
 
 /**
  * \brief Set CPU Rx queue configuration.
@@ -123,8 +119,7 @@ vtss_rc vtss_packet_rx_conf_get(const vtss_inst_t            inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_packet_rx_conf_set(const vtss_inst_t                  inst,
-                                const vtss_packet_rx_conf_t *const conf);
+vtss_rc vtss_packet_rx_conf_set(const vtss_inst_t inst, const vtss_packet_rx_conf_t *const conf);
 
 /**
  * \brief Get packet configuration for port.
@@ -148,10 +143,9 @@ vtss_rc vtss_packet_rx_port_conf_get(const vtss_inst_t                 inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_packet_rx_port_conf_set(const vtss_inst_t    inst,
-                                     const vtss_port_no_t port_no,
-                                     const vtss_packet_rx_port_conf_t
-                                         *const conf);
+vtss_rc vtss_packet_rx_port_conf_set(const vtss_inst_t                       inst,
+                                     const vtss_port_no_t                    port_no,
+                                     const vtss_packet_rx_port_conf_t *const conf);
 
 /* - Tx frames ----------------------------------------------------- */
 
@@ -231,15 +225,13 @@ typedef struct {
  **/
 vtss_rc vtss_packet_port_filter_get(const vtss_inst_t                    inst,
                                     const vtss_packet_port_info_t *const info,
-                                    vtss_packet_port_filter_t
-                                        filter[VTSS_PORT_ARRAY_SIZE]);
+                                    vtss_packet_port_filter_t filter[VTSS_PORT_ARRAY_SIZE]);
 
 /** \brief VLAN filter information */
 typedef struct {
-    BOOL rx_forward; /**< Ingress forwarding enabled */
-    BOOL tx_forward; /**< Egress forwarding enabled */
-    u8   vlan_discard[VTSS_VIDS /
-                    8]; /**< One bit per VLAN ID indicates whether to discard */
+    BOOL rx_forward;                  /**< Ingress forwarding enabled */
+    BOOL tx_forward;                  /**< Egress forwarding enabled */
+    u8   vlan_discard[VTSS_VIDS / 8]; /**< One bit per VLAN ID indicates whether to discard */
 } vtss_packet_vlan_filter_t;
 
 /**
@@ -250,9 +242,8 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_packet_vlan_filter_get(const vtss_inst_t inst,
-                                    vtss_packet_vlan_filter_t
-                                        filter[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_packet_vlan_filter_get(const vtss_inst_t         inst,
+                                    vtss_packet_vlan_filter_t filter[VTSS_PORT_ARRAY_SIZE]);
 
 /** \brief VLAN packet status */
 typedef struct {
@@ -276,19 +267,19 @@ vtss_rc vtss_packet_vlan_status_get(const vtss_inst_t                inst,
  * OAM types to be used when encoding an injection header.
  */
 typedef enum {
-    VTSS_PACKET_OAM_TYPE_NONE = 0, /**< No-op */
-    VTSS_PACKET_OAM_TYPE_CCM,      /**< Continuity Check Message      */
-    VTSS_PACKET_OAM_TYPE_CCM_LM,   /**< Continuity Check Message with Loss
-                                      Measurement information */
-    VTSS_PACKET_OAM_TYPE_LBM,      /**< Loopback Message      */
-    VTSS_PACKET_OAM_TYPE_LBR,      /**< Loopback Reply      */
-    VTSS_PACKET_OAM_TYPE_LMM,      /**< Loss Measurement Message      */
-    VTSS_PACKET_OAM_TYPE_LMR,      /**< Loss Measurement Reply      */
-    VTSS_PACKET_OAM_TYPE_DMM,      /**< Delay Measurement Message      */
-    VTSS_PACKET_OAM_TYPE_DMR,      /**< Delay Measurement Reply      */
-    VTSS_PACKET_OAM_TYPE_1DM, /**< A.k.a. SDM, One-Way Delay Measurement      */
-    VTSS_PACKET_OAM_TYPE_LTM, /**< Link Trace message      */
-    VTSS_PACKET_OAM_TYPE_LTR, /**< Link Trace Reply      */
+    VTSS_PACKET_OAM_TYPE_NONE = 0,  /**< No-op */
+    VTSS_PACKET_OAM_TYPE_CCM,       /**< Continuity Check Message      */
+    VTSS_PACKET_OAM_TYPE_CCM_LM,    /**< Continuity Check Message with Loss
+                                       Measurement information */
+    VTSS_PACKET_OAM_TYPE_LBM,       /**< Loopback Message      */
+    VTSS_PACKET_OAM_TYPE_LBR,       /**< Loopback Reply      */
+    VTSS_PACKET_OAM_TYPE_LMM,       /**< Loss Measurement Message      */
+    VTSS_PACKET_OAM_TYPE_LMR,       /**< Loss Measurement Reply      */
+    VTSS_PACKET_OAM_TYPE_DMM,       /**< Delay Measurement Message      */
+    VTSS_PACKET_OAM_TYPE_DMR,       /**< Delay Measurement Reply      */
+    VTSS_PACKET_OAM_TYPE_1DM,       /**< A.k.a. SDM, One-Way Delay Measurement      */
+    VTSS_PACKET_OAM_TYPE_LTM,       /**< Link Trace message      */
+    VTSS_PACKET_OAM_TYPE_LTR,       /**< Link Trace Reply      */
     VTSS_PACKET_OAM_TYPE_GENERIC,   /**< Generic OAM type  */
     VTSS_PACKET_OAM_TYPE_LCK,       /**< Locked Signal      */
     VTSS_PACKET_OAM_TYPE_MPLS_TP_1, /**< MPLS-TP (ITU G.8113.1) */
@@ -297,25 +288,25 @@ typedef enum {
     VTSS_PACKET_OAM_TYPE_MRP_ITST,  /**< MRP ITST frame (IEC62439-2-2016)  */
     VTSS_PACKET_OAM_TYPE_DLR_BCN,   /**< DLR Beacon frame (CIP Networks Library
                                        Volume 2)           */
-    VTSS_PACKET_OAM_TYPE_DLR_ADV, /**< MRP Advertise frame (CIP Networks Library
-                                     Volume 2)        */
+    VTSS_PACKET_OAM_TYPE_DLR_ADV,   /**< MRP Advertise frame (CIP Networks Library
+                                       Volume 2)        */
 } vtss_packet_oam_type_t;
 
 /**
  * PTP actions used when encoding an injection header.
  */
 typedef enum {
-    VTSS_PACKET_PTP_ACTION_NONE = 0,         /**< No-op         */
-    VTSS_PACKET_PTP_ACTION_ONE_STEP,         /**< One-step PTP         */
-    VTSS_PACKET_PTP_ACTION_TWO_STEP,         /**< Two-step PTP         */
-    VTSS_PACKET_PTP_ACTION_ONE_AND_TWO_STEP, /**< Both one- and two-step PTP */
-    VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP, /**< Update time-of-day in PTP
-                                                frame's originTimestamp field */
+    VTSS_PACKET_PTP_ACTION_NONE = 0,             /**< No-op         */
+    VTSS_PACKET_PTP_ACTION_ONE_STEP,             /**< One-step PTP         */
+    VTSS_PACKET_PTP_ACTION_TWO_STEP,             /**< Two-step PTP         */
+    VTSS_PACKET_PTP_ACTION_ONE_AND_TWO_STEP,     /**< Both one- and two-step PTP */
+    VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP,     /**< Update time-of-day in PTP
+                                                    frame's originTimestamp field */
     VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ, /**< Update time-of-day in PTP
                                                     frame's originTimestamp
                                                     field and sequence number */
-    VTSS_PACKET_PTP_ACTION_AFI_NONE, /**< Update sequence number in AFI but no
-                                        PTP updates        */
+    VTSS_PACKET_PTP_ACTION_AFI_NONE,             /**< Update sequence number in AFI but no
+                                                    PTP updates        */
 } vtss_packet_ptp_action_t;
 
 /**
@@ -343,55 +334,54 @@ typedef struct {
  * Tag type the frame was received with.
  */
 typedef enum {
-    VTSS_TAG_TYPE_UNTAGGED =
-        0, /**< Frame was received untagged or on an unaware port or with a tag
-              that didn't match the port type. */
-    VTSS_TAG_TYPE_C_TAGGED, /**< Frame was received with a  C-tag        */
-    VTSS_TAG_TYPE_S_TAGGED, /**< Frame was received with an S-tag        */
+    VTSS_TAG_TYPE_UNTAGGED = 0, /**< Frame was received untagged or on an unaware port or with a tag
+                                   that didn't match the port type. */
+    VTSS_TAG_TYPE_C_TAGGED,     /**< Frame was received with a  C-tag        */
+    VTSS_TAG_TYPE_S_TAGGED,     /**< Frame was received with an S-tag        */
     VTSS_TAG_TYPE_S_CUSTOM_TAGGED, /**< Frame was received with a custom S-tag */
 } vtss_tag_type_t;
 
-#define VTSS_FA_PACKET_HDR_SIZE_BYTES                                          \
-    40 /**< Max header size. Worst case: INJ (36 bytes for IFH + 4 bytes for   \
+#define VTSS_FA_PACKET_HDR_SIZE_BYTES                                                              \
+    40 /**< Max header size. Worst case: INJ (36 bytes for IFH + 4 bytes for                       \
           VLAN tag) */
-#define VTSS_JR2_PACKET_HDR_SIZE_BYTES                                         \
-    32 /**< Max header size. Worst case: INJ (28 bytes for IFH + 4 bytes for   \
+#define VTSS_JR2_PACKET_HDR_SIZE_BYTES                                                             \
+    32 /**< Max header size. Worst case: INJ (28 bytes for IFH + 4 bytes for                       \
           VLAN tag) */
-#define VTSS_SVL_PACKET_HDR_SIZE_BYTES                                         \
-    20 /**< Max header size. Worst case: INJ (16 bytes for IFH + 4 bytes for   \
+#define VTSS_SVL_PACKET_HDR_SIZE_BYTES                                                             \
+    20 /**< Max header size. Worst case: INJ (16 bytes for IFH + 4 bytes for                       \
           VLAN tag) */
-#define VTSS_L26_PACKET_HDR_SIZE_BYTES                                         \
-    16 /**< Max header size. Worst case: INJ (8 bytes for IFH + 4 for          \
+#define VTSS_L26_PACKET_HDR_SIZE_BYTES                                                             \
+    16 /**< Max header size. Worst case: INJ (8 bytes for IFH + 4 for                              \
           timestamp + 4 for VLAN tag) */
-#define VTSS_LAN966X_PACKET_HDR_SIZE_BYTES                                     \
-    32 /**< Max header size. Worst case: INJ (28 bytes for IFH + 4 bytes for   \
+#define VTSS_LAN966X_PACKET_HDR_SIZE_BYTES                                                         \
+    32 /**< Max header size. Worst case: INJ (28 bytes for IFH + 4 bytes for                       \
           VLAN tag) */
 
 // Find the largest required header size.
 #if defined(VTSS_ARCH_FA)
-#define VTSS_PACKET_HDR_SIZE_BYTES                                             \
-    VTSS_FA_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is     \
-                                     only useful if you only compile for one   \
+#define VTSS_PACKET_HDR_SIZE_BYTES                                                                 \
+    VTSS_FA_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is                         \
+                                     only useful if you only compile for one                       \
                                      target. */
 #elif defined(VTSS_ARCH_JAGUAR_2)
-#define VTSS_PACKET_HDR_SIZE_BYTES                                             \
-    VTSS_JR2_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is    \
-                                      only useful if you only compile for one  \
+#define VTSS_PACKET_HDR_SIZE_BYTES                                                                 \
+    VTSS_JR2_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is                        \
+                                      only useful if you only compile for one                      \
                                       target. */
 #elif defined(VTSS_ARCH_OCELOT)
-#define VTSS_PACKET_HDR_SIZE_BYTES                                             \
-    VTSS_SVL_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is    \
-                                      only useful if you only compile for one  \
+#define VTSS_PACKET_HDR_SIZE_BYTES                                                                 \
+    VTSS_SVL_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is                        \
+                                      only useful if you only compile for one                      \
                                       target. */
 #elif defined(VTSS_ARCH_LUTON26)
-#define VTSS_PACKET_HDR_SIZE_BYTES                                             \
-    VTSS_L26_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is    \
-                                      only useful if you only compile for one  \
+#define VTSS_PACKET_HDR_SIZE_BYTES                                                                 \
+    VTSS_L26_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define is                        \
+                                      only useful if you only compile for one                      \
                                       target. */
 #elif defined(VTSS_ARCH_LAN966X)
-#define VTSS_PACKET_HDR_SIZE_BYTES                                             \
-    VTSS_LAN966X_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define   \
-                                          is only useful if you only compile   \
+#define VTSS_PACKET_HDR_SIZE_BYTES                                                                 \
+    VTSS_LAN966X_PACKET_HDR_SIZE_BYTES /**< Maximum header size. This define                       \
+                                          is only useful if you only compile                       \
                                           for one target. */
 #endif
 
@@ -543,33 +533,33 @@ typedef struct {
  * Specifies where a frame is injected into the chip.
  */
 typedef enum {
-    VTSS_PACKET_PIPELINE_PT_NONE,     /**< None                               */
-    VTSS_PACKET_PIPELINE_PT_ANA_RB,   /**< Analyzer RedBOX                    */
-    VTSS_PACKET_PIPELINE_PT_ANA_VRAP, /**< Analyzer port VOE MEP (up)         */
+    VTSS_PACKET_PIPELINE_PT_NONE,         /**< None                               */
+    VTSS_PACKET_PIPELINE_PT_ANA_RB,       /**< Analyzer RedBOX                    */
+    VTSS_PACKET_PIPELINE_PT_ANA_VRAP,     /**< Analyzer port VOE MEP (up)         */
     VTSS_PACKET_PIPELINE_PT_ANA_PORT_VOE, /**< Analyzer port VOE MEP (up) */
-    VTSS_PACKET_PIPELINE_PT_ANA_CL,  /**< Basic classification               */
-    VTSS_PACKET_PIPELINE_PT_ANA_CLM, /**< Analyzer CLM (up)                  */
+    VTSS_PACKET_PIPELINE_PT_ANA_CL,       /**< Basic classification               */
+    VTSS_PACKET_PIPELINE_PT_ANA_CLM,      /**< Analyzer CLM (up)                  */
     VTSS_PACKET_PIPELINE_PT_ANA_IPT_PROT, /**< Analyzer CLM (up) */
     VTSS_PACKET_PIPELINE_PT_ANA_OU_VOI,   /**< Analyzer CLM (up)   */
-    VTSS_PACKET_PIPELINE_PT_ANA_OU_SW, /**< Analyzer outer software MEP (up) */
+    VTSS_PACKET_PIPELINE_PT_ANA_OU_SW,    /**< Analyzer outer software MEP (up) */
     VTSS_PACKET_PIPELINE_PT_ANA_OU_PROT,  /**< Analyzer CLM (up)  */
     VTSS_PACKET_PIPELINE_PT_ANA_OU_VOE,   /**< Analyzer outer VOE MEP (up)   */
     VTSS_PACKET_PIPELINE_PT_ANA_MID_PROT, /**< Analyzer CLM (up) */
     VTSS_PACKET_PIPELINE_PT_ANA_IN_VOE,   /**< Analyzer inner VOE MEP (up)   */
     VTSS_PACKET_PIPELINE_PT_ANA_IN_PROT,  /**< Analyzer CLM (up)  */
-    VTSS_PACKET_PIPELINE_PT_ANA_IN_SW, /**< Analyzer inner software MEP (up)  */
-    VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI, /**< Analyzer inner VOI (MIP) (up) */
-    VTSS_PACKET_PIPELINE_PT_ANA_VLAN, /**< Analyzer inner VOI (MIP) (up)      */
-    VTSS_PACKET_PIPELINE_PT_ANA_DONE, /**< Analyzer done                      */
-    VTSS_PACKET_PIPELINE_PT_REW_IN_VOI, /**< Rewriter inner VOI (MIP) (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_IN_SW, /**< Rewriter inner software MEP (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_IN_VOE, /**< Rewriter inner VOE MEP (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_VOE, /**< Rewriter outer VOE MEP (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_SW, /**< Rewriter outer software MEP (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_VOI, /**< Rewriter outer VOI (MIP) (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_OU_SAT, /**< Rewriter outer VOI (MIP) (down) */
+    VTSS_PACKET_PIPELINE_PT_ANA_IN_SW,    /**< Analyzer inner software MEP (up)  */
+    VTSS_PACKET_PIPELINE_PT_ANA_IN_VOI,   /**< Analyzer inner VOI (MIP) (up) */
+    VTSS_PACKET_PIPELINE_PT_ANA_VLAN,     /**< Analyzer inner VOI (MIP) (up)      */
+    VTSS_PACKET_PIPELINE_PT_ANA_DONE,     /**< Analyzer done                      */
+    VTSS_PACKET_PIPELINE_PT_REW_IN_VOI,   /**< Rewriter inner VOI (MIP) (down) */
+    VTSS_PACKET_PIPELINE_PT_REW_IN_SW,    /**< Rewriter inner software MEP (down) */
+    VTSS_PACKET_PIPELINE_PT_REW_IN_VOE,   /**< Rewriter inner VOE MEP (down) */
+    VTSS_PACKET_PIPELINE_PT_REW_OU_VOE,   /**< Rewriter outer VOE MEP (down) */
+    VTSS_PACKET_PIPELINE_PT_REW_OU_SW,    /**< Rewriter outer software MEP (down) */
+    VTSS_PACKET_PIPELINE_PT_REW_OU_VOI,   /**< Rewriter outer VOI (MIP) (down) */
+    VTSS_PACKET_PIPELINE_PT_REW_OU_SAT,   /**< Rewriter outer VOI (MIP) (down) */
     VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE, /**< Rewriter port VOE MEP (down) */
-    VTSS_PACKET_PIPELINE_PT_REW_VCAP /**< Rewriter port VOE MEP (down)       */
+    VTSS_PACKET_PIPELINE_PT_REW_VCAP      /**< Rewriter port VOE MEP (down)       */
 } vtss_packet_pipeline_pt_t;
 #endif /* defined(VTSS_FEATURE_PACKET_PIPELINE_PT) */
 
@@ -603,7 +593,7 @@ typedef struct {
     vtss_packet_ptp_action_t ptp_action;
     u8                       ptp_domain;
     u8                       ptp_id;
-    u64 ptp_timestamp; // Time stamp in 16 bit fraction of nano seconds.
+    u64                      ptp_timestamp; // Time stamp in 16 bit fraction of nano seconds.
                        // Allocate timestamp id for a two step transmission must
                        // be in the nano second part (id << 16) Sequence counter
                        // index for a PTP transmission must be in the nano
@@ -614,10 +604,10 @@ typedef struct {
 #endif
     vtss_iflow_id_t iflow_id;
     vtss_port_no_t  masquerade_port;
-    u32 pdu_offset; // When encap_type is not MESA_PACKET_ENCAP_NONE then
-                    // pdu_offset is the ETHERNET encapsulation size When
-                    // encap_type is MESA_PACKET_ENCAP_NONE then pdu_offset is
-                    // the start of the PDU
+    u32             pdu_offset; // When encap_type is not MESA_PACKET_ENCAP_NONE then
+                                // pdu_offset is the ETHERNET encapsulation size When
+                                // encap_type is MESA_PACKET_ENCAP_NONE then pdu_offset is
+                                // the start of the PDU
     u32 sequence_idx;
 #if defined(VTSS_FEATURE_AFI_SWC)
     vtss_afi_id_t afi_id;
@@ -652,7 +642,7 @@ typedef struct {
  **/
 vtss_rc vtss_packet_rx_hdr_decode(const vtss_inst_t                  inst,
                                   const vtss_packet_rx_meta_t *const meta,
-                                  const u8 hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                  const u8                     hdr[VTSS_PACKET_HDR_SIZE_BYTES],
                                   vtss_packet_rx_info_t *const info);
 
 /**
@@ -702,7 +692,7 @@ vtss_rc vtss_packet_rx_hdr_decode(const vtss_inst_t                  inst,
 vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
                                   const vtss_packet_tx_info_t *const info,
                                   u8 *const                          bin_hdr,
-                                  u32 *const bin_hdr_len);
+                                  u32 *const                         bin_hdr_len);
 
 /* Maximum Rx/Tx IFH length */
 #if defined(VTSS_ARCH_FA)
@@ -718,9 +708,8 @@ vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
 #define VTSS_PACKET_TX_IFH_MAX 28 /**< Tx IFH byte length (Constant) */
 #define VTSS_PACKET_RX_IFH_MAX 28 /**< Rx IFH byte length (Constant) */
 #elif defined(VTSS_ARCH_LUTON26)
-#define VTSS_PACKET_TX_IFH_MAX                                                 \
-    12 /**< Tx IFH byte length (Varies: 8/12 depending on PTP) */
-#define VTSS_PACKET_RX_IFH_MAX 8 /**< Rx IFH byte length */
+#define VTSS_PACKET_TX_IFH_MAX 12 /**< Tx IFH byte length (Varies: 8/12 depending on PTP) */
+#define VTSS_PACKET_RX_IFH_MAX 8  /**< Rx IFH byte length */
 #endif
 
 #define VTSS_PACKET_TX_IFH_STORAGE 36 /**< Tx IFH array length (Constant) */
@@ -741,8 +730,7 @@ vtss_rc vtss_packet_tx_frame(const vtss_inst_t                  inst,
  *
  * \return VTSS_RC_OK. VTSS_RC_ERROR only if info == NULL.
  */
-vtss_rc vtss_packet_tx_info_init(const vtss_inst_t            inst,
-                                 vtss_packet_tx_info_t *const info);
+vtss_rc vtss_packet_tx_info_init(const vtss_inst_t inst, vtss_packet_tx_info_t *const info);
 
 /* - Rx frames ----------------------------------------------------- */
 
@@ -761,9 +749,7 @@ vtss_rc vtss_packet_rx_frame(const vtss_inst_t            inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_packet_phy_cnt_to_ts_cnt(const vtss_inst_t inst,
-                                      const u32         phy_cnt,
-                                      u64              *ts_cnt);
+vtss_rc vtss_packet_phy_cnt_to_ts_cnt(const vtss_inst_t inst, const u32 phy_cnt, u64 *ts_cnt);
 
 /**
  * \brief Convert a ns to ts counts
@@ -775,9 +761,7 @@ vtss_rc vtss_packet_phy_cnt_to_ts_cnt(const vtss_inst_t inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_packet_ns_to_ts_cnt(const vtss_inst_t inst,
-                                 const u32         ns,
-                                 u64              *ts_cnt);
+vtss_rc vtss_packet_ns_to_ts_cnt(const vtss_inst_t inst, const u32 ns, u64 *ts_cnt);
 
 /** \brief Enumeration type representing the various types of PTP messages */
 typedef enum {
@@ -806,19 +790,17 @@ typedef struct {
 
 /** \brief Struct holding time stamping related parameters */
 typedef struct {
-    BOOL ts_feature_is_PTS; /**< Configured timestamp feature is PHY
-                               timestamping */
-    vtss_packet_internal_tc_mode_t
-         phy_ts_mode;    /**< The mode of PHY timestamping */
-    BOOL backplane_port; /**< Indicates if port is a backplane port. On some
-                            platforms backplane ports default to PHY
-                            timestamping */
+    BOOL ts_feature_is_PTS;                     /**< Configured timestamp feature is PHY
+                                                   timestamping */
+    vtss_packet_internal_tc_mode_t phy_ts_mode; /**< The mode of PHY timestamping */
+    BOOL backplane_port;                        /**< Indicates if port is a backplane port. On some
+                                                   platforms backplane ports default to PHY
+                                                   timestamping */
     vtss_packet_ptp_delay_comp_t
         delay_comp; /**< Structure holding values used for delay compensation */
 } vtss_packet_timestamp_props_t;
 
-#define VTSS_PTP_FRAME_TS_LENGTH                                               \
-    4 /**< Length of the PHY inserted RX time in the frame */
+#define VTSS_PTP_FRAME_TS_LENGTH 4 /**< Length of the PHY inserted RX time in the frame */
 /**
  * \brief Get PTP timestamp from packet or from timestamp FIFO or from rx_info
  *
@@ -835,8 +817,8 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t inst,
-                               const u8          frm[VTSS_PTP_FRAME_TS_LENGTH],
+vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t                  inst,
+                               const u8                           frm[VTSS_PTP_FRAME_TS_LENGTH],
                                const vtss_packet_rx_info_t *const rx_info,
                                vtss_packet_ptp_message_type_t     message_type,
                                vtss_packet_timestamp_props_t      ts_props,

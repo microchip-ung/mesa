@@ -29,8 +29,7 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 };
 
 #if (__BYTE_ORDER == __BIG_ENDIAN)
-#define PCIE_HOST_CVT(x)                                                       \
-    __builtin_bswap32((x)) /* PCIe is LE - we're BE, so swap */
+#define PCIE_HOST_CVT(x) __builtin_bswap32((x)) /* PCIe is LE - we're BE, so swap */
 #else
 #define PCIE_HOST_CVT(x) (x) /* We're LE already */
 #endif
@@ -38,17 +37,13 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 static volatile uint32_t *base_mem;
 
 /* MEBA callouts */
-mesa_rc uio_reg_read(const mesa_chip_no_t chip_no,
-                     const uint32_t       addr,
-                     uint32_t *const      value)
+mesa_rc uio_reg_read(const mesa_chip_no_t chip_no, const uint32_t addr, uint32_t *const value)
 {
     *value = PCIE_HOST_CVT(base_mem[addr]);
     return MESA_RC_OK;
 }
 
-mesa_rc uio_reg_write(const mesa_chip_no_t chip_no,
-                      const uint32_t       addr,
-                      const uint32_t       value)
+mesa_rc uio_reg_write(const mesa_chip_no_t chip_no, const uint32_t addr, const uint32_t value)
 {
     base_mem[addr] = PCIE_HOST_CVT(value);
     return MESA_RC_OK;
@@ -96,15 +91,13 @@ mesa_rc uio_reg_io_init(void)
         }
 
         T_D("UIO: %s -> %s", fn, devname);
-        if (!strstr(devname, "mscc_switch") &&
-            !strstr(devname, "vcoreiii_switch") &&
+        if (!strstr(devname, "mscc_switch") && !strstr(devname, "vcoreiii_switch") &&
             !strstr(devname, "lan966x_uio")) {
             continue;
         }
 
         snprintf(iodev, sizeof(iodev), "/dev/%s", dent->d_name);
-        snprintf(uio_path, sizeof(uio_path), "%s/%s/device/irqctl", top,
-                 dent->d_name);
+        snprintf(uio_path, sizeof(uio_path), "%s/%s/device/irqctl", top, dent->d_name);
         snprintf(fn, sizeof(fn), "%s/%s/maps/map0/size", top, dent->d_name);
         fp = fopen(fn, "r");
         if (!fp) {
@@ -134,8 +127,7 @@ mesa_rc uio_reg_io_init(void)
         rc = MESA_RC_ERROR;
     } else {
         /* mmap the UIO device */
-        base_mem =
-            mmap(NULL, mapsize, PROT_READ | PROT_WRITE, MAP_SHARED, dev_fd, 0);
+        base_mem = mmap(NULL, mapsize, PROT_READ | PROT_WRITE, MAP_SHARED, dev_fd, 0);
         if (base_mem != MAP_FAILED) {
             T_D("Mapped register memory @ %p", base_mem);
             // printf("Buildid (maybe): 0x%08x\n", *(base_mem + (0x70008 / 4)));

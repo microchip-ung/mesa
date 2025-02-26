@@ -48,7 +48,7 @@ extern "C" {
 #define VTSS_PORT_VOE_CNT         (11)  // Number of port VOEs in HW
 
 #define VTSS_DOWN_VOI_CNT (128) // Number of down VOI (MIP) in HW
-#define VTSS_UP_VOI_CNT                                                        \
+#define VTSS_UP_VOI_CNT                                                                            \
     (127) // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it
           // cannot be addressed by ES0 action - 0 has the meaning of no MIB
 
@@ -59,15 +59,15 @@ extern "C" {
 #define VTSS_PORT_VOE_BASE_IDX    (1024) // Index of first port VOE
 #define VTSS_PORT_VOE_CNT         (53)   // Number of port VOEs in HW
 #define VTSS_DOWN_VOI_CNT         (1024) // Number of down VOI (MIP) in HW
-#define VTSS_UP_VOI_CNT                                                        \
-    (1023) // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it
-           // cannot be addressed by ES0 action - 0 has the meaning of no MIB
-#elif defined(VTSS_ARCH_SPARX5)          // SparX-5
+#define VTSS_UP_VOI_CNT                                                                            \
+    (1023)                      // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it
+                                // cannot be addressed by ES0 action - 0 has the meaning of no MIB
+#elif defined(VTSS_ARCH_SPARX5) // SparX-5
 #define VTSS_PATH_SERVICE_VOE_CNT (1024) // Number of path/service VOEs in HW
 #define VTSS_PORT_VOE_BASE_IDX    (1024) // Index of first port VOE
 #define VTSS_PORT_VOE_CNT         (65)   // Number of port VOEs in HW
 #define VTSS_DOWN_VOI_CNT         (1024) // Number of down VOI (MIP) in HW
-#define VTSS_UP_VOI_CNT                                                        \
+#define VTSS_UP_VOI_CNT                                                                            \
     (1023) // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it
            // cannot be addressed by ES0 action - 0 has the meaning of no MIB
 #elif defined(VTSS_ARCH_LAN969X)       // Laguna
@@ -75,15 +75,15 @@ extern "C" {
 #define VTSS_PORT_VOE_BASE_IDX    (32) // Index of first port VOE
 #define VTSS_PORT_VOE_CNT         (30) // Number of port VOEs in HW
 #define VTSS_DOWN_VOI_CNT         (32) // Number of down VOI (MIP) in HW
-#define VTSS_UP_VOI_CNT                                                        \
-    (31) // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it
-         // cannot be addressed by ES0 action - 0 has the meaning of no MIB
-#elif defined(VTSS_ARCH_LAIKA)         // Laika
+#define VTSS_UP_VOI_CNT                                                                            \
+    (31)                       // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it
+                               // cannot be addressed by ES0 action - 0 has the meaning of no MIB
+#elif defined(VTSS_ARCH_LAIKA) // Laika
 #define VTSS_PATH_SERVICE_VOE_CNT (32) // Number of path/service VOEs in HW
 #define VTSS_PORT_VOE_BASE_IDX    (32) // Index of first port VOE
 #define VTSS_PORT_VOE_CNT         (32) // Number of port VOEs in HW
 #define VTSS_DOWN_VOI_CNT         (32) // Number of down VOI (MIP) in HW
-#define VTSS_UP_VOI_CNT                                                        \
+#define VTSS_UP_VOI_CNT                                                                            \
     (31) // Number of up VOI (MIP) in HW. Up MIP instance 0 is not used as it
          // cannot be addressed by ES0 action - 0 has the meaning of no MIB
 #else
@@ -95,12 +95,10 @@ extern "C" {
 #error "VOP V1 or V2 must be defined"
 #endif
 
-#define VTSS_VOE_CNT                                                           \
-    ((VTSS_PATH_SERVICE_VOE_CNT) +                                             \
-     (VTSS_PORT_VOE_CNT)) // Total count of port + path/service VOEs
-#define VTSS_VOI_CNT                                                           \
-    ((VTSS_DOWN_VOI_CNT) + (VTSS_UP_VOI_CNT)) // Total count of down and up VOIs
-#define VTSS_EVENT_MASK_ARRAY_SIZE                                             \
+#define VTSS_VOE_CNT                                                                               \
+    ((VTSS_PATH_SERVICE_VOE_CNT) + (VTSS_PORT_VOE_CNT)) // Total count of port + path/service VOEs
+#define VTSS_VOI_CNT ((VTSS_DOWN_VOI_CNT) + (VTSS_UP_VOI_CNT)) // Total count of down and up VOIs
+#define VTSS_EVENT_MASK_ARRAY_SIZE                                                                 \
     ((VTSS_VOE_CNT + 31) / 32) // Size in u32's of event mask array used by
                                // vtss_voe_event_active_get()
 
@@ -122,10 +120,10 @@ typedef struct {
                              // copy to CPU if CCM has more TLVs than port and
                              // interface status.
     u8 auto_copy_ccm_err;    // #auto_copy_period timer (0 or 1) to use for auto
-                          // copy to CPU if CCM validation fails (including MEG
-                          // level too low).
-    u8 auto_copy_lbr; // #auto_copy_period timer (0 or 1) to use for auto copy
-                      // next or LBR (or non-OAM message) to CPU.
+                             // copy to CPU if CCM validation fails (including MEG
+                             // level too low).
+    u8 auto_copy_lbr;        // #auto_copy_period timer (0 or 1) to use for auto copy
+                             // next or LBR (or non-OAM message) to CPU.
 #endif
 
     // CPU extraction queues to use for the various packet types
@@ -148,8 +146,7 @@ typedef struct {
 // Set VOP configuration.
 // inst  [IN]  Target instance reference.
 // conf  [IN] New configuration for the VOP.
-vtss_rc vtss_vop_conf_set(const vtss_inst_t            inst,
-                          const vtss_vop_conf_t *const conf);
+vtss_rc vtss_vop_conf_set(const vtss_inst_t inst, const vtss_vop_conf_t *const conf);
 
 vtss_rc vtss_vop_conf_get(const vtss_inst_t inst, vtss_vop_conf_t *const cfg);
 
@@ -298,19 +295,14 @@ vtss_rc vtss_voe_cc_conf_get(const vtss_inst_t         inst,
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of the VOE instance.
 // rdi      [IN] The CCM RDI status.
-vtss_rc vtss_voe_cc_rdi_set(const vtss_inst_t    inst,
-                            const vtss_voe_idx_t voe_idx,
-                            const BOOL           rdi);
+vtss_rc vtss_voe_cc_rdi_set(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx, const BOOL rdi);
 
-vtss_rc vtss_voe_cc_rdi_get(const vtss_inst_t    inst,
-                            const vtss_voe_idx_t voe_idx,
-                            BOOL *const          rdi);
+vtss_rc vtss_voe_cc_rdi_get(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx, BOOL *const rdi);
 
 // VOE Continuity Check copy next received CC PDU to CPU set.
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of the VOE instance.
-vtss_rc vtss_voe_cc_cpu_copy_next_set(const vtss_inst_t    inst,
-                                      const vtss_voe_idx_t voe_idx);
+vtss_rc vtss_voe_cc_cpu_copy_next_set(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx);
 #if defined(VTSS_FEATURE_VOP_CFM)
 // VOE LT configuration.
 typedef struct {
@@ -451,8 +443,7 @@ vtss_rc vtss_voe_counters_get(const vtss_inst_t    inst,
 // Clear counters in vtss_voe_counters_t
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of the VOE instance.
-vtss_rc vtss_voe_counters_clear(const vtss_inst_t    inst,
-                                const vtss_voe_idx_t voe_idx);
+vtss_rc vtss_voe_counters_clear(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx);
 
 // VOE CC status
 typedef struct {
@@ -533,8 +524,7 @@ vtss_rc vtss_voe_cc_counters_get(const vtss_inst_t       inst,
 // Clear CC counters in vtss_voe_cc_counters_t
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of the VOE instance.
-vtss_rc vtss_voe_cc_counters_clear(const vtss_inst_t    inst,
-                                   const vtss_voe_idx_t voe_idx);
+vtss_rc vtss_voe_cc_counters_clear(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx);
 
 #if defined(VTSS_FEATURE_VOP_CFM)
 // VOE LT status
@@ -599,8 +589,7 @@ vtss_rc vtss_voe_lb_counters_get(const vtss_inst_t       inst,
 // Clear LB counters in vtss_voe_lb_counters_t
 // inst     [IN] Target instance reference.
 // voe_idx  [IN] Index of the VOE instance.
-vtss_rc vtss_voe_lb_counters_clear(const vtss_inst_t    inst,
-                                   const vtss_voe_idx_t voe_idx);
+vtss_rc vtss_voe_lb_counters_clear(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx);
 
 // VOE LAPS status
 typedef struct {
@@ -625,9 +614,7 @@ vtss_rc vtss_voe_laps_status_get(const vtss_inst_t       inst,
 // active_size [IN]  The size of the active event mask array.
 //                   Must be VTSS_EVENT_MASK_ARRAY_SIZE.
 // active      [OUT] Active event mask array. The LSB of active[0] is VOE index 0.
-vtss_rc vtss_voe_event_active_get(const vtss_inst_t inst,
-                                  const u32         active_size,
-                                  u32 *const        active);
+vtss_rc vtss_voe_event_active_get(const vtss_inst_t inst, const u32 active_size, u32 *const active);
 
 // VOE Event indication flags.
 // Different events can be enabled/disabled and polled.
@@ -680,9 +667,7 @@ vtss_rc vtss_voe_event_mask_get(const vtss_inst_t    inst,
 // get. inst      [IN]  Target instance reference. voe_idx   [IN]  Index of
 // polled VOE instance. mask      [OUT] Mask of detected pending events during
 // get.
-vtss_rc vtss_voe_event_get(const vtss_inst_t    inst,
-                           const vtss_voe_idx_t voe_idx,
-                           u32 *const           mask);
+vtss_rc vtss_voe_event_get(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx, u32 *const mask);
 
 #if defined(VTSS_FEATURE_VOP_V2)
 // -------------------------------------------------------------------------

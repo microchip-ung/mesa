@@ -97,8 +97,7 @@ typedef struct {
     uint8_t indv_mask_BT_layer2_power_allocation_limit_default;
 
     // bt - Port LED Blinks at invalid signature or connection-check error
-    uint8_t
-        indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default;
+    uint8_t indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default;
 
     // bt - Support adding lldp half priority
     uint8_t indv_mask_BT_support_adding_lldp_half_priority_default;
@@ -179,6 +178,6 @@ void meba_pd69200bt_driver_init(meba_poe_ctrl_inst_t       *inst,
                                 meba_poe_psu_input_prob_t  *psu_map,
                                 uint32_t                    psu_map_length,
                                 meba_debug_t                debug,
-                                meba_poe_parameters_t tMeba_poe_parameters);
+                                meba_poe_parameters_t       tMeba_poe_parameters);
 
 #endif // _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_

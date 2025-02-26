@@ -7,18 +7,16 @@
 
 #include "meba_aux.h"
 
-#define PDS_408G_NUM_COPPER_PORTS (10) // 8x1G+PoE, 2x1G
-#define PDS_408G_NUM_PORTS                                                     \
-    (PDS_408G_NUM_COPPER_PORTS + 1)      // 8x1G+PoE, 2x1G, 1xSFP
-#define PDS_408G_SFP_LOG_PORT_INDEX (10) // starting from zero
-#define PDS_408G_NUM_POE_PORT       (8)  // logical port 0-7
-#define PDS_408G_BUTTON_PRESSED     (false)
-#define PDS_408G_BUTTON_RELEASED    (true)
-#define PDS_408G_POE_RESET_IO       (4)
-#define PDS_408G_SYSTEM_LED_IO      (7)
-#define PDS_408G_POE_DISABLE_PORTS_IO                                          \
-    (10) // GPI10 , output, 0=POE_Disable. 1=PoE_Enable
-#define PDS_408G_RESET_BUTTON_IP (12)
+#define PDS_408G_NUM_COPPER_PORTS     (10)                            // 8x1G+PoE, 2x1G
+#define PDS_408G_NUM_PORTS            (PDS_408G_NUM_COPPER_PORTS + 1) // 8x1G+PoE, 2x1G, 1xSFP
+#define PDS_408G_SFP_LOG_PORT_INDEX   (10)                            // starting from zero
+#define PDS_408G_NUM_POE_PORT         (8)                             // logical port 0-7
+#define PDS_408G_BUTTON_PRESSED       (false)
+#define PDS_408G_BUTTON_RELEASED      (true)
+#define PDS_408G_POE_RESET_IO         (4)
+#define PDS_408G_SYSTEM_LED_IO        (7)
+#define PDS_408G_POE_DISABLE_PORTS_IO (10) // GPI10 , output, 0=POE_Disable. 1=PoE_Enable
+#define PDS_408G_RESET_BUTTON_IP      (12)
 
 /** \brief Number of L26 or Serval PTP pins, that can be used as 1PPS or clock
  * output/input. */
@@ -47,8 +45,7 @@ typedef enum {
 static const uint32_t pin_conf[VTSS_TS_IO_ARRAY_SIZE] = {
     (MEBA_PTP_IO_CAP_PIN_IN | MEBA_PTP_IO_CAP_PIN_OUT)};
 
-static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {
-    MEBA_EVENT_SYNC};
+static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {MEBA_EVENT_SYNC};
 
 static const sgpio_mapping_t tower_led_mapping_lu26[LED_TOWER_MODE_CNT][2] = {
     {{2, 2} /* tower 0 green */, {3, 2} /* tower 0 yellow */},
@@ -86,10 +83,8 @@ static const sgpio_mapping_t port_led_mapping_lu26[LU26_PORTS][2] = {
     [21] = {{21, 0} /* port 21 green */, {21, 1} /* port 21 yellow */},
     [22] = {{22, 0} /* port 22 green */, {22, 1} /* port 22 yellow */},
     [23] = {{23, 0} /* port 23 green */, {23, 1} /* port 23 yellow */},
-    [LU26_PORTS - 2] = {{24, 0} /* port 24 green */,
-           {24, 1} /* port 24 yellow */                             },
-    [LU26_PORTS - 1] = {{25, 0} /* port 25 green */,
-           {25, 1} /* port 25 yellow */                             }
+    [LU26_PORTS - 2] = {{24, 0} /* port 24 green */, {24, 1} /* port 24 yellow */},
+    [LU26_PORTS - 1] = {{25, 0} /* port 25 green */, {25, 1} /* port 25 yellow */}
 };
 
 static const sgpio_mapping_t tower_led_mapping_lu10[LED_TOWER_MODE_CNT][2] = {
@@ -100,32 +95,29 @@ static const sgpio_mapping_t tower_led_mapping_lu10[LED_TOWER_MODE_CNT][2] = {
 };
 
 static const sgpio_mapping_t port_led_mapping_lu10[LU10_PORTS][2] = {
-    [0] = {{0, 0} /* port  0 green */,  {0, 1} /* port  0 yellow */},
-    [1] = {{1, 0} /* port  1 green */,  {1, 1} /* port  1 yellow */},
-    [2] = {{2, 0} /* port  2 green */,  {2, 1} /* port  2 yellow */},
-    [3] = {{3, 0} /* port  3 green */,  {3, 1} /* port  3 yellow */},
-    [4] = {{4, 0} /* port  4 green */,  {4, 1} /* port  4 yellow */},
-    [5] = {{5, 0} /* port  5 green */,  {5, 1} /* port  5 yellow */},
-    [6] = {{6, 0} /* port  6 green */,  {6, 1} /* port  6 yellow */},
-    [7] = {{7, 0} /* port  7 green */,  {7, 1} /* port  7 yellow */},
-    [LU10_PORTS - 2] = {{24, 0} /* port 24 green */,
-           {24, 1} /* port 24 yellow */                            },
-    [LU10_PORTS - 1] = {{25, 0} /* port 25 green */,
-           {25, 1} /* port 25 yellow */                            }
+    [0] = {{0, 0} /* port  0 green */,  {0, 1} /* port  0 yellow */ },
+    [1] = {{1, 0} /* port  1 green */,  {1, 1} /* port  1 yellow */ },
+    [2] = {{2, 0} /* port  2 green */,  {2, 1} /* port  2 yellow */ },
+    [3] = {{3, 0} /* port  3 green */,  {3, 1} /* port  3 yellow */ },
+    [4] = {{4, 0} /* port  4 green */,  {4, 1} /* port  4 yellow */ },
+    [5] = {{5, 0} /* port  5 green */,  {5, 1} /* port  5 yellow */ },
+    [6] = {{6, 0} /* port  6 green */,  {6, 1} /* port  6 yellow */ },
+    [7] = {{7, 0} /* port  7 green */,  {7, 1} /* port  7 yellow */ },
+    [LU10_PORTS - 2] = {{24, 0} /* port 24 green */, {24, 1} /* port 24 yellow */},
+    [LU10_PORTS - 1] = {{25, 0} /* port 25 green */, {25, 1} /* port 25 yellow */}
 };
 
-static const sgpio_mapping_t
-    port_led_mapping_pds408g[PDS_408G_NUM_COPPER_PORTS][2] = {
-        [0] = {{0, 0} /* port  0 green */, {0, 1} /* port  0 yellow */},
-        [1] = {{1, 0} /* port  1 green */, {1, 1} /* port  1 yellow */},
-        [2] = {{2, 0} /* port  2 green */, {2, 1} /* port  2 yellow */},
-        [3] = {{3, 0} /* port  3 green */, {3, 1} /* port  3 yellow */},
-        [4] = {{4, 0} /* port  4 green */, {4, 1} /* port  4 yellow */},
-        [5] = {{5, 0} /* port  5 green */, {5, 1} /* port  5 yellow */},
-        [6] = {{6, 0} /* port  6 green */, {6, 1} /* port  6 yellow */},
-        [7] = {{7, 0} /* port  7 green */, {7, 1} /* port  7 yellow */},
-        [8] = {{8, 0} /* port  8 green */, {8, 1} /* port  8 yellow */},
-        [9] = {{9, 0} /* port  9 green */, {9, 1} /* port  9 yellow */},
+static const sgpio_mapping_t port_led_mapping_pds408g[PDS_408G_NUM_COPPER_PORTS][2] = {
+    [0] = {{0, 0} /* port  0 green */, {0, 1} /* port  0 yellow */},
+    [1] = {{1, 0} /* port  1 green */, {1, 1} /* port  1 yellow */},
+    [2] = {{2, 0} /* port  2 green */, {2, 1} /* port  2 yellow */},
+    [3] = {{3, 0} /* port  3 green */, {3, 1} /* port  3 yellow */},
+    [4] = {{4, 0} /* port  4 green */, {4, 1} /* port  4 yellow */},
+    [5] = {{5, 0} /* port  5 green */, {5, 1} /* port  5 yellow */},
+    [6] = {{6, 0} /* port  6 green */, {6, 1} /* port  6 yellow */},
+    [7] = {{7, 0} /* port  7 green */, {7, 1} /* port  7 yellow */},
+    [8] = {{8, 0} /* port  8 green */, {8, 1} /* port  8 yellow */},
+    [9] = {{9, 0} /* port  9 green */, {9, 1} /* port  9 yellow */},
 };
 
 typedef enum {
@@ -179,11 +171,10 @@ static const mesa_fan_conf_t fan_conf_lu10 = {
     .ppr = 2,                               // 2 PPR
 };
 
-static mesa_rc caracal_ptp_external_io_conf_get(meba_inst_t inst,
-                                                uint32_t    io_pin,
-                                                meba_ptp_io_cap_t
-                                                    *const board_assignment,
-                                                meba_event_t *const source_id)
+static mesa_rc caracal_ptp_external_io_conf_get(meba_inst_t              inst,
+                                                uint32_t                 io_pin,
+                                                meba_ptp_io_cap_t *const board_assignment,
+                                                meba_event_t *const      source_id)
 {
     if (io_pin >= VTSS_TS_IO_ARRAY_SIZE) {
         return MESA_RC_ERROR;
@@ -195,24 +186,19 @@ static mesa_rc caracal_ptp_external_io_conf_get(meba_inst_t inst,
 
 const sgpio_mapping_t *sgpio_map_led(meba_board_state_t *board, int i)
 {
-    return (board->type == BOARD_LUTON10 ||
-            board->type == BOARD_LUTON10_PDS408G)
+    return (board->type == BOARD_LUTON10 || board->type == BOARD_LUTON10_PDS408G)
                ? &tower_led_mapping_lu10[i][LED_GREEN]
                : &tower_led_mapping_lu26[i][LED_GREEN];
 }
 
-const sgpio_mapping_t *sgpio_map_port(meba_board_state_t *board,
-                                      mesa_port_no_t      p,
-                                      led_color_t         c)
+const sgpio_mapping_t *sgpio_map_port(meba_board_state_t *board, mesa_port_no_t p, led_color_t c)
 {
-    return (board->type == BOARD_LUTON10) ? &port_led_mapping_lu10[p][c]
-           : (board->type == BOARD_LUTON10_PDS408G)
-               ? &port_led_mapping_pds408g[p][c]
-               : &port_led_mapping_lu26[p][c];
+    return (board->type == BOARD_LUTON10)           ? &port_led_mapping_lu10[p][c]
+           : (board->type == BOARD_LUTON10_PDS408G) ? &port_led_mapping_pds408g[p][c]
+                                                    : &port_led_mapping_lu26[p][c];
 }
 
-static void lu26_led_tower_update(meba_inst_t      inst,
-                                  led_tower_mode_t led_tower_mode)
+static void lu26_led_tower_update(meba_inst_t inst, led_tower_mode_t led_tower_mode)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_sgpio_conf_t   conf;
@@ -408,9 +394,8 @@ static mesa_rc caracal_port_entry_get(meba_inst_t        inst,
             // 20-23), but it's not possible to access SFPs in chip_port_no
             // 21-23 through I2C, because their I2C bus is connected to ATOM12
             // and not Lu26.
-            entry->cap = chip_port_no < 20
-                             ? MEBA_PORT_CAP_TRI_SPEED_COPPER
-                             : MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER;
+            entry->cap = chip_port_no < 20 ? MEBA_PORT_CAP_TRI_SPEED_COPPER
+                                           : MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER;
 
             // Since chip_port_no 20-23 are connected through QSGMII on ATOM12,
             // we can't (easily?) change a single port to run SGMII_CISCO and
@@ -444,11 +429,9 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
 
     T_D(inst, "Called - %d", reset);
 
-    rst_conf.media_intf =
-        MESA_PHY_MEDIA_IF_CU; // This makes NO Diff at this point
-    rst_conf.reset_point =
-        MEPA_RESET_POINT_DEFAULT; // This is the param being used
-    rst_conf.framepreempt_en = 0; // FALSE
+    rst_conf.media_intf = MESA_PHY_MEDIA_IF_CU;      // This makes NO Diff at this point
+    rst_conf.reset_point = MEPA_RESET_POINT_DEFAULT; // This is the param being used
+    rst_conf.framepreempt_en = 0;                    // FALSE
 
     switch (reset) {
     case MEBA_BOARD_INITIALIZE: {
@@ -471,30 +454,23 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
             // run)
             (void)mesa_gpio_write(NULL, 0, PDS_408G_POE_RESET_IO,
                                   true); // '1' = dont reset PoE CPU
-            (void)mesa_gpio_mode_set(NULL, 0, PDS_408G_POE_RESET_IO,
-                                     MESA_GPIO_OUT);
+            (void)mesa_gpio_mode_set(NULL, 0, PDS_408G_POE_RESET_IO, MESA_GPIO_OUT);
             (void)mesa_gpio_direction_set(NULL, 0, PDS_408G_POE_RESET_IO, true);
 
             // Set GPIO 7 as System LED
             (void)mesa_gpio_write(NULL, 0, PDS_408G_SYSTEM_LED_IO, true);
-            (void)mesa_gpio_mode_set(NULL, 0, PDS_408G_SYSTEM_LED_IO,
-                                     MESA_GPIO_OUT);
-            (void)mesa_gpio_direction_set(NULL, 0, PDS_408G_SYSTEM_LED_IO,
-                                          true);
+            (void)mesa_gpio_mode_set(NULL, 0, PDS_408G_SYSTEM_LED_IO, MESA_GPIO_OUT);
+            (void)mesa_gpio_direction_set(NULL, 0, PDS_408G_SYSTEM_LED_IO, true);
 
             // Set GPIO 10 as POE En/Dis by output pin (0=disable)
             (void)mesa_gpio_write(NULL, 0, PDS_408G_POE_DISABLE_PORTS_IO,
                                   true); // "1" = dont disable PoE
-            (void)mesa_gpio_mode_set(NULL, 0, PDS_408G_POE_DISABLE_PORTS_IO,
-                                     MESA_GPIO_OUT);
-            (void)mesa_gpio_direction_set(NULL, 0,
-                                          PDS_408G_POE_DISABLE_PORTS_IO, true);
+            (void)mesa_gpio_mode_set(NULL, 0, PDS_408G_POE_DISABLE_PORTS_IO, MESA_GPIO_OUT);
+            (void)mesa_gpio_direction_set(NULL, 0, PDS_408G_POE_DISABLE_PORTS_IO, true);
 
             /* Set GPIO 12 as push button int */
-            (void)mesa_gpio_mode_set(NULL, 0, PDS_408G_RESET_BUTTON_IP,
-                                     MESA_GPIO_IN);
-            (void)mesa_gpio_direction_set(NULL, 0, PDS_408G_RESET_BUTTON_IP,
-                                          false);
+            (void)mesa_gpio_mode_set(NULL, 0, PDS_408G_RESET_BUTTON_IP, MESA_GPIO_IN);
+            (void)mesa_gpio_direction_set(NULL, 0, PDS_408G_RESET_BUTTON_IP, false);
         }
 
         /* Setup SGPIO */
@@ -506,40 +482,28 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
                 conf.bit_count = 3;
                 for (port = 0; port < MESA_SGPIO_PORTS; port++)
                     conf.port_conf[port].enabled = 1;
-                conf.port_conf[26].mode[2] =
-                    MESA_SGPIO_MODE_ON; /* SFP0 Tx enable */
-                conf.port_conf[27].mode[1] =
-                    MESA_SGPIO_MODE_ON; /* SFP1 Tx enable */
+                conf.port_conf[26].mode[2] = MESA_SGPIO_MODE_ON; /* SFP0 Tx enable */
+                conf.port_conf[27].mode[1] = MESA_SGPIO_MODE_ON; /* SFP1 Tx enable */
 
-                conf.port_conf[28].mode[0] =
-                    MESA_SGPIO_MODE_ON; /* SFP2 Tx enable */
-                conf.port_conf[28].mode[1] =
-                    MESA_SGPIO_MODE_ON; /* SFP3 Tx enable */
-                conf.port_conf[28].mode[2] =
-                    MESA_SGPIO_MODE_ON; /* SFP4 Tx enable */
-                conf.port_conf[29].mode[0] =
-                    MESA_SGPIO_MODE_ON; /* SFP5 Tx enable */
+                conf.port_conf[28].mode[0] = MESA_SGPIO_MODE_ON; /* SFP2 Tx enable */
+                conf.port_conf[28].mode[1] = MESA_SGPIO_MODE_ON; /* SFP3 Tx enable */
+                conf.port_conf[28].mode[2] = MESA_SGPIO_MODE_ON; /* SFP4 Tx enable */
+                conf.port_conf[29].mode[0] = MESA_SGPIO_MODE_ON; /* SFP5 Tx enable */
             }
             if (board->type == BOARD_LUTON10) {
                 conf.bit_count = 2;
                 for (port = 0; port < MESA_SGPIO_PORTS; port++)
-                    conf.port_conf[port].enabled =
-                        (port < 8 || port > 19 ? 1 : 0);
-                conf.port_conf[30].mode[0] =
-                    MESA_SGPIO_MODE_ON; /* SFP0 Tx enable */
-                conf.port_conf[31].mode[0] =
-                    MESA_SGPIO_MODE_ON; /* SFP1 Tx enable */
+                    conf.port_conf[port].enabled = (port < 8 || port > 19 ? 1 : 0);
+                conf.port_conf[30].mode[0] = MESA_SGPIO_MODE_ON; /* SFP0 Tx enable */
+                conf.port_conf[31].mode[0] = MESA_SGPIO_MODE_ON; /* SFP1 Tx enable */
             }
             if (board->type == BOARD_LUTON10_PDS408G) {
                 conf.bit_count = 1;
                 for (port = 0; port < MESA_SGPIO_PORTS; port++)
-                    conf.port_conf[port].enabled =
-                        (port < PDS_408G_NUM_COPPER_PORTS ? 1 : 0);
+                    conf.port_conf[port].enabled = (port < PDS_408G_NUM_COPPER_PORTS ? 1 : 0);
                 // Only one SFP port on PDS408G. Fixit.
-                conf.port_conf[30].mode[0] =
-                    MESA_SGPIO_MODE_ON; /* SFP0 Tx enable */
-                conf.port_conf[31].mode[0] =
-                    MESA_SGPIO_MODE_ON; /* SFP1 Tx enable */
+                conf.port_conf[30].mode[0] = MESA_SGPIO_MODE_ON; /* SFP0 Tx enable */
+                conf.port_conf[31].mode[0] = MESA_SGPIO_MODE_ON; /* SFP1 Tx enable */
             }
 
             (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
@@ -552,8 +516,7 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
             break;
         }
 
-        if (board->type != BOARD_LUTON10 &&
-            board->type != BOARD_LUTON10_PDS408G) {
+        if (board->type != BOARD_LUTON10 && board->type != BOARD_LUTON10_PDS408G) {
             mesa_port_no_t port_idx;
             // External PHY
             rst_conf.reset_point = MEPA_RESET_POINT_PRE;
@@ -561,9 +524,9 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
 
             // Setup dual media port (fiber/cu), PHY 13 is external Atom12 PHY
             // w/dual-media
-            (void)vtss_phy_write_masked(NULL, 13, 19 | VTSS_PHY_REG_GPIO,
-                                        0x8000, 0xC000); // Enable fiber-media
-                                                         // SerDes in HSIO
+            (void)vtss_phy_write_masked(NULL, 13, 19 | VTSS_PHY_REG_GPIO, 0x8000,
+                                        0xC000); // Enable fiber-media
+                                                 // SerDes in HSIO
             (void)vtss_phy_write(NULL, 13, 18 | VTSS_PHY_REG_GPIO, 0x8f81);
 
             switch (inst->props.target) {
@@ -573,8 +536,7 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
                 // SFP Signal detect shall be active low (register 19E1 bit 1 =
                 // true) Dual media ports (user port 21-24)
                 for (port_idx = 20; port_idx < 24; port_idx++) {
-                    (void)vtss_phy_write_masked(NULL, port_idx,
-                                                19 | VTSS_PHY_REG_EXTENDED, 0x1,
+                    (void)vtss_phy_write_masked(NULL, port_idx, 19 | VTSS_PHY_REG_EXTENDED, 0x1,
                                                 0x1);
                 }
                 break;
@@ -582,8 +544,7 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
                 // SFP Signal detect shall be active low (register 19E1 bit 1 =
                 // true) Dual media ports (user port 12-16)
                 for (port_idx = 12; port_idx < 16; port_idx++) {
-                    (void)vtss_phy_write_masked(NULL, port_idx,
-                                                19 | VTSS_PHY_REG_EXTENDED, 0x1,
+                    (void)vtss_phy_write_masked(NULL, port_idx, 19 | VTSS_PHY_REG_EXTENDED, 0x1,
                                                 0x1);
                 }
                 break;
@@ -592,8 +553,7 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
         }
         break;
     case MEBA_PORT_RESET_POST:
-        rst_conf.reset_point =
-            MEPA_RESET_POINT_POST; // This is the param being used
+        rst_conf.reset_point = MEPA_RESET_POINT_POST; // This is the param being used
         // Internal PHY
         rc = meba_phy_reset(inst, 0, &rst_conf);
         break;
@@ -605,8 +565,7 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
         conf.ser_led_select = 0;
         if (board->type == BOARD_LUTON26) {
             vtss_phy_enhanced_led_control_init(PHY_INST, 13, conf);
-        } else if (board->type == BOARD_LUTON10 ||
-                   board->type == BOARD_LUTON10_PDS408G) {
+        } else if (board->type == BOARD_LUTON10 || board->type == BOARD_LUTON10_PDS408G) {
             vtss_phy_enhanced_led_control_init(PHY_INST, 1, conf);
         }
     } break;
@@ -650,8 +609,7 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
 
         // For Luton 10 reference board the LED pwm is in fact the FAN
         // controller PWM, so we need to initialize fan controller.
-        if (board->type == BOARD_LUTON10 ||
-            board->type == BOARD_LUTON10_PDS408G) {
+        if (board->type == BOARD_LUTON10 || board->type == BOARD_LUTON10_PDS408G) {
             rc = mesa_fan_controller_init(PHY_INST, board->fan_spec);
         }
     } break;
@@ -668,8 +626,7 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
                 (rc = vtss_phy_chip_temp_init(PHY_INST, 12)) != MESA_RC_OK) {
                 rc = MESA_RC_ERROR;
             }
-        } else if (board->type == BOARD_LUTON10 ||
-                   board->type == BOARD_LUTON10_PDS408G) {
+        } else if (board->type == BOARD_LUTON10 || board->type == BOARD_LUTON10_PDS408G) {
             // The Luton10 board has a temperature sensor in the internal PHY.
             rc = vtss_phy_chip_temp_init(PHY_INST, 0);
         }
@@ -687,10 +644,7 @@ static mesa_rc caracal_reset(meba_inst_t inst, meba_reset_point_t reset)
     return rc;
 }
 
-static mesa_rc caracal_sensor_get(meba_inst_t   inst,
-                                  meba_sensor_t type,
-                                  int           six,
-                                  int          *value)
+static mesa_rc caracal_sensor_get(meba_inst_t inst, meba_sensor_t type, int six, int *value)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_rc             rc = MESA_RC_ERROR;
@@ -750,8 +704,7 @@ static mesa_rc caracal_sfp_i2c_xfer(meba_inst_t    inst,
         if (chip_port >= 20 && chip_port <= 23) {
             // Due to a hardware board issue only SFP i2c mux 0 works, so that
             // is always used.
-            rc = vtss_phy_i2c_write(NULL, port_no, 0, addr, i2c_addr,
-                                    word_access, 2, data);
+            rc = vtss_phy_i2c_write(NULL, port_no, 0, addr, i2c_addr, word_access, 2, data);
         } else {
             // Uplink ports - Connected to switch i2c
             uint8_t i2c_data[3];
@@ -763,8 +716,7 @@ static mesa_rc caracal_sfp_i2c_xfer(meba_inst_t    inst,
                which adaptors are used for SFP0 and SFP1 which is defined in
                vtss_appl/board/linux/luton26/bsp-dirver.c
             */
-            rc = inst->iface.i2c_write(chip_port == 24 ? 8 : 9, i2c_addr,
-                                       i2c_data, 3);
+            rc = inst->iface.i2c_write(chip_port == 24 ? 8 : 9, i2c_addr, i2c_data, 3);
         }
     } else {
         if (chip_port >= 20 && chip_port <= 23) {
@@ -772,8 +724,8 @@ static mesa_rc caracal_sfp_i2c_xfer(meba_inst_t    inst,
             // mux 0 works. However, on schematics sent to customers (rev. 2.03)
             // this has been fixed, so that it works. The cutomer may want to
             // remove the lines where MEBA_PORT_CAP_SFP_INACCESSIBLE are set.
-            rc = vtss_phy_i2c_read(NULL, port_no, port_no - 20, addr, i2c_addr,
-                                   word_access, cnt, data);
+            rc = vtss_phy_i2c_read(NULL, port_no, port_no - 20, addr, i2c_addr, word_access, cnt,
+                                   data);
         } else {
             // Uplink ports - Connected to switch i2c
             /* This function pointer refers to i2c_read() in
@@ -782,8 +734,7 @@ static mesa_rc caracal_sfp_i2c_xfer(meba_inst_t    inst,
                which adaptors are used for SFP0 and SFP1 which is defined in
                vtss_appl/board/linux/luton26/bsp-dirver.c
             */
-            rc = inst->iface.i2c_read(chip_port == 24 ? 8 : 9, i2c_addr, addr,
-                                      data, cnt);
+            rc = inst->iface.i2c_read(chip_port == 24 ? 8 : 9, i2c_addr, addr, data, cnt);
         }
     }
     T_D(inst, "i2c %s port %d - address 0x%02x:0x%02x, %d bytes return %d",
@@ -791,8 +742,7 @@ static mesa_rc caracal_sfp_i2c_xfer(meba_inst_t    inst,
     return rc;
 }
 
-static mesa_rc caracal_sfp_insertion_status_get(meba_inst_t       inst,
-                                                mesa_port_list_t *present)
+static mesa_rc caracal_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list_t *present)
 {
     meba_board_state_t    *board = INST2BOARD(inst);
     mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
@@ -833,23 +783,19 @@ static mesa_rc caracal_sfp_insertion_status_get(meba_inst_t       inst,
         // SFP uplink ports. Only sparxIII_24 doens't have uplink port
         if (inst->props.target != MESA_TARGET_SPARX_III_24) {
             mesa_port_list_set(present, 24 - offset,
-                               data[24].value[1] ? 0
-                                                 : 1); // sfp0present (p24b1)
+                               data[24].value[1] ? 0 : 1); // sfp0present (p24b1)
             mesa_port_list_set(present, 25 - offset,
-                               data[25].value[1] ? 0
-                                                 : 1); // sfp1present (p25b1)
+                               data[25].value[1] ? 0 : 1); // sfp1present (p25b1)
         }
     } else if (board->type == BOARD_LUTON10) {
         int i;
-        for (port_no = board->port_cnt - 2, i = 26; port_no < board->port_cnt;
-             port_no++, i++) {
+        for (port_no = board->port_cnt - 2, i = 26; port_no < board->port_cnt; port_no++, i++) {
             /* Bit one is mod_detect, 0=detected */
             mesa_port_list_set(present, port_no, data[i].value[1] ? 0 : 1);
         }
     } else if (board->type == BOARD_LUTON10_PDS408G) {
         int i;
-        for (port_no = board->port_cnt - 2, i = 26; port_no < board->port_cnt;
-             port_no++, i++) {
+        for (port_no = board->port_cnt - 2, i = 26; port_no < board->port_cnt; port_no++, i++) {
             // Only one SFP port on PDS408G. Fixit.
             /* Bit one is mod_detect, 0=detected */
             mesa_port_list_set(present, port_no, data[i].value[1] ? 0 : 1);
@@ -859,8 +805,8 @@ static mesa_rc caracal_sfp_insertion_status_get(meba_inst_t       inst,
     return MESA_RC_OK;
 }
 
-static mesa_rc caracal_port_admin_state_set(meba_inst_t    inst,
-                                            mesa_port_no_t port_no,
+static mesa_rc caracal_port_admin_state_set(meba_inst_t                    inst,
+                                            mesa_port_no_t                 port_no,
                                             const meba_port_admin_state_t *state)
 {
     mesa_rc             rc;
@@ -875,20 +821,16 @@ static mesa_rc caracal_port_admin_state_set(meba_inst_t    inst,
     if (board->type == BOARD_LUTON10 || board->type == BOARD_LUTON10_PDS408G) {
         // Only one SFP port on PDS408G. Fixit.
         if (entry.map.chip_port == 24) {
-            conf.port_conf[30].mode[0] =
-                state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF;
+            conf.port_conf[30].mode[0] = state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF;
         } else if (entry.map.chip_port == 25) {
-            conf.port_conf[31].mode[0] =
-                state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF;
+            conf.port_conf[31].mode[0] = state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF;
         }
         rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     } else if (board->type == BOARD_LUTON26) {
         if (entry.map.chip_port == 24) {
-            conf.port_conf[26].mode[2] =
-                state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF;
+            conf.port_conf[26].mode[2] = state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF;
         } else if (entry.map.chip_port == 25) {
-            conf.port_conf[27].mode[1] =
-                state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF;
+            conf.port_conf[27].mode[1] = state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF;
         }
         rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
@@ -907,9 +849,7 @@ static void lu26_sgpio_led_set(meba_inst_t        inst,
 }
 
 /* Update fiber port LED */
-static void lu26_fiber_port_led_update(meba_inst_t    inst,
-                                       mesa_port_no_t port_no,
-                                       mesa_bool_t    link)
+static void lu26_fiber_port_led_update(meba_inst_t inst, mesa_port_no_t port_no, mesa_bool_t link)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     uint16_t            val = 0xE; // 0xE = Turn off LED
@@ -930,30 +870,25 @@ static mesa_rc caracal_status_led_set(meba_inst_t      inst,
     meba_board_state_t *board = INST2BOARD(inst);
     if (type == MEBA_LED_TYPE_FRONT && color < MEBA_LED_COLOR_COUNT) {
         mesa_sgpio_conf_t      conf;
-        const sgpio_mapping_t *green = &board->status_led_map[0],
-                              *red = &board->status_led_map[1];
+        const sgpio_mapping_t *green = &board->status_led_map[0], *red = &board->status_led_map[1];
         T_I(inst, "LED:%d, color=%d", type, color);
         if ((rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
             switch (color) {
             // Active high
             case MEBA_LED_COLOR_OFF:
-                conf.port_conf[green->port].mode[green->bit] =
-                    MESA_SGPIO_MODE_OFF;
+                conf.port_conf[green->port].mode[green->bit] = MESA_SGPIO_MODE_OFF;
                 conf.port_conf[red->port].mode[red->bit] = MESA_SGPIO_MODE_OFF;
                 break;
             case MEBA_LED_COLOR_GREEN:
-                conf.port_conf[green->port].mode[green->bit] =
-                    MESA_SGPIO_MODE_ON;
+                conf.port_conf[green->port].mode[green->bit] = MESA_SGPIO_MODE_ON;
                 conf.port_conf[red->port].mode[red->bit] = MESA_SGPIO_MODE_OFF;
                 break;
             case MEBA_LED_COLOR_RED:
-                conf.port_conf[green->port].mode[green->bit] =
-                    MESA_SGPIO_MODE_OFF;
+                conf.port_conf[green->port].mode[green->bit] = MESA_SGPIO_MODE_OFF;
                 conf.port_conf[red->port].mode[red->bit] = MESA_SGPIO_MODE_ON;
                 break;
             case MEBA_LED_COLOR_YELLOW:
-                conf.port_conf[green->port].mode[green->bit] =
-                    MESA_SGPIO_MODE_ON;
+                conf.port_conf[green->port].mode[green->bit] = MESA_SGPIO_MODE_ON;
                 conf.port_conf[red->port].mode[red->bit] = MESA_SGPIO_MODE_ON;
                 break;
             default: rc = MESA_RC_ERROR;
@@ -975,28 +910,25 @@ static mesa_rc caracal_port_led_update(meba_inst_t                    inst,
     meba_board_state_t        *board = INST2BOARD(inst);
     static mesa_port_status_t  status_old[MAX_PORTS];
     static mesa_port_counter_t port_collision_cnt[MAX_PORTS];
-    mesa_bool_t                need_process = false, tower_mode_changed = false,
-                collision = false;
-    mesa_bool_t       gpio_val;
-    mesa_port_no_t    port_idx = port_no, process_cnt = port_no + 1;
-    mesa_sgpio_conf_t conf;
-    uint16_t          reg;
+    mesa_bool_t                need_process = false, tower_mode_changed = false, collision = false;
+    mesa_bool_t                gpio_val;
+    mesa_port_no_t             port_idx = port_no, process_cnt = port_no + 1;
+    mesa_sgpio_conf_t          conf;
+    uint16_t                   reg;
 
     T_N(inst, "Called - port %d", port_no);
 
     /* Check if port's link/speed/fdx has changed */
     if (status_old[port_no].link != status->link ||
         (status_old[port_no].link == status->link &&
-         (status_old[port_no].speed != status->speed ||
-          status_old[port_no].fdx != status->fdx))) {
+         (status_old[port_no].speed != status->speed || status_old[port_no].fdx != status->fdx))) {
         T_I(inst, "Port %d: Link state change - Force update", port_no);
         need_process = true;
     }
     status_old[port_no] = *status;
 
     /* Check if port collision occured */
-    if (board->led_tower_mode == LED_TOWER_MODE_DUPLEX && status->link &&
-        !status->fdx &&
+    if (board->led_tower_mode == LED_TOWER_MODE_DUPLEX && status->link && !status->fdx &&
         port_collision_cnt[port_no] != counters->rmon.tx_etherStatsCollisions) {
         T_I(inst, "Port %d: Collision - Force update", port_no);
         need_process = true;
@@ -1017,10 +949,8 @@ static mesa_rc caracal_port_led_update(meba_inst_t                    inst,
             static uint64_t    system_led_toogle_time = 0;
             static mesa_bool_t system_led_toogle = true;
 
-            if (VTSS_OS_TICK2MSEC(board->tmp_timer - system_led_toogle_time) >
-                500) {
-                mesa_gpio_write(NULL, 0, PDS_408G_SYSTEM_LED_IO,
-                                system_led_toogle);
+            if (VTSS_OS_TICK2MSEC(board->tmp_timer - system_led_toogle_time) > 500) {
+                mesa_gpio_write(NULL, 0, PDS_408G_SYSTEM_LED_IO, system_led_toogle);
                 system_led_toogle = !system_led_toogle;
                 system_led_toogle_time = board->tmp_timer;
             }
@@ -1029,14 +959,13 @@ static mesa_rc caracal_port_led_update(meba_inst_t                    inst,
         /* Update port LEDs */
         if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
             for (; port_idx < process_cnt - 1; port_idx++) {
-                lu26_sgpio_led_set(inst, port_idx, LED_GREEN,
-                                   MESA_SGPIO_MODE_OFF, &conf);
+                lu26_sgpio_led_set(inst, port_idx, LED_GREEN, MESA_SGPIO_MODE_OFF, &conf);
 
                 // Y no need for tower LED and different blink mode support -
                 // just blink inverse activity
                 if (status_old[port_idx].link)
-                    lu26_sgpio_led_set(inst, port_idx, LED_GREEN,
-                                       MESA_SGPIO_MODE_0_ACTIVITY_INV, &conf);
+                    lu26_sgpio_led_set(inst, port_idx, LED_GREEN, MESA_SGPIO_MODE_0_ACTIVITY_INV,
+                                       &conf);
             }
             (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
         }
@@ -1044,12 +973,10 @@ static mesa_rc caracal_port_led_update(meba_inst_t                    inst,
         return MESA_RC_OK;
     }
 
-    if ((port_no % 4) == 0 &&
-        mesa_gpio_read(NULL, 0, 12, &gpio_val) == MESA_RC_OK && gpio_val) {
+    if ((port_no % 4) == 0 && mesa_gpio_read(NULL, 0, 12, &gpio_val) == MESA_RC_OK && gpio_val) {
         tower_mode_changed = true;
         led_tower_mode_t led_tower_mode =
-            (led_tower_mode_t)((board->led_tower_mode + 1) %
-                               LED_TOWER_MODE_CNT);
+            (led_tower_mode_t)((board->led_tower_mode + 1) % LED_TOWER_MODE_CNT);
 
         T_I(inst, "Mode button pressed");
 
@@ -1063,33 +990,26 @@ static mesa_rc caracal_port_led_update(meba_inst_t                    inst,
 
     /* Return here if nothing has changed or in power saving mode */
     if ((!need_process && !tower_mode_changed) ||
-        (!tower_mode_changed &&
-         board->led_tower_mode == LED_TOWER_MODE_POWER_SAVE)) {
+        (!tower_mode_changed && board->led_tower_mode == LED_TOWER_MODE_POWER_SAVE)) {
         return MESA_RC_OK;
     }
 
     /* Update port LEDs */
     if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
         for (; port_idx < process_cnt; port_idx++) {
-            lu26_sgpio_led_set(inst, port_idx, LED_GREEN, MESA_SGPIO_MODE_OFF,
-                               &conf);
-            lu26_sgpio_led_set(inst, port_idx, LED_YELLOW, MESA_SGPIO_MODE_OFF,
-                               &conf);
+            lu26_sgpio_led_set(inst, port_idx, LED_GREEN, MESA_SGPIO_MODE_OFF, &conf);
+            lu26_sgpio_led_set(inst, port_idx, LED_YELLOW, MESA_SGPIO_MODE_OFF, &conf);
 
             if (board->type == BOARD_LUTON26) {
                 meba_port_entry_t entry;
-                if (caracal_port_entry_get(inst, port_idx, &entry) ==
-                        MESA_RC_OK &&
+                if (caracal_port_entry_get(inst, port_idx, &entry) == MESA_RC_OK &&
                     (entry.cap & (MEBA_PORT_CAP_SPEED_DUAL_ANY_FIBER))) {
                     /* Read Media Mode  status */
-                    if (vtss_phy_read(NULL, port_idx,
-                                      20 | VTSS_PHY_REG_EXTENDED,
-                                      &reg) == MESA_RC_OK) {
+                    if (vtss_phy_read(NULL, port_idx, 20 | VTSS_PHY_REG_EXTENDED, &reg) ==
+                        MESA_RC_OK) {
                         mesa_bool_t fiber = (((reg >> 6) & 0x3) == 2 ? 1 : 0);
                         if (fiber || !status_old[port_idx].link) {
-                            lu26_fiber_port_led_update(inst, port_idx,
-                                                       status_old[port_idx]
-                                                           .link);
+                            lu26_fiber_port_led_update(inst, port_idx, status_old[port_idx].link);
                         }
                     }
                 }
@@ -1101,13 +1021,11 @@ static mesa_rc caracal_port_led_update(meba_inst_t                    inst,
                     if (status_old[port_idx].speed >= MESA_SPEED_1G) {
                         /* Green: 1G link/activity */
                         lu26_sgpio_led_set(inst, port_idx, LED_GREEN,
-                                           MESA_SGPIO_MODE_0_ACTIVITY_INV,
-                                           &conf);
+                                           MESA_SGPIO_MODE_0_ACTIVITY_INV, &conf);
                     } else {
                         /* Yellow: 100/10 link/activity */
                         lu26_sgpio_led_set(inst, port_idx, LED_YELLOW,
-                                           MESA_SGPIO_MODE_0_ACTIVITY_INV,
-                                           &conf);
+                                           MESA_SGPIO_MODE_0_ACTIVITY_INV, &conf);
                     }
                 }
                 break;
@@ -1116,24 +1034,20 @@ static mesa_rc caracal_port_led_update(meba_inst_t                    inst,
                     if (status_old[port_idx].fdx) {
                         /* Green: FDX */
                         lu26_sgpio_led_set(inst, port_idx, LED_GREEN,
-                                           MESA_SGPIO_MODE_0_ACTIVITY_INV,
-                                           &conf);
+                                           MESA_SGPIO_MODE_0_ACTIVITY_INV, &conf);
                     } else if (port_idx == port_no && collision) {
                         /* Blink yellow: HDX with collision */
-                        lu26_sgpio_led_set(inst, port_idx, LED_YELLOW,
-                                           MESA_SGPIO_MODE_0, &conf);
+                        lu26_sgpio_led_set(inst, port_idx, LED_YELLOW, MESA_SGPIO_MODE_0, &conf);
                     } else {
                         /* Yellow: HDX without collision */
-                        lu26_sgpio_led_set(inst, port_idx, LED_YELLOW,
-                                           MESA_SGPIO_MODE_ON, &conf);
+                        lu26_sgpio_led_set(inst, port_idx, LED_YELLOW, MESA_SGPIO_MODE_ON, &conf);
                     }
                 }
                 break;
             case LED_TOWER_MODE_LINK_STATUS:
                 if (status_old[port_idx].link) {
                     /* Green: link on */
-                    lu26_sgpio_led_set(inst, port_idx, LED_GREEN,
-                                       MESA_SGPIO_MODE_ON, &conf);
+                    lu26_sgpio_led_set(inst, port_idx, LED_GREEN, MESA_SGPIO_MODE_ON, &conf);
                 }
                 break;
             case LED_TOWER_MODE_POWER_SAVE: break;
@@ -1146,8 +1060,7 @@ static mesa_rc caracal_port_led_update(meba_inst_t                    inst,
     return MESA_RC_OK;
 }
 
-static mesa_rc caracal_led_intensity_set(meba_inst_t            inst,
-                                         vtss_phy_led_intensity intensity)
+static mesa_rc caracal_led_intensity_set(meba_inst_t inst, vtss_phy_led_intensity intensity)
 {
     mesa_rc             rc;
     meba_board_state_t *board = INST2BOARD(inst);
@@ -1202,8 +1115,7 @@ static mesa_rc caracal_phy_event_enable(meba_inst_t      inst,
     meba_board_state_t *board = INST2BOARD(inst);
     meba_port_entry_t   entry;
     mesa_rc             rc = MESA_RC_OK;
-    T_D(inst, "%sable phy event %d on all ports", enable ? "en" : "dis",
-        phy_event);
+    T_D(inst, "%sable phy event %d on all ports", enable ? "en" : "dis", phy_event);
 
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (caracal_port_entry_get(inst, port_no, &entry) != MESA_RC_OK) {
@@ -1212,15 +1124,15 @@ static mesa_rc caracal_phy_event_enable(meba_inst_t      inst,
         }
 
         if (is_phy_internal(entry.cap)) {
-            if (mesa_dev_all_event_enable(NULL, port_no, MESA_DEV_ALL_LINK_EV,
-                                          enable) != MESA_RC_OK) {
+            if (mesa_dev_all_event_enable(NULL, port_no, MESA_DEV_ALL_LINK_EV, enable) !=
+                MESA_RC_OK) {
                 T_E(inst, "vtss_phy_event_enable_set = %d", rc);
                 break;
             }
         }
         if (is_phy_port(entry.cap)) {
-            if ((rc = vtss_phy_event_enable_set(PHY_INST, port_no, phy_event,
-                                                enable)) != MESA_RC_OK) {
+            if ((rc = vtss_phy_event_enable_set(PHY_INST, port_no, phy_event, enable)) !=
+                MESA_RC_OK) {
                 T_E(inst, "vtss_phy_event_enable_set = %d", rc);
                 break;
             }
@@ -1229,9 +1141,7 @@ static mesa_rc caracal_phy_event_enable(meba_inst_t      inst,
     return rc;
 }
 
-static mesa_rc caracal_event_enable(meba_inst_t  inst,
-                                    meba_event_t event_id,
-                                    mesa_bool_t  enable)
+static mesa_rc caracal_event_enable(meba_inst_t inst, meba_event_t event_id, mesa_bool_t enable)
 {
     mesa_rc             rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
@@ -1241,10 +1151,8 @@ static mesa_rc caracal_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_SYNC:
     case MEBA_EVENT_EXT_SYNC:
     case MEBA_EVENT_CLK_ADJ:  {
-        mesa_ptp_event_type_t ptp_event =
-            meba_generic_ptp_source_to_event(inst, event_id);
-        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) !=
-            MESA_RC_OK) {
+        mesa_ptp_event_type_t ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
+        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
             T_E(inst, "mesa_ptp_event_enable = %d", rc);
         }
     } break;
@@ -1260,21 +1168,18 @@ static mesa_rc caracal_event_enable(meba_inst_t  inst,
                 uint32_t sgpio_port = entry.map.chip_port;
                 if (sgpio_port == 24 || sgpio_port == 25) {
                     // Enable SGPIO for SFP ports
-                    T_D(inst, "%sable LOS on port %d SGPIO %d bit 0",
-                        enable ? "en" : "dis", port_no, sgpio_port);
-                    if ((rc = mesa_sgpio_event_enable(NULL, 0, 0, sgpio_port, 0,
-                                                      enable)) != MESA_RC_OK) {
-                        T_E(inst, "mesa_sgpio_event_enable(%d) = %d",
-                            sgpio_port, rc);
+                    T_D(inst, "%sable LOS on port %d SGPIO %d bit 0", enable ? "en" : "dis",
+                        port_no, sgpio_port);
+                    if ((rc = mesa_sgpio_event_enable(NULL, 0, 0, sgpio_port, 0, enable)) !=
+                        MESA_RC_OK) {
+                        T_E(inst, "mesa_sgpio_event_enable(%d) = %d", sgpio_port, rc);
                     }
                 }
 
                 /* If the port is a dual-media one, then the board port no is
                  * different */
-                if (has_cap(entry.cap, (MEBA_PORT_CAP_DUAL_COPPER |
-                                        MEBA_PORT_CAP_DUAL_FIBER))) {
-                    rc = caracal_phy_event_enable(inst, VTSS_PHY_LINK_LOS_EV,
-                                                  enable);
+                if (has_cap(entry.cap, (MEBA_PORT_CAP_DUAL_COPPER | MEBA_PORT_CAP_DUAL_FIBER))) {
+                    rc = caracal_phy_event_enable(inst, VTSS_PHY_LINK_LOS_EV, enable);
                 }
             }
         }
@@ -1282,16 +1187,13 @@ static mesa_rc caracal_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_FLNK:
         rc = caracal_phy_event_enable(inst, VTSS_PHY_LINK_FFAIL_EV, enable);
         break;
-    default:
-        T_I(inst, "Unsupported Interrupt source %d", event_id);
-        rc = MESA_RC_NOT_IMPLEMENTED;
+    default: T_I(inst, "Unsupported Interrupt source %d", event_id); rc = MESA_RC_NOT_IMPLEMENTED;
     }
 
     return rc;
 }
 
-static mesa_rc sgpio_handler(meba_inst_t         inst,
-                             meba_event_signal_t signal_notifier)
+static mesa_rc sgpio_handler(meba_inst_t inst, meba_event_signal_t signal_notifier)
 {
     mesa_rc             rc;
     int                 handled = 0;
@@ -1301,8 +1203,7 @@ static mesa_rc sgpio_handler(meba_inst_t         inst,
     meba_port_entry_t   entry;
 
     // Chip_no == 0, Group == 0 and bit == 0)
-    if ((rc = mesa_sgpio_event_poll(NULL, 0, 0, 0, sgpio_events)) !=
-        MESA_RC_OK) {
+    if ((rc = mesa_sgpio_event_poll(NULL, 0, 0, 0, sgpio_events)) != MESA_RC_OK) {
         T_E(inst, "mesa_sgpio_event_poll = %d", rc);
         return rc;
     }
@@ -1322,8 +1223,7 @@ static mesa_rc sgpio_handler(meba_inst_t         inst,
         sgpio_port = entry.map.chip_port;
         if (sgpio_events[sgpio_port]) {
             // SGPIO port no
-            if ((rc = mesa_sgpio_event_enable(NULL, 0, 0, sgpio_port, 0,
-                                              false)) != MESA_RC_OK) {
+            if ((rc = mesa_sgpio_event_enable(NULL, 0, 0, sgpio_port, 0, false)) != MESA_RC_OK) {
                 T_E(inst, "mesa_sgpio_event_enable  = %d", rc);
             }
             T_I(inst, "LOS IRQ port %d gpio %d", port_no, sgpio_port);
@@ -1334,8 +1234,7 @@ static mesa_rc sgpio_handler(meba_inst_t         inst,
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
-static mesa_rc ext0_handler(meba_inst_t         inst,
-                            meba_event_signal_t signal_notifier)
+static mesa_rc ext0_handler(meba_inst_t inst, meba_event_signal_t signal_notifier)
 {
     int                 handled = 0;
     mesa_port_no_t      port_no;
@@ -1348,8 +1247,7 @@ static mesa_rc ext0_handler(meba_inst_t         inst,
             break;
         }
         if (!is_phy_internal(entry.cap) && is_phy_port(entry.cap)) {
-            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) ==
-                MESA_RC_OK) {
+            if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
                 T_D(inst, "port(%d) PHY IRQ handled", port_no);
                 handled++;
             }
@@ -1358,16 +1256,14 @@ static mesa_rc ext0_handler(meba_inst_t         inst,
     return handled ? MESA_RC_OK : MESA_RC_ERROR;
 }
 
-static mesa_rc dev_all_handler(meba_inst_t         inst,
-                               meba_event_signal_t signal_notifier)
+static mesa_rc dev_all_handler(meba_inst_t inst, meba_event_signal_t signal_notifier)
 {
     mesa_dev_all_event_type_t dev_all_events[MESA_CAP(MESA_CAP_PORT_CNT)];
     mesa_port_no_t            port_no;
     meba_board_state_t       *board = INST2BOARD(inst);
     meba_port_entry_t         entry;
 
-    if (mesa_dev_all_event_poll(NULL, MESA_DEV_ALL_POLL_ALL, dev_all_events) !=
-        MESA_RC_OK) {
+    if (mesa_dev_all_event_poll(NULL, MESA_DEV_ALL_POLL_ALL, dev_all_events) != MESA_RC_OK) {
         T_E(inst, "mesa_dev_all_event_poll failed");
         return MESA_RC_ERROR;
     }
@@ -1381,24 +1277,20 @@ static mesa_rc dev_all_handler(meba_inst_t         inst,
 
             T_I(inst, "DEV %d intr", port_no);
             if (entry.cap & MEBA_PORT_CAP_COPPER) {
-                if (mesa_dev_all_event_enable(NULL, port_no,
-                                              MESA_DEV_ALL_LINK_EV,
-                                              false) != MESA_RC_OK) {
+                if (mesa_dev_all_event_enable(NULL, port_no, MESA_DEV_ALL_LINK_EV, false) !=
+                    MESA_RC_OK) {
                     T_E(inst, "mesa_dev_all_event_enable failed");
                 }
 
-                if (meba_generic_phy_event_check(inst, port_no,
-                                                 signal_notifier) ==
-                    MESA_RC_OK) {
+                if (meba_generic_phy_event_check(inst, port_no, signal_notifier) == MESA_RC_OK) {
                     T_D(inst, "port(%d) PHY IRQ handled", port_no);
                 }
 
                 // In some cases meba_generic_phy_event_check() doesn't
                 // re-enable the interrupt (due to chip issue). Therefore it's
                 // done specifically here
-                if (mesa_dev_all_event_enable(NULL, port_no,
-                                              MESA_DEV_ALL_LINK_EV,
-                                              true) != MESA_RC_OK) {
+                if (mesa_dev_all_event_enable(NULL, port_no, MESA_DEV_ALL_LINK_EV, true) !=
+                    MESA_RC_OK) {
                     T_E(inst, "mesa_dev_all_event_enable failed");
                 }
             }
@@ -1414,12 +1306,11 @@ static mesa_rc caracal_irq_handler(meba_inst_t         inst,
     T_D(inst, "Called - irq %d", chip_irq);
 
     switch (chip_irq) {
-    case MESA_IRQ_PTP_SYNC:
-        return meba_generic_ptp_handler(inst, signal_notifier);
-    case MESA_IRQ_SGPIO:   return sgpio_handler(inst, signal_notifier);
-    case MESA_IRQ_EXT0:    return ext0_handler(inst, signal_notifier);
-    case MESA_IRQ_DEV_ALL: return dev_all_handler(inst, signal_notifier);
-    default:               ;
+    case MESA_IRQ_PTP_SYNC: return meba_generic_ptp_handler(inst, signal_notifier);
+    case MESA_IRQ_SGPIO:    return sgpio_handler(inst, signal_notifier);
+    case MESA_IRQ_EXT0:     return ext0_handler(inst, signal_notifier);
+    case MESA_IRQ_DEV_ALL:  return dev_all_handler(inst, signal_notifier);
+    default:                ;
     }
 
     return MESA_RC_NOT_IMPLEMENTED;
@@ -1438,22 +1329,21 @@ static mesa_rc caracal_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
     return rc;
 }
 
-meba_inst_t meba_initialize(size_t                        callouts_size,
-                            const meba_board_interface_t *callouts)
+meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *callouts)
 {
     meba_inst_t         inst;
     meba_board_state_t *board;
     int                 i;
 
     if (callouts_size < sizeof(*callouts)) {
-        fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
-                sizeof(*callouts), callouts_size);
+        fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n", sizeof(*callouts),
+                callouts_size);
         return NULL;
     }
 
     // Allocate pulic state
-    if ((inst = meba_state_alloc(callouts, "Luton10", MESA_TARGET_CARACAL_1,
-                                 sizeof(*board))) == NULL) {
+    if ((inst = meba_state_alloc(callouts, "Luton10", MESA_TARGET_CARACAL_1, sizeof(*board))) ==
+        NULL) {
         return NULL;
     }
 
@@ -1483,8 +1373,7 @@ meba_inst_t meba_initialize(size_t                        callouts_size,
         board->type = (board_type_t)i;
         board->port_cnt = PDS_408G_NUM_PORTS;
         board->status_led_map = status_led_mapping_lu26;
-        inst->props.board_type =
-            VTSS_BOARD_LUTON10_PDS408G; // Exposed temporarily
+        inst->props.board_type = VTSS_BOARD_LUTON10_PDS408G; // Exposed temporarily
         board->status_led_map = status_led_mapping_lu10;
         board->fan_spec = &fan_conf_lu10;
     } else if (inst->props.target == MESA_TARGET_CARACAL_LITE ||
@@ -1497,8 +1386,7 @@ meba_inst_t meba_initialize(size_t                        callouts_size,
         }
         board->status_led_map = status_led_mapping_lu10;
         inst->props.board_type =
-            (vtss_board_type_t)(VTSS_BOARD_LUTON10_REF +
-                                board->type); // Exposed temporarily
+            (vtss_board_type_t)(VTSS_BOARD_LUTON10_REF + board->type); // Exposed temporarily
         board->fan_spec = &fan_conf_lu10;
     } else {
         board->type = BOARD_LUTON26;
@@ -1509,15 +1397,13 @@ meba_inst_t meba_initialize(size_t                        callouts_size,
         }
         board->status_led_map = status_led_mapping_lu26;
         inst->props.board_type =
-            (vtss_board_type_t)(VTSS_BOARD_LUTON10_REF +
-                                board->type); // Exposed temporarily
+            (vtss_board_type_t)(VTSS_BOARD_LUTON10_REF + board->type); // Exposed temporarily
         board->fan_spec = &fan_conf;
     }
     board->led_tower_mode = LED_TOWER_MODE_LINK_SPEED;
     board->tmp_timer = 0;
-    T_I(inst, "Board: %s, type %d, target %4x, %d ports, mux_mode = %d",
-        inst->props.name, board->type, inst->props.target, board->port_cnt,
-        inst->props.mux_mode);
+    T_I(inst, "Board: %s, type %d, target %4x, %d ports, mux_mode = %d", inst->props.name,
+        board->type, inst->props.target, board->port_cnt, inst->props.mux_mode);
 
     // Hook up board API functions
     T_D(inst, "Hooking up board API");

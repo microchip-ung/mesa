@@ -166,9 +166,9 @@ vtss_rc vtss_auth_port_state_set(const vtss_inst_t       inst,
 
 /** \brief ACL policer configuration */
 typedef struct {
-    BOOL bit_rate_enable; /**< Use bit rate policing instead of packet rate */
-    vtss_bitrate_t     bit_rate; /**< Bit rate */
-    vtss_packet_rate_t rate;     /**< Packet rate */
+    BOOL               bit_rate_enable; /**< Use bit rate policing instead of packet rate */
+    vtss_bitrate_t     bit_rate;        /**< Bit rate */
+    vtss_packet_rate_t rate;            /**< Packet rate */
 } vtss_acl_policer_conf_t;
 
 /**
@@ -193,8 +193,8 @@ vtss_rc vtss_acl_policer_conf_get(const vtss_inst_t              inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_acl_policer_conf_set(const vtss_inst_t           inst,
-                                  const vtss_acl_policer_no_t policer_no,
+vtss_rc vtss_acl_policer_conf_set(const vtss_inst_t                    inst,
+                                  const vtss_acl_policer_no_t          policer_no,
                                   const vtss_acl_policer_conf_t *const conf);
 
 /** \brief ACL port action */
@@ -208,8 +208,8 @@ typedef enum {
 typedef enum {
     VTSS_ACL_PTP_ACTION_NONE,     /**< No PTP action */
     VTSS_ACL_PTP_ACTION_ONE_STEP, /**< PTP one-step time-stamping */
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||           \
+    defined(VTSS_ARCH_LAN966X)
     VTSS_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY,   /**< PTP one-step time-stamping,
                                                  Serval: add delay, Jr2: Add EDLY   */
     VTSS_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1, /**< PTP one-step time-stamping,
@@ -253,37 +253,36 @@ vtss_rc vtss_acl_sip_conf_set(const vtss_inst_t                inst,
 
 /** \brief ACL address update */
 typedef enum {
-    VTSS_ACL_ADDR_UPDATE_NONE,               /**< No SMAC/DMAC change */
-    VTSS_ACL_ADDR_UPDATE_MAC_SWAP,           /**< Swap SMAC and DMAC */
-    VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE,       /**< Replace DMAC */
-    VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE_MSB,   /**< Replace 40 MSB of DMAC */
-    VTSS_ACL_ADDR_UPDATE_MAC_IP_SWAP_UC,     /**< Swap MAC addresses if DMAC is
-                                                unicast. Replace SMAC if DMAC is
-                                                multicast. Same for SIP/DIP */
-    VTSS_ACL_ADDR_UPDATE_IGR_MAC_SWAP,       /**< Ingress: Swap SMAC and DMAC */
-    VTSS_ACL_ADDR_UPDATE_IGR_DMAC_SMAC_INCR, /**< Ingress: Increment DMAC and
-                                                SMAC */
+    VTSS_ACL_ADDR_UPDATE_NONE,                      /**< No SMAC/DMAC change */
+    VTSS_ACL_ADDR_UPDATE_MAC_SWAP,                  /**< Swap SMAC and DMAC */
+    VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE,              /**< Replace DMAC */
+    VTSS_ACL_ADDR_UPDATE_DMAC_REPLACE_MSB,          /**< Replace 40 MSB of DMAC */
+    VTSS_ACL_ADDR_UPDATE_MAC_IP_SWAP_UC,            /**< Swap MAC addresses if DMAC is
+                                                       unicast. Replace SMAC if DMAC is
+                                                       multicast. Same for SIP/DIP */
+    VTSS_ACL_ADDR_UPDATE_IGR_MAC_SWAP,              /**< Ingress: Swap SMAC and DMAC */
+    VTSS_ACL_ADDR_UPDATE_IGR_DMAC_SMAC_INCR,        /**< Ingress: Increment DMAC and
+                                                       SMAC */
     VTSS_ACL_ADDR_UPDATE_IGR_DMAC_INCR_SMAC_REPLACE /**< Ingress: Increment
                                                        DMAC, replace SMAC */
 } vtss_acl_addr_update_t;
 
 /** \brief ACL address action configuration */
 typedef struct {
-    vtss_acl_addr_update_t update; /**< Address update */
-    vtss_mac_t             mac; /**< MAC address used for replace operations */
+    vtss_acl_addr_update_t update;  /**< Address update */
+    vtss_mac_t             mac;     /**< MAC address used for replace operations */
     vtss_acl_sip_idx_t     sip_idx; /**< Source IP index */
 } vtss_acl_addr_action_t;
 #endif
 
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
-    defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
 /** \brief ACL PTP response action */
 typedef enum {
     VTSS_ACL_PTP_RSP_NONE,               /**< No response action */
     VTSS_ACL_PTP_RSP_DLY_REQ_RSP_TS_UPD, /**< Auto response to Delay_Req,
                                             includes receiveTimestamp update */
-    VTSS_ACL_PTP_RSP_DLY_REQ_RSP_NO_TS /**< Auto response to Delay_Req, exludes
-                                          receiveTimestamp update */
+    VTSS_ACL_PTP_RSP_DLY_REQ_RSP_NO_TS   /**< Auto response to Delay_Req, exludes
+                                            receiveTimestamp update */
 } vtss_acl_ptp_rsp_t;
 
 /** \brief ACL PTP RedBox forwarding */
@@ -295,38 +294,37 @@ typedef struct {
 
 /** \brief ACL PTP action configuration */
 typedef struct {
-    vtss_acl_ptp_rsp_t response; /**< PTP Delay_Req/Response action */
-    i8 log_message_interval; /**< PTP logMessageInterval [-8,7] returned in the
-                                Delay_Resp message */
-    BOOL copy_smac_to_dmac;  /**< PTP DMAC operation */
-    BOOL set_smac_to_port_mac; /**< PTP SMAC operation */
-    u8   dom_sel; /**< PTP domain selector. PTP_DOM_SEL indexes the PTP
-                     configuration */
-    vtss_udp_tcp_t        sport;  /**< UDP source port */
-    vtss_udp_tcp_t        dport;  /**< UDP destination port */
-    vtss_acl_ptp_rb_fwd_t rb_fwd; /**< RedBox forwarding */
+    vtss_acl_ptp_rsp_t response;             /**< PTP Delay_Req/Response action */
+    i8                 log_message_interval; /**< PTP logMessageInterval [-8,7] returned in the
+                                                Delay_Resp message */
+    BOOL copy_smac_to_dmac;                  /**< PTP DMAC operation */
+    BOOL set_smac_to_port_mac;               /**< PTP SMAC operation */
+    u8   dom_sel;                            /**< PTP domain selector. PTP_DOM_SEL indexes the PTP
+                                                configuration */
+    vtss_udp_tcp_t        sport;             /**< UDP source port */
+    vtss_udp_tcp_t        dport;             /**< UDP destination port */
+    vtss_acl_ptp_rb_fwd_t rb_fwd;            /**< RedBox forwarding */
 } vtss_acl_ptp_action_conf_t;
 #endif
 
 /** \brief ACL Action */
 typedef struct {
-    BOOL cpu;         /**< Forward to CPU */
-    BOOL cpu_once;    /**< Only first frame forwarded to CPU */
-    BOOL cpu_disable; /**< Disable CPU copy from previous forwarding decisions */
-    vtss_packet_rx_queue_t cpu_queue;  /**< CPU queue */
-    BOOL                   police;     /**< Enable policer */
-    vtss_acl_policer_no_t  policer_no; /**< Policer number */
+    BOOL                   cpu;         /**< Forward to CPU */
+    BOOL                   cpu_once;    /**< Only first frame forwarded to CPU */
+    BOOL                   cpu_disable; /**< Disable CPU copy from previous forwarding decisions */
+    vtss_packet_rx_queue_t cpu_queue;   /**< CPU queue */
+    BOOL                   police;      /**< Enable policer */
+    vtss_acl_policer_no_t  policer_no;  /**< Policer number */
 #if defined(VTSS_FEATURE_EVC_POLICERS)
-    BOOL                  evc_police;     /**< Enable EVC policer */
-    vtss_evc_policer_id_t evc_policer_id; /**< EVC policer ID */
-#endif                                    /* VTSS_FEATURE_EVC_POLICERS */
-    BOOL                   learn;         /**< Allow learning */
-    vtss_acl_port_action_t port_action;   /**< Port action */
-    BOOL port_list[VTSS_PORT_ARRAY_SIZE]; /**< Egress port list */
-    BOOL mirror;                          /**< Enable mirroring */
-    vtss_acl_ptp_action_t ptp_action;     /**< PTP action */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||                    \
-    defined(VTSS_ARCH_LAN966X)
+    BOOL                  evc_police;                       /**< Enable EVC policer */
+    vtss_evc_policer_id_t evc_policer_id;                   /**< EVC policer ID */
+#endif                                                      /* VTSS_FEATURE_EVC_POLICERS */
+    BOOL                   learn;                           /**< Allow learning */
+    vtss_acl_port_action_t port_action;                     /**< Port action */
+    BOOL                   port_list[VTSS_PORT_ARRAY_SIZE]; /**< Egress port list */
+    BOOL                   mirror;                          /**< Enable mirroring */
+    vtss_acl_ptp_action_t  ptp_action;                      /**< PTP action */
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
     vtss_acl_ptp_action_conf_t ptp; /**< PTP configuration */
 #endif
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
@@ -335,8 +333,8 @@ typedef struct {
 #if defined(VTSS_ARCH_OCELOT)
     BOOL lm_cnt_disable; /**< Disable OAM LM Tx counting */
 #endif                   /* VTSS_ARCH_OCELOT */
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||                \
-    defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||           \
+    defined(VTSS_ARCH_LAN966X)
     BOOL mac_swap; /**< Swap SMAC and DMAC */
     BOOL ifh_flag; /**< Control one target specific bit in IFH */
 #endif
@@ -416,8 +414,7 @@ vtss_rc vtss_acl_port_counter_get(const vtss_inst_t              inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_acl_port_counter_clear(const vtss_inst_t    inst,
-                                    const vtss_port_no_t port_no);
+vtss_rc vtss_acl_port_counter_clear(const vtss_inst_t inst, const vtss_port_no_t port_no);
 
 /** \brief ACE frame type */
 typedef enum {
@@ -510,16 +507,15 @@ typedef struct {
 typedef struct {
     vtss_ace_u48_t dmac; /**< DMAC */
     vtss_ace_u48_t smac; /**< SMAC */
-    vtss_ace_u32_t llc; /**< LLC header: DSAP at byte 0, SSAP at byte 1, Control
-                           at byte 2 */
+    vtss_ace_u32_t llc;  /**< LLC header: DSAP at byte 0, SSAP at byte 1, Control
+                            at byte 2 */
 } vtss_ace_frame_llc_t;
 
 /** \brief Frame data for VTSS_ACE_TYPE_SNAP */
 typedef struct {
     vtss_ace_u48_t dmac; /**< DMAC */
     vtss_ace_u48_t smac; /**< SMAC */
-    vtss_ace_u40_t
-        snap; /**< SNAP header: Organization Code at byte 0, Type at byte 3 */
+    vtss_ace_u40_t snap; /**< SNAP header: Organization Code at byte 0, Type at byte 3 */
 } vtss_ace_frame_snap_t;
 
 /** \brief Frame data for VTSS_ACE_TYPE_ARP */
@@ -533,11 +529,11 @@ typedef struct {
     vtss_ace_bit_t unknown;    /**< Opcode unknown */
     vtss_ace_bit_t smac_match; /**< Sender MAC matches SMAC */
     vtss_ace_bit_t dmac_match; /**< Target MAC matches DMAC */
-    vtss_ace_bit_t length;   /**< Protocol addr. length 4, hardware length 6 */
-    vtss_ace_bit_t ip;       /**< Protocol address type IP */
-    vtss_ace_bit_t ethernet; /**< Hardware address type Ethernet */
-    vtss_ace_ip_t  sip;      /**< Sender IP address */
-    vtss_ace_ip_t  dip;      /**< Target IP address */
+    vtss_ace_bit_t length;     /**< Protocol addr. length 4, hardware length 6 */
+    vtss_ace_bit_t ip;         /**< Protocol address type IP */
+    vtss_ace_bit_t ethernet;   /**< Hardware address type Ethernet */
+    vtss_ace_ip_t  sip;        /**< Sender IP address */
+    vtss_ace_ip_t  dip;        /**< Target IP address */
 } vtss_ace_frame_arp_t;
 
 /** \brief Frame data for VTSS_ACE_TYPE_IPV4 */
@@ -546,27 +542,27 @@ typedef struct {
     vtss_ace_u48_t dmac; // DMAC, VTSS_ACL_KEY_EXT
     vtss_ace_u48_t smac; // SMAC, VTSS_ACL_KEY_EXT
 #endif
-    vtss_ace_bit_t     ttl;            /**< TTL zero */
-    vtss_ace_bit_t     fragment;       /**< Fragment */
-    vtss_ace_bit_t     options;        /**< Header options */
-    vtss_ace_u8_t      ds;             /**< DS field */
-    vtss_ace_u8_t      proto;          /**< Protocol */
-    vtss_ace_ip_t      sip;            /**< Source IP address */
-    vtss_ace_ip_t      dip;            /**< Destination IP address */
-    vtss_ace_u48_t     data;           /**< Not UDP/TCP: IP data */
-    vtss_ace_udp_tcp_t sport;          /**< UDP/TCP: Source port */
-    vtss_ace_udp_tcp_t dport;          /**< UDP/TCP: Destination port */
-    vtss_ace_bit_t     tcp_fin;        /**< TCP FIN */
-    vtss_ace_bit_t     tcp_syn;        /**< TCP SYN */
-    vtss_ace_bit_t     tcp_rst;        /**< TCP RST */
-    vtss_ace_bit_t     tcp_psh;        /**< TCP PSH */
-    vtss_ace_bit_t     tcp_ack;        /**< TCP ACK */
-    vtss_ace_bit_t     tcp_urg;        /**< TCP URG */
-    vtss_ace_bit_t     sip_eq_dip;     /**< SIP equals DIP  */
-    vtss_ace_bit_t     sport_eq_dport; /**< SPORT equals DPORT  */
-    vtss_ace_bit_t     seq_zero;       /**< TCP sequence number is zero */
-    vtss_ace_ptp_t     ptp;       /**< PTP filtering (overrides sip field) */
-    vtss_ace_sip_smac_t sip_smac; /**< SIP/SMAC matching (overrides sip field) */
+    vtss_ace_bit_t      ttl;            /**< TTL zero */
+    vtss_ace_bit_t      fragment;       /**< Fragment */
+    vtss_ace_bit_t      options;        /**< Header options */
+    vtss_ace_u8_t       ds;             /**< DS field */
+    vtss_ace_u8_t       proto;          /**< Protocol */
+    vtss_ace_ip_t       sip;            /**< Source IP address */
+    vtss_ace_ip_t       dip;            /**< Destination IP address */
+    vtss_ace_u48_t      data;           /**< Not UDP/TCP: IP data */
+    vtss_ace_udp_tcp_t  sport;          /**< UDP/TCP: Source port */
+    vtss_ace_udp_tcp_t  dport;          /**< UDP/TCP: Destination port */
+    vtss_ace_bit_t      tcp_fin;        /**< TCP FIN */
+    vtss_ace_bit_t      tcp_syn;        /**< TCP SYN */
+    vtss_ace_bit_t      tcp_rst;        /**< TCP RST */
+    vtss_ace_bit_t      tcp_psh;        /**< TCP PSH */
+    vtss_ace_bit_t      tcp_ack;        /**< TCP ACK */
+    vtss_ace_bit_t      tcp_urg;        /**< TCP URG */
+    vtss_ace_bit_t      sip_eq_dip;     /**< SIP equals DIP  */
+    vtss_ace_bit_t      sport_eq_dport; /**< SPORT equals DPORT  */
+    vtss_ace_bit_t      seq_zero;       /**< TCP sequence number is zero */
+    vtss_ace_ptp_t      ptp;            /**< PTP filtering (overrides sip field) */
+    vtss_ace_sip_smac_t sip_smac;       /**< SIP/SMAC matching (overrides sip field) */
 } vtss_ace_frame_ipv4_t;
 
 /** \brief Frame data for VTSS_ACE_TYPE_IPV6 */
@@ -575,9 +571,8 @@ typedef struct {
     vtss_ace_u48_t dmac; // DMAC, VTSS_ACL_KEY_EXT
     vtss_ace_u48_t smac; // SMAC, VTSS_ACL_KEY_EXT
 #endif
-    vtss_ace_u8_t proto; /**< IPv6 protocol */
-    vtss_ace_u128_t
-        sip; // IPv6 source address (byte 0-7 only used for VTSS_ACL_KEY_EXT)
+    vtss_ace_u8_t   proto; /**< IPv6 protocol */
+    vtss_ace_u128_t sip;   // IPv6 source address (byte 0-7 only used for VTSS_ACL_KEY_EXT)
 #if defined(VTSS_FEATURE_ACL_EXT_DIP)
     vtss_ace_u128_t dip; // IPv6 destinaton address, VTSS_ACL_KEY_EXT
 #endif
@@ -595,7 +590,7 @@ typedef struct {
     vtss_ace_bit_t     sip_eq_dip;     /**< SIP equals DIP  */
     vtss_ace_bit_t     sport_eq_dport; /**< SPORT equals DPORT  */
     vtss_ace_bit_t     seq_zero;       /**< TCP sequence number is zero */
-    vtss_ace_ptp_t     ptp; /**< PTP filtering (overrides sip byte 0-3) */
+    vtss_ace_ptp_t     ptp;            /**< PTP filtering (overrides sip byte 0-3) */
 } vtss_ace_frame_ipv6_t;
 
 /** \brief Access Control Entry */
@@ -609,8 +604,8 @@ typedef struct {
     BOOL              port_list[VTSS_PORT_ARRAY_SIZE]; /**< Port list */
     vtss_ace_u8_t     policy;                          /**< Policy number */
     vtss_ace_type_t   type;                            /**< ACE frame type */
-    BOOL              type_ext; // Use extended type for IPv4/IPv6
-    vtss_acl_action_t action;   /**< ACE action */
+    BOOL              type_ext;                        // Use extended type for IPv4/IPv6
+    vtss_acl_action_t action;                          /**< ACE action */
 
     vtss_ace_bit_t dmac_mc; /**< Multicast DMAC */
     vtss_ace_bit_t dmac_bc; /**< Broadcast DMAC */
@@ -637,9 +632,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_ace_init(const vtss_inst_t     inst,
-                      const vtss_ace_type_t type,
-                      vtss_ace_t *const     ace);
+vtss_rc vtss_ace_init(const vtss_inst_t inst, const vtss_ace_type_t type, vtss_ace_t *const ace);
 
 /**
  * \brief Add/modify ACE.
@@ -690,8 +683,7 @@ vtss_rc vtss_ace_counter_get(const vtss_inst_t         inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_ace_counter_clear(const vtss_inst_t   inst,
-                               const vtss_ace_id_t ace_id);
+vtss_rc vtss_ace_counter_clear(const vtss_inst_t inst, const vtss_ace_id_t ace_id);
 
 #if defined(VTSS_ARCH_LUTON26)
 #define VTSS_ACE_IDX_NONE 0xffff /**< ACE index not valid */
@@ -770,8 +762,7 @@ typedef struct {
 
 /** \brief Frame data for VTSS_ACE_TYPE_SNAP */
 typedef struct {
-    vtss_ace_u40_t
-        snap; /**< SNAP header: Organization Code at byte 0, Type at byte 3 */
+    vtss_ace_u40_t snap; /**< SNAP header: Organization Code at byte 0, Type at byte 3 */
 } vtss_hace_frame_snap_t;
 
 /** \brief Frame data for VTSS_ACE_TYPE_ARP */
@@ -781,31 +772,31 @@ typedef struct {
     vtss_ace_bit_t unknown;    /**< Opcode unknown */
     vtss_ace_bit_t smac_match; /**< Sender MAC matches SMAC */
     vtss_ace_bit_t dmac_match; /**< Target MAC matches DMAC */
-    vtss_ace_bit_t length;   /**< Protocol addr. length 4, hardware length 6 */
-    vtss_ace_bit_t ip;       /**< Protocol address type IP */
-    vtss_ace_bit_t ethernet; /**< Hardware address type Ethernet */
-    vtss_ace_ip_t  sip;      /**< Sender IP address */
-    vtss_ace_ip_t  dip;      /**< Target IP address */
+    vtss_ace_bit_t length;     /**< Protocol addr. length 4, hardware length 6 */
+    vtss_ace_bit_t ip;         /**< Protocol address type IP */
+    vtss_ace_bit_t ethernet;   /**< Hardware address type Ethernet */
+    vtss_ace_ip_t  sip;        /**< Sender IP address */
+    vtss_ace_ip_t  dip;        /**< Target IP address */
 } vtss_hace_frame_arp_t;
 
 /** \brief Frame data for VTSS_ACE_TYPE_IPV4 */
 typedef struct {
-    vtss_ace_bit_t     ttl;       /**< TTL zero */
-    vtss_ace_bit_t     fragment;  /**< Fragment */
-    vtss_ace_bit_t     options;   /**< Header options */
-    vtss_ace_u8_t      ds;        /**< DS field */
-    vtss_ace_u8_t      proto;     /**< Protocol */
-    vtss_ace_ip_t      sip;       /**< Source IP address */
-    vtss_ace_ip_t      dip;       /**< Destination IP address */
-    vtss_ace_u48_t     data;      /**< Not UDP/TCP: IP data */
-    vtss_ace_udp_tcp_t sport;     /**< UDP/TCP: Source port */
-    vtss_ace_udp_tcp_t dport;     /**< UDP/TCP: Destination port */
-    vtss_ace_bit_t     tcp_fin;   /**< TCP FIN */
-    vtss_ace_bit_t     tcp_syn;   /**< TCP SYN */
-    vtss_ace_bit_t     tcp_rst;   /**< TCP RST */
-    vtss_ace_bit_t     tcp_psh;   /**< TCP PSH */
-    vtss_ace_bit_t     tcp_ack;   /**< TCP ACK */
-    vtss_ace_bit_t     tcp_urg;   /**< TCP URG */
+    vtss_ace_bit_t      ttl;      /**< TTL zero */
+    vtss_ace_bit_t      fragment; /**< Fragment */
+    vtss_ace_bit_t      options;  /**< Header options */
+    vtss_ace_u8_t       ds;       /**< DS field */
+    vtss_ace_u8_t       proto;    /**< Protocol */
+    vtss_ace_ip_t       sip;      /**< Source IP address */
+    vtss_ace_ip_t       dip;      /**< Destination IP address */
+    vtss_ace_u48_t      data;     /**< Not UDP/TCP: IP data */
+    vtss_ace_udp_tcp_t  sport;    /**< UDP/TCP: Source port */
+    vtss_ace_udp_tcp_t  dport;    /**< UDP/TCP: Destination port */
+    vtss_ace_bit_t      tcp_fin;  /**< TCP FIN */
+    vtss_ace_bit_t      tcp_syn;  /**< TCP SYN */
+    vtss_ace_bit_t      tcp_rst;  /**< TCP RST */
+    vtss_ace_bit_t      tcp_psh;  /**< TCP PSH */
+    vtss_ace_bit_t      tcp_ack;  /**< TCP ACK */
+    vtss_ace_bit_t      tcp_urg;  /**< TCP URG */
     vtss_ace_sip_smac_t sip_smac; /**< SIP/SMAC matching (overrides sip field) */
 } vtss_hace_frame_ipv4_t;
 
@@ -829,47 +820,43 @@ typedef struct {
 
 /** \brief Hierarchical ACL key */
 typedef struct {
-    BOOL port_list[VTSS_PORTS]; /**< Ingress/egress port list (unused for RACLs)
-                                 */
-    vtss_rleg_list_t
-                  rleg_list; /**< Ingress/egress router leg list (RACLs only) */
-    vtss_ace_u8_t policy;    /**< Policy number */
-    BOOL          type_ext;  // Use extended type for IPv4/IPv6 (I-PACL)
-    vtss_ace_type_t type;    /**< ACE frame type */
-    vtss_ace_vlan_t vlan; /**< Classified VLAN tag values (unused for RACLs) */
-    vtss_ace_ptp_t
-        ptp; /**< PTP header filtering for EType/IPv4/IPv6 (unused for RACLs) */
-    vtss_ace_bit_t dmac_mc;        /**< Multicast DMAC (unused for RACLs) */
-    vtss_ace_bit_t dmac_bc;        /**< Broadcast DMAC (unused for RACLs) */
-    vtss_ace_u48_t dmac;           /**< DMAC (unused for RACLs) */
-    vtss_ace_u48_t smac;           /**< SMAC (unused for RACLs) */
-    vtss_hace_frame_etype_t etype; /**< VTSS_ACE_TYPE_ETYPE (unused for RACLs) */
-    vtss_hace_frame_llc_t  llc;    /**< VTSS_ACE_TYPE_LLC (unused for RACLs) */
-    vtss_hace_frame_snap_t snap;   /**< VTSS_ACE_TYPE_SNAP (unused for RACLs) */
-    vtss_hace_frame_arp_t arp; /**< VTSS_ACE_TYPE_ARP (unused for VACLs/RACLs) */
-    vtss_hace_frame_ipv4_t ipv4; /**< VTSS_ACE_TYPE_IPV4 (unused for VACLs) */
-    vtss_hace_frame_ipv6_t ipv6; /**< VTSS_ACE_TYPE_IPV6 (unused for VACLs) */
+    BOOL port_list[VTSS_PORTS];        /**< Ingress/egress port list (unused for RACLs)
+                                        */
+    vtss_rleg_list_t        rleg_list; /**< Ingress/egress router leg list (RACLs only) */
+    vtss_ace_u8_t           policy;    /**< Policy number */
+    BOOL                    type_ext;  // Use extended type for IPv4/IPv6 (I-PACL)
+    vtss_ace_type_t         type;      /**< ACE frame type */
+    vtss_ace_vlan_t         vlan;      /**< Classified VLAN tag values (unused for RACLs) */
+    vtss_ace_ptp_t          ptp; /**< PTP header filtering for EType/IPv4/IPv6 (unused for RACLs) */
+    vtss_ace_bit_t          dmac_mc; /**< Multicast DMAC (unused for RACLs) */
+    vtss_ace_bit_t          dmac_bc; /**< Broadcast DMAC (unused for RACLs) */
+    vtss_ace_u48_t          dmac;    /**< DMAC (unused for RACLs) */
+    vtss_ace_u48_t          smac;    /**< SMAC (unused for RACLs) */
+    vtss_hace_frame_etype_t etype;   /**< VTSS_ACE_TYPE_ETYPE (unused for RACLs) */
+    vtss_hace_frame_llc_t   llc;     /**< VTSS_ACE_TYPE_LLC (unused for RACLs) */
+    vtss_hace_frame_snap_t  snap;    /**< VTSS_ACE_TYPE_SNAP (unused for RACLs) */
+    vtss_hace_frame_arp_t   arp;     /**< VTSS_ACE_TYPE_ARP (unused for VACLs/RACLs) */
+    vtss_hace_frame_ipv4_t  ipv4;    /**< VTSS_ACE_TYPE_IPV4 (unused for VACLs) */
+    vtss_hace_frame_ipv6_t  ipv6;    /**< VTSS_ACE_TYPE_IPV6 (unused for VACLs) */
 } vtss_hace_key_t;
 
 /** \brief Hierarchical ACL action */
 typedef struct {
-    vtss_acl_port_action_t port_action; /**< Port action */
-    BOOL port_list[VTSS_PORTS]; /**< Egress port list (I-PACL/I-VACL only) */
-    BOOL cpu;                   /**< Forward to CPU (I-PACL/I-VACL only) */
-    BOOL cpu_once; /**< Only first frame forwarded to CPU (I-PACL/I-VACL only) */
-    BOOL cpu_disable; /**< Disable CPU copy from previous forwarding decisions
-                         (I-PACL/I-VACL only) */
-    vtss_packet_rx_queue_t cpu_queue; /**< CPU queue (I-PACL/I-VACL only) */
-    BOOL                   police; /**< Enable policer (I-PACL/I-VACL only) */
-    vtss_acl_policer_no_t policer_no; /**< Policer number (I-PACL/I-VACL only) */
-    BOOL                  mirror; /**< Enable mirroring (I-PACL/I-VACL only) */
-    vtss_acl_ptp_action_t ptp_action; /**< PTP action (I-PACL/I-VACL only) */
-    vtss_acl_ptp_action_conf_t
-        ptp; /**< PTP configuration (I-PACL/I-VACL only) */
-    vtss_acl_addr_action_t
-         addr;     /**< Address update configuration (I-PACL/I-VACL only) */
-    BOOL ifh_flag; /**< Control one target specific bit in IFH (I-PACL/I-VACL
-                      only) */
+    vtss_acl_port_action_t port_action;           /**< Port action */
+    BOOL                   port_list[VTSS_PORTS]; /**< Egress port list (I-PACL/I-VACL only) */
+    BOOL                   cpu;                   /**< Forward to CPU (I-PACL/I-VACL only) */
+    BOOL                   cpu_once; /**< Only first frame forwarded to CPU (I-PACL/I-VACL only) */
+    BOOL                   cpu_disable;    /**< Disable CPU copy from previous forwarding decisions
+                                              (I-PACL/I-VACL only) */
+    vtss_packet_rx_queue_t     cpu_queue;  /**< CPU queue (I-PACL/I-VACL only) */
+    BOOL                       police;     /**< Enable policer (I-PACL/I-VACL only) */
+    vtss_acl_policer_no_t      policer_no; /**< Policer number (I-PACL/I-VACL only) */
+    BOOL                       mirror;     /**< Enable mirroring (I-PACL/I-VACL only) */
+    vtss_acl_ptp_action_t      ptp_action; /**< PTP action (I-PACL/I-VACL only) */
+    vtss_acl_ptp_action_conf_t ptp;        /**< PTP configuration (I-PACL/I-VACL only) */
+    vtss_acl_addr_action_t     addr;       /**< Address update configuration (I-PACL/I-VACL only) */
+    BOOL                       ifh_flag; /**< Control one target specific bit in IFH (I-PACL/I-VACL
+                                            only) */
 } vtss_hacl_action_t;
 
 /** \brief Hierarchical ACL Entry */
@@ -888,9 +875,7 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_hace_init(const vtss_inst_t     inst,
-                       const vtss_ace_type_t type,
-                       vtss_hace_t *const    hace);
+vtss_rc vtss_hace_init(const vtss_inst_t inst, const vtss_ace_type_t type, vtss_hace_t *const hace);
 
 /**
  * \brief Add/modify Hierarchical ACE.

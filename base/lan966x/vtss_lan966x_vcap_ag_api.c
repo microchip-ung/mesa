@@ -9,139 +9,103 @@
 #include "vtss_lan966x_vcap_ag_api.h"
 #include "vtss_lan966x_vcap.h"
 
-#if defined(VTSS_ARCH_LAN966X) && defined(VTSS_FEATURE_VCAP) &&                \
-    !defined(VTSS_OPT_FPGA)
+#if defined(VTSS_ARCH_LAN966X) && defined(VTSS_FEATURE_VCAP) && !defined(VTSS_OPT_FPGA)
 
 /*******************************************************************************
  * VCAP ES0
  ******************************************************************************/
-int vtss_lan966x_vcap_es0_key_pack(const struct vtss_lan966x_vcap_es0_key_fields
-                                                                 *fields,
-                                   struct vtss_lan966x_vcap_data *data)
+int vtss_lan966x_vcap_es0_key_pack(const struct vtss_lan966x_vcap_es0_key_fields *fields,
+                                   struct vtss_lan966x_vcap_data                 *data)
 {
     switch (fields->key) {
     case VTSS_LAN966X_VCAP_ES0_KEY_VID:
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_O,
                                   VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_L,
-                                  fields->u.vid.egr_port.value,
-                                  fields->u.vid.egr_port.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_O,
+                                  fields->u.vid.egr_port.value, fields->u.vid.egr_port.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_O,
                                   VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_L,
-                                  fields->u.vid.igr_port.value,
-                                  fields->u.vid.igr_port.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_O,
+                                  fields->u.vid.igr_port.value, fields->u.vid.igr_port.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_O,
                                       fields->u.vid.isdx_gt0);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_O,
                                   VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_L,
-                                  fields->u.vid.isdx.value,
-                                  fields->u.vid.isdx.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_O,
+                                  fields->u.vid.isdx.value, fields->u.vid.isdx.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_O,
                                       fields->u.vid.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_O,
                                       fields->u.vid.l2_bc);
         vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_O,
-                                  VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_L,
-                                  fields->u.vid.vid.value,
+                                  VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_L, fields->u.vid.vid.value,
                                   fields->u.vid.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_O,
                                       fields->u.vid.dei);
         vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_O,
-                                  VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_L,
-                                  fields->u.vid.pcp.value,
+                                  VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_L, fields->u.vid.pcp.value,
                                   fields->u.vid.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_O,
                                       fields->u.vid.dp);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_O,
                                   VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_L,
-                                  fields->u.vid.rtp_id.value,
-                                  fields->u.vid.rtp_id.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_O,
+                                  fields->u.vid.rtp_id.value, fields->u.vid.rtp_id.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_O,
                                   VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_L,
-                                  fields->u.vid.pdu_type.value,
-                                  fields->u.vid.pdu_type.mask);
+                                  fields->u.vid.pdu_type.value, fields->u.vid.pdu_type.mask);
         break;
     default: return -1;
     }
     return 0;
 }
 
-int vtss_lan966x_vcap_es0_action_pack(
-    const struct vtss_lan966x_vcap_es0_action_fields *fields,
-    struct vtss_lan966x_vcap_data                    *data)
+int vtss_lan966x_vcap_es0_action_pack(const struct vtss_lan966x_vcap_es0_action_fields *fields,
+                                      struct vtss_lan966x_vcap_data                    *data)
 {
     switch (fields->action) {
     case VTSS_LAN966X_VCAP_ES0_ACTION_VID:
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_L,
-            fields->u.vid.push_outer_tag);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_O,
-            fields->u.vid.push_inner_tag);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_L,
-            fields->u.vid.tag_a_tpid_sel);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_O,
-            fields->u.vid.tag_a_vid_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_L,
-            fields->u.vid.tag_a_pcp_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_L,
-            fields->u.vid.tag_a_dei_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_L,
-            fields->u.vid.tag_b_tpid_sel);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_O,
-            fields->u.vid.tag_b_vid_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_L,
-            fields->u.vid.tag_b_pcp_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_L,
-            fields->u.vid.tag_b_dei_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_L,
-            fields->u.vid.vid_a_val);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_L,
-            fields->u.vid.pcp_a_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_O,
-            fields->u.vid.dei_a_val);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_L,
-            fields->u.vid.vid_b_val);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_O,
-            VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_L,
-            fields->u.vid.pcp_b_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_O,
-            fields->u.vid.dei_b_val);
-        vtss_lan966x_vcap_action_set(data,
-                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_O,
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_L,
+                                     fields->u.vid.push_outer_tag);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_O,
+                                         fields->u.vid.push_inner_tag);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_L,
+                                     fields->u.vid.tag_a_tpid_sel);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_O,
+                                         fields->u.vid.tag_a_vid_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_L,
+                                     fields->u.vid.tag_a_pcp_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_L,
+                                     fields->u.vid.tag_a_dei_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_L,
+                                     fields->u.vid.tag_b_tpid_sel);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_O,
+                                         fields->u.vid.tag_b_vid_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_L,
+                                     fields->u.vid.tag_b_pcp_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_L,
+                                     fields->u.vid.tag_b_dei_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_L,
+                                     fields->u.vid.vid_a_val);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_L,
+                                     fields->u.vid.pcp_a_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_O,
+                                         fields->u.vid.dei_a_val);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_L,
+                                     fields->u.vid.vid_b_val);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_O,
+                                     VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_L,
+                                     fields->u.vid.pcp_b_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_O,
+                                         fields->u.vid.dei_b_val);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_O,
                                      VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_L,
                                      fields->u.vid.esdx);
         break;
@@ -168,22 +132,20 @@ static const struct vtss_lan966x_vcap_attrs *vtss_lan966x_vcap_es0_attrs_get(voi
     return &vtss_lan966x_vcap_es0_attrs;
 }
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_es0_key_tg1_attrs = {
-        .name = "X1",
-        .tg_width = VTSS_LAN966X_VCAP_ES0_TG1_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_ES0_TG1_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_ES0_TG1_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_ES0_TG1_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_ES0_TG1_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_ES0_TG1_SW0_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_es0_key_tg1_attrs = {
+    .name = "X1",
+    .tg_width = VTSS_LAN966X_VCAP_ES0_TG1_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_ES0_TG1_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_ES0_TG1_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_ES0_TG1_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_ES0_TG1_SW0_WIDTH, VTSS_LAN966X_VCAP_ES0_TG1_SW0_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs *
-vtss_lan966x_vcap_es0_key_tgs_attrs_get(u32 sw_per_entry)
+static const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_es0_key_tgs_attrs_get(
+    u32 sw_per_entry)
 {
     switch (sw_per_entry) {
     case 1: return &vtss_lan966x_vcap_es0_key_tg1_attrs;
@@ -191,42 +153,37 @@ vtss_lan966x_vcap_es0_key_tgs_attrs_get(u32 sw_per_entry)
     return NULL;
 }
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_es0_key_vid_attrs = {
-        .name = "VID",
-        .type_id = VTSS_LAN966X_VCAP_ES0_KEY_VID_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_ES0_KEY_VID_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_ES0_KEY_VID_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_ES0_KEY_VID_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_ES0_KEY_VID_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_es0_key_vid_attrs = {
+    .name = "VID",
+    .type_id = VTSS_LAN966X_VCAP_ES0_KEY_VID_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_ES0_KEY_VID_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_ES0_KEY_VID_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_ES0_KEY_VID_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_ES0_KEY_VID_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs *
-vtss_lan966x_vcap_es0_key_attrs_get(int key)
+static const struct vtss_lan966x_vcap_key_attrs *vtss_lan966x_vcap_es0_key_attrs_get(int key)
 {
     switch (key) {
-    case VTSS_LAN966X_VCAP_ES0_KEY_VID:
-        return &vtss_lan966x_vcap_es0_key_vid_attrs;
+    case VTSS_LAN966X_VCAP_ES0_KEY_VID: return &vtss_lan966x_vcap_es0_key_vid_attrs;
     }
     return NULL;
 }
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_es0_action_tg1_attrs = {
-        .name = "X1",
-        .tg_width = VTSS_LAN966X_VCAP_ES0_ACT_TG1_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_ES0_ACT_TG1_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_ES0_ACT_TG1_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_ES0_ACT_TG1_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_ES0_ACT_TG1_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_ES0_ACT_TG1_SW0_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_es0_action_tg1_attrs = {
+    .name = "X1",
+    .tg_width = VTSS_LAN966X_VCAP_ES0_ACT_TG1_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_ES0_ACT_TG1_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_ES0_ACT_TG1_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_ES0_ACT_TG1_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_ES0_ACT_TG1_SW0_WIDTH, VTSS_LAN966X_VCAP_ES0_ACT_TG1_SW0_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs *
-vtss_lan966x_vcap_es0_action_tgs_attrs_get(u32 sw_per_entry)
+static const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_es0_action_tgs_attrs_get(
+    u32 sw_per_entry)
 {
     switch (sw_per_entry) {
     case 1: return &vtss_lan966x_vcap_es0_action_tg1_attrs;
@@ -234,151 +191,147 @@ vtss_lan966x_vcap_es0_action_tgs_attrs_get(u32 sw_per_entry)
     return NULL;
 }
 
-static const struct vtss_lan966x_vcap_action_attrs
-    vtss_lan966x_vcap_es0_action_vid_attrs = {
-        .name = "VID",
-        .type_id = VTSS_LAN966X_VCAP_ES0_ACTION_VID_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_ES0_ACTION_VID_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_ES0_ACTION_VID_WIDTH,
-        .sw_per_action = VTSS_LAN966X_VCAP_ES0_ACTION_VID_SW_PER_ACTION,
-        .sw_cnt = VTSS_LAN966X_VCAP_ES0_ACTION_VID_SW_CNT,
+static const struct vtss_lan966x_vcap_action_attrs vtss_lan966x_vcap_es0_action_vid_attrs = {
+    .name = "VID",
+    .type_id = VTSS_LAN966X_VCAP_ES0_ACTION_VID_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_ES0_ACTION_VID_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_ES0_ACTION_VID_WIDTH,
+    .sw_per_action = VTSS_LAN966X_VCAP_ES0_ACTION_VID_SW_PER_ACTION,
+    .sw_cnt = VTSS_LAN966X_VCAP_ES0_ACTION_VID_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_action_attrs *
-vtss_lan966x_vcap_es0_action_attrs_get(int action)
+static const struct vtss_lan966x_vcap_action_attrs *vtss_lan966x_vcap_es0_action_attrs_get(int action)
 {
     switch (action) {
-    case VTSS_LAN966X_VCAP_ES0_ACTION_VID:
-        return &vtss_lan966x_vcap_es0_action_vid_attrs;
+    case VTSS_LAN966X_VCAP_ES0_ACTION_VID: return &vtss_lan966x_vcap_es0_action_vid_attrs;
     }
     return NULL;
 }
 
 #ifdef VTSS_LAN966X_VCAP_INCLUDE_FIELD_ATTRS
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_es0_key_vid_field_attrs[] = {
-        {.name = "EGR_PORT",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_L},
-        {.name = "IGR_PORT",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_L},
-        {.name = "ISDX_GT0",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_L},
-        {.name = "ISDX",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_L    },
-        {.name = "L2_MC",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_L   },
-        {.name = "L2_BC",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_L   },
-        {.name = "VID",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_L     },
-        {.name = "DEI",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_L     },
-        {.name = "PCP",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_L     },
-        {.name = "DP",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_L      },
-        {.name = "RTP_ID",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_L  },
-        {.name = "PDU_TYPE",
-         .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_L},
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_es0_key_vid_field_attrs[] = {
+    {.name = "EGR_PORT",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_EGR_PORT_L},
+    {.name = "IGR_PORT",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_IGR_PORT_L},
+    {.name = "ISDX_GT0",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_GT0_L},
+    {.name = "ISDX",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_ISDX_L    },
+    {.name = "L2_MC",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_MC_L   },
+    {.name = "L2_BC",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_L2_BC_L   },
+    {.name = "VID",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_VID_L     },
+    {.name = "DEI",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DEI_L     },
+    {.name = "PCP",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PCP_L     },
+    {.name = "DP",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_DP_L      },
+    {.name = "RTP_ID",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_RTP_ID_L  },
+    {.name = "PDU_TYPE",
+     .offset = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_ES0_KEY_VID_FLD_PDU_TYPE_L},
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_es0_key_vid_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_es0_key_vid_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_es0_key_vid_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_es0_key_vid_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_es0_key_field_attrs_get(int key, u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_es0_key_field_attrs_get(
+    int key,
+    u32 index)
 {
     switch (key) {
-    case VTSS_LAN966X_VCAP_ES0_KEY_VID:
-        return vtss_lan966x_vcap_es0_key_vid_field_attrs_get(index);
-    default: return NULL;
+    case VTSS_LAN966X_VCAP_ES0_KEY_VID: return vtss_lan966x_vcap_es0_key_vid_field_attrs_get(index);
+    default:                            return NULL;
     }
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_es0_action_vid_field_attrs[] = {
-        {.name = "PUSH_OUTER_TAG",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_L},
-        {.name = "PUSH_INNER_TAG",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_L},
-        {.name = "TAG_A_TPID_SEL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_L},
-        {.name = "TAG_A_VID_SEL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_L },
-        {.name = "TAG_A_PCP_SEL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_L },
-        {.name = "TAG_A_DEI_SEL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_L },
-        {.name = "TAG_B_TPID_SEL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_L},
-        {.name = "TAG_B_VID_SEL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_L },
-        {.name = "TAG_B_PCP_SEL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_L },
-        {.name = "TAG_B_DEI_SEL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_L },
-        {.name = "VID_A_VAL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_L     },
-        {.name = "PCP_A_VAL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_L     },
-        {.name = "DEI_A_VAL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_L     },
-        {.name = "VID_B_VAL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_L     },
-        {.name = "PCP_B_VAL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_L     },
-        {.name = "DEI_B_VAL",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_L     },
-        {.name = "ESDX",
-         .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_O,
-         .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_L          },
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_es0_action_vid_field_attrs[] = {
+    {.name = "PUSH_OUTER_TAG",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_OUTER_TAG_L},
+    {.name = "PUSH_INNER_TAG",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PUSH_INNER_TAG_L},
+    {.name = "TAG_A_TPID_SEL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_TPID_SEL_L},
+    {.name = "TAG_A_VID_SEL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_VID_SEL_L },
+    {.name = "TAG_A_PCP_SEL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_PCP_SEL_L },
+    {.name = "TAG_A_DEI_SEL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_A_DEI_SEL_L },
+    {.name = "TAG_B_TPID_SEL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_TPID_SEL_L},
+    {.name = "TAG_B_VID_SEL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_VID_SEL_L },
+    {.name = "TAG_B_PCP_SEL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_PCP_SEL_L },
+    {.name = "TAG_B_DEI_SEL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_TAG_B_DEI_SEL_L },
+    {.name = "VID_A_VAL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_A_VAL_L     },
+    {.name = "PCP_A_VAL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_A_VAL_L     },
+    {.name = "DEI_A_VAL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_A_VAL_L     },
+    {.name = "VID_B_VAL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_VID_B_VAL_L     },
+    {.name = "PCP_B_VAL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_PCP_B_VAL_L     },
+    {.name = "DEI_B_VAL",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_DEI_B_VAL_L     },
+    {.name = "ESDX",
+     .offset = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_O,
+     .length = VTSS_LAN966X_VCAP_ES0_ACTION_VID_FLD_ESDX_L          },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_es0_action_vid_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_es0_action_vid_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_es0_action_vid_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_es0_action_vid_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_es0_action_field_attrs_get(int action, u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_es0_action_field_attrs_get(
+    int action,
+    u32 index)
 {
     switch (action) {
     case VTSS_LAN966X_VCAP_ES0_ACTION_VID:
@@ -392,1007 +345,778 @@ vtss_lan966x_vcap_es0_action_field_attrs_get(int action, u32 index)
 /*******************************************************************************
  * VCAP IS1
  ******************************************************************************/
-int vtss_lan966x_vcap_is1_key_pack(const struct vtss_lan966x_vcap_is1_key_fields
-                                                                 *fields,
-                                   struct vtss_lan966x_vcap_data *data)
+int vtss_lan966x_vcap_is1_key_pack(const struct vtss_lan966x_vcap_is1_key_fields *fields,
+                                   struct vtss_lan966x_vcap_data                 *data)
 {
     switch (fields->key) {
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL:
         if (fields->u.s1_normal.type != VTSS_LAN966X_VCAP_BIT_ANY)
-            vtss_lan966x_vcap_key_bit_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_O,
-                fields->u.s1_normal.type);
+            vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_O,
+                                          fields->u.s1_normal.type);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_bit_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_ID
-                    ? VTSS_LAN966X_VCAP_BIT_1
-                    : VTSS_LAN966X_VCAP_BIT_0);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_LOOKUP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_LOOKUP_L,
-            fields->u.s1_normal.lookup.value, fields->u.s1_normal.lookup.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IGR_PORT_MASK_L,
-            fields->u.s1_normal.igr_port_mask.value,
-            fields->u.s1_normal.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_MC_O,
-            fields->u.s1_normal.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_BC_O,
-            fields->u.s1_normal.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_MC_O,
-            fields->u.s1_normal.ip_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_R_TAGGED_O,
-            fields->u.s1_normal.r_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_TAGGED_O,
-            fields->u.s1_normal.vlan_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_DBL_TAGGED_O,
-            fields->u.s1_normal.vlan_dbl_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TPID_O,
-            fields->u.s1_normal.tpid);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VID_O,
+            vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TYPE_O,
+                                          VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_ID
+                                              ? VTSS_LAN966X_VCAP_BIT_1
+                                              : VTSS_LAN966X_VCAP_BIT_0);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_LOOKUP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_LOOKUP_L,
+                                  fields->u.s1_normal.lookup.value,
+                                  fields->u.s1_normal.lookup.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IGR_PORT_MASK_L,
+                                  fields->u.s1_normal.igr_port_mask.value,
+                                  fields->u.s1_normal.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_MC_O,
+                                      fields->u.s1_normal.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_BC_O,
+                                      fields->u.s1_normal.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_MC_O,
+                                      fields->u.s1_normal.ip_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_R_TAGGED_O,
+                                      fields->u.s1_normal.r_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_TAGGED_O,
+                                      fields->u.s1_normal.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VLAN_DBL_TAGGED_O,
+                                      fields->u.s1_normal.vlan_dbl_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TPID_O,
+                                      fields->u.s1_normal.tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_VID_L,
-                                  fields->u.s1_normal.vid.value,
-                                  fields->u.s1_normal.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_DEI_O,
-            fields->u.s1_normal.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_PCP_O,
+                                  fields->u.s1_normal.vid.value, fields->u.s1_normal.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_DEI_O,
+                                      fields->u.s1_normal.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_PCP_L,
-                                  fields->u.s1_normal.pcp.value,
-                                  fields->u.s1_normal.pcp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_SMAC_O,
-            fields->u.s1_normal.l2_smac.value, fields->u.s1_normal.l2_smac.mask,
-            6);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_LEN_O,
-            fields->u.s1_normal.etype_len);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_L,
-            fields->u.s1_normal.etype.value, fields->u.s1_normal.etype.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_SNAP_O,
-            fields->u.s1_normal.ip_snap);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP4_O,
-            fields->u.s1_normal.ip4);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAGMENT_O,
-            fields->u.s1_normal.l3_fragment);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAG_OFS_GT0_O,
-            fields->u.s1_normal.l3_frag_ofs_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_OPTIONS_O,
-            fields->u.s1_normal.l3_options);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_DSCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_DSCP_L,
-            fields->u.s1_normal.l3_dscp.value,
-            fields->u.s1_normal.l3_dscp.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_IP4_SIP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_IP4_SIP_L,
-            fields->u.s1_normal.l3_ip4_sip.value,
-            fields->u.s1_normal.l3_ip4_sip.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_UDP_O,
-            fields->u.s1_normal.tcp_udp);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_O,
-            fields->u.s1_normal.tcp);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_SPORT_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_SPORT_L,
-            fields->u.s1_normal.l4_sport.value,
-            fields->u.s1_normal.l4_sport.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_RNG_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_RNG_L,
-            fields->u.s1_normal.l4_rng.value, fields->u.s1_normal.l4_rng.mask);
+                                  fields->u.s1_normal.pcp.value, fields->u.s1_normal.pcp.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L2_SMAC_O,
+                                        fields->u.s1_normal.l2_smac.value,
+                                        fields->u.s1_normal.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_LEN_O,
+                                      fields->u.s1_normal.etype_len);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_ETYPE_L,
+                                  fields->u.s1_normal.etype.value, fields->u.s1_normal.etype.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP_SNAP_O,
+                                      fields->u.s1_normal.ip_snap);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_IP4_O,
+                                      fields->u.s1_normal.ip4);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAGMENT_O,
+                                      fields->u.s1_normal.l3_fragment);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_FRAG_OFS_GT0_O,
+                                      fields->u.s1_normal.l3_frag_ofs_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_OPTIONS_O,
+                                      fields->u.s1_normal.l3_options);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_DSCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_DSCP_L,
+                                  fields->u.s1_normal.l3_dscp.value,
+                                  fields->u.s1_normal.l3_dscp.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_IP4_SIP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L3_IP4_SIP_L,
+                                  fields->u.s1_normal.l3_ip4_sip.value,
+                                  fields->u.s1_normal.l3_ip4_sip.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_UDP_O,
+                                      fields->u.s1_normal.tcp_udp);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_TCP_O,
+                                      fields->u.s1_normal.tcp);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_SPORT_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_SPORT_L,
+                                  fields->u.s1_normal.l4_sport.value,
+                                  fields->u.s1_normal.l4_sport.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_RNG_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_FLD_L4_RNG_L,
+                                  fields->u.s1_normal.l4_rng.value,
+                                  fields->u.s1_normal.l4_rng.mask);
         break;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4:
         if (fields->u.s1_5tuple_ip4.type != VTSS_LAN966X_VCAP_BIT_ANY)
-            vtss_lan966x_vcap_key_bit_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_O,
-                fields->u.s1_5tuple_ip4.type);
+            vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_O,
+                                          fields->u.s1_5tuple_ip4.type);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_bit_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_ID
-                    ? VTSS_LAN966X_VCAP_BIT_1
-                    : VTSS_LAN966X_VCAP_BIT_0);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_L,
-            fields->u.s1_5tuple_ip4.lookup.value,
-            fields->u.s1_5tuple_ip4.lookup.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_L,
-            fields->u.s1_5tuple_ip4.igr_port_mask.value,
-            fields->u.s1_5tuple_ip4.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_MC_O,
-            fields->u.s1_5tuple_ip4.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_BC_O,
-            fields->u.s1_5tuple_ip4.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_MC_O,
-            fields->u.s1_5tuple_ip4.ip_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_R_TAGGED_O,
-            fields->u.s1_5tuple_ip4.r_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_TAGGED_O,
-            fields->u.s1_5tuple_ip4.vlan_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_O,
-            fields->u.s1_5tuple_ip4.vlan_dbl_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TPID_O,
-            fields->u.s1_5tuple_ip4.tpid);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_L,
-            fields->u.s1_5tuple_ip4.vid.value,
-            fields->u.s1_5tuple_ip4.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_DEI_O,
-            fields->u.s1_5tuple_ip4.dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_L,
-            fields->u.s1_5tuple_ip4.pcp.value,
-            fields->u.s1_5tuple_ip4.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_TPID_O,
-            fields->u.s1_5tuple_ip4.inner_tpid);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_L,
-            fields->u.s1_5tuple_ip4.inner_vid.value,
-            fields->u.s1_5tuple_ip4.inner_vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_DEI_O,
-            fields->u.s1_5tuple_ip4.inner_dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_L,
-            fields->u.s1_5tuple_ip4.inner_pcp.value,
-            fields->u.s1_5tuple_ip4.inner_pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP4_O,
-            fields->u.s1_5tuple_ip4.ip4);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAGMENT_O,
-            fields->u.s1_5tuple_ip4.l3_fragment);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_O,
-            fields->u.s1_5tuple_ip4.l3_frag_ofs_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_OPTIONS_O,
-            fields->u.s1_5tuple_ip4.l3_options);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_L,
-            fields->u.s1_5tuple_ip4.l3_dscp.value,
-            fields->u.s1_5tuple_ip4.l3_dscp.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_L,
-            fields->u.s1_5tuple_ip4.l3_ip4_dip.value,
-            fields->u.s1_5tuple_ip4.l3_ip4_dip.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_L,
-            fields->u.s1_5tuple_ip4.l3_ip4_sip.value,
-            fields->u.s1_5tuple_ip4.l3_ip4_sip.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_L,
-            fields->u.s1_5tuple_ip4.l3_ip_proto.value,
-            fields->u.s1_5tuple_ip4.l3_ip_proto.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_UDP_O,
-            fields->u.s1_5tuple_ip4.tcp_udp);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_O,
-            fields->u.s1_5tuple_ip4.tcp);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_L,
-            fields->u.s1_5tuple_ip4.l4_rng.value,
-            fields->u.s1_5tuple_ip4.l4_rng.mask);
-        vtss_lan966x_vcap_key_set(
-            data,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_L,
-            fields->u.s1_5tuple_ip4.ip_payload_5tuple.value,
-            fields->u.s1_5tuple_ip4.ip_payload_5tuple.mask);
+            vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_O,
+                                          VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_ID
+                                              ? VTSS_LAN966X_VCAP_BIT_1
+                                              : VTSS_LAN966X_VCAP_BIT_0);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_L,
+                                  fields->u.s1_5tuple_ip4.lookup.value,
+                                  fields->u.s1_5tuple_ip4.lookup.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_L,
+                                  fields->u.s1_5tuple_ip4.igr_port_mask.value,
+                                  fields->u.s1_5tuple_ip4.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_MC_O,
+                                      fields->u.s1_5tuple_ip4.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_BC_O,
+                                      fields->u.s1_5tuple_ip4.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_MC_O,
+                                      fields->u.s1_5tuple_ip4.ip_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_R_TAGGED_O,
+                                      fields->u.s1_5tuple_ip4.r_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_TAGGED_O,
+                                      fields->u.s1_5tuple_ip4.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_O,
+                                      fields->u.s1_5tuple_ip4.vlan_dbl_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TPID_O,
+                                      fields->u.s1_5tuple_ip4.tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_L,
+                                  fields->u.s1_5tuple_ip4.vid.value,
+                                  fields->u.s1_5tuple_ip4.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_DEI_O,
+                                      fields->u.s1_5tuple_ip4.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_L,
+                                  fields->u.s1_5tuple_ip4.pcp.value,
+                                  fields->u.s1_5tuple_ip4.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_TPID_O,
+                                      fields->u.s1_5tuple_ip4.inner_tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_L,
+                                  fields->u.s1_5tuple_ip4.inner_vid.value,
+                                  fields->u.s1_5tuple_ip4.inner_vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_DEI_O,
+                                      fields->u.s1_5tuple_ip4.inner_dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_L,
+                                  fields->u.s1_5tuple_ip4.inner_pcp.value,
+                                  fields->u.s1_5tuple_ip4.inner_pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP4_O,
+                                      fields->u.s1_5tuple_ip4.ip4);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAGMENT_O,
+                                      fields->u.s1_5tuple_ip4.l3_fragment);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_O,
+                                      fields->u.s1_5tuple_ip4.l3_frag_ofs_gt0);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_OPTIONS_O,
+                                      fields->u.s1_5tuple_ip4.l3_options);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_L,
+                                  fields->u.s1_5tuple_ip4.l3_dscp.value,
+                                  fields->u.s1_5tuple_ip4.l3_dscp.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_L,
+                                  fields->u.s1_5tuple_ip4.l3_ip4_dip.value,
+                                  fields->u.s1_5tuple_ip4.l3_ip4_dip.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_L,
+                                  fields->u.s1_5tuple_ip4.l3_ip4_sip.value,
+                                  fields->u.s1_5tuple_ip4.l3_ip4_sip.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_L,
+                                  fields->u.s1_5tuple_ip4.l3_ip_proto.value,
+                                  fields->u.s1_5tuple_ip4.l3_ip_proto.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_UDP_O,
+                                      fields->u.s1_5tuple_ip4.tcp_udp);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_O,
+                                      fields->u.s1_5tuple_ip4.tcp);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_L,
+                                  fields->u.s1_5tuple_ip4.l4_rng.value,
+                                  fields->u.s1_5tuple_ip4.l4_rng.mask);
+        vtss_lan966x_vcap_key_set(data,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_L,
+                                  fields->u.s1_5tuple_ip4.ip_payload_5tuple.value,
+                                  fields->u.s1_5tuple_ip4.ip_payload_5tuple.mask);
         break;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6:
         if (fields->u.s1_normal_ip6.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_L,
-                fields->u.s1_normal_ip6.type.value,
-                fields->u.s1_normal_ip6.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_L,
+                                      fields->u.s1_normal_ip6.type.value,
+                                      fields->u.s1_normal_ip6.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_ID, 0x3);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_L,
-            fields->u.s1_normal_ip6.lookup.value,
-            fields->u.s1_normal_ip6.lookup.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_L,
-            fields->u.s1_normal_ip6.igr_port_mask.value,
-            fields->u.s1_normal_ip6.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_MC_O,
-            fields->u.s1_normal_ip6.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_BC_O,
-            fields->u.s1_normal_ip6.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_MC_O,
-            fields->u.s1_normal_ip6.ip_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_R_TAGGED_O,
-            fields->u.s1_normal_ip6.r_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_TAGGED_O,
-            fields->u.s1_normal_ip6.vlan_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_O,
-            fields->u.s1_normal_ip6.vlan_dbl_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TPID_O,
-            fields->u.s1_normal_ip6.tpid);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_L,
-            fields->u.s1_normal_ip6.vid.value,
-            fields->u.s1_normal_ip6.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_DEI_O,
-            fields->u.s1_normal_ip6.dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_L,
-            fields->u.s1_normal_ip6.pcp.value,
-            fields->u.s1_normal_ip6.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_TPID_O,
-            fields->u.s1_normal_ip6.inner_tpid);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_L,
-            fields->u.s1_normal_ip6.inner_vid.value,
-            fields->u.s1_normal_ip6.inner_vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_DEI_O,
-            fields->u.s1_normal_ip6.inner_dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_L,
-            fields->u.s1_normal_ip6.inner_pcp.value,
-            fields->u.s1_normal_ip6.inner_pcp.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_ID, 0x3);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_L,
+                                  fields->u.s1_normal_ip6.lookup.value,
+                                  fields->u.s1_normal_ip6.lookup.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_L,
+                                  fields->u.s1_normal_ip6.igr_port_mask.value,
+                                  fields->u.s1_normal_ip6.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_MC_O,
+                                      fields->u.s1_normal_ip6.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_BC_O,
+                                      fields->u.s1_normal_ip6.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_MC_O,
+                                      fields->u.s1_normal_ip6.ip_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_R_TAGGED_O,
+                                      fields->u.s1_normal_ip6.r_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_TAGGED_O,
+                                      fields->u.s1_normal_ip6.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_O,
+                                      fields->u.s1_normal_ip6.vlan_dbl_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TPID_O,
+                                      fields->u.s1_normal_ip6.tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_L,
+                                  fields->u.s1_normal_ip6.vid.value,
+                                  fields->u.s1_normal_ip6.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_DEI_O,
+                                      fields->u.s1_normal_ip6.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_L,
+                                  fields->u.s1_normal_ip6.pcp.value,
+                                  fields->u.s1_normal_ip6.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_TPID_O,
+                                      fields->u.s1_normal_ip6.inner_tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_L,
+                                  fields->u.s1_normal_ip6.inner_vid.value,
+                                  fields->u.s1_normal_ip6.inner_vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_DEI_O,
+                                      fields->u.s1_normal_ip6.inner_dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_L,
+                                  fields->u.s1_normal_ip6.inner_pcp.value,
+                                  fields->u.s1_normal_ip6.inner_pcp.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_SMAC_O,
+                                        fields->u.s1_normal_ip6.l2_smac.value,
+                                        fields->u.s1_normal_ip6.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_L,
+                                  fields->u.s1_normal_ip6.l3_dscp.value,
+                                  fields->u.s1_normal_ip6.l3_dscp.mask);
+        vtss_lan966x_vcap_key_bytes_set(data,
+                                        VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP6_SIP_O,
+                                        fields->u.s1_normal_ip6.l3_ip6_sip.value,
+                                        fields->u.s1_normal_ip6.l3_ip6_sip.mask, 16);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_L,
+                                  fields->u.s1_normal_ip6.l3_ip_proto.value,
+                                  fields->u.s1_normal_ip6.l3_ip_proto.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TCP_UDP_O,
+                                      fields->u.s1_normal_ip6.tcp_udp);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_L,
+                                  fields->u.s1_normal_ip6.l4_rng.value,
+                                  fields->u.s1_normal_ip6.l4_rng.mask);
         vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_SMAC_O,
-            fields->u.s1_normal_ip6.l2_smac.value,
-            fields->u.s1_normal_ip6.l2_smac.mask, 6);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_L,
-            fields->u.s1_normal_ip6.l3_dscp.value,
-            fields->u.s1_normal_ip6.l3_dscp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP6_SIP_O,
-            fields->u.s1_normal_ip6.l3_ip6_sip.value,
-            fields->u.s1_normal_ip6.l3_ip6_sip.mask, 16);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_L,
-            fields->u.s1_normal_ip6.l3_ip_proto.value,
-            fields->u.s1_normal_ip6.l3_ip_proto.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TCP_UDP_O,
-            fields->u.s1_normal_ip6.tcp_udp);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_L,
-            fields->u.s1_normal_ip6.l4_rng.value,
-            fields->u.s1_normal_ip6.l4_rng.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_O,
+            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_O,
             fields->u.s1_normal_ip6.ip_payload_s1_ip6.value,
             fields->u.s1_normal_ip6.ip_payload_s1_ip6.mask, 14);
         break;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE:
         if (fields->u.s1_7tuple.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_L,
-                fields->u.s1_7tuple.type.value, fields->u.s1_7tuple.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_L,
+                                      fields->u.s1_7tuple.type.value,
+                                      fields->u.s1_7tuple.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_ID, 0x3);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_LOOKUP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_LOOKUP_L,
-            fields->u.s1_7tuple.lookup.value, fields->u.s1_7tuple.lookup.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IGR_PORT_MASK_L,
-            fields->u.s1_7tuple.igr_port_mask.value,
-            fields->u.s1_7tuple.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_MC_O,
-            fields->u.s1_7tuple.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_BC_O,
-            fields->u.s1_7tuple.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_MC_O,
-            fields->u.s1_7tuple.ip_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_R_TAGGED_O,
-            fields->u.s1_7tuple.r_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_TAGGED_O,
-            fields->u.s1_7tuple.vlan_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_DBL_TAGGED_O,
-            fields->u.s1_7tuple.vlan_dbl_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TPID_O,
-            fields->u.s1_7tuple.tpid);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VID_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_ID, 0x3);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_LOOKUP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_LOOKUP_L,
+                                  fields->u.s1_7tuple.lookup.value,
+                                  fields->u.s1_7tuple.lookup.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IGR_PORT_MASK_L,
+                                  fields->u.s1_7tuple.igr_port_mask.value,
+                                  fields->u.s1_7tuple.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_MC_O,
+                                      fields->u.s1_7tuple.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_BC_O,
+                                      fields->u.s1_7tuple.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_MC_O,
+                                      fields->u.s1_7tuple.ip_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_R_TAGGED_O,
+                                      fields->u.s1_7tuple.r_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_TAGGED_O,
+                                      fields->u.s1_7tuple.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VLAN_DBL_TAGGED_O,
+                                      fields->u.s1_7tuple.vlan_dbl_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TPID_O,
+                                      fields->u.s1_7tuple.tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_VID_L,
-                                  fields->u.s1_7tuple.vid.value,
-                                  fields->u.s1_7tuple.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_DEI_O,
-            fields->u.s1_7tuple.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_PCP_O,
+                                  fields->u.s1_7tuple.vid.value, fields->u.s1_7tuple.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_DEI_O,
+                                      fields->u.s1_7tuple.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_PCP_L,
-                                  fields->u.s1_7tuple.pcp.value,
-                                  fields->u.s1_7tuple.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_TPID_O,
-            fields->u.s1_7tuple.inner_tpid);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_VID_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_VID_L,
-            fields->u.s1_7tuple.inner_vid.value,
-            fields->u.s1_7tuple.inner_vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_DEI_O,
-            fields->u.s1_7tuple.inner_dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_PCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_PCP_L,
-            fields->u.s1_7tuple.inner_pcp.value,
-            fields->u.s1_7tuple.inner_pcp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_DMAC_O,
-            fields->u.s1_7tuple.l2_dmac.value, fields->u.s1_7tuple.l2_dmac.mask,
-            6);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_SMAC_O,
-            fields->u.s1_7tuple.l2_smac.value, fields->u.s1_7tuple.l2_smac.mask,
-            6);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_LEN_O,
-            fields->u.s1_7tuple.etype_len);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_L,
-            fields->u.s1_7tuple.etype.value, fields->u.s1_7tuple.etype.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_SNAP_O,
-            fields->u.s1_7tuple.ip_snap);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP4_O,
-            fields->u.s1_7tuple.ip4);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAGMENT_O,
-            fields->u.s1_7tuple.l3_fragment);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAG_OFS_GT0_O,
-            fields->u.s1_7tuple.l3_frag_ofs_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_OPTIONS_O,
-            fields->u.s1_7tuple.l3_options);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_DSCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_DSCP_L,
-            fields->u.s1_7tuple.l3_dscp.value,
-            fields->u.s1_7tuple.l3_dscp.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_MSB_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_MSB_L,
-            fields->u.s1_7tuple.l3_ip6_dip_msb.value,
-            fields->u.s1_7tuple.l3_ip6_dip_msb.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_O,
-            fields->u.s1_7tuple.l3_ip6_dip.value,
-            fields->u.s1_7tuple.l3_ip6_dip.mask, 8);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_MSB_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_MSB_L,
-            fields->u.s1_7tuple.l3_ip6_sip_msb.value,
-            fields->u.s1_7tuple.l3_ip6_sip_msb.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_O,
-            fields->u.s1_7tuple.l3_ip6_sip.value,
-            fields->u.s1_7tuple.l3_ip6_sip.mask, 8);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_UDP_O,
-            fields->u.s1_7tuple.tcp_udp);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_O,
-            fields->u.s1_7tuple.tcp);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_SPORT_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_SPORT_L,
-            fields->u.s1_7tuple.l4_sport.value,
-            fields->u.s1_7tuple.l4_sport.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_RNG_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_RNG_L,
-            fields->u.s1_7tuple.l4_rng.value, fields->u.s1_7tuple.l4_rng.mask);
+                                  fields->u.s1_7tuple.pcp.value, fields->u.s1_7tuple.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_TPID_O,
+                                      fields->u.s1_7tuple.inner_tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_VID_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_VID_L,
+                                  fields->u.s1_7tuple.inner_vid.value,
+                                  fields->u.s1_7tuple.inner_vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_DEI_O,
+                                      fields->u.s1_7tuple.inner_dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_INNER_PCP_L,
+                                  fields->u.s1_7tuple.inner_pcp.value,
+                                  fields->u.s1_7tuple.inner_pcp.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_DMAC_O,
+                                        fields->u.s1_7tuple.l2_dmac.value,
+                                        fields->u.s1_7tuple.l2_dmac.mask, 6);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L2_SMAC_O,
+                                        fields->u.s1_7tuple.l2_smac.value,
+                                        fields->u.s1_7tuple.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_LEN_O,
+                                      fields->u.s1_7tuple.etype_len);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_ETYPE_L,
+                                  fields->u.s1_7tuple.etype.value, fields->u.s1_7tuple.etype.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP_SNAP_O,
+                                      fields->u.s1_7tuple.ip_snap);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_IP4_O,
+                                      fields->u.s1_7tuple.ip4);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAGMENT_O,
+                                      fields->u.s1_7tuple.l3_fragment);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_FRAG_OFS_GT0_O,
+                                      fields->u.s1_7tuple.l3_frag_ofs_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_OPTIONS_O,
+                                      fields->u.s1_7tuple.l3_options);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_DSCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_DSCP_L,
+                                  fields->u.s1_7tuple.l3_dscp.value,
+                                  fields->u.s1_7tuple.l3_dscp.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_MSB_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_MSB_L,
+                                  fields->u.s1_7tuple.l3_ip6_dip_msb.value,
+                                  fields->u.s1_7tuple.l3_ip6_dip_msb.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_DIP_O,
+                                        fields->u.s1_7tuple.l3_ip6_dip.value,
+                                        fields->u.s1_7tuple.l3_ip6_dip.mask, 8);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_MSB_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_MSB_L,
+                                  fields->u.s1_7tuple.l3_ip6_sip_msb.value,
+                                  fields->u.s1_7tuple.l3_ip6_sip_msb.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L3_IP6_SIP_O,
+                                        fields->u.s1_7tuple.l3_ip6_sip.value,
+                                        fields->u.s1_7tuple.l3_ip6_sip.mask, 8);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_UDP_O,
+                                      fields->u.s1_7tuple.tcp_udp);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_TCP_O,
+                                      fields->u.s1_7tuple.tcp);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_SPORT_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_SPORT_L,
+                                  fields->u.s1_7tuple.l4_sport.value,
+                                  fields->u.s1_7tuple.l4_sport.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_RNG_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_FLD_L4_RNG_L,
+                                  fields->u.s1_7tuple.l4_rng.value,
+                                  fields->u.s1_7tuple.l4_rng.mask);
         break;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6:
         if (fields->u.s1_5tuple_ip6.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_L,
-                fields->u.s1_5tuple_ip6.type.value,
-                fields->u.s1_5tuple_ip6.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_L,
+                                      fields->u.s1_5tuple_ip6.type.value,
+                                      fields->u.s1_5tuple_ip6.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_ID, 0x3);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_L,
-            fields->u.s1_5tuple_ip6.lookup.value,
-            fields->u.s1_5tuple_ip6.lookup.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_L,
-            fields->u.s1_5tuple_ip6.igr_port_mask.value,
-            fields->u.s1_5tuple_ip6.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_MC_O,
-            fields->u.s1_5tuple_ip6.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_BC_O,
-            fields->u.s1_5tuple_ip6.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_MC_O,
-            fields->u.s1_5tuple_ip6.ip_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_R_TAGGED_O,
-            fields->u.s1_5tuple_ip6.r_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_TAGGED_O,
-            fields->u.s1_5tuple_ip6.vlan_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_O,
-            fields->u.s1_5tuple_ip6.vlan_dbl_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TPID_O,
-            fields->u.s1_5tuple_ip6.tpid);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_L,
-            fields->u.s1_5tuple_ip6.vid.value,
-            fields->u.s1_5tuple_ip6.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_DEI_O,
-            fields->u.s1_5tuple_ip6.dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_L,
-            fields->u.s1_5tuple_ip6.pcp.value,
-            fields->u.s1_5tuple_ip6.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_TPID_O,
-            fields->u.s1_5tuple_ip6.inner_tpid);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_L,
-            fields->u.s1_5tuple_ip6.inner_vid.value,
-            fields->u.s1_5tuple_ip6.inner_vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_DEI_O,
-            fields->u.s1_5tuple_ip6.inner_dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_L,
-            fields->u.s1_5tuple_ip6.inner_pcp.value,
-            fields->u.s1_5tuple_ip6.inner_pcp.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_L,
-            fields->u.s1_5tuple_ip6.l3_dscp.value,
-            fields->u.s1_5tuple_ip6.l3_dscp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_DIP_O,
-            fields->u.s1_5tuple_ip6.l3_ip6_dip.value,
-            fields->u.s1_5tuple_ip6.l3_ip6_dip.mask, 16);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_SIP_O,
-            fields->u.s1_5tuple_ip6.l3_ip6_sip.value,
-            fields->u.s1_5tuple_ip6.l3_ip6_sip.mask, 16);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_L,
-            fields->u.s1_5tuple_ip6.l3_ip_proto.value,
-            fields->u.s1_5tuple_ip6.l3_ip_proto.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TCP_UDP_O,
-            fields->u.s1_5tuple_ip6.tcp_udp);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_L,
-            fields->u.s1_5tuple_ip6.l4_rng.value,
-            fields->u.s1_5tuple_ip6.l4_rng.mask);
-        vtss_lan966x_vcap_key_set(
-            data,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_L,
-            fields->u.s1_5tuple_ip6.ip_payload_5tuple.value,
-            fields->u.s1_5tuple_ip6.ip_payload_5tuple.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_ID, 0x3);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_L,
+                                  fields->u.s1_5tuple_ip6.lookup.value,
+                                  fields->u.s1_5tuple_ip6.lookup.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_L,
+                                  fields->u.s1_5tuple_ip6.igr_port_mask.value,
+                                  fields->u.s1_5tuple_ip6.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_MC_O,
+                                      fields->u.s1_5tuple_ip6.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_BC_O,
+                                      fields->u.s1_5tuple_ip6.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_MC_O,
+                                      fields->u.s1_5tuple_ip6.ip_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_R_TAGGED_O,
+                                      fields->u.s1_5tuple_ip6.r_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_TAGGED_O,
+                                      fields->u.s1_5tuple_ip6.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_O,
+                                      fields->u.s1_5tuple_ip6.vlan_dbl_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TPID_O,
+                                      fields->u.s1_5tuple_ip6.tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_L,
+                                  fields->u.s1_5tuple_ip6.vid.value,
+                                  fields->u.s1_5tuple_ip6.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_DEI_O,
+                                      fields->u.s1_5tuple_ip6.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_L,
+                                  fields->u.s1_5tuple_ip6.pcp.value,
+                                  fields->u.s1_5tuple_ip6.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_TPID_O,
+                                      fields->u.s1_5tuple_ip6.inner_tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_L,
+                                  fields->u.s1_5tuple_ip6.inner_vid.value,
+                                  fields->u.s1_5tuple_ip6.inner_vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_DEI_O,
+                                      fields->u.s1_5tuple_ip6.inner_dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_L,
+                                  fields->u.s1_5tuple_ip6.inner_pcp.value,
+                                  fields->u.s1_5tuple_ip6.inner_pcp.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_L,
+                                  fields->u.s1_5tuple_ip6.l3_dscp.value,
+                                  fields->u.s1_5tuple_ip6.l3_dscp.mask);
+        vtss_lan966x_vcap_key_bytes_set(data,
+                                        VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_DIP_O,
+                                        fields->u.s1_5tuple_ip6.l3_ip6_dip.value,
+                                        fields->u.s1_5tuple_ip6.l3_ip6_dip.mask, 16);
+        vtss_lan966x_vcap_key_bytes_set(data,
+                                        VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_SIP_O,
+                                        fields->u.s1_5tuple_ip6.l3_ip6_sip.value,
+                                        fields->u.s1_5tuple_ip6.l3_ip6_sip.mask, 16);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_L,
+                                  fields->u.s1_5tuple_ip6.l3_ip_proto.value,
+                                  fields->u.s1_5tuple_ip6.l3_ip_proto.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TCP_UDP_O,
+                                      fields->u.s1_5tuple_ip6.tcp_udp);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_L,
+                                  fields->u.s1_5tuple_ip6.l4_rng.value,
+                                  fields->u.s1_5tuple_ip6.l4_rng.mask);
+        vtss_lan966x_vcap_key_set(data,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_L,
+                                  fields->u.s1_5tuple_ip6.ip_payload_5tuple.value,
+                                  fields->u.s1_5tuple_ip6.ip_payload_5tuple.mask);
         break;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID:
         if (fields->u.s1_dbl_vid.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_L,
-                fields->u.s1_dbl_vid.type.value,
-                fields->u.s1_dbl_vid.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_L,
+                                      fields->u.s1_dbl_vid.type.value,
+                                      fields->u.s1_dbl_vid.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_ID, 0x3);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_LOOKUP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_LOOKUP_L,
-            fields->u.s1_dbl_vid.lookup.value,
-            fields->u.s1_dbl_vid.lookup.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IGR_PORT_MASK_L,
-            fields->u.s1_dbl_vid.igr_port_mask.value,
-            fields->u.s1_dbl_vid.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_MC_O,
-            fields->u.s1_dbl_vid.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_BC_O,
-            fields->u.s1_dbl_vid.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_MC_O,
-            fields->u.s1_dbl_vid.ip_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_R_TAGGED_O,
-            fields->u.s1_dbl_vid.r_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_TAGGED_O,
-            fields->u.s1_dbl_vid.vlan_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_DBL_TAGGED_O,
-            fields->u.s1_dbl_vid.vlan_dbl_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TPID_O,
-            fields->u.s1_dbl_vid.tpid);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VID_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_ID, 0x3);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_LOOKUP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_LOOKUP_L,
+                                  fields->u.s1_dbl_vid.lookup.value,
+                                  fields->u.s1_dbl_vid.lookup.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IGR_PORT_MASK_L,
+                                  fields->u.s1_dbl_vid.igr_port_mask.value,
+                                  fields->u.s1_dbl_vid.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_MC_O,
+                                      fields->u.s1_dbl_vid.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L2_BC_O,
+                                      fields->u.s1_dbl_vid.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_MC_O,
+                                      fields->u.s1_dbl_vid.ip_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_R_TAGGED_O,
+                                      fields->u.s1_dbl_vid.r_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_TAGGED_O,
+                                      fields->u.s1_dbl_vid.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VLAN_DBL_TAGGED_O,
+                                      fields->u.s1_dbl_vid.vlan_dbl_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TPID_O,
+                                      fields->u.s1_dbl_vid.tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_VID_L,
-                                  fields->u.s1_dbl_vid.vid.value,
-                                  fields->u.s1_dbl_vid.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_DEI_O,
-            fields->u.s1_dbl_vid.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_PCP_O,
+                                  fields->u.s1_dbl_vid.vid.value, fields->u.s1_dbl_vid.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_DEI_O,
+                                      fields->u.s1_dbl_vid.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_PCP_L,
-                                  fields->u.s1_dbl_vid.pcp.value,
-                                  fields->u.s1_dbl_vid.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_TPID_O,
-            fields->u.s1_dbl_vid.inner_tpid);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_VID_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_VID_L,
-            fields->u.s1_dbl_vid.inner_vid.value,
-            fields->u.s1_dbl_vid.inner_vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_DEI_O,
-            fields->u.s1_dbl_vid.inner_dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_PCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_PCP_L,
-            fields->u.s1_dbl_vid.inner_pcp.value,
-            fields->u.s1_dbl_vid.inner_pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_LEN_O,
-            fields->u.s1_dbl_vid.etype_len);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_L,
-            fields->u.s1_dbl_vid.etype.value, fields->u.s1_dbl_vid.etype.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_SNAP_O,
-            fields->u.s1_dbl_vid.ip_snap);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP4_O,
-            fields->u.s1_dbl_vid.ip4);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAGMENT_O,
-            fields->u.s1_dbl_vid.l3_fragment);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAG_OFS_GT0_O,
-            fields->u.s1_dbl_vid.l3_frag_ofs_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_OPTIONS_O,
-            fields->u.s1_dbl_vid.l3_options);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_DSCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_DSCP_L,
-            fields->u.s1_dbl_vid.l3_dscp.value,
-            fields->u.s1_dbl_vid.l3_dscp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_UDP_O,
-            fields->u.s1_dbl_vid.tcp_udp);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_O,
-            fields->u.s1_dbl_vid.tcp);
+                                  fields->u.s1_dbl_vid.pcp.value, fields->u.s1_dbl_vid.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_TPID_O,
+                                      fields->u.s1_dbl_vid.inner_tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_VID_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_VID_L,
+                                  fields->u.s1_dbl_vid.inner_vid.value,
+                                  fields->u.s1_dbl_vid.inner_vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_DEI_O,
+                                      fields->u.s1_dbl_vid.inner_dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_INNER_PCP_L,
+                                  fields->u.s1_dbl_vid.inner_pcp.value,
+                                  fields->u.s1_dbl_vid.inner_pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_LEN_O,
+                                      fields->u.s1_dbl_vid.etype_len);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_ETYPE_L,
+                                  fields->u.s1_dbl_vid.etype.value,
+                                  fields->u.s1_dbl_vid.etype.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP_SNAP_O,
+                                      fields->u.s1_dbl_vid.ip_snap);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_IP4_O,
+                                      fields->u.s1_dbl_vid.ip4);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAGMENT_O,
+                                      fields->u.s1_dbl_vid.l3_fragment);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_FRAG_OFS_GT0_O,
+                                      fields->u.s1_dbl_vid.l3_frag_ofs_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_OPTIONS_O,
+                                      fields->u.s1_dbl_vid.l3_options);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_DSCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_L3_DSCP_L,
+                                  fields->u.s1_dbl_vid.l3_dscp.value,
+                                  fields->u.s1_dbl_vid.l3_dscp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_UDP_O,
+                                      fields->u.s1_dbl_vid.tcp_udp);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_FLD_TCP_O,
+                                      fields->u.s1_dbl_vid.tcp);
         break;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_RT:
         if (fields->u.s1_rt.type.mask)
-            vtss_lan966x_vcap_key_set(data,
-                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_O,
                                       VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_L,
-                                      fields->u.s1_rt.type.value,
-                                      fields->u.s1_rt.type.mask);
+                                      fields->u.s1_rt.type.value, fields->u.s1_rt.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(data,
-                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_O,
                                       VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_L,
-                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_ID,
-                                      0x3);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_ID, 0x3);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_O,
                                       fields->u.s1_rt.first);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_O,
                                   VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_L,
-                                  fields->u.s1_rt.igr_port.value,
-                                  fields->u.s1_rt.igr_port.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_O,
-            fields->u.s1_rt.r_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_O,
-            fields->u.s1_rt.vlan_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_O,
-            fields->u.s1_rt.vlan_dbl_tagged);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_O,
-            fields->u.s1_rt.l2_mac.value, fields->u.s1_rt.l2_mac.mask, 6);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_L,
-            fields->u.s1_rt.rt_vlan_idx.value,
-            fields->u.s1_rt.rt_vlan_idx.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_O,
+                                  fields->u.s1_rt.igr_port.value, fields->u.s1_rt.igr_port.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_O,
+                                      fields->u.s1_rt.r_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_O,
+                                      fields->u.s1_rt.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_O,
+                                      fields->u.s1_rt.vlan_dbl_tagged);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_O,
+                                        fields->u.s1_rt.l2_mac.value, fields->u.s1_rt.l2_mac.mask,
+                                        6);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_L,
+                                  fields->u.s1_rt.rt_vlan_idx.value,
+                                  fields->u.s1_rt.rt_vlan_idx.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_O,
                                   VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_L,
-                                  fields->u.s1_rt.rt_type.value,
-                                  fields->u.s1_rt.rt_type.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_O,
+                                  fields->u.s1_rt.rt_type.value, fields->u.s1_rt.rt_type.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_O,
                                   VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_L,
-                                  fields->u.s1_rt.rt_frmid.value,
-                                  fields->u.s1_rt.rt_frmid.mask);
+                                  fields->u.s1_rt.rt_frmid.value, fields->u.s1_rt.rt_frmid.mask);
         break;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID:
         if (fields->u.s1_dmac_vid.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_L,
-                fields->u.s1_dmac_vid.type.value,
-                fields->u.s1_dmac_vid.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_L,
+                                      fields->u.s1_dmac_vid.type.value,
+                                      fields->u.s1_dmac_vid.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_ID, 0x3);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_LOOKUP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_LOOKUP_L,
-            fields->u.s1_dmac_vid.lookup.value,
-            fields->u.s1_dmac_vid.lookup.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_IGR_PORT_MASK_L,
-            fields->u.s1_dmac_vid.igr_port_mask.value,
-            fields->u.s1_dmac_vid.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_R_TAGGED_O,
-            fields->u.s1_dmac_vid.r_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_TAGGED_O,
-            fields->u.s1_dmac_vid.vlan_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_DBL_TAGGED_O,
-            fields->u.s1_dmac_vid.vlan_dbl_tagged);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TPID_O,
-            fields->u.s1_dmac_vid.tpid);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VID_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VID_L,
-            fields->u.s1_dmac_vid.vid.value, fields->u.s1_dmac_vid.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_DEI_O,
-            fields->u.s1_dmac_vid.dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_PCP_O,
-            VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_PCP_L,
-            fields->u.s1_dmac_vid.pcp.value, fields->u.s1_dmac_vid.pcp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_L2_DMAC_O,
-            fields->u.s1_dmac_vid.l2_dmac.value,
-            fields->u.s1_dmac_vid.l2_dmac.mask, 6);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_ID, 0x3);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_LOOKUP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_LOOKUP_L,
+                                  fields->u.s1_dmac_vid.lookup.value,
+                                  fields->u.s1_dmac_vid.lookup.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_IGR_PORT_MASK_L,
+                                  fields->u.s1_dmac_vid.igr_port_mask.value,
+                                  fields->u.s1_dmac_vid.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_R_TAGGED_O,
+                                      fields->u.s1_dmac_vid.r_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_TAGGED_O,
+                                      fields->u.s1_dmac_vid.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VLAN_DBL_TAGGED_O,
+                                      fields->u.s1_dmac_vid.vlan_dbl_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_TPID_O,
+                                      fields->u.s1_dmac_vid.tpid);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VID_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_VID_L,
+                                  fields->u.s1_dmac_vid.vid.value, fields->u.s1_dmac_vid.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_DEI_O,
+                                      fields->u.s1_dmac_vid.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_PCP_L,
+                                  fields->u.s1_dmac_vid.pcp.value, fields->u.s1_dmac_vid.pcp.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_FLD_L2_DMAC_O,
+                                        fields->u.s1_dmac_vid.l2_dmac.value,
+                                        fields->u.s1_dmac_vid.l2_dmac.mask, 6);
         break;
     default: return -1;
     }
     return 0;
 }
 
-int vtss_lan966x_vcap_is1_action_pack(
-    const struct vtss_lan966x_vcap_is1_action_fields *fields,
-    struct vtss_lan966x_vcap_data                    *data)
+int vtss_lan966x_vcap_is1_action_pack(const struct vtss_lan966x_vcap_is1_action_fields *fields,
+                                      struct vtss_lan966x_vcap_data                    *data)
 {
     switch (fields->action) {
     case VTSS_LAN966X_VCAP_IS1_ACTION_S1:
         if (fields->u.s1.type_ena)
-            vtss_lan966x_vcap_action_bit_set(
-                data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_O,
-                fields->u.s1.type);
+            vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_O,
+                                             fields->u.s1.type);
         else /* Set to default value */
-            vtss_lan966x_vcap_action_bit_set(
-                data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_O,
-            fields->u.s1.dscp_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_L,
-            fields->u.s1.dscp_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_O,
-            fields->u.s1.qos_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_L,
-            fields->u.s1.qos_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_O,
-            fields->u.s1.dp_ena);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_O,
-            fields->u.s1.dp_val);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_L,
-            fields->u.s1.pag_override_mask);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_L,
-            fields->u.s1.pag_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_O,
-            fields->u.s1.isdx_replace_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_L,
-            fields->u.s1.isdx_add_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_O,
-            fields->u.s1.vid_replace_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_L,
-            fields->u.s1.vid_add_val);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_L,
-            fields->u.s1.fid_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_L,
-            fields->u.s1.fid_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_O,
-            fields->u.s1.pcp_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_L,
-            fields->u.s1.pcp_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_O,
-            fields->u.s1.dei_ena);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_O,
-            fields->u.s1.dei_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_O,
-            fields->u.s1.vlan_pop_cnt_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_L,
-            fields->u.s1.vlan_pop_cnt);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_L,
-            fields->u.s1.custom_ace_type_ena);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_O,
-            fields->u.s1.sfid_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_L,
-            fields->u.s1.sfid_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_O,
-            fields->u.s1.sgid_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_L,
-            fields->u.s1.sgid_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_O,
-            fields->u.s1.police_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_L,
-            fields->u.s1.police_idx);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_L,
-            fields->u.s1.oam_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_L,
-            fields->u.s1.mrp_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_L,
-            fields->u.s1.dlr_sel);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_O,
-            fields->u.s1.rtp_ena);
+            vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_O,
+                                             VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_O,
+                                         fields->u.s1.dscp_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_L,
+                                     fields->u.s1.dscp_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_O,
+                                         fields->u.s1.qos_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_L,
+                                     fields->u.s1.qos_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_O,
+                                         fields->u.s1.dp_ena);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_O,
+                                         fields->u.s1.dp_val);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_L,
+                                     fields->u.s1.pag_override_mask);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_L,
+                                     fields->u.s1.pag_val);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_O,
+                                         fields->u.s1.isdx_replace_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_L,
+                                     fields->u.s1.isdx_add_val);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_O,
+                                         fields->u.s1.vid_replace_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_L,
+                                     fields->u.s1.vid_add_val);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_L,
+                                     fields->u.s1.fid_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_L,
+                                     fields->u.s1.fid_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_O,
+                                         fields->u.s1.pcp_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_L,
+                                     fields->u.s1.pcp_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_O,
+                                         fields->u.s1.dei_ena);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_O,
+                                         fields->u.s1.dei_val);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_O,
+                                         fields->u.s1.vlan_pop_cnt_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_L,
+                                     fields->u.s1.vlan_pop_cnt);
+        vtss_lan966x_vcap_action_set(data,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_L,
+                                     fields->u.s1.custom_ace_type_ena);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_O,
+                                         fields->u.s1.sfid_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_L,
+                                     fields->u.s1.sfid_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_O,
+                                         fields->u.s1.sgid_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_L,
+                                     fields->u.s1.sgid_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_O,
+                                         fields->u.s1.police_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_L,
+                                     fields->u.s1.police_idx);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_L,
+                                     fields->u.s1.oam_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_L,
+                                     fields->u.s1.mrp_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_L,
+                                     fields->u.s1.dlr_sel);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_O,
+                                         fields->u.s1.rtp_ena);
         break;
     case VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT:
         if (fields->u.s1_rt.type_ena)
-            vtss_lan966x_vcap_action_bit_set(
-                data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_O,
-                fields->u.s1_rt.type);
+            vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_O,
+                                             fields->u.s1_rt.type);
         else /* Set to default value */
-            vtss_lan966x_vcap_action_bit_set(
-                data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_ID);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ISDX_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ISDX_VAL_L,
-            fields->u.s1_rt.isdx_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_ENA_O,
-            fields->u.s1_rt.sfid_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_VAL_L,
-            fields->u.s1_rt.sfid_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_ENA_O,
-            fields->u.s1_rt.sgid_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_VAL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_VAL_L,
-            fields->u.s1_rt.sgid_val);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_ENA_O,
-            fields->u.s1_rt.police_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_IDX_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_IDX_L,
-            fields->u.s1_rt.police_idx);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_ID_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_ID_L,
-            fields->u.s1_rt.rtp_id);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_SUBID_O,
-            fields->u.s1_rt.rtp_subid);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTE_INB_UPD_O,
-            fields->u.s1_rt.rte_inb_upd);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_ENA_O,
-            fields->u.s1_rt.llct_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_PORT_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_PORT_L,
-            fields->u.s1_rt.llct_port);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_ENA_O,
-            fields->u.s1_rt.fwd_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_MASK_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_MASK_L,
-            fields->u.s1_rt.fwd_mask);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SRC_FILTER_ENA_O,
-            fields->u.s1_rt.src_filter_ena);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_OWN_MAC_O,
-            fields->u.s1_rt.own_mac);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_COPY_ENA_O,
-            fields->u.s1_rt.cpu_copy_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_QU_NUM_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_QU_NUM_L,
-            fields->u.s1_rt.cpu_qu_num);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ANA2_TSN_DIS_O,
-            fields->u.s1_rt.ana2_tsn_dis);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_SEL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_SEL_L,
-            fields->u.s1_rt.fwd_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CT_SEL_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CT_SEL_L,
-            fields->u.s1_rt.ct_sel);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_PN_STAT_OFS_O,
-            VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_PN_STAT_OFS_L,
-            fields->u.s1_rt.pn_stat_ofs);
+            vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_O,
+                                             VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_ID);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ISDX_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ISDX_VAL_L,
+                                     fields->u.s1_rt.isdx_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_ENA_O,
+                                         fields->u.s1_rt.sfid_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SFID_VAL_L,
+                                     fields->u.s1_rt.sfid_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_ENA_O,
+                                         fields->u.s1_rt.sgid_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_VAL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SGID_VAL_L,
+                                     fields->u.s1_rt.sgid_val);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_ENA_O,
+                                         fields->u.s1_rt.police_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_IDX_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_POLICE_IDX_L,
+                                     fields->u.s1_rt.police_idx);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_ID_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_ID_L,
+                                     fields->u.s1_rt.rtp_id);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTP_SUBID_O,
+                                         fields->u.s1_rt.rtp_subid);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_RTE_INB_UPD_O,
+                                         fields->u.s1_rt.rte_inb_upd);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_ENA_O,
+                                         fields->u.s1_rt.llct_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_PORT_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_LLCT_PORT_L,
+                                     fields->u.s1_rt.llct_port);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_ENA_O,
+                                         fields->u.s1_rt.fwd_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_MASK_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_MASK_L,
+                                     fields->u.s1_rt.fwd_mask);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_SRC_FILTER_ENA_O,
+                                         fields->u.s1_rt.src_filter_ena);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_OWN_MAC_O,
+                                         fields->u.s1_rt.own_mac);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_COPY_ENA_O,
+                                         fields->u.s1_rt.cpu_copy_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_QU_NUM_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CPU_QU_NUM_L,
+                                     fields->u.s1_rt.cpu_qu_num);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_ANA2_TSN_DIS_O,
+                                         fields->u.s1_rt.ana2_tsn_dis);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_SEL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_FWD_SEL_L,
+                                     fields->u.s1_rt.fwd_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CT_SEL_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_CT_SEL_L,
+                                     fields->u.s1_rt.ct_sel);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_PN_STAT_OFS_O,
+                                     VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_PN_STAT_OFS_L,
+                                     fields->u.s1_rt.pn_stat_ofs);
         break;
     default: return -1;
     }
@@ -1417,58 +1141,48 @@ static const struct vtss_lan966x_vcap_attrs *vtss_lan966x_vcap_is1_attrs_get(voi
     return &vtss_lan966x_vcap_is1_attrs;
 }
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_is1_key_tg4_attrs = {
-        .name = "X4",
-        .tg_width = VTSS_LAN966X_VCAP_IS1_TG4_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_IS1_TG4_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_IS1_TG4_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_IS1_TG4_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_IS1_TG4_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_IS1_TG4_SW0_VAL},
-                      {VTSS_LAN966X_VCAP_IS1_TG4_SW1_WIDTH,
-                 VTSS_LAN966X_VCAP_IS1_TG4_SW1_VAL},
-                      {VTSS_LAN966X_VCAP_IS1_TG4_SW2_WIDTH,
-                 VTSS_LAN966X_VCAP_IS1_TG4_SW2_VAL},
-                      {VTSS_LAN966X_VCAP_IS1_TG4_SW3_WIDTH,
-                 VTSS_LAN966X_VCAP_IS1_TG4_SW3_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_is1_key_tg4_attrs = {
+    .name = "X4",
+    .tg_width = VTSS_LAN966X_VCAP_IS1_TG4_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_IS1_TG4_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_IS1_TG4_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_IS1_TG4_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_IS1_TG4_SW0_WIDTH, VTSS_LAN966X_VCAP_IS1_TG4_SW0_VAL},
+                  {VTSS_LAN966X_VCAP_IS1_TG4_SW1_WIDTH, VTSS_LAN966X_VCAP_IS1_TG4_SW1_VAL},
+                  {VTSS_LAN966X_VCAP_IS1_TG4_SW2_WIDTH, VTSS_LAN966X_VCAP_IS1_TG4_SW2_VAL},
+                  {VTSS_LAN966X_VCAP_IS1_TG4_SW3_WIDTH, VTSS_LAN966X_VCAP_IS1_TG4_SW3_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_is1_key_tg2_attrs = {
-        .name = "X2",
-        .tg_width = VTSS_LAN966X_VCAP_IS1_TG2_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_IS1_TG2_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_IS1_TG2_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_IS1_TG2_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_IS1_TG2_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_IS1_TG2_SW0_VAL},
-                      {VTSS_LAN966X_VCAP_IS1_TG2_SW1_WIDTH,
-                 VTSS_LAN966X_VCAP_IS1_TG2_SW1_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_is1_key_tg2_attrs = {
+    .name = "X2",
+    .tg_width = VTSS_LAN966X_VCAP_IS1_TG2_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_IS1_TG2_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_IS1_TG2_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_IS1_TG2_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_IS1_TG2_SW0_WIDTH, VTSS_LAN966X_VCAP_IS1_TG2_SW0_VAL},
+                  {VTSS_LAN966X_VCAP_IS1_TG2_SW1_WIDTH, VTSS_LAN966X_VCAP_IS1_TG2_SW1_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_is1_key_tg1_attrs = {
-        .name = "X1",
-        .tg_width = VTSS_LAN966X_VCAP_IS1_TG1_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_IS1_TG1_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_IS1_TG1_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_IS1_TG1_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_IS1_TG1_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_IS1_TG1_SW0_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_is1_key_tg1_attrs = {
+    .name = "X1",
+    .tg_width = VTSS_LAN966X_VCAP_IS1_TG1_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_IS1_TG1_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_IS1_TG1_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_IS1_TG1_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_IS1_TG1_SW0_WIDTH, VTSS_LAN966X_VCAP_IS1_TG1_SW0_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs *
-vtss_lan966x_vcap_is1_key_tgs_attrs_get(u32 sw_per_entry)
+static const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_is1_key_tgs_attrs_get(
+    u32 sw_per_entry)
 {
     switch (sw_per_entry) {
     case 4: return &vtss_lan966x_vcap_is1_key_tg4_attrs;
@@ -1478,126 +1192,110 @@ vtss_lan966x_vcap_is1_key_tgs_attrs_get(u32 sw_per_entry)
     return NULL;
 }
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is1_key_s1_normal_attrs = {
-        .name = "S1_NORMAL",
-        .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is1_key_s1_normal_attrs = {
+    .name = "S1_NORMAL",
+    .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is1_key_s1_5tuple_ip4_attrs = {
-        .name = "S1_5TUPLE_IP4",
-        .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is1_key_s1_5tuple_ip4_attrs = {
+    .name = "S1_5TUPLE_IP4",
+    .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is1_key_s1_normal_ip6_attrs = {
-        .name = "S1_NORMAL_IP6",
-        .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is1_key_s1_normal_ip6_attrs = {
+    .name = "S1_NORMAL_IP6",
+    .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is1_key_s1_7tuple_attrs = {
-        .name = "S1_7TUPLE",
-        .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is1_key_s1_7tuple_attrs = {
+    .name = "S1_7TUPLE",
+    .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is1_key_s1_5tuple_ip6_attrs = {
-        .name = "S1_5TUPLE_IP6",
-        .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is1_key_s1_5tuple_ip6_attrs = {
+    .name = "S1_5TUPLE_IP6",
+    .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is1_key_s1_dbl_vid_attrs = {
-        .name = "S1_DBL_VID",
-        .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is1_key_s1_dbl_vid_attrs = {
+    .name = "S1_DBL_VID",
+    .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is1_key_s1_rt_attrs = {
-        .name = "S1_RT",
-        .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is1_key_s1_rt_attrs = {
+    .name = "S1_RT",
+    .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is1_key_s1_dmac_vid_attrs = {
-        .name = "S1_DMAC_VID",
-        .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is1_key_s1_dmac_vid_attrs = {
+    .name = "S1_DMAC_VID",
+    .type_id = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs *
-vtss_lan966x_vcap_is1_key_attrs_get(int key)
+static const struct vtss_lan966x_vcap_key_attrs *vtss_lan966x_vcap_is1_key_attrs_get(int key)
 {
     switch (key) {
-    case VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL:
-        return &vtss_lan966x_vcap_is1_key_s1_normal_attrs;
+    case VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL: return &vtss_lan966x_vcap_is1_key_s1_normal_attrs;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4:
         return &vtss_lan966x_vcap_is1_key_s1_5tuple_ip4_attrs;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6:
         return &vtss_lan966x_vcap_is1_key_s1_normal_ip6_attrs;
-    case VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE:
-        return &vtss_lan966x_vcap_is1_key_s1_7tuple_attrs;
+    case VTSS_LAN966X_VCAP_IS1_KEY_S1_7TUPLE: return &vtss_lan966x_vcap_is1_key_s1_7tuple_attrs;
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6:
         return &vtss_lan966x_vcap_is1_key_s1_5tuple_ip6_attrs;
-    case VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID:
-        return &vtss_lan966x_vcap_is1_key_s1_dbl_vid_attrs;
-    case VTSS_LAN966X_VCAP_IS1_KEY_S1_RT:
-        return &vtss_lan966x_vcap_is1_key_s1_rt_attrs;
-    case VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID:
-        return &vtss_lan966x_vcap_is1_key_s1_dmac_vid_attrs;
+    case VTSS_LAN966X_VCAP_IS1_KEY_S1_DBL_VID:  return &vtss_lan966x_vcap_is1_key_s1_dbl_vid_attrs;
+    case VTSS_LAN966X_VCAP_IS1_KEY_S1_RT:       return &vtss_lan966x_vcap_is1_key_s1_rt_attrs;
+    case VTSS_LAN966X_VCAP_IS1_KEY_S1_DMAC_VID: return &vtss_lan966x_vcap_is1_key_s1_dmac_vid_attrs;
     }
     return NULL;
 }
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_is1_action_tg1_attrs = {
-        .name = "X1",
-        .tg_width = VTSS_LAN966X_VCAP_IS1_ACT_TG1_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_IS1_ACT_TG1_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_IS1_ACT_TG1_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_IS1_ACT_TG1_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_IS1_ACT_TG1_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_IS1_ACT_TG1_SW0_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_is1_action_tg1_attrs = {
+    .name = "X1",
+    .tg_width = VTSS_LAN966X_VCAP_IS1_ACT_TG1_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_IS1_ACT_TG1_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_IS1_ACT_TG1_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_IS1_ACT_TG1_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_IS1_ACT_TG1_SW0_WIDTH, VTSS_LAN966X_VCAP_IS1_ACT_TG1_SW0_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs *
-vtss_lan966x_vcap_is1_action_tgs_attrs_get(u32 sw_per_entry)
+static const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_is1_action_tgs_attrs_get(
+    u32 sw_per_entry)
 {
     switch (sw_per_entry) {
     case 1: return &vtss_lan966x_vcap_is1_action_tg1_attrs;
@@ -1605,34 +1303,29 @@ vtss_lan966x_vcap_is1_action_tgs_attrs_get(u32 sw_per_entry)
     return NULL;
 }
 
-static const struct vtss_lan966x_vcap_action_attrs
-    vtss_lan966x_vcap_is1_action_s1_attrs = {
-        .name = "S1",
-        .type_id = VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_ACTION_S1_WIDTH,
-        .sw_per_action = VTSS_LAN966X_VCAP_IS1_ACTION_S1_SW_PER_ACTION,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_ACTION_S1_SW_CNT,
+static const struct vtss_lan966x_vcap_action_attrs vtss_lan966x_vcap_is1_action_s1_attrs = {
+    .name = "S1",
+    .type_id = VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_ACTION_S1_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_ACTION_S1_WIDTH,
+    .sw_per_action = VTSS_LAN966X_VCAP_IS1_ACTION_S1_SW_PER_ACTION,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_ACTION_S1_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_action_attrs
-    vtss_lan966x_vcap_is1_action_s1_rt_attrs = {
-        .name = "S1_RT",
-        .type_id = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_WIDTH,
-        .sw_per_action = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_SW_PER_ACTION,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_SW_CNT,
+static const struct vtss_lan966x_vcap_action_attrs vtss_lan966x_vcap_is1_action_s1_rt_attrs = {
+    .name = "S1_RT",
+    .type_id = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_WIDTH,
+    .sw_per_action = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_SW_PER_ACTION,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_action_attrs *
-vtss_lan966x_vcap_is1_action_attrs_get(int action)
+static const struct vtss_lan966x_vcap_action_attrs *vtss_lan966x_vcap_is1_action_attrs_get(int action)
 {
     switch (action) {
-    case VTSS_LAN966X_VCAP_IS1_ACTION_S1:
-        return &vtss_lan966x_vcap_is1_action_s1_attrs;
-    case VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT:
-        return &vtss_lan966x_vcap_is1_action_s1_rt_attrs;
+    case VTSS_LAN966X_VCAP_IS1_ACTION_S1:    return &vtss_lan966x_vcap_is1_action_s1_attrs;
+    case VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT: return &vtss_lan966x_vcap_is1_action_s1_rt_attrs;
     }
     return NULL;
 }
@@ -1736,101 +1429,97 @@ static const struct vtss_lan966x_vcap_field_attrs
     vtss_lan966x_vcap_is1_key_s1_5tuple_ip4_field_attrs[] = {
         {.name = "TYPE",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_L                                                                                    },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TYPE_L             },
         {.name = "LOOKUP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_L                                                                                  },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_LOOKUP_L           },
         {.name = "IGR_PORT_MASK",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_L                                                                           },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IGR_PORT_MASK_L    },
         {.name = "L2_MC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_MC_L                                                                                   },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_MC_L            },
         {.name = "L2_BC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_BC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_BC_L                                                                                   },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L2_BC_L            },
         {.name = "IP_MC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_MC_L                                                                                   },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_MC_L            },
         {.name = "R_TAGGED",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_R_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_R_TAGGED_L                                                                                },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_R_TAGGED_L         },
         {.name = "VLAN_TAGGED",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_TAGGED_L                                                                             },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_TAGGED_L      },
         {.name = "VLAN_DBL_TAGGED",
-         .offset =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_O,     .length =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_L    },
+         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_O,
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VLAN_DBL_TAGGED_L  },
         {.name = "TPID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TPID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TPID_L                                                                                    },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TPID_L             },
         {.name = "VID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_VID_L              },
         {.name = "DEI",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_DEI_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_DEI_L              },
         {.name = "PCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_PCP_L              },
         {.name = "INNER_TPID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_TPID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_TPID_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_TPID_L       },
         {.name = "INNER_VID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_VID_L        },
         {.name = "INNER_DEI",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_DEI_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_DEI_L        },
         {.name = "INNER_PCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_INNER_PCP_L        },
         {.name = "IP4",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP4_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP4_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP4_L              },
         {.name = "L3_FRAGMENT",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAGMENT_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAGMENT_L                                                                             },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAGMENT_L      },
         {.name = "L3_FRAG_OFS_GT0",
-         .offset =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_O,     .length =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_L    },
+         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_O,
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_FRAG_OFS_GT0_L  },
         {.name = "L3_OPTIONS",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_OPTIONS_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_OPTIONS_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_OPTIONS_L       },
         {.name = "L3_DSCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_L                                                                                 },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_DSCP_L          },
         {.name = "L3_IP4_DIP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_DIP_L       },
         {.name = "L3_IP4_SIP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP4_SIP_L       },
         {.name = "L3_IP_PROTO",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_L                                                                             },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L3_IP_PROTO_L      },
         {.name = "TCP_UDP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_UDP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_UDP_L                                                                                 },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_UDP_L          },
         {.name = "TCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_TCP_L              },
         {.name = "L4_RNG",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_L                                                                                  },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_L4_RNG_L           },
         {.name = "IP_PAYLOAD_5TUPLE",
-         .offset =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_O,   .length =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_L},
+         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_O,
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP4_FLD_IP_PAYLOAD_5TUPLE_L},
 };
 
 static const struct vtss_lan966x_vcap_field_attrs *
 vtss_lan966x_vcap_is1_key_s1_5tuple_ip4_field_attrs_get(u32 index)
 {
-    if (index >=
-        ARRAY_SIZE(vtss_lan966x_vcap_is1_key_s1_5tuple_ip4_field_attrs))
+    if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is1_key_s1_5tuple_ip4_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_is1_key_s1_5tuple_ip4_field_attrs[index];
 }
@@ -1839,85 +1528,82 @@ static const struct vtss_lan966x_vcap_field_attrs
     vtss_lan966x_vcap_is1_key_s1_normal_ip6_field_attrs[] = {
         {.name = "TYPE",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_L                                                                                    },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TYPE_L             },
         {.name = "LOOKUP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_L                                                                                  },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_LOOKUP_L           },
         {.name = "IGR_PORT_MASK",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_L                                                                           },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IGR_PORT_MASK_L    },
         {.name = "L2_MC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_MC_L                                                                                   },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_MC_L            },
         {.name = "L2_BC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_BC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_BC_L                                                                                   },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_BC_L            },
         {.name = "IP_MC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_MC_L                                                                                   },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_MC_L            },
         {.name = "R_TAGGED",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_R_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_R_TAGGED_L                                                                                },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_R_TAGGED_L         },
         {.name = "VLAN_TAGGED",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_TAGGED_L                                                                             },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_TAGGED_L      },
         {.name = "VLAN_DBL_TAGGED",
-         .offset =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_O,     .length =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_L    },
+         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_O,
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VLAN_DBL_TAGGED_L  },
         {.name = "TPID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TPID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TPID_L                                                                                    },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TPID_L             },
         {.name = "VID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_VID_L              },
         {.name = "DEI",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_DEI_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_DEI_L              },
         {.name = "PCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_PCP_L              },
         {.name = "INNER_TPID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_TPID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_TPID_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_TPID_L       },
         {.name = "INNER_VID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_VID_L        },
         {.name = "INNER_DEI",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_DEI_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_DEI_L        },
         {.name = "INNER_PCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_INNER_PCP_L        },
         {.name = "L2_SMAC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_SMAC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_SMAC_L                                                                                 },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L2_SMAC_L          },
         {.name = "L3_DSCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_L                                                                                 },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_DSCP_L          },
         {.name = "L3_IP6_SIP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP6_SIP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP6_SIP_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP6_SIP_L       },
         {.name = "L3_IP_PROTO",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_L                                                                             },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L3_IP_PROTO_L      },
         {.name = "TCP_UDP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TCP_UDP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TCP_UDP_L                                                                                 },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_TCP_UDP_L          },
         {.name = "L4_RNG",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_L                                                                                  },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_L4_RNG_L           },
         {.name = "IP_PAYLOAD_S1_IP6",
-         .offset =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_O,   .length =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_L},
+         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_O,
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL_IP6_FLD_IP_PAYLOAD_S1_IP6_L},
 };
 
 static const struct vtss_lan966x_vcap_field_attrs *
 vtss_lan966x_vcap_is1_key_s1_normal_ip6_field_attrs_get(u32 index)
 {
-    if (index >=
-        ARRAY_SIZE(vtss_lan966x_vcap_is1_key_s1_normal_ip6_field_attrs))
+    if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is1_key_s1_normal_ip6_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_is1_key_s1_normal_ip6_field_attrs[index];
 }
@@ -2043,85 +1729,82 @@ static const struct vtss_lan966x_vcap_field_attrs
     vtss_lan966x_vcap_is1_key_s1_5tuple_ip6_field_attrs[] = {
         {.name = "TYPE",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_L                                                                                    },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TYPE_L             },
         {.name = "LOOKUP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_L                                                                                  },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_LOOKUP_L           },
         {.name = "IGR_PORT_MASK",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_L                                                                           },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IGR_PORT_MASK_L    },
         {.name = "L2_MC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_MC_L                                                                                   },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_MC_L            },
         {.name = "L2_BC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_BC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_BC_L                                                                                   },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L2_BC_L            },
         {.name = "IP_MC",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_MC_L                                                                                   },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_MC_L            },
         {.name = "R_TAGGED",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_R_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_R_TAGGED_L                                                                                },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_R_TAGGED_L         },
         {.name = "VLAN_TAGGED",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_TAGGED_L                                                                             },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_TAGGED_L      },
         {.name = "VLAN_DBL_TAGGED",
-         .offset =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_O,     .length =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_L    },
+         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_O,
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VLAN_DBL_TAGGED_L  },
         {.name = "TPID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TPID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TPID_L                                                                                    },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TPID_L             },
         {.name = "VID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_VID_L              },
         {.name = "DEI",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_DEI_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_DEI_L              },
         {.name = "PCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_L                                                                                     },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_PCP_L              },
         {.name = "INNER_TPID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_TPID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_TPID_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_TPID_L       },
         {.name = "INNER_VID",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_VID_L        },
         {.name = "INNER_DEI",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_DEI_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_DEI_L        },
         {.name = "INNER_PCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_INNER_PCP_L        },
         {.name = "L3_DSCP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_L                                                                                 },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_DSCP_L          },
         {.name = "L3_IP6_DIP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_DIP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_DIP_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_DIP_L       },
         {.name = "L3_IP6_SIP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_SIP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_SIP_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP6_SIP_L       },
         {.name = "L3_IP_PROTO",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_L                                                                             },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L3_IP_PROTO_L      },
         {.name = "TCP_UDP",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TCP_UDP_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TCP_UDP_L                                                                                 },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_TCP_UDP_L          },
         {.name = "L4_RNG",
          .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_L                                                                                  },
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_L4_RNG_L           },
         {.name = "IP_PAYLOAD_5TUPLE",
-         .offset =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_O,   .length =
-             VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_L},
+         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_O,
+         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_5TUPLE_IP6_FLD_IP_PAYLOAD_5TUPLE_L},
 };
 
 static const struct vtss_lan966x_vcap_field_attrs *
 vtss_lan966x_vcap_is1_key_s1_5tuple_ip6_field_attrs_get(u32 index)
 {
-    if (index >=
-        ARRAY_SIZE(vtss_lan966x_vcap_is1_key_s1_5tuple_ip6_field_attrs))
+    if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is1_key_s1_5tuple_ip6_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_is1_key_s1_5tuple_ip6_field_attrs[index];
 }
@@ -2219,42 +1902,41 @@ vtss_lan966x_vcap_is1_key_s1_dbl_vid_field_attrs_get(u32 index)
     return &vtss_lan966x_vcap_is1_key_s1_dbl_vid_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_is1_key_s1_rt_field_attrs[] = {
-        {.name = "TYPE",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_L           },
-        {.name = "FIRST",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_L          },
-        {.name = "IGR_PORT",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_L       },
-        {.name = "R_TAGGED",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_L       },
-        {.name = "VLAN_TAGGED",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_L    },
-        {.name = "VLAN_DBL_TAGGED",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_L},
-        {.name = "L2_MAC",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_L         },
-        {.name = "RT_VLAN_IDX",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_L    },
-        {.name = "RT_TYPE",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_L        },
-        {.name = "RT_FRMID",
-         .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_O,
-         .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_L       },
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_is1_key_s1_rt_field_attrs[] = {
+    {.name = "TYPE",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_TYPE_L           },
+    {.name = "FIRST",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_FIRST_L          },
+    {.name = "IGR_PORT",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_IGR_PORT_L       },
+    {.name = "R_TAGGED",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_R_TAGGED_L       },
+    {.name = "VLAN_TAGGED",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_TAGGED_L    },
+    {.name = "VLAN_DBL_TAGGED",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_VLAN_DBL_TAGGED_L},
+    {.name = "L2_MAC",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_L2_MAC_L         },
+    {.name = "RT_VLAN_IDX",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_VLAN_IDX_L    },
+    {.name = "RT_TYPE",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_TYPE_L        },
+    {.name = "RT_FRMID",
+     .offset = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_O,
+     .length = VTSS_LAN966X_VCAP_IS1_KEY_S1_RT_FLD_RT_FRMID_L       },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is1_key_s1_rt_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is1_key_s1_rt_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is1_key_s1_rt_field_attrs))
         return NULL;
@@ -2306,8 +1988,9 @@ vtss_lan966x_vcap_is1_key_s1_dmac_vid_field_attrs_get(u32 index)
     return &vtss_lan966x_vcap_is1_key_s1_dmac_vid_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is1_key_field_attrs_get(int key, u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is1_key_field_attrs_get(
+    int key,
+    u32 index)
 {
     switch (key) {
     case VTSS_LAN966X_VCAP_IS1_KEY_S1_NORMAL:
@@ -2330,116 +2013,115 @@ vtss_lan966x_vcap_is1_key_field_attrs_get(int key, u32 index)
     }
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_is1_action_s1_field_attrs[] = {
-        {.name = "TYPE",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_L               },
-        {.name = "DSCP_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_L           },
-        {.name = "DSCP_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_L           },
-        {.name = "QOS_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_L            },
-        {.name = "QOS_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_L            },
-        {.name = "DP_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_L             },
-        {.name = "DP_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_L             },
-        {.name = "PAG_OVERRIDE_MASK",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_L  },
-        {.name = "PAG_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_L            },
-        {.name = "ISDX_REPLACE_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_L   },
-        {.name = "ISDX_ADD_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_L       },
-        {.name = "VID_REPLACE_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_L    },
-        {.name = "VID_ADD_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_L        },
-        {.name = "FID_SEL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_L            },
-        {.name = "FID_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_L            },
-        {.name = "PCP_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_L            },
-        {.name = "PCP_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_L            },
-        {.name = "DEI_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_L            },
-        {.name = "DEI_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_L            },
-        {.name = "VLAN_POP_CNT_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_L   },
-        {.name = "VLAN_POP_CNT",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_L       },
-        {.name = "CUSTOM_ACE_TYPE_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_L},
-        {.name = "SFID_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_L           },
-        {.name = "SFID_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_L           },
-        {.name = "SGID_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_L           },
-        {.name = "SGID_VAL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_L           },
-        {.name = "POLICE_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_L         },
-        {.name = "POLICE_IDX",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_L         },
-        {.name = "OAM_SEL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_L            },
-        {.name = "MRP_SEL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_L            },
-        {.name = "DLR_SEL",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_L            },
-        {.name = "RTP_ENA",
-         .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_L            },
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_is1_action_s1_field_attrs[] = {
+    {.name = "TYPE",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_TYPE_L               },
+    {.name = "DSCP_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_ENA_L           },
+    {.name = "DSCP_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DSCP_VAL_L           },
+    {.name = "QOS_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_ENA_L            },
+    {.name = "QOS_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_QOS_VAL_L            },
+    {.name = "DP_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_ENA_L             },
+    {.name = "DP_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DP_VAL_L             },
+    {.name = "PAG_OVERRIDE_MASK",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_OVERRIDE_MASK_L  },
+    {.name = "PAG_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PAG_VAL_L            },
+    {.name = "ISDX_REPLACE_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_REPLACE_ENA_L   },
+    {.name = "ISDX_ADD_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_ISDX_ADD_VAL_L       },
+    {.name = "VID_REPLACE_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_REPLACE_ENA_L    },
+    {.name = "VID_ADD_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VID_ADD_VAL_L        },
+    {.name = "FID_SEL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_SEL_L            },
+    {.name = "FID_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_FID_VAL_L            },
+    {.name = "PCP_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_ENA_L            },
+    {.name = "PCP_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_PCP_VAL_L            },
+    {.name = "DEI_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_ENA_L            },
+    {.name = "DEI_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DEI_VAL_L            },
+    {.name = "VLAN_POP_CNT_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_ENA_L   },
+    {.name = "VLAN_POP_CNT",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_VLAN_POP_CNT_L       },
+    {.name = "CUSTOM_ACE_TYPE_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_CUSTOM_ACE_TYPE_ENA_L},
+    {.name = "SFID_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_ENA_L           },
+    {.name = "SFID_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SFID_VAL_L           },
+    {.name = "SGID_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_ENA_L           },
+    {.name = "SGID_VAL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_SGID_VAL_L           },
+    {.name = "POLICE_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_ENA_L         },
+    {.name = "POLICE_IDX",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_POLICE_IDX_L         },
+    {.name = "OAM_SEL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_OAM_SEL_L            },
+    {.name = "MRP_SEL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_MRP_SEL_L            },
+    {.name = "DLR_SEL",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_DLR_SEL_L            },
+    {.name = "RTP_ENA",
+     .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_O,
+     .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_FLD_RTP_ENA_L            },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is1_action_s1_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is1_action_s1_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is1_action_s1_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_is1_action_s1_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_is1_action_s1_rt_field_attrs[] = {
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_is1_action_s1_rt_field_attrs[] =
+    {
         {.name = "TYPE",
          .offset = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_O,
          .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_TYPE_L          },
@@ -2511,16 +2193,17 @@ static const struct vtss_lan966x_vcap_field_attrs
          .length = VTSS_LAN966X_VCAP_IS1_ACTION_S1_RT_FLD_PN_STAT_OFS_L   },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is1_action_s1_rt_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is1_action_s1_rt_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is1_action_s1_rt_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_is1_action_s1_rt_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is1_action_field_attrs_get(int action, u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is1_action_field_attrs_get(
+    int action,
+    u32 index)
 {
     switch (action) {
     case VTSS_LAN966X_VCAP_IS1_ACTION_S1:
@@ -2536,1133 +2219,847 @@ vtss_lan966x_vcap_is1_action_field_attrs_get(int action, u32 index)
 /*******************************************************************************
  * VCAP IS2
  ******************************************************************************/
-int vtss_lan966x_vcap_is2_key_pack(const struct vtss_lan966x_vcap_is2_key_fields
-                                                                 *fields,
-                                   struct vtss_lan966x_vcap_data *data)
+int vtss_lan966x_vcap_is2_key_pack(const struct vtss_lan966x_vcap_is2_key_fields *fields,
+                                   struct vtss_lan966x_vcap_data                 *data)
 {
     switch (fields->key) {
     case VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE:
         if (fields->u.mac_etype.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_L,
-                fields->u.mac_etype.type.value, fields->u.mac_etype.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_L,
+                                      fields->u.mac_etype.type.value,
+                                      fields->u.mac_etype.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID, 0xf);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_FIRST_O,
-            fields->u.mac_etype.first);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PAG_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID, 0xf);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_FIRST_O,
+                                      fields->u.mac_etype.first);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PAG_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PAG_L,
-                                  fields->u.mac_etype.pag.value,
-                                  fields->u.mac_etype.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_IGR_PORT_MASK_L,
-            fields->u.mac_etype.igr_port_mask.value,
-            fields->u.mac_etype.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ISDX_GT0_O,
-            fields->u.mac_etype.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_HOST_MATCH_O,
-            fields->u.mac_etype.host_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_MC_O,
-            fields->u.mac_etype.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_BC_O,
-            fields->u.mac_etype.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VLAN_TAGGED_O,
-            fields->u.mac_etype.vlan_tagged);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VID_O,
+                                  fields->u.mac_etype.pag.value, fields->u.mac_etype.pag.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_IGR_PORT_MASK_L,
+                                  fields->u.mac_etype.igr_port_mask.value,
+                                  fields->u.mac_etype.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ISDX_GT0_O,
+                                      fields->u.mac_etype.isdx_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_HOST_MATCH_O,
+                                      fields->u.mac_etype.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_MC_O,
+                                      fields->u.mac_etype.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_BC_O,
+                                      fields->u.mac_etype.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VLAN_TAGGED_O,
+                                      fields->u.mac_etype.vlan_tagged);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_VID_L,
-                                  fields->u.mac_etype.vid.value,
-                                  fields->u.mac_etype.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_DEI_O,
-            fields->u.mac_etype.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PCP_O,
+                                  fields->u.mac_etype.vid.value, fields->u.mac_etype.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_DEI_O,
+                                      fields->u.mac_etype.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_PCP_L,
-                                  fields->u.mac_etype.pcp.value,
-                                  fields->u.mac_etype.pcp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_DMAC_O,
-            fields->u.mac_etype.l2_dmac.value, fields->u.mac_etype.l2_dmac.mask,
-            6);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_SMAC_O,
-            fields->u.mac_etype.l2_smac.value, fields->u.mac_etype.l2_smac.mask,
-            6);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ETYPE_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ETYPE_L,
-            fields->u.mac_etype.etype.value, fields->u.mac_etype.etype.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_FRM_TYPE_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_FRM_TYPE_L,
-            fields->u.mac_etype.l2_frm_type.value,
-            fields->u.mac_etype.l2_frm_type.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD0_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD0_L,
-            fields->u.mac_etype.l2_payload0.value,
-            fields->u.mac_etype.l2_payload0.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD1_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD1_L,
-            fields->u.mac_etype.l2_payload1.value,
-            fields->u.mac_etype.l2_payload1.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD2_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD2_L,
-            fields->u.mac_etype.l2_payload2.value,
-            fields->u.mac_etype.l2_payload2.mask);
+                                  fields->u.mac_etype.pcp.value, fields->u.mac_etype.pcp.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_DMAC_O,
+                                        fields->u.mac_etype.l2_dmac.value,
+                                        fields->u.mac_etype.l2_dmac.mask, 6);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_SMAC_O,
+                                        fields->u.mac_etype.l2_smac.value,
+                                        fields->u.mac_etype.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ETYPE_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_ETYPE_L,
+                                  fields->u.mac_etype.etype.value, fields->u.mac_etype.etype.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_FRM_TYPE_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_FRM_TYPE_L,
+                                  fields->u.mac_etype.l2_frm_type.value,
+                                  fields->u.mac_etype.l2_frm_type.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD0_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD0_L,
+                                  fields->u.mac_etype.l2_payload0.value,
+                                  fields->u.mac_etype.l2_payload0.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD1_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD1_L,
+                                  fields->u.mac_etype.l2_payload1.value,
+                                  fields->u.mac_etype.l2_payload1.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD2_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_FLD_L2_PAYLOAD2_L,
+                                  fields->u.mac_etype.l2_payload2.value,
+                                  fields->u.mac_etype.l2_payload2.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC:
         if (fields->u.mac_llc.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_L,
-                fields->u.mac_llc.type.value, fields->u.mac_llc.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_L,
+                                      fields->u.mac_llc.type.value, fields->u.mac_llc.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_ID, 0xf);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_O,
-            fields->u.mac_llc.first);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_ID, 0xf);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_O,
+                                      fields->u.mac_llc.first);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_L,
-                                  fields->u.mac_llc.pag.value,
-                                  fields->u.mac_llc.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_L,
-            fields->u.mac_llc.igr_port_mask.value,
-            fields->u.mac_llc.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_O,
-            fields->u.mac_llc.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_O,
-            fields->u.mac_llc.host_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_O,
-            fields->u.mac_llc.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_O,
-            fields->u.mac_llc.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_O,
-            fields->u.mac_llc.vlan_tagged);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_O,
+                                  fields->u.mac_llc.pag.value, fields->u.mac_llc.pag.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_L,
+                                  fields->u.mac_llc.igr_port_mask.value,
+                                  fields->u.mac_llc.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_O,
+                                      fields->u.mac_llc.isdx_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_O,
+                                      fields->u.mac_llc.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_O,
+                                      fields->u.mac_llc.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_O,
+                                      fields->u.mac_llc.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_O,
+                                      fields->u.mac_llc.vlan_tagged);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_L,
-                                  fields->u.mac_llc.vid.value,
-                                  fields->u.mac_llc.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_O,
+                                  fields->u.mac_llc.vid.value, fields->u.mac_llc.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_O,
                                       fields->u.mac_llc.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_L,
-                                  fields->u.mac_llc.pcp.value,
-                                  fields->u.mac_llc.pcp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_O,
-            fields->u.mac_llc.l2_dmac.value, fields->u.mac_llc.l2_dmac.mask, 6);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_O,
-            fields->u.mac_llc.l2_smac.value, fields->u.mac_llc.l2_smac.mask, 6);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_L,
-            fields->u.mac_llc.l2_llc_1.value, fields->u.mac_llc.l2_llc_1.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_L,
-            fields->u.mac_llc.l2_llc_0.value, fields->u.mac_llc.l2_llc_0.mask);
+                                  fields->u.mac_llc.pcp.value, fields->u.mac_llc.pcp.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_O,
+                                        fields->u.mac_llc.l2_dmac.value,
+                                        fields->u.mac_llc.l2_dmac.mask, 6);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_O,
+                                        fields->u.mac_llc.l2_smac.value,
+                                        fields->u.mac_llc.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_L,
+                                  fields->u.mac_llc.l2_llc_1.value,
+                                  fields->u.mac_llc.l2_llc_1.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_L,
+                                  fields->u.mac_llc.l2_llc_0.value,
+                                  fields->u.mac_llc.l2_llc_0.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP:
         if (fields->u.mac_snap.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_L,
-                fields->u.mac_snap.type.value, fields->u.mac_snap.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_L,
+                                      fields->u.mac_snap.type.value, fields->u.mac_snap.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_ID, 0xf);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_FIRST_O,
-            fields->u.mac_snap.first);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PAG_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_ID, 0xf);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_FIRST_O,
+                                      fields->u.mac_snap.first);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PAG_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PAG_L,
-                                  fields->u.mac_snap.pag.value,
-                                  fields->u.mac_snap.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_IGR_PORT_MASK_L,
-            fields->u.mac_snap.igr_port_mask.value,
-            fields->u.mac_snap.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_ISDX_GT0_O,
-            fields->u.mac_snap.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_HOST_MATCH_O,
-            fields->u.mac_snap.host_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_MC_O,
-            fields->u.mac_snap.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_BC_O,
-            fields->u.mac_snap.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VLAN_TAGGED_O,
-            fields->u.mac_snap.vlan_tagged);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VID_O,
+                                  fields->u.mac_snap.pag.value, fields->u.mac_snap.pag.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_IGR_PORT_MASK_L,
+                                  fields->u.mac_snap.igr_port_mask.value,
+                                  fields->u.mac_snap.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_ISDX_GT0_O,
+                                      fields->u.mac_snap.isdx_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_HOST_MATCH_O,
+                                      fields->u.mac_snap.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_MC_O,
+                                      fields->u.mac_snap.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_BC_O,
+                                      fields->u.mac_snap.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VLAN_TAGGED_O,
+                                      fields->u.mac_snap.vlan_tagged);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_VID_L,
-                                  fields->u.mac_snap.vid.value,
-                                  fields->u.mac_snap.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_DEI_O,
+                                  fields->u.mac_snap.vid.value, fields->u.mac_snap.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_DEI_O,
                                       fields->u.mac_snap.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PCP_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_PCP_L,
-                                  fields->u.mac_snap.pcp.value,
-                                  fields->u.mac_snap.pcp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_DMAC_O,
-            fields->u.mac_snap.l2_dmac.value, fields->u.mac_snap.l2_dmac.mask,
-            6);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SMAC_O,
-            fields->u.mac_snap.l2_smac.value, fields->u.mac_snap.l2_smac.mask,
-            6);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_1_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_1_L,
-            fields->u.mac_snap.l2_snap_1.value,
-            fields->u.mac_snap.l2_snap_1.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_0_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_0_L,
-            fields->u.mac_snap.l2_snap_0.value,
-            fields->u.mac_snap.l2_snap_0.mask);
+                                  fields->u.mac_snap.pcp.value, fields->u.mac_snap.pcp.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_DMAC_O,
+                                        fields->u.mac_snap.l2_dmac.value,
+                                        fields->u.mac_snap.l2_dmac.mask, 6);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SMAC_O,
+                                        fields->u.mac_snap.l2_smac.value,
+                                        fields->u.mac_snap.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_1_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_1_L,
+                                  fields->u.mac_snap.l2_snap_1.value,
+                                  fields->u.mac_snap.l2_snap_1.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_0_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_0_L,
+                                  fields->u.mac_snap.l2_snap_0.value,
+                                  fields->u.mac_snap.l2_snap_0.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_ARP:
         if (fields->u.arp.type.mask)
-            vtss_lan966x_vcap_key_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_O,
                                       VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_L,
-                                      fields->u.arp.type.value,
-                                      fields->u.arp.type.mask);
+                                      fields->u.arp.type.value, fields->u.arp.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_O,
                                       VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_L,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_ID,
-                                      0xf);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_ID, 0xf);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_O,
                                       fields->u.arp.first);
         vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_O,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_L,
-                                  fields->u.arp.pag.value,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_L, fields->u.arp.pag.value,
                                   fields->u.arp.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_L,
-            fields->u.arp.igr_port_mask.value,
-            fields->u.arp.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_L,
+                                  fields->u.arp.igr_port_mask.value,
+                                  fields->u.arp.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_O,
                                       fields->u.arp.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_O,
-            fields->u.arp.host_match);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_O,
+                                      fields->u.arp.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_O,
                                       fields->u.arp.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_O,
                                       fields->u.arp.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_O,
-            fields->u.arp.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_O,
+                                      fields->u.arp.vlan_tagged);
         vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_O,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_L,
-                                  fields->u.arp.vid.value,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_L, fields->u.arp.vid.value,
                                   fields->u.arp.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_O,
                                       fields->u.arp.dei);
         vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_O,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_L,
-                                  fields->u.arp.pcp.value,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_L, fields->u.arp.pcp.value,
                                   fields->u.arp.pcp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_O,
-            fields->u.arp.l2_smac.value, fields->u.arp.l2_smac.mask, 6);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_O,
-            fields->u.arp.arp_addr_space_ok);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_O,
-            fields->u.arp.arp_proto_space_ok);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_O,
-            fields->u.arp.arp_len_ok);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_O,
-            fields->u.arp.arp_tgt_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_O,
-            fields->u.arp.arp_sender_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_O,
-            fields->u.arp.arp_opcode_unknown);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_O,
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_O,
+                                        fields->u.arp.l2_smac.value, fields->u.arp.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_O,
+                                      fields->u.arp.arp_addr_space_ok);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_O,
+                                      fields->u.arp.arp_proto_space_ok);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_O,
+                                      fields->u.arp.arp_len_ok);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_O,
+                                      fields->u.arp.arp_tgt_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_O,
+                                      fields->u.arp.arp_sender_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_O,
+                                      fields->u.arp.arp_opcode_unknown);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_L,
-                                  fields->u.arp.arp_opcode.value,
-                                  fields->u.arp.arp_opcode.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_O,
+                                  fields->u.arp.arp_opcode.value, fields->u.arp.arp_opcode.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_L,
-                                  fields->u.arp.l3_ip4_dip.value,
-                                  fields->u.arp.l3_ip4_dip.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_O,
+                                  fields->u.arp.l3_ip4_dip.value, fields->u.arp.l3_ip4_dip.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_L,
-                                  fields->u.arp.l3_ip4_sip.value,
-                                  fields->u.arp.l3_ip4_sip.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_O,
-            fields->u.arp.dip_eq_sip);
+                                  fields->u.arp.l3_ip4_sip.value, fields->u.arp.l3_ip4_sip.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_O,
+                                      fields->u.arp.dip_eq_sip);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP:
         if (fields->u.ip4_tcp_udp.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_L,
-                fields->u.ip4_tcp_udp.type.value,
-                fields->u.ip4_tcp_udp.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_L,
+                                      fields->u.ip4_tcp_udp.type.value,
+                                      fields->u.ip4_tcp_udp.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID, 0xf);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_FIRST_O,
-            fields->u.ip4_tcp_udp.first);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PAG_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PAG_L,
-            fields->u.ip4_tcp_udp.pag.value, fields->u.ip4_tcp_udp.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IGR_PORT_MASK_L,
-            fields->u.ip4_tcp_udp.igr_port_mask.value,
-            fields->u.ip4_tcp_udp.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_ISDX_GT0_O,
-            fields->u.ip4_tcp_udp.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_HOST_MATCH_O,
-            fields->u.ip4_tcp_udp.host_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_MC_O,
-            fields->u.ip4_tcp_udp.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_BC_O,
-            fields->u.ip4_tcp_udp.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VLAN_TAGGED_O,
-            fields->u.ip4_tcp_udp.vlan_tagged);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VID_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VID_L,
-            fields->u.ip4_tcp_udp.vid.value, fields->u.ip4_tcp_udp.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DEI_O,
-            fields->u.ip4_tcp_udp.dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PCP_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PCP_L,
-            fields->u.ip4_tcp_udp.pcp.value, fields->u.ip4_tcp_udp.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IP4_O,
-            fields->u.ip4_tcp_udp.ip4);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAGMENT_O,
-            fields->u.ip4_tcp_udp.l3_fragment);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAG_OFS_GT0_O,
-            fields->u.ip4_tcp_udp.l3_frag_ofs_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_OPTIONS_O,
-            fields->u.ip4_tcp_udp.l3_options);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TTL_GT0_O,
-            fields->u.ip4_tcp_udp.l3_ttl_gt0);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TOS_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TOS_L,
-            fields->u.ip4_tcp_udp.l3_tos.value,
-            fields->u.ip4_tcp_udp.l3_tos.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_DIP_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_DIP_L,
-            fields->u.ip4_tcp_udp.l3_ip4_dip.value,
-            fields->u.ip4_tcp_udp.l3_ip4_dip.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_SIP_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_SIP_L,
-            fields->u.ip4_tcp_udp.l3_ip4_sip.value,
-            fields->u.ip4_tcp_udp.l3_ip4_sip.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DIP_EQ_SIP_O,
-            fields->u.ip4_tcp_udp.dip_eq_sip);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TCP_O,
-            fields->u.ip4_tcp_udp.tcp);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_DPORT_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_DPORT_L,
-            fields->u.ip4_tcp_udp.l4_dport.value,
-            fields->u.ip4_tcp_udp.l4_dport.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SPORT_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SPORT_L,
-            fields->u.ip4_tcp_udp.l4_sport.value,
-            fields->u.ip4_tcp_udp.l4_sport.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RNG_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RNG_L,
-            fields->u.ip4_tcp_udp.l4_rng.value,
-            fields->u.ip4_tcp_udp.l4_rng.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SPORT_EQ_DPORT_O,
-            fields->u.ip4_tcp_udp.sport_eq_dport);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SEQUENCE_EQ0_O,
-            fields->u.ip4_tcp_udp.sequence_eq0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_FIN_O,
-            fields->u.ip4_tcp_udp.l4_fin);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SYN_O,
-            fields->u.ip4_tcp_udp.l4_syn);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RST_O,
-            fields->u.ip4_tcp_udp.l4_rst);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_PSH_O,
-            fields->u.ip4_tcp_udp.l4_psh);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_ACK_O,
-            fields->u.ip4_tcp_udp.l4_ack);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_URG_O,
-            fields->u.ip4_tcp_udp.l4_urg);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_DOM_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_DOM_L,
-            fields->u.ip4_tcp_udp.l4_1588_dom.value,
-            fields->u.ip4_tcp_udp.l4_1588_dom.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_VER_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_VER_L,
-            fields->u.ip4_tcp_udp.l4_1588_ver.value,
-            fields->u.ip4_tcp_udp.l4_1588_ver.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID, 0xf);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_FIRST_O,
+                                      fields->u.ip4_tcp_udp.first);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PAG_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PAG_L,
+                                  fields->u.ip4_tcp_udp.pag.value, fields->u.ip4_tcp_udp.pag.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IGR_PORT_MASK_L,
+                                  fields->u.ip4_tcp_udp.igr_port_mask.value,
+                                  fields->u.ip4_tcp_udp.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_ISDX_GT0_O,
+                                      fields->u.ip4_tcp_udp.isdx_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_HOST_MATCH_O,
+                                      fields->u.ip4_tcp_udp.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_MC_O,
+                                      fields->u.ip4_tcp_udp.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L2_BC_O,
+                                      fields->u.ip4_tcp_udp.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VLAN_TAGGED_O,
+                                      fields->u.ip4_tcp_udp.vlan_tagged);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VID_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_VID_L,
+                                  fields->u.ip4_tcp_udp.vid.value, fields->u.ip4_tcp_udp.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DEI_O,
+                                      fields->u.ip4_tcp_udp.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_PCP_L,
+                                  fields->u.ip4_tcp_udp.pcp.value, fields->u.ip4_tcp_udp.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_IP4_O,
+                                      fields->u.ip4_tcp_udp.ip4);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAGMENT_O,
+                                      fields->u.ip4_tcp_udp.l3_fragment);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_FRAG_OFS_GT0_O,
+                                      fields->u.ip4_tcp_udp.l3_frag_ofs_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_OPTIONS_O,
+                                      fields->u.ip4_tcp_udp.l3_options);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TTL_GT0_O,
+                                      fields->u.ip4_tcp_udp.l3_ttl_gt0);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TOS_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_TOS_L,
+                                  fields->u.ip4_tcp_udp.l3_tos.value,
+                                  fields->u.ip4_tcp_udp.l3_tos.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_DIP_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_DIP_L,
+                                  fields->u.ip4_tcp_udp.l3_ip4_dip.value,
+                                  fields->u.ip4_tcp_udp.l3_ip4_dip.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_SIP_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L3_IP4_SIP_L,
+                                  fields->u.ip4_tcp_udp.l3_ip4_sip.value,
+                                  fields->u.ip4_tcp_udp.l3_ip4_sip.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_DIP_EQ_SIP_O,
+                                      fields->u.ip4_tcp_udp.dip_eq_sip);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_TCP_O,
+                                      fields->u.ip4_tcp_udp.tcp);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_DPORT_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_DPORT_L,
+                                  fields->u.ip4_tcp_udp.l4_dport.value,
+                                  fields->u.ip4_tcp_udp.l4_dport.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SPORT_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SPORT_L,
+                                  fields->u.ip4_tcp_udp.l4_sport.value,
+                                  fields->u.ip4_tcp_udp.l4_sport.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RNG_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RNG_L,
+                                  fields->u.ip4_tcp_udp.l4_rng.value,
+                                  fields->u.ip4_tcp_udp.l4_rng.mask);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SPORT_EQ_DPORT_O,
+                                      fields->u.ip4_tcp_udp.sport_eq_dport);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_SEQUENCE_EQ0_O,
+                                      fields->u.ip4_tcp_udp.sequence_eq0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_FIN_O,
+                                      fields->u.ip4_tcp_udp.l4_fin);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_SYN_O,
+                                      fields->u.ip4_tcp_udp.l4_syn);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_RST_O,
+                                      fields->u.ip4_tcp_udp.l4_rst);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_PSH_O,
+                                      fields->u.ip4_tcp_udp.l4_psh);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_ACK_O,
+                                      fields->u.ip4_tcp_udp.l4_ack);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_URG_O,
+                                      fields->u.ip4_tcp_udp.l4_urg);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_DOM_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_DOM_L,
+                                  fields->u.ip4_tcp_udp.l4_1588_dom.value,
+                                  fields->u.ip4_tcp_udp.l4_1588_dom.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_VER_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_FLD_L4_1588_VER_L,
+                                  fields->u.ip4_tcp_udp.l4_1588_ver.value,
+                                  fields->u.ip4_tcp_udp.l4_1588_ver.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER:
         if (fields->u.ip4_other.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_L,
-                fields->u.ip4_other.type.value, fields->u.ip4_other.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_L,
+                                      fields->u.ip4_other.type.value,
+                                      fields->u.ip4_other.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_ID, 0xf);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_FIRST_O,
-            fields->u.ip4_other.first);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PAG_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_ID, 0xf);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_FIRST_O,
+                                      fields->u.ip4_other.first);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PAG_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PAG_L,
-                                  fields->u.ip4_other.pag.value,
-                                  fields->u.ip4_other.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IGR_PORT_MASK_L,
-            fields->u.ip4_other.igr_port_mask.value,
-            fields->u.ip4_other.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_ISDX_GT0_O,
-            fields->u.ip4_other.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_HOST_MATCH_O,
-            fields->u.ip4_other.host_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_MC_O,
-            fields->u.ip4_other.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_BC_O,
-            fields->u.ip4_other.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VLAN_TAGGED_O,
-            fields->u.ip4_other.vlan_tagged);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VID_O,
+                                  fields->u.ip4_other.pag.value, fields->u.ip4_other.pag.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IGR_PORT_MASK_L,
+                                  fields->u.ip4_other.igr_port_mask.value,
+                                  fields->u.ip4_other.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_ISDX_GT0_O,
+                                      fields->u.ip4_other.isdx_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_HOST_MATCH_O,
+                                      fields->u.ip4_other.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_MC_O,
+                                      fields->u.ip4_other.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L2_BC_O,
+                                      fields->u.ip4_other.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VLAN_TAGGED_O,
+                                      fields->u.ip4_other.vlan_tagged);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_VID_L,
-                                  fields->u.ip4_other.vid.value,
-                                  fields->u.ip4_other.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DEI_O,
-            fields->u.ip4_other.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PCP_O,
+                                  fields->u.ip4_other.vid.value, fields->u.ip4_other.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DEI_O,
+                                      fields->u.ip4_other.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_PCP_L,
-                                  fields->u.ip4_other.pcp.value,
-                                  fields->u.ip4_other.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IP4_O,
-            fields->u.ip4_other.ip4);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAGMENT_O,
-            fields->u.ip4_other.l3_fragment);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAG_OFS_GT0_O,
-            fields->u.ip4_other.l3_frag_ofs_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_OPTIONS_O,
-            fields->u.ip4_other.l3_options);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TTL_GT0_O,
-            fields->u.ip4_other.l3_ttl_gt0);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TOS_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TOS_L,
-            fields->u.ip4_other.l3_tos.value, fields->u.ip4_other.l3_tos.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_DIP_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_DIP_L,
-            fields->u.ip4_other.l3_ip4_dip.value,
-            fields->u.ip4_other.l3_ip4_dip.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_SIP_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_SIP_L,
-            fields->u.ip4_other.l3_ip4_sip.value,
-            fields->u.ip4_other.l3_ip4_sip.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DIP_EQ_SIP_O,
-            fields->u.ip4_other.dip_eq_sip);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PROTO_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PROTO_L,
-            fields->u.ip4_other.l3_proto.value,
-            fields->u.ip4_other.l3_proto.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_1_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_1_L,
-            fields->u.ip4_other.l3_payload_1.value,
-            fields->u.ip4_other.l3_payload_1.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_0_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_0_L,
-            fields->u.ip4_other.l3_payload_0.value,
-            fields->u.ip4_other.l3_payload_0.mask);
+                                  fields->u.ip4_other.pcp.value, fields->u.ip4_other.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_IP4_O,
+                                      fields->u.ip4_other.ip4);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAGMENT_O,
+                                      fields->u.ip4_other.l3_fragment);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_FRAG_OFS_GT0_O,
+                                      fields->u.ip4_other.l3_frag_ofs_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_OPTIONS_O,
+                                      fields->u.ip4_other.l3_options);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TTL_GT0_O,
+                                      fields->u.ip4_other.l3_ttl_gt0);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TOS_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_TOS_L,
+                                  fields->u.ip4_other.l3_tos.value,
+                                  fields->u.ip4_other.l3_tos.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_DIP_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_DIP_L,
+                                  fields->u.ip4_other.l3_ip4_dip.value,
+                                  fields->u.ip4_other.l3_ip4_dip.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_SIP_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_IP4_SIP_L,
+                                  fields->u.ip4_other.l3_ip4_sip.value,
+                                  fields->u.ip4_other.l3_ip4_sip.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_DIP_EQ_SIP_O,
+                                      fields->u.ip4_other.dip_eq_sip);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PROTO_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PROTO_L,
+                                  fields->u.ip4_other.l3_proto.value,
+                                  fields->u.ip4_other.l3_proto.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_1_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_1_L,
+                                  fields->u.ip4_other.l3_payload_1.value,
+                                  fields->u.ip4_other.l3_payload_1.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_0_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_FLD_L3_PAYLOAD_0_L,
+                                  fields->u.ip4_other.l3_payload_0.value,
+                                  fields->u.ip4_other.l3_payload_0.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD:
         if (fields->u.ip6_std.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_L,
-                fields->u.ip6_std.type.value, fields->u.ip6_std.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_L,
+                                      fields->u.ip6_std.type.value, fields->u.ip6_std.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_ID, 0xf);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_O,
-            fields->u.ip6_std.first);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_ID, 0xf);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_O,
+                                      fields->u.ip6_std.first);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_L,
-                                  fields->u.ip6_std.pag.value,
-                                  fields->u.ip6_std.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_L,
-            fields->u.ip6_std.igr_port_mask.value,
-            fields->u.ip6_std.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_O,
-            fields->u.ip6_std.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_O,
-            fields->u.ip6_std.host_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_O,
-            fields->u.ip6_std.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_O,
-            fields->u.ip6_std.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_O,
-            fields->u.ip6_std.vlan_tagged);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_O,
+                                  fields->u.ip6_std.pag.value, fields->u.ip6_std.pag.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_L,
+                                  fields->u.ip6_std.igr_port_mask.value,
+                                  fields->u.ip6_std.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_O,
+                                      fields->u.ip6_std.isdx_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_O,
+                                      fields->u.ip6_std.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_O,
+                                      fields->u.ip6_std.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_O,
+                                      fields->u.ip6_std.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_O,
+                                      fields->u.ip6_std.vlan_tagged);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_L,
-                                  fields->u.ip6_std.vid.value,
-                                  fields->u.ip6_std.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_O,
+                                  fields->u.ip6_std.vid.value, fields->u.ip6_std.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_O,
                                       fields->u.ip6_std.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_L,
-                                  fields->u.ip6_std.pcp.value,
-                                  fields->u.ip6_std.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_O,
-            fields->u.ip6_std.l3_ttl_gt0);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_O,
-            fields->u.ip6_std.l3_ip6_sip.value,
-            fields->u.ip6_std.l3_ip6_sip.mask, 16);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_L,
-            fields->u.ip6_std.l3_proto.value, fields->u.ip6_std.l3_proto.mask);
+                                  fields->u.ip6_std.pcp.value, fields->u.ip6_std.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_O,
+                                      fields->u.ip6_std.l3_ttl_gt0);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_O,
+                                        fields->u.ip6_std.l3_ip6_sip.value,
+                                        fields->u.ip6_std.l3_ip6_sip.mask, 16);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_L,
+                                  fields->u.ip6_std.l3_proto.value,
+                                  fields->u.ip6_std.l3_proto.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_OAM:
         if (fields->u.oam.type.mask)
-            vtss_lan966x_vcap_key_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_O,
                                       VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_L,
-                                      fields->u.oam.type.value,
-                                      fields->u.oam.type.mask);
+                                      fields->u.oam.type.value, fields->u.oam.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_O,
                                       VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_L,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_ID,
-                                      0xf);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_ID, 0xf);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_O,
                                       fields->u.oam.first);
         vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_O,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_L,
-                                  fields->u.oam.pag.value,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_L, fields->u.oam.pag.value,
                                   fields->u.oam.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_L,
-            fields->u.oam.igr_port_mask.value,
-            fields->u.oam.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_L,
+                                  fields->u.oam.igr_port_mask.value,
+                                  fields->u.oam.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_O,
                                       fields->u.oam.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_O,
-            fields->u.oam.host_match);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_O,
+                                      fields->u.oam.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_O,
                                       fields->u.oam.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_O,
                                       fields->u.oam.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_O,
-            fields->u.oam.vlan_tagged);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_O,
+                                      fields->u.oam.vlan_tagged);
         vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_O,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_L,
-                                  fields->u.oam.vid.value,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_L, fields->u.oam.vid.value,
                                   fields->u.oam.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_O,
                                       fields->u.oam.dei);
         vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_O,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_L,
-                                  fields->u.oam.pcp.value,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_L, fields->u.oam.pcp.value,
                                   fields->u.oam.pcp.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_O,
-            fields->u.oam.l2_dmac.value, fields->u.oam.l2_dmac.mask, 6);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_O,
-            fields->u.oam.l2_smac.value, fields->u.oam.l2_smac.mask, 6);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_L,
-            fields->u.oam.oam_mel_flags.value,
-            fields->u.oam.oam_mel_flags.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_O,
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_O,
+                                        fields->u.oam.l2_dmac.value, fields->u.oam.l2_dmac.mask, 6);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_O,
+                                        fields->u.oam.l2_smac.value, fields->u.oam.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_L,
+                                  fields->u.oam.oam_mel_flags.value,
+                                  fields->u.oam.oam_mel_flags.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_L,
-                                  fields->u.oam.oam_ver.value,
-                                  fields->u.oam.oam_ver.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_O,
+                                  fields->u.oam.oam_ver.value, fields->u.oam.oam_ver.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_L,
-                                  fields->u.oam.oam_opcode.value,
-                                  fields->u.oam.oam_opcode.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_O,
+                                  fields->u.oam.oam_opcode.value, fields->u.oam.oam_opcode.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_L,
-                                  fields->u.oam.oam_flags.value,
-                                  fields->u.oam.oam_flags.mask);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_O,
+                                  fields->u.oam.oam_flags.value, fields->u.oam.oam_flags.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_L,
-                                  fields->u.oam.oam_mepid.value,
-                                  fields->u.oam.oam_mepid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_O,
-            fields->u.oam.oam_ccm_cnts_eq0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_O,
-            fields->u.oam.oam_is_y1731);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_O,
-            fields->u.oam.oam_detected);
+                                  fields->u.oam.oam_mepid.value, fields->u.oam.oam_mepid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_O,
+                                      fields->u.oam.oam_ccm_cnts_eq0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_O,
+                                      fields->u.oam.oam_is_y1731);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_O,
+                                      fields->u.oam.oam_detected);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP:
         if (fields->u.ip6_tcp_udp.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_L,
-                fields->u.ip6_tcp_udp.type.value,
-                fields->u.ip6_tcp_udp.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_L,
+                                      fields->u.ip6_tcp_udp.type.value,
+                                      fields->u.ip6_tcp_udp.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_ID, 0x3);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_FIRST_O,
-            fields->u.ip6_tcp_udp.first);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PAG_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PAG_L,
-            fields->u.ip6_tcp_udp.pag.value, fields->u.ip6_tcp_udp.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_IGR_PORT_MASK_L,
-            fields->u.ip6_tcp_udp.igr_port_mask.value,
-            fields->u.ip6_tcp_udp.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_ISDX_GT0_O,
-            fields->u.ip6_tcp_udp.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_HOST_MATCH_O,
-            fields->u.ip6_tcp_udp.host_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_MC_O,
-            fields->u.ip6_tcp_udp.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_BC_O,
-            fields->u.ip6_tcp_udp.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VLAN_TAGGED_O,
-            fields->u.ip6_tcp_udp.vlan_tagged);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VID_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VID_L,
-            fields->u.ip6_tcp_udp.vid.value, fields->u.ip6_tcp_udp.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DEI_O,
-            fields->u.ip6_tcp_udp.dei);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PCP_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PCP_L,
-            fields->u.ip6_tcp_udp.pcp.value, fields->u.ip6_tcp_udp.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TTL_GT0_O,
-            fields->u.ip6_tcp_udp.l3_ttl_gt0);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TOS_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TOS_L,
-            fields->u.ip6_tcp_udp.l3_tos.value,
-            fields->u.ip6_tcp_udp.l3_tos.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_DIP_O,
-            fields->u.ip6_tcp_udp.l3_ip6_dip.value,
-            fields->u.ip6_tcp_udp.l3_ip6_dip.mask, 16);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_SIP_O,
-            fields->u.ip6_tcp_udp.l3_ip6_sip.value,
-            fields->u.ip6_tcp_udp.l3_ip6_sip.mask, 16);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DIP_EQ_SIP_O,
-            fields->u.ip6_tcp_udp.dip_eq_sip);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TCP_O,
-            fields->u.ip6_tcp_udp.tcp);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_DPORT_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_DPORT_L,
-            fields->u.ip6_tcp_udp.l4_dport.value,
-            fields->u.ip6_tcp_udp.l4_dport.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SPORT_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SPORT_L,
-            fields->u.ip6_tcp_udp.l4_sport.value,
-            fields->u.ip6_tcp_udp.l4_sport.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RNG_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RNG_L,
-            fields->u.ip6_tcp_udp.l4_rng.value,
-            fields->u.ip6_tcp_udp.l4_rng.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SPORT_EQ_DPORT_O,
-            fields->u.ip6_tcp_udp.sport_eq_dport);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SEQUENCE_EQ0_O,
-            fields->u.ip6_tcp_udp.sequence_eq0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_FIN_O,
-            fields->u.ip6_tcp_udp.l4_fin);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SYN_O,
-            fields->u.ip6_tcp_udp.l4_syn);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RST_O,
-            fields->u.ip6_tcp_udp.l4_rst);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_PSH_O,
-            fields->u.ip6_tcp_udp.l4_psh);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_ACK_O,
-            fields->u.ip6_tcp_udp.l4_ack);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_URG_O,
-            fields->u.ip6_tcp_udp.l4_urg);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_DOM_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_DOM_L,
-            fields->u.ip6_tcp_udp.l4_1588_dom.value,
-            fields->u.ip6_tcp_udp.l4_1588_dom.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_VER_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_VER_L,
-            fields->u.ip6_tcp_udp.l4_1588_ver.value,
-            fields->u.ip6_tcp_udp.l4_1588_ver.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_ID, 0x3);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_FIRST_O,
+                                      fields->u.ip6_tcp_udp.first);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PAG_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PAG_L,
+                                  fields->u.ip6_tcp_udp.pag.value, fields->u.ip6_tcp_udp.pag.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_IGR_PORT_MASK_L,
+                                  fields->u.ip6_tcp_udp.igr_port_mask.value,
+                                  fields->u.ip6_tcp_udp.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_ISDX_GT0_O,
+                                      fields->u.ip6_tcp_udp.isdx_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_HOST_MATCH_O,
+                                      fields->u.ip6_tcp_udp.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_MC_O,
+                                      fields->u.ip6_tcp_udp.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L2_BC_O,
+                                      fields->u.ip6_tcp_udp.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VLAN_TAGGED_O,
+                                      fields->u.ip6_tcp_udp.vlan_tagged);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VID_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_VID_L,
+                                  fields->u.ip6_tcp_udp.vid.value, fields->u.ip6_tcp_udp.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DEI_O,
+                                      fields->u.ip6_tcp_udp.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PCP_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_PCP_L,
+                                  fields->u.ip6_tcp_udp.pcp.value, fields->u.ip6_tcp_udp.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TTL_GT0_O,
+                                      fields->u.ip6_tcp_udp.l3_ttl_gt0);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TOS_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_TOS_L,
+                                  fields->u.ip6_tcp_udp.l3_tos.value,
+                                  fields->u.ip6_tcp_udp.l3_tos.mask);
+        vtss_lan966x_vcap_key_bytes_set(data,
+                                        VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_DIP_O,
+                                        fields->u.ip6_tcp_udp.l3_ip6_dip.value,
+                                        fields->u.ip6_tcp_udp.l3_ip6_dip.mask, 16);
+        vtss_lan966x_vcap_key_bytes_set(data,
+                                        VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L3_IP6_SIP_O,
+                                        fields->u.ip6_tcp_udp.l3_ip6_sip.value,
+                                        fields->u.ip6_tcp_udp.l3_ip6_sip.mask, 16);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_DIP_EQ_SIP_O,
+                                      fields->u.ip6_tcp_udp.dip_eq_sip);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_TCP_O,
+                                      fields->u.ip6_tcp_udp.tcp);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_DPORT_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_DPORT_L,
+                                  fields->u.ip6_tcp_udp.l4_dport.value,
+                                  fields->u.ip6_tcp_udp.l4_dport.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SPORT_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SPORT_L,
+                                  fields->u.ip6_tcp_udp.l4_sport.value,
+                                  fields->u.ip6_tcp_udp.l4_sport.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RNG_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RNG_L,
+                                  fields->u.ip6_tcp_udp.l4_rng.value,
+                                  fields->u.ip6_tcp_udp.l4_rng.mask);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SPORT_EQ_DPORT_O,
+                                      fields->u.ip6_tcp_udp.sport_eq_dport);
+        vtss_lan966x_vcap_key_bit_set(data,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_SEQUENCE_EQ0_O,
+                                      fields->u.ip6_tcp_udp.sequence_eq0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_FIN_O,
+                                      fields->u.ip6_tcp_udp.l4_fin);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_SYN_O,
+                                      fields->u.ip6_tcp_udp.l4_syn);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_RST_O,
+                                      fields->u.ip6_tcp_udp.l4_rst);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_PSH_O,
+                                      fields->u.ip6_tcp_udp.l4_psh);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_ACK_O,
+                                      fields->u.ip6_tcp_udp.l4_ack);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_URG_O,
+                                      fields->u.ip6_tcp_udp.l4_urg);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_DOM_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_DOM_L,
+                                  fields->u.ip6_tcp_udp.l4_1588_dom.value,
+                                  fields->u.ip6_tcp_udp.l4_1588_dom.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_VER_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_FLD_L4_1588_VER_L,
+                                  fields->u.ip6_tcp_udp.l4_1588_ver.value,
+                                  fields->u.ip6_tcp_udp.l4_1588_ver.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER:
         if (fields->u.ip6_other.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_L,
-                fields->u.ip6_other.type.value, fields->u.ip6_other.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_L,
+                                      fields->u.ip6_other.type.value,
+                                      fields->u.ip6_other.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_ID, 0x3);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_FIRST_O,
-            fields->u.ip6_other.first);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PAG_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_ID, 0x3);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_FIRST_O,
+                                      fields->u.ip6_other.first);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PAG_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PAG_L,
-                                  fields->u.ip6_other.pag.value,
-                                  fields->u.ip6_other.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_IGR_PORT_MASK_L,
-            fields->u.ip6_other.igr_port_mask.value,
-            fields->u.ip6_other.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_ISDX_GT0_O,
-            fields->u.ip6_other.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_HOST_MATCH_O,
-            fields->u.ip6_other.host_match);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_MC_O,
-            fields->u.ip6_other.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_BC_O,
-            fields->u.ip6_other.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VLAN_TAGGED_O,
-            fields->u.ip6_other.vlan_tagged);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VID_O,
+                                  fields->u.ip6_other.pag.value, fields->u.ip6_other.pag.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_IGR_PORT_MASK_L,
+                                  fields->u.ip6_other.igr_port_mask.value,
+                                  fields->u.ip6_other.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_ISDX_GT0_O,
+                                      fields->u.ip6_other.isdx_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_HOST_MATCH_O,
+                                      fields->u.ip6_other.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_MC_O,
+                                      fields->u.ip6_other.l2_mc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L2_BC_O,
+                                      fields->u.ip6_other.l2_bc);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VLAN_TAGGED_O,
+                                      fields->u.ip6_other.vlan_tagged);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_VID_L,
-                                  fields->u.ip6_other.vid.value,
-                                  fields->u.ip6_other.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DEI_O,
-            fields->u.ip6_other.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PCP_O,
+                                  fields->u.ip6_other.vid.value, fields->u.ip6_other.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DEI_O,
+                                      fields->u.ip6_other.dei);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_PCP_L,
-                                  fields->u.ip6_other.pcp.value,
-                                  fields->u.ip6_other.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TTL_GT0_O,
-            fields->u.ip6_other.l3_ttl_gt0);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TOS_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TOS_L,
-            fields->u.ip6_other.l3_tos.value, fields->u.ip6_other.l3_tos.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_DIP_O,
-            fields->u.ip6_other.l3_ip6_dip.value,
-            fields->u.ip6_other.l3_ip6_dip.mask, 16);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_SIP_O,
-            fields->u.ip6_other.l3_ip6_sip.value,
-            fields->u.ip6_other.l3_ip6_sip.mask, 16);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DIP_EQ_SIP_O,
-            fields->u.ip6_other.dip_eq_sip);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PROTO_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PROTO_L,
-            fields->u.ip6_other.l3_proto.value,
-            fields->u.ip6_other.l3_proto.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_1_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_1_L,
-            fields->u.ip6_other.l3_payload_1.value,
-            fields->u.ip6_other.l3_payload_1.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_0_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_0_L,
-            fields->u.ip6_other.l3_payload_0.value,
-            fields->u.ip6_other.l3_payload_0.mask);
+                                  fields->u.ip6_other.pcp.value, fields->u.ip6_other.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TTL_GT0_O,
+                                      fields->u.ip6_other.l3_ttl_gt0);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TOS_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_TOS_L,
+                                  fields->u.ip6_other.l3_tos.value,
+                                  fields->u.ip6_other.l3_tos.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_DIP_O,
+                                        fields->u.ip6_other.l3_ip6_dip.value,
+                                        fields->u.ip6_other.l3_ip6_dip.mask, 16);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_IP6_SIP_O,
+                                        fields->u.ip6_other.l3_ip6_sip.value,
+                                        fields->u.ip6_other.l3_ip6_sip.mask, 16);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_DIP_EQ_SIP_O,
+                                      fields->u.ip6_other.dip_eq_sip);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PROTO_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PROTO_L,
+                                  fields->u.ip6_other.l3_proto.value,
+                                  fields->u.ip6_other.l3_proto.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_1_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_1_L,
+                                  fields->u.ip6_other.l3_payload_1.value,
+                                  fields->u.ip6_other.l3_payload_1.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_0_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_FLD_L3_PAYLOAD_0_L,
+                                  fields->u.ip6_other.l3_payload_0.value,
+                                  fields->u.ip6_other.l3_payload_0.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM:
         if (fields->u.custom.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_L,
-                fields->u.custom.type.value, fields->u.custom.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_L,
+                                      fields->u.custom.type.value, fields->u.custom.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_ID, 0x3);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_O,
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_ID, 0x3);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_O,
                                       fields->u.custom.first);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_L,
-                                  fields->u.custom.pag.value,
-                                  fields->u.custom.pag.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_L,
-            fields->u.custom.igr_port_mask.value,
-            fields->u.custom.igr_port_mask.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_O,
-            fields->u.custom.isdx_gt0);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_O,
-            fields->u.custom.host_match);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_O,
+                                  fields->u.custom.pag.value, fields->u.custom.pag.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_L,
+                                  fields->u.custom.igr_port_mask.value,
+                                  fields->u.custom.igr_port_mask.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_O,
+                                      fields->u.custom.isdx_gt0);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_O,
+                                      fields->u.custom.host_match);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_O,
                                       fields->u.custom.l2_mc);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_O,
                                       fields->u.custom.l2_bc);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_O,
-            fields->u.custom.vlan_tagged);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_O,
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_O,
+                                      fields->u.custom.vlan_tagged);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_L,
-                                  fields->u.custom.vid.value,
-                                  fields->u.custom.vid.mask);
-        vtss_lan966x_vcap_key_bit_set(data,
-                                      VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_O,
+                                  fields->u.custom.vid.value, fields->u.custom.vid.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_O,
                                       fields->u.custom.dei);
-        vtss_lan966x_vcap_key_set(data,
-                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_O,
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_O,
                                   VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_L,
-                                  fields->u.custom.pcp.value,
-                                  fields->u.custom.pcp.mask);
-        vtss_lan966x_vcap_key_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_O,
-            fields->u.custom.custom_type);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_L,
-            fields->u.custom.custom_9.value, fields->u.custom.custom_9.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_L,
-            fields->u.custom.custom_8.value, fields->u.custom.custom_8.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_L,
-            fields->u.custom.custom_7.value, fields->u.custom.custom_7.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_L,
-            fields->u.custom.custom_6.value, fields->u.custom.custom_6.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_L,
-            fields->u.custom.custom_5.value, fields->u.custom.custom_5.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_L,
-            fields->u.custom.custom_4.value, fields->u.custom.custom_4.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_L,
-            fields->u.custom.custom_3.value, fields->u.custom.custom_3.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_L,
-            fields->u.custom.custom_2.value, fields->u.custom.custom_2.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_L,
-            fields->u.custom.custom_1.value, fields->u.custom.custom_1.mask);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_L,
-            fields->u.custom.custom_0.value, fields->u.custom.custom_0.mask);
+                                  fields->u.custom.pcp.value, fields->u.custom.pcp.mask);
+        vtss_lan966x_vcap_key_bit_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_O,
+                                      fields->u.custom.custom_type);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_L,
+                                  fields->u.custom.custom_9.value, fields->u.custom.custom_9.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_L,
+                                  fields->u.custom.custom_8.value, fields->u.custom.custom_8.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_L,
+                                  fields->u.custom.custom_7.value, fields->u.custom.custom_7.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_L,
+                                  fields->u.custom.custom_6.value, fields->u.custom.custom_6.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_L,
+                                  fields->u.custom.custom_5.value, fields->u.custom.custom_5.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_L,
+                                  fields->u.custom.custom_4.value, fields->u.custom.custom_4.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_L,
+                                  fields->u.custom.custom_3.value, fields->u.custom.custom_3.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_L,
+                                  fields->u.custom.custom_2.value, fields->u.custom.custom_2.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_L,
+                                  fields->u.custom.custom_1.value, fields->u.custom.custom_1.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_L,
+                                  fields->u.custom.custom_0.value, fields->u.custom.custom_0.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4:
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_IGR_PORT_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_IGR_PORT_L,
-            fields->u.smac_sip4.igr_port.value,
-            fields->u.smac_sip4.igr_port.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L2_SMAC_O,
-            fields->u.smac_sip4.l2_smac.value, fields->u.smac_sip4.l2_smac.mask,
-            6);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L3_IP4_SIP_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L3_IP4_SIP_L,
-            fields->u.smac_sip4.l3_ip4_sip.value,
-            fields->u.smac_sip4.l3_ip4_sip.mask);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_IGR_PORT_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_IGR_PORT_L,
+                                  fields->u.smac_sip4.igr_port.value,
+                                  fields->u.smac_sip4.igr_port.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L2_SMAC_O,
+                                        fields->u.smac_sip4.l2_smac.value,
+                                        fields->u.smac_sip4.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L3_IP4_SIP_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_FLD_L3_IP4_SIP_L,
+                                  fields->u.smac_sip4.l3_ip4_sip.value,
+                                  fields->u.smac_sip4.l3_ip4_sip.mask);
         break;
     case VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6:
         if (fields->u.smac_sip6.type.mask)
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_L,
-                fields->u.smac_sip6.type.value, fields->u.smac_sip6.type.mask);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_L,
+                                      fields->u.smac_sip6.type.value,
+                                      fields->u.smac_sip6.type.mask);
         else /* Set to default value */
-            vtss_lan966x_vcap_key_set(
-                data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_O,
-                VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_L,
-                VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_ID, 0xf);
-        vtss_lan966x_vcap_key_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_IGR_PORT_O,
-            VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_IGR_PORT_L,
-            fields->u.smac_sip6.igr_port.value,
-            fields->u.smac_sip6.igr_port.mask);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L2_SMAC_O,
-            fields->u.smac_sip6.l2_smac.value, fields->u.smac_sip6.l2_smac.mask,
-            6);
-        vtss_lan966x_vcap_key_bytes_set(
-            data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L3_IP6_SIP_O,
-            fields->u.smac_sip6.l3_ip6_sip.value,
-            fields->u.smac_sip6.l3_ip6_sip.mask, 16);
+            vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_O,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_TYPE_L,
+                                      VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_ID, 0xf);
+        vtss_lan966x_vcap_key_set(data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_IGR_PORT_O,
+                                  VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_IGR_PORT_L,
+                                  fields->u.smac_sip6.igr_port.value,
+                                  fields->u.smac_sip6.igr_port.mask);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L2_SMAC_O,
+                                        fields->u.smac_sip6.l2_smac.value,
+                                        fields->u.smac_sip6.l2_smac.mask, 6);
+        vtss_lan966x_vcap_key_bytes_set(data, VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_FLD_L3_IP6_SIP_O,
+                                        fields->u.smac_sip6.l3_ip6_sip.value,
+                                        fields->u.smac_sip6.l3_ip6_sip.mask, 16);
         break;
     default: return -1;
     }
     return 0;
 }
 
-int vtss_lan966x_vcap_is2_action_pack(
-    const struct vtss_lan966x_vcap_is2_action_fields *fields,
-    struct vtss_lan966x_vcap_data                    *data)
+int vtss_lan966x_vcap_is2_action_pack(const struct vtss_lan966x_vcap_is2_action_fields *fields,
+                                      struct vtss_lan966x_vcap_data                    *data)
 {
     switch (fields->action) {
     case VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE:
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_HIT_ME_ONCE_O,
-            fields->u.base_type.hit_me_once);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_COPY_ENA_O,
-            fields->u.base_type.cpu_copy_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_O,
-            VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_L,
-            fields->u.base_type.cpu_qu_num);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_O,
-            VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_L,
-            fields->u.base_type.mask_mode);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MIRROR_ENA_O,
-            fields->u.base_type.mirror_ena);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_LRN_DIS_O,
-            fields->u.base_type.lrn_dis);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_ENA_O,
-            fields->u.base_type.police_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_O,
-            VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_L,
-            fields->u.base_type.police_idx);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_O,
-            fields->u.base_type.police_vcap_only);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_O,
-            VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_L,
-            fields->u.base_type.port_mask);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_O,
-            VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_L,
-            fields->u.base_type.rew_op);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ISDX_ENA_O,
-            fields->u.base_type.isdx_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_O,
-            VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_L,
-            fields->u.base_type.acl_id);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_HIT_ME_ONCE_O,
+                                         fields->u.base_type.hit_me_once);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_COPY_ENA_O,
+                                         fields->u.base_type.cpu_copy_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_O,
+                                     VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_L,
+                                     fields->u.base_type.cpu_qu_num);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_O,
+                                     VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_L,
+                                     fields->u.base_type.mask_mode);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MIRROR_ENA_O,
+                                         fields->u.base_type.mirror_ena);
+        vtss_lan966x_vcap_action_bit_set(data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_LRN_DIS_O,
+                                         fields->u.base_type.lrn_dis);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_ENA_O,
+                                         fields->u.base_type.police_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_O,
+                                     VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_L,
+                                     fields->u.base_type.police_idx);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_O,
+                                         fields->u.base_type.police_vcap_only);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_O,
+                                     VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_L,
+                                     fields->u.base_type.port_mask);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_O,
+                                     VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_L,
+                                     fields->u.base_type.rew_op);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ISDX_ENA_O,
+                                         fields->u.base_type.isdx_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_O,
+                                     VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_L,
+                                     fields->u.base_type.acl_id);
         break;
     case VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP:
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_COPY_ENA_O,
-            fields->u.smac_sip.cpu_copy_ena);
-        vtss_lan966x_vcap_action_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_QU_NUM_O,
-            VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_QU_NUM_L,
-            fields->u.smac_sip.cpu_qu_num);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_FWD_KILL_ENA_O,
-            fields->u.smac_sip.fwd_kill_ena);
-        vtss_lan966x_vcap_action_bit_set(
-            data, VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_HOST_MATCH_O,
-            fields->u.smac_sip.host_match);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_COPY_ENA_O,
+                                         fields->u.smac_sip.cpu_copy_ena);
+        vtss_lan966x_vcap_action_set(data, VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_QU_NUM_O,
+                                     VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_CPU_QU_NUM_L,
+                                     fields->u.smac_sip.cpu_qu_num);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_FWD_KILL_ENA_O,
+                                         fields->u.smac_sip.fwd_kill_ena);
+        vtss_lan966x_vcap_action_bit_set(data,
+                                         VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_FLD_HOST_MATCH_O,
+                                         fields->u.smac_sip.host_match);
         break;
     default: return -1;
     }
@@ -3687,58 +3084,48 @@ static const struct vtss_lan966x_vcap_attrs *vtss_lan966x_vcap_is2_attrs_get(voi
     return &vtss_lan966x_vcap_is2_attrs;
 }
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_is2_key_tg4_attrs = {
-        .name = "X4",
-        .tg_width = VTSS_LAN966X_VCAP_IS2_TG4_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_IS2_TG4_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_IS2_TG4_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_IS2_TG4_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_IS2_TG4_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_TG4_SW0_VAL},
-                      {VTSS_LAN966X_VCAP_IS2_TG4_SW1_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_TG4_SW1_VAL},
-                      {VTSS_LAN966X_VCAP_IS2_TG4_SW2_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_TG4_SW2_VAL},
-                      {VTSS_LAN966X_VCAP_IS2_TG4_SW3_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_TG4_SW3_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_is2_key_tg4_attrs = {
+    .name = "X4",
+    .tg_width = VTSS_LAN966X_VCAP_IS2_TG4_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_IS2_TG4_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_IS2_TG4_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_IS2_TG4_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_IS2_TG4_SW0_WIDTH, VTSS_LAN966X_VCAP_IS2_TG4_SW0_VAL},
+                  {VTSS_LAN966X_VCAP_IS2_TG4_SW1_WIDTH, VTSS_LAN966X_VCAP_IS2_TG4_SW1_VAL},
+                  {VTSS_LAN966X_VCAP_IS2_TG4_SW2_WIDTH, VTSS_LAN966X_VCAP_IS2_TG4_SW2_VAL},
+                  {VTSS_LAN966X_VCAP_IS2_TG4_SW3_WIDTH, VTSS_LAN966X_VCAP_IS2_TG4_SW3_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_is2_key_tg2_attrs = {
-        .name = "X2",
-        .tg_width = VTSS_LAN966X_VCAP_IS2_TG2_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_IS2_TG2_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_IS2_TG2_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_IS2_TG2_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_IS2_TG2_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_TG2_SW0_VAL},
-                      {VTSS_LAN966X_VCAP_IS2_TG2_SW1_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_TG2_SW1_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_is2_key_tg2_attrs = {
+    .name = "X2",
+    .tg_width = VTSS_LAN966X_VCAP_IS2_TG2_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_IS2_TG2_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_IS2_TG2_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_IS2_TG2_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_IS2_TG2_SW0_WIDTH, VTSS_LAN966X_VCAP_IS2_TG2_SW0_VAL},
+                  {VTSS_LAN966X_VCAP_IS2_TG2_SW1_WIDTH, VTSS_LAN966X_VCAP_IS2_TG2_SW1_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_is2_key_tg1_attrs = {
-        .name = "X1",
-        .tg_width = VTSS_LAN966X_VCAP_IS2_TG1_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_IS2_TG1_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_IS2_TG1_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_IS2_TG1_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_IS2_TG1_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_TG1_SW0_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_is2_key_tg1_attrs = {
+    .name = "X1",
+    .tg_width = VTSS_LAN966X_VCAP_IS2_TG1_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_IS2_TG1_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_IS2_TG1_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_IS2_TG1_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_IS2_TG1_SW0_WIDTH, VTSS_LAN966X_VCAP_IS2_TG1_SW0_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs *
-vtss_lan966x_vcap_is2_key_tgs_attrs_get(u32 sw_per_entry)
+static const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_is2_key_tgs_attrs_get(
+    u32 sw_per_entry)
 {
     switch (sw_per_entry) {
     case 4: return &vtss_lan966x_vcap_is2_key_tg4_attrs;
@@ -3748,202 +3135,170 @@ vtss_lan966x_vcap_is2_key_tgs_attrs_get(u32 sw_per_entry)
     return NULL;
 }
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_mac_etype_attrs = {
-        .name = "MAC_ETYPE",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_mac_etype_attrs = {
+    .name = "MAC_ETYPE",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_mac_llc_attrs = {
-        .name = "MAC_LLC",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_mac_llc_attrs = {
+    .name = "MAC_LLC",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_mac_snap_attrs = {
-        .name = "MAC_SNAP",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_mac_snap_attrs = {
+    .name = "MAC_SNAP",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_arp_attrs = {
-        .name = "ARP",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_ARP_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_ARP_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_ARP_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_arp_attrs = {
+    .name = "ARP",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_ARP_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_ARP_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_ARP_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_ARP_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_ip4_tcp_udp_attrs = {
-        .name = "IP4_TCP_UDP",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_ip4_tcp_udp_attrs = {
+    .name = "IP4_TCP_UDP",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_ip4_other_attrs = {
-        .name = "IP4_OTHER",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_ip4_other_attrs = {
+    .name = "IP4_OTHER",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_ip6_std_attrs = {
-        .name = "IP6_STD",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_ip6_std_attrs = {
+    .name = "IP6_STD",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_oam_attrs = {
-        .name = "OAM",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_OAM_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_OAM_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_OAM_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_oam_attrs = {
+    .name = "OAM",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_OAM_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_OAM_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_OAM_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_OAM_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_ip6_tcp_udp_attrs = {
-        .name = "IP6_TCP_UDP",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_ip6_tcp_udp_attrs = {
+    .name = "IP6_TCP_UDP",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_ip6_other_attrs = {
-        .name = "IP6_OTHER",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_ip6_other_attrs = {
+    .name = "IP6_OTHER",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_custom_attrs = {
-        .name = "CUSTOM",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_custom_attrs = {
+    .name = "CUSTOM",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_smac_sip4_attrs = {
-        .name = "SMAC_SIP4",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_smac_sip4_attrs = {
+    .name = "SMAC_SIP4",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs
-    vtss_lan966x_vcap_is2_key_smac_sip6_attrs = {
-        .name = "SMAC_SIP6",
-        .type_id = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_WIDTH,
-        .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_SW_PER_ENTRY,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_SW_CNT,
+static const struct vtss_lan966x_vcap_key_attrs vtss_lan966x_vcap_is2_key_smac_sip6_attrs = {
+    .name = "SMAC_SIP6",
+    .type_id = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_WIDTH,
+    .sw_per_entry = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_SW_PER_ENTRY,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_key_attrs *
-vtss_lan966x_vcap_is2_key_attrs_get(int key)
+static const struct vtss_lan966x_vcap_key_attrs *vtss_lan966x_vcap_is2_key_attrs_get(int key)
 {
     switch (key) {
-    case VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE:
-        return &vtss_lan966x_vcap_is2_key_mac_etype_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC:
-        return &vtss_lan966x_vcap_is2_key_mac_llc_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP:
-        return &vtss_lan966x_vcap_is2_key_mac_snap_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_ARP:
-        return &vtss_lan966x_vcap_is2_key_arp_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP:
-        return &vtss_lan966x_vcap_is2_key_ip4_tcp_udp_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER:
-        return &vtss_lan966x_vcap_is2_key_ip4_other_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD:
-        return &vtss_lan966x_vcap_is2_key_ip6_std_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_OAM:
-        return &vtss_lan966x_vcap_is2_key_oam_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP:
-        return &vtss_lan966x_vcap_is2_key_ip6_tcp_udp_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER:
-        return &vtss_lan966x_vcap_is2_key_ip6_other_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM:
-        return &vtss_lan966x_vcap_is2_key_custom_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4:
-        return &vtss_lan966x_vcap_is2_key_smac_sip4_attrs;
-    case VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6:
-        return &vtss_lan966x_vcap_is2_key_smac_sip6_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE:   return &vtss_lan966x_vcap_is2_key_mac_etype_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC:     return &vtss_lan966x_vcap_is2_key_mac_llc_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP:    return &vtss_lan966x_vcap_is2_key_mac_snap_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_ARP:         return &vtss_lan966x_vcap_is2_key_arp_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP: return &vtss_lan966x_vcap_is2_key_ip4_tcp_udp_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER:   return &vtss_lan966x_vcap_is2_key_ip4_other_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD:     return &vtss_lan966x_vcap_is2_key_ip6_std_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_OAM:         return &vtss_lan966x_vcap_is2_key_oam_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP: return &vtss_lan966x_vcap_is2_key_ip6_tcp_udp_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER:   return &vtss_lan966x_vcap_is2_key_ip6_other_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM:      return &vtss_lan966x_vcap_is2_key_custom_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP4:   return &vtss_lan966x_vcap_is2_key_smac_sip4_attrs;
+    case VTSS_LAN966X_VCAP_IS2_KEY_SMAC_SIP6:   return &vtss_lan966x_vcap_is2_key_smac_sip6_attrs;
     }
     return NULL;
 }
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_is2_action_tg2_attrs = {
-        .name = "X2",
-        .tg_width = VTSS_LAN966X_VCAP_IS2_ACT_TG2_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_IS2_ACT_TG2_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_IS2_ACT_TG2_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_IS2_ACT_TG2_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW0_VAL},
-                      {VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW1_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW1_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_is2_action_tg2_attrs = {
+    .name = "X2",
+    .tg_width = VTSS_LAN966X_VCAP_IS2_ACT_TG2_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_IS2_ACT_TG2_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_IS2_ACT_TG2_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_IS2_ACT_TG2_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW0_WIDTH, VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW0_VAL},
+                  {VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW1_WIDTH, VTSS_LAN966X_VCAP_IS2_ACT_TG2_SW1_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs
-    vtss_lan966x_vcap_is2_action_tg1_attrs = {
-        .name = "X1",
-        .tg_width = VTSS_LAN966X_VCAP_IS2_ACT_TG1_TG_WIDTH,
-        .tg_val = VTSS_LAN966X_VCAP_IS2_ACT_TG1_TG_VAL,
-        .type_width = VTSS_LAN966X_VCAP_IS2_ACT_TG1_TYPE_WIDTH,
-        .max_width = VTSS_LAN966X_VCAP_IS2_ACT_TG1_MAX_WIDTH,
-        .tg_bits =
-            {
-                      {VTSS_LAN966X_VCAP_IS2_ACT_TG1_SW0_WIDTH,
-                 VTSS_LAN966X_VCAP_IS2_ACT_TG1_SW0_VAL},
-                      },
+static const struct vtss_lan966x_vcap_tgs_attrs vtss_lan966x_vcap_is2_action_tg1_attrs = {
+    .name = "X1",
+    .tg_width = VTSS_LAN966X_VCAP_IS2_ACT_TG1_TG_WIDTH,
+    .tg_val = VTSS_LAN966X_VCAP_IS2_ACT_TG1_TG_VAL,
+    .type_width = VTSS_LAN966X_VCAP_IS2_ACT_TG1_TYPE_WIDTH,
+    .max_width = VTSS_LAN966X_VCAP_IS2_ACT_TG1_MAX_WIDTH,
+    .tg_bits =
+        {
+                  {VTSS_LAN966X_VCAP_IS2_ACT_TG1_SW0_WIDTH, VTSS_LAN966X_VCAP_IS2_ACT_TG1_SW0_VAL},
+                  },
 };
 
-static const struct vtss_lan966x_vcap_tgs_attrs *
-vtss_lan966x_vcap_is2_action_tgs_attrs_get(u32 sw_per_entry)
+static const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_is2_action_tgs_attrs_get(
+    u32 sw_per_entry)
 {
     switch (sw_per_entry) {
     case 2: return &vtss_lan966x_vcap_is2_action_tg2_attrs;
@@ -3952,34 +3307,30 @@ vtss_lan966x_vcap_is2_action_tgs_attrs_get(u32 sw_per_entry)
     return NULL;
 }
 
-static const struct vtss_lan966x_vcap_action_attrs
-    vtss_lan966x_vcap_is2_action_base_type_attrs = {
-        .name = "BASE_TYPE",
-        .type_id = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_WIDTH,
-        .sw_per_action = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_SW_PER_ACTION,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_SW_CNT,
+static const struct vtss_lan966x_vcap_action_attrs vtss_lan966x_vcap_is2_action_base_type_attrs = {
+    .name = "BASE_TYPE",
+    .type_id = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_WIDTH,
+    .sw_per_action = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_SW_PER_ACTION,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_action_attrs
-    vtss_lan966x_vcap_is2_action_smac_sip_attrs = {
-        .name = "SMAC_SIP",
-        .type_id = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_TYPE_ID,
-        .type_width = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_TYPE_WIDTH,
-        .width = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_WIDTH,
-        .sw_per_action = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_SW_PER_ACTION,
-        .sw_cnt = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_SW_CNT,
+static const struct vtss_lan966x_vcap_action_attrs vtss_lan966x_vcap_is2_action_smac_sip_attrs = {
+    .name = "SMAC_SIP",
+    .type_id = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_TYPE_ID,
+    .type_width = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_TYPE_WIDTH,
+    .width = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_WIDTH,
+    .sw_per_action = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_SW_PER_ACTION,
+    .sw_cnt = VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP_SW_CNT,
 };
 
-static const struct vtss_lan966x_vcap_action_attrs *
-vtss_lan966x_vcap_is2_action_attrs_get(int action)
+static const struct vtss_lan966x_vcap_action_attrs *vtss_lan966x_vcap_is2_action_attrs_get(int action)
 {
     switch (action) {
     case VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE:
         return &vtss_lan966x_vcap_is2_action_base_type_attrs;
-    case VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP:
-        return &vtss_lan966x_vcap_is2_action_smac_sip_attrs;
+    case VTSS_LAN966X_VCAP_IS2_ACTION_SMAC_SIP: return &vtss_lan966x_vcap_is2_action_smac_sip_attrs;
     }
     return NULL;
 }
@@ -4055,68 +3406,67 @@ vtss_lan966x_vcap_is2_key_mac_etype_field_attrs_get(u32 index)
     return &vtss_lan966x_vcap_is2_key_mac_etype_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_is2_key_mac_llc_field_attrs[] = {
-        {.name = "TYPE",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_L         },
-        {.name = "FIRST",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_L        },
-        {.name = "PAG",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_L          },
-        {.name = "IGR_PORT_MASK",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_L},
-        {.name = "ISDX_GT0",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_L     },
-        {.name = "HOST_MATCH",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_L   },
-        {.name = "L2_MC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_L        },
-        {.name = "L2_BC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_L        },
-        {.name = "VLAN_TAGGED",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_L  },
-        {.name = "VID",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_L          },
-        {.name = "DEI",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_L          },
-        {.name = "PCP",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_L          },
-        {.name = "L2_DMAC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_L      },
-        {.name = "L2_SMAC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_L      },
-        {.name = "L2_LLC_1",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_L     },
-        {.name = "L2_LLC_0",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_L     },
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_is2_key_mac_llc_field_attrs[] = {
+    {.name = "TYPE",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_TYPE_L         },
+    {.name = "FIRST",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_FIRST_L        },
+    {.name = "PAG",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PAG_L          },
+    {.name = "IGR_PORT_MASK",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_IGR_PORT_MASK_L},
+    {.name = "ISDX_GT0",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_ISDX_GT0_L     },
+    {.name = "HOST_MATCH",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_HOST_MATCH_L   },
+    {.name = "L2_MC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_MC_L        },
+    {.name = "L2_BC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_BC_L        },
+    {.name = "VLAN_TAGGED",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VLAN_TAGGED_L  },
+    {.name = "VID",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_VID_L          },
+    {.name = "DEI",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_DEI_L          },
+    {.name = "PCP",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_PCP_L          },
+    {.name = "L2_DMAC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_DMAC_L      },
+    {.name = "L2_SMAC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_SMAC_L      },
+    {.name = "L2_LLC_1",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_1_L     },
+    {.name = "L2_LLC_0",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_LLC_FLD_L2_LLC_0_L     },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is2_key_mac_llc_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is2_key_mac_llc_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is2_key_mac_llc_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_is2_key_mac_llc_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_is2_key_mac_snap_field_attrs[] = {
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_is2_key_mac_snap_field_attrs[] =
+    {
         {.name = "TYPE",
          .offset = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_O,
          .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_TYPE_L         },
@@ -4167,89 +3517,88 @@ static const struct vtss_lan966x_vcap_field_attrs
          .length = VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP_FLD_L2_SNAP_0_L    },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is2_key_mac_snap_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is2_key_mac_snap_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is2_key_mac_snap_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_is2_key_mac_snap_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_is2_key_arp_field_attrs[] = {
-        {.name = "TYPE",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_L              },
-        {.name = "FIRST",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_L             },
-        {.name = "PAG",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_L               },
-        {.name = "IGR_PORT_MASK",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_L     },
-        {.name = "ISDX_GT0",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_L          },
-        {.name = "HOST_MATCH",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_L        },
-        {.name = "L2_MC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_L             },
-        {.name = "L2_BC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_L             },
-        {.name = "VLAN_TAGGED",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_L       },
-        {.name = "VID",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_L               },
-        {.name = "DEI",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_L               },
-        {.name = "PCP",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_L               },
-        {.name = "L2_SMAC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_L           },
-        {.name = "ARP_ADDR_SPACE_OK",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_L },
-        {.name = "ARP_PROTO_SPACE_OK",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_L},
-        {.name = "ARP_LEN_OK",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_L        },
-        {.name = "ARP_TGT_MATCH",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_L     },
-        {.name = "ARP_SENDER_MATCH",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_L  },
-        {.name = "ARP_OPCODE_UNKNOWN",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_L},
-        {.name = "ARP_OPCODE",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_L        },
-        {.name = "L3_IP4_DIP",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_L        },
-        {.name = "L3_IP4_SIP",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_L        },
-        {.name = "DIP_EQ_SIP",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_L        },
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_is2_key_arp_field_attrs[] = {
+    {.name = "TYPE",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_TYPE_L              },
+    {.name = "FIRST",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_FIRST_L             },
+    {.name = "PAG",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PAG_L               },
+    {.name = "IGR_PORT_MASK",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_IGR_PORT_MASK_L     },
+    {.name = "ISDX_GT0",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ISDX_GT0_L          },
+    {.name = "HOST_MATCH",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_HOST_MATCH_L        },
+    {.name = "L2_MC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_MC_L             },
+    {.name = "L2_BC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_BC_L             },
+    {.name = "VLAN_TAGGED",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VLAN_TAGGED_L       },
+    {.name = "VID",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_VID_L               },
+    {.name = "DEI",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DEI_L               },
+    {.name = "PCP",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_PCP_L               },
+    {.name = "L2_SMAC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L2_SMAC_L           },
+    {.name = "ARP_ADDR_SPACE_OK",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_ADDR_SPACE_OK_L },
+    {.name = "ARP_PROTO_SPACE_OK",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_PROTO_SPACE_OK_L},
+    {.name = "ARP_LEN_OK",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_LEN_OK_L        },
+    {.name = "ARP_TGT_MATCH",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_TGT_MATCH_L     },
+    {.name = "ARP_SENDER_MATCH",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_SENDER_MATCH_L  },
+    {.name = "ARP_OPCODE_UNKNOWN",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_UNKNOWN_L},
+    {.name = "ARP_OPCODE",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_ARP_OPCODE_L        },
+    {.name = "L3_IP4_DIP",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_DIP_L        },
+    {.name = "L3_IP4_SIP",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_L3_IP4_SIP_L        },
+    {.name = "DIP_EQ_SIP",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_ARP_FLD_DIP_EQ_SIP_L        },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is2_key_arp_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is2_key_arp_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is2_key_arp_field_attrs))
         return NULL;
@@ -4457,135 +3806,133 @@ vtss_lan966x_vcap_is2_key_ip4_other_field_attrs_get(u32 index)
     return &vtss_lan966x_vcap_is2_key_ip4_other_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_is2_key_ip6_std_field_attrs[] = {
-        {.name = "TYPE",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_L         },
-        {.name = "FIRST",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_L        },
-        {.name = "PAG",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_L          },
-        {.name = "IGR_PORT_MASK",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_L},
-        {.name = "ISDX_GT0",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_L     },
-        {.name = "HOST_MATCH",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_L   },
-        {.name = "L2_MC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_L        },
-        {.name = "L2_BC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_L        },
-        {.name = "VLAN_TAGGED",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_L  },
-        {.name = "VID",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_L          },
-        {.name = "DEI",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_L          },
-        {.name = "PCP",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_L          },
-        {.name = "L3_TTL_GT0",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_L   },
-        {.name = "L3_IP6_SIP",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_L   },
-        {.name = "L3_PROTO",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_L     },
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_is2_key_ip6_std_field_attrs[] = {
+    {.name = "TYPE",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_TYPE_L         },
+    {.name = "FIRST",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_FIRST_L        },
+    {.name = "PAG",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PAG_L          },
+    {.name = "IGR_PORT_MASK",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_IGR_PORT_MASK_L},
+    {.name = "ISDX_GT0",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_ISDX_GT0_L     },
+    {.name = "HOST_MATCH",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_HOST_MATCH_L   },
+    {.name = "L2_MC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_MC_L        },
+    {.name = "L2_BC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L2_BC_L        },
+    {.name = "VLAN_TAGGED",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VLAN_TAGGED_L  },
+    {.name = "VID",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_VID_L          },
+    {.name = "DEI",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_DEI_L          },
+    {.name = "PCP",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_PCP_L          },
+    {.name = "L3_TTL_GT0",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_TTL_GT0_L   },
+    {.name = "L3_IP6_SIP",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_IP6_SIP_L   },
+    {.name = "L3_PROTO",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD_FLD_L3_PROTO_L     },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is2_key_ip6_std_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is2_key_ip6_std_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is2_key_ip6_std_field_attrs))
         return NULL;
     return &vtss_lan966x_vcap_is2_key_ip6_std_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_is2_key_oam_field_attrs[] = {
-        {.name = "TYPE",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_L            },
-        {.name = "FIRST",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_L           },
-        {.name = "PAG",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_L             },
-        {.name = "IGR_PORT_MASK",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_L   },
-        {.name = "ISDX_GT0",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_L        },
-        {.name = "HOST_MATCH",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_L      },
-        {.name = "L2_MC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_L           },
-        {.name = "L2_BC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_L           },
-        {.name = "VLAN_TAGGED",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_L     },
-        {.name = "VID",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_L             },
-        {.name = "DEI",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_L             },
-        {.name = "PCP",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_L             },
-        {.name = "L2_DMAC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_L         },
-        {.name = "L2_SMAC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_L         },
-        {.name = "OAM_MEL_FLAGS",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_L   },
-        {.name = "OAM_VER",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_L         },
-        {.name = "OAM_OPCODE",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_L      },
-        {.name = "OAM_FLAGS",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_L       },
-        {.name = "OAM_MEPID",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_L       },
-        {.name = "OAM_CCM_CNTS_EQ0",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_L},
-        {.name = "OAM_IS_Y1731",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_L    },
-        {.name = "OAM_DETECTED",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_L    },
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_is2_key_oam_field_attrs[] = {
+    {.name = "TYPE",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_TYPE_L            },
+    {.name = "FIRST",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_FIRST_L           },
+    {.name = "PAG",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PAG_L             },
+    {.name = "IGR_PORT_MASK",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_IGR_PORT_MASK_L   },
+    {.name = "ISDX_GT0",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_ISDX_GT0_L        },
+    {.name = "HOST_MATCH",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_HOST_MATCH_L      },
+    {.name = "L2_MC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_MC_L           },
+    {.name = "L2_BC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_BC_L           },
+    {.name = "VLAN_TAGGED",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VLAN_TAGGED_L     },
+    {.name = "VID",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_VID_L             },
+    {.name = "DEI",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_DEI_L             },
+    {.name = "PCP",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_PCP_L             },
+    {.name = "L2_DMAC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_DMAC_L         },
+    {.name = "L2_SMAC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_L2_SMAC_L         },
+    {.name = "OAM_MEL_FLAGS",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEL_FLAGS_L   },
+    {.name = "OAM_VER",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_VER_L         },
+    {.name = "OAM_OPCODE",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_OPCODE_L      },
+    {.name = "OAM_FLAGS",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_FLAGS_L       },
+    {.name = "OAM_MEPID",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_MEPID_L       },
+    {.name = "OAM_CCM_CNTS_EQ0",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_CCM_CNTS_EQ0_L},
+    {.name = "OAM_IS_Y1731",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_IS_Y1731_L    },
+    {.name = "OAM_DETECTED",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_OAM_FLD_OAM_DETECTED_L    },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is2_key_oam_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is2_key_oam_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is2_key_oam_field_attrs))
         return NULL;
@@ -4769,81 +4116,80 @@ vtss_lan966x_vcap_is2_key_ip6_other_field_attrs_get(u32 index)
     return &vtss_lan966x_vcap_is2_key_ip6_other_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs
-    vtss_lan966x_vcap_is2_key_custom_field_attrs[] = {
-        {.name = "TYPE",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_L         },
-        {.name = "FIRST",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_L        },
-        {.name = "PAG",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_L          },
-        {.name = "IGR_PORT_MASK",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_L},
-        {.name = "ISDX_GT0",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_L     },
-        {.name = "HOST_MATCH",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_L   },
-        {.name = "L2_MC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_L        },
-        {.name = "L2_BC",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_L        },
-        {.name = "VLAN_TAGGED",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_L  },
-        {.name = "VID",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_L          },
-        {.name = "DEI",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_L          },
-        {.name = "PCP",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_L          },
-        {.name = "CUSTOM_TYPE",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_L  },
-        {.name = "CUSTOM_9",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_L     },
-        {.name = "CUSTOM_8",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_L     },
-        {.name = "CUSTOM_7",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_L     },
-        {.name = "CUSTOM_6",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_L     },
-        {.name = "CUSTOM_5",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_L     },
-        {.name = "CUSTOM_4",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_L     },
-        {.name = "CUSTOM_3",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_L     },
-        {.name = "CUSTOM_2",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_L     },
-        {.name = "CUSTOM_1",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_L     },
-        {.name = "CUSTOM_0",
-         .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_O,
-         .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_L     },
+static const struct vtss_lan966x_vcap_field_attrs vtss_lan966x_vcap_is2_key_custom_field_attrs[] = {
+    {.name = "TYPE",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_TYPE_L         },
+    {.name = "FIRST",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_FIRST_L        },
+    {.name = "PAG",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PAG_L          },
+    {.name = "IGR_PORT_MASK",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_IGR_PORT_MASK_L},
+    {.name = "ISDX_GT0",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_ISDX_GT0_L     },
+    {.name = "HOST_MATCH",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_HOST_MATCH_L   },
+    {.name = "L2_MC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_MC_L        },
+    {.name = "L2_BC",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_L2_BC_L        },
+    {.name = "VLAN_TAGGED",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VLAN_TAGGED_L  },
+    {.name = "VID",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_VID_L          },
+    {.name = "DEI",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_DEI_L          },
+    {.name = "PCP",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_PCP_L          },
+    {.name = "CUSTOM_TYPE",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_TYPE_L  },
+    {.name = "CUSTOM_9",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_9_L     },
+    {.name = "CUSTOM_8",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_8_L     },
+    {.name = "CUSTOM_7",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_7_L     },
+    {.name = "CUSTOM_6",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_6_L     },
+    {.name = "CUSTOM_5",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_5_L     },
+    {.name = "CUSTOM_4",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_4_L     },
+    {.name = "CUSTOM_3",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_3_L     },
+    {.name = "CUSTOM_2",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_2_L     },
+    {.name = "CUSTOM_1",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_1_L     },
+    {.name = "CUSTOM_0",
+     .offset = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_O,
+     .length = VTSS_LAN966X_VCAP_IS2_KEY_CUSTOM_FLD_CUSTOM_0_L     },
 };
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is2_key_custom_field_attrs_get(u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is2_key_custom_field_attrs_get(
+    u32 index)
 {
     if (index >= ARRAY_SIZE(vtss_lan966x_vcap_is2_key_custom_field_attrs))
         return NULL;
@@ -4895,8 +4241,9 @@ vtss_lan966x_vcap_is2_key_smac_sip6_field_attrs_get(u32 index)
     return &vtss_lan966x_vcap_is2_key_smac_sip6_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is2_key_field_attrs_get(int key, u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is2_key_field_attrs_get(
+    int key,
+    u32 index)
 {
     switch (key) {
     case VTSS_LAN966X_VCAP_IS2_KEY_MAC_ETYPE:
@@ -4905,16 +4252,14 @@ vtss_lan966x_vcap_is2_key_field_attrs_get(int key, u32 index)
         return vtss_lan966x_vcap_is2_key_mac_llc_field_attrs_get(index);
     case VTSS_LAN966X_VCAP_IS2_KEY_MAC_SNAP:
         return vtss_lan966x_vcap_is2_key_mac_snap_field_attrs_get(index);
-    case VTSS_LAN966X_VCAP_IS2_KEY_ARP:
-        return vtss_lan966x_vcap_is2_key_arp_field_attrs_get(index);
+    case VTSS_LAN966X_VCAP_IS2_KEY_ARP: return vtss_lan966x_vcap_is2_key_arp_field_attrs_get(index);
     case VTSS_LAN966X_VCAP_IS2_KEY_IP4_TCP_UDP:
         return vtss_lan966x_vcap_is2_key_ip4_tcp_udp_field_attrs_get(index);
     case VTSS_LAN966X_VCAP_IS2_KEY_IP4_OTHER:
         return vtss_lan966x_vcap_is2_key_ip4_other_field_attrs_get(index);
     case VTSS_LAN966X_VCAP_IS2_KEY_IP6_STD:
         return vtss_lan966x_vcap_is2_key_ip6_std_field_attrs_get(index);
-    case VTSS_LAN966X_VCAP_IS2_KEY_OAM:
-        return vtss_lan966x_vcap_is2_key_oam_field_attrs_get(index);
+    case VTSS_LAN966X_VCAP_IS2_KEY_OAM: return vtss_lan966x_vcap_is2_key_oam_field_attrs_get(index);
     case VTSS_LAN966X_VCAP_IS2_KEY_IP6_TCP_UDP:
         return vtss_lan966x_vcap_is2_key_ip6_tcp_udp_field_attrs_get(index);
     case VTSS_LAN966X_VCAP_IS2_KEY_IP6_OTHER:
@@ -4933,44 +4278,43 @@ static const struct vtss_lan966x_vcap_field_attrs
     vtss_lan966x_vcap_is2_action_base_type_field_attrs[] = {
         {.name = "HIT_ME_ONCE",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_HIT_ME_ONCE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_HIT_ME_ONCE_L                                                                          },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_HIT_ME_ONCE_L     },
         {.name = "CPU_COPY_ENA",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_COPY_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_COPY_ENA_L                                                                         },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_COPY_ENA_L    },
         {.name = "CPU_QU_NUM",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_L                                                                           },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_CPU_QU_NUM_L      },
         {.name = "MASK_MODE",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_L                                                                            },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MASK_MODE_L       },
         {.name = "MIRROR_ENA",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MIRROR_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MIRROR_ENA_L                                                                           },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_MIRROR_ENA_L      },
         {.name = "LRN_DIS",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_LRN_DIS_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_LRN_DIS_L                                                                              },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_LRN_DIS_L         },
         {.name = "POLICE_ENA",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_ENA_L                                                                           },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_ENA_L      },
         {.name = "POLICE_IDX",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_L                                                                           },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_IDX_L      },
         {.name = "POLICE_VCAP_ONLY",
-         .offset =
-             VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_O,   .length =
-             VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_L},
+         .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_O,
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_POLICE_VCAP_ONLY_L},
         {.name = "PORT_MASK",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_L                                                                            },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_PORT_MASK_L       },
         {.name = "REW_OP",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_REW_OP_L          },
         {.name = "ISDX_ENA",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ISDX_ENA_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ISDX_ENA_L                                                                             },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ISDX_ENA_L        },
         {.name = "ACL_ID",
          .offset = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_O,
-         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_L                                                                               },
+         .length = VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE_FLD_ACL_ID_L          },
 };
 
 static const struct vtss_lan966x_vcap_field_attrs *
@@ -5005,8 +4349,9 @@ vtss_lan966x_vcap_is2_action_smac_sip_field_attrs_get(u32 index)
     return &vtss_lan966x_vcap_is2_action_smac_sip_field_attrs[index];
 }
 
-static const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_is2_action_field_attrs_get(int action, u32 index)
+static const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_is2_action_field_attrs_get(
+    int action,
+    u32 index)
 {
     switch (action) {
     case VTSS_LAN966X_VCAP_IS2_ACTION_BASE_TYPE:
@@ -5022,8 +4367,7 @@ vtss_lan966x_vcap_is2_action_field_attrs_get(int action, u32 index)
 /*******************************************************************************
  * VCAP Common
  ******************************************************************************/
-const struct vtss_lan966x_vcap_attrs *vtss_lan966x_vcap_attrs_get(
-    enum vtss_lan966x_vcap vcap)
+const struct vtss_lan966x_vcap_attrs *vtss_lan966x_vcap_attrs_get(enum vtss_lan966x_vcap vcap)
 {
     switch (vcap) {
     case VTSS_LAN966X_VCAP_ES0: return vtss_lan966x_vcap_es0_attrs_get();
@@ -5033,24 +4377,21 @@ const struct vtss_lan966x_vcap_attrs *vtss_lan966x_vcap_attrs_get(
     }
 }
 
-const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_key_tgs_attrs_get(
-    enum vtss_lan966x_vcap vcap,
-    u32                    sw_per_entry)
+const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_key_tgs_attrs_get(enum vtss_lan966x_vcap
+                                                                                  vcap,
+                                                                              u32 sw_per_entry)
 {
     switch (vcap) {
-    case VTSS_LAN966X_VCAP_ES0:
-        return vtss_lan966x_vcap_es0_key_tgs_attrs_get(sw_per_entry);
-    case VTSS_LAN966X_VCAP_IS1:
-        return vtss_lan966x_vcap_is1_key_tgs_attrs_get(sw_per_entry);
-    case VTSS_LAN966X_VCAP_IS2:
-        return vtss_lan966x_vcap_is2_key_tgs_attrs_get(sw_per_entry);
-    default: return NULL;
+    case VTSS_LAN966X_VCAP_ES0: return vtss_lan966x_vcap_es0_key_tgs_attrs_get(sw_per_entry);
+    case VTSS_LAN966X_VCAP_IS1: return vtss_lan966x_vcap_is1_key_tgs_attrs_get(sw_per_entry);
+    case VTSS_LAN966X_VCAP_IS2: return vtss_lan966x_vcap_is2_key_tgs_attrs_get(sw_per_entry);
+    default:                    return NULL;
     }
 }
 
-const struct vtss_lan966x_vcap_key_attrs *vtss_lan966x_vcap_key_attrs_get(
-    enum vtss_lan966x_vcap vcap,
-    int                    key)
+const struct vtss_lan966x_vcap_key_attrs *vtss_lan966x_vcap_key_attrs_get(enum vtss_lan966x_vcap
+                                                                              vcap,
+                                                                          int key)
 {
     switch (vcap) {
     case VTSS_LAN966X_VCAP_ES0: return vtss_lan966x_vcap_es0_key_attrs_get(key);
@@ -5060,33 +4401,27 @@ const struct vtss_lan966x_vcap_key_attrs *vtss_lan966x_vcap_key_attrs_get(
     }
 }
 
-const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_action_tgs_attrs_get(
-    enum vtss_lan966x_vcap vcap,
-    u32                    sw_per_entry)
+const struct vtss_lan966x_vcap_tgs_attrs *vtss_lan966x_vcap_action_tgs_attrs_get(enum vtss_lan966x_vcap
+                                                                                     vcap,
+                                                                                 u32 sw_per_entry)
 {
     switch (vcap) {
-    case VTSS_LAN966X_VCAP_ES0:
-        return vtss_lan966x_vcap_es0_action_tgs_attrs_get(sw_per_entry);
-    case VTSS_LAN966X_VCAP_IS1:
-        return vtss_lan966x_vcap_is1_action_tgs_attrs_get(sw_per_entry);
-    case VTSS_LAN966X_VCAP_IS2:
-        return vtss_lan966x_vcap_is2_action_tgs_attrs_get(sw_per_entry);
-    default: return NULL;
+    case VTSS_LAN966X_VCAP_ES0: return vtss_lan966x_vcap_es0_action_tgs_attrs_get(sw_per_entry);
+    case VTSS_LAN966X_VCAP_IS1: return vtss_lan966x_vcap_is1_action_tgs_attrs_get(sw_per_entry);
+    case VTSS_LAN966X_VCAP_IS2: return vtss_lan966x_vcap_is2_action_tgs_attrs_get(sw_per_entry);
+    default:                    return NULL;
     }
 }
 
-const struct vtss_lan966x_vcap_action_attrs *vtss_lan966x_vcap_action_attrs_get(
-    enum vtss_lan966x_vcap vcap,
-    int                    action)
+const struct vtss_lan966x_vcap_action_attrs *vtss_lan966x_vcap_action_attrs_get(enum vtss_lan966x_vcap
+                                                                                    vcap,
+                                                                                int action)
 {
     switch (vcap) {
-    case VTSS_LAN966X_VCAP_ES0:
-        return vtss_lan966x_vcap_es0_action_attrs_get(action);
-    case VTSS_LAN966X_VCAP_IS1:
-        return vtss_lan966x_vcap_is1_action_attrs_get(action);
-    case VTSS_LAN966X_VCAP_IS2:
-        return vtss_lan966x_vcap_is2_action_attrs_get(action);
-    default: return NULL;
+    case VTSS_LAN966X_VCAP_ES0: return vtss_lan966x_vcap_es0_action_attrs_get(action);
+    case VTSS_LAN966X_VCAP_IS1: return vtss_lan966x_vcap_is1_action_attrs_get(action);
+    case VTSS_LAN966X_VCAP_IS2: return vtss_lan966x_vcap_is2_action_attrs_get(action);
+    default:                    return NULL;
     }
 }
 
@@ -5098,29 +4433,23 @@ const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_key_field_attrs_ge
     u32                    index)
 {
     switch (vcap) {
-    case VTSS_LAN966X_VCAP_ES0:
-        return vtss_lan966x_vcap_es0_key_field_attrs_get(key, index);
-    case VTSS_LAN966X_VCAP_IS1:
-        return vtss_lan966x_vcap_is1_key_field_attrs_get(key, index);
-    case VTSS_LAN966X_VCAP_IS2:
-        return vtss_lan966x_vcap_is2_key_field_attrs_get(key, index);
-    default: return NULL;
+    case VTSS_LAN966X_VCAP_ES0: return vtss_lan966x_vcap_es0_key_field_attrs_get(key, index);
+    case VTSS_LAN966X_VCAP_IS1: return vtss_lan966x_vcap_is1_key_field_attrs_get(key, index);
+    case VTSS_LAN966X_VCAP_IS2: return vtss_lan966x_vcap_is2_key_field_attrs_get(key, index);
+    default:                    return NULL;
     }
 }
 
-const struct vtss_lan966x_vcap_field_attrs *
-vtss_lan966x_vcap_action_field_attrs_get(enum vtss_lan966x_vcap vcap,
-                                         int                    action,
-                                         u32                    index)
+const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_action_field_attrs_get(
+    enum vtss_lan966x_vcap vcap,
+    int                    action,
+    u32                    index)
 {
     switch (vcap) {
-    case VTSS_LAN966X_VCAP_ES0:
-        return vtss_lan966x_vcap_es0_action_field_attrs_get(action, index);
-    case VTSS_LAN966X_VCAP_IS1:
-        return vtss_lan966x_vcap_is1_action_field_attrs_get(action, index);
-    case VTSS_LAN966X_VCAP_IS2:
-        return vtss_lan966x_vcap_is2_action_field_attrs_get(action, index);
-    default: return NULL;
+    case VTSS_LAN966X_VCAP_ES0: return vtss_lan966x_vcap_es0_action_field_attrs_get(action, index);
+    case VTSS_LAN966X_VCAP_IS1: return vtss_lan966x_vcap_is1_action_field_attrs_get(action, index);
+    case VTSS_LAN966X_VCAP_IS2: return vtss_lan966x_vcap_is2_action_field_attrs_get(action, index);
+    default:                    return NULL;
     }
 }
 

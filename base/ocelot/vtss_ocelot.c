@@ -12,38 +12,28 @@
 static vtss_rc srvl_wr_indirect(vtss_state_t *vtss_state, u32 addr, u32 value);
 static vtss_rc srvl_rd_indirect(vtss_state_t *vtss_state, u32 addr, u32 *value);
 
-vtss_rc (*vtss_srvl_wr)(vtss_state_t *vtss_state,
-                        u32           addr,
-                        u32           value) = srvl_wr_indirect;
-vtss_rc (*vtss_srvl_rd)(vtss_state_t *vtss_state,
-                        u32           addr,
-                        u32          *value) = srvl_rd_indirect;
+vtss_rc (*vtss_srvl_wr)(vtss_state_t *vtss_state, u32 addr, u32 value) = srvl_wr_indirect;
+vtss_rc (*vtss_srvl_rd)(vtss_state_t *vtss_state, u32 addr, u32 *value) = srvl_rd_indirect;
 
 /* Read target register using current CPU interface */
-static inline vtss_rc srvl_rd_direct(vtss_state_t *vtss_state,
-                                     u32           reg,
-                                     u32          *value)
+static inline vtss_rc srvl_rd_direct(vtss_state_t *vtss_state, u32 reg, u32 *value)
 {
     return vtss_state->init_conf.reg_read(0, reg, value);
 }
 
 /* Write target register using current CPU interface */
-static inline vtss_rc srvl_wr_direct(vtss_state_t *vtss_state,
-                                     u32           reg,
-                                     u32           value)
+static inline vtss_rc srvl_wr_direct(vtss_state_t *vtss_state, u32 reg, u32 value)
 {
     return vtss_state->init_conf.reg_write(0, reg, value);
 }
 
-static inline BOOL srvl_reg_directly_accessible(vtss_state_t *vtss_state,
-                                                u32           addr)
+static inline BOOL srvl_reg_directly_accessible(vtss_state_t *vtss_state, u32 addr)
 {
     /* Using SPI, VCoreIII registers require indirect access.
      * Otherwise, all registers are directly accessible.
      */
     return vtss_state->init_conf.spi_bus
-               ? (addr >=
-                  ((VTSS_IO_ORIGIN2_OFFSET - VTSS_IO_ORIGIN1_OFFSET) >> 2))
+               ? (addr >= ((VTSS_IO_ORIGIN2_OFFSET - VTSS_IO_ORIGIN1_OFFSET) >> 2))
                : TRUE;
 }
 
@@ -75,42 +65,37 @@ static vtss_rc srvl_reg_indirect_access(vtss_state_t *vtss_state,
 
     VTSS_OS_SCHEDULER_LOCK(flags);
 
-    if ((result = vtss_srvl_wr(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_ADDR,
-                               addr)) != VTSS_RC_OK) {
+    if ((result = vtss_srvl_wr(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_ADDR, addr)) !=
+        VTSS_RC_OK) {
         goto do_exit;
     }
     if (is_write) {
-        if ((result =
-                 vtss_srvl_wr(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA,
-                              *value)) != VTSS_RC_OK) {
+        if ((result = vtss_srvl_wr(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA, *value)) !=
+            VTSS_RC_OK) {
             goto do_exit;
         }
         // Wait for operation to complete
         do {
-            if ((result = vtss_srvl_rd(vtss_state,
-                                       VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL,
-                                       &ctrl)) != VTSS_RC_OK) {
+            if ((result = vtss_srvl_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL, &ctrl)) !=
+                VTSS_RC_OK) {
                 goto do_exit;
             }
         } while (ctrl & VTSS_F_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL_VA_BUSY);
     } else {
         // Dummy read to initiate access
-        if ((result =
-                 vtss_srvl_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA,
-                              value)) != VTSS_RC_OK) {
+        if ((result = vtss_srvl_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA, value)) !=
+            VTSS_RC_OK) {
             goto do_exit;
         }
         // Wait for operation to complete
         do {
-            if ((result = vtss_srvl_rd(vtss_state,
-                                       VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL,
-                                       &ctrl)) != VTSS_RC_OK) {
+            if ((result = vtss_srvl_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL, &ctrl)) !=
+                VTSS_RC_OK) {
                 goto do_exit;
             }
         } while (ctrl & VTSS_F_DEVCPU_GCB_VCORE_ACCESS_VA_CTRL_VA_BUSY);
-        if ((result =
-                 vtss_srvl_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA,
-                              value)) != VTSS_RC_OK) {
+        if ((result = vtss_srvl_rd(vtss_state, VTSS_DEVCPU_GCB_VCORE_ACCESS_VA_DATA, value)) !=
+            VTSS_RC_OK) {
             goto do_exit;
         }
     }
@@ -162,8 +147,7 @@ u32 vtss_srvl_port_mask(vtss_state_t *vtss_state, const BOOL member[])
     vtss_port_no_t port_no;
     u32            port, mask = 0;
 
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         if (member[port_no]) {
             port = VTSS_CHIP_PORT(port_no);
             mask |= VTSS_BIT(port);
@@ -190,9 +174,7 @@ vtss_rc vtss_srvl_counter_update(vtss_state_t        *vtss_state,
  *  Debug print utility functions
  * ================================================================= */
 
-void vtss_srvl_debug_print_port_header(vtss_state_t *vtss_state,
-                                       lmu_ss_t     *ss,
-                                       const char   *txt)
+void vtss_srvl_debug_print_port_header(vtss_state_t *vtss_state, lmu_ss_t *ss, const char *txt)
 {
     vtss_debug_print_port_header(vtss_state, ss, txt, VTSS_CHIP_PORTS + 1, 1);
 }
@@ -202,8 +184,7 @@ void vtss_srvl_debug_print_mask(lmu_ss_t *ss, u32 mask)
     u32 port;
 
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-        pr("%s%s", port == 0 || (port & 7) ? "" : ".",
-           ((1 << port) & mask) ? "1" : "0");
+        pr("%s%s", port == 0 || (port & 7) ? "" : ".", ((1 << port) & mask) ? "1" : "0");
     }
     pr("  0x%08x\n", mask);
 }
@@ -216,17 +197,13 @@ void vtss_srvl_debug_reg_header(lmu_ss_t *ss, const char *name)
     vtss_debug_print_reg_header(ss, buf.s);
 }
 
-void vtss_srvl_debug_reg(vtss_state_t *vtss_state,
-                         lmu_ss_t     *ss,
-                         u32           addr,
-                         const char   *name)
+void vtss_srvl_debug_reg(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 addr, const char *name)
 {
     u32           value;
     lmu_fmt_buf_t buf;
 
     if (vtss_srvl_rd(vtss_state, addr, &value) == VTSS_RC_OK) {
-        VTSS_FMT(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f,
-                 addr & 0x3fff);
+        VTSS_FMT(buf, "%-32s  0x%02x  0x%04x", name, (addr >> 14) & 0x3f, addr & 0x3fff);
         vtss_debug_print_reg(ss, buf.s, value);
     }
 }
@@ -276,13 +253,11 @@ vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t     *vtss_state,
 
     for (isdx = isdx_list; isdx != NULL; isdx = isdx->next) {
         if (*header) {
-            pr("ISDX  %s    Port  FORCE_ENA  ES0_ENA  SDLBI  VOE  ",
-               ece ? "ECE ID" : "IFLOW");
+            pr("ISDX  %s    Port  FORCE_ENA  ES0_ENA  SDLBI  VOE  ", ece ? "ECE ID" : "IFLOW");
             vtss_srvl_debug_print_port_header(vtss_state, ss, "");
             *header = 0;
         }
-        SRVL_WR(VTSS_ANA_ANA_TABLES_ISDXTIDX,
-                VTSS_F_ANA_ANA_TABLES_ISDXTIDX_ISDX_INDEX(isdx->sdx));
+        SRVL_WR(VTSS_ANA_ANA_TABLES_ISDXTIDX, VTSS_F_ANA_ANA_TABLES_ISDXTIDX_ISDX_INDEX(isdx->sdx));
         SRVL_WR(VTSS_ANA_ANA_TABLES_ISDXACCESS,
                 VTSS_F_ANA_ANA_TABLES_ISDXACCESS_ISDX_TBL_CMD(ISDX_CMD_READ));
         VTSS_RC(srvl_isdx_table_idle(vtss_state));
@@ -292,8 +267,7 @@ vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t     *vtss_state,
             pr("%-6u", VTSS_CHIP_PORT(isdx->port_no));
         else
             pr("%-6s", isdx->port_no == VTSS_PORT_NO_CPU ? "CPU" : "?");
-        pr("%-11u%-9u%-7u",
-           value & VTSS_F_ANA_ANA_TABLES_ISDXTIDX_ISDX_FORCE_ENA ? 1 : 0,
+        pr("%-11u%-9u%-7u", value & VTSS_F_ANA_ANA_TABLES_ISDXTIDX_ISDX_FORCE_ENA ? 1 : 0,
            value & VTSS_F_ANA_ANA_TABLES_ISDXTIDX_ISDX_ES0_KEY_ENA ? 1 : 0,
            VTSS_X_ANA_ANA_TABLES_ISDXTIDX_ISDX_SDLBI(value));
 
@@ -304,8 +278,7 @@ vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t     *vtss_state,
             pr("None ");
 
         SRVL_RD(VTSS_ANA_ANA_TABLES_ISDXACCESS, &value);
-        vtss_srvl_debug_print_mask(
-            ss, VTSS_X_ANA_ANA_TABLES_ISDXACCESS_ISDX_PORT_MASK(value));
+        vtss_srvl_debug_print_mask(ss, VTSS_X_ANA_ANA_TABLES_ISDXACCESS_ISDX_PORT_MASK(value));
     }
     return VTSS_RC_OK;
 }
@@ -374,8 +347,7 @@ vtss_rc vtss_cil_port_map_set(vtss_state_t *vtss_state)
 
 vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state)
 {
-    SRVL_WR(VTSS_DEVCPU_GCB_CHIP_REGS_GPR,
-            vtss_cmn_restart_value_get(vtss_state));
+    SRVL_WR(VTSS_DEVCPU_GCB_CHIP_REGS_GPR, vtss_cmn_restart_value_get(vtss_state));
 
     return VTSS_RC_OK;
 }
@@ -412,8 +384,7 @@ static vtss_rc srvl_fdma_flush(vtss_state_t *vtss_state)
     for (i = 0; i < max_qframes; i++) {
         SRVL_RD(VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR, &val);
         if (val & VTSS_F_ICPU_CFG_MANUAL_XTRINJ_MANUAL_INTR_INTR_XTR_ANY_RDY) {
-            SRVL_RD(VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_XTR(0),
-                    &dummy); /* Dummy read */
+            SRVL_RD(VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_XTR(0), &dummy); /* Dummy read */
             SRVL_WR(VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_XTR(4096 - 1),
                     VTSS_BIT(18)); /* Force abort current frame */
             VTSS_NSLEEP(1000);     /* 1usec */
@@ -447,8 +418,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 
     /* Read chip ID to check CPU interface */
     VTSS_RC(vtss_srvl_chip_id_get(vtss_state, &vtss_state->misc.chip_id));
-    VTSS_I("chip_id: 0x%04x, revision: 0x%04x",
-           vtss_state->misc.chip_id.part_number,
+    VTSS_I("chip_id: 0x%04x, revision: 0x%04x", vtss_state->misc.chip_id.part_number,
            vtss_state->misc.chip_id.revision);
 
     /* Use SEMA1_OWNER to determine if using VCOREIII or PCIe */
@@ -469,8 +439,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         VTSS_X_ICPU_CFG_CPU_SYSTEM_CTRL_GENERAL_STAT_VCORE_CFG(value);
     /* See datasheet, Table 152 */
     vtss_state->sys_config.using_vcoreiii =
-        (vtss_state->sys_config.vcore_cfg == 12 ||
-         vtss_state->sys_config.vcore_cfg == 13);
+        (vtss_state->sys_config.vcore_cfg == 12 || vtss_state->sys_config.vcore_cfg == 13);
     vtss_state->sys_config.using_vrap = (vtss_state->sys_config.vcore_cfg < 9);
     vtss_state->sys_config.using_pcie = (vtss_state->sys_config.vcore_cfg == 9);
     switch (vtss_state->init_conf.mux_mode) {
@@ -479,10 +448,8 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     case VTSS_PORT_MUX_MODE_5: vtss_state->sys_config.using_pcie = TRUE; break;
     default:                   break;
     }
-    VTSS_I("Vcore_cfg: 0x%04x, VCOREIII: %d, VRAP: %d, PCIe: %d",
-           vtss_state->sys_config.vcore_cfg,
-           vtss_state->sys_config.using_vcoreiii,
-           vtss_state->sys_config.using_vrap,
+    VTSS_I("Vcore_cfg: 0x%04x, VCOREIII: %d, VRAP: %d, PCIe: %d", vtss_state->sys_config.vcore_cfg,
+           vtss_state->sys_config.using_vcoreiii, vtss_state->sys_config.using_vrap,
            vtss_state->sys_config.using_pcie);
 
     /* Read restart type */
@@ -498,8 +465,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     /* Enable i2c glitch filter */
     SRVL_WR(VTSS_ICPU_CFG_TWI_SPIKE_FILTER_TWI_SPIKE_FILTER_CFG, 5);
 
-    if ((!vtss_state->sys_config.using_vcoreiii) &&
-        (!vtss_state->sys_config.using_vrap)) {
+    if ((!vtss_state->sys_config.using_vcoreiii) && (!vtss_state->sys_config.using_vrap)) {
         if (vtss_state->sys_config.using_pcie) {
             SRVL_RD(VTSS_ICPU_CFG_MANUAL_XTRINJ_MANUAL_CFG, &value);
             /* Only flush if manual DMA is active */
@@ -514,9 +480,8 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
             /* In lack of better, reset extraction queue */
             SRVL_WRM_SET(VTSS_DEVCPU_QS_XTR_XTR_FLUSH,
                          VTSS_M_DEVCPU_QS_XTR_XTR_FLUSH_FLUSH); /* All Queues */
-            VTSS_MSLEEP(1); /* Allow to drain */
-            SRVL_WRM_CLR(VTSS_DEVCPU_QS_XTR_XTR_FLUSH,
-                         VTSS_M_DEVCPU_QS_XTR_XTR_FLUSH_FLUSH);
+            VTSS_MSLEEP(1);                                     /* Allow to drain */
+            SRVL_WRM_CLR(VTSS_DEVCPU_QS_XTR_XTR_FLUSH, VTSS_M_DEVCPU_QS_XTR_XTR_FLUSH_FLUSH);
         }
 #if 0
         u32 endian;
@@ -550,22 +515,17 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 #if (VTSS_MPLS_OUT_ENCAP_CNT < 64)
         value = VTSS_F_SYS_SYSTEM_RESET_CFG_ENCAP_CNT(1);
 #else
-        value = VTSS_F_SYS_SYSTEM_RESET_CFG_ENCAP_CNT((VTSS_MPLS_OUT_ENCAP_CNT +
-                                                       31) /
-                                                          32 -
-                                                      1);
+        value = VTSS_F_SYS_SYSTEM_RESET_CFG_ENCAP_CNT((VTSS_MPLS_OUT_ENCAP_CNT + 31) / 32 - 1);
 #endif
 #endif
         SRVL_WR(VTSS_SYS_SYSTEM_RESET_CFG,
-                VTSS_F_SYS_SYSTEM_RESET_CFG_MEM_ENA |
-                    VTSS_F_SYS_SYSTEM_RESET_CFG_MEM_INIT | value);
+                VTSS_F_SYS_SYSTEM_RESET_CFG_MEM_ENA | VTSS_F_SYS_SYSTEM_RESET_CFG_MEM_INIT | value);
         for (i = 0;; i++) {
             VTSS_MSLEEP(1); /* MEM_INIT should clear after appx. 22us */
             SRVL_RD(VTSS_SYS_SYSTEM_RESET_CFG, &value);
             if (value & VTSS_F_SYS_SYSTEM_RESET_CFG_MEM_INIT) {
                 if (i == 10) {
-                    VTSS_E("Memory initialization error, SYS::RESET_CFG: 0x%08x",
-                           value);
+                    VTSS_E("Memory initialization error, SYS::RESET_CFG: 0x%08x", value);
                     return VTSS_RC_ERROR;
                 }
             } else {
@@ -574,8 +534,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         }
 
         /* Enable switch core */
-        SRVL_WRM_SET(VTSS_SYS_SYSTEM_RESET_CFG,
-                     VTSS_F_SYS_SYSTEM_RESET_CFG_CORE_ENA);
+        SRVL_WRM_SET(VTSS_SYS_SYSTEM_RESET_CFG, VTSS_F_SYS_SYSTEM_RESET_CFG_CORE_ENA);
     }
 
     /* Initialize function groups */

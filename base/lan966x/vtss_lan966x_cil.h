@@ -88,88 +88,84 @@ static inline u32 __ioreg(const char *file,
     return (addr + gbase + ((ginst)*gwidth) + raddr + ((rinst)*rwidth)) / 4;
 }
 
-#define IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst,  \
-              rcnt, rwidth)                                                    \
-    __ioreg(__FILE__, __LINE__, tbaseid, tinst, tcnt, gbase, ginst, gcnt,      \
-            gwidth, raddr, rinst, rcnt, rwidth)
+#define IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth)        \
+    __ioreg(__FILE__, __LINE__, tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst,    \
+            rcnt, rwidth)
 
 #define REG_ADDR(p) IOREG(p)
 
 #define REG_RD(...) REG_RD_(__VA_ARGS__)
-#define REG_RD_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr,       \
-                rinst, rcnt, rwidth, val)                                      \
-    do {                                                                       \
-        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, \
-                      rinst, rcnt, rwidth);                                    \
-        vtss_rc __rc = vtss_lan966x_rd(vtss_state, o, val);                    \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define REG_RD_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth, val) \
+    do {                                                                                           \
+        u32 o =                                                                                    \
+            IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth);   \
+        vtss_rc __rc = vtss_lan966x_rd(vtss_state, o, val);                                        \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     } while (0)
 
 #define REG_WR(...) REG_WR_(__VA_ARGS__)
-#define REG_WR_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr,       \
-                rinst, rcnt, rwidth, val)                                      \
-    do {                                                                       \
-        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, \
-                      rinst, rcnt, rwidth);                                    \
-        vtss_rc __rc = vtss_lan966x_wr(vtss_state, o, val);                    \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define REG_WR_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth, val) \
+    do {                                                                                           \
+        u32 o =                                                                                    \
+            IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth);   \
+        vtss_rc __rc = vtss_lan966x_wr(vtss_state, o, val);                                        \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     } while (0)
 
 #define REG_WRM(...) REG_WRM_(__VA_ARGS__)
-#define REG_WRM_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr,      \
-                 rinst, rcnt, rwidth, val, msk)                                \
-    do {                                                                       \
-        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, \
-                      rinst, rcnt, rwidth);                                    \
-        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, val, msk);              \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define REG_WRM_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth,     \
+                 val, msk)                                                                         \
+    do {                                                                                           \
+        u32 o =                                                                                    \
+            IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth);   \
+        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, val, msk);                                  \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     } while (0)
 
 #define REG_WRM_SET(...) REG_WRM_SET_(__VA_ARGS__)
-#define REG_WRM_SET_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr,  \
-                     rinst, rcnt, rwidth, msk)                                 \
-    do {                                                                       \
-        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, \
-                      rinst, rcnt, rwidth);                                    \
-        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, msk, msk);              \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define REG_WRM_SET_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth, \
+                     msk)                                                                          \
+    do {                                                                                           \
+        u32 o =                                                                                    \
+            IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth);   \
+        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, msk, msk);                                  \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     } while (0)
 
 #define REG_WRM_CLR(...) REG_WRM_CLR_(__VA_ARGS__)
-#define REG_WRM_CLR_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr,  \
-                     rinst, rcnt, rwidth, msk)                                 \
-    do {                                                                       \
-        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, \
-                      rinst, rcnt, rwidth);                                    \
-        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, 0, msk);                \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define REG_WRM_CLR_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth, \
+                     msk)                                                                          \
+    do {                                                                                           \
+        u32 o =                                                                                    \
+            IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth);   \
+        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, 0, msk);                                    \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     } while (0)
 
 #define REG_WRM_CTL(...) REG_WRM_CTL_(__VA_ARGS__)
-#define REG_WRM_CTL_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr,  \
-                     rinst, rcnt, rwidth, _cond_, msk)                         \
-    do {                                                                       \
-        u32 o = IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, \
-                      rinst, rcnt, rwidth);                                    \
-        vtss_rc __rc =                                                         \
-            vtss_lan966x_wrm(vtss_state, o, (_cond_) ? (msk) : 0, msk);        \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define REG_WRM_CTL_(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth, \
+                     _cond_, msk)                                                                  \
+    do {                                                                                           \
+        u32 o =                                                                                    \
+            IOREG(tbaseid, tinst, tcnt, gbase, ginst, gcnt, gwidth, raddr, rinst, rcnt, rwidth);   \
+        vtss_rc __rc = vtss_lan966x_wrm(vtss_state, o, (_cond_) ? (msk) : 0, msk);                 \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     } while (0)
 
 /* ================================================================= *
  *  Chip ports
  * ================================================================= */
-#define VTSS_CHIP_PORTS      8               /* Port 0-7 */
-#define VTSS_CHIP_PORT_CPU   VTSS_CHIP_PORTS /* Next port is CPU port */
-#define VTSS_CHIP_PORT_CPU_0 (VTSS_CHIP_PORT_CPU + 0) /* Aka. CPU Port 8 */
-#define VTSS_CHIP_PORT_CPU_1 (VTSS_CHIP_PORT_CPU + 1) /* Aka. CPU Port 9 */
-#define VTSS_CHIP_PORTS_ALL  (VTSS_CHIP_PORT_CPU + 2) /* Total number of ports */
+#define VTSS_CHIP_PORTS      8                             /* Port 0-7 */
+#define VTSS_CHIP_PORT_CPU   VTSS_CHIP_PORTS               /* Next port is CPU port */
+#define VTSS_CHIP_PORT_CPU_0 (VTSS_CHIP_PORT_CPU + 0)      /* Aka. CPU Port 8 */
+#define VTSS_CHIP_PORT_CPU_1 (VTSS_CHIP_PORT_CPU + 1)      /* Aka. CPU Port 9 */
+#define VTSS_CHIP_PORTS_ALL  (VTSS_CHIP_PORT_CPU + 2)      /* Total number of ports */
 #define VTSS_CHIP_PORT_MASK  VTSS_BITMASK(VTSS_CHIP_PORTS) /* Chip port mask */
 
 #define LAN966X_ACS 16 /* Number of aggregation masks */
@@ -223,15 +219,10 @@ vtss_rc vtss_lan966x_counter_update(vtss_state_t        *vtss_state,
                                     vtss_chip_counter_t *counter,
                                     BOOL                 clear);
 #if VTSS_OPT_DEBUG_PRINT
-void vtss_lan966x_debug_print_port_header(vtss_state_t *vtss_state,
-                                          lmu_ss_t     *ss,
-                                          const char   *txt);
+void vtss_lan966x_debug_print_port_header(vtss_state_t *vtss_state, lmu_ss_t *ss, const char *txt);
 void vtss_lan966x_debug_print_mask(lmu_ss_t *ss, u32 mask);
 void vtss_lan966x_debug_reg_header(lmu_ss_t *ss, const char *name);
-void vtss_lan966x_debug_reg(vtss_state_t *vtss_state,
-                            lmu_ss_t     *ss,
-                            u32           addr,
-                            const char   *name);
+void vtss_lan966x_debug_reg(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 addr, const char *name);
 void vtss_lan966x_debug_reg_inst(vtss_state_t *vtss_state,
                                  lmu_ss_t     *ss,
                                  u32           addr,
@@ -250,20 +241,17 @@ vtss_rc vtss_lan966x_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_lan966x_port_debug_print(vtss_state_t                  *vtss_state,
                                       lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info);
-vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state,
-                                     lmu_ss_t     *ss,
-                                     BOOL          res_stat_cur);
+vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss, BOOL res_stat_cur);
 #endif
-vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t  *vtss_state,
-                                       vtss_port_no_t port_no);
+vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_lan966x_wm_update(vtss_state_t *vtss_state);
 u32     vtss_lan966x_wm_high_get(vtss_state_t *vtss_state, u32 queue);
 
 // Packet API
 vtss_rc vtss_lan966x_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 #if VTSS_OPT_DEBUG_PRINT
-vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t *vtss_state,
-                                        lmu_ss_t     *ss,
+vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t                  *vtss_state,
+                                        lmu_ss_t                      *ss,
                                         const vtss_debug_info_t *const info);
 #endif
 
@@ -328,8 +316,7 @@ vtss_rc vtss_lan966x_ts_debug_print(vtss_state_t                  *vtss_state,
 
 // VCAP API
 vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
-vtss_rc vtss_lan966x_vcap_port_conf_set(vtss_state_t        *vtss_state,
-                                        const vtss_port_no_t port_no);
+vtss_rc vtss_lan966x_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
                                             const vtss_port_no_t port_no,
                                             u8                   lookup,
@@ -340,8 +327,8 @@ vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
 vtss_rc vtss_lan966x_vcap_debug_print(vtss_state_t                  *vtss_state,
                                       lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info);
-vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t *vtss_state,
-                                          lmu_ss_t     *ss,
+vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t                  *vtss_state,
+                                          lmu_ss_t                      *ss,
                                           const vtss_debug_info_t *const info);
 vtss_rc vtss_lan966x_debug_is1(vtss_state_t                  *vtss_state,
                                lmu_ss_t                      *ss,

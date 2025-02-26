@@ -41,15 +41,15 @@ typedef enum {
     VTSS_SD10G_MEDIA_PR_NONE, /**< No preset > */
     VTSS_SD10G_MEDIA_SR,      /**< SR, Short Range > */
     VTSS_SD10G_MEDIA_ZR,      /**< ZR, Long Range > */
-    VTSS_SD10G_MEDIA_DAC, /**< DAC (Direct attached copper) cable, unspecified
-                             lenght > */
-    VTSS_SD10G_MEDIA_DAC_1M, /**< 1m DAC > */
-    VTSS_SD10G_MEDIA_DAC_2M, /**< 2m DAC > */
-    VTSS_SD10G_MEDIA_DAC_3M, /**< 3m DAC > */
-    VTSS_SD10G_MEDIA_DAC_5M, /**< 5m DAC > */
-    VTSS_SD10G_MEDIA_BP,     /**< Backplane > */
-    VTSS_SD10G_MEDIA_B2B,    /**< Bord to Board > */
-    VTSS_SD10G_MEDIA_10G_KR, /**< 10G Base KR > */
+    VTSS_SD10G_MEDIA_DAC,     /**< DAC (Direct attached copper) cable, unspecified
+                                 lenght > */
+    VTSS_SD10G_MEDIA_DAC_1M,  /**< 1m DAC > */
+    VTSS_SD10G_MEDIA_DAC_2M,  /**< 2m DAC > */
+    VTSS_SD10G_MEDIA_DAC_3M,  /**< 3m DAC > */
+    VTSS_SD10G_MEDIA_DAC_5M,  /**< 5m DAC > */
+    VTSS_SD10G_MEDIA_BP,      /**< Backplane > */
+    VTSS_SD10G_MEDIA_B2B,     /**< Bord to Board > */
+    VTSS_SD10G_MEDIA_10G_KR,  /**< 10G Base KR > */
 } vtss_sd10g_media_type_t;
 
 #if defined(VTSS_FEATURE_PORT_CONTROL)
@@ -97,15 +97,13 @@ typedef struct {
     i32            chip_port; /**< Set to -1 if not used */
     vtss_chip_no_t chip_no;   /**< Chip number, multi-chip targets */
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-    vtss_internal_bw_t
-        max_bw; /**< Max internal bandwidth reserved for the port */
-#endif          /* VTSS_ARCH_JAGUAR_2 || VTSS_ARCH_SPARX5 */
+    vtss_internal_bw_t max_bw;              /**< Max internal bandwidth reserved for the port */
+#endif                                      /* VTSS_ARCH_JAGUAR_2 || VTSS_ARCH_SPARX5 */
     vtss_miim_controller_t miim_controller; /**< MII management controller */
-    u8 miim_addr; /**< PHY address, ignored for VTSS_MIIM_CONTROLLER_NONE */
-    vtss_chip_no_t
-        miim_chip_no; /**< MII management chip number, multi-chip targets */
+    u8                     miim_addr;    /**< PHY address, ignored for VTSS_MIIM_CONTROLLER_NONE */
+    vtss_chip_no_t         miim_chip_no; /**< MII management chip number, multi-chip targets */
 #if defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
-    vtss_port_sgpio_map_t sd_map; /**< PCS signal detect to SGPIO bit map */
+    vtss_port_sgpio_map_t sd_map;      /**< PCS signal detect to SGPIO bit map */
     vtss_gpio_sd_map_t    sd_gpio_map; /**< PCS signal detect to GPIO SD map */
 #endif                                 /* VTSS_ARCH_FA || VTSS_ARCH_LAN966X */
 } vtss_port_map_t;
@@ -129,8 +127,7 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_map_get(const vtss_inst_t inst,
-                          vtss_port_map_t   port_map[VTSS_PORT_ARRAY_SIZE]);
+vtss_rc vtss_port_map_get(const vtss_inst_t inst, vtss_port_map_t port_map[VTSS_PORT_ARRAY_SIZE]);
 
 /**
  * Advertisement Word (Refer to IEEE 802.3 Clause 37):
@@ -143,13 +140,11 @@ vtss_rc vtss_port_map_get(const vtss_inst_t inst,
  **/
 
 /** \brief Auto-negotiation remote fault type */
-typedef enum                                              /* RF2      RF1 */
-{ VTSS_PORT_CLAUSE_37_RF_LINK_OK = ((0 << 1) | (0 << 0)), /**< Link OK */
-  VTSS_PORT_CLAUSE_37_RF_OFFLINE = ((1 << 1) | (0 << 0)), /**< Off line */
-  VTSS_PORT_CLAUSE_37_RF_LINK_FAILURE =
-      ((0 << 1) | (1 << 0)), /**< Link failure */
-  VTSS_PORT_CLAUSE_37_RF_AUTONEG_ERROR =
-      ((1 << 1) | (1 << 0)) /**< Autoneg error */
+typedef enum                                                   /* RF2      RF1 */
+{ VTSS_PORT_CLAUSE_37_RF_LINK_OK = ((0 << 1) | (0 << 0)),      /**< Link OK */
+  VTSS_PORT_CLAUSE_37_RF_OFFLINE = ((1 << 1) | (0 << 0)),      /**< Off line */
+  VTSS_PORT_CLAUSE_37_RF_LINK_FAILURE = ((0 << 1) | (1 << 0)), /**< Link failure */
+  VTSS_PORT_CLAUSE_37_RF_AUTONEG_ERROR = ((1 << 1) | (1 << 0)) /**< Autoneg error */
 } vtss_port_clause_37_remote_fault_t;
 
 /** \brief Advertisement control data for Clause 37 aneg */
@@ -184,9 +179,8 @@ typedef struct {
 
 /** \brief Auto-negotiation control parameter struct */
 typedef struct {
-    BOOL enable; /**< Enable of Autoneg */
-    vtss_port_clause_37_adv_t
-        advertisement; /**< Clause 37 Advertisement control data */
+    BOOL                      enable;        /**< Enable of Autoneg */
+    vtss_port_clause_37_adv_t advertisement; /**< Clause 37 Advertisement control data */
 } vtss_port_clause_37_control_t;
 
 /**
@@ -198,10 +192,9 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_clause_37_control_get(const vtss_inst_t    inst,
-                                        const vtss_port_no_t port_no,
-                                        vtss_port_clause_37_control_t
-                                            *const control);
+vtss_rc vtss_port_clause_37_control_get(const vtss_inst_t                    inst,
+                                        const vtss_port_no_t                 port_no,
+                                        vtss_port_clause_37_control_t *const control);
 
 /**
  * \brief Set clause 37 auto-negotiation Control word.
@@ -212,10 +205,9 @@ vtss_rc vtss_port_clause_37_control_get(const vtss_inst_t    inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_clause_37_control_set(const vtss_inst_t    inst,
-                                        const vtss_port_no_t port_no,
-                                        const vtss_port_clause_37_control_t
-                                            *const control);
+vtss_rc vtss_port_clause_37_control_set(const vtss_inst_t                          inst,
+                                        const vtss_port_no_t                       port_no,
+                                        const vtss_port_clause_37_control_t *const control);
 
 /** \brief Flow control setup */
 typedef struct {
@@ -239,7 +231,7 @@ typedef struct {
 } vtss_port_frame_gaps_t;
 
 /* A selection of max frame lengths */
-#define VTSS_MAX_FRAME_LENGTH_STANDARD 1518 /**< IEEE 802.3 standard */
+#define VTSS_MAX_FRAME_LENGTH_STANDARD 1518  /**< IEEE 802.3 standard */
 #define VTSS_MAX_FRAME_LENGTH_MAX      10240 /**< Maximum frame length supported */
 
 #if defined(VTSS_ARCH_LUTON26)
@@ -290,27 +282,26 @@ typedef enum {
 
 /** \brief Port configuration structure */
 typedef struct {
-    vtss_port_interface_t if_type;     /**< Interface type */
-    BOOL                  sd_enable;   /**< Signal detect enable */
-    BOOL sd_active_high;               /**< External signal detect polarity */
-    BOOL sd_internal;                  /**< Internal signal detect selection */
-    vtss_port_frame_gaps_t frame_gaps; /**< Inter frame gaps */
-    BOOL                   power_down; /**< Disable and power down the port */
-    vtss_port_speed_t      speed;      /**< Port speed */
-    BOOL                   fdx;        /**< Full duplex mode */
+    vtss_port_interface_t         if_type;          /**< Interface type */
+    BOOL                          sd_enable;        /**< Signal detect enable */
+    BOOL                          sd_active_high;   /**< External signal detect polarity */
+    BOOL                          sd_internal;      /**< Internal signal detect selection */
+    vtss_port_frame_gaps_t        frame_gaps;       /**< Inter frame gaps */
+    BOOL                          power_down;       /**< Disable and power down the port */
+    vtss_port_speed_t             speed;            /**< Port speed */
+    BOOL                          fdx;              /**< Full duplex mode */
     vtss_port_flow_control_conf_t flow_control;     /**< Flow control setup */
     u32                           max_frame_length; /**< Maximum frame length */
-    BOOL frame_length_chk; /**< Enforce 802.3 frame length check (from ethertype
-                              field) */
-    vtss_port_max_tags_t max_tags;     /**< VLAN awareness for length check */
-    BOOL                 exc_col_cont; /**< Excessive collision continuation */
-    BOOL                 xaui_rx_lane_flip; /**< Xaui Rx lane flip */
-    BOOL                 xaui_tx_lane_flip; /**< Xaui Tx lane flip */
-    vtss_port_loop_t     loop;      /**< Enable/disable of port loop back */
-    vtss_port_serdes_conf_t serdes; /**< Serdes settings (for SFI interface) */
+    BOOL frame_length_chk;                     /**< Enforce 802.3 frame length check (from ethertype
+                                                  field) */
+    vtss_port_max_tags_t    max_tags;          /**< VLAN awareness for length check */
+    BOOL                    exc_col_cont;      /**< Excessive collision continuation */
+    BOOL                    xaui_rx_lane_flip; /**< Xaui Rx lane flip */
+    BOOL                    xaui_tx_lane_flip; /**< Xaui Tx lane flip */
+    vtss_port_loop_t        loop;              /**< Enable/disable of port loop back */
+    vtss_port_serdes_conf_t serdes;            /**< Serdes settings (for SFI interface) */
 #if defined(VTSS_FEATURE_PORT_PCS_CONF)
-    vtss_port_pcs_conf_t
-        pcs; /**< Special 1G PCS settings, only supported for L26 */
+    vtss_port_pcs_conf_t pcs; /**< Special 1G PCS settings, only supported for L26 */
 #endif
 } vtss_port_conf_t;
 
@@ -381,8 +372,7 @@ vtss_rc vtss_port_pcs_status_get(const vtss_inst_t        inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_counters_update(const vtss_inst_t    inst,
-                                  const vtss_port_no_t port_no);
+vtss_rc vtss_port_counters_update(const vtss_inst_t inst, const vtss_port_no_t port_no);
 
 /**
  * \brief Clear counters for port.
@@ -392,8 +382,7 @@ vtss_rc vtss_port_counters_update(const vtss_inst_t    inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_counters_clear(const vtss_inst_t    inst,
-                                 const vtss_port_no_t port_no);
+vtss_rc vtss_port_counters_clear(const vtss_inst_t inst, const vtss_port_no_t port_no);
 
 /**
  * \brief Get counters for port.
@@ -483,8 +472,7 @@ typedef enum {
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_conf_bulk_set(const vtss_inst_t      inst,
-                                const vtss_port_bulk_t bulk);
+vtss_rc vtss_port_conf_bulk_set(const vtss_inst_t inst, const vtss_port_bulk_t bulk);
 #endif /* VTSS_FEATURE_PORT_CONF_BULK */
 
 #if defined(VTSS_FEATURE_PORT_IFH)
@@ -730,22 +718,22 @@ vtss_rc vtss_mmd_write(const vtss_inst_t            inst,
 
 /** \brief KR Aneg status */
 typedef struct {
-    BOOL              complete;  /**< Aneg completed successfully         */
-    BOOL              active;    /**< Aneg is running between LD and LP   */
-    vtss_port_speed_t speed_req; /**< Requested speed                */
-    BOOL request_fec_change;     /**< FEC change is negotiated            */
-    BOOL r_fec_enable;           /**< R-FEC enable/disable                */
-    BOOL rs_fec_enable;          /**< RS-FEC enable/disable               */
-    u32  sm;                     /**< (debug) Aneg state machine          */
-    u32  hist;                   /**< (debug) Aneg history                */
-    BOOL lp_aneg_able;           /**< (debug) Link partner aneg ability   */
-    BOOL block_lock;             /**< (debug) PCS block lock              */
-    u16  lp_bp0;                 /**< (debug) LP Base page 0-15           */
-    u16  lp_bp1;                 /**< (debug) LP Base page 16-31          */
-    u16  lp_bp2;                 /**< (debug) LP Base page 32-47          */
-    u16  lp_np0;                 /**< (debug) LP Base page 0-15           */
-    u16  lp_np1;                 /**< (debug) LP Base page 16-31          */
-    u16  lp_np2;                 /**< (debug) LP Base page 32-47          */
+    BOOL              complete;           /**< Aneg completed successfully         */
+    BOOL              active;             /**< Aneg is running between LD and LP   */
+    vtss_port_speed_t speed_req;          /**< Requested speed                */
+    BOOL              request_fec_change; /**< FEC change is negotiated            */
+    BOOL              r_fec_enable;       /**< R-FEC enable/disable                */
+    BOOL              rs_fec_enable;      /**< RS-FEC enable/disable               */
+    u32               sm;                 /**< (debug) Aneg state machine          */
+    u32               hist;               /**< (debug) Aneg history                */
+    BOOL              lp_aneg_able;       /**< (debug) Link partner aneg ability   */
+    BOOL              block_lock;         /**< (debug) PCS block lock              */
+    u16               lp_bp0;             /**< (debug) LP Base page 0-15           */
+    u16               lp_bp1;             /**< (debug) LP Base page 16-31          */
+    u16               lp_bp2;             /**< (debug) LP Base page 32-47          */
+    u16               lp_np0;             /**< (debug) LP Base page 0-15           */
+    u16               lp_np1;             /**< (debug) LP Base page 16-31          */
+    u16               lp_np2;             /**< (debug) LP Base page 32-47          */
 } vtss_port_kr_status_aneg_t;
 
 /** \brief  KR Training status */
@@ -800,7 +788,7 @@ typedef struct {
 
 /** \brief  KR configuration structures */
 typedef struct {
-    vtss_port_kr_aneg_t aneg; /**< KR Aneg apability, 802.3ap Clause 73      */
+    vtss_port_kr_aneg_t  aneg;  /**< KR Aneg apability, 802.3ap Clause 73      */
     vtss_port_kr_train_t train; /**< KR Training parameters, 802.3ap Clause 72 */
 } vtss_port_kr_conf_t;
 
@@ -995,9 +983,7 @@ vtss_rc vtss_port_kr_irq_apply(const vtss_inst_t    inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_kr_irq_get(vtss_inst_t          inst,
-                             const vtss_port_no_t port_no,
-                             u32 *const           irq_vec);
+vtss_rc vtss_port_kr_irq_get(vtss_inst_t inst, const vtss_port_no_t port_no, u32 *const irq_vec);
 
 /**
  * \brief Get KR IRQ activity
@@ -1047,8 +1033,7 @@ vtss_rc vtss_port_kr_eye_get(vtss_inst_t                   inst,
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_kr_ctle_adjust(vtss_inst_t          inst,
-                                 const vtss_port_no_t port_no);
+vtss_rc vtss_port_kr_ctle_adjust(vtss_inst_t inst, const vtss_port_no_t port_no);
 /**
  * \brief Get CTLE config
  *
@@ -1130,12 +1115,11 @@ typedef enum {
  * \return Return code.
  *
  **/
-typedef vtss_rc (*vtss_port_serdes_tap_get_t)(const vtss_inst_t       inst,
-                                              const vtss_port_no_t    port_no,
-                                              const vtss_port_speed_t speed,
-                                              const vtss_port_serdes_tap_enum_t
-                                                         tap,
-                                              u32 *const value);
+typedef vtss_rc (*vtss_port_serdes_tap_get_t)(const vtss_inst_t                 inst,
+                                              const vtss_port_no_t              port_no,
+                                              const vtss_port_speed_t           speed,
+                                              const vtss_port_serdes_tap_enum_t tap,
+                                              u32 *const                        value);
 
 /** \brief Serdes debug parameters */
 typedef enum {
@@ -1160,8 +1144,8 @@ typedef struct {
  *
  * \return Return code.
  **/
-vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t    inst,
-                                   const vtss_port_no_t port_no,
+vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t                     inst,
+                                   const vtss_port_no_t                  port_no,
                                    const vtss_port_serdes_debug_t *const conf);
 
 #ifdef __cplusplus

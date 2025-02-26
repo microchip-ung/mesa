@@ -5,17 +5,17 @@
 #include "microchip/ethernet/board/api.h"
 #include "meba_poe_generic.h"
 
-#define MESA_RC(EXPR)                                                          \
-    {                                                                          \
-        mesa_rc rc = EXPR;                                                     \
-        if (rc != MESA_RC_OK) {                                                \
-            return rc;                                                         \
-        }                                                                      \
+#define MESA_RC(EXPR)                                                                              \
+    {                                                                                              \
+        mesa_rc rc = EXPR;                                                                         \
+        if (rc != MESA_RC_OK) {                                                                    \
+            return rc;                                                                             \
+        }                                                                                          \
     }
 
 mesa_rc meba_poe_generic_chip_initialization(const meba_inst_t inst,
-                                             mesa_bool_t interruptible_power,
-                                             int16_t     restart_cause)
+                                             mesa_bool_t       interruptible_power,
+                                             int16_t           restart_cause)
 {
     meba_poe_system_t *system;
     int                i;
@@ -29,10 +29,9 @@ mesa_rc meba_poe_generic_chip_initialization(const meba_inst_t inst,
     }
 
     for (i = 0; i < system->controller_count; ++i) {
-        (void)system->controllers[i]
-            .api->meba_poe_ctrl_chip_initialization(&system->controllers[i],
-                                                    interruptible_power,
-                                                    restart_cause);
+        (void)system->controllers[i].api->meba_poe_ctrl_chip_initialization(&system->controllers[i],
+                                                                            interruptible_power,
+                                                                            restart_cause);
     }
 
     return MESA_RC_OK;
@@ -65,20 +64,17 @@ mesa_rc meba_poe_generic_chipset_get(const meba_inst_t      inst,
     meba_poe_ctrl_inst_t  *controller;
     meba_poe_port_handle_t handle;
     *chip_state = MEBA_POE_NO_CHIPSET_FOUND;
-    if (inst->api_poe->meba_poe_get_controller_handle(inst, iport, &controller,
-                                                      &handle) == MESA_RC_OK) {
+    if (inst->api_poe->meba_poe_get_controller_handle(inst, iport, &controller, &handle) ==
+        MESA_RC_OK) {
         if (MESA_RC_OK ==
-            controller->api->meba_poe_ctrl_chipset_get(controller, handle,
-                                                       chip_state)) {
+            controller->api->meba_poe_ctrl_chipset_get(controller, handle, chip_state)) {
             return MESA_RC_OK;
         }
     }
     return MESA_RC_ERROR;
 }
 
-mesa_rc meba_poe_generic_version_get(const meba_inst_t inst,
-                                     uint32_t          max_size,
-                                     char             *value)
+mesa_rc meba_poe_generic_version_get(const meba_inst_t inst, uint32_t max_size, char *value)
 {
     meba_poe_system_t *system;
     int                i;
@@ -93,9 +89,8 @@ mesa_rc meba_poe_generic_version_get(const meba_inst_t inst,
 
     for (i = 0; i < system->controller_count; ++i) {
         if (MESA_RC_OK ==
-            system->controllers[i]
-                .api->meba_poe_ctrl_version_get(&system->controllers[i],
-                                                max_size, value)) {
+            system->controllers[i].api->meba_poe_ctrl_version_get(&system->controllers[i], max_size,
+                                                                  value)) {
             return MESA_RC_OK;
         }
     }
@@ -108,14 +103,11 @@ mesa_rc meba_poe_generic_port_status_get(const meba_inst_t             inst,
 {
     meba_poe_ctrl_inst_t  *controller;
     meba_poe_port_handle_t handle;
-    if (!inst || !inst->api_poe ||
-        !inst->api_poe->meba_poe_get_controller_handle) {
+    if (!inst || !inst->api_poe || !inst->api_poe->meba_poe_get_controller_handle) {
         return MESA_RC_ERROR;
     }
 
-    mesa_rc rc =
-        inst->api_poe->meba_poe_get_controller_handle(inst, port_no,
-                                                      &controller, &handle);
+    mesa_rc rc = inst->api_poe->meba_poe_get_controller_handle(inst, port_no, &controller, &handle);
     if (rc != MESA_RC_OK) {
         if (rc == MESA_RC_ERR_NOT_POE_PORT_ERR)
             return MESA_RC_ERR_NOT_POE_PORT_ERR;
@@ -123,8 +115,7 @@ mesa_rc meba_poe_generic_port_status_get(const meba_inst_t             inst,
             return MESA_RC_ERROR;
     }
 
-    return controller->api->meba_poe_ctrl_port_status_get(controller, handle,
-                                                          status);
+    return controller->api->meba_poe_ctrl_port_status_get(controller, handle, status);
 }
 
 mesa_rc meba_poe_generic_reset_command(const meba_inst_t inst)
@@ -135,9 +126,8 @@ mesa_rc meba_poe_generic_reset_command(const meba_inst_t inst)
             int i;
             for (i = 0; i < system->controller_count; ++i) {
                 mesa_rc rc;
-                rc = system->controllers[i]
-                         .api
-                         ->meba_poe_ctrl_reset_command(&system->controllers[i]);
+                rc =
+                    system->controllers[i].api->meba_poe_ctrl_reset_command(&system->controllers[i]);
                 if (rc != MESA_RC_OK) {
                     return rc;
                 }
@@ -155,9 +145,8 @@ mesa_rc meba_poe_generic_save_command(const meba_inst_t inst)
             int i;
             for (i = 0; i < system->controller_count; ++i) {
                 mesa_rc rc;
-                rc = system->controllers[i]
-                         .api
-                         ->meba_poe_ctrl_save_command(&system->controllers[i]);
+                rc =
+                    system->controllers[i].api->meba_poe_ctrl_save_command(&system->controllers[i]);
                 if (rc != MESA_RC_OK) {
                     return rc;
                 }
@@ -185,9 +174,8 @@ int meba_poe_generic_firmware_upgrade(const meba_inst_t inst,
     int count = 0;
     for (i = 0; i < system->controller_count; ++i) {
         if (MESA_RC_OK ==
-            system->controllers[i]
-                .api->meba_poe_ctrl_firmware_upgrade(&system->controllers[i],
-                                                     reset, size, data)) {
+            system->controllers[i].api->meba_poe_ctrl_firmware_upgrade(&system->controllers[i],
+                                                                       reset, size, data)) {
             count++;
         }
     }
@@ -197,9 +185,9 @@ int meba_poe_generic_firmware_upgrade(const meba_inst_t inst,
 // return MESA_RC_ERR_POE_FIRMWARE_IS_UP_TO_DATE if firmware update is needed
 // for any of the controllers. otherwise returns MESA_RC_OK
 mesa_rc meba_poe_generic_prepare_firmware_upgrade(const meba_inst_t inst,
-                                                  mesa_bool_t version_check,
-                                                  uint32_t    size,
-                                                  const char *data)
+                                                  mesa_bool_t       version_check,
+                                                  uint32_t          size,
+                                                  const char       *data)
 {
     meba_poe_system_t *system;
     int                i;
@@ -213,12 +201,9 @@ mesa_rc meba_poe_generic_prepare_firmware_upgrade(const meba_inst_t inst,
     }
     for (i = 0; i < system->controller_count; ++i) {
         mesa_rc rc_;
-        rc_ =
-            system->controllers[i]
-                .api
-                ->meba_poe_ctrl_prepare_firmware_upgrade(&system->controllers[i],
-                                                         version_check, size,
-                                                         data);
+        rc_ = system->controllers[i]
+                  .api->meba_poe_ctrl_prepare_firmware_upgrade(&system->controllers[i],
+                                                               version_check, size, data);
         if (rc == MESA_RC_OK && rc_ != MESA_RC_OK) {
             rc = rc_;
         }
@@ -226,24 +211,22 @@ mesa_rc meba_poe_generic_prepare_firmware_upgrade(const meba_inst_t inst,
     return rc;
 }
 
-mesa_rc meba_poe_generic_cfg_set(const meba_inst_t      inst,
-                                 meba_poe_global_cfg_t *cfg)
+mesa_rc meba_poe_generic_cfg_set(const meba_inst_t inst, meba_poe_global_cfg_t *cfg)
 {
     meba_poe_system_t *system;
     if (inst && inst->api_poe && inst->api_poe->meba_poe_system_get) {
         if (inst->api_poe->meba_poe_system_get(inst, &system) == MESA_RC_OK) {
             int i;
             for (i = 0; i < system->controller_count; ++i) {
-                (void)system->controllers[i]
-                    .api->meba_poe_ctrl_cfg_set(&system->controllers[i], cfg);
+                (void)system->controllers[i].api->meba_poe_ctrl_cfg_set(&system->controllers[i],
+                                                                        cfg);
             }
         }
     }
     return MESA_RC_OK;
 }
 
-mesa_rc meba_poe_generic_status_get(const meba_inst_t  inst,
-                                    meba_poe_status_t *status)
+mesa_rc meba_poe_generic_status_get(const meba_inst_t inst, meba_poe_status_t *status)
 {
     meba_poe_system_t *system;
     if (inst && inst->api_poe && inst->api_poe->meba_poe_system_get) {
@@ -254,9 +237,8 @@ mesa_rc meba_poe_generic_status_get(const meba_inst_t  inst,
             uint32_t          valid_controller;
             for (i = 0; i < system->controller_count; ++i) {
                 if (MESA_RC_OK ==
-                    system->controllers[i]
-                        .api->meba_poe_ctrl_status_get(&system->controllers[i],
-                                                       &local_status[i])) {
+                    system->controllers[i].api->meba_poe_ctrl_status_get(&system->controllers[i],
+                                                                         &local_status[i])) {
                     controller_count++;
                     valid_controller = i;
                 }
@@ -271,8 +253,7 @@ mesa_rc meba_poe_generic_status_get(const meba_inst_t  inst,
     return MESA_RC_ERROR;
 }
 
-mesa_rc meba_poe_generic_capabilities_get(const meba_inst_t    inst,
-                                          meba_poe_ctrl_cap_t *capabilities)
+mesa_rc meba_poe_generic_capabilities_get(const meba_inst_t inst, meba_poe_ctrl_cap_t *capabilities)
 {
     meba_poe_system_t *system;
     if (inst && inst->api_poe && inst->api_poe->meba_poe_system_get) {
@@ -293,14 +274,10 @@ mesa_rc meba_poe_generic_port_cfg_set(const meba_inst_t    inst,
 {
     meba_poe_ctrl_inst_t  *controller;
     meba_poe_port_handle_t handle;
-    if (inst && inst->api_poe &&
-        inst->api_poe->meba_poe_get_controller_handle) {
-        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no,
-                                                          &controller,
-                                                          &handle) ==
+    if (inst && inst->api_poe && inst->api_poe->meba_poe_get_controller_handle) {
+        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no, &controller, &handle) ==
             MESA_RC_OK) {
-            if (controller->api->meba_poe_ctrl_port_cfg_set(controller, handle,
-                                                            cfg) ==
+            if (controller->api->meba_poe_ctrl_port_cfg_set(controller, handle, cfg) ==
                 MESA_RC_OK) {
                 return MESA_RC_OK;
             }
@@ -315,10 +292,8 @@ mesa_rc meba_poe_generic_supply_limits_get(const meba_inst_t          inst,
 {
     meba_poe_ctrl_inst_t  *controller;
     meba_poe_port_handle_t handle;
-    if (inst && inst->api_poe &&
-        inst->api_poe->meba_poe_get_controller_handle) {
-        if (inst->api_poe->meba_poe_get_controller_handle(inst, 0, &controller,
-                                                          &handle) ==
+    if (inst && inst->api_poe && inst->api_poe->meba_poe_get_controller_handle) {
+        if (inst->api_poe->meba_poe_get_controller_handle(inst, 0, &controller, &handle) ==
             MESA_RC_OK) {
             int i;
             for (i = 0; i < controller->psu_map_length; ++i) {
@@ -332,22 +307,17 @@ mesa_rc meba_poe_generic_supply_limits_get(const meba_inst_t          inst,
     return MESA_RC_ERROR;
 }
 
-mesa_rc meba_poe_generic_port_capabilities_get(const meba_inst_t inst,
-                                               mesa_port_no_t    port_no,
+mesa_rc meba_poe_generic_port_capabilities_get(const meba_inst_t    inst,
+                                               mesa_port_no_t       port_no,
                                                meba_poe_port_cap_t *capabilities)
 {
     meba_poe_ctrl_inst_t  *controller;
     meba_poe_port_handle_t handle;
-    if (inst && inst->api_poe &&
-        inst->api_poe->meba_poe_get_controller_handle) {
-        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no,
-                                                          &controller,
-                                                          &handle) ==
+    if (inst && inst->api_poe && inst->api_poe->meba_poe_get_controller_handle) {
+        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no, &controller, &handle) ==
             MESA_RC_OK) {
-            if (controller->api
-                    ->meba_poe_ctrl_port_capabilities_get(controller, handle,
-                                                          capabilities) ==
-                MESA_RC_OK) {
+            if (controller->api->meba_poe_ctrl_port_capabilities_get(controller, handle,
+                                                                     capabilities) == MESA_RC_OK) {
                 return MESA_RC_OK;
             }
         }
@@ -367,21 +337,15 @@ mesa_rc meba_poe_generic_debug(const meba_inst_t inst,
 {
     meba_poe_ctrl_inst_t  *controller;
     meba_poe_port_handle_t handle;
-    if (inst && inst->api_poe &&
-        inst->api_poe->meba_poe_get_controller_handle) {
-        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no,
-                                                          &controller,
-                                                          &handle) ==
+    if (inst && inst->api_poe && inst->api_poe->meba_poe_get_controller_handle) {
+        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no, &controller, &handle) ==
             MESA_RC_OK) {
-            if (controller->api->meba_poe_ctrl_debug(controller, var, str_len,
-                                                     title, tx_str, rx_str, msg,
-                                                     max_msg_len) ==
-                MESA_RC_OK) {
+            if (controller->api->meba_poe_ctrl_debug(controller, var, str_len, title, tx_str,
+                                                     rx_str, msg, max_msg_len) == MESA_RC_OK) {
                 return MESA_RC_OK;
             }
         } else
-            printf(
-                "\n\r       Debug pd69200 access failed. no such port or controller \n\r");
+            printf("\n\r       Debug pd69200 access failed. no such port or controller \n\r");
     }
     return MESA_RC_ERROR;
 }
@@ -392,15 +356,10 @@ mesa_rc meba_poe_generic_port_pd_data_set(const meba_inst_t   inst,
 {
     meba_poe_ctrl_inst_t  *controller;
     meba_poe_port_handle_t handle;
-    if (inst && inst->api_poe &&
-        inst->api_poe->meba_poe_get_controller_handle) {
-        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no,
-                                                          &controller,
-                                                          &handle) ==
+    if (inst && inst->api_poe && inst->api_poe->meba_poe_get_controller_handle) {
+        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no, &controller, &handle) ==
             MESA_RC_OK) {
-            if (controller->api->meba_poe_ctrl_port_pd_data_set(controller,
-                                                                handle,
-                                                                pd_data) ==
+            if (controller->api->meba_poe_ctrl_port_pd_data_set(controller, handle, pd_data) ==
                 MESA_RC_OK) {
                 return MESA_RC_OK;
             }
@@ -415,15 +374,10 @@ mesa_rc meba_poe_generic_port_pd_bt_data_set(const meba_inst_t      inst,
 {
     meba_poe_ctrl_inst_t  *controller;
     meba_poe_port_handle_t handle;
-    if (inst && inst->api_poe &&
-        inst->api_poe->meba_poe_get_controller_handle) {
-        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no,
-                                                          &controller,
-                                                          &handle) ==
+    if (inst && inst->api_poe && inst->api_poe->meba_poe_get_controller_handle) {
+        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no, &controller, &handle) ==
             MESA_RC_OK) {
-            if (controller->api->meba_poe_ctrl_port_pd_bt_data_set(controller,
-                                                                   handle,
-                                                                   pd_data) ==
+            if (controller->api->meba_poe_ctrl_port_pd_bt_data_set(controller, handle, pd_data) ==
                 MESA_RC_OK) {
                 return MESA_RC_OK;
             }
@@ -432,19 +386,14 @@ mesa_rc meba_poe_generic_port_pd_bt_data_set(const meba_inst_t      inst,
     return MESA_RC_ERROR;
 }
 
-mesa_rc meba_poe_generic_port_pd_data_clear(const meba_inst_t inst,
-                                            mesa_port_no_t    port_no)
+mesa_rc meba_poe_generic_port_pd_data_clear(const meba_inst_t inst, mesa_port_no_t port_no)
 {
     meba_poe_ctrl_inst_t  *controller;
     meba_poe_port_handle_t handle;
-    if (inst && inst->api_poe &&
-        inst->api_poe->meba_poe_get_controller_handle) {
-        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no,
-                                                          &controller,
-                                                          &handle) ==
+    if (inst && inst->api_poe && inst->api_poe->meba_poe_get_controller_handle) {
+        if (inst->api_poe->meba_poe_get_controller_handle(inst, port_no, &controller, &handle) ==
             MESA_RC_OK) {
-            if (controller->api->meba_poe_ctrl_port_pd_data_clear(controller,
-                                                                  handle) ==
+            if (controller->api->meba_poe_ctrl_port_pd_data_clear(controller, handle) ==
                 MESA_RC_OK) {
                 return MESA_RC_OK;
             }

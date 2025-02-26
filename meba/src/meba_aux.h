@@ -8,12 +8,10 @@
 
 #include "meba_generic.h"
 
-static const int64_t clk_mhz[VTSS_PHY_TS_CLOCK_FREQ_MAX] = {
-    125000000LL, 156250000LL, 200000000LL, 250000000LL, 500000000LL};
+static const int64_t clk_mhz[VTSS_PHY_TS_CLOCK_FREQ_MAX] = {125000000LL, 156250000LL, 200000000LL,
+                                                            250000000LL, 500000000LL};
 
-static inline mesa_rc meba_conf_get_hex(meba_inst_t inst,
-                                        const char *tag,
-                                        int        *value)
+static inline mesa_rc meba_conf_get_hex(meba_inst_t inst, const char *tag, int *value)
 {
     char buf[64];
     if (inst->iface.conf_get(tag, buf, sizeof(buf), NULL) == MESA_RC_OK &&
@@ -24,9 +22,7 @@ static inline mesa_rc meba_conf_get_hex(meba_inst_t inst,
     return MESA_RC_ERROR;
 }
 
-static inline mesa_rc meba_conf_get_u32(meba_inst_t inst,
-                                        const char *tag,
-                                        uint32_t   *value)
+static inline mesa_rc meba_conf_get_u32(meba_inst_t inst, const char *tag, uint32_t *value)
 {
     char buf[64];
     if (inst->iface.conf_get(tag, buf, sizeof(buf), NULL) == MESA_RC_OK &&
@@ -46,9 +42,9 @@ static inline mesa_rc meba_conf_get_u32(meba_inst_t inst,
  * \return The board instance - or NULL
  **/
 static inline meba_inst_t meba_state_alloc(const meba_board_interface_t *iface,
-                                           const char *default_board_name,
-                                           mesa_target_type_t default_target,
-                                           size_t             private_len)
+                                           const char                   *default_board_name,
+                                           mesa_target_type_t            default_target,
+                                           size_t                        private_len)
 {
     meba_inst_t inst;
     int         i;
@@ -60,11 +56,9 @@ static inline meba_inst_t meba_state_alloc(const meba_board_interface_t *iface,
         inst->synce_spi_if_fd = -1;
 
         // Initialize board props
-        if (inst->iface.conf_get("board", inst->props.name,
-                                 sizeof(inst->props.name) - 1,
-                                 NULL) != MESA_RC_OK) {
-            strncpy(inst->props.name, default_board_name,
-                    sizeof(inst->props.name) - 1);
+        if (inst->iface.conf_get("board", inst->props.name, sizeof(inst->props.name) - 1, NULL) !=
+            MESA_RC_OK) {
+            strncpy(inst->props.name, default_board_name, sizeof(inst->props.name) - 1);
         }
         if (meba_conf_get_hex(inst, "target", &i) == MESA_RC_OK) {
             inst->props.target = (mesa_target_type_t)i;
@@ -74,8 +68,7 @@ static inline meba_inst_t meba_state_alloc(const meba_board_interface_t *iface,
         // Allocate private state
         if (private_len) {
             if ((inst->private_data = malloc(private_len)) == NULL) {
-                T_E(inst, "Error allocating %zd bytes private data",
-                    private_len);
+                T_E(inst, "Error allocating %zd bytes private data", private_len);
                 free(inst);
                 return NULL;
             }
@@ -83,8 +76,7 @@ static inline meba_inst_t meba_state_alloc(const meba_board_interface_t *iface,
         }
     } else {
         iface->debug(MEBA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__,
-                     "Unable to allocate %zd bytes instance data",
-                     sizeof(*inst));
+                     "Unable to allocate %zd bytes instance data", sizeof(*inst));
     }
     return inst;
 }
@@ -176,8 +168,8 @@ static inline mesa_rc mebaux_miim_cmd(meba_inst_t             inst,
     uint32_t value, offs = (ctrl * 9);
     int      i;
 
-    T_N(inst, "cmd: %u, sof: %u, ctrl: %u, miim_addr: %u, reg_addr: %u", cmd,
-        sof, ctrl, miim_addr, reg_addr);
+    T_N(inst, "cmd: %u, sof: %u, ctrl: %u, miim_addr: %u, reg_addr: %u", cmd, sof, ctrl, miim_addr,
+        reg_addr);
 
     if ((rc = mebaux_wr(inst, raw->base, raw->gcb, raw->miim.cfg + offs,
                         (sof << 9) | (0x32 << 0))) != MESA_RC_OK) {
@@ -185,15 +177,15 @@ static inline mesa_rc mebaux_miim_cmd(meba_inst_t             inst,
     }
 
     rc = mebaux_wr(inst, raw->base, raw->gcb, raw->miim.cmd + offs,
-                   (1UL << 31) | (uint32_t)(miim_addr << 25) |
-                       (reg_addr << 20) | ((*data) << 4) | (cmd << 1));
+                   (1UL << 31) | (uint32_t)(miim_addr << 25) | (reg_addr << 20) | ((*data) << 4) |
+                       (cmd << 1));
     if (rc != MESA_RC_OK) {
         return rc;
     }
 
     for (i = 0; i < 100; i++) {
-        if ((rc = mebaux_rd(inst, raw->base, raw->gcb, raw->miim.status + offs,
-                            &value)) != MESA_RC_OK) {
+        if ((rc = mebaux_rd(inst, raw->base, raw->gcb, raw->miim.status + offs, &value)) !=
+            MESA_RC_OK) {
             return rc;
         }
         T_N(inst, "RD: status(%d) value: 0x%08x", offs, value);
@@ -202,8 +194,7 @@ static inline mesa_rc mebaux_miim_cmd(meba_inst_t             inst,
         }
 
         if (cmd == MEBAUX_PHY_CMD_READ_INC || cmd == MEBAUX_PHY_CMD_READ) {
-            rc = mebaux_rd(inst, raw->base, raw->gcb, raw->miim.data + offs,
-                           &value);
+            rc = mebaux_rd(inst, raw->base, raw->gcb, raw->miim.data + offs, &value);
             if (rc != MESA_RC_OK) {
                 return rc;
             }
@@ -226,8 +217,7 @@ static inline mesa_rc mebaux_miim_rd(meba_inst_t             inst,
                                      uint8_t                 reg_addr,
                                      uint16_t               *data)
 {
-    return mebaux_miim_cmd(inst, raw, MEBAUX_PHY_CMD_READ_INC, 1, ctrl,
-                           miim_addr, reg_addr, data);
+    return mebaux_miim_cmd(inst, raw, MEBAUX_PHY_CMD_READ_INC, 1, ctrl, miim_addr, reg_addr, data);
 }
 
 /* Write PHY register on primary device */
@@ -239,19 +229,17 @@ static inline mesa_rc mebaux_miim_wr(meba_inst_t             inst,
                                      uint16_t                data)
 {
     uint16_t dptr = data;
-    return mebaux_miim_cmd(inst, raw, MEBAUX_PHY_CMD_WRITE, 1, ctrl, miim_addr,
-                           reg_addr, &dptr);
+    return mebaux_miim_cmd(inst, raw, MEBAUX_PHY_CMD_WRITE, 1, ctrl, miim_addr, reg_addr, &dptr);
 }
 
 /* Detect Vitesse 10G PHY module on MIIM controller 0 */
-static inline mesa_miim_controller_t mebaux_phy_detect(meba_inst_t inst,
-                                                       const meba_aux_rawio_t
-                                                              *raw,
-                                                       uint8_t miim_addr)
+static inline mesa_miim_controller_t mebaux_phy_detect(meba_inst_t             inst,
+                                                       const meba_aux_rawio_t *raw,
+                                                       uint8_t                 miim_addr)
 {
     uint16_t tmp = 0;
-    for (mesa_miim_controller_t ctrl = MESA_MIIM_CONTROLLER_0;
-         ctrl < MESA_MIIM_CONTROLLERS; ctrl++) {
+    for (mesa_miim_controller_t ctrl = MESA_MIIM_CONTROLLER_0; ctrl < MESA_MIIM_CONTROLLERS;
+         ctrl++) {
         if (mebaux_miim_rd(inst, raw, ctrl, miim_addr, 0, &tmp) == MESA_RC_OK) {
             T_I(inst, "Found NPI PHY on ctrl%d", ctrl);
             return ctrl;
@@ -272,11 +260,9 @@ static inline mesa_rc mebaux_mmd_rd(meba_inst_t             inst,
 {
     mesa_rc rc;
 
-    rc = mebaux_miim_cmd(inst, raw, MEBAUX_PHY_CMD_ADDRESS, 0, ctrl, miim_addr,
-                         mmd, &addr);
+    rc = mebaux_miim_cmd(inst, raw, MEBAUX_PHY_CMD_ADDRESS, 0, ctrl, miim_addr, mmd, &addr);
     if (rc == MESA_RC_OK) {
-        rc = mebaux_miim_cmd(inst, raw, MEBAUX_PHY_CMD_READ, 0, ctrl, miim_addr,
-                             mmd, value);
+        rc = mebaux_miim_cmd(inst, raw, MEBAUX_PHY_CMD_READ, 0, ctrl, miim_addr, mmd, value);
     }
     return rc;
 }
@@ -291,14 +277,9 @@ mesa_rc meba_synce_write(struct meba_inst *inst,
                          uint8_t           addr,
                          uint32_t          buflen,
                          const uint8_t    *tx_data);
-mesa_rc meba_synce_read(struct meba_inst *inst,
-                        uint8_t           addr,
-                        uint32_t          buflen,
-                        uint8_t          *rx_data);
-mesa_rc meba_synce_spi_if_get_dpll_type(meba_inst_t               inst,
-                                        meba_synce_clock_hw_id_t *dpll_type);
-mesa_rc meba_synce_spi_if_dpll_fw_ver_get(meba_inst_t                inst,
-                                          meba_synce_clock_fw_ver_t *dpll_ver);
+mesa_rc meba_synce_read(struct meba_inst *inst, uint8_t addr, uint32_t buflen, uint8_t *rx_data);
+mesa_rc meba_synce_spi_if_get_dpll_type(meba_inst_t inst, meba_synce_clock_hw_id_t *dpll_type);
+mesa_rc meba_synce_spi_if_dpll_fw_ver_get(meba_inst_t inst, meba_synce_clock_fw_ver_t *dpll_ver);
 mesa_rc meba_synce_spi_if_find_spidev(meba_inst_t inst,
                                       const char *id,
                                       char       *spi_file,

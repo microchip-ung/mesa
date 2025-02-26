@@ -33,11 +33,10 @@ typedef enum {
 
 // Fiber Port speed
 typedef enum {
-    MESA_SPEED_FIBER_NOT_SUPPORTED_OR_DISABLED =
-        0,                      // Fiber not supported/ Fiber port disabled
-    MESA_SPEED_FIBER_100FX = 2, // 100BASE-FX
-    MESA_SPEED_FIBER_1000X = 3, // 1000BASE-X
-    MESA_SPEED_FIBER_AUTO = 4,  // Auto detection - AMS mode
+    MESA_SPEED_FIBER_NOT_SUPPORTED_OR_DISABLED = 0, // Fiber not supported/ Fiber port disabled
+    MESA_SPEED_FIBER_100FX = 2,                     // 100BASE-FX
+    MESA_SPEED_FIBER_1000X = 3,                     // 1000BASE-X
+    MESA_SPEED_FIBER_AUTO = 4,                      // Auto detection - AMS mode
     MESA_SPEED_FIBER_DISABLED =
         5, // Obsolete - use MESA_SPEED_FIBER_NOT_SUPPORTED_OR_DISABLED instead
     MESA_SPEED_FIBER_ONLY_AUTO = 6, // Auto detection - Fiber only (no RJ45)
@@ -90,23 +89,20 @@ typedef enum {
     MESA_SD10G_MEDIA_10G_KR   // 10G Base KR
 } mesa_sd10g_media_type_t;
 
-#define MESA_PHY_POWER_ACTIPHY_BIT                                             \
+#define MESA_PHY_POWER_ACTIPHY_BIT                                                                 \
     0 /**< Defines the bit used to signaling that ActiPhy is enabled */
-#define MESA_PHY_POWER_DYNAMIC_BIT                                             \
+#define MESA_PHY_POWER_DYNAMIC_BIT                                                                 \
     1 /**< Defines the bit used to signaling that PerfectReach is enabled */
 
 /** \brief PHY power reduction modes */
 typedef enum {
-    MESA_PHY_POWER_NOMINAL = 0, /**< Default power settings */
-    MESA_PHY_POWER_ACTIPHY =
-        1 << MESA_PHY_POWER_ACTIPHY_BIT, /**< ActiPHY - Link down power savings
-                                            enabled (Bit 0) */
-    MESA_PHY_POWER_DYNAMIC =
-        1 << MESA_PHY_POWER_DYNAMIC_BIT, /**< PerfectReach - Link up power
-                                            savings enabled (Bit 1) */
+    MESA_PHY_POWER_NOMINAL = 0,                               /**< Default power settings */
+    MESA_PHY_POWER_ACTIPHY = 1 << MESA_PHY_POWER_ACTIPHY_BIT, /**< ActiPHY - Link down power savings
+                                                                 enabled (Bit 0) */
+    MESA_PHY_POWER_DYNAMIC = 1 << MESA_PHY_POWER_DYNAMIC_BIT, /**< PerfectReach - Link up power
+                                                                 savings enabled (Bit 1) */
     MESA_PHY_POWER_ENABLED =
-        MESA_PHY_POWER_ACTIPHY +
-        MESA_PHY_POWER_DYNAMIC /**< ActiPHY + PerfectReach enabled */
+        MESA_PHY_POWER_ACTIPHY + MESA_PHY_POWER_DYNAMIC /**< ActiPHY + PerfectReach enabled */
 } mesa_phy_power_mode_t;
 
 /** \brief VeriPHY status */
@@ -119,17 +115,12 @@ typedef enum {
     MESA_VERIPHY_STATUS_SHORT_B = 9,  /**< Cross-pair short to pair B */
     MESA_VERIPHY_STATUS_SHORT_C = 10, /**< Cross-pair short to pair C */
     MESA_VERIPHY_STATUS_SHORT_D = 11, /**< Cross-pair short to pair D */
-    MESA_VERIPHY_STATUS_COUPL_A =
-        12, /**< Abnormal cross-pair coupling, pair A */
-    MESA_VERIPHY_STATUS_COUPL_B =
-        13, /**< Abnormal cross-pair coupling, pair B */
-    MESA_VERIPHY_STATUS_COUPL_C =
-        14, /**< Abnormal cross-pair coupling, pair C */
-    MESA_VERIPHY_STATUS_COUPL_D =
-        15, /**< Abnormal cross-pair coupling, pair D */
+    MESA_VERIPHY_STATUS_COUPL_A = 12, /**< Abnormal cross-pair coupling, pair A */
+    MESA_VERIPHY_STATUS_COUPL_B = 13, /**< Abnormal cross-pair coupling, pair B */
+    MESA_VERIPHY_STATUS_COUPL_C = 14, /**< Abnormal cross-pair coupling, pair C */
+    MESA_VERIPHY_STATUS_COUPL_D = 15, /**< Abnormal cross-pair coupling, pair D */
     MESA_VERIPHY_STATUS_UNKNOWN = 16, /**< Unknown - VeriPhy never started ? */
-    MESA_VERIPHY_STATUS_RUNNING =
-        17 /**< VeriPhy is still running - No result yet */
+    MESA_VERIPHY_STATUS_RUNNING = 17  /**< VeriPhy is still running - No result yet */
 } mesa_phy_veriphy_status_t;
 
 /** \brief VeriPHY result */
@@ -200,12 +191,12 @@ typedef enum {
     MESA_PORT_INTERFACE_SFI,           // SFI/LAN
     MESA_PORT_INTERFACE_USXGMII,       // 1x10G and below. Uses primary device.
                                        // 64B/66B PCS. Laguna only */
-    MESA_PORT_INTERFACE_USGMII, // 8x2G5 devices. Mode 'X'. Uses 2G5 device. */
-    MESA_PORT_INTERFACE_QXGMII, // 4x2G5 devices. Mode 'R'. Uses 2G5 device. */
-    MESA_PORT_INTERFACE_DXGMII_5G, // 2x2G5 devices. Mode 'F'. Uses 2G5 device. */
-    MESA_PORT_INTERFACE_DXGMII_10G, // 2x5G devices.  Mode 'U'. Uses primary
-                                    // device. */
-    MESA_PORT_INTERFACE_CPU,        // Exposed CPU port. */
+    MESA_PORT_INTERFACE_USGMII,        // 8x2G5 devices. Mode 'X'. Uses 2G5 device. */
+    MESA_PORT_INTERFACE_QXGMII,        // 4x2G5 devices. Mode 'R'. Uses 2G5 device. */
+    MESA_PORT_INTERFACE_DXGMII_5G,     // 2x2G5 devices. Mode 'F'. Uses 2G5 device. */
+    MESA_PORT_INTERFACE_DXGMII_10G,    // 2x5G devices.  Mode 'U'. Uses primary
+                                       // device. */
+    MESA_PORT_INTERFACE_CPU,           // Exposed CPU port. */
 } mesa_port_interface_t;
 
 /** \brief PHY reset structure */
@@ -214,12 +205,11 @@ typedef struct {
     mesa_phy_media_interface_t media_if; /**< Media interface */
     mesa_phy_rgmii_conf_t      rgmii;    /**< RGMII MAC interface setup */
     mesa_phy_tbi_conf_t        tbi;      /**< TBI setup */
-    mesa_phy_forced_reset_t
-        force;                    /**< Force or NoForce PHY port Reset during
-                                     mesa_phy_reset_private, Only used for Selected PHY Families */
-    mesa_phy_pkt_mode_t pkt_mode; /**< packet mode*/
-    mesa_bool_t i_cpu_en; /**< Set to TRUE to enable internal 8051 CPU (Enzo and
-                             Spyder family only)*/
+    mesa_phy_forced_reset_t    force;    /**< Force or NoForce PHY port Reset during
+                                            mesa_phy_reset_private, Only used for Selected PHY Families */
+    mesa_phy_pkt_mode_t pkt_mode;        /**< packet mode*/
+    mesa_bool_t         i_cpu_en;        /**< Set to TRUE to enable internal 8051 CPU (Enzo and
+                                            Spyder family only)*/
 } mesa_phy_reset_conf_t;
 
 /** \brief PHY led intensity */
@@ -228,58 +218,44 @@ typedef uint8_t mesa_phy_led_intensity; /**< LED intensity from 0-200, LED
 
 /* - Events ------------------------------------------------------- */
 /*  PHY interrupt events */
-#define MESA_PHY_LINK_LOS_EV   (1 << 0) /**< PHY link interrupt */
-#define MESA_PHY_LINK_FFAIL_EV (1 << 1) /**< PHY fast failure interrupt */
-#define MESA_PHY_LINK_AMS_EV   (1 << 2) /**< PHY Automatic Media Sense */
-#define MESA_PHY_LINK_SPEED_STATE_CHANGE_EV                                    \
-    (1 << 3) /**< PHY link state change event*/
-#define MESA_PHY_LINK_FDX_STATE_CHANGE_EV                                      \
-    (1 << 4) /**< PHY FDX state change event*/
-#define MESA_PHY_LINK_AUTO_NEG_ERROR_EV                                        \
-    (1 << 5) /**< PHY Autonegotiation error event*/
-#define MESA_PHY_LINK_AUTO_NEG_COMPLETE_EV                                     \
-    (1 << 6) /**< PHY Autonegotiation complete event*/
-#define MESA_PHY_LINK_INLINE_POW_DEV_DETECT_EV                                 \
-    (1 << 7) /**< PHY Inline powered device detect event */
+#define MESA_PHY_LINK_LOS_EV                (1 << 0) /**< PHY link interrupt */
+#define MESA_PHY_LINK_FFAIL_EV              (1 << 1) /**< PHY fast failure interrupt */
+#define MESA_PHY_LINK_AMS_EV                (1 << 2) /**< PHY Automatic Media Sense */
+#define MESA_PHY_LINK_SPEED_STATE_CHANGE_EV (1 << 3) /**< PHY link state change event*/
+#define MESA_PHY_LINK_FDX_STATE_CHANGE_EV   (1 << 4) /**< PHY FDX state change event*/
+#define MESA_PHY_LINK_AUTO_NEG_ERROR_EV     (1 << 5) /**< PHY Autonegotiation error event*/
+#define MESA_PHY_LINK_AUTO_NEG_COMPLETE_EV  (1 << 6) /**< PHY Autonegotiation complete event*/
+#define MESA_PHY_LINK_INLINE_POW_DEV_DETECT_EV                                                     \
+    (1 << 7)                                     /**< PHY Inline powered device detect event */
 #define MESA_PHY_LINK_SYMBOL_ERR_INT_EV (1 << 8) /**< PHY Symbol error event */
-#define MESA_PHY_LINK_TX_FIFO_OVERFLOW_INT_EV                                  \
+#define MESA_PHY_LINK_TX_FIFO_OVERFLOW_INT_EV                                                      \
     (1 << 9) /**< PHY TX fifo over/underflow detect event*/
-#define MESA_PHY_LINK_RX_FIFO_OVERFLOW_INT_EV                                  \
+#define MESA_PHY_LINK_RX_FIFO_OVERFLOW_INT_EV                                                      \
     (1 << 10) /**< PHY RX fifo over/underflow detect event*/
-#define MESA_PHY_LINK_FALSE_CARRIER_INT_EV                                     \
-    (1 << 11) /**< PHY false-carrier interrupt event*/
-#define MESA_PHY_LINK_LINK_SPEED_DS_DETECT_EV                                  \
-    (1 << 12) /**< PHY Link speed downshift detect event*/
-#define MESA_PHY_LINK_MASTER_SLAVE_RES_ERR_EV                                  \
-    (1 << 13) /**< PHY master/salve resolution error event*/
+#define MESA_PHY_LINK_FALSE_CARRIER_INT_EV    (1 << 11) /**< PHY false-carrier interrupt event*/
+#define MESA_PHY_LINK_LINK_SPEED_DS_DETECT_EV (1 << 12) /**< PHY Link speed downshift detect event*/
+#define MESA_PHY_LINK_MASTER_SLAVE_RES_ERR_EV                                                      \
+    (1 << 13)                                /**< PHY master/salve resolution error event*/
 #define MESA_PHY_LINK_RX_ER_INT_EV (1 << 14) /**< PHY RX_ER interrupt event*/
-#define MESA_PHY_LINK_EXTENDED_REG_INT_EV                                      \
+#define MESA_PHY_LINK_EXTENDED_REG_INT_EV                                                          \
     (1 << 15) /**< PHY Use Extended Reg to Access interrupt event*/
-#define MESA_PHY_LINK_WAKE_ON_LAN_INT_EV                                       \
-    (1 << 16) /**< PHY Wake-On-LAN interrupt event*/
+#define MESA_PHY_LINK_WAKE_ON_LAN_INT_EV (1 << 16) /**< PHY Wake-On-LAN interrupt event*/
 /* - Extended Events Defn
  * ------------------------------------------------------- */
-#define MESA_PHY_LINK_EXT_EEE_WAKE_ERR_EV                                      \
-    (1 << 17) /**< PHY EEE Wake Error interrupt event*/
-#define MESA_PHY_LINK_EXT_EEE_WAIT_TS_EV                                       \
+#define MESA_PHY_LINK_EXT_EEE_WAKE_ERR_EV (1 << 17) /**< PHY EEE Wake Error interrupt event*/
+#define MESA_PHY_LINK_EXT_EEE_WAIT_TS_EV                                                           \
     (1 << 18) /**< PHY EEE Wait Quit/Rx TS Timer interrupt event*/
-#define MESA_PHY_LINK_EXT_EEE_WAIT_RX_TQ_EV                                    \
-    (1 << 19) /**< PHY EEE Rx TQ Timer interrupt event*/
-#define MESA_PHY_LINK_EXT_EEE_LINKFAIL_EV                                      \
-    (1 << 20) /**< PHY EEE Link Fail interrupt event*/
-#define MESA_PHY_LINK_EXT_RR_SW_COMPL_EV                                       \
+#define MESA_PHY_LINK_EXT_EEE_WAIT_RX_TQ_EV (1 << 19) /**< PHY EEE Rx TQ Timer interrupt event*/
+#define MESA_PHY_LINK_EXT_EEE_LINKFAIL_EV   (1 << 20) /**< PHY EEE Link Fail interrupt event*/
+#define MESA_PHY_LINK_EXT_RR_SW_COMPL_EV                                                           \
     (1 << 21) /**< PHY Ring Resiliancy Switchover complete interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_HOST_MAC_EV                                   \
-    (1 << 22) /**< PHY MACSEC Host MAC interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_LINE_MAC_EV                                   \
-    (1 << 23) /**< PHY MACSEC Line MAC interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_FC_BUFF_EV                                    \
+#define MESA_PHY_LINK_EXT_MACSEC_HOST_MAC_EV (1 << 22) /**< PHY MACSEC Host MAC interrupt event*/
+#define MESA_PHY_LINK_EXT_MACSEC_LINE_MAC_EV (1 << 23) /**< PHY MACSEC Line MAC interrupt event*/
+#define MESA_PHY_LINK_EXT_MACSEC_FC_BUFF_EV                                                        \
     (1 << 24) /**< PHY MACSEC Flow Control Buff interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_INGRESS_EV                                    \
-    (1 << 25) /**< PHY MACSEC Ingress interrupt event*/
-#define MESA_PHY_LINK_EXT_MACSEC_EGRESS_EV                                     \
-    (1 << 26) /**< PHY MACSEC Egress interrupt event*/
-#define MESA_PHY_LINK_EXT_MEM_INT_RING_EV                                      \
+#define MESA_PHY_LINK_EXT_MACSEC_INGRESS_EV (1 << 25) /**< PHY MACSEC Ingress interrupt event*/
+#define MESA_PHY_LINK_EXT_MACSEC_EGRESS_EV  (1 << 26) /**< PHY MACSEC Egress interrupt event*/
+#define MESA_PHY_LINK_EXT_MEM_INT_RING_EV                                                          \
     (1 << 27) /**< PHY MEM Integrity Ring Control interrupt event*/
 
 /** \brief PHY interrupt event type */
@@ -292,8 +268,7 @@ typedef uint32_t mesa_chip_no_t;
 typedef int32_t mesa_rc;
 
 #define MESA_PORT_NO_NONE (0xffffffff) // Port number none
-#define MESA_PORT_NO_CPU                                                       \
-    (0xfffffffe) // Port number for CPU for special purposes
+#define MESA_PORT_NO_CPU  (0xfffffffe) // Port number for CPU for special purposes
 // Port Number
 typedef uint32_t mesa_port_no_t;
 
@@ -314,9 +289,9 @@ typedef struct {
 
 // PPS Configuration
 typedef struct mesa_phy_ts_pps_config_s {
-    uint32_t pps_width_adj; // The value of nano second counter upto which 1PPS
-                            // is held high
-    uint32_t pps_offset;    // PPS pulse offset in nano seconds
+    uint32_t pps_width_adj;     // The value of nano second counter upto which 1PPS
+                                // is held high
+    uint32_t pps_offset;        // PPS pulse offset in nano seconds
     uint32_t pps_output_enable; // PPS pulse output is enabled for this port
 } mesa_phy_ts_pps_conf_t;
 
@@ -325,19 +300,16 @@ typedef struct mesa_phy_ts_pps_config_s {
 typedef int64_t mesa_phy_ts_scaled_ppb_t;
 
 // brief Timestamp interrupt events
-#define MESA_PHY_TS_INGR_ENGINE_ERR 0x01 // More than one engine find match
-#define MESA_PHY_TS_INGR_RW_PREAM_ERR                                          \
-    0x02 // Preamble too short to append timestamp
-#define MESA_PHY_TS_INGR_RW_FCS_ERR 0x04 // FCS error in ingress
-#define MESA_PHY_TS_EGR_ENGINE_ERR  0x08 // More than one engine find match
-#define MESA_PHY_TS_EGR_RW_FCS_ERR  0x10 // FCS error in egress
-#define MESA_PHY_TS_EGR_TIMESTAMP_CAPTURED                                     \
-    0x20                                     // Timestamp captured in Tx TSFIFO
-#define MESA_PHY_TS_EGR_FIFO_OVERFLOW   0x40 // Tx TSFIFO overflow
-#define MESA_PHY_TS_DATA_IN_RSRVD_FIELD 0x80 // Data in reserved Field
-#define MESA_PHY_TS_LTC_NEW_PPS_INTRPT                                         \
-    0x100 // New PPS pushed onto external PPS pin
-#define MESA_PHY_TS_LTC_LOAD_SAVE_NEW_TOD                                      \
+#define MESA_PHY_TS_INGR_ENGINE_ERR        0x01  // More than one engine find match
+#define MESA_PHY_TS_INGR_RW_PREAM_ERR      0x02  // Preamble too short to append timestamp
+#define MESA_PHY_TS_INGR_RW_FCS_ERR        0x04  // FCS error in ingress
+#define MESA_PHY_TS_EGR_ENGINE_ERR         0x08  // More than one engine find match
+#define MESA_PHY_TS_EGR_RW_FCS_ERR         0x10  // FCS error in egress
+#define MESA_PHY_TS_EGR_TIMESTAMP_CAPTURED 0x20  // Timestamp captured in Tx TSFIFO
+#define MESA_PHY_TS_EGR_FIFO_OVERFLOW      0x40  // Tx TSFIFO overflow
+#define MESA_PHY_TS_DATA_IN_RSRVD_FIELD    0x80  // Data in reserved Field
+#define MESA_PHY_TS_LTC_NEW_PPS_INTRPT     0x100 // New PPS pushed onto external PPS pin
+#define MESA_PHY_TS_LTC_LOAD_SAVE_NEW_TOD                                                          \
     0x200 // New LTC value either loaded in to HW or saved into registers
 
 typedef uint32_t mesa_phy_ts_event_t; // Int events: Single event or 'OR'
@@ -347,18 +319,16 @@ typedef uint32_t mesa_phy_ts_event_t; // Int events: Single event or 'OR'
 typedef struct {
     uint32_t ingr_pream_shrink_err; // Frames with preambles too short to shrink
     uint32_t egr_pream_shrink_err;  // Frames with preambles too short to shrink
-    uint32_t ingr_fcs_err; // Timestamp block received frame with FCS error in
-                           // ingress
-    uint32_t
-        egr_fcs_err; // Timestamp block received frame with FCS error in egress
-    uint32_t ingr_frm_mod_cnt; // No of frames modified by timestamp block
-                               // (rewritter) in ingress
-    uint32_t egr_frm_mod_cnt;  // No of frames modified by timestamp block
-                               // (rewritter) in egress
-    uint32_t
-        ts_fifo_tx_cnt; // the number of timestamps transmitted to the interface
-    uint32_t ts_fifo_drop_cnt; // Count of dropped Timestamps not enqueued to
-                               // the Tx TSFIFO
+    uint32_t ingr_fcs_err;          // Timestamp block received frame with FCS error in
+                                    // ingress
+    uint32_t egr_fcs_err;           // Timestamp block received frame with FCS error in egress
+    uint32_t ingr_frm_mod_cnt;      // No of frames modified by timestamp block
+                                    // (rewritter) in ingress
+    uint32_t egr_frm_mod_cnt;       // No of frames modified by timestamp block
+                                    // (rewritter) in egress
+    uint32_t ts_fifo_tx_cnt;        // the number of timestamps transmitted to the interface
+    uint32_t ts_fifo_drop_cnt;      // Count of dropped Timestamps not enqueued to
+                                    // the Tx TSFIFO
 } mesa_phy_ts_stats_t;
 
 // Timestamp block clock frequencies
@@ -403,7 +373,7 @@ typedef enum {
 typedef enum {
     MESA_PHY_TS_FIFO_MODE_NORMAL, // Timestamp can be read from normal CPU
                                   // interface
-    MESA_PHY_TS_FIFO_MODE_SPI, /// Timestamps are pushed out on the SPI interface
+    MESA_PHY_TS_FIFO_MODE_SPI,    /// Timestamps are pushed out on the SPI interface
 } mesa_phy_ts_fifo_mode_t;
 
 // Length of Timestamp stored in Tx TSFIFO.
@@ -441,32 +411,24 @@ enum {
     MESA_RC_ERR_PARM = -5,        // Invalid parameter
     MESA_RC_ERR_NO_RES = -6,      // Out of resources
 
-    MESA_RC_ERR_KR_CONF_NOT_SUPPORTED =
-        -7, // The PHY doesn't support 10GBASE_KR equalization
-    MESA_RC_ERR_KR_CONF_INVALID_PARAMETER =
-        -8, // One of the parameters are out of range
+    MESA_RC_ERR_KR_CONF_NOT_SUPPORTED = -7,     // The PHY doesn't support 10GBASE_KR equalization
+    MESA_RC_ERR_KR_CONF_INVALID_PARAMETER = -8, // One of the parameters are out of range
 
     // 1G ERRORS ****/
     MESA_RC_ERR_PHY_BASE_NO_NOT_FOUND =
         -50, // Port base number (first port within a chip) is not found
-    MESA_RC_ERR_PHY_6G_MACRO_SETUP = -51, // Setup of 6G macro failed
-    MESA_RC_ERR_PHY_MEDIA_IF_NOT_SUPPORTED =
-        -52, // PHY does not support the selected media mode
+    MESA_RC_ERR_PHY_6G_MACRO_SETUP = -51,         // Setup of 6G macro failed
+    MESA_RC_ERR_PHY_MEDIA_IF_NOT_SUPPORTED = -52, // PHY does not support the selected media mode
     MESA_RC_ERR_PHY_CLK_CONF_NOT_SUPPORTED =
         -53, // The PHY doesn't support clock configuration (for SynceE)
-    MESA_RC_ERR_PHY_GPIO_ALT_MODE_NOT_SUPPORTED =
-        -54, // The PHY doesn't support the alternative mode for the selected
-             // GPIO pin
-    MESA_RC_ERR_PHY_GPIO_PIN_NOT_SUPPORTED =
-        -55, // The PHY doesn't support the selected GPIO pin
-    MESA_RC_ERR_PHY_PORT_OUT_RANGE =
-        -56, // PHY API called with port number larger than MESA_PORTS
+    MESA_RC_ERR_PHY_GPIO_ALT_MODE_NOT_SUPPORTED = -54, // The PHY doesn't support the alternative
+                                                       // mode for the selected GPIO pin
+    MESA_RC_ERR_PHY_GPIO_PIN_NOT_SUPPORTED = -55, // The PHY doesn't support the selected GPIO pin
+    MESA_RC_ERR_PHY_PORT_OUT_RANGE = -56, // PHY API called with port number larger than MESA_PORTS
     MESA_RC_ERR_PHY_PATCH_SETTING_NOT_SUPPORTED =
         -57, // PHY API micro patch setting not supported for the port in question
-    MESA_RC_ERR_PHY_LCPLL_NOT_SUPPORTED =
-        -58, // PHY API LC-PLL status not supported for the port
-    MESA_RC_ERR_PHY_RCPLL_NOT_SUPPORTED =
-        -59, // PHY API RC-PLL status not supported for the port
+    MESA_RC_ERR_PHY_LCPLL_NOT_SUPPORTED = -58, // PHY API LC-PLL status not supported for the port
+    MESA_RC_ERR_PHY_RCPLL_NOT_SUPPORTED = -59, // PHY API RC-PLL status not supported for the port
 
     // MACSEC ERRORS
     MESA_RC_ERR_MACSEC_INVALID_SCI_MACADDR =
@@ -474,97 +436,75 @@ enum {
              // FF-FF-FF-FF-FF-FF is never used as an SCI and is reserved for
              // use by implementations to indicate the absence of an SC or an
              // SCI in contexts where an SC can be present
-    MESA_RC_ERR_MACSEC_NOT_ENABLED =
-        -61, // Trying to access port where MACSEC is not enabled
-    MESA_RC_ERR_MACSEC_SECY_ALREADY_IN_USE =
-        -63, // Trying to use a secy which is already in use
-    MESA_RC_ERR_MACSEC_NO_SECY_FOUND =
-        -64, // No SecY found for the specific port
-    MESA_RC_ERR_MACSEC_NO_SECY_VACANCY = -65, // No secy vacancy
-    MESA_RC_ERR_MACSEC_INVALID_VALIDATE_FRM =
-        -66, // Validate_frames value invalid
-    MESA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH =
-        -67, // Could not program the SA match
-    MESA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW =
-        -68,                                   // Could not program the SA flow
-    MESA_RC_ERR_MACSEC_COULD_NOT_ENA_SA = -69, // Could not enable the SA
-    MESA_RC_ERR_MACSEC_COULD_NOT_SET_SA = -70, // Could not set SA to in use
-    MESA_RC_ERR_MACSEC_INVALID_BYPASS_HDR_LEN =
-        -71,                                    // Invalid header bypass length
-    MESA_RC_ERR_MACSEC_SC_NOT_FOUND = -72,      // Could not find SC (from sci)
-    MESA_RC_ERR_MACSEC_NO_CTRL_FRM_MATCH = -73, // No control frame match
-    MESA_RC_ERR_MACSEC_COULD_NOT_SET_PATTERN =
-        -74, // Could no set bypass pattern for CP rule
-    MESA_RC_ERR_MACSEC_TIMEOUT_ISSUE =
-        -75, // Internal timeout issue, bailing out
-    MESA_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS =
-        -76, // Could not empty the egress pipeline
-    MESA_RC_ERR_MACSEC_AN_NOT_CREATED = -77, // AN not created.
-    MESA_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS =
-        -78, // Could not empty the ingress pipeline
-    MESA_RC_ERR_MACSEC_TX_SC_NOT_EXIST = -80,      // No tx SC found
-    MESA_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA = -81, // Could not disable sa
-    MESA_RC_ERR_MACSEC_COULD_NOT_DEL_RX_SA = -82,  // Could not delete rx sa
-    MESA_RC_ERR_MACSEC_COULD_NOT_DEL_TX_SA = -83,  // Could not delete tx sa
-    MESA_RC_ERR_MACSEC_PATTERN_NOT_SET = -84,      // Pattern not set
-    MESA_RC_ERR_MACSEC_HW_RESOURCE_EXHUSTED = -85, // HW resources exhausted
-    MESA_RC_ERR_MACSEC_SCI_ALREADY_EXISTS = -86,   // SCI already exists
-    MESA_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND =
-        -87, // Could not find SC resources
-    MESA_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE = -88, // Rx AN is in use
-    MESA_RC_ERR_MACSEC_EMPTY_RECORD = -89, // Could not get an empty record
-    MESA_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM =
-        -90, // Could not program the xform record
-    MESA_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA = -91,  // Could not toggle SA
-    MESA_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE = -92, // Tx AN is in use
-    MESA_RC_ERR_MACSEC_ALL_AVAILABLE_SA_IN_USE =
-        -93,                                // All available SA's are in use
-    MESA_RC_ERR_MACSEC_MATCH_DISABLE = -94, // MACSEC match disabled
-    MESA_RC_ERR_MACSEC_ALL_CP_RULES_IN_USE =
-        -95, // All CP rules of the specific type are in use
-    MESA_RC_ERR_MACSEC_PATTERN_PRIO_NOT_VALID =
-        -96, // The pattern priority is not valid
-    MESA_RC_ERR_MACSEC_BUFFER_TOO_SMALL =
-        -97, // Buffer to small, must be greater than
-             // MESA_MACSEC_FRAME_CAPTURE_SIZE_MAX
-    MESA_RC_ERR_MACSEC_FRAME_TOO_LONG =
-        -98, // Frame length is supposed to be less than the amount of data in
-             // the fifo
+    MESA_RC_ERR_MACSEC_NOT_ENABLED = -61, // Trying to access port where MACSEC is not enabled
+    MESA_RC_ERR_MACSEC_SECY_ALREADY_IN_USE = -63,    // Trying to use a secy which is already in use
+    MESA_RC_ERR_MACSEC_NO_SECY_FOUND = -64,          // No SecY found for the specific port
+    MESA_RC_ERR_MACSEC_NO_SECY_VACANCY = -65,        // No secy vacancy
+    MESA_RC_ERR_MACSEC_INVALID_VALIDATE_FRM = -66,   // Validate_frames value invalid
+    MESA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH = -67, // Could not program the SA match
+    MESA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW = -68,  // Could not program the SA flow
+    MESA_RC_ERR_MACSEC_COULD_NOT_ENA_SA = -69,       // Could not enable the SA
+    MESA_RC_ERR_MACSEC_COULD_NOT_SET_SA = -70,       // Could not set SA to in use
+    MESA_RC_ERR_MACSEC_INVALID_BYPASS_HDR_LEN = -71, // Invalid header bypass length
+    MESA_RC_ERR_MACSEC_SC_NOT_FOUND = -72,           // Could not find SC (from sci)
+    MESA_RC_ERR_MACSEC_NO_CTRL_FRM_MATCH = -73,      // No control frame match
+    MESA_RC_ERR_MACSEC_COULD_NOT_SET_PATTERN = -74,  // Could no set bypass pattern for CP rule
+    MESA_RC_ERR_MACSEC_TIMEOUT_ISSUE = -75,          // Internal timeout issue, bailing out
+    MESA_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS = -76, // Could not empty the egress pipeline
+    MESA_RC_ERR_MACSEC_AN_NOT_CREATED = -77,         // AN not created.
+    MESA_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS = -78, // Could not empty the ingress pipeline
+    MESA_RC_ERR_MACSEC_TX_SC_NOT_EXIST = -80,         // No tx SC found
+    MESA_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA = -81,    // Could not disable sa
+    MESA_RC_ERR_MACSEC_COULD_NOT_DEL_RX_SA = -82,     // Could not delete rx sa
+    MESA_RC_ERR_MACSEC_COULD_NOT_DEL_TX_SA = -83,     // Could not delete tx sa
+    MESA_RC_ERR_MACSEC_PATTERN_NOT_SET = -84,         // Pattern not set
+    MESA_RC_ERR_MACSEC_HW_RESOURCE_EXHUSTED = -85,    // HW resources exhausted
+    MESA_RC_ERR_MACSEC_SCI_ALREADY_EXISTS = -86,      // SCI already exists
+    MESA_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND = -87,   // Could not find SC resources
+    MESA_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE = -88,    // Rx AN is in use
+    MESA_RC_ERR_MACSEC_EMPTY_RECORD = -89,            // Could not get an empty record
+    MESA_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM = -90,     // Could not program the xform record
+    MESA_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA = -91,     // Could not toggle SA
+    MESA_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE = -92,    // Tx AN is in use
+    MESA_RC_ERR_MACSEC_ALL_AVAILABLE_SA_IN_USE = -93, // All available SA's are in use
+    MESA_RC_ERR_MACSEC_MATCH_DISABLE = -94,           // MACSEC match disabled
+    MESA_RC_ERR_MACSEC_ALL_CP_RULES_IN_USE = -95,    // All CP rules of the specific type are in use
+    MESA_RC_ERR_MACSEC_PATTERN_PRIO_NOT_VALID = -96, // The pattern priority is not valid
+    MESA_RC_ERR_MACSEC_BUFFER_TOO_SMALL = -97,       // Buffer to small, must be greater than
+                                                     // MESA_MACSEC_FRAME_CAPTURE_SIZE_MAX
+    MESA_RC_ERR_MACSEC_FRAME_TOO_LONG = -98,  // Frame length is supposed to be less than the amount
+                                              // of data in the fifo
     MESA_RC_ERR_MACSEC_FRAME_TRUNCATED = -99, // Frame is Truncated
     MESA_RC_ERR_MACSEC_PHY_POWERED_DOWN =
         -100, // Phy is powered down, i.e. the MacSec block is not accessible
-    MESA_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE =
-        -101,                                 // Port/Phy is not MacSec capable
-    MESA_RC_ERR_MACSEC_AN_NOT_EXIST = -102,   // AN does not exist
-    MESA_RC_ERR_MACSEC_NO_PATTERN_CFG = -103, // No pattern is configured
-    MESA_RC_ERR_MACSEC_MAX_MTU =
-        -105, // Maximum MTU allowed is 32761 (+ 4 bytes for VLAN)
-    MESA_RC_ERR_MACSEC_UNEXPECT_CP_MODE = -106,     // Unexpected CP mode
+    MESA_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE = -101, // Port/Phy is not MacSec capable
+    MESA_RC_ERR_MACSEC_AN_NOT_EXIST = -102,           // AN does not exist
+    MESA_RC_ERR_MACSEC_NO_PATTERN_CFG = -103,         // No pattern is configured
+    MESA_RC_ERR_MACSEC_MAX_MTU = -105,          // Maximum MTU allowed is 32761 (+ 4 bytes for VLAN)
+    MESA_RC_ERR_MACSEC_UNEXPECT_CP_MODE = -106, // Unexpected CP mode
     MESA_RC_ERR_MACSEC_COULD_NOT_DISABLE_AN = -107, // Could not disable AN
-    MESA_RC_ERR_MACSEC_RULE_OUT_OF_RANGE =
-        -108, // Rule id is out of range. Must not be larger than
-              // MESA_MACSEC_CP_RULES
-    MESA_RC_ERR_MACSEC_RULE_NOT_EXIST = -109, // Rule does not exist
-    MESA_RC_ERR_MACSEC_CSR_READ = -110,       // Could not do CSR read
-    MESA_RC_ERR_MACSEC_CSR_WRITE = -111,      // Could not do CSR write
+    MESA_RC_ERR_MACSEC_RULE_OUT_OF_RANGE = -108, // Rule id is out of range. Must not be larger than
+                                                 // MESA_MACSEC_CP_RULES
+    MESA_RC_ERR_MACSEC_RULE_NOT_EXIST = -109,    // Rule does not exist
+    MESA_RC_ERR_MACSEC_CSR_READ = -110,          // Could not do CSR read
+    MESA_RC_ERR_MACSEC_CSR_WRITE = -111,         // Could not do CSR write
     MESA_RC_ERR_PHY_6G_RCPLL_ON_BASE_PORT_ONLY =
         -112, // PHY API 6G RC-PLL status support only on Base port
 
     // MISC ERRORS
     MESA_RC_ERR_INVALID_NULL_PTR = -200, // A pointer was unexpected NULL
-    MESA_RC_ERR_INV_PORT_BOARD =
-        -201, // The specific port not available on this board
+    MESA_RC_ERR_INV_PORT_BOARD = -201,   // The specific port not available on this board
 
     // Clause 37 ERRORS
     MESA_RC_ERR_PCS_BLOCK_NOT_SUPPORTED = -300, // Invalid access to PCS block
 
     // PoE ERRORS
     MESA_RC_ERR_POE_FIRMWARE_IS_UP_TO_DATE =
-        -400, // The version of loaded firmware is identical to new
-    MESA_RC_ERR_POE_RX_BUF_EMPTY = -401, // poe rx buffer empty - data 0x00
+        -400,                                  // The version of loaded firmware is identical to new
+    MESA_RC_ERR_POE_RX_BUF_EMPTY = -401,       // poe rx buffer empty - data 0x00
     MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED = -402, // poe firmware update error
-    MESA_RC_ERR_POE_COMM_PROT_ERR = -403, // poe rx communication protocol error
-    MESA_RC_ERR_NOT_POE_PORT_ERR = -404,  // not a poe port
+    MESA_RC_ERR_POE_COMM_PROT_ERR = -403,      // poe rx communication protocol error
+    MESA_RC_ERR_NOT_POE_PORT_ERR = -404,       // not a poe port
 }; // Leave it anonymous.
 
 // Event type.
@@ -602,13 +542,12 @@ typedef int64_t mesa_timeinterval_t;
 
 // Port status parameter struct
 typedef struct {
-    mesa_event_t      link_down; // Link down event occurred since last call
-    mesa_bool_t       link;  // Link is up. Remaining fields only valid if TRUE
-    mesa_port_speed_t speed; // Speed
-    mesa_bool_t       fdx;   // Full duplex
-    mesa_bool_t       remote_fault; // Remote fault signalled
-    mesa_bool_t
-        aneg_complete; // Autoneg completed (for clause_37 and Cisco aneg)
+    mesa_event_t      link_down;     // Link down event occurred since last call
+    mesa_bool_t       link;          // Link is up. Remaining fields only valid if TRUE
+    mesa_port_speed_t speed;         // Speed
+    mesa_bool_t       fdx;           // Full duplex
+    mesa_bool_t       remote_fault;  // Remote fault signalled
+    mesa_bool_t       aneg_complete; // Autoneg completed (for clause_37 and Cisco aneg)
 
     // TRUE: PHY able to transmit from media independent interface regardless of
     // whether the PHY has determined that a valid link has been
@@ -655,13 +594,13 @@ typedef enum {
                                   // for LP, but no frame rx/tx)
     MESA_SERDES_MODE_SXGMII,      // 1 x USXGMII in 5G/10G mode. Experimental
                                   // unsupported mode!
-    MESA_SERDES_MODE_USGMII, // 8 x USGMII in 1G mode. Experimental unsupported
-                             // mode!
-    MESA_SERDES_MODE_QXGMII, // 4 x QXGMII in 2G5 mode.     Mode 'R'.
-    MESA_SERDES_MODE_DXGMII_10G, // 2 x DXGMII_10G in 5G mode.  Mode 'U'.
-                                 // Experimental unsupported mode!
-    MESA_SERDES_MODE_DXGMII_5G   // 2 x DXGMII_5G in 2G5 mode.  Mode 'F'.
-                                 // Experimental unsupported mode!
+    MESA_SERDES_MODE_USGMII,      // 8 x USGMII in 1G mode. Experimental unsupported
+                                  // mode!
+    MESA_SERDES_MODE_QXGMII,      // 4 x QXGMII in 2G5 mode.     Mode 'R'.
+    MESA_SERDES_MODE_DXGMII_10G,  // 2 x DXGMII_10G in 5G mode.  Mode 'U'.
+                                  // Experimental unsupported mode!
+    MESA_SERDES_MODE_DXGMII_5G    // 2 x DXGMII_5G in 2G5 mode.  Mode 'F'.
+                                  // Experimental unsupported mode!
 } mesa_serdes_mode_t;
 
 // VDD power supply

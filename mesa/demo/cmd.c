@@ -244,16 +244,13 @@ int main(int argc, char *const argv[])
 
         case IPC_RETURN:
             if (msg.len != sizeof(err_code)) {
-                dprintf(2, "%d: Unexpected msg type/len: %d/%d\n", __LINE__,
-                        msg.type, msg.len);
+                dprintf(2, "%d: Unexpected msg type/len: %d/%d\n", __LINE__, msg.type, msg.len);
             }
 
             read_block(fd, (char *)&err_code, sizeof(err_code));
             break;
 
-        default:
-            dprintf(2, "%d: Unexpected msg type: %d\n", __LINE__, msg.type);
-            return -1;
+        default: dprintf(2, "%d: Unexpected msg type: %d\n", __LINE__, msg.type); return -1;
         }
     }
 

@@ -18,11 +18,9 @@
 #ifndef _VTSS_MAIN_TYPES_H_
 
 /** \brief Max/min values for 64 signed integer */
-#define VTSS_I64_MAX                                                           \
-    0x7FFFFFFFFFFFFFFFLL /**<  Max value for 64 bit signed integer */
-#define VTSS_I64_MIN                                                           \
-    -0x8000000000000000LL /**<  Min value for 64 bit signed integer */
-#endif                    // _VTSS_MAIN_TYPES_H_
+#define VTSS_I64_MAX 0x7FFFFFFFFFFFFFFFLL  /**<  Max value for 64 bit signed integer */
+#define VTSS_I64_MIN -0x8000000000000000LL /**<  Min value for 64 bit signed integer */
+#endif                                     // _VTSS_MAIN_TYPES_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,19 +57,14 @@ extern "C" {
 #error "Environment not 32 or 64-bit."
 #endif
 
-#define VTSS_BIT64(x)                                                          \
-    (1ULL << (x)) /**< Set one bit in a 64-bit mask               */
-#define VTSS_BITMASK64(x)                                                      \
-    ((1ULL << (x)) - 1) /**< Get a bitmask consisting of x ones         */
-#define VTSS_EXTRACT_BITFIELD64(x, o, w)                                       \
-    (((x) >> (o)) &                                                            \
-     VTSS_BITMASK64(w)) /**< Extract w bits from bit position o in x    */
-#define VTSS_ENCODE_BITFIELD64(x, o, w)                                        \
-    (((u64)(x) & VTSS_BITMASK64(w))                                            \
-     << (o)) /**< Place w bits of x at bit position o        */
-#define VTSS_ENCODE_BITMASK64(o, w)                                            \
-    (VTSS_BITMASK64(w)                                                         \
-     << (o)) /**< Create a bitmask of w bits positioned at o */
+#define VTSS_BIT64(x)     (1ULL << (x))       /**< Set one bit in a 64-bit mask               */
+#define VTSS_BITMASK64(x) ((1ULL << (x)) - 1) /**< Get a bitmask consisting of x ones         */
+#define VTSS_EXTRACT_BITFIELD64(x, o, w)                                                           \
+    (((x) >> (o)) & VTSS_BITMASK64(w)) /**< Extract w bits from bit position o in x    */
+#define VTSS_ENCODE_BITFIELD64(x, o, w)                                                            \
+    (((u64)(x) & VTSS_BITMASK64(w)) << (o)) /**< Place w bits of x at bit position o        */
+#define VTSS_ENCODE_BITMASK64(o, w)                                                                \
+    (VTSS_BITMASK64(w) << (o)) /**< Create a bitmask of w bits positioned at o */
 
 #if !defined(TRUE)
 #define TRUE 1 /**< True boolean value */
@@ -93,10 +86,8 @@ enum {
     VTSS_RC_ERR_PARM = -5,        /**< Invalid parameter */
     VTSS_RC_ERR_NO_RES = -6,      /**< Out of resources */
 
-    VTSS_RC_ERR_KR_CONF_NOT_SUPPORTED =
-        -7, /**< The PHY doesn't support 10GBASE_KR equalization */
-    VTSS_RC_ERR_KR_CONF_INVALID_PARAMETER =
-        -8, /**< One of the parameters are out of range */
+    VTSS_RC_ERR_KR_CONF_NOT_SUPPORTED = -7, /**< The PHY doesn't support 10GBASE_KR equalization */
+    VTSS_RC_ERR_KR_CONF_INVALID_PARAMETER = -8, /**< One of the parameters are out of range */
 
     /**** 1G ERRORS ****/
     VTSS_RC_ERR_PHY_BASE_NO_NOT_FOUND =
@@ -106,16 +97,14 @@ enum {
         -52, /**< PHY does not support the selected media mode */
     VTSS_RC_ERR_PHY_CLK_CONF_NOT_SUPPORTED =
         -53, /**< The PHY doesn't support clock configuration (for SynceE) */
-    VTSS_RC_ERR_PHY_GPIO_ALT_MODE_NOT_SUPPORTED =
-        -54, /**< The PHY doesn't support the alternative mode for the selected
-                GPIO pin*/
+    VTSS_RC_ERR_PHY_GPIO_ALT_MODE_NOT_SUPPORTED = -54, /**< The PHY doesn't support the alternative
+                                                          mode for the selected GPIO pin*/
     VTSS_RC_ERR_PHY_GPIO_PIN_NOT_SUPPORTED =
         -55, /**< The PHY doesn't support the selected GPIO pin */
     VTSS_RC_ERR_PHY_PORT_OUT_RANGE =
         -56, /**< PHY API called with port number larger than VTSS_PORTS*/
-    VTSS_RC_ERR_PHY_PATCH_SETTING_NOT_SUPPORTED =
-        -57, /**< PHY API micro patch setting not supported for the port in
-                question*/
+    VTSS_RC_ERR_PHY_PATCH_SETTING_NOT_SUPPORTED = -57, /**< PHY API micro patch setting not
+                                                          supported for the port in question*/
     VTSS_RC_ERR_PHY_LCPLL_NOT_SUPPORTED =
         -58, /**< PHY API LC-PLL status not supported for the port */
     VTSS_RC_ERR_PHY_RCPLL_NOT_SUPPORTED =
@@ -127,79 +116,60 @@ enum {
                 FF-FF-FF-FF-FF-FF is never used as an SCI and is reserved for
                 use by implementations to indicate the absence of an SC or an
                 SCI in contexts where an SC can be present */
-    VTSS_RC_ERR_MACSEC_NOT_ENABLED =
-        -61, /**< Trying to access port where MACSEC is not enabled*/
+    VTSS_RC_ERR_MACSEC_NOT_ENABLED = -61, /**< Trying to access port where MACSEC is not enabled*/
     VTSS_RC_ERR_MACSEC_SECY_ALREADY_IN_USE =
-        -63, /**< Trying to use a secy which is already in use*/
-    VTSS_RC_ERR_MACSEC_NO_SECY_FOUND =
-        -64, /**< No SecY found for the specific port*/
+        -63,                                  /**< Trying to use a secy which is already in use*/
+    VTSS_RC_ERR_MACSEC_NO_SECY_FOUND = -64,   /**< No SecY found for the specific port*/
     VTSS_RC_ERR_MACSEC_NO_SECY_VACANCY = -65, /**< No secy vacancy*/
-    VTSS_RC_ERR_MACSEC_INVALID_VALIDATE_FRM =
-        -66, /**< Validate_frames value invalid*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH =
-        -67, /**< Could not program the SA match*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW =
-        -68, /**< Could not program the SA flow*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_ENA_SA = -69, /**< Could not enable the SA*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_SET_SA = -70, /**< Could not set SA to in use*/
-    VTSS_RC_ERR_MACSEC_INVALID_BYPASS_HDR_LEN =
-        -71,                               /**< Invalid header bypass length*/
-    VTSS_RC_ERR_MACSEC_SC_NOT_FOUND = -72, /**< Could not find SC (from sci)*/
-    VTSS_RC_ERR_MACSEC_NO_CTRL_FRM_MATCH = -73, /**< No control frame match*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_SET_PATTERN =
-        -74, /**< Could no set bypass pattern for CP rule*/
-    VTSS_RC_ERR_MACSEC_TIMEOUT_ISSUE =
-        -75, /**< Internal timeout issue, bailing out*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS =
-        -76, /**< Could not empty the egress pipeline*/
-    VTSS_RC_ERR_MACSEC_AN_NOT_CREATED = -77, /**< AN not created.*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS =
-        -78, /**< Could not empty the ingress pipeline*/
-    VTSS_RC_ERR_MACSEC_TX_SC_NOT_EXIST = -80,      /**< No tx SC found*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA = -81, /**< Could not disable sa*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_DEL_RX_SA = -82,  /**< Could not delete rx sa*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_DEL_TX_SA = -83,  /**< Could not delete tx sa*/
-    VTSS_RC_ERR_MACSEC_PATTERN_NOT_SET = -84,      /**< Pattern not set*/
-    VTSS_RC_ERR_MACSEC_HW_RESOURCE_EXHUSTED = -85, /**< HW resources exhausted*/
-    VTSS_RC_ERR_MACSEC_SCI_ALREADY_EXISTS = -86,   /**< SCI already exists*/
-    VTSS_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND =
-        -87, /**< Could not find SC resources*/
-    VTSS_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE = -88, /**< Rx AN is in use*/
-    VTSS_RC_ERR_MACSEC_EMPTY_RECORD = -89, /**< Could not get an empty record*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM =
-        -90, /**< Could not program the xform record*/
-    VTSS_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA = -91,  /**< Could not toggle SA*/
-    VTSS_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE = -92, /**< Tx AN is in use*/
-    VTSS_RC_ERR_MACSEC_ALL_AVAILABLE_SA_IN_USE =
-        -93,                                /**< All available SA's are in use*/
-    VTSS_RC_ERR_MACSEC_MATCH_DISABLE = -94, /**< MACSEC match disabled*/
+    VTSS_RC_ERR_MACSEC_INVALID_VALIDATE_FRM = -66,    /**< Validate_frames value invalid*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH = -67,  /**< Could not program the SA match*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW = -68,   /**< Could not program the SA flow*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_ENA_SA = -69,        /**< Could not enable the SA*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_SET_SA = -70,        /**< Could not set SA to in use*/
+    VTSS_RC_ERR_MACSEC_INVALID_BYPASS_HDR_LEN = -71,  /**< Invalid header bypass length*/
+    VTSS_RC_ERR_MACSEC_SC_NOT_FOUND = -72,            /**< Could not find SC (from sci)*/
+    VTSS_RC_ERR_MACSEC_NO_CTRL_FRM_MATCH = -73,       /**< No control frame match*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_SET_PATTERN = -74,   /**< Could no set bypass pattern for CP rule*/
+    VTSS_RC_ERR_MACSEC_TIMEOUT_ISSUE = -75,           /**< Internal timeout issue, bailing out*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS = -76,  /**< Could not empty the egress pipeline*/
+    VTSS_RC_ERR_MACSEC_AN_NOT_CREATED = -77,          /**< AN not created.*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS = -78, /**< Could not empty the ingress pipeline*/
+    VTSS_RC_ERR_MACSEC_TX_SC_NOT_EXIST = -80,         /**< No tx SC found*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA = -81,    /**< Could not disable sa*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_DEL_RX_SA = -82,     /**< Could not delete rx sa*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_DEL_TX_SA = -83,     /**< Could not delete tx sa*/
+    VTSS_RC_ERR_MACSEC_PATTERN_NOT_SET = -84,         /**< Pattern not set*/
+    VTSS_RC_ERR_MACSEC_HW_RESOURCE_EXHUSTED = -85,    /**< HW resources exhausted*/
+    VTSS_RC_ERR_MACSEC_SCI_ALREADY_EXISTS = -86,      /**< SCI already exists*/
+    VTSS_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND = -87,   /**< Could not find SC resources*/
+    VTSS_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE = -88,    /**< Rx AN is in use*/
+    VTSS_RC_ERR_MACSEC_EMPTY_RECORD = -89,            /**< Could not get an empty record*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM = -90,     /**< Could not program the xform record*/
+    VTSS_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA = -91,     /**< Could not toggle SA*/
+    VTSS_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE = -92,    /**< Tx AN is in use*/
+    VTSS_RC_ERR_MACSEC_ALL_AVAILABLE_SA_IN_USE = -93, /**< All available SA's are in use*/
+    VTSS_RC_ERR_MACSEC_MATCH_DISABLE = -94,           /**< MACSEC match disabled*/
     VTSS_RC_ERR_MACSEC_ALL_CP_RULES_IN_USE =
         -95, /**< All CP rules of the specific type are in use*/
-    VTSS_RC_ERR_MACSEC_PATTERN_PRIO_NOT_VALID =
-        -96, /**< The pattern priority is not valid*/
-    VTSS_RC_ERR_MACSEC_BUFFER_TOO_SMALL =
-        -97, /**< Buffer to small, must be greater than
-                VTSS_MACSEC_FRAME_CAPTURE_SIZE_MAX*/
-    VTSS_RC_ERR_MACSEC_FRAME_TOO_LONG =
-        -98, /**< Frame length is supposed to be less than the amount of data in
-                the fifo*/
+    VTSS_RC_ERR_MACSEC_PATTERN_PRIO_NOT_VALID = -96, /**< The pattern priority is not valid*/
+    VTSS_RC_ERR_MACSEC_BUFFER_TOO_SMALL = -97,       /**< Buffer to small, must be greater than
+                                                        VTSS_MACSEC_FRAME_CAPTURE_SIZE_MAX*/
+    VTSS_RC_ERR_MACSEC_FRAME_TOO_LONG = -98,  /**< Frame length is supposed to be less than the
+                                                 amount of data in  the fifo*/
     VTSS_RC_ERR_MACSEC_FRAME_TRUNCATED = -99, /**< Frame is Truncated*/
     VTSS_RC_ERR_MACSEC_PHY_POWERED_DOWN =
         -100, /**< Phy is powered down, i.e. the MacSec block is not accessible*/
-    VTSS_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE =
-        -101, /**< Port/Phy is not MacSec capable*/
-    VTSS_RC_ERR_MACSEC_AN_NOT_EXIST = -102,   /**< AN does not exist*/
-    VTSS_RC_ERR_MACSEC_NO_PATTERN_CFG = -103, /**< No pattern is configured*/
-    VTSS_RC_ERR_MACSEC_MAX_MTU =
-        -105, /**< Maximum MTU allowed is 32761 (+ 4 bytes for VLAN)*/
+    VTSS_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE = -101, /**< Port/Phy is not MacSec capable*/
+    VTSS_RC_ERR_MACSEC_AN_NOT_EXIST = -102,           /**< AN does not exist*/
+    VTSS_RC_ERR_MACSEC_NO_PATTERN_CFG = -103,         /**< No pattern is configured*/
+    VTSS_RC_ERR_MACSEC_MAX_MTU = -105, /**< Maximum MTU allowed is 32761 (+ 4 bytes for VLAN)*/
     VTSS_RC_ERR_MACSEC_UNEXPECT_CP_MODE = -106,     /**< Unexpected CP mode*/
     VTSS_RC_ERR_MACSEC_COULD_NOT_DISABLE_AN = -107, /**< Could not disable AN*/
-    VTSS_RC_ERR_MACSEC_RULE_OUT_OF_RANGE =
-        -108, /**< Rule id is out of range. Must not be larger than
-                 VTSS_MACSEC_CP_RULES*/
-    VTSS_RC_ERR_MACSEC_RULE_NOT_EXIST = -109, /**< Rule does not exist*/
-    VTSS_RC_ERR_MACSEC_CSR_READ = -110,       /**< Could not do CSR read*/
-    VTSS_RC_ERR_MACSEC_CSR_WRITE = -111,      /**< Could not do CSR write*/
+    VTSS_RC_ERR_MACSEC_RULE_OUT_OF_RANGE = -108,    /**< Rule id is out of range. Must not be larger
+                                                       than    VTSS_MACSEC_CP_RULES*/
+    VTSS_RC_ERR_MACSEC_RULE_NOT_EXIST = -109,       /**< Rule does not exist*/
+    VTSS_RC_ERR_MACSEC_CSR_READ = -110,             /**< Could not do CSR read*/
+    VTSS_RC_ERR_MACSEC_CSR_WRITE = -111,            /**< Could not do CSR write*/
     VTSS_RC_ERR_PHY_6G_RCPLL_ON_BASE_PORT_ONLY =
         -112, /**< PHY API 6G RC-PLL status support only on Base port */
 
@@ -207,8 +177,7 @@ enum {
     VTSS_RC_ERR_INVALID_NULL_PTR = -200, /**< A pointer was unexpected NULL */
 
     /*** Clause 37 ERRORS ***/
-    VTSS_RC_ERR_PCS_BLOCK_NOT_SUPPORTED =
-        -300 /**< Invalid access to PCS block */
+    VTSS_RC_ERR_PCS_BLOCK_NOT_SUPPORTED = -300 /**< Invalid access to PCS block */
 }; // Leave it anonymous.
 #endif // _VTSS_MAIN_TYPES_H_
 
@@ -236,9 +205,8 @@ typedef BOOL vtss_event_t;
 typedef u32 vtss_packet_rate_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_PACKET_RATE_DISABLED                                              \
-    0xffffffff /**< Special value for disabling packet policer */
-#endif         // _VTSS_MAIN_TYPES_H_
+#define VTSS_PACKET_RATE_DISABLED 0xffffffff /**< Special value for disabling packet policer */
+#endif                                       // _VTSS_MAIN_TYPES_H_
 
 /** \brief Port Number */
 typedef u32 vtss_port_no_t;
@@ -276,12 +244,10 @@ typedef u32 vtss_phys_port_no_t;
  * The same set of flags are used in calls to VTSS_OS_FREE().
  */
 typedef enum {
-    VTSS_MEM_FLAGS_NONE = 0x0, /**< Allocate normally according to runtime model
-                                  (User or Kernel space). */
-    VTSS_MEM_FLAGS_DMA =
-        0x1, /**< Allocate memory that can be used with a DMA. */
-    VTSS_MEM_FLAGS_PERSIST =
-        0x2, /**< Allocate memory that will survive a warm restart. */
+    VTSS_MEM_FLAGS_NONE = 0x0,    /**< Allocate normally according to runtime model
+                                     (User or Kernel space). */
+    VTSS_MEM_FLAGS_DMA = 0x1,     /**< Allocate memory that can be used with a DMA. */
+    VTSS_MEM_FLAGS_PERSIST = 0x2, /**< Allocate memory that will survive a warm restart. */
 } vtss_mem_flags_t;
 
 #define VTSS_PORT_COUNT 1 /**< Default number of ports */
@@ -300,7 +266,7 @@ typedef enum {
 #endif                    /* VTSS_PORT_COUNT < 9 */
 #endif                    /* 7513 */
 
-#if defined(VTSS_CHIP_SPARX_III_10) || defined(VTSS_CHIP_SPARX_III_10_UM) ||   \
+#if defined(VTSS_CHIP_SPARX_III_10) || defined(VTSS_CHIP_SPARX_III_10_UM) ||                       \
     defined(VTSS_CHIP_SPARX_III_10_01)
 #if (VTSS_PORT_COUNT < 10)
 #undef VTSS_PORT_COUNT
@@ -315,9 +281,8 @@ typedef enum {
 #endif                    /* VTSS_PORT_COUNT < 4 */
 #endif                    /* 7511 */
 
-#if defined(VTSS_CHIP_CARACAL_1) || defined(VTSS_CHIP_SERVAL) ||               \
-    defined(VTSS_CHIP_SPARX_III_11) || defined(VTSS_CHIP_7512) ||              \
-    defined(VTSS_CHIP_7514)
+#if defined(VTSS_CHIP_CARACAL_1) || defined(VTSS_CHIP_SERVAL) ||                                   \
+    defined(VTSS_CHIP_SPARX_III_11) || defined(VTSS_CHIP_7512) || defined(VTSS_CHIP_7514)
 #if (VTSS_PORT_COUNT < 11)
 #undef VTSS_PORT_COUNT
 #define VTSS_PORT_COUNT 11 /**< Number of ports */
@@ -375,17 +340,17 @@ typedef enum {
 #endif                     /* VTSS_PORT_COUNT < 27 */
 #endif                     /* VTSS_CHIP_LYNX_2/SPARX_IV_44 */
 
-#if defined(VTSS_CHIP_JAGUAR_2) || defined(VTSS_CHIP_SPARX_IV_52) ||           \
+#if defined(VTSS_CHIP_JAGUAR_2) || defined(VTSS_CHIP_SPARX_IV_52) ||                               \
     defined(VTSS_CHIP_SPARX_IV_80) || defined(VTSS_CHIP_SPARX_IV_90)
 /* 48x1G + 4x1G + NPI */
 #if (VTSS_PORT_COUNT < 53)
 #undef VTSS_PORT_COUNT
 #define VTSS_PORT_COUNT 53 /**< Number of ports */
 #endif                     /* VTSS_PORT_COUNT < 53 */
-#endif /* VTSS_CHIP_JAGUAR_2/SPARX_IV_52/SPARX_IV_80/SPARX_IV_90 */
+#endif                     /* VTSS_CHIP_JAGUAR_2/SPARX_IV_52/SPARX_IV_80/SPARX_IV_90 */
 
-#if defined(VTSS_CHIP_SERVAL_T) || defined(VTSS_CHIP_SERVAL_TP) ||             \
-    defined(VTSS_CHIP_SERVAL_TE) || defined(VTSS_CHIP_SERVAL_TEP)
+#if defined(VTSS_CHIP_SERVAL_T) || defined(VTSS_CHIP_SERVAL_TP) || defined(VTSS_CHIP_SERVAL_TE) || \
+    defined(VTSS_CHIP_SERVAL_TEP)
 /* 4x1G + 2x2.5G + NPI */
 #if (VTSS_PORT_COUNT < 7)
 #undef VTSS_PORT_COUNT
@@ -438,8 +403,7 @@ typedef enum {
 #endif
 
 /* Number of ports may optionally be less than number of chip ports */
-#if VTSS_OPT_PORT_COUNT &&                                                     \
-    ((VTSS_PORT_COUNT == 1) || (VTSS_OPT_PORT_COUNT < VTSS_PORT_COUNT))
+#if VTSS_OPT_PORT_COUNT && ((VTSS_PORT_COUNT == 1) || (VTSS_OPT_PORT_COUNT < VTSS_PORT_COUNT))
 #define VTSS_PORTS VTSS_OPT_PORT_COUNT /**< Number of ports */
 #else
 #define VTSS_PORTS VTSS_PORT_COUNT /**< Number of ports */
@@ -447,14 +411,12 @@ typedef enum {
 
 /* The first logical port number is 0. */
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_PORT_NO_NONE (0xffffffffu) /**< Port number none */
-#define VTSS_PORT_NO_CPU                                                       \
-    (0xfffffffeu)               /**< Port number for CPU for special purposes */
-#define VTSS_PORT_NO_START (0u) /**< Port start number */
-#endif                          // _VTSS_MAIN_TYPES_H_
-#define VTSS_PORT_NO_END                                                       \
-    (VTSS_PORT_NO_START + VTSS_PORTS)         /**< Port end number */
-#define VTSS_PORT_ARRAY_SIZE VTSS_PORT_NO_END /**< Port number array size */
+#define VTSS_PORT_NO_NONE  (0xffffffffu) /**< Port number none */
+#define VTSS_PORT_NO_CPU   (0xfffffffeu) /**< Port number for CPU for special purposes */
+#define VTSS_PORT_NO_START (0u)          /**< Port start number */
+#endif                                   // _VTSS_MAIN_TYPES_H_
+#define VTSS_PORT_NO_END     (VTSS_PORT_NO_START + VTSS_PORTS) /**< Port end number */
+#define VTSS_PORT_ARRAY_SIZE VTSS_PORT_NO_END                  /**< Port number array size */
 
 #define VTSS_PORT_IS_PORT(x) ((x) < VTSS_PORT_NO_END) /**< Valid port number */
 
@@ -466,33 +428,33 @@ typedef enum {
     VTSS_PORT_INTERFACE_MII,           /**< MII (RMII does not exist) */
     VTSS_PORT_INTERFACE_GMII,          /**< GMII */
     VTSS_PORT_INTERFACE_RGMII,         /**< RGMII with no internal delay */
-    VTSS_PORT_INTERFACE_RGMII_ID,    /**< RGMII with 2ns internal RX+TX delay */
-    VTSS_PORT_INTERFACE_RGMII_RXID,  /**< RGMII with 2ns internal RX delay */
-    VTSS_PORT_INTERFACE_RGMII_TXID,  /**< RGMII with 2ns internal TX delay */
-    VTSS_PORT_INTERFACE_TBI,         /**< TBI */
-    VTSS_PORT_INTERFACE_RTBI,        /**< RTBI */
-    VTSS_PORT_INTERFACE_SGMII,       /**< SGMII */
-    VTSS_PORT_INTERFACE_SGMII_2G5,   /**< SGMII, 2G5 */
-    VTSS_PORT_INTERFACE_SGMII_CISCO, /**< SGMII using Cisco aneg  */
-    VTSS_PORT_INTERFACE_SERDES,      /**< SERDES 1G,2G5. 8B/10B PCS */
-    VTSS_PORT_INTERFACE_VAUI,        /**< VAUI 2G5 */
-    VTSS_PORT_INTERFACE_100FX,       /**< 100FX */
-    VTSS_PORT_INTERFACE_XAUI,        /**< XAUI */
-    VTSS_PORT_INTERFACE_RXAUI,       /**< RXAUI */
-    VTSS_PORT_INTERFACE_XGMII,       /**< XGMII */
-    VTSS_PORT_INTERFACE_SPI4,        /**< SPI4 */
-    VTSS_PORT_INTERFACE_QSGMII,      /**< QSGMII */
-    VTSS_PORT_INTERFACE_SFI,         /**< SFI/LAN, 5G-25G, 64B/66B PCS */
-    VTSS_PORT_INTERFACE_USXGMII, /**< 1x10G.  Uses primary device. 64B/66B PCS.
-                                    Laguna only  */
-    VTSS_PORT_INTERFACE_USGMII,  /**< 8x2G5 devices. Mode 'X'. Uses 2G5 device.
-                                    Experimental unsupported mode!  */
-    VTSS_PORT_INTERFACE_QXGMII, /**< 4x2G5 devices. Mode 'R'. Uses 2G5 device. */
-    VTSS_PORT_INTERFACE_DXGMII_5G,  /**< 2x2G5 devices. Mode 'F'. Uses 2G5
-                                       device. Experimental unsupported mode!  */
-    VTSS_PORT_INTERFACE_DXGMII_10G, /**< 2x5G devices.  Mode 'U'. Uses primary
-                                       device. Experimental unsupported mode! */
-    VTSS_PORT_INTERFACE_CPU, /**< Exposed CPU port. Not connected to switch */
+    VTSS_PORT_INTERFACE_RGMII_ID,      /**< RGMII with 2ns internal RX+TX delay */
+    VTSS_PORT_INTERFACE_RGMII_RXID,    /**< RGMII with 2ns internal RX delay */
+    VTSS_PORT_INTERFACE_RGMII_TXID,    /**< RGMII with 2ns internal TX delay */
+    VTSS_PORT_INTERFACE_TBI,           /**< TBI */
+    VTSS_PORT_INTERFACE_RTBI,          /**< RTBI */
+    VTSS_PORT_INTERFACE_SGMII,         /**< SGMII */
+    VTSS_PORT_INTERFACE_SGMII_2G5,     /**< SGMII, 2G5 */
+    VTSS_PORT_INTERFACE_SGMII_CISCO,   /**< SGMII using Cisco aneg  */
+    VTSS_PORT_INTERFACE_SERDES,        /**< SERDES 1G,2G5. 8B/10B PCS */
+    VTSS_PORT_INTERFACE_VAUI,          /**< VAUI 2G5 */
+    VTSS_PORT_INTERFACE_100FX,         /**< 100FX */
+    VTSS_PORT_INTERFACE_XAUI,          /**< XAUI */
+    VTSS_PORT_INTERFACE_RXAUI,         /**< RXAUI */
+    VTSS_PORT_INTERFACE_XGMII,         /**< XGMII */
+    VTSS_PORT_INTERFACE_SPI4,          /**< SPI4 */
+    VTSS_PORT_INTERFACE_QSGMII,        /**< QSGMII */
+    VTSS_PORT_INTERFACE_SFI,           /**< SFI/LAN, 5G-25G, 64B/66B PCS */
+    VTSS_PORT_INTERFACE_USXGMII,       /**< 1x10G.  Uses primary device. 64B/66B PCS.
+                                          Laguna only  */
+    VTSS_PORT_INTERFACE_USGMII,        /**< 8x2G5 devices. Mode 'X'. Uses 2G5 device.
+                                          Experimental unsupported mode!  */
+    VTSS_PORT_INTERFACE_QXGMII,        /**< 4x2G5 devices. Mode 'R'. Uses 2G5 device. */
+    VTSS_PORT_INTERFACE_DXGMII_5G,     /**< 2x2G5 devices. Mode 'F'. Uses 2G5
+                                          device. Experimental unsupported mode!  */
+    VTSS_PORT_INTERFACE_DXGMII_10G,    /**< 2x5G devices.  Mode 'U'. Uses primary
+                                          device. Experimental unsupported mode! */
+    VTSS_PORT_INTERFACE_CPU,           /**< Exposed CPU port. Not connected to switch */
 } vtss_port_interface_t;
 
 /** \brief Auto negotiation struct */
@@ -522,14 +484,14 @@ typedef enum {
     VTSS_SERDES_MODE_SFI_B2B,     /**< Bord to Board > */
     VTSS_SERDES_MODE_SFI_KR,      /**< 10G KR        > */
     VTSS_SERDES_MODE_SFI_PR_NONE, /**< No preset > */
-    VTSS_SERDES_MODE_IDLE,      /**< Send idles (port appears as down for LP) */
-    VTSS_SERDES_MODE_TEST_MODE, /**< Send fixed test pattern (port appears as up
-                                   for LP, but no frame rx/tx) */
-    VTSS_SERDES_MODE_USXGMII,   /**< 1 x USXGMII in 5G/10G mode */
-    VTSS_SERDES_MODE_USGMII,    /**< 8 x USGMII in 1G mode */
-    VTSS_SERDES_MODE_QXGMII,    /**< 4 x QXGMII in 2G5 mode.     Mode 'R'  */
-    VTSS_SERDES_MODE_DXGMII_10G, /**< 2 x DXGMII_10G in 5G mode.  Mode 'U'  */
-    VTSS_SERDES_MODE_DXGMII_5G   /**< 2 x DXGMII_5G in 2G5 mode.  Mode 'F'  */
+    VTSS_SERDES_MODE_IDLE,        /**< Send idles (port appears as down for LP) */
+    VTSS_SERDES_MODE_TEST_MODE,   /**< Send fixed test pattern (port appears as up
+                                     for LP, but no frame rx/tx) */
+    VTSS_SERDES_MODE_USXGMII,     /**< 1 x USXGMII in 5G/10G mode */
+    VTSS_SERDES_MODE_USGMII,      /**< 8 x USGMII in 1G mode */
+    VTSS_SERDES_MODE_QXGMII,      /**< 4 x QXGMII in 2G5 mode.     Mode 'R'  */
+    VTSS_SERDES_MODE_DXGMII_10G,  /**< 2 x DXGMII_10G in 5G mode.  Mode 'U'  */
+    VTSS_SERDES_MODE_DXGMII_5G    /**< 2 x DXGMII_5G in 2G5 mode.  Mode 'F'  */
 
 } vtss_serdes_mode_t;
 
@@ -558,25 +520,25 @@ typedef u32 vtss_prio_t;
 #define VTSS_PRIO_NO_NONE    0xffffffff /**< Priority number none (= undefined) */
 #define VTSS_PRIO_START      0          /**< Priority start number (lowest) */
 #define VTSS_PRIO_END        (VTSS_PRIO_START + VTSS_PRIOS) /**< Priority end number */
-#define VTSS_PRIO_ARRAY_SIZE VTSS_PRIO_END /**< Priority number array size */
-#endif                                     // _VTSS_MAIN_TYPES_H_
+#define VTSS_PRIO_ARRAY_SIZE VTSS_PRIO_END                  /**< Priority number array size */
+#endif                                                      // _VTSS_MAIN_TYPES_H_
 
 /** \brief Queue number */
 typedef u32 vtss_queue_t;
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_QUEUES           VTSS_PRIOS /**< Number of queues */
-#define VTSS_QUEUE_START      0          /**< Queue start number */
+#define VTSS_QUEUES           VTSS_PRIOS                       /**< Number of queues */
+#define VTSS_QUEUE_START      0                                /**< Queue start number */
 #define VTSS_QUEUE_END        (VTSS_QUEUE_START + VTSS_QUEUES) /**< Queue end number */
-#define VTSS_QUEUE_ARRAY_SIZE VTSS_QUEUE_END /**< Queue number array size */
-#endif                                       // _VTSS_MAIN_TYPES_H_
+#define VTSS_QUEUE_ARRAY_SIZE VTSS_QUEUE_END                   /**< Queue number array size */
+#endif                                                         // _VTSS_MAIN_TYPES_H_
 
 /** \brief Tag Priority or Priority Code Point (PCP) */
 typedef u32 vtss_tagprio_t;
 /** \brief Priority Code Point (PCP) */
 typedef u8 vtss_pcp_t;
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_PCPS           8 /**< Number of PCP values */
-#define VTSS_PCP_START      0 /**< PCP start number */
+#define VTSS_PCPS           8                            /**< Number of PCP values */
+#define VTSS_PCP_START      0                            /**< PCP start number */
 #define VTSS_PCP_END        (VTSS_PCP_START + VTSS_PCPS) /**< PCP end number */
 #define VTSS_PCP_ARRAY_SIZE VTSS_PCP_END                 /**< PCP array size */
 #endif                                                   // _VTSS_MAIN_TYPES_H_
@@ -584,8 +546,8 @@ typedef u8 vtss_pcp_t;
 /** \brief Drop Eligible Indicator (DEI) */
 typedef BOOL vtss_dei_t;
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_DEIS           2 /**< Number of DEI values */
-#define VTSS_DEI_START      0 /**< DEI start number */
+#define VTSS_DEIS           2                            /**< Number of DEI values */
+#define VTSS_DEI_START      0                            /**< DEI start number */
 #define VTSS_DEI_END        (VTSS_DEI_START + VTSS_DEIS) /**< DEI end number */
 #define VTSS_DEI_ARRAY_SIZE VTSS_DEI_END                 /**< DEI array size */
 #endif                                                   // _VTSS_MAIN_TYPES_H_
@@ -599,9 +561,9 @@ typedef vtss_dp_level_t vtss_dpl_t;
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #undef VTSS_DPLS
 #define VTSS_DPLS 4 /**< Number of drop precedence levels */
-#endif /* defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
+#endif              /* defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
 
-#define VTSS_DPL_START      0 /**< DPL start number */
+#define VTSS_DPL_START      0                            /**< DPL start number */
 #define VTSS_DPL_END        (VTSS_DPL_START + VTSS_DPLS) /**< DPL end number */
 #define VTSS_DPL_ARRAY_SIZE VTSS_DPL_END                 /**< DPL array size */
 
@@ -630,9 +592,9 @@ typedef u32 vtss_burst_level_t;
 typedef enum {
     VTSS_STORM_POLICER_MODE_PORTS_AND_CPU, /**< Police both CPU and front port
                                               destinations */
-    VTSS_STORM_POLICER_MODE_PORTS_ONLY, /**< Police front port destinations only
-                                         */
-    VTSS_STORM_POLICER_MODE_CPU_ONLY    /**< Police CPU destination only */
+    VTSS_STORM_POLICER_MODE_PORTS_ONLY,    /**< Police front port destinations only
+                                            */
+    VTSS_STORM_POLICER_MODE_CPU_ONLY       /**< Police CPU destination only */
 } vtss_storm_policer_mode_t;
 
 /** \brief DSCP value (0-63) */
@@ -654,9 +616,8 @@ typedef u16 vtss_evc_policer_id_t;
 typedef u32 vtss_wred_group_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_QOS_MAP_ID_NONE                                                   \
-    0xfff /**< ID for unallocated/unused ingress or egress map */
-#endif    // _VTSS_MAIN_TYPES_H_
+#define VTSS_QOS_MAP_ID_NONE 0xfff /**< ID for unallocated/unused ingress or egress map */
+#endif                             // _VTSS_MAIN_TYPES_H_
 
 /** \brief Ingress map ID */
 typedef u16 vtss_qos_ingress_map_id_t;
@@ -670,11 +631,9 @@ typedef u16 vtss_qos_ingress_map_id_t;
 #endif
 
 #define VTSS_QOS_INGRESS_MAP_ID_START 0 /**< ID start number */
-#define VTSS_QOS_INGRESS_MAP_ID_END                                            \
-    (VTSS_QOS_INGRESS_MAP_ID_START +                                           \
-     VTSS_QOS_INGRESS_MAP_IDS) /**< ID end number */
-#define VTSS_QOS_INGRESS_MAP_ID_NONE                                           \
-    VTSS_QOS_MAP_ID_NONE /**< ID for unallocated/unused */
+#define VTSS_QOS_INGRESS_MAP_ID_END                                                                \
+    (VTSS_QOS_INGRESS_MAP_ID_START + VTSS_QOS_INGRESS_MAP_IDS) /**< ID end number */
+#define VTSS_QOS_INGRESS_MAP_ID_NONE VTSS_QOS_MAP_ID_NONE      /**< ID for unallocated/unused */
 
 /** \brief Egress map ID */
 typedef u16 vtss_qos_egress_map_id_t;
@@ -688,31 +647,26 @@ typedef u16 vtss_qos_egress_map_id_t;
 #endif
 
 #define VTSS_QOS_EGRESS_MAP_ID_START 0 /**< ID start number */
-#define VTSS_QOS_EGRESS_MAP_ID_END                                             \
-    (VTSS_QOS_EGRESS_MAP_ID_START +                                            \
-     VTSS_QOS_EGRESS_MAP_IDS) /**< ID end number */
-#define VTSS_QOS_EGRESS_MAP_ID_NONE                                            \
-    VTSS_QOS_MAP_ID_NONE /**< ID for unallocated/unused */
+#define VTSS_QOS_EGRESS_MAP_ID_END                                                                 \
+    (VTSS_QOS_EGRESS_MAP_ID_START + VTSS_QOS_EGRESS_MAP_IDS) /**< ID end number */
+#define VTSS_QOS_EGRESS_MAP_ID_NONE VTSS_QOS_MAP_ID_NONE     /**< ID for unallocated/unused */
 
 // TBD_VK: Check the defined values when the FA datasheet is available
 #if defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
 #if VTSS_OPT_LIGHT
-#define VTSS_QOS_TAS_GCL_LEN_MAX                                               \
-    8 /**< Maximum supported length of TAS gate control list */
+#define VTSS_QOS_TAS_GCL_LEN_MAX 8 /**< Maximum supported length of TAS gate control list */
 #else
-#define VTSS_QOS_TAS_GCL_LEN_MAX                                               \
-    256 /**< Maximum supported length of TAS gate control list */
+#define VTSS_QOS_TAS_GCL_LEN_MAX 256 /**< Maximum supported length of TAS gate control list */
 #endif
-#define VTSS_QOS_TAS_CT_MIN                                                    \
-    256 /**< Minimum supported Gate CycleTime in nS. This is due to            \
+#define VTSS_QOS_TAS_CT_MIN                                                                        \
+    256 /**< Minimum supported Gate CycleTime in nS. This is due to                                \
            STARTUP_TIME register resolution */
-#define VTSS_QOS_TAS_CT_MAX                                                    \
-    (1000000000 - 1) /**< Maximum supported Gate CycleTime in nS. Must be less \
+#define VTSS_QOS_TAS_CT_MAX                                                                        \
+    (1000000000 - 1) /**< Maximum supported Gate CycleTime in nS. Must be less                     \
                         than one second */
-#define VTSS_QOS_TAS_MAX_SDU_MAX                                               \
-    (255 * 64)                      /**< Maximum supported MAX SDU size */
-#define VTSS_QOS_TAS_MAX_SDU_MIN 64 /**< Minimum supported MAX SDU size */
-#endif                              /* defined(VTSS_ARCH_SPARX5) */
+#define VTSS_QOS_TAS_MAX_SDU_MAX (255 * 64) /**< Maximum supported MAX SDU size */
+#define VTSS_QOS_TAS_MAX_SDU_MIN 64         /**< Minimum supported MAX SDU size */
+#endif                                      /* defined(VTSS_ARCH_SPARX5) */
 
 // Enable and boolean value
 typedef struct {
@@ -740,13 +694,12 @@ typedef struct {
 typedef u16 vtss_vid_t; /* 0-4095 */
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_VID_NULL     ((const vtss_vid_t)0)     /**< NULL VLAN ID */
-#define VTSS_VID_DEFAULT  ((const vtss_vid_t)1)     /**< Default VLAN ID */
-#define VTSS_VID_RESERVED ((const vtss_vid_t)0xFFF) /**< Reserved VLAN ID */
-#define VTSS_VIDS         ((const vtss_vid_t)4096)  /**< Number of VLAN IDs */
-#define VTSS_VID_ALL                                                           \
-    ((const vtss_vid_t)0x1000) /**< Untagged VID: All VLAN IDs */
-#endif                         // _VTSS_MAIN_TYPES_H_
+#define VTSS_VID_NULL     ((const vtss_vid_t)0)      /**< NULL VLAN ID */
+#define VTSS_VID_DEFAULT  ((const vtss_vid_t)1)      /**< Default VLAN ID */
+#define VTSS_VID_RESERVED ((const vtss_vid_t)0xFFF)  /**< Reserved VLAN ID */
+#define VTSS_VIDS         ((const vtss_vid_t)4096)   /**< Number of VLAN IDs */
+#define VTSS_VID_ALL      ((const vtss_vid_t)0x1000) /**< Untagged VID: All VLAN IDs */
+#endif                                               // _VTSS_MAIN_TYPES_H_
 
 /**
  * \brief VLAN acceptable frame type
@@ -778,12 +731,11 @@ typedef struct {
 } vtss_mac_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_MAC_ADDR_SZ_BYTES                                                 \
+#define VTSS_MAC_ADDR_SZ_BYTES                                                                     \
     6  /**< Number of bytes for representing MAC address (SMAC/DMAC) type */
 #endif // _VTSS_MAIN_TYPES_H_
 
-typedef u8
-    vtss_mac_addr_t[VTSS_MAC_ADDR_SZ_BYTES]; /**< MAC address (SMAC/DMAC) */
+typedef u8 vtss_mac_addr_t[VTSS_MAC_ADDR_SZ_BYTES]; /**< MAC address (SMAC/DMAC) */
 
 /** \brief MAC Address in specific VLAN */
 typedef struct {
@@ -791,8 +743,8 @@ typedef struct {
     vtss_mac_t mac; /**< MAC address */
 } vtss_vid_mac_t;
 
-#define MAC_ADDR_BROADCAST                                                     \
-    {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}                                       \
+#define MAC_ADDR_BROADCAST                                                                         \
+    {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}                                                           \
     /**< Broadcast address used for addr in the vtss_mac_t struct */
 
 #ifndef _VTSS_MAIN_TYPES_H_
@@ -810,32 +762,28 @@ typedef u16 vtss_iflow_id_t;
 typedef u32 vtss_aggr_no_t;
 #define VTSS_AGGRS (VTSS_PORTS / 2) /**< Number of LLAGs */
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_AGGR_NO_NONE  0xffffffff /**< Aggregation number none */
-#define VTSS_AGGR_NO_START 0          /**< Aggregation start number */
-#endif                                // _VTSS_MAIN_TYPES_H_
-#define VTSS_AGGR_NO_END                                                       \
-    (VTSS_AGGR_NO_START + VTSS_AGGRS) /**< Aggregation number end */
+#define VTSS_AGGR_NO_NONE  0xffffffff                      /**< Aggregation number none */
+#define VTSS_AGGR_NO_START 0                               /**< Aggregation start number */
+#endif                                                     // _VTSS_MAIN_TYPES_H_
+#define VTSS_AGGR_NO_END (VTSS_AGGR_NO_START + VTSS_AGGRS) /**< Aggregation number end */
 
 /** \brief Description: GLAG number */
 typedef u32 vtss_glag_no_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_GLAGS         32         /**< Number of GLAGs */
-#define VTSS_GLAG_NO_NONE  0xffffffff /**< GLAG number none */
-#define VTSS_GLAG_NO_START 0          /**< GLAG start number */
-#define VTSS_GLAG_NO_END                                                       \
-    (VTSS_GLAG_NO_START + VTSS_GLAGS) /**< GLAG end number */
-#endif                                // _VTSS_MAIN_TYPES_H_
+#define VTSS_GLAGS         32                                /**< Number of GLAGs */
+#define VTSS_GLAG_NO_NONE  0xffffffff                        /**< GLAG number none */
+#define VTSS_GLAG_NO_START 0                                 /**< GLAG start number */
+#define VTSS_GLAG_NO_END   (VTSS_GLAG_NO_START + VTSS_GLAGS) /**< GLAG end number */
+#endif                                                       // _VTSS_MAIN_TYPES_H_
 
 /* Maximum 8 ports per GLAG */
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_GLAG_PORTS      8 /**< Number of GLAG ports */
-#define VTSS_GLAG_PORT_START 0 /**< GLAG port start number */
-#define VTSS_GLAG_PORT_END                                                     \
-    (VTSS_GLAG_PORT_START + VTSS_GLAG_PORTS) /**< GLAG port end number */
-#define VTSS_GLAG_PORT_ARRAY_SIZE                                              \
-    VTSS_GLAG_PORT_END /**< GLAG port array size */
-#endif                 // _VTSS_MAIN_TYPES_H_
+#define VTSS_GLAG_PORTS           8 /**< Number of GLAG ports */
+#define VTSS_GLAG_PORT_START      0 /**< GLAG port start number */
+#define VTSS_GLAG_PORT_END        (VTSS_GLAG_PORT_START + VTSS_GLAG_PORTS) /**< GLAG port end number */
+#define VTSS_GLAG_PORT_ARRAY_SIZE VTSS_GLAG_PORT_END /**< GLAG port array size */
+#endif                                               // _VTSS_MAIN_TYPES_H_
 
 /****************************************************************************
  * CPU queue types
@@ -858,8 +806,7 @@ typedef u32 vtss_packet_tx_grp_t;
 #undef VTSS_PACKET_RX_QUEUE_CNT
 #define VTSS_PACKET_RX_QUEUE_CNT 8 /**< Number of Rx packet queues */
 #undef VTSS_PACKET_RX_GRP_CNT
-#define VTSS_PACKET_RX_GRP_CNT                                                 \
-    2 /**< Number of Rx packet groups to which any queue can map */
+#define VTSS_PACKET_RX_GRP_CNT 2 /**< Number of Rx packet groups to which any queue can map */
 #undef VTSS_PACKET_TX_GRP_CNT
 #define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
 #endif                           /* VTSS_ARCH_LUTON26/SERVAL */
@@ -868,8 +815,7 @@ typedef u32 vtss_packet_tx_grp_t;
 #undef VTSS_PACKET_RX_QUEUE_CNT
 #define VTSS_PACKET_RX_QUEUE_CNT 8 /**< Number of Rx packet queues */
 #undef VTSS_PACKET_RX_GRP_CNT
-#define VTSS_PACKET_RX_GRP_CNT                                                 \
-    2 /**< Number of Rx packet groups to which any queue can map */
+#define VTSS_PACKET_RX_GRP_CNT 2 /**< Number of Rx packet groups to which any queue can map */
 #undef VTSS_PACKET_TX_GRP_CNT
 #define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
 #endif                           /* VTSS_ARCH_JAGUAR_2 */
@@ -878,8 +824,7 @@ typedef u32 vtss_packet_tx_grp_t;
 #undef VTSS_PACKET_RX_QUEUE_CNT
 #define VTSS_PACKET_RX_QUEUE_CNT 8 /**< Number of Rx packet queues */
 #undef VTSS_PACKET_RX_GRP_CNT
-#define VTSS_PACKET_RX_GRP_CNT                                                 \
-    2 /**< Number of Rx packet groups to which any queue can map */
+#define VTSS_PACKET_RX_GRP_CNT 2 /**< Number of Rx packet groups to which any queue can map */
 #undef VTSS_PACKET_TX_GRP_CNT
 #define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
 #endif                           /* VTSS_ARCH_FA */
@@ -888,19 +833,17 @@ typedef u32 vtss_packet_tx_grp_t;
 #undef VTSS_PACKET_RX_QUEUE_CNT
 #define VTSS_PACKET_RX_QUEUE_CNT 8 /**< Number of Rx packet queues */
 #undef VTSS_PACKET_RX_GRP_CNT
-#define VTSS_PACKET_RX_GRP_CNT                                                 \
-    2 /**< Number of Rx packet groups to which any queue can map */
+#define VTSS_PACKET_RX_GRP_CNT 2 /**< Number of Rx packet groups to which any queue can map */
 #undef VTSS_PACKET_TX_GRP_CNT
 #define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
 #endif                           /* VTSS_ARCH_LAN966X */
 
-#define VTSS_PACKET_RX_QUEUE_NONE                                              \
-    (0xffffffff) /**< Rx queue not selected for a particular type of frames */
+#define VTSS_PACKET_RX_QUEUE_NONE                                                                  \
+    (0xffffffff)                       /**< Rx queue not selected for a particular type of frames */
 #define VTSS_PACKET_RX_QUEUE_START (0) /**< Rx queue start number */
-#define VTSS_PACKET_RX_QUEUE_END                                               \
-    (VTSS_PACKET_RX_QUEUE_START +                                              \
-     VTSS_PACKET_RX_QUEUE_CNT) /**< Rx queue end number */
-#endif                         // _VTSS_MAIN_TYPES_H_
+#define VTSS_PACKET_RX_QUEUE_END                                                                   \
+    (VTSS_PACKET_RX_QUEUE_START + VTSS_PACKET_RX_QUEUE_CNT) /**< Rx queue end number */
+#endif                                                      // _VTSS_MAIN_TYPES_H_
 
 /** \brief COSID number */
 typedef u8 vtss_cosid_t;
@@ -930,21 +873,16 @@ typedef struct {
 /** \brief Packet registration per port */
 typedef struct {
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
-    vtss_packet_reg_type_t
-        ipmc_ctrl_reg; /**< IP MC Control, NORMAL/FORWARD/CPU_COPY supported */
-    vtss_packet_reg_type_t
-        igmp_reg; /**< IGMP, NORMAL/FORWARD/CPU_ONLY supported */
-    vtss_packet_reg_type_t
-        mld_reg; /**< MLD, NORMAL/FORWARD/CPU_ONLY supported */
+    vtss_packet_reg_type_t ipmc_ctrl_reg; /**< IP MC Control, NORMAL/FORWARD/CPU_COPY supported */
+    vtss_packet_reg_type_t igmp_reg;      /**< IGMP, NORMAL/FORWARD/CPU_ONLY supported */
+    vtss_packet_reg_type_t mld_reg;       /**< MLD, NORMAL/FORWARD/CPU_ONLY supported */
 #endif
     vtss_packet_reg_type_t bpdu_reg[16]; /**< BPDU range: 01-80-C2-00-00-0X */
     vtss_packet_reg_type_t garp_reg[16]; /**< GARP range: 01-80-C2-00-00-2X */
 #if defined(VTSS_FEATURE_PACKET_PORT_L2CP_REG)
-    vtss_packet_rx_port_l2cp_conf_t
-        bpdu[16]; /**< BPDU range: 01-80-C2-00-00-0X */
-    vtss_packet_rx_port_l2cp_conf_t
-        garp[16]; /**< GARP range: 01-80-C2-00-00-2X */
-#endif            /* VTSS_FEATURE_PACKET_PORT_L2CP_REG */
+    vtss_packet_rx_port_l2cp_conf_t bpdu[16]; /**< BPDU range: 01-80-C2-00-00-0X */
+    vtss_packet_rx_port_l2cp_conf_t garp[16]; /**< GARP range: 01-80-C2-00-00-2X */
+#endif                                        /* VTSS_FEATURE_PACKET_PORT_L2CP_REG */
 } vtss_packet_rx_port_conf_t;
 
 /** \brief VDD power supply */
@@ -1215,12 +1153,12 @@ typedef struct {
         struct {
             vtss_vcap_vr_value_t value; /**< Value */
             vtss_vcap_vr_value_t mask;  /**< Mask, cleared bits are wildcards */
-        } v; /**< type == VTSS_VCAP_VR_TYPE_VALUE_MASK */
+        } v;                            /**< type == VTSS_VCAP_VR_TYPE_VALUE_MASK */
         struct {
             vtss_vcap_vr_value_t low;  /**< Low value */
             vtss_vcap_vr_value_t high; /**< High value */
-        } r; /**< type == VTSS_VCAP_VR_TYPE_RANGE_XXXXXX */
-    } vr;    /**< Value or range */
+        } r;                           /**< type == VTSS_VCAP_VR_TYPE_RANGE_XXXXXX */
+    } vr;                              /**< Value or range */
 } vtss_vcap_vr_t;
 
 /** \brief VCAP key type */
@@ -1242,29 +1180,26 @@ typedef u32 vtss_acl_policer_no_t;
 #define VTSS_ACL_POLICERS 16 /**< Number of ACL policers */
 #endif
 #define VTSS_ACL_POLICER_NO_START 0 /**< ACL policer start number */
-#define VTSS_ACL_POLICER_NO_END                                                \
-    (VTSS_ACL_POLICER_NO_START +                                               \
-     VTSS_ACL_POLICERS) /**< ACL policer end number */
+#define VTSS_ACL_POLICER_NO_END                                                                    \
+    (VTSS_ACL_POLICER_NO_START + VTSS_ACL_POLICERS) /**< ACL policer end number */
 
 /** \brief ACL policy number */
 typedef u32 vtss_acl_policy_no_t;
 #define VTSS_ACL_POLICY_NO_NONE 0xffffffff /**< ACLs disabled on port */
 #define VTSS_ACL_POLICY_NO_MIN  0          /**< ACLs policy minimum number */
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SPARX5) ||                 \
-    defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||       \
+    defined(VTSS_ARCH_LAN969X)
 #define VTSS_ACL_POLICY_NO_MAX 255 /**< ACLs policy maximum number */
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_ACL_POLICY_NO_MAX 127 /**< ACLs policy maximum number */
 #elif defined(VTSS_ARCH_OCELOT)
 #define VTSS_ACL_POLICY_NO_MAX 63 /**< ACLs policy maximum number */
 #else
-#define VTSS_ACL_POLICY_NO_MAX 7 /**< ACLs policy maximum number */
-#endif                           /* VTSS_ARCH_LUTON26/JAGUAR_2 */
-#define VTSS_ACL_POLICIES                                                      \
-    (VTSS_ACL_POLICY_NO_MAX + 1) /**< Number of ACL policies */
-#define VTSS_ACL_POLICY_NO_START                                               \
-    VTSS_ACL_POLICY_NO_MIN /**< ACL policy start number */
-#define VTSS_ACL_POLICY_NO_END                                                 \
+#define VTSS_ACL_POLICY_NO_MAX 7                              /**< ACLs policy maximum number */
+#endif                                                        /* VTSS_ARCH_LUTON26/JAGUAR_2 */
+#define VTSS_ACL_POLICIES        (VTSS_ACL_POLICY_NO_MAX + 1) /**< Number of ACL policies */
+#define VTSS_ACL_POLICY_NO_START VTSS_ACL_POLICY_NO_MIN       /**< ACL policy start number */
+#define VTSS_ACL_POLICY_NO_END                                                                     \
     (VTSS_ACL_POLICY_NO_START + VTSS_ACL_POLICIES) /**< ACL policy end number */
 
 /** \brief Counter */
@@ -1315,25 +1250,20 @@ typedef i64 vtss_timeinterval_t;
 #endif                                             // _VTSS_MAIN_TYPES_H_
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_INTERVAL_SEC(t)                                                   \
+#define VTSS_INTERVAL_SEC(t)                                                                       \
     ((i32)VTSS_DIV64((t) >> 16, VTSS_ONE_MIA)) /**< One Second time interval */
-#define VTSS_INTERVAL_MS(t)                                                    \
-    ((i32)VTSS_DIV64((t) >> 16,                                                \
-                     VTSS_ONE_MILL)) /**< One millisecond time interval */
-#define VTSS_INTERVAL_US(t)                                                    \
-    ((i32)VTSS_DIV64((t) >> 16, 1000)) /**< One microsecond time interval */
-#define VTSS_INTERVAL_NS(t)                                                    \
-    ((i32)VTSS_MOD64((t) >> 16,                                                \
-                     VTSS_ONE_MIA)) /**< This returns the ns part of the       \
-                                       interval, not the total number of ns */
-#define VTSS_INTERVAL_PS(t)                                                    \
-    (((((i32)(t & 0xffff)) * 1000) + 0x8000) /                                 \
-     0x10000) /**< This returns the ps part of the interval, not the total     \
-                 number of ps */
-#define VTSS_SEC_NS_INTERVAL(s, n)                                             \
-    (((vtss_timeinterval_t)(n) + (vtss_timeinterval_t)(s) * VTSS_ONE_MIA)      \
-     << 16) /**< TBD */
-#endif      // _VTSS_MAIN_TYPES_H_
+#define VTSS_INTERVAL_MS(t)                                                                        \
+    ((i32)VTSS_DIV64((t) >> 16, VTSS_ONE_MILL))                /**< One millisecond time interval */
+#define VTSS_INTERVAL_US(t) ((i32)VTSS_DIV64((t) >> 16, 1000)) /**< One microsecond time interval */
+#define VTSS_INTERVAL_NS(t)                                                                        \
+    ((i32)VTSS_MOD64((t) >> 16, VTSS_ONE_MIA)) /**< This returns the ns part of the                \
+                                                  interval, not the total number of ns */
+#define VTSS_INTERVAL_PS(t)                                                                        \
+    (((((i32)(t & 0xffff)) * 1000) + 0x8000) / 0x10000) /**< This returns the ps part of the       \
+                                                           interval, not the total number of ps */
+#define VTSS_SEC_NS_INTERVAL(s, n)                                                                 \
+    (((vtss_timeinterval_t)(n) + (vtss_timeinterval_t)(s) * VTSS_ONE_MIA) << 16) /**< TBD */
+#endif // _VTSS_MAIN_TYPES_H_
 
 /**
  * \brief Time stamp in seconds and nanoseconds
@@ -1379,11 +1309,9 @@ typedef u8 vtss_clock_identity[VTSS_CLOCK_IDENTITY_LENGTH];
  ****************************************************************************/
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-#define VTSS_SYNCE_CLK_PORT_ARRAY_SIZE                                         \
-    4 /**< SYNCE clock out port numberarray size */
+#define VTSS_SYNCE_CLK_PORT_ARRAY_SIZE 4 /**< SYNCE clock out port numberarray size */
 #else
-#define VTSS_SYNCE_CLK_PORT_ARRAY_SIZE                                         \
-    2 /**< SYNCE clock out port numberarray size */
+#define VTSS_SYNCE_CLK_PORT_ARRAY_SIZE 2 /**< SYNCE clock out port numberarray size */
 #endif
 
 /****************************************************************************

@@ -42,9 +42,7 @@ typedef enum {
 
 typedef struct {
     void (*board_init)(meba_inst_t inst);
-    void (*init_port)(meba_inst_t        inst,
-                      mesa_port_no_t     port_no,
-                      meba_port_entry_t *entry);
+    void (*init_port)(meba_inst_t inst, mesa_port_no_t port_no, meba_port_entry_t *entry);
 } board_func_t;
 
 typedef struct meba_board_state {

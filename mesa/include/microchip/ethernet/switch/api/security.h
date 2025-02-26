@@ -35,9 +35,9 @@ mesa_rc mesa_auth_port_state_set(const mesa_inst_t       inst,
 
 // ACL policer configuration
 typedef struct {
-    mesa_bool_t bit_rate_enable; // Use bit rate policing instead of packet rate
-    mesa_bitrate_t     bit_rate; // Bit rate
-    mesa_packet_rate_t rate;     // Packet rate
+    mesa_bool_t        bit_rate_enable; // Use bit rate policing instead of packet rate
+    mesa_bitrate_t     bit_rate;        // Bit rate
+    mesa_packet_rate_t rate;            // Packet rate
 } mesa_acl_policer_conf_t;
 
 // Get ACL policer configuration.
@@ -50,8 +50,8 @@ mesa_rc mesa_acl_policer_conf_get(const mesa_inst_t              inst,
 // Set ACL policer configuration.
 // policer_no [IN]  ACL policer number.
 // conf [IN]        ACL policer configuration.
-mesa_rc mesa_acl_policer_conf_set(const mesa_inst_t           inst,
-                                  const mesa_acl_policer_no_t policer_no,
+mesa_rc mesa_acl_policer_conf_set(const mesa_inst_t                    inst,
+                                  const mesa_acl_policer_no_t          policer_no,
                                   const mesa_acl_policer_conf_t *const conf);
 
 // ACL port action
@@ -63,11 +63,10 @@ typedef enum {
 
 // ACL PTP action
 typedef enum {
-    MESA_ACL_PTP_ACTION_NONE,     // No PTP action
-    MESA_ACL_PTP_ACTION_ONE_STEP, // PTP one-step time-stamping
-    MESA_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY
-        CAP(ACL_PTP_DELAY), // PTP one-step time-stamping, Serval: add delay,
-                            // Jr2: Add EDLY
+    MESA_ACL_PTP_ACTION_NONE,                                  // No PTP action
+    MESA_ACL_PTP_ACTION_ONE_STEP,                              // PTP one-step time-stamping
+    MESA_ACL_PTP_ACTION_ONE_STEP_ADD_DELAY CAP(ACL_PTP_DELAY), // PTP one-step time-stamping,
+                                                               // Serval: add delay, Jr2: Add EDLY
     MESA_ACL_PTP_ACTION_ONE_STEP_SUB_DELAY_1
         CAP(ACL_PTP_DELAY), // PTP one-step time-stamping, Serval: subtract
                             // delay 1, Jr2: Add IDLY1
@@ -93,8 +92,7 @@ typedef struct {
 // conf [IN]  Source IP configuration.
 mesa_rc mesa_acl_sip_conf_set(const mesa_inst_t                inst,
                               const mesa_acl_sip_idx_t         idx,
-                              const mesa_acl_sip_conf_t *const conf)
-    CAP(ACL_SIP_CNT);
+                              const mesa_acl_sip_conf_t *const conf) CAP(ACL_SIP_CNT);
 
 // ACL PTP response action
 typedef enum {
@@ -114,29 +112,29 @@ typedef struct {
 
 // ACL PTP action configuration
 typedef struct {
-    mesa_acl_ptp_rsp_t response;   // PTP Delay_Req/Response action
-    int8_t log_message_interval;   // PTP logMessageInterval [-8,7] returned in
-                                   // the Delay_Resp message
-    mesa_bool_t copy_smac_to_dmac; // PTP DMAC operation
-    mesa_bool_t set_smac_to_port_mac; // PTP SMAC operation
-    uint8_t     dom_sel; // PTP domain selector. PTP_DOM_SEL indexes the PTP
-                         // configuration
-    mesa_udp_tcp_t        sport;  // UDP source port
-    mesa_udp_tcp_t        dport;  // UDP destination port
-    mesa_acl_ptp_rb_fwd_t rb_fwd; // RedBox forwarding
+    mesa_acl_ptp_rsp_t response;             // PTP Delay_Req/Response action
+    int8_t             log_message_interval; // PTP logMessageInterval [-8,7] returned in
+                                             // the Delay_Resp message
+    mesa_bool_t copy_smac_to_dmac;           // PTP DMAC operation
+    mesa_bool_t set_smac_to_port_mac;        // PTP SMAC operation
+    uint8_t     dom_sel;                     // PTP domain selector. PTP_DOM_SEL indexes the PTP
+                                             // configuration
+    mesa_udp_tcp_t        sport;             // UDP source port
+    mesa_udp_tcp_t        dport;             // UDP destination port
+    mesa_acl_ptp_rb_fwd_t rb_fwd;            // RedBox forwarding
 } mesa_acl_ptp_action_conf_t CAP(ACL_SIP_CNT);
 
 // ACL address update
 typedef enum {
-    MESA_ACL_ADDR_UPDATE_NONE,               // No SMAC/DMAC change
-    MESA_ACL_ADDR_UPDATE_MAC_SWAP,           // Swap SMAC and DMAC
-    MESA_ACL_ADDR_UPDATE_DMAC_REPLACE,       // Replace DMAC
-    MESA_ACL_ADDR_UPDATE_DMAC_REPLACE_MSB,   // Replace 40 MSB of DMAC
-    MESA_ACL_ADDR_UPDATE_MAC_IP_SWAP_UC,     // Swap MAC addresses if DMAC is
-                                             // unicast. Replace SMAC if DMAC is
-                                             // multicast. Same for SIP/DIP
-    MESA_ACL_ADDR_UPDATE_IGR_MAC_SWAP,       // Ingress: Swap SMAC and DMAC
-    MESA_ACL_ADDR_UPDATE_IGR_DMAC_SMAC_INCR, // Ingress: Increment DMAC and SMAC
+    MESA_ACL_ADDR_UPDATE_NONE,                      // No SMAC/DMAC change
+    MESA_ACL_ADDR_UPDATE_MAC_SWAP,                  // Swap SMAC and DMAC
+    MESA_ACL_ADDR_UPDATE_DMAC_REPLACE,              // Replace DMAC
+    MESA_ACL_ADDR_UPDATE_DMAC_REPLACE_MSB,          // Replace 40 MSB of DMAC
+    MESA_ACL_ADDR_UPDATE_MAC_IP_SWAP_UC,            // Swap MAC addresses if DMAC is
+                                                    // unicast. Replace SMAC if DMAC is
+                                                    // multicast. Same for SIP/DIP
+    MESA_ACL_ADDR_UPDATE_IGR_MAC_SWAP,              // Ingress: Swap SMAC and DMAC
+    MESA_ACL_ADDR_UPDATE_IGR_DMAC_SMAC_INCR,        // Ingress: Increment DMAC and SMAC
     MESA_ACL_ADDR_UPDATE_IGR_DMAC_INCR_SMAC_REPLACE // Ingress: Increment DMAC,
                                                     // replace SMAC
 } mesa_acl_addr_update_t CAP(ACL_SIP_CNT);
@@ -150,28 +148,24 @@ typedef struct {
 
 // ACL Action
 typedef struct {
-    mesa_bool_t cpu;      // Forward to CPU
-    mesa_bool_t cpu_once; // Only first frame forwarded to CPU
-    mesa_bool_t
-        cpu_disable; // Disable CPU copy from previous forwarding decisions
-    mesa_packet_rx_queue_t cpu_queue;            // CPU queue
-    mesa_bool_t            police;               // Enable policer
-    mesa_acl_policer_no_t  policer_no;           // Policer number
-    mesa_bool_t evc_police CAP(ACL_EVC_POLICER); // Enable EVC policer
+    mesa_bool_t            cpu;         // Forward to CPU
+    mesa_bool_t            cpu_once;    // Only first frame forwarded to CPU
+    mesa_bool_t            cpu_disable; // Disable CPU copy from previous forwarding decisions
+    mesa_packet_rx_queue_t cpu_queue;   // CPU queue
+    mesa_bool_t            police;      // Enable policer
+    mesa_acl_policer_no_t  policer_no;  // Policer number
+    mesa_bool_t evc_police CAP(ACL_EVC_POLICER);               // Enable EVC policer
     mesa_evc_policer_id_t evc_policer_id CAP(ACL_EVC_POLICER); // EVC policer ID
     mesa_bool_t                          learn;                // Allow learning
     mesa_acl_port_action_t               port_action;          // Port action
-    mesa_port_list_t                     port_list;        // Egress port list
-    mesa_bool_t                          mirror;           // Enable mirroring
-    mesa_acl_ptp_action_t                ptp_action;       // PTP action
-    mesa_acl_ptp_action_conf_t ptp       CAP(ACL_SIP_CNT); // PTP configuration
-    mesa_acl_addr_action_t addr
-        CAP(ACL_SIP_CNT); // Address update configuration
-    mesa_bool_t lm_cnt_disable
-                         CAP(ACL_LM_CNT_CTRL); // Disable OAM LM Tx counting
-    mesa_bool_t mac_swap CAP(ACL_MAC_SWAP);    // Swap SMAC and DMAC
-    mesa_bool_t ifh_flag
-        CAP(ACL_IFH_FLAG); // Control one target specific bit in IFH
+    mesa_port_list_t                     port_list;            // Egress port list
+    mesa_bool_t                          mirror;               // Enable mirroring
+    mesa_acl_ptp_action_t                ptp_action;           // PTP action
+    mesa_acl_ptp_action_conf_t ptp       CAP(ACL_SIP_CNT);     // PTP configuration
+    mesa_acl_addr_action_t addr          CAP(ACL_SIP_CNT);     // Address update configuration
+    mesa_bool_t lm_cnt_disable           CAP(ACL_LM_CNT_CTRL); // Disable OAM LM Tx counting
+    mesa_bool_t mac_swap                 CAP(ACL_MAC_SWAP);    // Swap SMAC and DMAC
+    mesa_bool_t ifh_flag CAP(ACL_IFH_FLAG); // Control one target specific bit in IFH
 } mesa_acl_action_t;
 
 // ACL key generation for ARP/IPv4/IPv6 frames
@@ -222,8 +216,7 @@ mesa_rc mesa_acl_port_counter_get(const mesa_inst_t              inst,
 
 // Clear default action counter for port.
 // port_no [IN]  Port number.
-mesa_rc mesa_acl_port_counter_clear(const mesa_inst_t    inst,
-                                    const mesa_port_no_t port_no);
+mesa_rc mesa_acl_port_counter_clear(const mesa_inst_t inst, const mesa_port_no_t port_no);
 
 // ACE frame type
 typedef enum {
@@ -308,24 +301,21 @@ typedef struct {
     mesa_ace_u48_t smac;  // SMAC
     mesa_ace_u16_t etype; // Ethernet Type value
     mesa_ace_u16_t data;  // MAC data
-    mesa_ace_ptp_t
-        ptp; // PTP header filtering (overrides smac byte 2,4 and data fields)
+    mesa_ace_ptp_t ptp;   // PTP header filtering (overrides smac byte 2,4 and data fields)
 } mesa_ace_frame_etype_t;
 
 // Frame data for MESA_ACE_TYPE_LLC
 typedef struct {
     mesa_ace_u48_t dmac; // DMAC
     mesa_ace_u48_t smac; // SMAC
-    mesa_ace_u32_t
-        llc; // LLC header: DSAP at byte 0, SSAP at byte 1, Control at byte 2
+    mesa_ace_u32_t llc;  // LLC header: DSAP at byte 0, SSAP at byte 1, Control at byte 2
 } mesa_ace_frame_llc_t;
 
 // Frame data for MESA_ACE_TYPE_SNAP
 typedef struct {
     mesa_ace_u48_t dmac; // DMAC
     mesa_ace_u48_t smac; // SMAC
-    mesa_ace_u40_t
-        snap; // SNAP header: Organization Code at byte 0, Type at byte 3
+    mesa_ace_u40_t snap; // SNAP header: Organization Code at byte 0, Type at byte 3
 } mesa_ace_frame_snap_t;
 
 // Frame data for MESA_ACE_TYPE_ARP
@@ -368,7 +358,7 @@ typedef struct {
     mesa_ace_bit_t      sport_eq_dport;   // SPORT equals DPORT
     mesa_ace_bit_t      seq_zero;         // TCP sequence number is zero
     mesa_ace_ptp_t      ptp;              // PTP filtering (overrides sip field)
-    mesa_ace_sip_smac_t sip_smac; // SIP/SMAC matching (overrides sip field)
+    mesa_ace_sip_smac_t sip_smac;         // SIP/SMAC matching (overrides sip field)
 } mesa_ace_frame_ipv4_t;
 
 // Frame data for MESA_ACE_TYPE_IPV6
@@ -376,40 +366,36 @@ typedef struct {
     mesa_ace_u48_t dmac CAP(ACL_EXT_MAC); // DMAC, MESA_ACL_KEY_EXT
     mesa_ace_u48_t smac CAP(ACL_EXT_MAC); // SMAC, MESA_ACL_KEY_EXT
     mesa_ace_u8_t       proto;            // IPv6 protocol
-    mesa_ace_u128_t
-        sip; // IPv6 source address (byte 0-7 only used for MESA_ACL_KEY_EXT)
-    mesa_ace_u128_t dip
-        CAP(ACL_EXT_DIP);          // IPv6 destination address, MESA_ACL_KEY_EXT
-    mesa_ace_bit_t     ttl;        // TTL zero
-    mesa_ace_u8_t      ds;         // DS field
-    mesa_ace_u48_t     data;       // Not UDP/TCP: IP data
-    mesa_ace_udp_tcp_t sport;      // UDP/TCP: Source port
-    mesa_ace_udp_tcp_t dport;      // UDP/TCP: Destination port
-    mesa_ace_bit_t     tcp_fin;    // TCP FIN
-    mesa_ace_bit_t     tcp_syn;    // TCP SYN
-    mesa_ace_bit_t     tcp_rst;    // TCP RST
-    mesa_ace_bit_t     tcp_psh;    // TCP PSH
-    mesa_ace_bit_t     tcp_ack;    // TCP ACK
-    mesa_ace_bit_t     tcp_urg;    // TCP URG
-    mesa_ace_bit_t     sip_eq_dip; // SIP equals DIP
-    mesa_ace_bit_t     sport_eq_dport; // SPORT equals DPORT
-    mesa_ace_bit_t     seq_zero;       // TCP sequence number is zero
-    mesa_ace_ptp_t     ptp;            // PTP filtering (overrides sip byte 0-3)
+    mesa_ace_u128_t     sip; // IPv6 source address (byte 0-7 only used for MESA_ACL_KEY_EXT)
+    mesa_ace_u128_t dip CAP(ACL_EXT_DIP); // IPv6 destination address, MESA_ACL_KEY_EXT
+    mesa_ace_bit_t      ttl;              // TTL zero
+    mesa_ace_u8_t       ds;               // DS field
+    mesa_ace_u48_t      data;             // Not UDP/TCP: IP data
+    mesa_ace_udp_tcp_t  sport;            // UDP/TCP: Source port
+    mesa_ace_udp_tcp_t  dport;            // UDP/TCP: Destination port
+    mesa_ace_bit_t      tcp_fin;          // TCP FIN
+    mesa_ace_bit_t      tcp_syn;          // TCP SYN
+    mesa_ace_bit_t      tcp_rst;          // TCP RST
+    mesa_ace_bit_t      tcp_psh;          // TCP PSH
+    mesa_ace_bit_t      tcp_ack;          // TCP ACK
+    mesa_ace_bit_t      tcp_urg;          // TCP URG
+    mesa_ace_bit_t      sip_eq_dip;       // SIP equals DIP
+    mesa_ace_bit_t      sport_eq_dport;   // SPORT equals DPORT
+    mesa_ace_bit_t      seq_zero;         // TCP sequence number is zero
+    mesa_ace_ptp_t      ptp;              // PTP filtering (overrides sip byte 0-3)
 } mesa_ace_frame_ipv6_t;
 
 // Access Control Entry
 typedef struct {
-    mesa_ace_id_t id; // ACE ID, must be different from MESA_ACE_ID_LAST
-    uint8_t lookup
-        CAP(ACL_KEY_LOOKUP); // Lookup, any non-zero value means second lookup
-    mesa_bool_t isdx_enable CAP(ACL_KEY_ISDX); // Use VID value for ISDX value
-    mesa_bool_t isdx_disable
-                      CAP(ACL_KEY_ISDX); // Match only frames with ISDX zero
-    mesa_port_list_t  port_list;         // Port list
-    mesa_ace_u8_t     policy;            // Policy number
-    mesa_ace_type_t   type;              // ACE frame type
-    mesa_bool_t       type_ext;          // Use extended type for IPv4/IPv6
-    mesa_acl_action_t action;            // ACE action
+    mesa_ace_id_t            id;                  // ACE ID, must be different from MESA_ACE_ID_LAST
+    uint8_t lookup           CAP(ACL_KEY_LOOKUP); // Lookup, any non-zero value means second lookup
+    mesa_bool_t isdx_enable  CAP(ACL_KEY_ISDX);   // Use VID value for ISDX value
+    mesa_bool_t isdx_disable CAP(ACL_KEY_ISDX);   // Match only frames with ISDX zero
+    mesa_port_list_t         port_list;           // Port list
+    mesa_ace_u8_t            policy;              // Policy number
+    mesa_ace_type_t          type;                // ACE frame type
+    mesa_bool_t              type_ext;            // Use extended type for IPv4/IPv6
+    mesa_acl_action_t        action;              // ACE action
 
     mesa_ace_bit_t dmac_mc; // Multicast DMAC
     mesa_ace_bit_t dmac_bc; // Broadcast DMAC
@@ -430,9 +416,7 @@ typedef struct {
 // Initialize ACE to default values.
 // type [IN]  ACE type.
 // ace [OUT]  ACE structure.
-mesa_rc mesa_ace_init(const mesa_inst_t     inst,
-                      const mesa_ace_type_t type,
-                      mesa_ace_t *const     ace);
+mesa_rc mesa_ace_init(const mesa_inst_t inst, const mesa_ace_type_t type, mesa_ace_t *const ace);
 
 // Add/modify ACE.
 // ace_id_next [IN]  ACE ID of next entry.
@@ -459,8 +443,7 @@ mesa_rc mesa_ace_counter_get(const mesa_inst_t         inst,
 
 // Clear ACE counter.
 // ace_id [IN]  ACE ID.
-mesa_rc mesa_ace_counter_clear(const mesa_inst_t   inst,
-                               const mesa_ace_id_t ace_id);
+mesa_rc mesa_ace_counter_clear(const mesa_inst_t inst, const mesa_ace_id_t ace_id);
 
 #define MESA_ACE_IDX_NONE 0xffff // ACE index not valid
 
@@ -474,8 +457,7 @@ typedef struct {
 // status [OUT]  ACE status.
 mesa_rc mesa_ace_status_get(const mesa_inst_t        inst,
                             const mesa_ace_id_t      ace_id,
-                            mesa_ace_status_t *const status)
-    CAP(ACL_ACE_STATUS);
+                            mesa_ace_status_t *const status) CAP(ACL_ACE_STATUS);
 
 // Hierarchical ACL type
 typedef enum {
@@ -499,15 +481,12 @@ typedef struct {
 // l     [IN]  Router leg list.
 // rleg  [IN]  Router leg ID.
 // val   [IN]  Value.
-void mesa_rleg_list_set(mesa_rleg_list_t *l,
-                        mesa_l3_rleg_id_t rleg,
-                        mesa_bool_t       val);
+void mesa_rleg_list_set(mesa_rleg_list_t *l, mesa_l3_rleg_id_t rleg, mesa_bool_t val);
 
 // Get router leg value from router leg list.
 // l     [IN]  Router leg list.
 // rleg  [IN]  Router leg ID.
-mesa_bool_t mesa_rleg_list_get(const mesa_rleg_list_t *l,
-                               mesa_l3_rleg_id_t       rleg);
+mesa_bool_t mesa_rleg_list_get(const mesa_rleg_list_t *l, mesa_l3_rleg_id_t rleg);
 
 // Frame data for MESA_ACE_TYPE_ETYPE
 typedef struct {
@@ -517,14 +496,12 @@ typedef struct {
 
 // Frame data for MESA_ACE_TYPE_LLC
 typedef struct {
-    mesa_ace_u32_t
-        llc; // LLC header: DSAP at byte 0, SSAP at byte 1, Control at byte 2
+    mesa_ace_u32_t llc; // LLC header: DSAP at byte 0, SSAP at byte 1, Control at byte 2
 } mesa_hace_frame_llc_t CAP(ACL_HACL);
 
 // Frame data for MESA_ACE_TYPE_SNAP
 typedef struct {
-    mesa_ace_u40_t
-        snap; // SNAP header: Organization Code at byte 0, Type at byte 3
+    mesa_ace_u40_t snap; // SNAP header: Organization Code at byte 0, Type at byte 3
 } mesa_hace_frame_snap_t CAP(ACL_HACL);
 
 // Frame data for MESA_ACE_TYPE_ARP
@@ -582,14 +559,13 @@ typedef struct {
 
 // Hierarchical ACL key
 typedef struct {
-    mesa_port_list_t port_list; // Ingress/egress port list (unused for RACLs)
-    mesa_rleg_list_t rleg_list; // Ingress/egress router leg list (RACLs only)
-    mesa_ace_u8_t    policy;    // Policy number
-    mesa_ace_type_t  type;      // ACE frame type
-    mesa_bool_t      type_ext;  // Use extended type for IPv4/IPv6 (I-PACL)
-    mesa_ace_vlan_t  vlan;      // Classified VLAN tag values (unused for RACLs)
-    mesa_ace_ptp_t
-        ptp; // PTP header filtering for EType/IPv4/IPv6 (unused for RACLs)
+    mesa_port_list_t        port_list; // Ingress/egress port list (unused for RACLs)
+    mesa_rleg_list_t        rleg_list; // Ingress/egress router leg list (RACLs only)
+    mesa_ace_u8_t           policy;    // Policy number
+    mesa_ace_type_t         type;      // ACE frame type
+    mesa_bool_t             type_ext;  // Use extended type for IPv4/IPv6 (I-PACL)
+    mesa_ace_vlan_t         vlan;      // Classified VLAN tag values (unused for RACLs)
+    mesa_ace_ptp_t          ptp;     // PTP header filtering for EType/IPv4/IPv6 (unused for RACLs)
     mesa_ace_bit_t          dmac_mc; // Multicast DMAC (unused for RACLs)
     mesa_ace_bit_t          dmac_bc; // Broadcast DMAC (unused for RACLs)
     mesa_ace_u48_t          dmac;    // DMAC (unused for RACLs)
@@ -597,30 +573,27 @@ typedef struct {
     mesa_hace_frame_etype_t etype;   // MESA_ACE_TYPE_ETYPE (unused for RACLs)
     mesa_hace_frame_llc_t   llc;     // MESA_ACE_TYPE_LLC (unused for RACLs)
     mesa_hace_frame_snap_t  snap;    // MESA_ACE_TYPE_SNAP (unused for RACLs)
-    mesa_hace_frame_arp_t   arp;  // MESA_ACE_TYPE_ARP (unused for VACLS/RACLs)
-    mesa_hace_frame_ipv4_t  ipv4; // MESA_ACE_TYPE_IPV4 (unused for VACLs)
-    mesa_hace_frame_ipv6_t  ipv6; // MESA_ACE_TYPE_IPV6 (unused for VACLs)
+    mesa_hace_frame_arp_t   arp;     // MESA_ACE_TYPE_ARP (unused for VACLS/RACLs)
+    mesa_hace_frame_ipv4_t  ipv4;    // MESA_ACE_TYPE_IPV4 (unused for VACLs)
+    mesa_hace_frame_ipv6_t  ipv6;    // MESA_ACE_TYPE_IPV6 (unused for VACLs)
 } mesa_hace_key_t CAP(ACL_HACL);
 
 // Hierarchical ACL action
 typedef struct {
-    mesa_acl_port_action_t port_action; // Port action
-    mesa_port_list_t       port_list;   // Egress port list (I-PACL/I-VACL only)
-    mesa_bool_t            cpu;         // Forward to CPU (I-PACL/I-VACL only)
-    mesa_bool_t
-        cpu_once; // Only first frame forwarded to CPU (I-PACL/I-VACL only)
-    mesa_bool_t cpu_disable; // Disable CPU copy from previous forwarding
-                             // decisions (I-PACL/I-VACL only)
-    mesa_packet_rx_queue_t cpu_queue;  // CPU queue (I-PACL/I-VACL only)
-    mesa_bool_t            police;     // Enable policer (I-PACL/I-VACL only)
-    mesa_acl_policer_no_t  policer_no; // Policer number (I-PACL/I-VACL only)
-    mesa_bool_t            mirror;     // Enable mirroring (I-PACL/I-VACL only)
-    mesa_acl_ptp_action_t  ptp_action; // PTP action (I-PACL/I-VACL only)
-    mesa_acl_ptp_action_conf_t ptp;    // PTP configuration (I-PACL/I-VACL only)
-    mesa_acl_addr_action_t
-        addr; // Address update configuration (I-PACL/I-VACL only)
-    mesa_bool_t
-        ifh_flag; // Control one target specific bit in IFH (I-PACL/I-VACL only)
+    mesa_acl_port_action_t port_action;    // Port action
+    mesa_port_list_t       port_list;      // Egress port list (I-PACL/I-VACL only)
+    mesa_bool_t            cpu;            // Forward to CPU (I-PACL/I-VACL only)
+    mesa_bool_t            cpu_once;       // Only first frame forwarded to CPU (I-PACL/I-VACL only)
+    mesa_bool_t            cpu_disable;    // Disable CPU copy from previous forwarding
+                                           // decisions (I-PACL/I-VACL only)
+    mesa_packet_rx_queue_t     cpu_queue;  // CPU queue (I-PACL/I-VACL only)
+    mesa_bool_t                police;     // Enable policer (I-PACL/I-VACL only)
+    mesa_acl_policer_no_t      policer_no; // Policer number (I-PACL/I-VACL only)
+    mesa_bool_t                mirror;     // Enable mirroring (I-PACL/I-VACL only)
+    mesa_acl_ptp_action_t      ptp_action; // PTP action (I-PACL/I-VACL only)
+    mesa_acl_ptp_action_conf_t ptp;        // PTP configuration (I-PACL/I-VACL only)
+    mesa_acl_addr_action_t     addr;       // Address update configuration (I-PACL/I-VACL only)
+    mesa_bool_t ifh_flag; // Control one target specific bit in IFH (I-PACL/I-VACL only)
 } mesa_hacl_action_t CAP(ACL_HACL);
 
 // Hierarchical ACL Entry
@@ -633,9 +606,8 @@ typedef struct {
 // Initialize Hierarchical ACE to default values.
 // type [IN]   ACE type.
 // hace [OUT]  ACE structure.
-mesa_rc mesa_hace_init(const mesa_inst_t     inst,
-                       const mesa_ace_type_t type,
-                       mesa_hace_t *const    hace) CAP(ACL_HACL);
+mesa_rc mesa_hace_init(const mesa_inst_t inst, const mesa_ace_type_t type, mesa_hace_t *const hace)
+    CAP(ACL_HACL);
 
 // Add/modify Hierarchical ACE.
 // type [IN]         Hierarcical ACL type.

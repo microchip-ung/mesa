@@ -13,10 +13,7 @@ enum vtss_lan966x_vcap_instance {
     VTSS_LAN966X_VCAP_INSTANCE_IS2
 };
 
-enum vtss_lan966x_vcap_version {
-    VTSS_LAN966X_VCAP_VERSION_1,
-    VTSS_LAN966X_VCAP_VERSION_2
-};
+enum vtss_lan966x_vcap_version { VTSS_LAN966X_VCAP_VERSION_1, VTSS_LAN966X_VCAP_VERSION_2 };
 
 #define vtss_lan966x_vcap_bit     vtss_vcap_bit
 #define VTSS_LAN966X_VCAP_BIT_ANY VTSS_VCAP_BIT_ANY

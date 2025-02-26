@@ -37,11 +37,10 @@ typedef enum {
 typedef struct {
     BOOL                     recovery; // Enable/disable recovery
     vtss_frer_recovery_alg_t alg;      // frerSeqRcvyAlgorithm: Algorithm
-    u8 hlen; // frerSeqRcvyHistoryLength: History length, 2-32 (vector algorithm)
+    u8   hlen;        // frerSeqRcvyHistoryLength: History length, 2-32 (vector algorithm)
     u16  reset_time;  // frerSeqRcvyResetMSec: Reset timeout (milliseconds)
     BOOL take_no_seq; // frerSeqRcvyTakeNoSequence: Accept frames without R-tag
-    vtss_frer_cstream_id_t
-        cstream_id; // Compound stream ID (valid for member stream only)
+    vtss_frer_cstream_id_t cstream_id; // Compound stream ID (valid for member stream only)
 } vtss_frer_stream_conf_t;
 
 // Get compound stream configuration.
@@ -78,8 +77,7 @@ vtss_rc vtss_frer_cstream_cnt_get(const vtss_inst_t            inst,
 
 // Clear compound stream Counters.
 // id [IN]  Compound stream ID.
-vtss_rc vtss_frer_cstream_cnt_clear(const vtss_inst_t            inst,
-                                    const vtss_frer_cstream_id_t id);
+vtss_rc vtss_frer_cstream_cnt_clear(const vtss_inst_t inst, const vtss_frer_cstream_id_t id);
 
 /* - FRER member streams ------------------------------------------- */
 
@@ -93,14 +91,13 @@ typedef u16 vtss_frer_mstream_id_t;
 // Allocate FRER member stream ID block.
 // port_list [IN]  Egress port list, maximum 8 ports enabled
 // id [OUT]        Member stream ID base.
-vtss_rc vtss_frer_mstream_alloc(const vtss_inst_t inst,
-                                const BOOL        port_list[VTSS_PORTS],
+vtss_rc vtss_frer_mstream_alloc(const vtss_inst_t             inst,
+                                const BOOL                    port_list[VTSS_PORTS],
                                 vtss_frer_mstream_id_t *const id);
 
 // Free FRER member stream ID block.
 // id [IN]  Member stream ID base.
-vtss_rc vtss_frer_mstream_free(const vtss_inst_t            inst,
-                               const vtss_frer_mstream_id_t id);
+vtss_rc vtss_frer_mstream_free(const vtss_inst_t inst, const vtss_frer_mstream_id_t id);
 
 // Get member stream configuration.
 // id [IN]       Member stream ID.
@@ -169,8 +166,8 @@ typedef struct {
     BOOL            gate_open;     // StreamGateState
     vtss_opt_prio_t prio;          // IPV: Priority
     u32             time_interval; // TimeInterval: Time interval (nsec)
-    u32 octet_max; // IntervalOctetMax: Maximum number of octets permitted (zero
-                   // disables check)
+    u32             octet_max;     // IntervalOctetMax: Maximum number of octets permitted (zero
+                                   // disables check)
 } vtss_psfp_gce_t;
 
 // Get PSFP Gate Control List.
@@ -195,9 +192,9 @@ vtss_rc vtss_psfp_gcl_conf_set(const vtss_inst_t            inst,
 
 // PSFP Gate Control List configuration
 typedef struct {
-    vtss_timestamp_t base_time;  // PSFPAdminBaseTime/PSFPOperBaseTime
-    u32              cycle_time; // PSFPAdminCycleTime/PSFPOperCycleTime
-    u32 cycle_time_ext; // PSFPAdminCycleTimeExtension/PSFPOperCycleTimeExtension
+    vtss_timestamp_t base_time;      // PSFPAdminBaseTime/PSFPOperBaseTime
+    u32              cycle_time;     // PSFPAdminCycleTime/PSFPOperCycleTime
+    u32              cycle_time_ext; // PSFPAdminCycleTimeExtension/PSFPOperCycleTimeExtension
 } vtss_psfp_gcl_conf_t;
 
 // PSFP gate configuration
@@ -209,8 +206,8 @@ typedef struct {
         close_invalid_rx; // PSFPGateClosedDueToInvalidRxEnable/PSFPGateClosedDueToInvalidRx
     vtss_opt_bool_t
         close_octets_exceeded; // PSFPGateClosedDueToOctetsExceededEnable/PSFPGateClosedDueOctetsExceeded
-    BOOL config_change; // PSFPConfigChange: Apply the following configuration
-                        // fields
+    BOOL config_change;        // PSFPConfigChange: Apply the following configuration
+                               // fields
     vtss_psfp_gcl_conf_t config; // PSFPAdmin*: Gate Control List applied if
                                  // 'config_change' is set
 } vtss_psfp_gate_conf_t;
@@ -231,13 +228,13 @@ vtss_rc vtss_psfp_gate_conf_set(const vtss_inst_t                  inst,
 
 // PSFP gate status
 typedef struct {
-    BOOL             gate_open; // PSFPOperGateStates: Current gate state
-    vtss_opt_prio_t  prio;      // PSFPOperIPV: Priority
-    vtss_timestamp_t config_change_time; // PSFPConfigChangeTime
-    vtss_timestamp_t current_time;       // PSFPCurrentTime
-    BOOL config_pending;   // PSFPConfigPending: Configuration active indication
-    BOOL close_invalid_rx; // PSFPGateClosedDueToInvalidRx
-    BOOL close_octets_exceeded; // PSFPGateClosedDueOctetsExceeded
+    BOOL             gate_open;             // PSFPOperGateStates: Current gate state
+    vtss_opt_prio_t  prio;                  // PSFPOperIPV: Priority
+    vtss_timestamp_t config_change_time;    // PSFPConfigChangeTime
+    vtss_timestamp_t current_time;          // PSFPCurrentTime
+    BOOL             config_pending;        // PSFPConfigPending: Configuration active indication
+    BOOL             close_invalid_rx;      // PSFPGateClosedDueToInvalidRx
+    BOOL             close_octets_exceeded; // PSFPGateClosedDueOctetsExceeded
 } vtss_psfp_gate_status_t;
 
 // Get PSFP gate status.
@@ -265,7 +262,7 @@ typedef u16 vtss_psfp_filter_id_t;
 typedef struct {
     BOOL                gate_enable; // Enable gate mapping
     vtss_psfp_gate_id_t gate_id;     // StreamGateInstanceID: Gate ID mapping
-    u16                 max_sdu; // Maximum SDU size (zero disables SDU check)
+    u16                 max_sdu;     // Maximum SDU size (zero disables SDU check)
     vtss_opt_bool_t
         block_oversize; // StreamBlockedDueToOversizeFrameEnable/StreamBlockedDueToOversizeFrame
 } vtss_psfp_filter_conf_t;
@@ -317,13 +314,11 @@ typedef struct {
 
 // Get Time Aware Shaper (802.1Qbv) global configuration.
 // conf    [OUT] Scheduled Traffic configuration structure.
-vtss_rc vtss_qos_tas_conf_get(const vtss_inst_t          inst,
-                              vtss_qos_tas_conf_t *const conf);
+vtss_rc vtss_qos_tas_conf_get(const vtss_inst_t inst, vtss_qos_tas_conf_t *const conf);
 
 // Set Time Aware Shaper (802.1Qbv) global configuration.
 // conf    [IN] Scheduled Traffic configuration structure.
-vtss_rc vtss_qos_tas_conf_set(const vtss_inst_t                inst,
-                              const vtss_qos_tas_conf_t *const conf);
+vtss_rc vtss_qos_tas_conf_set(const vtss_inst_t inst, const vtss_qos_tas_conf_t *const conf);
 
 // Time Aware Shaper (802.1Qbv) Gate Control Operations
 typedef enum {
@@ -406,8 +401,8 @@ vtss_rc vtss_qos_tas_port_conf_get(const vtss_inst_t               inst,
 // Set Time Aware Shaper (802.1Qbv) port configuration.
 // port_no [IN] Port number.
 // conf    [IN] Scheduled Traffic configuration structure.
-vtss_rc vtss_qos_tas_port_conf_set(const vtss_inst_t    inst,
-                                   const vtss_port_no_t port_no,
+vtss_rc vtss_qos_tas_port_conf_set(const vtss_inst_t                     inst,
+                                   const vtss_port_no_t                  port_no,
                                    const vtss_qos_tas_port_conf_t *const conf);
 
 // Time Aware Shaper (802.1Qbv) port status.
@@ -453,9 +448,9 @@ typedef struct {
     BOOL admin_status[VTSS_QUEUE_ARRAY_SIZE]; // IEEE802.1Qbu:
                                               // framePreemptionStatusTable
     BOOL enable_tx;                           // IEEE802.3br: aMACMergeEnableTx
-    BOOL verify_disable_tx; // IEEE802.3br: aMACMergeVerifyDisableTx
-    u8   verify_time;       // IEEE802.3br: aMACMergeVerifyTime [msec]
-    u8   add_frag_size;     // IEEE802.3br: aMACMergeAddFragSize
+    BOOL verify_disable_tx;                   // IEEE802.3br: aMACMergeVerifyDisableTx
+    u8   verify_time;                         // IEEE802.3br: aMACMergeVerifyTime [msec]
+    u8   add_frag_size;                       // IEEE802.3br: aMACMergeAddFragSize
 } vtss_qos_fp_port_conf_t;
 
 /**
@@ -501,10 +496,10 @@ typedef enum {
  * \brief 802.1Qbu and 802.3br (Frame Preemption) port status
  **/
 typedef struct {
-    u32  hold_advance;      // TBD: IEEE802.1Qbu: holdAdvance [nsec]
-    u32  release_advance;   // TBD: IEEE802.1Qbu: releaseAdvance [nsec]
-    BOOL preemption_active; // IEEE802.1Qbu: preemptionActive, IEEE802.3br:
-                            // aMACMergeStatusTx
+    u32  hold_advance;                     // TBD: IEEE802.1Qbu: holdAdvance [nsec]
+    u32  release_advance;                  // TBD: IEEE802.1Qbu: releaseAdvance [nsec]
+    BOOL preemption_active;                // IEEE802.1Qbu: preemptionActive, IEEE802.3br:
+                                           // aMACMergeStatusTx
     u8                      hold_request;  // TBD: IEEE802.1Qbu: holdRequest
     vtss_mm_status_verify_t status_verify; // IEEE802.3br: aMACMergeStatusVerify
 } vtss_qos_fp_port_status_t;

@@ -63,14 +63,12 @@ static const meba_ptp_rs422_conf_t lan966x_rs422_conf = {
 /* --------------------------- Board specific ------------------------------- */
 // PTP IO Events used for virtual port.
 static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {
-    MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2,
-    MEBA_EVENT_PTP_PIN_3, MEBA_EVENT_LAST,      MEBA_EVENT_LAST,
-    MEBA_EVENT_LAST};
+    MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3,
+    MEBA_EVENT_LAST,      MEBA_EVENT_LAST,      MEBA_EVENT_LAST};
 
 static const uint32_t pin_conf_lan9668[VTSS_TS_IO_ARRAY_SIZE] = {
-    (MEBA_PTP_IO_CAP_PIN_IN), (MEBA_PTP_IO_CAP_UNUSED),
-    (MEBA_PTP_IO_CAP_UNUSED), (MEBA_PTP_IO_CAP_PIN_OUT),
-    (MEBA_PTP_IO_CAP_UNUSED), (MEBA_PTP_IO_CAP_UNUSED),
+    (MEBA_PTP_IO_CAP_PIN_IN),  (MEBA_PTP_IO_CAP_UNUSED), (MEBA_PTP_IO_CAP_UNUSED),
+    (MEBA_PTP_IO_CAP_PIN_OUT), (MEBA_PTP_IO_CAP_UNUSED), (MEBA_PTP_IO_CAP_UNUSED),
     (MEBA_PTP_IO_CAP_UNUSED),
 };
 
@@ -82,14 +80,14 @@ static port_map_t port_table_adaro[] = {
     // Port |                        | Addr|            INTERFACE    | |
     // Support| Port |
     //---------------------------------------------------------------------------------------------------------------
-    {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_GMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 0},
-    {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_GMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 1},
-    {2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_GMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 2},
-    {3, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_GMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 3}
+    {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     0},
+    {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     1},
+    {2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     2},
+    {3, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     3}
 };
 
 static port_map_t port_table_sunrise[] = {
@@ -99,16 +97,16 @@ static port_map_t port_table_sunrise[] = {
     // Port |                          | Addr|            INTERFACE | | Support|
     // Port |
     //--------------------------------------------------------------------------------------------------------------------------
-    {0, MESA_MIIM_CONTROLLER_0,    4, MESA_PORT_INTERFACE_GMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 0},
-    {1, MESA_MIIM_CONTROLLER_0,    5, MESA_PORT_INTERFACE_GMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 1},
-    {2, MESA_MIIM_CONTROLLER_0,    6, MESA_PORT_INTERFACE_GMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 2},
-    {3, MESA_MIIM_CONTROLLER_0,    7, MESA_PORT_INTERFACE_GMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 3},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION,
-     MEBA_PORT_CAP_NONE,             false, 4}
+    {0, MESA_MIIM_CONTROLLER_0,    4, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     0},
+    {1, MESA_MIIM_CONTROLLER_0,    5, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     1},
+    {2, MESA_MIIM_CONTROLLER_0,    6, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     2},
+    {3, MESA_MIIM_CONTROLLER_0,    7, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     3},
+    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE,             false,
+     4}
 };
 
 static port_map_t port_table_8port[] = {
@@ -122,22 +120,22 @@ static port_map_t port_table_8port[] = {
     // Port |                       | Addr|            INTERFACE      | |
     // Support| Port |
     //----------------------------------------------------------------------------------------------------------------
-    {2, MESA_MIIM_CONTROLLER_0, 9,  MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 0},
-    {3, MESA_MIIM_CONTROLLER_0, 10, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 1},
-    {0, MESA_MIIM_CONTROLLER_0, 7,  MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 2},
-    {1, MESA_MIIM_CONTROLLER_0, 8,  MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 3},
-    {6, MESA_MIIM_CONTROLLER_0, 17, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 4},
-    {7, MESA_MIIM_CONTROLLER_0, 18, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 5},
-    {4, MESA_MIIM_CONTROLLER_0, 15, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 6},
-    {5, MESA_MIIM_CONTROLLER_0, 16, MESA_PORT_INTERFACE_QSGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, true, 7}
+    {2, MESA_MIIM_CONTROLLER_0, 9,  MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true,
+     0                                                                                                 },
+    {3, MESA_MIIM_CONTROLLER_0, 10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true,                                                                                            1},
+    {0, MESA_MIIM_CONTROLLER_0, 7,  MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true,
+     2                                                                                                 },
+    {1, MESA_MIIM_CONTROLLER_0, 8,  MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true,
+     3                                                                                                 },
+    {6, MESA_MIIM_CONTROLLER_0, 17, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true,                                                                                            4},
+    {7, MESA_MIIM_CONTROLLER_0, 18, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true,                                                                                            5},
+    {4, MESA_MIIM_CONTROLLER_0, 15, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true,                                                                                            6},
+    {5, MESA_MIIM_CONTROLLER_0, 16, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true,                                                                                            7}
 };
 
 static port_map_t port_table_endnode[] = {
@@ -147,18 +145,16 @@ static port_map_t port_table_endnode[] = {
     // Port |                          | Addr|            INTERFACE | | Support|
     // Port |
     //--------------------------------------------------------------------------------------------------------------------------
-    {0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 0},
-    {1, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 1},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION,
-     MEBA_PORT_CAP_NONE,             false, 2},
+    {0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     0},
+    {1, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     1},
+    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE,             false,
+     2},
 };
 
-#define CAP_SFP (MEBA_PORT_CAP_SFP_2_5G - MEBA_PORT_CAP_100M_FDX)
-#define CAP_SD_EXT                                                             \
-    (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SFP_DETECT |                      \
-     MEBA_PORT_CAP_SFP_ONLY)
+#define CAP_SFP    (MEBA_PORT_CAP_SFP_2_5G - MEBA_PORT_CAP_100M_FDX)
+#define CAP_SD_EXT (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SFP_DETECT | MEBA_PORT_CAP_SFP_ONLY)
 // #define CAP_SD_INT (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SFP_DETECT |
 // MEBA_PORT_CAP_SFP_ONLY | MEBA_PORT_CAP_SD_INTERNAL | MEBA_PORT_CAP_SD_HIGH)
 
@@ -169,27 +165,22 @@ static port_map_t port_table_endnode_carrier[] = {
     // Port |                          | Addr|            INTERFACE | | Support|
     // Port |
     //-------------------------------------------------------------------------------------------------------------------------------
-    {0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 0},
-    {1, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 1},
-    {2, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES,
-     CAP_SFP | CAP_SD_EXT,           false, 2},
-    {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES,
-     CAP_SFP | CAP_SD_EXT,           false, 3},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION,
-     MEBA_PORT_CAP_NONE,             false, 4}
+    {0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     0                                                                                                           },
+    {1, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     1                                                                                                           },
+    {2, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES,        CAP_SFP | CAP_SD_EXT,           false, 2},
+    {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES,        CAP_SFP | CAP_SD_EXT,           false, 3},
+    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE,             false,
+     4                                                                                                           }
 };
 
-#define CAP_SFP_1G                                                             \
-    ((MEBA_PORT_CAP_SFP_1G - MEBA_PORT_CAP_100M_FDX) |                         \
-     MEBA_PORT_CAP_SFP_SD_HIGH)
+#define CAP_SFP_1G ((MEBA_PORT_CAP_SFP_1G - MEBA_PORT_CAP_100M_FDX) | MEBA_PORT_CAP_SFP_SD_HIGH)
 
 // TBD, taken from Ocelot
-#define CAP_DUAL                                                               \
-    (MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY |          \
-     MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SD_HIGH |                         \
-     MEBA_PORT_CAP_SD_INTERNAL | MEBA_PORT_CAP_SFP_DETECT |                    \
+#define CAP_DUAL                                                                                   \
+    (MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER | MEBA_PORT_CAP_INT_PHY | MEBA_PORT_CAP_SD_ENABLE |    \
+     MEBA_PORT_CAP_SD_HIGH | MEBA_PORT_CAP_SD_INTERNAL | MEBA_PORT_CAP_SFP_DETECT |                \
      MEBA_PORT_CAP_DUAL_SFP_LINK)
 
 static port_map_t port_table_endnode_carrier_dual[] = {
@@ -210,10 +201,8 @@ static port_map_t port_table_endnode_carrier_dual[] = {
 #endif
 #if 1
     // Dual (not supported by mesa-demo)
-    {0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, CAP_DUAL, false,
-     0},
-    {1, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, CAP_DUAL, false,
-     1},
+    {0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, CAP_DUAL, false, 0},
+    {1, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, CAP_DUAL, false, 1},
 #endif
 };
 
@@ -224,14 +213,14 @@ static port_map_t port_table_svb[] = {
     // Port |                          | Addr|            INTERFACE           |
     // | Support| Port |
     //---------------------------------------------------------------------------------------------------------------------------------------
-    {0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER,                false, 0},
-    {1, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,
-     MEBA_PORT_CAP_TRI_SPEED_COPPER,                false, 1},
+    {0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,       MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     0                                                                                                         },
+    {1, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,       MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+     1                                                                                                         },
     {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO,
-     CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT, false, 2},
+     CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT,                                                    false, 2},
     {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SGMII_CISCO,
-     CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT, false, 3}
+     CAP_SFP | MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT,                                                    false, 3}
 };
 
 static mesa_rc lan966x_board_init(meba_inst_t inst)
@@ -295,9 +284,8 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
                     // Port 2/3 LED control, turn green on and red off while
                     // booting Endnode: Turn blue/green off (Carrier SFP ports
                     // not present)
-                    pc->mode[0] = (board->type == BOARD_TYPE_ENDNODE
-                                       ? MESA_SGPIO_MODE_ON
-                                       : MESA_SGPIO_MODE_OFF);
+                    pc->mode[0] = (board->type == BOARD_TYPE_ENDNODE ? MESA_SGPIO_MODE_ON
+                                                                     : MESA_SGPIO_MODE_OFF);
                     pc->mode[1] = MESA_SGPIO_MODE_ON;
                 } else if (port == 8 || port == 9) {
                     // Rate select
@@ -374,9 +362,8 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
                     // Port 2/3 LED control, turn green on and red off while
                     // booting Endnode: Turn blue/green off (Carrier SFP ports
                     // not present)
-                    pc->mode[0] = (board->type == BOARD_TYPE_ENDNODE
-                                       ? MESA_SGPIO_MODE_ON
-                                       : MESA_SGPIO_MODE_OFF);
+                    pc->mode[0] = (board->type == BOARD_TYPE_ENDNODE ? MESA_SGPIO_MODE_ON
+                                                                     : MESA_SGPIO_MODE_OFF);
                     pc->mode[1] = MESA_SGPIO_MODE_ON;
                 } else if (port == 8 || port == 9) {
                     // Rate select
@@ -404,9 +391,7 @@ static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
     entry->poe_port = map->poe_port;
 }
 
-static void lan966x_init_port_table(meba_inst_t inst,
-                                    int         port_cnt,
-                                    port_map_t *map)
+static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map)
 {
     meba_board_state_t *board = INST2BOARD(inst);
     mesa_port_no_t      port_no;
@@ -417,17 +402,14 @@ static void lan966x_init_port_table(meba_inst_t inst,
         port_entry_map(&board->entry[port_no], &map[port_no]);
         // Link phy base port for 8 port board.
         if (board->type == BOARD_TYPE_8PORT) {
-            board->entry[port_no].phy_base_port =
-                port_no >= 4 && port_no <= 7 ? 4 : 0;
+            board->entry[port_no].phy_base_port = port_no >= 4 && port_no <= 7 ? 4 : 0;
         }
 
-        T_I(inst, "port_no= %d, poe_support=%d", port_no,
-            board->entry->poe_support);
+        T_I(inst, "port_no= %d, poe_support=%d", port_no, board->entry->poe_support);
     }
 }
 
-static mesa_rc lan966x_ptp_rs422_conf_get(meba_inst_t            inst,
-                                          meba_ptp_rs422_conf_t *conf)
+static mesa_rc lan966x_ptp_rs422_conf_get(meba_inst_t inst, meba_ptp_rs422_conf_t *conf)
 {
     mesa_rc rc = MESA_RC_OK;
     // meba_board_state_t *board = INST2BOARD(inst);
@@ -437,11 +419,10 @@ static mesa_rc lan966x_ptp_rs422_conf_get(meba_inst_t            inst,
     return rc;
 }
 
-static mesa_rc lan966x_ptp_external_io_conf_get(meba_inst_t inst,
-                                                uint32_t    io_pin,
-                                                meba_ptp_io_cap_t
-                                                    *const board_assignment,
-                                                meba_event_t *const source_id)
+static mesa_rc lan966x_ptp_external_io_conf_get(meba_inst_t              inst,
+                                                uint32_t                 io_pin,
+                                                meba_ptp_io_cap_t *const board_assignment,
+                                                meba_event_t *const      source_id)
 {
     meba_board_state_t *board = INST2BOARD(inst);
 
@@ -510,8 +491,7 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
         if (board->type == BOARD_TYPE_8PORT || board->type == BOARD_TYPE_EDS2) {
             meba_synce_clock_hw_id_t dpll_type;
 
-            if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) ==
-                 MESA_RC_OK) &&
+            if ((meba_synce_spi_if_get_dpll_type(inst, &dpll_type) == MESA_RC_OK) &&
                 (dpll_type != MEBA_SYNCE_CLOCK_HW_NONE)) {
                 return 1;
             } else {
@@ -549,10 +529,7 @@ static mesa_rc lan966x_port_entry_get(meba_inst_t        inst,
     return rc;
 }
 
-static mesa_rc lan966x_sensor_get(meba_inst_t   inst,
-                                  meba_sensor_t type,
-                                  int           six,
-                                  int          *value)
+static mesa_rc lan966x_sensor_get(meba_inst_t inst, meba_sensor_t type, int six, int *value)
 {
     mesa_rc rc = MESA_RC_ERROR;
     int16_t temp = 0;
@@ -616,10 +593,7 @@ static mesa_rc lan966x_reset(meba_inst_t inst, meba_reset_point_t reset)
     return rc;
 }
 
-static mesa_port_no_t lan966x_port2sfp(mesa_port_no_t port_no)
-{
-    return ((port_no & 1) + 2);
-}
+static mesa_port_no_t lan966x_port2sfp(mesa_port_no_t port_no) { return ((port_no & 1) + 2); }
 
 static mesa_rc lan966x_sfp_i2c_xfer(meba_inst_t    inst,
                                     mesa_port_no_t port_no,
@@ -645,16 +619,14 @@ static mesa_rc lan966x_sfp_i2c_xfer(meba_inst_t    inst,
     return rc;
 }
 
-static mesa_bool_t lan966x_port_sfp_detect(meba_board_state_t *board,
-                                           mesa_port_no_t      port_no)
+static mesa_bool_t lan966x_port_sfp_detect(meba_board_state_t *board, mesa_port_no_t port_no)
 {
     meba_port_cap_t cap = board->entry[port_no].cap;
 
     return ((cap & MEBA_PORT_CAP_SFP_DETECT) ? true : false);
 }
 
-static mesa_rc lan966x_sfp_insertion_status_get(meba_inst_t       inst,
-                                                mesa_port_list_t *present)
+static mesa_rc lan966x_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list_t *present)
 {
     mesa_rc                rc = MESA_RC_OK;
     meba_board_state_t    *board = INST2BOARD(inst);
@@ -668,8 +640,7 @@ static mesa_rc lan966x_sfp_insertion_status_get(meba_inst_t       inst,
             if (lan966x_port_sfp_detect(board, port_no)) {
                 // SFP MODDET at bit 1
                 port = lan966x_port2sfp(port_no);
-                mesa_port_list_set(present, port_no,
-                                   data[port].value[1] ? 0 : 1);
+                mesa_port_list_set(present, port_no, data[port].value[1] ? 0 : 1);
             }
         }
     }
@@ -686,20 +657,18 @@ static mesa_rc lan966x_sfp_status_get(meba_inst_t        inst,
     mesa_sgpio_port_data_t data[MESA_SGPIO_PORTS];
 
     memset(status, 0, sizeof(*status));
-    if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
-        lan966x_port_sfp_detect(board, port_no) &&
+    if (board->type == BOARD_TYPE_ENDNODE_CARRIER && lan966x_port_sfp_detect(board, port_no) &&
         (rc = mesa_sgpio_read(NULL, 0, 0, data)) == MESA_RC_OK) {
         port = lan966x_port2sfp(port_no);
-        status->los = (data[port].value[0] ? 1 : 0);     // SFP LOS at bit 0
-        status->present = (data[port].value[1] ? 0 : 1); // SFP MODDET at bit 1
-        status->tx_fault =
-            (data[1].value[port - 2] ? 0 : 1); // SFP TXFAULT at port 1, bit 0/1
+        status->los = (data[port].value[0] ? 1 : 0);          // SFP LOS at bit 0
+        status->present = (data[port].value[1] ? 0 : 1);      // SFP MODDET at bit 1
+        status->tx_fault = (data[1].value[port - 2] ? 0 : 1); // SFP TXFAULT at port 1, bit 0/1
     }
     return rc;
 }
 
-static mesa_rc lan966x_port_admin_state_set(meba_inst_t    inst,
-                                            mesa_port_no_t port_no,
+static mesa_rc lan966x_port_admin_state_set(meba_inst_t                    inst,
+                                            mesa_port_no_t                 port_no,
                                             const meba_port_admin_state_t *state)
 {
     mesa_rc             rc = MESA_RC_OK;
@@ -708,13 +677,11 @@ static mesa_rc lan966x_port_admin_state_set(meba_inst_t    inst,
     mesa_sgpio_conf_t   conf;
     mesa_sgpio_mode_t   mode;
 
-    if (board->type == BOARD_TYPE_ENDNODE_CARRIER &&
-        lan966x_port_sfp_detect(board, port_no) &&
+    if (board->type == BOARD_TYPE_ENDNODE_CARRIER && lan966x_port_sfp_detect(board, port_no) &&
         (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
         mode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
         port = lan966x_port2sfp(port_no);
-        conf.port_conf[10].mode[port - 2] =
-            mode; // SFP TXEN at port 10, bit 0/1
+        conf.port_conf[10].mode[port - 2] = mode; // SFP TXEN at port 10, bit 0/1
         rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
     }
     return rc;
@@ -738,8 +705,7 @@ static mesa_rc lan966x_port_led_update(meba_inst_t                    inst,
                 : board->type == BOARD_TYPE_ENDNODE_CARRIER ? 4
                                                             : 0);
     if (port_no < port_max &&
-        (status->link != old_status->link ||
-         status->speed != old_status->speed) &&
+        (status->link != old_status->link || status->speed != old_status->speed) &&
         (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
         *old_status = *status;        // Save status
         mode[0] = MESA_SGPIO_MODE_ON; // P0_GR/P1_GR/SFP0_GR/SFP1_GR
@@ -862,16 +828,14 @@ repeat_handler:
         }
         if (board->type == BOARD_TYPE_8PORT && gpio_events[GPIO_IRQ]) {
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
-                (void)meba_generic_phy_event_check(inst, port_no,
-                                                   signal_notifier);
+                (void)meba_generic_phy_event_check(inst, port_no, signal_notifier);
             }
             handled = 1;
         }
         // Check the timestamp events.
         if (board->type == BOARD_TYPE_8PORT && gpio_events[GPIO_IRQ]) {
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
-                if (meba_generic_phy_timestamp_check(inst, port_no,
-                                                     signal_notifier) ==
+                if (meba_generic_phy_timestamp_check(inst, port_no, signal_notifier) ==
                     MESA_RC_OK) {
                     handled = 1;
                 }
@@ -920,18 +884,13 @@ static mesa_rc lan966x_irq_handler(meba_inst_t         inst,
 
     T_D(inst, "Called - irq %d", chip_irq);
     switch (chip_irq) {
-    case MESA_IRQ_PTP_SYNC:
-        return meba_generic_ptp_handler(inst, signal_notifier);
-    case MESA_IRQ_PTP_RDY:
-        signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0);
-        return MESA_RC_OK;
-    case MESA_IRQ_OAM:   signal_notifier(MEBA_EVENT_VOE, 0); return MESA_RC_OK;
-    case MESA_IRQ_SGPIO: return sgpio_handler(inst, board, signal_notifier);
-    case MESA_IRQ_GPIO:  return gpio_handler(inst, board, signal_notifier);
-    case MESA_IRQ_PUSH_BUTTON:
-        signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0);
-        return MESA_RC_OK;
-    case MESA_IRQ_EXT0: return ext0_handler(inst, board, signal_notifier);
+    case MESA_IRQ_PTP_SYNC:    return meba_generic_ptp_handler(inst, signal_notifier);
+    case MESA_IRQ_PTP_RDY:     signal_notifier(MEBA_EVENT_CLK_TSTAMP, 0); return MESA_RC_OK;
+    case MESA_IRQ_OAM:         signal_notifier(MEBA_EVENT_VOE, 0); return MESA_RC_OK;
+    case MESA_IRQ_SGPIO:       return sgpio_handler(inst, board, signal_notifier);
+    case MESA_IRQ_GPIO:        return gpio_handler(inst, board, signal_notifier);
+    case MESA_IRQ_PUSH_BUTTON: signal_notifier(MEBA_EVENT_PUSH_BUTTON, 0); return MESA_RC_OK;
+    case MESA_IRQ_EXT0:        return ext0_handler(inst, board, signal_notifier);
     case MESA_IRQ_CU_PHY_0:
     case MESA_IRQ_CU_PHY_1:
         T_I(inst, "CU_PHY");
@@ -960,9 +919,7 @@ static mesa_rc lan966x_irq_requested(meba_inst_t inst, mesa_irq_t chip_irq)
     return rc;
 }
 
-static mesa_rc lan966x_event_enable(meba_inst_t  inst,
-                                    meba_event_t event_id,
-                                    mesa_bool_t  enable)
+static mesa_rc lan966x_event_enable(meba_inst_t inst, meba_event_t event_id, mesa_bool_t enable)
 {
     mesa_rc               rc = MESA_RC_OK;
     meba_board_state_t   *board = INST2BOARD(inst);
@@ -990,18 +947,15 @@ static mesa_rc lan966x_event_enable(meba_inst_t  inst,
                         port = port_no;
                         bit = i;
                     }
-                    (void)mesa_sgpio_event_enable(NULL, 0, 0, port, bit,
-                                                  enable);
+                    (void)mesa_sgpio_event_enable(NULL, 0, 0, port, bit, enable);
                 }
             }
         } else if (board->type == BOARD_TYPE_ENDNODE) {
             T_D(inst, "Board ENDNODE: %d ports", board->port_cnt);
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
                 if (is_phy_port(board->entry[port_no].cap)) {
-                    T_D(inst, "Enable event MEPA_LINK_LOS for port %d",
-                        port_no);
-                    rc = meba_phy_event_enable_set(inst, port_no, MEPA_LINK_LOS,
-                                                   TRUE);
+                    T_D(inst, "Enable event MEPA_LINK_LOS for port %d", port_no);
+                    rc = meba_phy_event_enable_set(inst, port_no, MEPA_LINK_LOS, TRUE);
                     if (rc != MESA_RC_OK) {
                         break;
                     }
@@ -1010,13 +964,11 @@ static mesa_rc lan966x_event_enable(meba_inst_t  inst,
         }
         break;
     case MEBA_EVENT_FLNK:
-        T_D(inst, "Enable events for MEBA_EVENT_FLNK (%d ports)",
-            board->port_cnt);
+        T_D(inst, "Enable events for MEBA_EVENT_FLNK (%d ports)", board->port_cnt);
         for (port_no = 0; port_no < board->port_cnt; port_no++) {
             if (is_phy_port(board->entry[port_no].cap)) {
                 T_D(inst, "Enable event MEBA_EVENT_FLNK for port %d", port_no);
-                rc = meba_phy_event_enable_set(inst, port_no,
-                                               VTSS_PHY_LINK_FFAIL_EV, enable);
+                rc = meba_phy_event_enable_set(inst, port_no, VTSS_PHY_LINK_FFAIL_EV, enable);
                 if (rc != MESA_RC_OK) {
                     break;
                 }
@@ -1024,8 +976,7 @@ static mesa_rc lan966x_event_enable(meba_inst_t  inst,
         }
         break;
     case MEBA_EVENT_PUSH_BUTTON:
-        if (board->type == BOARD_TYPE_8PORT ||
-            board->type == BOARD_TYPE_ENDNODE ||
+        if (board->type == BOARD_TYPE_8PORT || board->type == BOARD_TYPE_ENDNODE ||
             board->type == BOARD_TYPE_ENDNODE_CARRIER) {
             rc = mesa_gpio_event_enable(NULL, 0, GPIO_PUSH_BUTTON, enable);
         }
@@ -1037,8 +988,7 @@ static mesa_rc lan966x_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_CLK_TSTAMP:
         ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
 
-        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) !=
-            MESA_RC_OK) {
+        if ((rc = mesa_ptp_event_enable(NULL, ptp_event, enable)) != MESA_RC_OK) {
             T_E(inst, "mesa_ptp_event_enable = %d", rc);
         }
         break;
@@ -1050,13 +1000,11 @@ static mesa_rc lan966x_event_enable(meba_inst_t  inst,
     case MEBA_EVENT_EGR_TIMESTAMP_CAPTURED:
     case MEBA_EVENT_EGR_FIFO_OVERFLOW:
         if (board->type == BOARD_TYPE_8PORT) {
-            mepa_ts_event_t event =
-                meba_generic_phy_ts_source_to_event(inst, event_id);
+            mepa_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
-                if ((rc = meba_phy_ts_event_set(inst, port_no, enable,
-                                                event)) != MESA_RC_OK) {
-                    T_E(inst, "vtss_phy_ts_event_enable_set(%d, %d, %d) = %d",
-                        port_no, enable, event, rc);
+                if ((rc = meba_phy_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
+                    T_E(inst, "vtss_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable,
+                        event, rc);
                 }
             }
         }
@@ -1068,8 +1016,7 @@ static mesa_rc lan966x_event_enable(meba_inst_t  inst,
     return rc;
 }
 
-meba_inst_t meba_initialize(size_t                        callouts_size,
-                            const meba_board_interface_t *callouts)
+meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *callouts)
 {
     meba_inst_t         inst;
     meba_board_state_t *board;
@@ -1077,14 +1024,14 @@ meba_inst_t meba_initialize(size_t                        callouts_size,
     uint32_t            type;
 
     if (callouts_size < sizeof(*callouts)) {
-        fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n",
-                sizeof(*callouts), callouts_size);
+        fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n", sizeof(*callouts),
+                callouts_size);
         return NULL;
     }
 
     // Allocate pulic state
-    if ((inst = meba_state_alloc(callouts, "lan9668_adaro", MESA_TARGET_LAN9668,
-                                 sizeof(*board))) == NULL) {
+    if ((inst = meba_state_alloc(callouts, "lan9668_adaro", MESA_TARGET_LAN9668, sizeof(*board))) ==
+        NULL) {
         return NULL;
     }
 
@@ -1093,8 +1040,7 @@ meba_inst_t meba_initialize(size_t                        callouts_size,
     board = INST2BOARD(inst);
 
     // Always allocate for 8 ports
-    board->entry =
-        (lan966x_port_info_t *)calloc(8, sizeof(lan966x_port_info_t));
+    board->entry = (lan966x_port_info_t *)calloc(8, sizeof(lan966x_port_info_t));
     if (board->entry == NULL) {
         fprintf(stderr, "Port table malloc failure\n");
         goto error_out;
@@ -1117,12 +1063,8 @@ meba_inst_t meba_initialize(size_t                        callouts_size,
     /* Fill out port mapping table */
     inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
     switch (board->type) {
-    case BOARD_TYPE_ADARO:
-        lan966x_init_port_table(inst, 4, port_table_adaro);
-        break;
-    case BOARD_TYPE_SUNRISE:
-        lan966x_init_port_table(inst, 5, port_table_sunrise);
-        break;
+    case BOARD_TYPE_ADARO:   lan966x_init_port_table(inst, 4, port_table_adaro); break;
+    case BOARD_TYPE_SUNRISE: lan966x_init_port_table(inst, 5, port_table_sunrise); break;
     case BOARD_TYPE_SVB:
         inst->props.mux_mode = MESA_PORT_MUX_MODE_5;
         lan966x_init_port_table(inst, 4, port_table_svb);
@@ -1131,9 +1073,7 @@ meba_inst_t meba_initialize(size_t                        callouts_size,
         inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
         lan966x_init_port_table(inst, 8, port_table_8port);
         break;
-    case BOARD_TYPE_ENDNODE:
-        lan966x_init_port_table(inst, 3, port_table_endnode);
-        break;
+    case BOARD_TYPE_ENDNODE: lan966x_init_port_table(inst, 3, port_table_endnode); break;
     case BOARD_TYPE_ENDNODE_CARRIER:
         if (type == 1) {
             // Dual-media support
@@ -1149,8 +1089,8 @@ meba_inst_t meba_initialize(size_t                        callouts_size,
 
     inst->props.board_type = board->type;
 
-    T_I(inst, "Board: %s, target %4x, %d ports, mux_mode %d", inst->props.name,
-        inst->props.target, board->port_cnt, inst->props.mux_mode);
+    T_I(inst, "Board: %s, target %4x, %d ports, mux_mode %d", inst->props.name, inst->props.target,
+        board->port_cnt, inst->props.mux_mode);
 
     // Hook up board API functions
     T_D(inst, "Hooking up board API");

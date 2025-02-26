@@ -16,8 +16,7 @@
 /* function to map from SD25G28 interface width to configuration value */
 static u8 sd25g28_get_iw_setting(const u8 interface_width)
 {
-    VTSS_D(" sd25g28_get_iw_setting:  Interface width is %d bits \n",
-           interface_width);
+    VTSS_D(" sd25g28_get_iw_setting:  Interface width is %d bits \n", interface_width);
     switch (interface_width) {
     case 10: {
         return 0;
@@ -82,10 +81,8 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->com_txcal_en = 0;
         ret_val->com_tx_reserve_msb = (0x26 << 1); // Default is 0x20<<1
         ret_val->com_tx_reserve_lsb = ((3 << 6) + (3 << 4));
-        ret_val->ln_tx_reserve_msb =
-            ((3 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb =
-            ((3 << 6) + (3 << 4) + (3 << 2) + (2 << 0));
+        ret_val->ln_tx_reserve_msb = ((3 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
+        ret_val->ln_tx_reserve_lsb = ((3 << 6) + (3 << 4) + (3 << 2) + (2 << 0));
         ret_val->ln_bw = 3;
         ret_val->ln_rxterm = 0;
         ret_val->dfe_enable = 1;
@@ -117,10 +114,8 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->com_txcal_en = 0;
         ret_val->com_tx_reserve_msb = (0x26 << 1); // Default is 0x20<<1
         ret_val->com_tx_reserve_lsb = ((3 << 6) + (3 << 4));
-        ret_val->ln_tx_reserve_msb =
-            ((3 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb =
-            ((3 << 6) + (3 << 4) + (3 << 2) + (2 << 0));
+        ret_val->ln_tx_reserve_msb = ((3 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
+        ret_val->ln_tx_reserve_lsb = ((3 << 6) + (3 << 4) + (3 << 2) + (2 << 0));
         ret_val->ln_bw = 3;
         ret_val->ln_rxterm = 0;
         ret_val->dfe_enable = 1;
@@ -153,10 +148,8 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->com_txcal_en = 1;
         ret_val->com_tx_reserve_msb = (0x20 << 1); //
         ret_val->com_tx_reserve_lsb = ((1 << 6) + (0 << 4));
-        ret_val->ln_tx_reserve_msb =
-            ((1 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb =
-            ((1 << 6) + (0 << 4) + (1 << 2) + (0 << 0));
+        ret_val->ln_tx_reserve_msb = ((1 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
+        ret_val->ln_tx_reserve_lsb = ((1 << 6) + (0 << 4) + (1 << 2) + (0 << 0));
         ret_val->ln_cfg_pi_bw_3_0 = 0;
         ret_val->ln_bw = 1;
         ret_val->ln_rxterm = 0;
@@ -189,10 +182,8 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->com_txcal_en = 1;
         ret_val->com_tx_reserve_msb = (0x20 << 1); //
         ret_val->com_tx_reserve_lsb = ((1 << 6) + (0 << 4));
-        ret_val->ln_tx_reserve_msb =
-            ((1 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb =
-            ((1 << 6) + (0 << 4) + (1 << 2) + (0 << 0));
+        ret_val->ln_tx_reserve_msb = ((1 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
+        ret_val->ln_tx_reserve_lsb = ((1 << 6) + (0 << 4) + (1 << 2) + (0 << 0));
         ret_val->ln_bw = 3;
         ret_val->ln_cfg_pi_bw_3_0 = 0;
         ret_val->ln_rxterm = 3; // Changed to 2 CTS 07/06/2019
@@ -224,10 +215,8 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->com_txcal_en = 1;
         ret_val->com_tx_reserve_msb = (0x20 << 1); //
         ret_val->com_tx_reserve_lsb = ((0 << 6) + (0 << 4));
-        ret_val->ln_tx_reserve_msb =
-            ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (3 << 1));
-        ret_val->ln_tx_reserve_lsb =
-            ((2 << 6) + (0 << 4) + (0 << 2) + (0 << 0));
+        ret_val->ln_tx_reserve_msb = ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (3 << 1));
+        ret_val->ln_tx_reserve_lsb = ((2 << 6) + (0 << 4) + (0 << 2) + (0 << 0));
         ret_val->ln_bw = 0;
         ret_val->ln_rxterm = 0;
         ret_val->ln_cfg_pi_bw_3_0 = 6;
@@ -257,10 +246,8 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->com_txcal_en = 1;
         ret_val->com_tx_reserve_msb = (0x20 << 1); //
         ret_val->com_tx_reserve_lsb = ((0 << 6) + (0 << 4));
-        ret_val->ln_tx_reserve_msb =
-            ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (3 << 1));
-        ret_val->ln_tx_reserve_lsb =
-            ((2 << 6) + (0 << 4) + (0 << 2) + (0 << 0));
+        ret_val->ln_tx_reserve_msb = ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (3 << 1));
+        ret_val->ln_tx_reserve_lsb = ((2 << 6) + (0 << 4) + (0 << 2) + (0 << 0));
         ret_val->ln_bw = 0;
         ret_val->ln_cfg_pi_bw_3_0 = 6;
         ret_val->ln_rxterm = 0;
@@ -291,10 +278,8 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->com_tx_reserve_msb = (0x26 << 1); // 08Jan mail [11:8] =0xc
         ret_val->com_tx_reserve_lsb = (0xf << 4);
         ret_val->ln_cfg_itx_ipcml_base = 2; //;
-        ret_val->ln_tx_reserve_msb =
-            ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (0 << 1));
-        ret_val->ln_tx_reserve_lsb =
-            ((2 << 6) + (0 << 4) + (0xa << 0)); // 09Jan Mail
+        ret_val->ln_tx_reserve_msb = ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (0 << 1));
+        ret_val->ln_tx_reserve_lsb = ((2 << 6) + (0 << 4) + (0xa << 0)); // 09Jan Mail
         ret_val->ln_bw = 0;
         ret_val->ln_cfg_pi_bw_3_0 = 0; //_004
         ret_val->ln_rxterm = (1 << 2); //_004
@@ -321,14 +306,11 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->com_txcal_en = 1;
         ret_val->com_tx_reserve_msb = (0x26 << 1); //
         ret_val->com_tx_reserve_lsb = ((3 << 6) + (3 << 4));
-        ret_val->ln_tx_reserve_msb =
-            ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (0 << 1));
-        ret_val->ln_tx_reserve_lsb =
-            ((3 << 6) + (0 << 4) + (3 << 2) + (2 << 0));
+        ret_val->ln_tx_reserve_msb = ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (0 << 1));
+        ret_val->ln_tx_reserve_lsb = ((3 << 6) + (0 << 4) + (3 << 2) + (2 << 0));
         ret_val->ln_bw = 0;
         ret_val->ln_rxterm = 0;
-        ret_val->ln_cfg_pi_bw_3_0 =
-            0; //=0 as per _004; was 6; it works for both
+        ret_val->ln_cfg_pi_bw_3_0 = 0; //=0 as per _004; was 6; it works for both
         ret_val->dfe_enable = 0;
         ret_val->dfe_tap = 0;
 
@@ -340,8 +322,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
     }
     case VTSS_SD25G28_MODE_FX100:
     default:                      {
-        VTSS_E(
-            "vtss_sd25g28_get_conf_from_mode: invalid parameter value for f_mode\n");
+        VTSS_E("vtss_sd25g28_get_conf_from_mode: invalid parameter value for f_mode\n");
         // ret_val->datarate= 25.7813e9;
         // ret_val->bitwidth 40; //10G Devices
         ret_val->bitwidth = sd25g28_get_iw_setting(40);
@@ -355,10 +336,8 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->com_txcal_en = 0;
         ret_val->com_tx_reserve_msb = (0x26 << 1); //
         ret_val->com_tx_reserve_lsb = ((3 << 6) + (3 << 4));
-        ret_val->ln_tx_reserve_msb =
-            ((3 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb =
-            ((3 << 6) + (3 << 4) + (3 << 2) + (2 << 0));
+        ret_val->ln_tx_reserve_msb = ((3 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
+        ret_val->ln_tx_reserve_lsb = ((3 << 6) + (3 << 4) + (3 << 2) + (2 << 0));
         ret_val->ln_bw = 3;
         ret_val->ln_rxterm = 0;
         ret_val->dfe_enable = 1;
@@ -398,19 +377,16 @@ vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t    config,
 
     rslt = vtss_sd25g28_get_conf_from_mode(config.mode, mode_args);
 
-    ret_val->r_DwidthCtrl_2_0[0] =
-        mode_args->bitwidth; // L1_data_width_sel[2;0]
+    ret_val->r_DwidthCtrl_2_0[0] = mode_args->bitwidth; // L1_data_width_sel[2;0]
     ret_val->r_txfifo_ck_div_pmad_2_0[0] =
         mode_args->fifo_ck_div; // L1_txfifo_ck_div; TX FIFO clock divider
     ret_val->r_rxfifo_ck_div_pmad_2_0[0] =
         mode_args->fifo_ck_div; // L1_rxfifo_ck_div; RX FIFO clock divider
     ret_val->cfg_vco_div_mode_1_0[0] =
-        mode_args
-            ->vco_div_mode; // hwt_vco_div_sel; PMA divider setting or Reference
-                            // clock multiplying factor; 0:/1;1:/2;2:/4;3:/8
-    ret_val->cfg_pre_divsel_1_0[0] =
-        mode_args->pre_divsel; // hwt_pre_div_sel; Reference clk divide:
-                               // 00:/1;01:/2;10:/4
+        mode_args->vco_div_mode; // hwt_vco_div_sel; PMA divider setting or Reference
+                                 // clock multiplying factor; 0:/1;1:/2;2:/4;3:/8
+    ret_val->cfg_pre_divsel_1_0[0] = mode_args->pre_divsel; // hwt_pre_div_sel; Reference clk
+                                                            // divide: 00:/1;01:/2;10:/4
     ret_val->cfg_sel_div_3_0[0] =
         mode_args->sel_div; // hwt_cfg_sel_div PLL multiplying factor (Fref*N);
                             // Application notes for more details and
@@ -426,12 +402,10 @@ vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t    config,
                                 // selection
     ret_val->ln_cfg_tx_prediv_1_0[0] =
         mode_args->tx_pre_div; // L1_pcs2pma_tx_speed; TX subrate control
-    ret_val->ln_cfg_rxdiv_sel_2_0[0] =
-        mode_args->ck_bitwidth; // L1_pma_rxdiv_sel; pma_rx_ck_leaf frequency
-                                // selection
+    ret_val->ln_cfg_rxdiv_sel_2_0[0] = mode_args->ck_bitwidth; // L1_pma_rxdiv_sel; pma_rx_ck_leaf
+                                                               // frequency selection
     if ((config.chip_name != VTSS_SD25G28_CHIP_ANT)) {
-        if ((config.preset == VTSS_SD25G28_ZR) ||
-            (config.preset == VTSS_SD25G28_10GDAC5M) ||
+        if ((config.preset == VTSS_SD25G28_ZR) || (config.preset == VTSS_SD25G28_10GDAC5M) ||
             (config.preset == VTSS_SD25G28_KR_HW)) {
             VTSS_E(
                 "vtss_calc_sd25g28_setup_lane: Smart Control presets are not supported for the current Device");
@@ -512,12 +486,10 @@ vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t    config,
         preset.ln_cfg_tap_dly_4_0 = 0;
 
         // ctle related signals
-        preset.ln_cfg_eqC_force_3_0 =
-            15; // pvt setup value 15, values work fine for stc 10 10 10 7
+        preset.ln_cfg_eqC_force_3_0 = 15; // pvt setup value 15, values work fine for stc 10 10 10 7
         preset.ln_cfg_vga_ctrl_byp_4_0 =
             4; // pvt setup value 4,  values work fine for stc 4  4  8  10
-        preset.ln_cfg_eqR_force_3_0 =
-            12; // pvt setup value 12, values work fine for stc 2  3  6  7
+        preset.ln_cfg_eqR_force_3_0 = 12; // pvt setup value 12, values work fine for stc 2  3  6  7
         preset.ln_cfg_alos_thr_2_0 = 0;
         break;
 
@@ -575,23 +547,19 @@ vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t    config,
     }
 
     ret_val->ln_cfg_tx_subrate_2_0[0] =
-        mode_args
-            ->subrate; // L1_tx_rate_sel; pma_tx_ck_src full/subrate frequency
-                       // selection; 00:full;01:1/2; 10:1/4; 11:1/8
-    ret_val->ln_cfg_rx_subrate_2_0[0] =
-        mode_args->subrate; // L1_rx_rate_sel; ln_pma_rx_ck full/subrate
-                            // frequency selection;
+        mode_args->subrate; // L1_tx_rate_sel; pma_tx_ck_src full/subrate frequency
+                            // selection; 00:full;01:1/2; 10:1/4; 11:1/8
+    ret_val->ln_cfg_rx_subrate_2_0[0] = mode_args->subrate; // L1_rx_rate_sel; ln_pma_rx_ck
+                                                            // full/subrate frequency selection;
     ret_val->r_multi_lane_mode[0] = 0;
-    ret_val->ln_cfg_cdrck_en[0] = 1; // L1_pcs2pma_power_ctrl[0]
-    ret_val->ln_cfg_dfeck_en[0] =
-        mode_args->dfe_enable; // L1_pcs2pma_power_ctrl[1]
+    ret_val->ln_cfg_cdrck_en[0] = 1;                     // L1_pcs2pma_power_ctrl[0]
+    ret_val->ln_cfg_dfeck_en[0] = mode_args->dfe_enable; // L1_pcs2pma_power_ctrl[1]
     // ret_val->ln_cfg_dfe_pd[0]   = 1;//L1_pcs2pma_power_ctrl[2]
     ret_val->ln_cfg_dfe_pd[0] = (mode_args->dfe_enable == 1) ? 0 : 1;
     ret_val->ln_cfg_dfedmx_pd[0] = 1; // L1_pcs2pma_power_ctrl[3]
     ret_val->ln_cfg_dfetap_en_5_1[0] = mode_args->dfe_tap;
-    ret_val->ln_cfg_dmux_pd[0] = 0; // L1_pcs2pma_power_ctrl[9]
-    ret_val->ln_cfg_dmux_clk_pd[0] =
-        1; // L1_pcs2pma_power_ctrl[10] change CTS 07/06/2019
+    ret_val->ln_cfg_dmux_pd[0] = 0;     // L1_pcs2pma_power_ctrl[9]
+    ret_val->ln_cfg_dmux_clk_pd[0] = 1; // L1_pcs2pma_power_ctrl[10] change CTS 07/06/2019
     ret_val->ln_cfg_erramp_pd[0] = (mode_args->dfe_enable == 1) ? 0 : 1;
     ret_val->ln_cfg_pi_DFE_en[0] = mode_args->dfe_enable;
     ret_val->ln_cfg_pi_en[0] = 1;      // L1_pcs2pma_power_ctrl[13]
@@ -604,9 +572,8 @@ vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t    config,
     ret_val->ln_cfg_rx_reg_pu[0] = 1;  // L1_pcs2pma_power_ctrl[20]
     ret_val->ln_cfg_pd_rms_det[0] = 1; // L1_pcs2pma_power_ctrl[21]
     ret_val->ln_cfg_dcdr_pd[0] = 0;    // L1_pcs2pma_power_ctrl[22]
-    ret_val->ln_cfg_ecdr_pd[0] =
-        1; // L1_pcs2pma_power_ctrl[23] change CTS 07/06/2019
-    ret_val->ln_cfg_pd_sq[0] = 1; // L1_pcs2pma_power_ctrl[24]
+    ret_val->ln_cfg_ecdr_pd[0] = 1;    // L1_pcs2pma_power_ctrl[23] change CTS 07/06/2019
+    ret_val->ln_cfg_pd_sq[0] = 1;      // L1_pcs2pma_power_ctrl[24]
     // TODO txswing related reg values this could depend on media, board and Si
     // ret_val->ln_cfg_itx_ipdriver_base_2_0[0]   = ((config.txswing)>>6);
     // //L1_pcs2pma_txmargin; used in KR/CR: Transmitter voltage level control
@@ -692,10 +659,9 @@ vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t    config,
     ret_val->r_reg_manual[0] = config.reg_ctrl;
     ret_val->reg_ctrl[0] = config.reg_ctrl;
     ret_val->reg_rst[0] = config.reg_rst;
-    ret_val->cfg_jc_byp[0] =
-        0x1; // As per CTS: 0: Use INTCML CK/CKB; 1: for external clock
+    ret_val->cfg_jc_byp[0] = 0x1; // As per CTS: 0: Use INTCML CK/CKB; 1: for external clock
     ret_val->cfg_common_reserve_7_0[0] =
-        0x1; // Resistor termination disabled for all 25G Serdes in FA
+        0x1;                           // Resistor termination disabled for all 25G Serdes in FA
     ret_val->cfg_pll_lol_set[0] = 0x1; // loss of lock enable/disable control
 
     if (config.master_loop == VTSS_SD25G28_LM1) {

@@ -26,13 +26,11 @@ typedef struct {
 
 // Add MAC address entry.
 // entry [IN]  MAC address entry structure.
-mesa_rc mesa_mac_table_add(const mesa_inst_t                   inst,
-                           const mesa_mac_table_entry_t *const entry);
+mesa_rc mesa_mac_table_add(const mesa_inst_t inst, const mesa_mac_table_entry_t *const entry);
 
 // Delete MAC address entry.
 // vid_mac [IN]  VLAN ID and MAC address structure.
-mesa_rc mesa_mac_table_del(const mesa_inst_t           inst,
-                           const mesa_vid_mac_t *const vid_mac);
+mesa_rc mesa_mac_table_del(const mesa_inst_t inst, const mesa_vid_mac_t *const vid_mac);
 
 // Get MAC address entry.
 // vid_mac [IN]  VLAN ID and MAC address.
@@ -75,8 +73,7 @@ mesa_rc mesa_mac_table_flush(const mesa_inst_t inst);
 
 // Delete MAC address entries learned on port.
 // port_no [IN]  Port number.
-mesa_rc mesa_mac_table_port_flush(const mesa_inst_t    inst,
-                                  const mesa_port_no_t port_no);
+mesa_rc mesa_mac_table_port_flush(const mesa_inst_t inst, const mesa_port_no_t port_no);
 
 // Delete MAC address entries learned on VLAN ID.
 // vid [IN]  VLAN ID.
@@ -99,15 +96,13 @@ typedef struct {
 
 // Get MAC address table status.
 // status [OUT]  MAC address table status.
-mesa_rc mesa_mac_table_status_get(const mesa_inst_t              inst,
-                                  mesa_mac_table_status_t *const status);
+mesa_rc mesa_mac_table_status_get(const mesa_inst_t inst, mesa_mac_table_status_t *const status);
 
 // Learning mode
 typedef struct {
-    mesa_bool_t
-        automatic; // Automatic learning done by switch chip (default enabled)
-    mesa_bool_t          cpu; // Learn frames copied to CPU (default disabled)
-    mesa_bool_t          discard; // Learn frames discarded (default disabled)
+    mesa_bool_t          automatic; // Automatic learning done by switch chip (default enabled)
+    mesa_bool_t          cpu;       // Learn frames copied to CPU (default disabled)
+    mesa_bool_t          discard;   // Learn frames discarded (default disabled)
     uint32_t learn_limit CAP(L2_LEARN_LIMIT); // Learn limit in number of
                                               // entries. '0' means disable.
 } mesa_learn_mode_t;
@@ -168,8 +163,8 @@ mesa_rc mesa_stp_port_state_set(const mesa_inst_t      inst,
 // MSTP instance number
 typedef uint32_t mesa_msti_t;
 
-#define MESA_MSTIS           (65) // Number of MSTP instances
-#define MESA_MSTI_START      (0)  // MSTI start number
+#define MESA_MSTIS           (65)                           // Number of MSTP instances
+#define MESA_MSTI_START      (0)                            // MSTI start number
 #define MESA_MSTI_END        (MESA_MSTI_START + MESA_MSTIS) // MSTI end number
 #define MESA_MSTI_ARRAY_SIZE MESA_MSTI_END                  // MSTI array size
 
@@ -216,13 +211,11 @@ typedef struct {
 
 // Get VLAN configuration.
 // conf [OUT]  VLAN configuration structure.
-mesa_rc mesa_vlan_conf_get(const mesa_inst_t       inst,
-                           mesa_vlan_conf_t *const conf);
+mesa_rc mesa_vlan_conf_get(const mesa_inst_t inst, mesa_vlan_conf_t *const conf);
 
 // Set VLAN configuration.
 // conf [IN]  VLAN configuration structure.
-mesa_rc mesa_vlan_conf_set(const mesa_inst_t             inst,
-                           const mesa_vlan_conf_t *const conf);
+mesa_rc mesa_vlan_conf_set(const mesa_inst_t inst, const mesa_vlan_conf_t *const conf);
 
 // VLAN port type configuration
 typedef enum {
@@ -234,10 +227,10 @@ typedef enum {
 
 // VLAN port configuration
 typedef struct {
-    mesa_vlan_port_type_t port_type;    // Port type (ingress and egress)
-    mesa_vid_t            pvid;         // Port VLAN ID (PVID, ingress)
-    mesa_vid_t            untagged_vid; // Port untagged VLAN ID (UVID, egress)
-    mesa_vlan_frame_t     frame_type;   // Acceptable frame type (ingress)
+    mesa_vlan_port_type_t port_type;      // Port type (ingress and egress)
+    mesa_vid_t            pvid;           // Port VLAN ID (PVID, ingress)
+    mesa_vid_t            untagged_vid;   // Port untagged VLAN ID (UVID, egress)
+    mesa_vlan_frame_t     frame_type;     // Acceptable frame type (ingress)
     mesa_bool_t           ingress_filter; // Ingress filtering
 } mesa_vlan_port_conf_t;
 
@@ -298,7 +291,7 @@ mesa_rc mesa_vlan_vid_conf_set(const mesa_inst_t                 inst,
 
 // VLAN Tx tag control
 typedef enum {
-    MESA_VLAN_TX_TAG_PORT, // Egress tagging determined by VLAN port configuration
+    MESA_VLAN_TX_TAG_PORT,    // Egress tagging determined by VLAN port configuration
     MESA_VLAN_TX_TAG_DISABLE, // Egress tagging disabled
     MESA_VLAN_TX_TAG_ENABLE,  // Egress tagging enabled
 } mesa_vlan_tx_tag_t;
@@ -331,12 +324,9 @@ typedef struct {
 
 // VLAN counters
 typedef struct {
-    mesa_vlan_counter_types_t
-        rx_vlan_unicast; // Number of received unicast frames or bytes
-    mesa_vlan_counter_types_t
-        rx_vlan_multicast; // Number of received multicast frames or bytes
-    mesa_vlan_counter_types_t
-        rx_vlan_broadcast; // Number of received broadcast frames or bytes
+    mesa_vlan_counter_types_t rx_vlan_unicast;   // Number of received unicast frames or bytes
+    mesa_vlan_counter_types_t rx_vlan_multicast; // Number of received multicast frames or bytes
+    mesa_vlan_counter_types_t rx_vlan_broadcast; // Number of received broadcast frames or bytes
 } mesa_vlan_counters_t CAP(L2_VLAN_COUNTERS);
 
 // Get VLAN Counters.
@@ -344,8 +334,7 @@ typedef struct {
 // counters [OUT] VLAN counters.
 mesa_rc mesa_vlan_counters_get(const mesa_inst_t           inst,
                                const mesa_vid_t            vid,
-                               mesa_vlan_counters_t *const counters)
-    CAP(L2_VLAN_COUNTERS);
+                               mesa_vlan_counters_t *const counters) CAP(L2_VLAN_COUNTERS);
 
 // Clear VLAN Counters.
 // vid [IN]  VLAN ID.
@@ -356,7 +345,7 @@ mesa_rc mesa_vlan_counters_clear(const mesa_inst_t inst, const mesa_vid_t vid)
 
 // VCL port configuration
 typedef struct {
-    mesa_bool_t dmac_dip; // Enable DMAC/DIP matching (default SMAC/SIP)
+    mesa_bool_t          dmac_dip; // Enable DMAC/DIP matching (default SMAC/SIP)
     mesa_vcap_key_type_t key_type; // Key type for VCL lookup
 } mesa_vcl_port_conf_t;
 
@@ -387,10 +376,10 @@ typedef enum {
 // VCE ID type
 typedef uint32_t mesa_vce_id_t;
 
-#define MESA_VCL_IDS        256 // Number of VCLs
-#define MESA_VCL_ID_START   0   // VCL ID start number
+#define MESA_VCL_IDS        256                                // Number of VCLs
+#define MESA_VCL_ID_START   0                                  // VCL ID start number
 #define MESA_VCL_ID_END     (MESA_VCL_ID_START + MESA_VCL_IDS) // VCL ID end number
-#define MESA_VCL_ARRAY_SIZE MESA_VCL_ID_END // VCL ID array size
+#define MESA_VCL_ARRAY_SIZE MESA_VCL_ID_END                    // VCL ID array size
 
 #define MESA_VCE_ID_LAST 0 // Special value used to add last in list
 
@@ -491,22 +480,22 @@ typedef struct {
     mesa_bool_t               pop_enable; // Tag pop enable
     uint8_t                   pop_cnt;    // Tag pop count
     mesa_imap_sel_t           map_sel;    // Ingress map selection
-    mesa_qos_ingress_map_id_t map_id;  // Ingress map to use for classification
-    mesa_iflow_id_t           flow_id; // Ingress flow ID.
-                             // (VOP_V2) If MESA_IFLOW_ID_NONE OAM will be
-                             // handled by the possibly enabled port-VOE.
-    mesa_oam_detect_t oam_detect;  // OAM detection
-    mesa_bool_t       mrp_enable;  // Enable MRP
-    mesa_bool_t       prio_enable; // Enable priority classification
-    mesa_prio_t       prio;        // Priority value
-    mesa_bool_t       dp_enable;   // Enable DP classification
-    mesa_dp_level_t   dp;          // DP value
-    mesa_bool_t       dscp_enable; // Enable DSCP classification
-    mesa_dscp_t       dscp;        // DSCP value
-    mesa_bool_t       pcp_enable;  // Enable PCP classification
-    mesa_pcp_t        pcp;         // PCP value
-    mesa_bool_t       dei_enable;  // Enable DEI classification
-    mesa_dei_t        dei;         // DEI value
+    mesa_qos_ingress_map_id_t map_id;     // Ingress map to use for classification
+    mesa_iflow_id_t           flow_id;    // Ingress flow ID.
+                                          // (VOP_V2) If MESA_IFLOW_ID_NONE OAM will be
+                                          // handled by the possibly enabled port-VOE.
+    mesa_oam_detect_t oam_detect;         // OAM detection
+    mesa_bool_t       mrp_enable;         // Enable MRP
+    mesa_bool_t       prio_enable;        // Enable priority classification
+    mesa_prio_t       prio;               // Priority value
+    mesa_bool_t       dp_enable;          // Enable DP classification
+    mesa_dp_level_t   dp;                 // DP value
+    mesa_bool_t       dscp_enable;        // Enable DSCP classification
+    mesa_dscp_t       dscp;               // DSCP value
+    mesa_bool_t       pcp_enable;         // Enable PCP classification
+    mesa_pcp_t        pcp;                // PCP value
+    mesa_bool_t       dei_enable;         // Enable DEI classification
+    mesa_dei_t        dei;                // DEI value
 } mesa_vce_action_t;
 
 // VLAN Control Entry
@@ -519,9 +508,7 @@ typedef struct {
 // Initialize VCE to default values.
 // type [IN]  VCE type.
 // vce [OUT]  VCE structure.
-mesa_rc mesa_vce_init(const mesa_inst_t     inst,
-                      const mesa_vce_type_t type,
-                      mesa_vce_t *const     vce);
+mesa_rc mesa_vce_init(const mesa_inst_t inst, const mesa_vce_type_t type, mesa_vce_t *const vce);
 
 // Add/modify VCE.
 // vce_id [IN]  VCE ID. The VCE will be added before the entry with this ID.
@@ -552,8 +539,7 @@ mesa_rc mesa_ingress_cnt_alloc(const mesa_inst_t            inst,
 
 // Free ingress counters.
 // id [IN]    Ingress counter ID.
-mesa_rc mesa_ingress_cnt_free(const mesa_inst_t           inst,
-                              const mesa_ingress_cnt_id_t id);
+mesa_rc mesa_ingress_cnt_free(const mesa_inst_t inst, const mesa_ingress_cnt_id_t id);
 
 // Ingress counters
 typedef struct {
@@ -564,14 +550,12 @@ typedef struct {
     mesa_counter_pair_t rx_red;    // Rx red frames/bytes
 
     // The following counters are only valid in PSFP mode
-    mesa_counter_t rx_match;     // MatchingFramesCount: Rx matching frames
-    mesa_counter_t rx_gate_pass; // PassingFramesCount: Rx passed gate
-    mesa_counter_t
-        rx_gate_discard; // NotPassingFramesCount: Rx discarded by gate
-    mesa_counter_t
-        rx_sdu_pass; // PassingSDUCount: Rx passed maximum SDU size filter
-    mesa_counter_t rx_sdu_discard; // NotPassingSDUCount: Rx discarded by
-                                   // maximum SDU size filter
+    mesa_counter_t rx_match;        // MatchingFramesCount: Rx matching frames
+    mesa_counter_t rx_gate_pass;    // PassingFramesCount: Rx passed gate
+    mesa_counter_t rx_gate_discard; // NotPassingFramesCount: Rx discarded by gate
+    mesa_counter_t rx_sdu_pass;     // PassingSDUCount: Rx passed maximum SDU size filter
+    mesa_counter_t rx_sdu_discard;  // NotPassingSDUCount: Rx discarded by
+                                    // maximum SDU size filter
 
     // The following counters are valid in any mode
     mesa_counter_pair_t rx_discard; // Rx discarded frames/bytes
@@ -608,8 +592,7 @@ mesa_rc mesa_dlb_policer_alloc(const mesa_inst_t            inst,
 
 // Free DLB policers.
 // id [IN]    DLB policer ID.
-mesa_rc mesa_dlb_policer_free(const mesa_inst_t           inst,
-                              const mesa_dlb_policer_id_t id);
+mesa_rc mesa_dlb_policer_free(const mesa_inst_t inst, const mesa_dlb_policer_id_t id);
 
 // Get DLB policer configuration.
 // id [IN]     DLB policer ID.
@@ -646,8 +629,7 @@ mesa_rc mesa_dlb_policer_conf_set(const mesa_inst_t                    inst,
 
 // DLB policer status
 typedef struct {
-    mesa_bool_t
-        mark_all_red; // MarkAllFramesRed: Discard all frames if red frame seen
+    mesa_bool_t mark_all_red; // MarkAllFramesRed: Discard all frames if red frame seen
 } mesa_dlb_policer_status_t;
 
 // Get DLB policer status.
@@ -671,20 +653,18 @@ mesa_rc mesa_iflow_free(const mesa_inst_t inst, const mesa_iflow_id_t id);
 
 // Ingress flow configuration
 typedef struct {
-    mesa_bool_t           cnt_enable; // Enable ingress counter mapping
-    mesa_ingress_cnt_id_t cnt_id;     // Ingress counter ID
-    mesa_bool_t           dlb_enable; // Enable DLB policer
-    mesa_dlb_policer_id_t dlb_id;     // DLB policer ID
-    mesa_voe_idx_t voe_idx
-        CAP(VOP); // VOE index or MESA_VOE_IDX_NONE.
-                  // (VOP_V2) If MESA_VOE_IDX_NONE possibly enabled port-VOE
-                  // will see OAM as data - else OAM will be handled by the VOE.
-    mesa_voi_idx_t voi_idx      CAP(VOP_V2);  // VOI index or MESA_VOI_IDX_NONE
-    mesa_frer_iflow_conf_t frer CAP(L2_FRER); // FRER ingress flow configuration
-    mesa_psfp_iflow_conf_t psfp CAP(L2_PSFP); // PSFP ingress flow configuration
-    mesa_bool_t cut_through_disable
-                   CAP(QOS_EGRESS_QUEUE_CUT_THROUGH); // Force store-and-forward
-    mesa_bool_t ot CAP(QOS_OT); // Operational Traffic classification
+    mesa_bool_t            cnt_enable; // Enable ingress counter mapping
+    mesa_ingress_cnt_id_t  cnt_id;     // Ingress counter ID
+    mesa_bool_t            dlb_enable; // Enable DLB policer
+    mesa_dlb_policer_id_t  dlb_id;     // DLB policer ID
+    mesa_voe_idx_t voe_idx CAP(VOP);   // VOE index or MESA_VOE_IDX_NONE.
+                                       // (VOP_V2) If MESA_VOE_IDX_NONE possibly enabled port-VOE
+    // will see OAM as data - else OAM will be handled by the VOE.
+    mesa_voi_idx_t voi_idx          CAP(VOP_V2);  // VOI index or MESA_VOI_IDX_NONE
+    mesa_frer_iflow_conf_t frer     CAP(L2_FRER); // FRER ingress flow configuration
+    mesa_psfp_iflow_conf_t psfp     CAP(L2_PSFP); // PSFP ingress flow configuration
+    mesa_bool_t cut_through_disable CAP(QOS_EGRESS_QUEUE_CUT_THROUGH); // Force store-and-forward
+    mesa_bool_t ot                  CAP(QOS_OT); // Operational Traffic classification
 } mesa_iflow_conf_t;
 
 // Get ingress flow configuration.
@@ -751,13 +731,13 @@ typedef enum {
 
 // TCE tag information
 typedef struct {
-    mesa_tpid_sel_t tpid;    // TPID selection
-    mesa_vid_t      vid;     // VLAN ID or special values MESA_TCE_VID_* above
-    mesa_pcp_sel_t  pcp_sel; // PCP selection
-    mesa_pcp_t      pcp;     // PCP value
-    mesa_dei_sel_t  dei_sel; // DEI selection
-    mesa_dei_t      dei;     // DEI value
-    mesa_qos_egress_map_id_t map_id; // Egress QoS map
+    mesa_tpid_sel_t          tpid;    // TPID selection
+    mesa_vid_t               vid;     // VLAN ID or special values MESA_TCE_VID_* above
+    mesa_pcp_sel_t           pcp_sel; // PCP selection
+    mesa_pcp_t               pcp;     // PCP value
+    mesa_dei_sel_t           dei_sel; // DEI selection
+    mesa_dei_t               dei;     // DEI value
+    mesa_qos_egress_map_id_t map_id;  // Egress QoS map
 } mesa_tce_tag_t;
 
 // R-tag selection
@@ -779,10 +759,10 @@ typedef struct {
     mesa_tce_tag_t  inner_tag; // Inner tag
     uint8_t         pop_cnt;   // Tag pop count
     mesa_eflow_id_t flow_id;   // Egress flow ID.
-                             // (VOP_V2) If MESA_EFLOW_ID_NONE possibly enabled
-                             // port-VOE will see OAM as data.
-    mesa_tce_rtag_t rtag; // R-tag control, if capability MESA_CAP_L2_FRER is
-                          // non-zero and MESA_CAP_L2_FRER_IFLOW_POP is zero.
+                               // (VOP_V2) If MESA_EFLOW_ID_NONE possibly enabled
+                               // port-VOE will see OAM as data.
+    mesa_tce_rtag_t rtag;      // R-tag control, if capability MESA_CAP_L2_FRER is
+                               // non-zero and MESA_CAP_L2_FRER_IFLOW_POP is zero.
 } mesa_tce_action_t;
 
 // Tag Control Entry
@@ -822,8 +802,7 @@ mesa_rc mesa_egress_cnt_alloc(const mesa_inst_t           inst,
 
 // Free egress counters.
 // id [IN]    Egress counter ID.
-mesa_rc mesa_egress_cnt_free(const mesa_inst_t          inst,
-                             const mesa_egress_cnt_id_t id);
+mesa_rc mesa_egress_cnt_free(const mesa_inst_t inst, const mesa_egress_cnt_id_t id);
 
 // Egress counters
 typedef struct {
@@ -859,12 +838,11 @@ mesa_rc mesa_eflow_free(const mesa_inst_t inst, const mesa_eflow_id_t id);
 
 // Egress flow configuration
 typedef struct {
-    mesa_bool_t          cnt_enable; // Enable ingress counter mapping
-    mesa_egress_cnt_id_t cnt_id;     // Egress counter ID
-    mesa_voe_idx_t voe_idx
-        CAP(VOP); // VOE index or MESA_VOE_IDX_NONE.
-                  // (VOP_V2) If MESA_VOE_IDX_NONE possibly enabled port-VOE
-                  // will see OAM as data - else OAM will be handled by the VOE.
+    mesa_bool_t            cnt_enable; // Enable ingress counter mapping
+    mesa_egress_cnt_id_t   cnt_id;     // Egress counter ID
+    mesa_voe_idx_t voe_idx CAP(VOP);   // VOE index or MESA_VOE_IDX_NONE.
+                                       // (VOP_V2) If MESA_VOE_IDX_NONE possibly enabled port-VOE
+    // will see OAM as data - else OAM will be handled by the VOE.
     mesa_voi_idx_t voi_idx CAP(VOP_V2); // VOI index or MESA_VOI_IDX_NONE
 } mesa_eflow_conf_t;
 
@@ -899,67 +877,61 @@ typedef enum {
 
 // VLAN translation group-to-VLAN configuration
 typedef struct {
-    uint16_t   group_id;       // Group ID
-    mesa_vid_t vid;            // External VLAN ID (ingress key, egress data)
-    mesa_vid_t trans_vid;      // Internal VLAN ID (egress key, ingress data)
-    mesa_vlan_trans_dir_t dir; // Direction
+    uint16_t              group_id;  // Group ID
+    mesa_vid_t            vid;       // External VLAN ID (ingress key, egress data)
+    mesa_vid_t            trans_vid; // Internal VLAN ID (egress key, ingress data)
+    mesa_vlan_trans_dir_t dir;       // Direction
 } mesa_vlan_trans_grp2vlan_conf_t;
 
 // Add VLAN Translation Group entry.
 // conf      [IN]  Translation configuration.
-mesa_rc mesa_vlan_trans_group_add(const mesa_inst_t inst,
-                                  const mesa_vlan_trans_grp2vlan_conf_t
-                                      *const conf);
+mesa_rc mesa_vlan_trans_group_add(const mesa_inst_t                            inst,
+                                  const mesa_vlan_trans_grp2vlan_conf_t *const conf);
 
 // Delete VLAN Translation Group entry.
 // conf [IN] Translation configuration.
-mesa_rc mesa_vlan_trans_group_del(const mesa_inst_t inst,
-                                  const mesa_vlan_trans_grp2vlan_conf_t
-                                      *const conf);
+mesa_rc mesa_vlan_trans_group_del(const mesa_inst_t                            inst,
+                                  const mesa_vlan_trans_grp2vlan_conf_t *const conf);
 
 // Get VLAN Translation Group entry.
 // in   [IN]  Translation configuration.
 // conf [OUT] Translation configuration.
-mesa_rc mesa_vlan_trans_group_get(const mesa_inst_t inst,
-                                  const mesa_vlan_trans_grp2vlan_conf_t
-                                      *const                             in,
-                                  mesa_vlan_trans_grp2vlan_conf_t *const conf);
+mesa_rc mesa_vlan_trans_group_get(const mesa_inst_t                            inst,
+                                  const mesa_vlan_trans_grp2vlan_conf_t *const in,
+                                  mesa_vlan_trans_grp2vlan_conf_t *const       conf);
 
 // Get next VLAN Translation Group entry.
 // in   [IN]  Translation configuration.
 // conf [OUT] Translation configuration.
-mesa_rc mesa_vlan_trans_group_get_next(const mesa_inst_t inst,
-                                       const mesa_vlan_trans_grp2vlan_conf_t
-                                           *const                       in,
-                                       mesa_vlan_trans_grp2vlan_conf_t *conf);
+mesa_rc mesa_vlan_trans_group_get_next(const mesa_inst_t                            inst,
+                                       const mesa_vlan_trans_grp2vlan_conf_t *const in,
+                                       mesa_vlan_trans_grp2vlan_conf_t             *conf);
 
 // Associate VLAN Translation Group entries to a port_list.
 // Each port can only be member of one group.
 // conf [IN]  Translation group.
-mesa_rc mesa_vlan_trans_group_to_port_set(const mesa_inst_t inst,
-                                          const mesa_vlan_trans_port2grp_conf_t
-                                              *const conf);
+mesa_rc mesa_vlan_trans_group_to_port_set(const mesa_inst_t                            inst,
+                                          const mesa_vlan_trans_port2grp_conf_t *const conf);
 
 // VLAN Translation function to fetch all ports for a group.
 // group_id [IN]  Group ID.
 // conf     [OUT] Translation group.
-mesa_rc mesa_vlan_trans_group_to_port_get(const mesa_inst_t inst,
-                                          const uint16_t    group_id,
+mesa_rc mesa_vlan_trans_group_to_port_get(const mesa_inst_t                inst,
+                                          const uint16_t                   group_id,
                                           mesa_vlan_trans_port2grp_conf_t *conf);
 
 // VLAN Translation function to fetch all ports for next group.
 // group_id [IN]  Group ID.
 // conf     [OUT] Translation group.
-mesa_rc mesa_vlan_trans_group_to_port_get_next(const mesa_inst_t inst,
-                                               const uint16_t    group_id,
-                                               mesa_vlan_trans_port2grp_conf_t
-                                                   *conf);
+mesa_rc mesa_vlan_trans_group_to_port_get_next(const mesa_inst_t                inst,
+                                               const uint16_t                   group_id,
+                                               mesa_vlan_trans_port2grp_conf_t *conf);
 
 // VCAP port configuration
 typedef struct {
     mesa_vcap_key_type_t key_type_is1_1; // Key type for second IS1 lookup
-    mesa_bool_t dmac_dip_1; // Enable DMAC/DIP matching in second lookup
-                            // (default SMAC/SIP)
+    mesa_bool_t          dmac_dip_1;     // Enable DMAC/DIP matching in second lookup
+                                         // (default SMAC/SIP)
 } mesa_vcap_port_conf_t CAP(L2_VCAP_PORT_CONF);
 
 // Get VCAP port configuration.
@@ -967,16 +939,14 @@ typedef struct {
 // conf [OUT]    VCAP port configuration structure.
 mesa_rc mesa_vcap_port_conf_get(const mesa_inst_t            inst,
                                 const mesa_port_no_t         port_no,
-                                mesa_vcap_port_conf_t *const conf)
-    CAP(L2_VCAP_PORT_CONF);
+                                mesa_vcap_port_conf_t *const conf) CAP(L2_VCAP_PORT_CONF);
 
 // Set VCAP port configuration.
 // port_no [IN]  Port number.
 // conf [IN]     VCAP port configuration structure.
 mesa_rc mesa_vcap_port_conf_set(const mesa_inst_t                  inst,
                                 const mesa_port_no_t               port_no,
-                                const mesa_vcap_port_conf_t *const conf)
-    CAP(L2_VCAP_PORT_CONF);
+                                const mesa_vcap_port_conf_t *const conf) CAP(L2_VCAP_PORT_CONF);
 
 /* - Port Isolation------------------------------------------------- */
 
@@ -997,14 +967,12 @@ mesa_rc mesa_isolated_vlan_set(const mesa_inst_t inst,
 
 // Get the isolated port member set.
 // member [OUT]  Isolated port member list.
-mesa_rc mesa_isolated_port_members_get(const mesa_inst_t inst,
-                                       mesa_port_list_t *port_list);
+mesa_rc mesa_isolated_port_members_get(const mesa_inst_t inst, mesa_port_list_t *port_list);
 
 // Set the isolated port member set.
 // member [IN]  Isolated port member list.
 //              By default, no ports are isolated.
-mesa_rc mesa_isolated_port_members_set(const mesa_inst_t       inst,
-                                       const mesa_port_list_t *port_list);
+mesa_rc mesa_isolated_port_members_set(const mesa_inst_t inst, const mesa_port_list_t *port_list);
 
 /* - Private VLAN (PVLAN) ------------------------------------------ */
 
@@ -1082,14 +1050,14 @@ typedef enum {
     MESA_SFLOW_TYPE_NONE = 0, // Sampler is not enabled on the port.
     MESA_SFLOW_TYPE_RX,       // Sampler is enabled for ingress on the port.
     MESA_SFLOW_TYPE_TX,       // Sampler is enabled for egress on the port.
-    MESA_SFLOW_TYPE_ALL // Sampler is enabled for both ingress and egress on the
-                        // port.
+    MESA_SFLOW_TYPE_ALL       // Sampler is enabled for both ingress and egress on the
+                              // port.
 } mesa_sflow_type_t;
 
 typedef struct {
-    mesa_sflow_type_t type; // Sample direction. Also used to turn off sampling.
-    uint32_t sampling_rate; // A value of N means: sample on average 1 out of N
-                            // frames. 0 disables sampling.
+    mesa_sflow_type_t type;          // Sample direction. Also used to turn off sampling.
+    uint32_t          sampling_rate; // A value of N means: sample on average 1 out of N
+                                     // frames. 0 disables sampling.
 } mesa_sflow_port_conf_t;
 
 // Get port sFlow configuration.
@@ -1153,14 +1121,12 @@ typedef struct {
 
 // Get aggregation traffic distribution mode.
 // mode [OUT]  Distribution mode structure.
-mesa_rc mesa_aggr_mode_get(const mesa_inst_t       inst,
-                           mesa_aggr_mode_t *const mode);
+mesa_rc mesa_aggr_mode_get(const mesa_inst_t inst, mesa_aggr_mode_t *const mode);
 
 // Set aggregation traffic distribution mode.
 // mode [IN]  Distribution mode structure.
 //            By default, SMAC is enabled.
-mesa_rc mesa_aggr_mode_set(const mesa_inst_t             inst,
-                           const mesa_aggr_mode_t *const mode);
+mesa_rc mesa_aggr_mode_set(const mesa_inst_t inst, const mesa_aggr_mode_t *const mode);
 
 /* - Mirroring ----------------------------------------------------- */
 
@@ -1174,8 +1140,8 @@ typedef enum {
 
 // Mirror configuration
 typedef struct {
-    mesa_port_no_t port_no; // Mirror port or MESA_PORT_NO_NONE
-    mesa_bool_t fwd_enable; // Enable normal traffic forwarding to mirror port
+    mesa_port_no_t        port_no;            // Mirror port or MESA_PORT_NO_NONE
+    mesa_bool_t           fwd_enable;         // Enable normal traffic forwarding to mirror port
     mesa_mirror_tag_t tag CAP(L2_MIRROR_TAG); // Mirror tag type
     mesa_vid_t vid        CAP(L2_MIRROR_TAG); // Mirror tag VID
     mesa_tagprio_t pcp    CAP(L2_MIRROR_TAG); // Mirror tag PCP
@@ -1184,54 +1150,44 @@ typedef struct {
 
 // Get the mirror configuration.
 // conf [OUT]  Mirror configuration.
-mesa_rc mesa_mirror_conf_get(const mesa_inst_t         inst,
-                             mesa_mirror_conf_t *const conf);
+mesa_rc mesa_mirror_conf_get(const mesa_inst_t inst, mesa_mirror_conf_t *const conf);
 
 // Set the mirror configuration.
 // conf [IN]  Mirror configuration.
 //            By default, mirroring is disabled.
-mesa_rc mesa_mirror_conf_set(const mesa_inst_t               inst,
-                             const mesa_mirror_conf_t *const conf);
+mesa_rc mesa_mirror_conf_set(const mesa_inst_t inst, const mesa_mirror_conf_t *const conf);
 
 // Get the mirror monitor port.
 // port_no [OUT]  Port number.
-mesa_rc mesa_mirror_monitor_port_get(const mesa_inst_t     inst,
-                                     mesa_port_no_t *const port_no);
+mesa_rc mesa_mirror_monitor_port_get(const mesa_inst_t inst, mesa_port_no_t *const port_no);
 
 // Set the mirror monitor port.
 // port_no [IN]  Port number or MESA_PORT_NO_NONE.
-mesa_rc mesa_mirror_monitor_port_set(const mesa_inst_t    inst,
-                                     const mesa_port_no_t port_no);
+mesa_rc mesa_mirror_monitor_port_set(const mesa_inst_t inst, const mesa_port_no_t port_no);
 
 // Get the mirror ingress ports list.
 // member [OUT]  Port member list.
-mesa_rc mesa_mirror_ingress_ports_get(const mesa_inst_t inst,
-                                      mesa_port_list_t *port_list);
+mesa_rc mesa_mirror_ingress_ports_get(const mesa_inst_t inst, mesa_port_list_t *port_list);
 
 // Set the mirror ingress port list.
 // member [IN]  Port member list.
-mesa_rc mesa_mirror_ingress_ports_set(const mesa_inst_t       inst,
-                                      const mesa_port_list_t *port_list);
+mesa_rc mesa_mirror_ingress_ports_set(const mesa_inst_t inst, const mesa_port_list_t *port_list);
 
 // Get the mirror egress port list.
 // member [OUT]  Port member list.
-mesa_rc mesa_mirror_egress_ports_get(const mesa_inst_t inst,
-                                     mesa_port_list_t *port_list);
+mesa_rc mesa_mirror_egress_ports_get(const mesa_inst_t inst, mesa_port_list_t *port_list);
 
 // Set the mirror egress port list.
 // member [IN]  Port member list.
-mesa_rc mesa_mirror_egress_ports_set(const mesa_inst_t       inst,
-                                     const mesa_port_list_t *port_list);
+mesa_rc mesa_mirror_egress_ports_set(const mesa_inst_t inst, const mesa_port_list_t *port_list);
 
 // Get the mirror CPU ingress.
 // member [OUT]  CPU  member
-mesa_rc mesa_mirror_cpu_ingress_get(const mesa_inst_t inst,
-                                    mesa_bool_t      *member);
+mesa_rc mesa_mirror_cpu_ingress_get(const mesa_inst_t inst, mesa_bool_t *member);
 
 // Set CPU ingress mirroring (frames from the CPU)
 // member [IN]  CPU member.
-mesa_rc mesa_mirror_cpu_ingress_set(const mesa_inst_t inst,
-                                    const mesa_bool_t member);
+mesa_rc mesa_mirror_cpu_ingress_set(const mesa_inst_t inst, const mesa_bool_t member);
 
 // Get the mirror CPU egress
 // member [OUT]  CPU member.
@@ -1239,40 +1195,34 @@ mesa_rc mesa_mirror_cpu_egress_get(const mesa_inst_t inst, mesa_bool_t *member);
 
 // Set the mirror CPU egress (frames to the CPU)
 // member [IN]  CPU member.
-mesa_rc mesa_mirror_cpu_egress_set(const mesa_inst_t inst,
-                                   const mesa_bool_t member);
+mesa_rc mesa_mirror_cpu_egress_set(const mesa_inst_t inst, const mesa_bool_t member);
 
 /* - Flooding control ---------------------------------------------- */
 
 // Get unicast flood members.
 // member [OUT]  Port member list.
-mesa_rc mesa_uc_flood_members_get(const mesa_inst_t inst,
-                                  mesa_port_list_t *port_list);
+mesa_rc mesa_uc_flood_members_get(const mesa_inst_t inst, mesa_port_list_t *port_list);
 
 // Set unicast flood members.
 // member [IN]  Port member list.
 //              By default, all ports are members.
-mesa_rc mesa_uc_flood_members_set(const mesa_inst_t       inst,
-                                  const mesa_port_list_t *port_list);
+mesa_rc mesa_uc_flood_members_set(const mesa_inst_t inst, const mesa_port_list_t *port_list);
 
 // Get multicast flood members.
 // member [OUT]  Port member list.
-mesa_rc mesa_mc_flood_members_get(const mesa_inst_t inst,
-                                  mesa_port_list_t *port_list);
+mesa_rc mesa_mc_flood_members_get(const mesa_inst_t inst, mesa_port_list_t *port_list);
 
 // Set multicast flood members.
 // This member set is used when flooding multicast frames, which are not
 // IPv4/IPv6 data frames. member [IN]  Port member list.
 //              By default, all ports are members.
-mesa_rc mesa_mc_flood_members_set(const mesa_inst_t       inst,
-                                  const mesa_port_list_t *port_list);
+mesa_rc mesa_mc_flood_members_set(const mesa_inst_t inst, const mesa_port_list_t *port_list);
 
 /* - IPv4 multicast ------------------------------------------ */
 
 // Get IPv4 multicast flood members.
 // member [OUT]  Port member list.
-mesa_rc mesa_ipv4_mc_flood_members_get(const mesa_inst_t inst,
-                                       mesa_port_list_t *port_list);
+mesa_rc mesa_ipv4_mc_flood_members_get(const mesa_inst_t inst, mesa_port_list_t *port_list);
 
 // Set IPv4 multicast flood members.
 // This member set is used when flooding IPv4 multicast data frames, meaning
@@ -1280,8 +1230,7 @@ mesa_rc mesa_ipv4_mc_flood_members_get(const mesa_inst_t inst,
 // member [IN]  Port member list.
 //              Ports connected to IPv4 multicast routers should be enabled.
 //              By default, all ports are members.
-mesa_rc mesa_ipv4_mc_flood_members_set(const mesa_inst_t       inst,
-                                       const mesa_port_list_t *port_list);
+mesa_rc mesa_ipv4_mc_flood_members_set(const mesa_inst_t inst, const mesa_port_list_t *port_list);
 
 // Add IPv4 multicast entry.
 // vid [IN]     VLAN ID.
@@ -1307,8 +1256,7 @@ mesa_rc mesa_ipv4_mc_del(const mesa_inst_t inst,
 
 // Get IPv6 multicast flood members.
 // member [OUT]  Port member list.
-mesa_rc mesa_ipv6_mc_flood_members_get(const mesa_inst_t inst,
-                                       mesa_port_list_t *port_list);
+mesa_rc mesa_ipv6_mc_flood_members_get(const mesa_inst_t inst, mesa_port_list_t *port_list);
 
 // Set IPv6 multicast flood members.
 // This member set is used when flooding IPv6 multicast data frames, meaning
@@ -1316,13 +1264,11 @@ mesa_rc mesa_ipv6_mc_flood_members_get(const mesa_inst_t inst,
 // member [IN]  Port member list.
 //              Ports connected to IPv6 multicast routers should be enabled.
 //              By default, all ports are members.
-mesa_rc mesa_ipv6_mc_flood_members_set(const mesa_inst_t       inst,
-                                       const mesa_port_list_t *port_list);
+mesa_rc mesa_ipv6_mc_flood_members_set(const mesa_inst_t inst, const mesa_port_list_t *port_list);
 
 // Get IPv6 multicast control flooding mode.
 // scope [OUT]  IPv6 multicast control flood.
-mesa_rc mesa_ipv6_mc_ctrl_flood_get(const mesa_inst_t  inst,
-                                    mesa_bool_t *const scope);
+mesa_rc mesa_ipv6_mc_ctrl_flood_get(const mesa_inst_t inst, mesa_bool_t *const scope);
 
 // Set IPv6 multicast control flooding mode.
 // This controls whether unknown Link-Local scope IPv6 multicasts (FF02::/16)
@@ -1330,8 +1276,7 @@ mesa_rc mesa_ipv6_mc_ctrl_flood_get(const mesa_inst_t  inst,
 // scope [IN]  IPv6 multicast control flood.
 //             0: Flood to multicast port members.
 //             1: Flood to IPv6 multicast flood members.
-mesa_rc mesa_ipv6_mc_ctrl_flood_set(const mesa_inst_t inst,
-                                    const mesa_bool_t scope);
+mesa_rc mesa_ipv6_mc_ctrl_flood_set(const mesa_inst_t inst, const mesa_bool_t scope);
 
 // Add IPv6 multicast entry.
 // vid [IN]     VLAN ID.
@@ -1407,8 +1352,8 @@ mesa_rc mesa_eps_port_selector_set(const mesa_inst_t         inst,
 // ERPS instance number
 typedef uint32_t mesa_erpi_t;
 
-#define MESA_ERPIS           (64) // Number of ERPS instances
-#define MESA_ERPI_START      (0)  // ERPI start number
+#define MESA_ERPIS           (64)                           // Number of ERPS instances
+#define MESA_ERPI_START      (0)                            // ERPI start number
 #define MESA_ERPI_END        (MESA_ERPI_START + MESA_ERPIS) // ERPI end number
 #define MESA_ERPI_ARRAY_SIZE MESA_ERPI_END                  // ERPI array size
 
@@ -1482,14 +1427,14 @@ typedef enum {
 
 // RCE key
 typedef struct {
-    mesa_port_no_t   port_no;      // Ingress port
-    mesa_vid_t       vid;          // VID or zero for untagged/priority-tagged
-    mesa_vcap_bit_t  tagged;       // Outer tag
-    mesa_bool_t      smac;         // SMAC/DMAC lookup selection
-    mesa_vcap_u48_t  mac;          // SMAC/DMAC value
-    mesa_rcl_etype_t etype;        // Ethernet type
-    mesa_vcap_u16_t  frame_id;     // Profinet: FrameId
-    mesa_vcap_u16_t  publisher_id; // OPC-UA: PublisherId
+    mesa_port_no_t   port_no;         // Ingress port
+    mesa_vid_t       vid;             // VID or zero for untagged/priority-tagged
+    mesa_vcap_bit_t  tagged;          // Outer tag
+    mesa_bool_t      smac;            // SMAC/DMAC lookup selection
+    mesa_vcap_u48_t  mac;             // SMAC/DMAC value
+    mesa_rcl_etype_t etype;           // Ethernet type
+    mesa_vcap_u16_t  frame_id;        // Profinet: FrameId
+    mesa_vcap_u16_t  publisher_id;    // OPC-UA: PublisherId
     mesa_vcap_u16_t  writer_group_id; // OPC-UA: WriterGroupId
 } mesa_rce_key_t;
 
@@ -1552,9 +1497,7 @@ typedef struct {
 // Get RedBox capabilities.
 // rb_id [IN]  RedBox ID.
 // cap [OUT]   RedBox capabilities.
-mesa_rc mesa_rb_cap_get(const mesa_inst_t    inst,
-                        const mesa_rb_id_t   rb_id,
-                        mesa_rb_cap_t *const cap);
+mesa_rc mesa_rb_cap_get(const mesa_inst_t inst, const mesa_rb_id_t rb_id, mesa_rb_cap_t *const cap);
 
 // RedBox mode
 typedef enum {
@@ -1595,22 +1538,22 @@ typedef enum {
 // port X, connected to right neighbour RedBox NONE    Y       Normal Interlink
 // RedBox using port Y, connected to left neighbour RedBox
 typedef struct {
-    mesa_rb_mode_t mode;   // Mode
-    mesa_port_no_t port_a; // Port A or MESA_PORT_NO_NONE (connected to left
-                           // neighbour RedBox)
-    mesa_port_no_t port_b; // Port B or MESA_PORT_NO_NONE (connected to right
-                           // neighbour RedBox)
-    uint8_t net_id;        // NetId (0-7) used for HSR port Tx and Interlink Tx
-                           // filtering (if non-zero)
-    uint8_t            lan_id; // LanId (0/1) used for Interlink Tx for HSR-PRP
+    mesa_rb_mode_t mode;                // Mode
+    mesa_port_no_t port_a;              // Port A or MESA_PORT_NO_NONE (connected to left
+                                        // neighbour RedBox)
+    mesa_port_no_t port_b;              // Port B or MESA_PORT_NO_NONE (connected to right
+                                        // neighbour RedBox)
+    uint8_t net_id;                     // NetId (0-7) used for HSR port Tx and Interlink Tx
+                                        // filtering (if non-zero)
+    uint8_t            lan_id;          // LanId (0/1) used for Interlink Tx for HSR-PRP
     mesa_bool_t        nt_dmac_disable; // Disable Node Table DMAC filtering
     mesa_rb_age_time_t nt_age_time;     // Node Table age time [seconds]
     mesa_rb_age_time_t pnt_age_time;    // Proxy Node Table age time [seconds]
-    mesa_rb_age_time_t dd_age_time; // Duplicate Discard age time [milliseconds]
-    mesa_rb_sv_t       sv;  // LRE-to-Interlink Supervision frame forwarding
-    mesa_bool_t sv_discard; // Interlink-to-LRE Supervision frame discard flag
-    mesa_bool_t mode_u; // Any HSR mode: Forward frames Rx'd on LRE with DMAC in
-                        // PNT to other LRE port
+    mesa_rb_age_time_t dd_age_time;     // Duplicate Discard age time [milliseconds]
+    mesa_rb_sv_t       sv;              // LRE-to-Interlink Supervision frame forwarding
+    mesa_bool_t        sv_discard;      // Interlink-to-LRE Supervision frame discard flag
+    mesa_bool_t        mode_u;          // Any HSR mode: Forward frames Rx'd on LRE with DMAC in
+                                        // PNT to other LRE port
 } mesa_rb_conf_t;
 
 // Get RedBox configuration.
@@ -1686,8 +1629,7 @@ mesa_rc mesa_rb_counters_get(const mesa_inst_t         inst,
 
 // Clear RedBox counters.
 // rb_id [IN]  RedBox ID.
-mesa_rc mesa_rb_counters_clear(const mesa_inst_t  inst,
-                               const mesa_rb_id_t rb_id);
+mesa_rc mesa_rb_counters_clear(const mesa_inst_t inst, const mesa_rb_id_t rb_id);
 
 // Node ID
 typedef uint16_t mesa_rb_node_id_t;

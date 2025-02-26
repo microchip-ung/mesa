@@ -92,15 +92,15 @@ typedef enum {
     MEBA_SFP_TRANSRECEIVER_10G,           // 10G Fiber SFP+
     MEBA_SFP_TRANSRECEIVER_10G_SR,        // 10G Fiber SFP+ short range (400m)
     MEBA_SFP_TRANSRECEIVER_10G_LR,        // 10G Fiber SFP+ long range (10km)
-    MEBA_SFP_TRANSRECEIVER_10G_LRM, // 10G Fiber SFP+ long range multimode (220m)
-    MEBA_SFP_TRANSRECEIVER_10G_ER,  // 10G Fiber SFP+ extended range (40km)
-    MEBA_SFP_TRANSRECEIVER_10G_DAC, // 10G DAC SFP+ Cu
-    MEBA_SFP_TRANSRECEIVER_25G,     // 25G Fiber SFP+
-    MEBA_SFP_TRANSRECEIVER_25G_SR,  // 25G Fiber SFP+ short range (400m)
-    MEBA_SFP_TRANSRECEIVER_25G_LR,  // 25G Fiber SFP+ long range (10km)
-    MEBA_SFP_TRANSRECEIVER_25G_LRM, // 25G Fiber SFP+ long range multimode (220m)
-    MEBA_SFP_TRANSRECEIVER_25G_ER,  // 25G Fiber SFP+ extended range (40km)
-    MEBA_SFP_TRANSRECEIVER_25G_DAC, // 25G CR (DAC) SFP+ Cu
+    MEBA_SFP_TRANSRECEIVER_10G_LRM,       // 10G Fiber SFP+ long range multimode (220m)
+    MEBA_SFP_TRANSRECEIVER_10G_ER,        // 10G Fiber SFP+ extended range (40km)
+    MEBA_SFP_TRANSRECEIVER_10G_DAC,       // 10G DAC SFP+ Cu
+    MEBA_SFP_TRANSRECEIVER_25G,           // 25G Fiber SFP+
+    MEBA_SFP_TRANSRECEIVER_25G_SR,        // 25G Fiber SFP+ short range (400m)
+    MEBA_SFP_TRANSRECEIVER_25G_LR,        // 25G Fiber SFP+ long range (10km)
+    MEBA_SFP_TRANSRECEIVER_25G_LRM,       // 25G Fiber SFP+ long range multimode (220m)
+    MEBA_SFP_TRANSRECEIVER_25G_ER,        // 25G Fiber SFP+ extended range (40km)
+    MEBA_SFP_TRANSRECEIVER_25G_DAC,       // 25G CR (DAC) SFP+ Cu
 } meba_sfp_transreceiver_t;
 
 // SFP connector types.
@@ -114,21 +114,21 @@ typedef enum {
     MEBA_SFP_CONNECTOR_FC_COAX = 0x05,    // Fiber Channel Coax headers
     MEBA_SFP_CONNECTOR_FJ = 0x06,         // Fiber Jack
     MEBA_SFP_CONNECTOR_LC = 0x07,         // Lucent Connector
-    MEBA_SFP_CONNECTOR_MT_RJ = 0x08,    // Mechanical transfer - Registered Jack
-    MEBA_SFP_CONNECTOR_MU = 0x09,       // MUltiple Optical
-    MEBA_SFP_CONNECTOR_SG = 0x0A,       // SG
-    MEBA_SFP_CONNECTOR_OP = 0x0B,       // Optical Pigtail
-    MEBA_SFP_CONNECTOR_MPO_1X12 = 0x0C, // Multifiber Parallel Optic 1x12
-    MEBA_SFP_CONNECTOR_MPO_2X16 = 0x0D, // Multifiber Parallel Optic 2x16
-    MEBA_SFP_CONNECTOR_HSSDC_II = 0x20, // High Speed Serial Data Connector
-    MEBA_SFP_CONNECTOR_CP = 0x21,       // Copper Pigtail (DAC)
-    MEBA_SFP_CONNECTOR_RJ45 = 0x22,     // Registered Jack
-    MEBA_SFP_CONNECTOR_NO_SEP = 0x23,   // No separable connector
-    MEBA_SFP_CONNECTOR_MXC_2X16 = 0x24, // MXC 2x16
-    MEBA_SFP_CONNECTOR_CS = 0x25,       // CS optical connector
-    MEBA_SFP_CONNECTOR_SN = 0x26, // SN (previously Mini CS) optical connector
-    MEBA_SFP_CONNECTOR_MPO_2X12 = 0x27, // Multifiber Parallel Optic 2x12
-    MEBA_SFP_CONNECTOR_MPO_1X16 = 0x28, // Multifiber Parallel Optic 1x16
+    MEBA_SFP_CONNECTOR_MT_RJ = 0x08,      // Mechanical transfer - Registered Jack
+    MEBA_SFP_CONNECTOR_MU = 0x09,         // MUltiple Optical
+    MEBA_SFP_CONNECTOR_SG = 0x0A,         // SG
+    MEBA_SFP_CONNECTOR_OP = 0x0B,         // Optical Pigtail
+    MEBA_SFP_CONNECTOR_MPO_1X12 = 0x0C,   // Multifiber Parallel Optic 1x12
+    MEBA_SFP_CONNECTOR_MPO_2X16 = 0x0D,   // Multifiber Parallel Optic 2x16
+    MEBA_SFP_CONNECTOR_HSSDC_II = 0x20,   // High Speed Serial Data Connector
+    MEBA_SFP_CONNECTOR_CP = 0x21,         // Copper Pigtail (DAC)
+    MEBA_SFP_CONNECTOR_RJ45 = 0x22,       // Registered Jack
+    MEBA_SFP_CONNECTOR_NO_SEP = 0x23,     // No separable connector
+    MEBA_SFP_CONNECTOR_MXC_2X16 = 0x24,   // MXC 2x16
+    MEBA_SFP_CONNECTOR_CS = 0x25,         // CS optical connector
+    MEBA_SFP_CONNECTOR_SN = 0x26,         // SN (previously Mini CS) optical connector
+    MEBA_SFP_CONNECTOR_MPO_2X12 = 0x27,   // Multifiber Parallel Optic 2x12
+    MEBA_SFP_CONNECTOR_MPO_1X16 = 0x28,   // Multifiber Parallel Optic 1x16
 } meba_sfp_connector_t;
 
 // Information about the SFP module
@@ -155,9 +155,8 @@ typedef mesa_rc (*meba_sfp_driver_poll_t)(struct meba_sfp_device   *dev,
 
 // Set the configuration to the SFP.
 // conf          [IN] Apply this configuration.
-typedef mesa_rc (*meba_sfp_driver_conf_set_t)(struct meba_sfp_device *dev,
-                                              const meba_sfp_driver_conf_t
-                                                  *conf);
+typedef mesa_rc (*meba_sfp_driver_conf_set_t)(struct meba_sfp_device       *dev,
+                                              const meba_sfp_driver_conf_t *conf);
 
 // Get the SFP interface based on speed.
 // speed         [IN] Speed.
@@ -181,20 +180,19 @@ typedef mesa_rc (*meba_sfp_driver_tr_get_t)(struct meba_sfp_device   *dev,
 // dev           [IN] Device.
 // addr          [IN] Address mode.
 // info          [IN] Information about the SFP module
-typedef struct meba_sfp_device
-    *(*meba_sfp_driver_probe_t)(struct meba_sfp_driver          *dev,
-                                const meba_sfp_driver_address_t *addr,
-                                const meba_sfp_device_info_t    *info);
+typedef struct meba_sfp_device *(*meba_sfp_driver_probe_t)(struct meba_sfp_driver          *dev,
+                                                           const meba_sfp_driver_address_t *addr,
+                                                           const meba_sfp_device_info_t    *info);
 
 // Full list of the SFP driver interface
-#define MEBA_LIST_OF_API_SFP_DRIVER_CALLS                                      \
-    X(meba_sfp_driver_delete)                                                  \
-    X(meba_sfp_driver_reset)                                                   \
-    X(meba_sfp_driver_poll)                                                    \
-    X(meba_sfp_driver_conf_set)                                                \
-    X(meba_sfp_driver_if_get)                                                  \
-    X(meba_sfp_driver_mt_get)                                                  \
-    X(meba_sfp_driver_tr_get)                                                  \
+#define MEBA_LIST_OF_API_SFP_DRIVER_CALLS                                                          \
+    X(meba_sfp_driver_delete)                                                                      \
+    X(meba_sfp_driver_reset)                                                                       \
+    X(meba_sfp_driver_poll)                                                                        \
+    X(meba_sfp_driver_conf_set)                                                                    \
+    X(meba_sfp_driver_if_get)                                                                      \
+    X(meba_sfp_driver_mt_get)                                                                      \
+    X(meba_sfp_driver_tr_get)                                                                      \
     X(meba_sfp_driver_probe)
 
 typedef struct meba_sfp_driver {
@@ -207,14 +205,14 @@ typedef struct meba_sfp_driver {
     meba_sfp_driver_tr_get_t   meba_sfp_driver_tr_get;
     meba_sfp_driver_probe_t    meba_sfp_driver_probe;
 
-    char *product_name;           // Each driver has different product name
-    struct meba_sfp_driver *next; // Pointer to the next driver
+    char                   *product_name; // Each driver has different product name
+    struct meba_sfp_driver *next;         // Pointer to the next driver
 } meba_sfp_driver_t;
 
 // Represents the instance of the driver
 typedef struct meba_sfp_device {
-    meba_sfp_driver_t *drv; // Pointer to the driver that creates the device
-    void *data; // Private data, that can be different for each device
+    meba_sfp_driver_t     *drv;  // Pointer to the driver that creates the device
+    void                  *data; // Private data, that can be different for each device
     meba_sfp_status_t      sfp;  // SFP status
     meba_sfp_device_info_t info; // SFP device info from MSA ROM.
 } meba_sfp_device_t;

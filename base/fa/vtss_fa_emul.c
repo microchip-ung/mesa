@@ -76,15 +76,13 @@ static BOOL vtss_reg_exc_static(u32 addr, u32 *value, BOOL write)
 
 typedef BOOL (*vtss_reg_exc_func_t)(u32 addr, u32 *value, BOOL write);
 
-static vtss_reg_exc_func_t vtss_reg_exc_func_table[] = {vtss_reg_exc_static,
-                                                        NULL};
+static vtss_reg_exc_func_t vtss_reg_exc_func_table[] = {vtss_reg_exc_static, NULL};
 
 static vtss_rc vtss_fa_emul_rd_wr(u32 addr, u32 *value, BOOL write)
 {
     vtss_reg_exc_func_t *func;
     BOOL                 exc = FALSE;
-    u32                  baddr,
-        base = VTSS_IOREG(VTSS_IO_SWC, 0); /* First switch core address */
+    u32                  baddr, base = VTSS_IOREG(VTSS_IO_SWC, 0); /* First switch core address */
 
     if (addr < base) {
         /* CPU register space */
@@ -112,20 +110,13 @@ static vtss_rc vtss_fa_emul_rd_wr(u32 addr, u32 *value, BOOL write)
             break;
         }
     }
-    VTSS_N("%s%s addr: 0x%08x, value: 0x%08x", write ? "WR" : "RD",
-           exc ? "X" : " ", addr, *value);
+    VTSS_N("%s%s addr: 0x%08x, value: 0x%08x", write ? "WR" : "RD", exc ? "X" : " ", addr, *value);
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_fa_emul_rd(u32 addr, u32 *value)
-{
-    return vtss_fa_emul_rd_wr(addr, value, FALSE);
-}
+vtss_rc vtss_fa_emul_rd(u32 addr, u32 *value) { return vtss_fa_emul_rd_wr(addr, value, FALSE); }
 
-vtss_rc vtss_fa_emul_wr(u32 addr, u32 value)
-{
-    return vtss_fa_emul_rd_wr(addr, &value, TRUE);
-}
+vtss_rc vtss_fa_emul_wr(u32 addr, u32 value) { return vtss_fa_emul_rd_wr(addr, &value, TRUE); }
 
 vtss_rc vtss_fa_emul_init(vtss_state_t *vtss_state)
 {

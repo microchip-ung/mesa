@@ -24,10 +24,10 @@
 #include "../ail/vtss_pll5g_procs.h"
 #include "vtss_ocelot_pll5g_setup.h"
 
-#define VTSS_CHIP_PORTS      11              /* Port 0-10 */
-#define VTSS_CHIP_PORT_CPU   VTSS_CHIP_PORTS /* Next port is CPU port */
-#define VTSS_CHIP_PORT_CPU_0 (VTSS_CHIP_PORT_CPU + 0) /* Aka. CPU Port 11 */
-#define VTSS_CHIP_PORT_CPU_1 (VTSS_CHIP_PORT_CPU + 1) /* Aka. CPU Port 12 */
+#define VTSS_CHIP_PORTS      11                            /* Port 0-10 */
+#define VTSS_CHIP_PORT_CPU   VTSS_CHIP_PORTS               /* Next port is CPU port */
+#define VTSS_CHIP_PORT_CPU_0 (VTSS_CHIP_PORT_CPU + 0)      /* Aka. CPU Port 11 */
+#define VTSS_CHIP_PORT_CPU_1 (VTSS_CHIP_PORT_CPU + 1)      /* Aka. CPU Port 12 */
 #define VTSS_CHIP_PORT_MASK  VTSS_BITMASK(VTSS_CHIP_PORTS) /* Chip port mask */
 
 /* Policers */
@@ -98,25 +98,25 @@ extern vtss_rc (*vtss_srvl_wr)(vtss_state_t *vtss_state, u32 addr, u32 value);
 extern vtss_rc (*vtss_srvl_rd)(vtss_state_t *vtss_state, u32 addr, u32 *value);
 vtss_rc vtss_srvl_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask);
 
-#define SRVL_RD(p, value)                                                      \
-    {                                                                          \
-        vtss_rc __rc = vtss_srvl_rd(vtss_state, p, value);                     \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define SRVL_RD(p, value)                                                                          \
+    {                                                                                              \
+        vtss_rc __rc = vtss_srvl_rd(vtss_state, p, value);                                         \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     }
 
-#define SRVL_WR(p, value)                                                      \
-    {                                                                          \
-        vtss_rc __rc = vtss_srvl_wr(vtss_state, p, value);                     \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define SRVL_WR(p, value)                                                                          \
+    {                                                                                              \
+        vtss_rc __rc = vtss_srvl_wr(vtss_state, p, value);                                         \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     }
 
-#define SRVL_WRM(p, value, mask)                                               \
-    {                                                                          \
-        vtss_rc __rc = vtss_srvl_wrm(vtss_state, p, value, mask);              \
-        if (__rc != VTSS_RC_OK)                                                \
-            return __rc;                                                       \
+#define SRVL_WRM(p, value, mask)                                                                   \
+    {                                                                                              \
+        vtss_rc __rc = vtss_srvl_wrm(vtss_state, p, value, mask);                                  \
+        if (__rc != VTSS_RC_OK)                                                                    \
+            return __rc;                                                                           \
     }
 
 #define SRVL_WRM_SET(p, mask)         SRVL_WRM(p, mask, mask)
@@ -130,10 +130,7 @@ vtss_rc vtss_srvl_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask);
 vtss_rc vtss_srvl_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 u32     vtss_srvl_port_mask(vtss_state_t *vtss_state, const BOOL member[]);
 vtss_rc srvl_isdx_table_idle(vtss_state_t *vtss_state);
-vtss_rc vtss_srvl_isdx_update_es0(vtss_state_t *vtss_state,
-                                  BOOL          isdx_ena,
-                                  u32           isdx,
-                                  u32           isdx_mask);
+vtss_rc vtss_srvl_isdx_update_es0(vtss_state_t *vtss_state, BOOL isdx_ena, u32 isdx, u32 isdx_mask);
 vtss_rc vtss_srvl_isdx_update(vtss_state_t *vtss_state,
                               BOOL          isdx_ena,
                               u32           isdx,
@@ -146,18 +143,13 @@ void    vtss_srvl_debug_cnt(lmu_ss_t            *ss,
                             vtss_chip_counter_t *c1,
                             vtss_chip_counter_t *c2);
 void    vtss_srvl_debug_reg_header(lmu_ss_t *ss, const char *name);
-void    vtss_srvl_debug_reg(vtss_state_t *vtss_state,
-                            lmu_ss_t     *ss,
-                            u32           addr,
-                            const char   *name);
+void    vtss_srvl_debug_reg(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 addr, const char *name);
 void    vtss_srvl_debug_reg_inst(vtss_state_t *vtss_state,
                                  lmu_ss_t     *ss,
                                  u32           addr,
                                  u32           i,
                                  const char   *name);
-void    vtss_srvl_debug_print_port_header(vtss_state_t *vtss_state,
-                                          lmu_ss_t     *ss,
-                                          const char   *txt);
+void    vtss_srvl_debug_print_port_header(vtss_state_t *vtss_state, lmu_ss_t *ss, const char *txt);
 void    vtss_srvl_debug_print_mask(lmu_ss_t *ss, u32 mask);
 
 vtss_rc vtss_srvl_debug_isdx_list(vtss_state_t     *vtss_state,
@@ -172,21 +164,18 @@ vtss_rc vtss_srvl_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_srvl_port_debug_print(vtss_state_t                  *vtss_state,
                                    lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info);
-vtss_rc vtss_srvl_port_max_tags_set(vtss_state_t  *vtss_state,
-                                    vtss_port_no_t port_no);
+vtss_rc vtss_srvl_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_srvl_counter_update(vtss_state_t        *vtss_state,
                                  u32                 *addr,
                                  vtss_chip_counter_t *counter,
                                  BOOL                 clear);
 
-u32     vtss_srvl_wm_high_get(vtss_state_t *vtss_state,
-                              u32 queue); /* Returns WRED wm_high in bytes */
+u32 vtss_srvl_wm_high_get(vtss_state_t *vtss_state, u32 queue); /* Returns WRED wm_high in bytes */
 vtss_rc vtss_srvl_wm_update(vtss_state_t *vtss_state);
 
 /* Miscellaneous functions */
 vtss_rc vtss_srvl_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
-vtss_rc vtss_srvl_chip_id_get(vtss_state_t         *vtss_state,
-                              vtss_chip_id_t *const chip_id);
+vtss_rc vtss_srvl_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id);
 #if defined(VTSS_GPIOS)
 vtss_rc vtss_srvl_gpio_mode(vtss_state_t          *vtss_state,
                             const vtss_chip_no_t   chip_no,
@@ -252,11 +241,10 @@ typedef struct {
                                                         // first on the wire
 } vtss_srvl_mpls_out_encap_raw_t;
 
-vtss_rc vtss_srvl_mpls_out_encap_raw_set(vtss_state_t *vtss_state,
-                                         const u32     idx,
-                                         const vtss_srvl_mpls_out_encap_raw_t
-                                             *const                 entry,
-                                         vtss_es0_mpls_encap_len_t *length);
+vtss_rc vtss_srvl_mpls_out_encap_raw_set(vtss_state_t                               *vtss_state,
+                                         const u32                                   idx,
+                                         const vtss_srvl_mpls_out_encap_raw_t *const entry,
+                                         vtss_es0_mpls_encap_len_t                  *length);
 
 #endif /* Raw MPLS encapsulation */
 
@@ -270,8 +258,7 @@ vtss_rc vtss_srvl_oam_debug_print(vtss_state_t                  *vtss_state,
 
 /* VCAP functions */
 vtss_rc vtss_srvl_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
-vtss_rc vtss_srvl_vcap_port_conf_set(vtss_state_t        *vtss_state,
-                                     const vtss_port_no_t port_no);
+vtss_rc vtss_srvl_vcap_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 vtss_rc vtss_srvl_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
                                          const vtss_port_no_t port_no,
                                          u8                   lookup,
@@ -290,8 +277,8 @@ vtss_rc vtss_srvl_debug_is1_all(vtss_state_t                  *vtss_state,
 vtss_rc vtss_srvl_debug_es0_all(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
-vtss_rc vtss_srvl_debug_range_checkers(vtss_state_t *vtss_state,
-                                       lmu_ss_t     *ss,
+vtss_rc vtss_srvl_debug_range_checkers(vtss_state_t                  *vtss_state,
+                                       lmu_ss_t                      *ss,
                                        const vtss_debug_info_t *const info);
 BOOL    vtss_srvl_is1_oam_adv(vtss_state_t *vtss_state);
 

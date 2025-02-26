@@ -13,10 +13,9 @@
 #define HW_NS_PR_SEC      1000000000L
 #define HW_NS_PR_CLK_CNT  (HW_NS_PR_SEC / HW_CLK_CNT_PR_SEC)
 
-#define HW_CLK_50_MS   (HW_CLK_CNT_PR_SEC / 20)
-#define HW_CLK_M950_MS (-HW_CLK_CNT_PR_SEC + HW_CLK_50_MS)
-#define EXT_SYNC_INPUT_LATCH_LATENCY                                           \
-    3 /* subtracted from EXT_SYNC_CURRENT TIME */
+#define HW_CLK_50_MS                 (HW_CLK_CNT_PR_SEC / 20)
+#define HW_CLK_M950_MS               (-HW_CLK_CNT_PR_SEC + HW_CLK_50_MS)
+#define EXT_SYNC_INPUT_LATCH_LATENCY 3 /* subtracted from EXT_SYNC_CURRENT TIME */
 
 #define SPEED_INDEX_10M   0
 #define SPEED_INDEX_100M  1
@@ -56,8 +55,7 @@ static vtss_rc l26_ts_hw_timeofday_read(vtss_state_t *vtss_state,
     L26_WR(VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL,
            VTSS_F_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL_PTP_LATCH |
                VTSS_F_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL_PTP_TIMER_ENA |
-               (reset ? VTSS_F_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL_PTP_TOD_RST
-                      : 0));
+               (reset ? VTSS_F_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL_PTP_TOD_RST : 0));
 
     L26_RD(VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_DELAY, &tc_32);
     /* tc is returned as 16 bit fraction of nanoseconds */
@@ -71,9 +69,7 @@ static vtss_rc l26_ts_hw_timeofday_read(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_timeofday_get(vtss_state_t     *vtss_state,
-                                    vtss_timestamp_t *ts,
-                                    u64              *tc)
+static vtss_rc l26_ts_timeofday_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts, u64 *tc)
 {
     vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     u32                value;
@@ -97,8 +93,7 @@ static vtss_rc l26_ts_timeofday_get(vtss_state_t     *vtss_state,
     }
     ts->nanoseconds = x * HW_NS_PR_CLK_CNT;
 
-    VTSS_D("ts->seconds: %u, ts->nanoseconds: %u", ts->seconds,
-           ts->nanoseconds);
+    VTSS_D("ts->seconds: %u, ts->nanoseconds: %u", ts->seconds, ts->nanoseconds);
     return VTSS_RC_OK;
 }
 
@@ -143,8 +138,7 @@ static vtss_rc l26_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
     ts->nanoseconds -= deltat;
     tc -= deltat;
 
-    VTSS_D("ts->seconds: %u, ts->nanoseconds: %u", ts->seconds,
-           ts->nanoseconds);
+    VTSS_D("ts->seconds: %u, ts->nanoseconds: %u", ts->seconds, ts->nanoseconds);
     return VTSS_RC_OK;
 }
 
@@ -188,8 +182,8 @@ static vtss_rc l26_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
         conf->outstanding_adjustment = corr + HW_CLK_CNT_PR_SEC - 1;
     }
     /* we wait until TOD_NANOSECS wraps */
-    VTSS_D("offset = %d, adjust = %u, corr: %d", offset,
-           conf->outstanding_adjustment, conf->outstanding_corr);
+    VTSS_D("offset = %d, adjust = %u, corr: %d", offset, conf->outstanding_adjustment,
+           conf->outstanding_corr);
     return VTSS_RC_OK;
 }
 
@@ -209,8 +203,7 @@ static vtss_rc l26_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
  * The second offset is adjusted accordingly.
  *
  */
-static vtss_rc l26_ts_timeofday_set(vtss_state_t           *vtss_state,
-                                    const vtss_timestamp_t *ts)
+static vtss_rc l26_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp_t *ts)
 {
     vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     i32                corr;
@@ -223,19 +216,15 @@ static vtss_rc l26_ts_timeofday_set(vtss_state_t           *vtss_state,
     }
 
     /* Latch and reset PTP internal timers */
-    VTSS_RC(l26_ts_hw_timeofday_read(vtss_state, &value1, &value, &value2,
-                                     TRUE));
+    VTSS_RC(l26_ts_hw_timeofday_read(vtss_state, &value1, &value, &value2, TRUE));
     conf->sec_offset = ts->seconds;
-    VTSS_D("ts->seconds: %u, ts->nanoseconds: %u", ts->seconds,
-           ts->nanoseconds);
+    VTSS_D("ts->seconds: %u, ts->nanoseconds: %u", ts->seconds, ts->nanoseconds);
 
     /* corr = PTP_NS - ts.ns */
-    corr =
-        value & VTSS_M_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_NANOSECS_PTP_TOD_NANOSECS;
-    VTSS_RC(l26_ts_timeofday_offset_set(vtss_state, corr * HW_NS_PR_CLK_CNT -
-                                                        ts->nanoseconds));
-    VTSS_D("PTP_TOD_SECS: %u, PTP_TOD_NANOSECS: %u, PTP_DELAY: %" PRIu64 "",
-           conf->sec_offset, value, value2);
+    corr = value & VTSS_M_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_NANOSECS_PTP_TOD_NANOSECS;
+    VTSS_RC(l26_ts_timeofday_offset_set(vtss_state, corr * HW_NS_PR_CLK_CNT - ts->nanoseconds));
+    VTSS_D("PTP_TOD_SECS: %u, PTP_TOD_NANOSECS: %u, PTP_DELAY: %" PRIu64 "", conf->sec_offset,
+           value, value2);
     return VTSS_RC_OK;
 }
 
@@ -267,8 +256,8 @@ static vtss_rc l26_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
         conf->sec_offset += ts->seconds;
     }
 
-    VTSS_D("ts->sec_msb: %u, ts->seconds: %u, ts->nanoseconds: %u", ts->sec_msb,
-           ts->seconds, ts->nanoseconds);
+    VTSS_D("ts->sec_msb: %u, ts->seconds: %u, ts->nanoseconds: %u", ts->sec_msb, ts->seconds,
+           ts->nanoseconds);
     return VTSS_RC_OK;
 }
 
@@ -281,10 +270,8 @@ static u32 l26_ts_ns_cnt_get(vtss_inst_t inst)
     u32 value;
 
     /* read nanosec clock counter */
-    (void)inst->init_conf
-        .reg_read(0, VTSS_DEVCPU_GCB_PTP_STAT_PTP_CURRENT_TIME_STAT, &value);
-    return VTSS_X_DEVCPU_GCB_PTP_STAT_PTP_CURRENT_TIME_STAT_PTP_CURRENT_TIME(
-               value) *
+    (void)inst->init_conf.reg_read(0, VTSS_DEVCPU_GCB_PTP_STAT_PTP_CURRENT_TIME_STAT, &value);
+    return VTSS_X_DEVCPU_GCB_PTP_STAT_PTP_CURRENT_TIME_STAT_PTP_CURRENT_TIME(value) *
            HW_NS_PR_CLK_CNT;
 }
 
@@ -304,16 +291,14 @@ static vtss_rc l26_ts_timeofday_one_sec(vtss_state_t *vtss_state)
 
         if (conf->outstanding_adjustment != 0) {
             if (value > conf->outstanding_adjustment) {
-                VTSS_D("Too large interrupt latency to adjust %u (*4ns)",
-                       value);
+                VTSS_D("Too large interrupt latency to adjust %u (*4ns)", value);
             } else {
                 /*PTP_UPPER_LIMIT_1_TIME_ADJ = x */
                 L26_WR(
                     VTSS_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_CFG,
                     conf->outstanding_adjustment |
                         VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_SHOT);
-                VTSS_D("onetime adjustment done %u",
-                       conf->outstanding_adjustment);
+                VTSS_D("onetime adjustment done %u", conf->outstanding_adjustment);
                 conf->outstanding_adjustment = 0;
             }
         } else {
@@ -341,13 +326,11 @@ static vtss_rc l26_ts_adjtimer_set(vtss_state_t *vtss_state)
 
     if ((adj != 0)) {
         clk_adj |= VTSS_F_DEVCPU_GCB_PTP_CFG_CLK_ADJ_CFG_CLK_ADJ_ENA;
-        L26_WRM_SET(
-            VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
-            VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ADJ_ENA);
+        L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ADJ_ENA);
     } else {
-        L26_WRM_CLR(
-            VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
-            VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ADJ_ENA);
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ADJ_ENA);
     }
     if (adj < 0) {
         clk_adj |= VTSS_F_DEVCPU_GCB_PTP_CFG_CLK_ADJ_CFG_CLK_ADJ_DIR;
@@ -372,10 +355,8 @@ static vtss_rc l26_ts_freq_offset_get(vtss_state_t *vtss_state, i32 *const adj)
     u32 cu;
     L26_RD(VTSS_DEVCPU_GCB_PTP_STAT_EXT_SYNC_CURRENT_TIME_STAT, &cu);
     cu -= EXT_SYNC_INPUT_LATCH_LATENCY;
-    offset =
-        VTSS_X_DEVCPU_GCB_PTP_STAT_EXT_SYNC_CURRENT_TIME_STAT_EXT_SYNC_CURRENT_TIME(
-            cu) -
-        HW_CLK_CNT_PR_SEC;
+    offset = VTSS_X_DEVCPU_GCB_PTP_STAT_EXT_SYNC_CURRENT_TIME_STAT_EXT_SYNC_CURRENT_TIME(cu) -
+             HW_CLK_CNT_PR_SEC;
     /* convert to units of 0,1 ppb */
     *adj = HW_NS_PR_CLK_CNT * 10 * offset;
 
@@ -390,8 +371,7 @@ static vtss_rc l26_ts_external_clock_mode_set(vtss_state_t *vtss_state)
     u32                       high_div;
     u32                       low_div;
 
-    if (!conf->enable &&
-        conf->one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE) {
+    if (!conf->enable && conf->one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE) {
         L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA);
         /* disable clock output */
@@ -404,65 +384,53 @@ static vtss_rc l26_ts_external_clock_mode_set(vtss_state_t *vtss_state)
         L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
                     VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
         /* disable alternate 1 for GPIO_7 (clock output). */
-        (void)vtss_l26_gpio_mode(vtss_state, 0, ptp_gpio[L26_PTP_IO_PIN],
-                                 VTSS_GPIO_IN);
+        (void)vtss_l26_gpio_mode(vtss_state, 0, ptp_gpio[L26_PTP_IO_PIN], VTSS_GPIO_IN);
     } else {
         /* enable alternate 1 for GPIO_7 (clock output). */
-        (void)vtss_l26_gpio_mode(vtss_state, 0, ptp_gpio[L26_PTP_IO_PIN],
-                                 VTSS_GPIO_ALT_0);
+        (void)vtss_l26_gpio_mode(vtss_state, 0, ptp_gpio[L26_PTP_IO_PIN], VTSS_GPIO_ALT_0);
 
         if (conf->one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT) {
             /* 1 pps output enabled */
-            L26_WRM_CLR(
-                VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
-            L26_WRM_CLR(
-                VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA);
-            L26_WRM_SET(
-                VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
+            L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
+            L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA);
+            L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
         } else if (conf->one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_INPUT) {
             /* 1 pps input enabled */
-            L26_WRM_CLR(
-                VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
-            L26_WRM_CLR(
-                VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
-            L26_WRM_SET(
-                VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA);
+            L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
+            L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
+            L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA);
         } else {
             /* clock frequency output */
-            L26_WRM_CLR(
-                VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
-                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
+            L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
+                            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
             /* set dividers; enable clock output. */
             dividers = (HW_CLK_CNT_PR_SEC / (conf->freq));
             high_div = (dividers / 2) - 1;
             low_div = ((dividers + 1) / 2) - 1;
-            L26_WR(
-                VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG,
-                high_div &
-                    VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG_GEN_EXT_CLK_HIGH_PERIOD);
-            L26_WR(
-                VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG,
-                low_div &
-                    VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG_GEN_EXT_CLK_LOW_PERIOD);
-            L26_WRM_SET(
-                VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
-                VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
+            L26_WR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG,
+                   high_div &
+                       VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG_GEN_EXT_CLK_HIGH_PERIOD);
+            L26_WR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG,
+                   low_div &
+                       VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG_GEN_EXT_CLK_LOW_PERIOD);
+            L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
         }
     }
     return VTSS_RC_OK;
@@ -502,25 +470,22 @@ static vtss_rc l26_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
     }
     if (ext_io_mode->pin == TS_EXT_IO_MODE_WAVEFORM_OUTPUT) {
         /* clock frequency output */
-        L26_WRM_CLR(
-            VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
-            VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA |
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
-                VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
+        L26_WRM_CLR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
+                    VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_SEL |
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_INP_ENA |
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_ENA |
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_SEL |
+                        VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_EXT_SYNC_OUTP_ENA);
         /* set dividers; enable clock output. */
         dividers = (HW_CLK_CNT_PR_SEC / (ext_io_mode->freq));
         high_div = (dividers / 2) - 1;
         low_div = ((dividers + 1) / 2) - 1;
-        L26_WR(
-            VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG,
-            high_div &
-                VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG_GEN_EXT_CLK_HIGH_PERIOD);
-        L26_WR(
-            VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG,
-            low_div &
-                VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG_GEN_EXT_CLK_LOW_PERIOD);
+        L26_WR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG,
+               high_div &
+                   VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG_GEN_EXT_CLK_HIGH_PERIOD);
+        L26_WR(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG,
+               low_div &
+                   VTSS_M_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG_GEN_EXT_CLK_LOW_PERIOD);
         L26_WRM_SET(VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
                     VTSS_F_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG_GEN_EXT_CLK_ENA);
     } else if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_OUTPUT) {
@@ -550,34 +515,29 @@ static vtss_rc l26_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_ingress_latency_set(vtss_state_t  *vtss_state,
-                                          vtss_port_no_t port_no)
+static vtss_rc l26_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
-    i32 rx_delay = VTSS_INTERVAL_NS(conf->ingress_latency) / HW_NS_PR_CLK_CNT;
+    i32                  rx_delay = VTSS_INTERVAL_NS(conf->ingress_latency) / HW_NS_PR_CLK_CNT;
     rx_delay += (conf->default_igr_latency / HW_NS_PR_CLK_CNT);
     L26_WRM(VTSS_SYS_PTP_PTP_CFG(VTSS_CHIP_PORT(port_no)),
-            VTSS_F_SYS_PTP_PTP_CFG_IO_RX_DELAY(rx_delay),
-            VTSS_M_SYS_PTP_PTP_CFG_IO_RX_DELAY);
+            VTSS_F_SYS_PTP_PTP_CFG_IO_RX_DELAY(rx_delay), VTSS_M_SYS_PTP_PTP_CFG_IO_RX_DELAY);
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_p2p_delay_set(vtss_state_t  *vtss_state,
-                                    vtss_port_no_t port_no)
+static vtss_rc l26_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     VTSS_D("Not to be used,a d L26 only supports up to 1 us p2pdelay");
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_egress_latency_set(vtss_state_t  *vtss_state,
-                                         vtss_port_no_t port_no)
+static vtss_rc l26_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
-    i32 tx_delay = VTSS_INTERVAL_NS(conf->egress_latency) / HW_NS_PR_CLK_CNT;
+    i32                  tx_delay = VTSS_INTERVAL_NS(conf->egress_latency) / HW_NS_PR_CLK_CNT;
     tx_delay += (conf->default_egr_latency / HW_NS_PR_CLK_CNT);
     L26_WRM(VTSS_SYS_PTP_PTP_CFG(VTSS_CHIP_PORT(port_no)),
-            VTSS_F_SYS_PTP_PTP_CFG_IO_TX_DELAY(tx_delay),
-            VTSS_M_SYS_PTP_PTP_CFG_IO_TX_DELAY);
+            VTSS_F_SYS_PTP_PTP_CFG_IO_TX_DELAY(tx_delay), VTSS_M_SYS_PTP_PTP_CFG_IO_TX_DELAY);
     return VTSS_RC_OK;
 }
 
@@ -596,8 +556,7 @@ static u32 api_port(vtss_state_t *vtss_state, u32 chip_port)
     if (chip_port == VTSS_CHIP_PORT_CPU) {
         port_no = VTSS_CHIP_PORT_CPU;
     } else {
-        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-             port_no++) {
+        for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             if (VTSS_CHIP_PORT(port_no) == chip_port) {
                 found = 1;
                 break;
@@ -628,8 +587,7 @@ static vtss_rc l26_ts_timestamp_get(vtss_state_t *vtss_state)
         } else {
             if (tx_port < VTSS_PORT_ARRAY_SIZE) {
                 vtss_state->ts.status[mess_id].tx_tc[tx_port] =
-                    (u64)delay
-                    << 16; // 0-15 bits are meant for fractional nano seconds.
+                    (u64)delay << 16; // 0-15 bits are meant for fractional nano seconds.
                 vtss_state->ts.status[mess_id].tx_id[tx_port] = mess_id;
                 vtss_state->ts.status[mess_id].valid_mask |= 1LL << tx_port;
             } else if (tx_port == VTSS_CHIP_PORT_CPU) {
@@ -639,8 +597,7 @@ static vtss_rc l26_ts_timestamp_get(vtss_state_t *vtss_state)
                 VTSS_I("invalid port (%u)", tx_port);
             }
         }
-        VTSS_D("value %u, delay %u, tx_port %u, mess_id %u", value, delay,
-               tx_port, mess_id);
+        VTSS_D("value %u, delay %u, tx_port %u, mess_id %u", value, delay, tx_port, mess_id);
         L26_WR(VTSS_SYS_PTP_PTP_NXT, VTSS_F_SYS_PTP_PTP_NXT_PTP_NXT);
         L26_RD(VTSS_SYS_PTP_PTP_STATUS, &value);
     }
@@ -666,25 +623,22 @@ static vtss_rc l26_ts_timestamp_id_release(vtss_state_t *vtss_state, u32 ts_id)
  * Signal port status change (used to detect and compensate for the internal
  * ingress and egress latencies)
  */
-static vtss_rc l26_ts_status_change(vtss_state_t        *vtss_state,
-                                    const vtss_port_no_t port_no)
+static vtss_rc l26_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_rc rc = VTSS_RC_OK, rc2;
     VTSS_D("port status change %d", port_no);
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
-    u32               speed_index = speed == VTSS_SPEED_10M ? SPEED_INDEX_10M
-                                    : speed == VTSS_SPEED_100M ? SPEED_INDEX_100M
-                                    : speed == VTSS_SPEED_1G ? SPEED_INDEX_1000M
+    u32               speed_index = speed == VTSS_SPEED_10M     ? SPEED_INDEX_10M
+                                    : speed == VTSS_SPEED_100M  ? SPEED_INDEX_100M
+                                    : speed == VTSS_SPEED_1G    ? SPEED_INDEX_1000M
                                     : speed == VTSS_SPEED_2500M ? SPEED_INDEX_2500M
                                                                 : SPEED_INDEX_MAX;
     if (speed == VTSS_SPEED_UNDEFINED) {
         vtss_state->ts.port_conf[port_no].default_igr_latency = 0;
         vtss_state->ts.port_conf[port_no].default_egr_latency = 0;
     } else if (speed_index < SPEED_INDEX_MAX) {
-        vtss_state->ts.port_conf[port_no].default_igr_latency =
-            latency_igr[speed_index];
-        vtss_state->ts.port_conf[port_no].default_egr_latency =
-            latency_egr[speed_index];
+        vtss_state->ts.port_conf[port_no].default_igr_latency = latency_igr[speed_index];
+        vtss_state->ts.port_conf[port_no].default_egr_latency = latency_egr[speed_index];
     } else {
         VTSS_E("invalid port speed %u on port_no %u", speed, port_no);
         return VTSS_RC_ERROR;
@@ -700,8 +654,7 @@ static vtss_rc l26_ts_status_change(vtss_state_t        *vtss_state,
     return rc;
 }
 
-vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s        *vtss_state,
-                             const vtss_ts_conf_t *const conf)
+vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state, const vtss_ts_conf_t *const conf)
 {
     return VTSS_RC_OK;
 }
@@ -718,56 +671,39 @@ static vtss_rc l26_debug_ts(vtss_state_t                  *vtss_state,
 
     /* DEVCPU_GCB: PTP_TIMER */
     vtss_l26_debug_reg_header(ss, "GCB:PTP_TIMER");
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_SECS,
-                       "PTP_TOD_SECS");
-    vtss_l26_debug_reg(vtss_state, ss,
-                       VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_NANOSECS,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_SECS, "PTP_TOD_SECS");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_NANOSECS,
                        "PTP_TOD_NANOSECS");
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_DELAY,
-                       "PTP_DELAY");
-    vtss_l26_debug_reg(vtss_state, ss,
-                       VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL,
-                       "PTP_TIMER_CTRL");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_DELAY, "PTP_DELAY");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL, "PTP_TIMER_CTRL");
     /* DEVCPU_GCB: PTP_CFG */
     vtss_l26_debug_reg_header(ss, "GCB:PTP_CFG");
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
-                       "PTP_MISC_CFG");
-    vtss_l26_debug_reg(vtss_state, ss,
-                       VTSS_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_CFG,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG, "PTP_MISC_CFG");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_CFG,
                        "PTP_UPPER_LIMIT_CFG");
-    vtss_l26_debug_reg(vtss_state, ss,
-                       VTSS_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_CFG,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_PTP_UPPER_LIMIT_1_TIME_ADJ_CFG,
                        "PTP_UPPER_LIMIT_1_TIME_ADJ_CFG");
-    vtss_l26_debug_reg(vtss_state, ss,
-                       VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_PTP_SYNC_INTR_ENA_CFG,
                        "PTP_SYNC_INTR_ENA_CFG");
-    vtss_l26_debug_reg(vtss_state, ss,
-                       VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_HIGH_PERIOD_CFG,
                        "GEN_EXT_CLK_HIGH_PERIOD_CFG");
-    vtss_l26_debug_reg(vtss_state, ss,
-                       VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_LOW_PERIOD_CFG,
                        "GEN_EXT_CLK_LOW_PERIOD_CFG");
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG,
-                       "GEN_EXT_CLK_CFG");
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_CLK_ADJ_CFG,
-                       "CLK_ADJ_CFG");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_GEN_EXT_CLK_CFG, "GEN_EXT_CLK_CFG");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_CFG_CLK_ADJ_CFG, "CLK_ADJ_CFG");
     /* DEVCPU_GCB: PTP_STAT */
     vtss_l26_debug_reg_header(ss, "GCB:PTP_STAT");
-    vtss_l26_debug_reg(vtss_state, ss,
-                       VTSS_DEVCPU_GCB_PTP_STAT_PTP_CURRENT_TIME_STAT,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_STAT_PTP_CURRENT_TIME_STAT,
                        "PTP_CURRENT_TIME_STAT");
-    vtss_l26_debug_reg(vtss_state, ss,
-                       VTSS_DEVCPU_GCB_PTP_STAT_EXT_SYNC_CURRENT_TIME_STAT,
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_DEVCPU_GCB_PTP_STAT_EXT_SYNC_CURRENT_TIME_STAT,
                        "EXT_SYNC_CURRENT_TIME_STAT");
 
     L26_RD(VTSS_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT, &value);
     L26_WR(VTSS_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT, value);
-    vtss_debug_print_sticky(
-        ss, "CLK_ADJ_UPD_STICKY", value,
-        VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_CLK_ADJ_UPD_STICKY);
-    vtss_debug_print_sticky(
-        ss, "EXT_SYNC_CURRENT_TIME_STICKY", value,
-        VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_EXT_SYNC_CURRENT_TIME_STICKY);
+    vtss_debug_print_sticky(ss, "CLK_ADJ_UPD_STICKY", value,
+                            VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_CLK_ADJ_UPD_STICKY);
+    vtss_debug_print_sticky(ss, "EXT_SYNC_CURRENT_TIME_STICKY", value,
+                            VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_EXT_SYNC_CURRENT_TIME_STICKY);
     vtss_debug_print_sticky(ss, "SYNC_STAT", value,
                             VTSS_F_DEVCPU_GCB_PTP_STAT_PTP_EVT_STAT_SYNC_STAT);
 
@@ -782,10 +718,8 @@ static vtss_rc l26_debug_ts(vtss_state_t                  *vtss_state,
 
     /* ANA:: */
     vtss_l26_debug_reg_header(ss, "ANA::PTP");
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_ANA_ANA_TABLES_PTP_ID_HIGH,
-                       "PTP_ID_HIGH");
-    vtss_l26_debug_reg(vtss_state, ss, VTSS_ANA_ANA_TABLES_PTP_ID_LOW,
-                       "PTP_ID_LOW");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_ANA_ANA_TABLES_PTP_ID_HIGH, "PTP_ID_HIGH");
+    vtss_l26_debug_reg(vtss_state, ss, VTSS_ANA_ANA_TABLES_PTP_ID_LOW, "PTP_ID_LOW");
 
     pr("\n");
 
@@ -796,8 +730,7 @@ vtss_rc vtss_l26_ts_debug_print(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
-    return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, l26_debug_ts, vtss_state,
-                                  ss, info);
+    return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, l26_debug_ts, vtss_state, ss, info);
 }
 
 /* - Initialization ------------------------------------------------ */
@@ -806,17 +739,13 @@ static vtss_rc l26_ts_init(vtss_state_t *vtss_state)
 {
     L26_WR(VTSS_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL,
            VTSS_F_DEVCPU_GCB_PTP_TIMERS_PTP_TIMER_CTRL_PTP_TIMER_ENA);
-    L26_WR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG,
-           VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_PTP_ENA);
+    L26_WR(VTSS_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG, VTSS_F_DEVCPU_GCB_PTP_CFG_PTP_MISC_CFG_PTP_ENA);
     L26_WR(VTSS_DEVCPU_GCB_PTP_CFG_CLK_ADJ_CFG,
-           HW_CLK_CNT_PR_SEC |
-               VTSS_F_DEVCPU_GCB_PTP_CFG_CLK_ADJ_CFG_CLK_ADJ_UPD);
+           HW_CLK_CNT_PR_SEC | VTSS_F_DEVCPU_GCB_PTP_CFG_CLK_ADJ_CFG_CLK_ADJ_UPD);
     /* release all timestamp id's except those that are reserved for SW*/
     L26_WR(VTSS_ANA_ANA_TABLES_PTP_ID_LOW,
-           VTSS_ENCODE_BITMASK(TS_IDS_RESERVED_FOR_SW,
-                               32 - TS_IDS_RESERVED_FOR_SW));
-    L26_WR(VTSS_ANA_ANA_TABLES_PTP_ID_HIGH,
-           0xffffffff); /* assuming <32 are reserved for SW */
+           VTSS_ENCODE_BITMASK(TS_IDS_RESERVED_FOR_SW, 32 - TS_IDS_RESERVED_FOR_SW));
+    L26_WR(VTSS_ANA_ANA_TABLES_PTP_ID_HIGH, 0xffffffff); /* assuming <32 are reserved for SW */
 
     return VTSS_RC_OK;
 }
@@ -844,10 +773,10 @@ static vtss_rc l26_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
     }
 }
 
-static vtss_rc l26_ts_domain_timeofday_set_delta(vtss_state_t *vtss_state,
-                                                 u32           domain,
+static vtss_rc l26_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_state,
+                                                 u32                     domain,
                                                  const vtss_timestamp_t *ts,
-                                                 BOOL negative)
+                                                 BOOL                    negative)
 {
     if (domain == 0) {
         return l26_ts_timeofday_set_delta(vtss_state, ts, negative);
@@ -856,9 +785,7 @@ static vtss_rc l26_ts_domain_timeofday_set_delta(vtss_state_t *vtss_state,
     }
 }
 
-static vtss_rc l26_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state,
-                                                  u32           domain,
-                                                  i32           offset)
+static vtss_rc l26_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 domain, i32 offset)
 {
     if (domain == 0) {
         return l26_ts_timeofday_offset_set(vtss_state, offset);

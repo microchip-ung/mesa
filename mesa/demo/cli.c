@@ -37,10 +37,7 @@ static uint32_t    cli_port_cnt;
 /*  Command parsing                                                         */
 /****************************************************************************/
 
-const char *cli_bool_txt(mesa_bool_t enabled)
-{
-    return (enabled ? "Enabled " : "Disabled");
-}
+const char *cli_bool_txt(mesa_bool_t enabled) { return (enabled ? "Enabled " : "Disabled"); }
 
 /* Convert from internal to user port number */
 mesa_port_no_t iport2uport(mesa_port_no_t iport) { return (iport + 1); }
@@ -55,12 +52,9 @@ static cli_cmd_t *cli_cmd_list;
 
 static void cli_cmd_help(cli_req_t *req)
 {
-    cli_printf(
-        "Type '<group> ?' to get list of group commands, e.g. 'port ?'.\n");
-    cli_printf(
-        "Type '<command> ?' to get help on a command, e.g. 'port mode ?'.\n");
-    cli_printf(
-        "Commands may be abbreviated, e.g. 'po mo' instead of 'port mode'.\n");
+    cli_printf("Type '<group> ?' to get list of group commands, e.g. 'port ?'.\n");
+    cli_printf("Type '<command> ?' to get help on a command, e.g. 'port mode ?'.\n");
+    cli_printf("Commands may be abbreviated, e.g. 'po mo' instead of 'port mode'.\n");
 }
 
 static void cli_cmd_exit(cli_req_t *req) { cli_exit = 1; }
@@ -75,11 +69,9 @@ static void cli_cmd_debug_mgmt(cli_req_t *req)
     }
 }
 
-mesa_bool_t cli_port_list_member(mesa_port_list_t *port_list,
-                                 mesa_port_no_t    iport)
+mesa_bool_t cli_port_list_member(mesa_port_list_t *port_list, mesa_port_no_t iport)
 {
-    return (iport < cli_port_cnt &&
-            (port_list->_private[iport / 8] & (1 << (iport % 8))) != 0);
+    return (iport < cli_port_cnt && (port_list->_private[iport / 8] & (1 << (iport % 8))) != 0);
 }
 
 char *cli_port_list_txt(mesa_port_list_t *port_list, char *buf)
@@ -92,8 +84,7 @@ char *cli_port_list_txt(mesa_port_list_t *port_list, char *buf)
     *p = '\0';
     for (iport = 0; iport < cli_port_cnt; iport++) {
         member = cli_port_list_member(port_list, iport);
-        if ((member && (count == 0 || iport == (cli_port_cnt - 1))) ||
-            (!member && count > 1)) {
+        if ((member && (count == 0 || iport == (cli_port_cnt - 1))) || (!member && count > 1)) {
             port = iport2uport(iport);
             p += sprintf(p, "%s%u",
                          first                      ? ""
@@ -113,10 +104,10 @@ char *cli_port_list_txt(mesa_port_list_t *port_list, char *buf)
 }
 
 static cli_cmd_t cli_cmd_table[] = {
-    {"Help",                               "Show CLI general help text", cli_cmd_help      },
-    {"Exit",                               "Exit this application",      cli_cmd_exit      },
-    {"Debug Management [include|exclude]",
-     "Include or exclude IP management port from commands",              cli_cmd_debug_mgmt},
+    {"Help",                               "Show CLI general help text",                          cli_cmd_help},
+    {"Exit",                               "Exit this application",                               cli_cmd_exit},
+    {"Debug Management [include|exclude]", "Include or exclude IP management port from commands",
+     cli_cmd_debug_mgmt                                                                                       },
 }; /* cli_cmd_table */
 
 static cli_parm_t *cli_parm_list;
@@ -196,11 +187,7 @@ int cli_parm_port_no(cli_req_t *req)
 }
 
 /* Convert text to list */
-int cli_parse_list(const char  *buf,
-                   mesa_bool_t *list,
-                   uint32_t     min,
-                   uint32_t     max,
-                   mesa_bool_t  def)
+int cli_parse_list(const char *buf, mesa_bool_t *list, uint32_t min, uint32_t max, mesa_bool_t def)
 {
     uint32_t    i, start = 0, n;
     const char *p, *end;
@@ -324,8 +311,8 @@ static void cli_remove_unused_ports(cli_req_t *req)
     }
 
     // Exclude IP management port, if valid
-    if (!cli_mgmt_port_include &&
-        (req->cmd_flags & CLI_CMD_FLAG_ALL_PORTS) == 0 && ip_port < port_cnt) {
+    if (!cli_mgmt_port_include && (req->cmd_flags & CLI_CMD_FLAG_ALL_PORTS) == 0 &&
+        ip_port < port_cnt) {
         req->port_list[iport2uport(ip_port)] = 0;
     }
 }
@@ -366,18 +353,17 @@ static int cli_parm_vid(cli_req_t *req)
 }
 
 static cli_parm_t cli_parm_table[] = {
-    {"<port_no>",       "Port number or zero",           CLI_PARM_FLAG_SET,                        cli_parm_port_no},
-    {"<port_list>",     "Port list, default: All ports", CLI_PARM_FLAG_NONE,
-     cli_parm_port_list                                                                                            },
+    {"<port_no>",       "Port number or zero",           CLI_PARM_FLAG_SET,                        cli_parm_port_no  },
+    {"<port_list>",     "Port list, default: All ports", CLI_PARM_FLAG_NONE,                       cli_parm_port_list},
     {"enable|disable",
      "enable     : Enable\n"
      "disable    : Disable\n"
-     "(default: Show mode)",                             CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword},
+     "(default: Show mode)",                             CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword  },
     {"include|exclude",
      "include : Include management port\n"
      "exclude : Exclude management port\n"
-     "(default: Show mode)",                             CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword},
-    {"<vid>",           "VLAN ID",                       CLI_PARM_FLAG_SET,                        cli_parm_vid    },
+     "(default: Show mode)",                             CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET, cli_parm_keyword  },
+    {"<vid>",           "VLAN ID",                       CLI_PARM_FLAG_SET,                        cli_parm_vid      },
 }; /* cli_parm_table */
 
 static cli_req_t cli_req;
@@ -478,10 +464,7 @@ static void cli_req_default_set(cli_req_t *req, cli_cmd_t *cmd)
 }
 
 /* Header with optional new line before and after */
-static void cli_header_nl_char(const char *txt,
-                               mesa_bool_t pre,
-                               mesa_bool_t post,
-                               char        c)
+static void cli_header_nl_char(const char *txt, mesa_bool_t pre, mesa_bool_t post, char c)
 {
     int i, len;
 
@@ -532,16 +515,12 @@ void cli_table_header(const char *txt)
 
 char *cli_mac_txt(const uint8_t *mac, char *buf)
 {
-    sprintf(buf, "%02x-%02x-%02x-%02x-%02x-%02x", mac[0], mac[1], mac[2],
-            mac[3], mac[4], mac[5]);
+    sprintf(buf, "%02x-%02x-%02x-%02x-%02x-%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     return buf;
 }
 
 /* Build array of command/syntax words */
-static void cli_build_words(char       *str,
-                            int        *count,
-                            char      **words,
-                            mesa_bool_t lower)
+static void cli_build_words(char *str, int *count, char **words, mesa_bool_t lower)
 {
     int   i, j, len;
     char *p;
@@ -569,9 +548,9 @@ static void cli_build_words(char       *str,
 /* Parse command */
 static int cli_parse_command(int argc, const char **argv)
 {
-    char *stx;
-    char  stx_buf[MAX_CMD_LEN], *stx_words[64];
-    int   i = 0, i_cmd = 0, i_stx, i_parm = 0, stx_count, max, len, j, error;
+    char       *stx;
+    char        stx_buf[MAX_CMD_LEN], *stx_words[64];
+    int         i = 0, i_cmd = 0, i_stx, i_parm = 0, stx_count, max, len, j, error;
     cli_cmd_t  *cli_cmd, *match_list = NULL, *match_prev = NULL;
     mesa_bool_t match, help = 0;
     cli_req_t  *req;
@@ -579,8 +558,7 @@ static int cli_parse_command(int argc, const char **argv)
 
     /* Remove trailing 'help' or '?' command */
     if (argc > 1) {
-        if (strcmp(argv[argc - 1], "?") == 0 ||
-            strcasecmp(argv[argc - 1], "help") == 0) {
+        if (strcmp(argv[argc - 1], "?") == 0 || strcasecmp(argv[argc - 1], "help") == 0) {
             argc--;
             help = 1;
         }
@@ -648,8 +626,7 @@ static int cli_parse_command(int argc, const char **argv)
             cli_printf("%s\n\n", cli_cmd->syntax);
             for (max = 0, i = 0; i_parm && i < 2; i++) {
                 for (i_stx = i_parm; i_stx < stx_count; i_stx++) {
-                    if ((parm = cli_parm_lookup(stx_words[i_stx], cli_cmd)) ==
-                        NULL)
+                    if ((parm = cli_parm_lookup(stx_words[i_stx], cli_cmd)) == NULL)
                         continue;
                     len = strlen(parm->txt);
                     if (i == 0) {
@@ -673,12 +650,7 @@ static int cli_parse_command(int argc, const char **argv)
             }
 
         } else {
-            enum {
-                CLI_STATE_IDLE,
-                CLI_STATE_PARSING,
-                CLI_STATE_DONE,
-                CLI_STATE_ERROR
-            } state;
+            enum { CLI_STATE_IDLE, CLI_STATE_PARSING, CLI_STATE_DONE, CLI_STATE_ERROR } state;
             mesa_bool_t end = 0, separator, skip_parm;
 
             if (cli_cmd->func2)
@@ -690,8 +662,7 @@ static int cli_parse_command(int argc, const char **argv)
 
             /* Parse arguments */
             state = CLI_STATE_IDLE;
-            for (i_cmd = i_parm, i_stx = i_parm; i_parm && i_stx < stx_count;
-                 i_stx++) {
+            for (i_cmd = i_parm, i_stx = i_parm; i_parm && i_stx < stx_count; i_stx++) {
                 stx = stx_words[i_stx];
 
                 separator = (strcmp(stx, "|") == 0);
@@ -768,8 +739,7 @@ static int cli_parse_command(int argc, const char **argv)
                 }
 
                 /* No error or error in optional parameter */
-                if (!error ||
-                    (stx[0] == '[' && (stx[1] != '(' || stx[2] == '['))) {
+                if (!error || (stx[0] == '[' && (stx[1] != '(' || stx[2] == '['))) {
                     if (state == CLI_STATE_PARSING && end)
                         state = CLI_STATE_DONE;
                     continue;
@@ -785,8 +755,7 @@ static int cli_parse_command(int argc, const char **argv)
                 if (i_cmd >= argc)
                     cli_printf("Missing %s parameter\n\n", parm->txt);
                 else
-                    cli_printf("Invalid %s parameter: %s\n\n", parm->txt,
-                               argv[i_cmd]);
+                    cli_printf("Invalid %s parameter: %s\n\n", parm->txt, argv[i_cmd]);
                 cli_printf("Syntax:\n%s\n", cli_cmd->syntax);
                 return -1;
             } /* for loop */
@@ -817,8 +786,7 @@ static int cli_parse_command(int argc, const char **argv)
 
     } else {
         cli_printf("Available Commands:\n\n");
-        for (cli_cmd = match_list; cli_cmd != NULL;
-             cli_cmd = cli_cmd->match_next)
+        for (cli_cmd = match_list; cli_cmd != NULL; cli_cmd = cli_cmd->match_next)
             cli_printf("%s\n", cli_cmd->syntax);
         return -1;
     }

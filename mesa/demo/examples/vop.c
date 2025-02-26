@@ -43,9 +43,7 @@ static struct {
     uint32_t              cfm;
 } state;
 
-static int init_port_configuration(mesa_port_no_t port,
-                                   mesa_prio_t    prio,
-                                   uint32_t       idx)
+static int init_port_configuration(mesa_port_no_t port, mesa_prio_t prio, uint32_t idx)
 {
     mesa_vlan_port_conf_t vlan_conf;
     mesa_qos_port_conf_t  qos_conf;
@@ -73,10 +71,9 @@ static uint32_t vce_level_mask(uint32_t l_level, uint32_t h_level)
 {
     uint32_t mask;
 
-    mask = (0x01 << (h_level - l_level)) -
-           1;         // "don't care" mask value is calculated
-    mask <<= l_level; // mask is rotated to cover levels
-    mask = ~mask;     // Mask is complimented as "don't care" is '0'
+    mask = (0x01 << (h_level - l_level)) - 1; // "don't care" mask value is calculated
+    mask <<= l_level;                         // mask is rotated to cover levels
+    mask = ~mask;                             // Mask is complimented as "don't care" is '0'
     mask = mask & 0xFF;
     return (mask);
 }
@@ -137,8 +134,7 @@ static int v1_port_voe_configuration(uint32_t level)
     // snippet_endbegin ex-port-voe-config
     RC(mesa_voe_conf_get(NULL, state.voe_idx, &voe_conf));
     voe_conf.enable = TRUE;
-    memcpy(voe_conf.unicast_mac.addr, rx_uc_addr,
-           sizeof(voe_conf.unicast_mac.addr));
+    memcpy(voe_conf.unicast_mac.addr, rx_uc_addr, sizeof(voe_conf.unicast_mac.addr));
     voe_conf.meg_level = level;
     voe_conf.dmac_check_type = MESA_VOE_DMAC_CHECK_BOTH;
     voe_conf.loop_iflow_id = state.iflow_id;
@@ -236,8 +232,7 @@ static int v2_port_voe_configuration(uint32_t level)
     // snippet_endbegin ex-port-voe-config
     RC(mesa_voe_conf_get(NULL, state.voe_idx, &voe_conf));
     voe_conf.enable = TRUE;
-    memcpy(voe_conf.unicast_mac.addr, rx_uc_addr,
-           sizeof(voe_conf.unicast_mac.addr));
+    memcpy(voe_conf.unicast_mac.addr, rx_uc_addr, sizeof(voe_conf.unicast_mac.addr));
     voe_conf.meg_level = level;
     voe_conf.dmac_check_type = MESA_VOE_DMAC_CHECK_BOTH;
     voe_conf.loop_iflow_id = state.iflow_id;
@@ -341,8 +336,7 @@ static int v1_service_voe_configuration(uint32_t level)
     // snippet_endbegin ex-service-voe-config
     RC(mesa_voe_conf_get(NULL, state.voe_idx, &voe_conf));
     voe_conf.enable = TRUE;
-    memcpy(voe_conf.unicast_mac.addr, rx_uc_addr,
-           sizeof(voe_conf.unicast_mac.addr));
+    memcpy(voe_conf.unicast_mac.addr, rx_uc_addr, sizeof(voe_conf.unicast_mac.addr));
     voe_conf.meg_level = level;
     voe_conf.dmac_check_type = MESA_VOE_DMAC_CHECK_BOTH;
     voe_conf.loop_iflow_id = state.iflow_id;
@@ -433,8 +427,7 @@ static int v2_service_voe_configuration(uint32_t level)
     // snippet_endbegin ex-service-voe-config
     RC(mesa_voe_conf_get(NULL, state.voe_idx, &voe_conf));
     voe_conf.enable = TRUE;
-    memcpy(voe_conf.unicast_mac.addr, rx_uc_addr,
-           sizeof(voe_conf.unicast_mac.addr));
+    memcpy(voe_conf.unicast_mac.addr, rx_uc_addr, sizeof(voe_conf.unicast_mac.addr));
     voe_conf.meg_level = level;
     voe_conf.dmac_check_type = MESA_VOE_DMAC_CHECK_BOTH;
     voe_conf.loop_iflow_id = MESA_IFLOW_ID_NONE;
@@ -447,12 +440,10 @@ static int v2_service_voe_configuration(uint32_t level)
 
 static int vop_init(int argc, const char *argv[])
 {
-    mesa_port_no_t front_port =
-        ARGV_INT("front-port", "Is the port in front of the VOP.");
-    mesa_port_no_t back_port =
-        ARGV_INT("back-port", "Is the port behind the VOP.");
-    uint32_t level = ARGV_OPT_INT("level", "Is the MEG level. Default is 4", 4);
-    mesa_vid_t vid = ARGV_OPT_INT(
+    mesa_port_no_t front_port = ARGV_INT("front-port", "Is the port in front of the VOP.");
+    mesa_port_no_t back_port = ARGV_INT("back-port", "Is the port behind the VOP.");
+    uint32_t       level = ARGV_OPT_INT("level", "Is the MEG level. Default is 4", 4);
+    mesa_vid_t     vid = ARGV_OPT_INT(
         "vid",
         "Is the VLAN VOP classified VID. Value 0 means a Port VOP is created - otherwise a VLAN VOP. Default is 0",
         0);
@@ -502,8 +493,7 @@ static int vop_init(int argc, const char *argv[])
     // snippet_begin ex-port-vop-config
     // Enable the VOP
     RC(mesa_vop_conf_get(NULL, &vop_conf));
-    memcpy(vop_conf.multicast_dmac.addr, mc_addr,
-           sizeof(vop_conf.multicast_dmac.addr));
+    memcpy(vop_conf.multicast_dmac.addr, mc_addr, sizeof(vop_conf.multicast_dmac.addr));
     vop_conf.auto_copy_period[0] = 4 * 1000 * 1000;
     vop_conf.auto_copy_period[1] = 1000 * 1000;
     vop_conf.voe_queue_ccm = cpu_queue;
@@ -550,8 +540,7 @@ static int vop_init(int argc, const char *argv[])
     RC(mesa_voe_cc_conf_set(NULL, state.voe_idx, &cc_conf));
 
     // snippet_begin ex-voe-events-enable
-    RC(mesa_voe_event_mask_set(NULL, state.voe_idx, MESA_VOE_EVENT_MASK_ALL,
-                               TRUE));
+    RC(mesa_voe_event_mask_set(NULL, state.voe_idx, MESA_VOE_EVENT_MASK_ALL, TRUE));
 
     if (state.cfm) {
         // snippet_begin ex-voe-lb-enable
@@ -634,14 +623,12 @@ static const char *vop_help()
                    : (period == MESA_VOE_CCM_PERIOD_10_SEC) ? "10 second"
                    : (period == MESA_VOE_CCM_PERIOD_100_MS) ? "100 milisecond"
                                                             : "Unknown");
-    cnt += sprintf(ret_string + cnt,
-                   "Expected source Unicast MAC is %X-%X-%X-%X-%X-%X\n",
-                   rx_uc_addr[0], rx_uc_addr[1], rx_uc_addr[2], rx_uc_addr[3],
-                   rx_uc_addr[4], rx_uc_addr[5]);
-    cnt += sprintf(ret_string + cnt,
-                   "Transmitted source Unicast MAC is %X-%X-%X-%X-%X-%X\n",
-                   tx_uc_addr[0], tx_uc_addr[1], tx_uc_addr[2], tx_uc_addr[3],
-                   tx_uc_addr[4], tx_uc_addr[5]);
+    cnt += sprintf(ret_string + cnt, "Expected source Unicast MAC is %X-%X-%X-%X-%X-%X\n",
+                   rx_uc_addr[0], rx_uc_addr[1], rx_uc_addr[2], rx_uc_addr[3], rx_uc_addr[4],
+                   rx_uc_addr[5]);
+    cnt += sprintf(ret_string + cnt, "Transmitted source Unicast MAC is %X-%X-%X-%X-%X-%X\n",
+                   tx_uc_addr[0], tx_uc_addr[1], tx_uc_addr[2], tx_uc_addr[3], tx_uc_addr[4],
+                   tx_uc_addr[5]);
     return ret_string;
 }
 
@@ -657,33 +644,33 @@ static int vop_run(int argc, const char *argv[])
         value 4 is CPU RX frame print.\n\
         value 5 is CPU TX CCM frame.\n\
         value 6 is CPU TX LBM frame.\n");
-    uint32_t exp_ccm_seen = ARGV_RUN_OPT_INT(
-        "exp-seen-ccm",
-        "The CC status show expected CCM seen. Default is nothing expected",
-        NO_EXP);
-    uint32_t exp_ltm_seen = ARGV_RUN_OPT_INT(
-        "exp-seen-ltm",
-        "The LT status show expected LTM seen. Default is nothing expected",
-        NO_EXP);
-    uint32_t exp_laps_seen = ARGV_RUN_OPT_INT(
-        "exp-seen-laps",
-        "The LAPS status show expected LAPS seen. Default is nothing expected",
-        NO_EXP);
-    uint32_t exp_state_loc = ARGV_RUN_OPT_INT(
-        "exp-state-loc",
-        "The CC status show expected LOC state. Default is nothing expected",
-        NO_EXP);
-    uint32_t exp_state_level = ARGV_RUN_OPT_INT(
-        "exp-state-level",
-        "The CC status show expected Level state. Default is nothing expected",
-        NO_EXP);
-    uint32_t exp_event_loc = ARGV_RUN_OPT_INT(
-        "exp-event-loc",
-        "The VOE event status show expected LOC event. Default is nothing expected",
-        NO_EXP);
-    uint32_t exp_oam_opcode = ARGV_RUN_OPT_INT(
-        "exp-oam-opcode",
-        "The CPU frame expected opcode. Default is nothing expected", NO_EXP);
+    uint32_t exp_ccm_seen =
+        ARGV_RUN_OPT_INT("exp-seen-ccm",
+                         "The CC status show expected CCM seen. Default is nothing expected",
+                         NO_EXP);
+    uint32_t exp_ltm_seen =
+        ARGV_RUN_OPT_INT("exp-seen-ltm",
+                         "The LT status show expected LTM seen. Default is nothing expected",
+                         NO_EXP);
+    uint32_t exp_laps_seen =
+        ARGV_RUN_OPT_INT("exp-seen-laps",
+                         "The LAPS status show expected LAPS seen. Default is nothing expected",
+                         NO_EXP);
+    uint32_t exp_state_loc =
+        ARGV_RUN_OPT_INT("exp-state-loc",
+                         "The CC status show expected LOC state. Default is nothing expected",
+                         NO_EXP);
+    uint32_t exp_state_level =
+        ARGV_RUN_OPT_INT("exp-state-level",
+                         "The CC status show expected Level state. Default is nothing expected",
+                         NO_EXP);
+    uint32_t exp_event_loc =
+        ARGV_RUN_OPT_INT("exp-event-loc",
+                         "The VOE event status show expected LOC event. Default is nothing expected",
+                         NO_EXP);
+    uint32_t exp_oam_opcode =
+        ARGV_RUN_OPT_INT("exp-oam-opcode",
+                         "The CPU frame expected opcode. Default is nothing expected", NO_EXP);
     mesa_voe_cc_status_t   cc_status;
     mesa_voe_counters_t    voe_counters;
     mesa_voe_lt_status_t   lt_status;
@@ -717,19 +704,16 @@ static int vop_run(int argc, const char *argv[])
         cli_printf("    tlv_seen:        %u\n", cc_status.tlv_seen);
         cli_printf("    seq_unexp_seen:  %u\n", cc_status.seq_unexp_seen);
         if ((exp_ccm_seen != NO_EXP) && (exp_ccm_seen != cc_status.seen)) {
-            cli_printf("CCM seen %u is not as expected %u\n", cc_status.seen,
-                       exp_ccm_seen);
+            cli_printf("CCM seen %u is not as expected %u\n", cc_status.seen, exp_ccm_seen);
             return -1;
         }
         if ((exp_state_loc != NO_EXP) && (exp_state_loc != cc_status.loc)) {
-            cli_printf("loc state %u is not as expected %u\n", cc_status.loc,
-                       exp_state_loc);
+            cli_printf("loc state %u is not as expected %u\n", cc_status.loc, exp_state_loc);
             return -1;
         }
-        if ((exp_state_level != NO_EXP) &&
-            (exp_state_level != cc_status.mel_unexp)) {
-            cli_printf("level state %u is not as expected %u\n",
-                       cc_status.mel_unexp, exp_state_level);
+        if ((exp_state_level != NO_EXP) && (exp_state_level != cc_status.mel_unexp)) {
+            cli_printf("level state %u is not as expected %u\n", cc_status.mel_unexp,
+                       exp_state_level);
             return -1;
         }
 
@@ -761,16 +745,13 @@ static int vop_run(int argc, const char *argv[])
         cli_printf("    ccm_port_move:       %u\n",
                    (MESA_VOE_EVENT_MASK_CCM_SRC_PORT_MOVE & voe_event) ? 1 : 0);
         cli_printf("    ccm_tlv_port_status: %u\n",
-                   (MESA_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS & voe_event) ? 1
-                                                                         : 0);
+                   (MESA_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS & voe_event) ? 1 : 0);
         cli_printf("    ccm_tlv_if_status:   %u\n",
                    (MESA_VOE_EVENT_MASK_CCM_TLV_IF_STATUS & voe_event) ? 1 : 0);
         if ((exp_event_loc != NO_EXP) &&
-            (exp_event_loc !=
-             ((MESA_VOE_EVENT_MASK_CCM_LOC & voe_event) ? 1 : 0))) {
+            (exp_event_loc != ((MESA_VOE_EVENT_MASK_CCM_LOC & voe_event) ? 1 : 0))) {
             cli_printf("loc event %u is not as expected %u\n",
-                       ((MESA_VOE_EVENT_MASK_CCM_LOC & voe_event) ? 1 : 0),
-                       exp_event_loc);
+                       ((MESA_VOE_EVENT_MASK_CCM_LOC & voe_event) ? 1 : 0), exp_event_loc);
             return -1;
         }
         break;
@@ -781,8 +762,7 @@ static int vop_run(int argc, const char *argv[])
         cli_printf("    ltm_seen:     %u\n", lt_status.ltm_seen);
         cli_printf("    ltr_seen:     %u\n", lt_status.ltr_seen);
         if ((exp_ltm_seen != NO_EXP) && (exp_ltm_seen != lt_status.ltm_seen)) {
-            cli_printf("LTM seen %u is not as expected %u\n",
-                       lt_status.ltm_seen, exp_ltm_seen);
+            cli_printf("LTM seen %u is not as expected %u\n", lt_status.ltm_seen, exp_ltm_seen);
             return -1;
         }
         break;
@@ -792,17 +772,15 @@ static int vop_run(int argc, const char *argv[])
         cli_printf("LAPS status:\n");
         cli_printf("    seen:     %u\n", laps_status.seen);
         if ((exp_laps_seen != NO_EXP) && (exp_laps_seen != laps_status.seen)) {
-            cli_printf("LAPS seen %u is not as expected %u\n", laps_status.seen,
-                       exp_laps_seen);
+            cli_printf("LAPS seen %u is not as expected %u\n", laps_status.seen, exp_laps_seen);
             return -1;
         }
         break;
 
     case 4:
-        if ((rcode = mesa_packet_rx_frame(NULL, frame, sizeof(frame),
-                                          &rx_info)) != MESA_RC_OK) {
-            cli_printf("mesa_packet_rx_frame() failed  rc %X  Incomplete %u\n",
-                       rcode, (rcode == MESA_RC_INCOMPLETE));
+        if ((rcode = mesa_packet_rx_frame(NULL, frame, sizeof(frame), &rx_info)) != MESA_RC_OK) {
+            cli_printf("mesa_packet_rx_frame() failed  rc %X  Incomplete %u\n", rcode,
+                       (rcode == MESA_RC_INCOMPLETE));
             return -1;
         }
 
@@ -826,8 +804,7 @@ static int vop_run(int argc, const char *argv[])
         cli_printf("    OAM Opcode: %u:\n", opcode);
         if (exp_oam_opcode != NO_EXP) {
             if (exp_oam_opcode != opcode) {
-                cli_printf("Opcode %u is not as expected %u\n", opcode,
-                           exp_oam_opcode);
+                cli_printf("Opcode %u is not as expected %u\n", opcode, exp_oam_opcode);
                 return -1;
             }
         }
@@ -914,11 +891,11 @@ static int vop_run(int argc, const char *argv[])
         *(frame + idx + 1) = 3;                         // Opcode LBM
         *(frame + idx + 2) = 0;                         // Flags period 1 f/s
         *(frame + idx + 3) = 4;                         // TLV offset
-        idx += 4;          // This is Sequence number
-        idx += 1;          // This is end TLV
-        idx += 2;          // This is end TLV length
-        idx += 1;          // This is end TLV value
-        idx += (87 - idx); // This is fill
+        idx += 4;                                       // This is Sequence number
+        idx += 1;                                       // This is end TLV
+        idx += 2;                                       // This is end TLV length
+        idx += 1;                                       // This is end TLV value
+        idx += (87 - idx);                              // This is fill
 
         // Transmit the frame
         RC(mesa_packet_tx_frame(NULL, &tx_info, frame, idx));

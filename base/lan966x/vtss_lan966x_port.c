@@ -56,9 +56,8 @@ static u32 wm_dec_frames(u32 value) { return wm_dec(value, 0); }
 u32 vtss_lan966x_wm_high_get(vtss_state_t *vtss_state, u32 queue)
 {
     u32 wm_high;
-    REG_RD(QSYS_RES_CFG((queue + 216)),
-           &wm_high); /* Shared ingress high watermark for queue - common for
-                         all dpls */
+    REG_RD(QSYS_RES_CFG((queue + 216)), &wm_high); /* Shared ingress high watermark for queue -
+                                                      common for all dpls */
     return wm_dec_bytes(wm_high);
 }
 
@@ -70,8 +69,7 @@ vtss_rc vtss_lan966x_wm_update(vtss_state_t *vtss_state)
     /* Update BUF_PRIO_SHR_E sharing watermarks according to AN1121 Section 7
      * WRED Operation */
     for (q = 0; q < VTSS_PRIOS; q++) {
-        if (vtss_state->qos.conf.red_v2[q][0].enable ||
-            vtss_state->qos.conf.red_v2[q][1].enable) {
+        if (vtss_state->qos.conf.red_v2[q][0].enable || vtss_state->qos.conf.red_v2[q][1].enable) {
             REG_WR(QSYS_RES_CFG((q + 216 + 512)),
                    0); /* WRED is enabled for DP0 or DP1 - set watermark to zero
                         */
@@ -101,35 +99,29 @@ static BOOL is_internal_cu(vtss_state_t *vtss_state, vtss_port_no_t port)
     return FALSE;
 }
 
-vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t  *vtss_state,
-                                       vtss_port_no_t port_no)
+vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_port_max_tags_t  max_tags = vtss_state->port.conf[port_no].max_tags;
-    vtss_vlan_port_type_t vlan_type =
-        vtss_state->l2.vlan_port_conf[port_no].port_type;
-    u32 port = VTSS_CHIP_PORT(port_no);
-    u32 etype, double_ena, single_ena;
+    vtss_vlan_port_type_t vlan_type = vtss_state->l2.vlan_port_conf[port_no].port_type;
+    u32                   port = VTSS_CHIP_PORT(port_no);
+    u32                   etype, double_ena, single_ena;
 
     /* S-ports and VLAN unaware ports both suport 0x88a8 (in addition to 0x8100)
      */
-    etype = (vlan_type == VTSS_VLAN_PORT_TYPE_S_CUSTOM
-                 ? vtss_state->l2.vlan_conf.s_etype
-             : vlan_type == VTSS_VLAN_PORT_TYPE_C ? VTSS_ETYPE_TAG_C
-                                                  : VTSS_ETYPE_TAG_S);
+    etype = (vlan_type == VTSS_VLAN_PORT_TYPE_S_CUSTOM ? vtss_state->l2.vlan_conf.s_etype
+             : vlan_type == VTSS_VLAN_PORT_TYPE_C      ? VTSS_ETYPE_TAG_C
+                                                       : VTSS_ETYPE_TAG_S);
     single_ena = (max_tags == VTSS_PORT_MAX_TAGS_NONE ? 0 : 1);
     double_ena = (max_tags == VTSS_PORT_MAX_TAGS_TWO ? 1 : 0);
     REG_WR(DEV_MAC_TAGS_CFG(port),
-           DEV_MAC_TAGS_CFG_TAG_ID(etype) |
-               DEV_MAC_TAGS_CFG_PB_ENA(double_ena) |
-               DEV_MAC_TAGS_CFG_VLAN_AWR_ENA(single_ena) |
-               DEV_MAC_TAGS_CFG_VLAN_LEN_AWR_ENA(1));
+           DEV_MAC_TAGS_CFG_TAG_ID(etype) | DEV_MAC_TAGS_CFG_PB_ENA(double_ena) |
+               DEV_MAC_TAGS_CFG_VLAN_AWR_ENA(single_ena) | DEV_MAC_TAGS_CFG_VLAN_LEN_AWR_ENA(1));
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t        *vtss_state,
-                                            const vtss_port_no_t port_no,
-                                            vtss_port_clause_37_control_t
-                                                *const control)
+vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        *vtss_state,
+                                            const vtss_port_no_t                 port_no,
+                                            vtss_port_clause_37_control_t *const control)
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
 
@@ -140,35 +132,30 @@ vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t        *vtss_state,
-                                            const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    vtss_port_clause_37_control_t *control =
-        &vtss_state->port.clause_37[port_no];
-    u32 value, port = VTSS_CHIP_PORT(port_no);
+    vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
+    u32                            value, port = VTSS_CHIP_PORT(port_no);
 
     /* Aneg capabilities for this port */
-    VTSS_RC(vtss_cmn_port_clause_37_adv_set(&value, &control->advertisement,
-                                            control->enable));
+    VTSS_RC(vtss_cmn_port_clause_37_adv_set(&value, &control->advertisement, control->enable));
 
     /* Set aneg capabilities */
-    REG_WR(DEV_PCS1G_ANEG_CFG(port),
-           DEV_PCS1G_ANEG_CFG_ADV_ABILITY(value) |
-               DEV_PCS1G_ANEG_CFG_RESTART_ONE_SHOT_M |
-               (control->enable ? DEV_PCS1G_ANEG_CFG_ENA_M : 0));
+    REG_WR(DEV_PCS1G_ANEG_CFG(port), DEV_PCS1G_ANEG_CFG_ADV_ABILITY(value) |
+                                         DEV_PCS1G_ANEG_CFG_RESTART_ONE_SHOT_M |
+                                         (control->enable ? DEV_PCS1G_ANEG_CFG_ENA_M : 0));
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t        *vtss_state,
-                                           const vtss_port_no_t port_no,
-                                           vtss_port_clause_37_status_t
-                                               *const status)
+vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *vtss_state,
+                                           const vtss_port_no_t                port_no,
+                                           vtss_port_clause_37_status_t *const status)
 {
     u32                            value, port = VTSS_CHIP_PORT(port_no);
     vtss_port_sgmii_aneg_t        *sgmii_adv = &status->autoneg.partner.sgmii;
     BOOL                           synced_status;
     vtss_port_clause_37_control_t *aneg = &vtss_state->port.clause_37[port_no];
-    vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
+    vtss_port_interface_t          if_type = vtss_state->port.conf[port_no].if_type;
 
     if (vtss_state->port.conf[port_no].power_down) {
         status->link = 0;
@@ -185,14 +172,12 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t        *vtss_state,
          * value  */
         REG_WR(DEV_PCS1G_STICKY(port), DEV_PCS1G_STICKY_LINK_DOWN_STICKY_M);
     } else {
-        status->link =
-            ((value & DEV_PCS1G_LINK_STATUS_LINK_STATUS_M) && synced_status);
+        status->link = ((value & DEV_PCS1G_LINK_STATUS_LINK_STATUS_M) && synced_status);
     }
 
     /* Get PCS ANEG status register */
     REG_RD(DEV_PCS1G_ANEG_STATUS(port), &value);
-    status->autoneg.complete =
-        (value & DEV_PCS1G_ANEG_STATUS_ANEG_COMPLETE_M ? 1 : 0);
+    status->autoneg.complete = (value & DEV_PCS1G_ANEG_STATUS_ANEG_COMPLETE_M ? 1 : 0);
 
     /* Workaround for a Serdes issue, when aneg completes with FDX capability=0 */
     /* There is another situation which needs to restart aneg: aneg un-complete
@@ -202,13 +187,10 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t        *vtss_state,
             (synced_status && !status->autoneg.complete)) {
             REG_WRM_CLR(DEV_PCS1G_CFG(port), DEV_PCS1G_CFG_PCS_ENA_M);
             REG_WRM_SET(DEV_PCS1G_CFG(port), DEV_PCS1G_CFG_PCS_ENA_M);
-            (void)
-                vtss_cil_port_clause_37_control_set(vtss_state,
-                                                    port_no); /* Restart Aneg */
+            (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no); /* Restart Aneg */
             VTSS_MSLEEP(50);
             REG_RD(DEV_PCS1G_ANEG_STATUS(port), &value);
-            status->autoneg.complete =
-                (value & DEV_PCS1G_ANEG_STATUS_ANEG_COMPLETE_M ? 1 : 0);
+            status->autoneg.complete = (value & DEV_PCS1G_ANEG_STATUS_ANEG_COMPLETE_M ? 1 : 0);
         }
     }
 
@@ -228,20 +210,17 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t        *vtss_state,
              * have link */
             status->link = sgmii_adv->link;
         }
-        VTSS_N("port:%d, value:0x%X, sgmii_adv->link:%d, status->link:%d",
-               port_no, value, sgmii_adv->link, status->link);
+        VTSS_N("port:%d, value:0x%X, sgmii_adv->link:%d, status->link:%d", port_no, value,
+               sgmii_adv->link, status->link);
     } else {
-        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value,
-                                                &status->autoneg.partner.cl37));
+        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &status->autoneg.partner.cl37));
     }
     return VTSS_RC_OK;
 }
 
 #if defined(VTSS_FEATURE_SYNCE)
-#define RCVRD_CLK_GPIO_NO                                                      \
-    30 // on Maserati the 2 recovered clock outputs are GPIO 30-31
-vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t *vtss_state,
-                                     const u32     clk_port)
+#define RCVRD_CLK_GPIO_NO 30 // on Maserati the 2 recovered clock outputs are GPIO 30-31
+vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t *vtss_state, const u32 clk_port)
 {
     u32                     div_mask;
     vtss_synce_clock_out_t *conf;
@@ -268,8 +247,7 @@ vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t *vtss_state,
     REG_WRM(HSIO_SYNC_ETH_CFG(clk_port),
             HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_DIV(div_mask) |
                 HSIO_SYNC_ETH_CFG_RECO_CLK_ENA(conf->enable),
-            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_DIV_M |
-                HSIO_SYNC_ETH_CFG_RECO_CLK_ENA_M);
+            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_DIV_M | HSIO_SYNC_ETH_CFG_RECO_CLK_ENA_M);
 
     /* To get the best quality of the recovered clocks it is recommended to
      * change the drive strength to 3 */
@@ -277,9 +255,8 @@ vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t *vtss_state,
             CHIP_TOP_GPIO_CFG_DS(conf->enable ? 3 : 1), /* 1 is default */
             CHIP_TOP_GPIO_CFG_DS_M);
 
-    if (VTSS_RC_OK !=
-        vtss_lan966x_gpio_mode(vtss_state, 0, RCVRD_CLK_GPIO_NO + clk_port,
-                               conf->enable ? VTSS_GPIO_ALT_4 : VTSS_GPIO_IN)) {
+    if (VTSS_RC_OK != vtss_lan966x_gpio_mode(vtss_state, 0, RCVRD_CLK_GPIO_NO + clk_port,
+                                             conf->enable ? VTSS_GPIO_ALT_4 : VTSS_GPIO_IN)) {
         VTSS_E("Failed to set GPIO mode for recovered clock[%d]\n", clk_port);
         return VTSS_RC_ERROR;
     }
@@ -287,21 +264,15 @@ vtss_rc vtss_cil_synce_clock_out_set(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t *vtss_state,
-                                           const vtss_synce_clk_port_t
-                                               clk_port_par)
+vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t               *vtss_state,
+                                           const vtss_synce_clk_port_t clk_port_par)
 {
     return VTSS_RC_OK;
 }
 #endif
 
 #if !defined(VTSS_OPT_FPGA)
-typedef enum {
-    PORT_TYPE_NONE,
-    PORT_TYPE_CUPHY,
-    PORT_TYPE_SD,
-    PORT_TYPE_RGMII
-} port_type_t;
+typedef enum { PORT_TYPE_NONE, PORT_TYPE_CUPHY, PORT_TYPE_SD, PORT_TYPE_RGMII } port_type_t;
 
 static vtss_rc lan966x_port_type_calc(vtss_state_t       *vtss_state,
                                       vtss_port_no_t      port_no,
@@ -380,8 +351,7 @@ static vtss_rc lan966x_port_type_calc(vtss_state_t       *vtss_state,
 #endif
 
 #if defined(VTSS_FEATURE_SYNCE)
-vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state,
-                                    const u32     clk_port)
+vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_port)
 {
 #if !defined(VTSS_OPT_FPGA)
     vtss_synce_clock_in_t *conf;
@@ -405,8 +375,8 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state,
     }
     ena = conf->enable;
 
-    if (lan966x_port_type_calc(vtss_state, conf->port_no, &port_type, &idx,
-                               &mode_req) != VTSS_RC_OK) {
+    if (lan966x_port_type_calc(vtss_state, conf->port_no, &port_type, &idx, &mode_req) !=
+        VTSS_RC_OK) {
         return VTSS_RC_ERROR;
     }
 
@@ -417,15 +387,13 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state,
     case PORT_TYPE_CUPHY: clk_src = 5 + idx; break;
     }
 
-    VTSS_D("clk_port %X, port_no %u, enable %u, squelch %u, clk_src %u\n",
-           clk_port, conf->port_no, ena, conf->squelsh, clk_src);
+    VTSS_D("clk_port %X, port_no %u, enable %u, squelch %u, clk_src %u\n", clk_port, conf->port_no,
+           ena, conf->squelsh, clk_src);
 
     /* Configure the SerDes to select for recovered clock */
     REG_WRM(HSIO_SYNC_ETH_CFG(clk_port),
-            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_SRC(clk_src) |
-                HSIO_SYNC_ETH_CFG_RECO_CLK_ENA(ena),
-            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_SRC_M |
-                HSIO_SYNC_ETH_CFG_RECO_CLK_ENA_M);
+            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_SRC(clk_src) | HSIO_SYNC_ETH_CFG_RECO_CLK_ENA(ena),
+            HSIO_SYNC_ETH_CFG_SEL_RECO_CLK_SRC_M | HSIO_SYNC_ETH_CFG_RECO_CLK_ENA_M);
 
     if (ena && (port_type == PORT_TYPE_SD)) { /* Enable Port type SERDES */
         /* Enable input clock configuration - now configuring the new (or maybe
@@ -445,13 +413,11 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state,
                     HSIO_SYNC_ETH_SD_CFG_SD_AUTO_SQUELCH_ENA_M |
                     HSIO_SYNC_ETH_SD_CFG_SD_LINK_STAT_ENA_M);
 
-        REG_WR(HSIO_SIGDET_CFG(idx), HSIO_SIGDET_CFG_SD_SEL(1) |
-                                         HSIO_SIGDET_CFG_SD_POL(0) |
+        REG_WR(HSIO_SIGDET_CFG(idx), HSIO_SIGDET_CFG_SD_SEL(1) | HSIO_SIGDET_CFG_SD_POL(0) |
                                          HSIO_SIGDET_CFG_SD_ENA(sd_ena));
     }
 
-    if (ena &&
-        (port_type == PORT_TYPE_CUPHY)) { /* Enable Port type Internal PHY */
+    if (ena && (port_type == PORT_TYPE_CUPHY)) { /* Enable Port type Internal PHY */
         REG_WRM(CHIP_TOP_CUPHY_PORT_CFG(idx),
                 CHIP_TOP_CUPHY_PORT_CFG_AUTO_SQUELCH_ENA(conf->squelsh),
                 CHIP_TOP_CUPHY_PORT_CFG_AUTO_SQUELCH_ENA_M);
@@ -474,9 +440,8 @@ static vtss_rc lan966x_miim_read_write(vtss_state_t *vtss_state,
 
     /* Enqueue MIIM operation to be executed */
     REG_WR(GCB_MII_CMD(miim_controller),
-           GCB_MII_CMD_CMD_VLD_M | GCB_MII_CMD_CMD_PHYAD(miim_addr) |
-               GCB_MII_CMD_CMD_REGAD(addr) | GCB_MII_CMD_CMD_WRDATA(*value) |
-               GCB_MII_CMD_CMD_OPR_FIELD(read ? 2 : 1));
+           GCB_MII_CMD_CMD_VLD_M | GCB_MII_CMD_CMD_PHYAD(miim_addr) | GCB_MII_CMD_CMD_REGAD(addr) |
+               GCB_MII_CMD_CMD_WRDATA(*value) | GCB_MII_CMD_CMD_OPR_FIELD(read ? 2 : 1));
 
     /* Wait for MIIM operation to finish */
     do {
@@ -499,8 +464,8 @@ vtss_rc vtss_cil_miim_read(vtss_state_t          *vtss_state,
                            u16                   *value,
                            BOOL                   report_errors)
 {
-    return lan966x_miim_read_write(vtss_state, TRUE, miim_controller, miim_addr,
-                                   addr, value, report_errors);
+    return lan966x_miim_read_write(vtss_state, TRUE, miim_controller, miim_addr, addr, value,
+                                   report_errors);
 }
 
 vtss_rc vtss_cil_miim_write(vtss_state_t          *vtss_state,
@@ -510,8 +475,8 @@ vtss_rc vtss_cil_miim_write(vtss_state_t          *vtss_state,
                             u16                    value,
                             BOOL                   report_errors)
 {
-    return lan966x_miim_read_write(vtss_state, FALSE, miim_controller,
-                                   miim_addr, addr, &value, report_errors);
+    return lan966x_miim_read_write(vtss_state, FALSE, miim_controller, miim_addr, addr, &value,
+                                   report_errors);
 }
 
 /* Clause 45 operations */
@@ -532,14 +497,12 @@ static vtss_rc lan966x_mmd_cmd(vtss_state_t *vtss_state,
     u32     data;
 
     /* Switch to clause 45 */
-    REG_WRM(GCB_MII_CFG(miim_controller), GCB_MII_CFG_ST_CFG_FIELD(0),
-            GCB_MII_CFG_ST_CFG_FIELD_M);
+    REG_WRM(GCB_MII_CFG(miim_controller), GCB_MII_CFG_ST_CFG_FIELD(0), GCB_MII_CFG_ST_CFG_FIELD_M);
 
     /* Enqueue address set operation */
     REG_WR(GCB_MII_CMD(miim_controller),
-           GCB_MII_CMD_CMD_VLD_M | GCB_MII_CMD_CMD_PHYAD(miim_addr) |
-               GCB_MII_CMD_CMD_REGAD(mmd) | GCB_MII_CMD_CMD_WRDATA(addr) |
-               GCB_MII_CMD_CMD_OPR_FIELD(0));
+           GCB_MII_CMD_CMD_VLD_M | GCB_MII_CMD_CMD_PHYAD(miim_addr) | GCB_MII_CMD_CMD_REGAD(mmd) |
+               GCB_MII_CMD_CMD_WRDATA(addr) | GCB_MII_CMD_CMD_OPR_FIELD(0));
 
     /* Wait for MIIM operation to finish */
     do {
@@ -548,9 +511,8 @@ static vtss_rc lan966x_mmd_cmd(vtss_state_t *vtss_state,
 
     /* Enqueue read or write operation */
     REG_WR(GCB_MII_CMD(miim_controller),
-           GCB_MII_CMD_CMD_VLD_M | GCB_MII_CMD_CMD_PHYAD(miim_addr) |
-               GCB_MII_CMD_CMD_REGAD(mmd) | GCB_MII_CMD_CMD_WRDATA(*value) |
-               GCB_MII_CMD_CMD_OPR_FIELD(cmd));
+           GCB_MII_CMD_CMD_VLD_M | GCB_MII_CMD_CMD_PHYAD(miim_addr) | GCB_MII_CMD_CMD_REGAD(mmd) |
+               GCB_MII_CMD_CMD_WRDATA(*value) | GCB_MII_CMD_CMD_OPR_FIELD(cmd));
 
     /* Wait for MIIM operation to finish */
     do {
@@ -567,8 +529,7 @@ static vtss_rc lan966x_mmd_cmd(vtss_state_t *vtss_state,
     }
 
     /* Switch back to clause 22 */
-    REG_WRM(GCB_MII_CFG(miim_controller), GCB_MII_CFG_ST_CFG_FIELD(1),
-            GCB_MII_CFG_ST_CFG_FIELD_M);
+    REG_WRM(GCB_MII_CFG(miim_controller), GCB_MII_CFG_ST_CFG_FIELD(1), GCB_MII_CFG_ST_CFG_FIELD_M);
 
     return rc;
 }
@@ -581,8 +542,8 @@ vtss_rc vtss_cil_mmd_read(vtss_state_t          *vtss_state,
                           u16                   *value,
                           BOOL                   report_errors)
 {
-    return lan966x_mmd_cmd(vtss_state, PHY_CMD_READ, miim_controller, miim_addr,
-                           mmd, addr, value, report_errors);
+    return lan966x_mmd_cmd(vtss_state, PHY_CMD_READ, miim_controller, miim_addr, mmd, addr, value,
+                           report_errors);
 }
 
 vtss_rc vtss_cil_mmd_write(vtss_state_t          *vtss_state,
@@ -593,8 +554,8 @@ vtss_rc vtss_cil_mmd_write(vtss_state_t          *vtss_state,
                            u16                    value,
                            BOOL                   report_errors)
 {
-    return lan966x_mmd_cmd(vtss_state, PHY_CMD_WRITE, miim_controller,
-                           miim_addr, mmd, addr, &value, report_errors);
+    return lan966x_mmd_cmd(vtss_state, PHY_CMD_WRITE, miim_controller, miim_addr, mmd, addr, &value,
+                           report_errors);
 }
 
 vtss_rc vtss_cil_mmd_read_inc(vtss_state_t          *vtss_state,
@@ -607,8 +568,8 @@ vtss_rc vtss_cil_mmd_read_inc(vtss_state_t          *vtss_state,
                               BOOL                   report_errors)
 {
     while (count > 1) {
-        VTSS_RC(lan966x_mmd_cmd(vtss_state, PHY_CMD_READ_INC, miim_controller,
-                                miim_addr, mmd, addr, buf, report_errors));
+        VTSS_RC(lan966x_mmd_cmd(vtss_state, PHY_CMD_READ_INC, miim_controller, miim_addr, mmd, addr,
+                                buf, report_errors));
         buf++;
         count--;
     }
@@ -645,13 +606,11 @@ vtss_rc lan966x_rgmii_setup(vtss_state_t         *vtss_state,
         return VTSS_RC_OK; // Delay already set
     }
 
-    if (mode == VTSS_PORT_INTERFACE_RGMII_ID ||
-        mode == VTSS_PORT_INTERFACE_RGMII_TXID) {
+    if (mode == VTSS_PORT_INTERFACE_RGMII_ID || mode == VTSS_PORT_INTERFACE_RGMII_TXID) {
         tx_delay = TRUE;
     }
 
-    if (mode == VTSS_PORT_INTERFACE_RGMII_ID ||
-        mode == VTSS_PORT_INTERFACE_RGMII_RXID) {
+    if (mode == VTSS_PORT_INTERFACE_RGMII_ID || mode == VTSS_PORT_INTERFACE_RGMII_RXID) {
         rx_delay = TRUE;
     }
 
@@ -665,15 +624,15 @@ vtss_rc lan966x_rgmii_setup(vtss_state_t         *vtss_state,
             HSIO_DLL_CFG_DLL_RST(!rx_delay) | HSIO_DLL_CFG_DLL_ENA(rx_delay),
             HSIO_DLL_CFG_DLL_RST_M | HSIO_DLL_CFG_DLL_ENA_M);
 
-    REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x0 : 0x2),
-            HSIO_DLL_CFG_DELAY_ENA(rx_delay), HSIO_DLL_CFG_DELAY_ENA_M);
+    REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x0 : 0x2), HSIO_DLL_CFG_DELAY_ENA(rx_delay),
+            HSIO_DLL_CFG_DELAY_ENA_M);
 
     REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x1 : 0x3),
             HSIO_DLL_CFG_DLL_RST(!tx_delay) | HSIO_DLL_CFG_DLL_ENA(tx_delay),
             HSIO_DLL_CFG_DLL_RST_M | HSIO_DLL_CFG_DLL_ENA_M);
 
-    REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x1 : 0x3),
-            HSIO_DLL_CFG_DELAY_ENA(tx_delay), HSIO_DLL_CFG_DELAY_ENA_M);
+    REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x1 : 0x3), HSIO_DLL_CFG_DELAY_ENA(tx_delay),
+            HSIO_DLL_CFG_DELAY_ENA_M);
 
 #endif // !defined(VTSS_OPT_FPGA)
     return VTSS_RC_OK;
@@ -689,9 +648,7 @@ static u32 lan966x_pfc_mask(vtss_port_conf_t *conf)
     return mask;
 }
 
-static vtss_rc lan966x_port_pfc(vtss_state_t     *vtss_state,
-                                u32               port,
-                                vtss_port_conf_t *conf)
+static vtss_rc lan966x_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
     u32 pfc_mask = lan966x_pfc_mask(conf);
     u32 spd = (conf->speed == VTSS_SPEED_10M    ? 3
@@ -700,8 +657,7 @@ static vtss_rc lan966x_port_pfc(vtss_state_t     *vtss_state,
                                                 : 0);
 
     /* Rx enable/disable */
-    REG_WR(ANA_PFC_CFG(port),
-           ANA_PFC_CFG_RX_PFC_ENA(pfc_mask) | ANA_PFC_CFG_FC_LINK_SPEED(spd));
+    REG_WR(ANA_PFC_CFG(port), ANA_PFC_CFG_RX_PFC_ENA(pfc_mask) | ANA_PFC_CFG_FC_LINK_SPEED(spd));
 
     /* Forward 802.1Qbb pause frames to analyzer */
     REG_WRM(DEV_PORT_MISC(port), DEV_PORT_MISC_FWD_CTRL_ENA(pfc_mask ? 1 : 0),
@@ -712,14 +668,11 @@ static vtss_rc lan966x_port_pfc(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_port_fc_setup(vtss_state_t     *vtss_state,
-                                     u32               port,
-                                     vtss_port_conf_t *conf)
+static vtss_rc lan966x_port_fc_setup(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t *conf)
 {
-    u8  *mac;
-    u32  pfc_mask = lan966x_pfc_mask(conf);
-    BOOL fc_gen = conf->flow_control.generate,
-         fc_obey = conf->flow_control.obey;
+    u8               *mac;
+    u32               pfc_mask = lan966x_pfc_mask(conf);
+    BOOL              fc_gen = conf->flow_control.generate, fc_obey = conf->flow_control.obey;
     vtss_port_speed_t speed = conf->speed;
     vtss_port_no_t    port_no;
     u32               rsrv_raw, rsrv_total = 0, atop_wm;
@@ -733,8 +686,7 @@ static vtss_rc lan966x_port_fc_setup(vtss_state_t     *vtss_state,
                                                                : 0);
 
     if (pfc_mask && (fc_gen || fc_obey)) {
-        VTSS_E("802.3X FC and 802.1Qbb PFC cannot both be enabled, chip port %u",
-               port);
+        VTSS_E("802.3X FC and 802.1Qbb PFC cannot both be enabled, chip port %u", port);
         return VTSS_RC_ERROR;
     }
 
@@ -764,10 +716,9 @@ static vtss_rc lan966x_port_fc_setup(vtss_state_t     *vtss_state,
     }
 
     /* Set Pause WM hysteresis, start/stop are in 1518 byte units */
-    REG_WR(SYS_PAUSE_CFG(port),
-           SYS_PAUSE_CFG_PAUSE_START(wm_enc_bytes((pause_stop + 2) * 1518)) |
-               SYS_PAUSE_CFG_PAUSE_STOP(wm_enc_bytes(pause_stop * 1518)) |
-               SYS_PAUSE_CFG_PAUSE_ENA(fc_gen ? 1 : 0));
+    REG_WR(SYS_PAUSE_CFG(port), SYS_PAUSE_CFG_PAUSE_START(wm_enc_bytes((pause_stop + 2) * 1518)) |
+                                    SYS_PAUSE_CFG_PAUSE_STOP(wm_enc_bytes(pause_stop * 1518)) |
+                                    SYS_PAUSE_CFG_PAUSE_ENA(fc_gen ? 1 : 0));
 
     /* Set SMAC of Pause frame */
     mac = &conf->flow_control.smac.addr[0];
@@ -776,18 +727,14 @@ static vtss_rc lan966x_port_fc_setup(vtss_state_t     *vtss_state,
 
     /* Enable/disable FC incl. pause value and zero pause */
     REG_WR(SYS_MAC_FC_CFG(port),
-           SYS_MAC_FC_CFG_FC_LINK_SPEED(link_speed) |
-               SYS_MAC_FC_CFG_FC_LATENCY_CFG(7) |
-               SYS_MAC_FC_CFG_ZERO_PAUSE_ENA(1) |
-               SYS_MAC_FC_CFG_RX_FC_ENA(fc_obey ? 1 : 0) |
+           SYS_MAC_FC_CFG_FC_LINK_SPEED(link_speed) | SYS_MAC_FC_CFG_FC_LATENCY_CFG(7) |
+               SYS_MAC_FC_CFG_ZERO_PAUSE_ENA(1) | SYS_MAC_FC_CFG_RX_FC_ENA(fc_obey ? 1 : 0) |
                SYS_MAC_FC_CFG_PAUSE_VAL_CFG(pfc_mask ? 0xff : 0xffff));
-    REG_WRM(QSYS_SW_PORT_MODE(port),
-            QSYS_SW_PORT_MODE_INGRESS_DROP_MODE(fc_gen ? 0 : 1),
+    REG_WRM(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_INGRESS_DROP_MODE(fc_gen ? 0 : 1),
             QSYS_SW_PORT_MODE_INGRESS_DROP_MODE_M);
 
     /* Calculate the total reserved space for all ports */
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         conf = &vtss_state->port.conf[port_no];
         fc_gen = conf->flow_control.generate;
         if (lan966x_pfc_mask(conf)) {
@@ -847,12 +794,11 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t            *vtss_state,
         rate = 2;
     }
 
-    REG_WR(HSIO_SD_CFG(idx),
-           HSIO_SD_CFG_RX_LOS_EN(1) | HSIO_SD_CFG_PHY_RESET(1) |
-               HSIO_SD_CFG_LANE_10BIT_SEL(lane_sel) |
-               HSIO_SD_CFG_TX_INVERT(conf->tx_invert ? 1 : 0) |
-               HSIO_SD_CFG_RX_INVERT(conf->rx_invert ? 1 : 0) |
-               HSIO_SD_CFG_RX_RATE(rate) | HSIO_SD_CFG_TX_RATE(rate));
+    REG_WR(HSIO_SD_CFG(idx), HSIO_SD_CFG_RX_LOS_EN(1) | HSIO_SD_CFG_PHY_RESET(1) |
+                                 HSIO_SD_CFG_LANE_10BIT_SEL(lane_sel) |
+                                 HSIO_SD_CFG_TX_INVERT(conf->tx_invert ? 1 : 0) |
+                                 HSIO_SD_CFG_RX_INVERT(conf->rx_invert ? 1 : 0) |
+                                 HSIO_SD_CFG_RX_RATE(rate) | HSIO_SD_CFG_TX_RATE(rate));
 
     REG_WR(HSIO_MPLL_CFG(idx), HSIO_MPLL_CFG_REF_SSP_EN(1) |
                                    HSIO_MPLL_CFG_MPLL_MULTIPLIER(mpll_multi) |
@@ -864,13 +810,11 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t            *vtss_state,
         return VTSS_RC_OK;
     }
 
-    REG_WRM(HSIO_SD_CFG(idx), HSIO_SD_CFG_PHY_RESET(0),
-            HSIO_SD_CFG_PHY_RESET_M);
+    REG_WRM(HSIO_SD_CFG(idx), HSIO_SD_CFG_PHY_RESET(0), HSIO_SD_CFG_PHY_RESET_M);
     VTSS_MSLEEP(1);
 
     // Enable PLL
-    REG_WRM(HSIO_MPLL_CFG(idx), HSIO_MPLL_CFG_MPLL_EN(1),
-            HSIO_MPLL_CFG_MPLL_EN_M);
+    REG_WRM(HSIO_MPLL_CFG(idx), HSIO_MPLL_CFG_MPLL_EN(1), HSIO_MPLL_CFG_MPLL_EN_M);
     VTSS_MSLEEP(1);
 
     // Wait for PLL to lock
@@ -919,8 +863,7 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t            *vtss_state,
     VTSS_D("sd_stat[%u].tx_state is %u", idx, val);
 
     // Enable Rx/Tx
-    REG_WRM(HSIO_SD_CFG(idx),
-            HSIO_SD_CFG_TX_DATA_EN(1) | HSIO_SD_CFG_RX_DATA_EN(1),
+    REG_WRM(HSIO_SD_CFG(idx), HSIO_SD_CFG_TX_DATA_EN(1) | HSIO_SD_CFG_RX_DATA_EN(1),
             HSIO_SD_CFG_TX_DATA_EN_M | HSIO_SD_CFG_RX_DATA_EN_M);
     return VTSS_RC_OK;
 }
@@ -939,8 +882,8 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t      *vtss_state,
     port_type_t              port_type = PORT_TYPE_NONE;
     vtss_port_serdes_conf_t *conf = &vtss_state->port.conf[port_no].serdes;
 
-    if ((rc = lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx,
-                                     &mode_req)) != VTSS_RC_OK) {
+    if ((rc = lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx, &mode_req)) !=
+        VTSS_RC_OK) {
         return rc;
     }
 
@@ -963,16 +906,14 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t      *vtss_state,
     return rc;
 }
 
-static vtss_rc fa_port_flush(vtss_state_t        *vtss_state,
-                             const vtss_port_no_t port_no)
+static vtss_rc fa_port_flush(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32     port = VTSS_CHIP_PORT(port_no);
     u32     delay = 0, value;
     vtss_rc rc = VTSS_RC_OK;
 
     if (!(is_internal_cu(vtss_state, port) &&
-          vtss_state->port.conf[port_no].if_type ==
-              VTSS_PORT_INTERFACE_SGMII)) {
+          vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SGMII)) {
         /* 1: Reset the PCS Rx clock domain (but not for dual port)  */
         REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PCS_RX_RST_M);
     }
@@ -1019,13 +960,11 @@ static vtss_rc fa_port_flush(vtss_state_t        *vtss_state,
     } while (value & QSYS_SW_STATUS_EQ_AVAIL_M);
 
     /* 11: Reset the Port and MAC clock domains */
-    REG_WRM_CLR(DEV_MAC_ENA_CFG(port),
-                DEV_MAC_ENA_CFG_TX_ENA_M); /* Bugzilla#19076 */
+    REG_WRM_CLR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_TX_ENA_M); /* Bugzilla#19076 */
     REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_PORT_RST_M);
     VTSS_MSLEEP(1);
-    REG_WRM_SET(DEV_CLOCK_CFG(port), DEV_CLOCK_CFG_MAC_TX_RST_M |
-                                         DEV_CLOCK_CFG_MAC_RX_RST_M |
-                                         DEV_CLOCK_CFG_PORT_RST_M);
+    REG_WRM_SET(DEV_CLOCK_CFG(port),
+                DEV_CLOCK_CFG_MAC_TX_RST_M | DEV_CLOCK_CFG_MAC_RX_RST_M | DEV_CLOCK_CFG_PORT_RST_M);
 
     /* 12: Clear flushing */
     REG_WRM(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_AGING_MODE(0),
@@ -1037,15 +976,14 @@ static vtss_rc fa_port_flush(vtss_state_t        *vtss_state,
      * operating mode */
 }
 
-vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
-                               const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    vtss_rc           rc = VTSS_RC_OK;
-    vtss_port_conf_t *conf = &vtss_state->port.conf[port_no];
-    u32               port = VTSS_CHIP_PORT(port_no), i, p;
-    u32               value, link_speed = 1, pfc_mask;
-    BOOL disable = conf->power_down, disable_serdes = 0, giga = 1, rgmii = 0;
-    BOOL loop = (conf->loop == VTSS_PORT_LOOP_PCS_HOST), skip_port_flush = 0;
+    vtss_rc                rc = VTSS_RC_OK;
+    vtss_port_conf_t      *conf = &vtss_state->port.conf[port_no];
+    u32                    port = VTSS_CHIP_PORT(port_no), i, p;
+    u32                    value, link_speed = 1, pfc_mask;
+    BOOL                   disable = conf->power_down, disable_serdes = 0, giga = 1, rgmii = 0;
+    BOOL                   loop = (conf->loop == VTSS_PORT_LOOP_PCS_HOST), skip_port_flush = 0;
     vtss_port_speed_t      speed = conf->speed, sgmii = 0;
     vtss_port_frame_gaps_t gaps;
     vtss_serdes_mode_t     mode = VTSS_SERDES_MODE_SGMII;
@@ -1068,9 +1006,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
             break;
         }
         // Fall through
-    default:
-        VTSS_E("illegal speed: %u, port %u", speed, port);
-        return VTSS_RC_ERROR;
+    default: VTSS_E("illegal speed: %u, port %u", speed, port); return VTSS_RC_ERROR;
     }
 
     switch (conf->if_type) {
@@ -1080,8 +1016,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
 #endif
     case VTSS_PORT_INTERFACE_SGMII:
         sgmii = 1;
-        if (is_internal_cu(vtss_state, port) &&
-            vtss_state->port.current_pd[port_no]) {
+        if (is_internal_cu(vtss_state, port) && vtss_state->port.current_pd[port_no]) {
             // ports with internal phys are not flushed
             skip_port_flush = 1;
         }
@@ -1146,13 +1081,11 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
         value = DEV_MAC_MODE_CFG_FDX_ENA_M;
     } else {
         REG_WRM_SET(SYS_FRONT_PORT_MODE(port), SYS_FRONT_PORT_MODE_HDX_MODE_M);
-        value =
-            (conf->flow_control.obey ? DEV_MAC_MODE_CFG_FC_WORD_SYNC_ENA_M : 0);
+        value = (conf->flow_control.obey ? DEV_MAC_MODE_CFG_FC_WORD_SYNC_ENA_M : 0);
     }
 
 #if !defined(VTSS_OPT_FPGA)
-    VTSS_RC(lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx,
-                                   &mode_req));
+    VTSS_RC(lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx, &mode_req));
     if (port_type != PORT_TYPE_SD && link_speed != 1) {
         /* RGMII or Internal phy in 10/100 mode = GIG mode disabled */
         giga = 0;
@@ -1168,8 +1101,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
 #if !defined(VTSS_OPT_FPGA)
     // Internal PHYs
     if (port < 2) {
-        REG_WRM_CTL(CHIP_TOP_CUPHY_PORT_CFG(port), giga,
-                    CHIP_TOP_CUPHY_PORT_CFG_GTX_CLK_ENA_M);
+        REG_WRM_CTL(CHIP_TOP_CUPHY_PORT_CFG(port), giga, CHIP_TOP_CUPHY_PORT_CFG_GTX_CLK_ENA_M);
     }
     if (is_internal_cu(vtss_state, port)) {
         // Dual media selection
@@ -1205,26 +1137,22 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
 
     // Choose SGMII or SerDes PCS mode
     sgmii_mode_ena = is_internal_cu(vtss_state, port) ? 0 : sgmii;
-    REG_WR(DEV_PCS1G_MODE_CFG(port),
-           DEV_PCS1G_MODE_CFG_SGMII_MODE_ENA(sgmii_mode_ena));
+    REG_WR(DEV_PCS1G_MODE_CFG(port), DEV_PCS1G_MODE_CFG_SGMII_MODE_ENA(sgmii_mode_ena));
 
     // PCS setup
     if (sgmii) {
         // Set whole register
         if (!is_internal_cu(vtss_state, port)) {
-            REG_WR(DEV_PCS1G_ANEG_CFG(port),
-                   DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1));
+            REG_WR(DEV_PCS1G_ANEG_CFG(port), DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1));
         }
     } else {
         // Clear specific bit only
-        REG_WRM_CLR(DEV_PCS1G_ANEG_CFG(port),
-                    DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA_M);
+        REG_WRM_CLR(DEV_PCS1G_ANEG_CFG(port), DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA_M);
     }
 
-    REG_WR(DEV_PCS1G_SD_CFG(port),
-           DEV_PCS1G_SD_CFG_SD_SEL(conf->sd_internal ? 0 : 1) |
-               DEV_PCS1G_SD_CFG_SD_POL(conf->sd_active_high) |
-               DEV_PCS1G_SD_CFG_SD_ENA(conf->sd_enable));
+    REG_WR(DEV_PCS1G_SD_CFG(port), DEV_PCS1G_SD_CFG_SD_SEL(conf->sd_internal ? 0 : 1) |
+                                       DEV_PCS1G_SD_CFG_SD_POL(conf->sd_active_high) |
+                                       DEV_PCS1G_SD_CFG_SD_ENA(conf->sd_enable));
 
     // Enable/disable PCS
     REG_WR(DEV_PCS1G_CFG(port), DEV_PCS1G_CFG_PCS_ENA(disable ? 0 : 1));
@@ -1237,23 +1165,19 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
     } else if (conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         // Complete SGMII aneg
         REG_WR(DEV_PCS1G_ANEG_CFG(port),
-               DEV_PCS1G_ANEG_CFG_ADV_ABILITY(0x0001) |
-                   DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1) |
-                   DEV_PCS1G_ANEG_CFG_RESTART_ONE_SHOT(1) |
-                   DEV_PCS1G_ANEG_CFG_ENA(1));
+               DEV_PCS1G_ANEG_CFG_ADV_ABILITY(0x0001) | DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1) |
+                   DEV_PCS1G_ANEG_CFG_RESTART_ONE_SHOT(1) | DEV_PCS1G_ANEG_CFG_ENA(1));
         REG_WR(DEV_PCS1G_STICKY(port), 0xffffffff);
     }
 
     // Update vtss_state database accordingly
-    vtss_cil_port_clause_37_control_get(vtss_state, port_no,
-                                        &vtss_state->port.clause_37[port_no]);
+    vtss_cil_port_clause_37_control_get(vtss_state, port_no, &vtss_state->port.clause_37[port_no]);
 
     // Loopback mode
 #if defined(VTSS_OPT_FPGA)
     REG_WRM(DEV_PORT_MISC(port), DEV_PORT_MISC_DEV_LOOP_ENA(loop ? 2 : 0),
             DEV_PORT_MISC_DEV_LOOP_ENA_M);
-    REG_WRM(SYS_FRONT_PORT_MODE(port),
-            SYS_FRONT_PORT_MODE_DONT_WAIT_FOR_TS(loop ? 1 : 0),
+    REG_WRM(SYS_FRONT_PORT_MODE(port), SYS_FRONT_PORT_MODE_DONT_WAIT_FOR_TS(loop ? 1 : 0),
             SYS_FRONT_PORT_MODE_DONT_WAIT_FOR_TS_M);
 #else
     REG_WR(DEV_PCS1G_LB_CFG(port), DEV_PCS1G_LB_CFG_TBI_HOST_LB_ENA(loop));
@@ -1273,21 +1197,16 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
         REG_WRM_SET(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_PORT_ENA_M);
     } else if (!disable) {
         /* Enable MAC module */
-        REG_WR(DEV_MAC_ENA_CFG(port),
-               DEV_MAC_ENA_CFG_RX_ENA_M | DEV_MAC_ENA_CFG_TX_ENA_M);
+        REG_WR(DEV_MAC_ENA_CFG(port), DEV_MAC_ENA_CFG_RX_ENA_M | DEV_MAC_ENA_CFG_TX_ENA_M);
 
         if (rgmii) {
-            VTSS_RC(lan966x_rgmii_setup(vtss_state, port_no, conf->if_type,
-                                        link_speed));
+            VTSS_RC(lan966x_rgmii_setup(vtss_state, port_no, conf->if_type, link_speed));
 
             REG_WRM(DEV_CLOCK_CFG(port),
-                    DEV_CLOCK_CFG_LINK_SPEED(link_speed) |
-                        DEV_CLOCK_CFG_PORT_RST(0) |
-                        DEV_CLOCK_CFG_MAC_RX_RST(0) |
-                        DEV_CLOCK_CFG_MAC_TX_RST(0),
+                    DEV_CLOCK_CFG_LINK_SPEED(link_speed) | DEV_CLOCK_CFG_PORT_RST(0) |
+                        DEV_CLOCK_CFG_MAC_RX_RST(0) | DEV_CLOCK_CFG_MAC_TX_RST(0),
                     DEV_CLOCK_CFG_LINK_SPEED_M | DEV_CLOCK_CFG_PORT_RST_M |
-                        DEV_CLOCK_CFG_MAC_RX_RST_M |
-                        DEV_CLOCK_CFG_MAC_TX_RST_M);
+                        DEV_CLOCK_CFG_MAC_RX_RST_M | DEV_CLOCK_CFG_MAC_TX_RST_M);
         } else {
             /* Take MAC, Port, Phy (intern) and PCS (SGMII/Serdes) clock out of
              * reset */
@@ -1307,8 +1226,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
 
         if ((pfc_mask = lan966x_pfc_mask(conf)) != 0) {
             /*  Enable PFC Tx enable */
-            REG_WRM(QSYS_SW_PORT_MODE(port),
-                    QSYS_SW_PORT_MODE_TX_PFC_ENA(pfc_mask),
+            REG_WRM(QSYS_SW_PORT_MODE(port), QSYS_SW_PORT_MODE_TX_PFC_ENA(pfc_mask),
                     QSYS_SW_PORT_MODE_TX_PFC_ENA_M);
         }
     }
@@ -1329,14 +1247,10 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
         }
     }
 
-    vtss_state->port.current_speed[port_no] =
-        vtss_state->port.conf[port_no].speed;
-    vtss_state->port.current_if_type[port_no] =
-        vtss_state->port.conf[port_no].if_type;
-    vtss_state->port.current_mt[port_no] =
-        vtss_state->port.conf[port_no].serdes.media_type;
-    vtss_state->port.current_pd[port_no] =
-        vtss_state->port.conf[port_no].power_down;
+    vtss_state->port.current_speed[port_no] = vtss_state->port.conf[port_no].speed;
+    vtss_state->port.current_if_type[port_no] = vtss_state->port.conf[port_no].if_type;
+    vtss_state->port.current_mt[port_no] = vtss_state->port.conf[port_no].serdes.media_type;
+    vtss_state->port.current_pd[port_no] = vtss_state->port.conf[port_no].power_down;
 #if defined(VTSS_FEATURE_QOS)
     // Setup QoS - out of reset
     VTSS_RC(vtss_lan966x_qos_port_change(vtss_state, port_no, FALSE));
@@ -1349,8 +1263,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t        *vtss_state,
     return rc;
 }
 
-vtss_rc vtss_cil_port_ifh_set(vtss_state_t        *vtss_state,
-                              const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_ifh_t *ifh = &vtss_state->port.ifh_conf[port_no];
     u32              port = VTSS_CHIP_PORT(port_no);
@@ -1362,16 +1275,14 @@ vtss_rc vtss_cil_port_ifh_set(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_sd_rx_rst(vtss_state_t        *vtss_state,
-                                 const vtss_port_no_t port_no)
+static vtss_rc lan966x_sd_rx_rst(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
 #if !defined(VTSS_OPT_FPGA)
     port_type_t        pt;
     u32                id;
     vtss_serdes_mode_t m = 0;
 
-    if (lan966x_port_type_calc(vtss_state, port_no, &pt, &id, &m) !=
-        VTSS_RC_OK) {
+    if (lan966x_port_type_calc(vtss_state, port_no, &pt, &id, &m) != VTSS_RC_OK) {
         return VTSS_RC_ERROR;
     }
 
@@ -1395,8 +1306,7 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
         status->link = DEV_PCS1G_LINK_STATUS_LINK_STATUS_X(val);
         REG_RD(DEV_PCS1G_STICKY(port), &sticky);
         status->link_down = DEV_PCS1G_STICKY_LINK_DOWN_STICKY_X(sticky);
-        if (status->link_down ||
-            DEV_PCS1G_STICKY_OUT_OF_SYNC_STICKY_X(sticky)) {
+        if (status->link_down || DEV_PCS1G_STICKY_OUT_OF_SYNC_STICKY_X(sticky)) {
             if (DEV_PCS1G_LINK_STATUS_SIGNAL_DETECT_X(val) &&
                 DEV_PCS1G_STICKY_OUT_OF_SYNC_STICKY_X(sticky)) {
                 if (lan966x_sd_rx_rst(vtss_state, port_no) != VTSS_RC_OK) {
@@ -1405,8 +1315,7 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
             }
 
             REG_WR(DEV_PCS1G_STICKY(port),
-                   DEV_PCS1G_STICKY_LINK_DOWN_STICKY_M |
-                       DEV_PCS1G_STICKY_OUT_OF_SYNC_STICKY_M);
+                   DEV_PCS1G_STICKY_LINK_DOWN_STICKY_M | DEV_PCS1G_STICKY_OUT_OF_SYNC_STICKY_M);
         }
         status->speed = VTSS_SPEED_2500M;
         status->fdx = 1;
@@ -1419,7 +1328,7 @@ vtss_rc vtss_cil_pcs_status_get(vtss_state_t            *vtss_state,
                                 const vtss_port_no_t     port_no,
                                 vtss_pcs_status_t *const status)
 {
-    vtss_port_interface_t if_type = vtss_state->port.conf[port_no].if_type;
+    vtss_port_interface_t        if_type = vtss_state->port.conf[port_no].if_type;
     vtss_port_clause_37_status_t cl37;
     vtss_port_status_t           vaui;
     u32                          val, port = VTSS_CHIP_PORT(port_no);
@@ -1438,8 +1347,7 @@ vtss_rc vtss_cil_pcs_status_get(vtss_state_t            *vtss_state,
     if (status->if_type == VTSS_PORT_INTERFACE_VAUI) {
         // 2G5 - no aneg
         if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_2G5) {
-            VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no,
-                                       VTSS_SERDES_MODE_2G5));
+            VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no, VTSS_SERDES_MODE_2G5));
             REG_WR(DEV_PCS1G_ANEG_CFG(port), 0);
         }
         vtss_cil_port_status_get(vtss_state, port_no, &vaui);
@@ -1447,25 +1355,20 @@ vtss_rc vtss_cil_pcs_status_get(vtss_state_t            *vtss_state,
     } else if (status->if_type == VTSS_PORT_INTERFACE_SERDES) {
         // 1000BaseX (aneg/no-aneg is set by the application).
         if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_SGMII) {
-            VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no,
-                                       VTSS_SERDES_MODE_SGMII));
+            VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SGMII));
         }
         vtss_cil_port_clause_37_status_get(vtss_state, port_no, &cl37);
         status->link = cl37.link;
     } else if (status->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         // Copper SFP  (aneg only)
         if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_SGMII) {
-            VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no,
-                                       VTSS_SERDES_MODE_SGMII));
+            VTSS_RC(lan966x_serdes_cfg(vtss_state, port_no, VTSS_SERDES_MODE_SGMII));
         }
         REG_RD(DEV_PCS1G_ANEG_CFG(port), &val);
-        if ((DEV_PCS1G_ANEG_CFG_ADV_ABILITY_X(val) != 1) ||
-            (DEV_PCS1G_ANEG_CFG_ENA_X(val) != 1)) {
+        if ((DEV_PCS1G_ANEG_CFG_ADV_ABILITY_X(val) != 1) || (DEV_PCS1G_ANEG_CFG_ENA_X(val) != 1)) {
             REG_WR(DEV_PCS1G_ANEG_CFG(port),
-                   DEV_PCS1G_ANEG_CFG_ADV_ABILITY(1) |
-                       DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1) |
-                       DEV_PCS1G_ANEG_CFG_RESTART_ONE_SHOT(1) |
-                       DEV_PCS1G_ANEG_CFG_ENA(1));
+                   DEV_PCS1G_ANEG_CFG_ADV_ABILITY(1) | DEV_PCS1G_ANEG_CFG_SW_RESOLVE_ENA(1) |
+                       DEV_PCS1G_ANEG_CFG_RESTART_ONE_SHOT(1) | DEV_PCS1G_ANEG_CFG_ENA(1));
         }
         vtss_cil_port_clause_37_status_get(vtss_state, port_no, &cl37);
         status->link = cl37.link;
@@ -1492,8 +1395,7 @@ static vtss_rc vtss_lan966x_dual_cnt_update(vtss_state_t        *vtss_state,
     REG_RD(SYS_CNT(*addr), &pmac);
     *addr = (base + 1); // Next E-MAC counter address
     vtss_cmn_counter_dual_cmd(emac, pmac, counter,
-                              clear ? VTSS_COUNTER_CMD_CLEAR
-                                    : VTSS_COUNTER_CMD_UPDATE);
+                              clear ? VTSS_COUNTER_CMD_CLEAR : VTSS_COUNTER_CMD_UPDATE);
     return VTSS_RC_OK;
 }
 #define CNT_SUM(cnt) (cnt.value)
@@ -1509,12 +1411,12 @@ static vtss_rc vtss_lan966x_dual_cnt_update(vtss_state_t        *vtss_state,
 #define CNT_SUM(cnt) (cnt.value)
 #endif
 
-static vtss_rc lan966x_port_counters_read(vtss_state_t  *vtss_state,
-                                          vtss_port_no_t port_no,
-                                          u32            port,
+static vtss_rc lan966x_port_counters_read(vtss_state_t                 *vtss_state,
+                                          vtss_port_no_t                port_no,
+                                          u32                           port,
                                           vtss_port_luton26_counters_t *c,
-                                          vtss_port_counters_t *const counters,
-                                          BOOL                        clear)
+                                          vtss_port_counters_t *const   counters,
+                                          BOOL                          clear)
 {
     u32                                 i, base, *p = &base;
     vtss_port_rmon_counters_t          *rmon;
@@ -1531,87 +1433,62 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t  *vtss_state,
     base = 0x00;
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_octets, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_unicast, clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_multicast,
-                                         clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_broadcast,
-                                         clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_multicast, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_broadcast, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_shorts, clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_fragments,
-                                         clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_fragments, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_jabbers, clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_crc_align_errors,
-                                         clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_symbol_errors,
-                                         clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_crc_align_errors, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_symbol_errors, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_64, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_65_127, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_128_255, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_256_511, clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_512_1023,
-                                         clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_1024_1526,
-                                         clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_1527_max,
-                                         clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_512_1023, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_1024_1526, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_1527_max, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_pause, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_control, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->rx_longs, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_classified_drops,
-                                        clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_classified_drops, clear));
     for (i = 0; i < VTSS_PRIOS; i++)
-        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_red_class[i],
-                                            clear));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_red_class[i], clear));
     for (i = 0; i < VTSS_PRIOS; i++)
-        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p,
-                                            &c->rx_yellow_class[i], clear));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_yellow_class[i], clear));
     for (i = 0; i < VTSS_PRIOS; i++)
-        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p,
-                                            &c->rx_green_class[i], clear));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_green_class[i], clear));
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p,
-                                        &c->rx_mm_assembly_errors, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_smd_errors,
-                                        clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_assembly_ok,
-                                        clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_fragments,
-                                        clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_assembly_errors, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_smd_errors, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_assembly_ok, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->rx_mm_fragments, clear));
 #endif
 
     base = 0x80;
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_octets, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_unicast, clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_multicast,
-                                         clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_broadcast,
-                                         clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_collision,
-                                        clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_multicast, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_broadcast, clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_collision, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_drops, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_pause, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_64, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_65_127, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_128_255, clear));
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_256_511, clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_512_1023,
-                                         clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_1024_1526,
-                                         clear));
-    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_1527_max,
-                                         clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_512_1023, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_1024_1526, clear));
+    VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_1527_max, clear));
     for (i = 0; i < VTSS_PRIOS; i++)
-        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p,
-                                            &c->tx_yellow_class[i], clear));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_yellow_class[i], clear));
     for (i = 0; i < VTSS_PRIOS; i++)
-        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p,
-                                            &c->tx_green_class[i], clear));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_green_class[i], clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_aging, clear));
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_llct, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_ct, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_mm_hold, clear));
-    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_mm_fragments,
-                                        clear));
+    VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->tx_mm_fragments, clear));
 #endif
 
     /* 32-bit Drop chip counters */
@@ -1619,11 +1496,9 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t  *vtss_state,
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->dr_local, clear));
     VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->dr_tail, clear));
     for (i = 0; i < VTSS_PRIOS; i++)
-        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p,
-                                            &c->dr_yellow_class[i], clear));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->dr_yellow_class[i], clear));
     for (i = 0; i < VTSS_PRIOS; i++)
-        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p,
-                                            &c->dr_green_class[i], clear));
+        VTSS_RC(vtss_lan966x_counter_update(vtss_state, p, &c->dr_green_class[i], clear));
 
     if (counters == NULL) {
         return VTSS_RC_OK;
@@ -1638,21 +1513,18 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t  *vtss_state,
     /* Proprietary counters */
     for (i = 0; i < VTSS_PRIOS; i++) {
         prop->rx_prio[i] =
-            (c->rx_red_class[i].value + c->rx_yellow_class[i].value +
-             c->rx_green_class[i].value);
-        prop->tx_prio[i] =
-            (c->tx_yellow_class[i].value + c->tx_green_class[i].value);
+            (c->rx_red_class[i].value + c->rx_yellow_class[i].value + c->rx_green_class[i].value);
+        prop->tx_prio[i] = (c->tx_yellow_class[i].value + c->tx_green_class[i].value);
     }
 
     /* RMON Rx counters */
     rmon->rx_etherStatsDropEvents = c->dr_tail.value;
     rmon->rx_etherStatsOctets = CNT_SUM(c->rx_octets);
     rmon->rx_etherStatsPkts =
-        (CNT_SUM(c->rx_shorts) + CNT_SUM(c->rx_fragments) +
-         CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_longs) + CNT_SUM(c->rx_64) +
-         CNT_SUM(c->rx_65_127) + CNT_SUM(c->rx_128_255) +
-         CNT_SUM(c->rx_256_511) + CNT_SUM(c->rx_512_1023) +
-         CNT_SUM(c->rx_1024_1526) + CNT_SUM(c->rx_1527_max));
+        (CNT_SUM(c->rx_shorts) + CNT_SUM(c->rx_fragments) + CNT_SUM(c->rx_jabbers) +
+         CNT_SUM(c->rx_longs) + CNT_SUM(c->rx_64) + CNT_SUM(c->rx_65_127) + CNT_SUM(c->rx_128_255) +
+         CNT_SUM(c->rx_256_511) + CNT_SUM(c->rx_512_1023) + CNT_SUM(c->rx_1024_1526) +
+         CNT_SUM(c->rx_1527_max));
     rmon->rx_etherStatsBroadcastPkts = CNT_SUM(c->rx_broadcast);
     rmon->rx_etherStatsMulticastPkts = CNT_SUM(c->rx_multicast);
     rmon->rx_etherStatsCRCAlignErrors = CNT_SUM(c->rx_crc_align_errors);
@@ -1671,15 +1543,13 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t  *vtss_state,
     /* RMON Tx counters */
     rmon->tx_etherStatsDropEvents = (c->tx_drops.value + c->tx_aging.value);
     for (i = 0; i < VTSS_PRIOS; i++) {
-        rmon->tx_etherStatsDropEvents +=
-            (c->dr_yellow_class[i].value + c->dr_green_class[i].value);
+        rmon->tx_etherStatsDropEvents += (c->dr_yellow_class[i].value + c->dr_green_class[i].value);
     }
 
     rmon->tx_etherStatsOctets = CNT_SUM(c->tx_octets);
-    rmon->tx_etherStatsPkts =
-        (CNT_SUM(c->tx_64) + CNT_SUM(c->tx_65_127) + CNT_SUM(c->tx_128_255) +
-         CNT_SUM(c->tx_256_511) + CNT_SUM(c->tx_512_1023) +
-         CNT_SUM(c->tx_1024_1526) + CNT_SUM(c->tx_1527_max));
+    rmon->tx_etherStatsPkts = (CNT_SUM(c->tx_64) + CNT_SUM(c->tx_65_127) + CNT_SUM(c->tx_128_255) +
+                               CNT_SUM(c->tx_256_511) + CNT_SUM(c->tx_512_1023) +
+                               CNT_SUM(c->tx_1024_1526) + CNT_SUM(c->tx_1527_max));
     rmon->tx_etherStatsBroadcastPkts = CNT_SUM(c->tx_broadcast);
     rmon->tx_etherStatsMulticastPkts = CNT_SUM(c->tx_multicast);
     rmon->tx_etherStatsCollisions = c->tx_collision.value;
@@ -1696,20 +1566,18 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t  *vtss_state,
     if_group->ifInUcastPkts = CNT_SUM(c->rx_unicast);
     if_group->ifInMulticastPkts = CNT_SUM(c->rx_multicast);
     if_group->ifInBroadcastPkts = CNT_SUM(c->rx_broadcast);
-    if_group->ifInNUcastPkts =
-        CNT_SUM(c->rx_multicast) + CNT_SUM(c->rx_broadcast);
+    if_group->ifInNUcastPkts = CNT_SUM(c->rx_multicast) + CNT_SUM(c->rx_broadcast);
     if_group->ifInDiscards = rmon->rx_etherStatsDropEvents;
-    if_group->ifInErrors = (CNT_SUM(c->rx_crc_align_errors) +
-                            CNT_SUM(c->rx_shorts) + CNT_SUM(c->rx_fragments) +
-                            CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_longs));
+    if_group->ifInErrors =
+        (CNT_SUM(c->rx_crc_align_errors) + CNT_SUM(c->rx_shorts) + CNT_SUM(c->rx_fragments) +
+         CNT_SUM(c->rx_jabbers) + CNT_SUM(c->rx_longs));
 
     /* Interfaces Group Tx counters */
     if_group->ifOutOctets = CNT_SUM(c->tx_octets);
     if_group->ifOutUcastPkts = CNT_SUM(c->tx_unicast);
     if_group->ifOutMulticastPkts = CNT_SUM(c->tx_multicast);
     if_group->ifOutBroadcastPkts = CNT_SUM(c->tx_broadcast);
-    if_group->ifOutNUcastPkts =
-        (CNT_SUM(c->tx_multicast) + CNT_SUM(c->tx_broadcast));
+    if_group->ifOutNUcastPkts = (CNT_SUM(c->tx_multicast) + CNT_SUM(c->tx_broadcast));
     if_group->ifOutDiscards = rmon->tx_etherStatsDropEvents;
     if_group->ifOutErrors = (c->tx_drops.value + c->tx_aging.value);
 
@@ -1718,8 +1586,7 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t  *vtss_state,
     elike->dot3OutPauseFrames = CNT_SUM(c->tx_pause);
 
     /* Bridge counters */
-    counters->bridge.dot1dTpPortInDiscards =
-        (c->rx_classified_drops.value + c->dr_local.value);
+    counters->bridge.dot1dTpPortInDiscards = (c->rx_classified_drops.value + c->dr_local.value);
     for (i = 0; i < VTSS_PRIOS; i++) {
         counters->bridge.dot1dTpPortInDiscards += c->rx_red_class[i].value;
     }
@@ -1738,13 +1605,12 @@ static vtss_rc lan966x_port_counters_read(vtss_state_t  *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_basic_counters_get(vtss_state_t        *vtss_state,
-                                         const vtss_port_no_t port_no,
+vtss_rc vtss_cil_port_basic_counters_get(vtss_state_t                *vtss_state,
+                                         const vtss_port_no_t         port_no,
                                          vtss_basic_counters_t *const counters)
 {
-    u32 base, *p = &base, port = VTSS_CHIP_PORT(port_no);
-    vtss_port_luton26_counters_t *c =
-        &vtss_state->port.counters[port_no].counter.luton26;
+    u32                           base, *p = &base, port = VTSS_CHIP_PORT(port_no);
+    vtss_port_luton26_counters_t *c = &vtss_state->port.counters[port_no].counter.luton26;
 
     /* Setup counter view */
     REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_VIEW(port));
@@ -1770,16 +1636,14 @@ vtss_rc vtss_cil_port_basic_counters_get(vtss_state_t        *vtss_state,
     VTSS_RC(vtss_lan966x_dual_cnt_update(vtss_state, p, &c->tx_1527_max, 0));
 
     /* Rx frames */
-    counters->rx_frames =
-        (CNT_SUM(c->rx_64) + CNT_SUM(c->rx_65_127) + CNT_SUM(c->rx_128_255) +
-         CNT_SUM(c->rx_256_511) + CNT_SUM(c->rx_512_1023) +
-         CNT_SUM(c->rx_1024_1526) + CNT_SUM(c->rx_1527_max));
+    counters->rx_frames = (CNT_SUM(c->rx_64) + CNT_SUM(c->rx_65_127) + CNT_SUM(c->rx_128_255) +
+                           CNT_SUM(c->rx_256_511) + CNT_SUM(c->rx_512_1023) +
+                           CNT_SUM(c->rx_1024_1526) + CNT_SUM(c->rx_1527_max));
 
     /* Tx frames */
-    counters->tx_frames =
-        (CNT_SUM(c->tx_64) + CNT_SUM(c->tx_65_127) + CNT_SUM(c->tx_128_255) +
-         CNT_SUM(c->tx_256_511) + CNT_SUM(c->tx_512_1023) +
-         CNT_SUM(c->tx_1024_1526) + CNT_SUM(c->tx_1527_max));
+    counters->tx_frames = (CNT_SUM(c->tx_64) + CNT_SUM(c->tx_65_127) + CNT_SUM(c->tx_128_255) +
+                           CNT_SUM(c->tx_256_511) + CNT_SUM(c->tx_512_1023) +
+                           CNT_SUM(c->tx_1024_1526) + CNT_SUM(c->tx_1527_max));
 
     return VTSS_RC_OK;
 }
@@ -1789,21 +1653,17 @@ static vtss_rc lan966x_port_counters_cmd(vtss_state_t               *vtss_state,
                                          vtss_port_counters_t *const counters,
                                          BOOL                        clear)
 {
-    return lan966x_port_counters_read(vtss_state, port_no,
-                                      VTSS_CHIP_PORT(port_no),
-                                      &vtss_state->port.counters[port_no]
-                                           .counter.luton26,
-                                      counters, clear);
+    return lan966x_port_counters_read(vtss_state, port_no, VTSS_CHIP_PORT(port_no),
+                                      &vtss_state->port.counters[port_no].counter.luton26, counters,
+                                      clear);
 }
 
-vtss_rc vtss_cil_port_counters_update(vtss_state_t        *vtss_state,
-                                      const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return lan966x_port_counters_cmd(vtss_state, port_no, NULL, 0);
 }
 
-vtss_rc vtss_cil_port_counters_clear(vtss_state_t        *vtss_state,
-                                     const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return lan966x_port_counters_cmd(vtss_state, port_no, NULL, 1);
 }
@@ -1816,20 +1676,18 @@ vtss_rc vtss_cil_port_counters_get(vtss_state_t               *vtss_state,
     return lan966x_port_counters_cmd(vtss_state, port_no, counters, 0);
 }
 
-vtss_rc vtss_cil_port_forward_set(vtss_state_t        *vtss_state,
-                                  const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_forward_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_test_conf_set(vtss_state_t        *vtss_state,
-                                    const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_serdes_debug(vtss_state_t        *vtss_state,
-                                   const vtss_port_no_t port_no,
+vtss_rc vtss_cil_port_serdes_debug(vtss_state_t                         *vtss_state,
+                                   const vtss_port_no_t                  port_no,
                                    const vtss_port_serdes_debug_t *const conf)
 {
     return VTSS_RC_OK;
@@ -1843,8 +1701,7 @@ static vtss_rc lan966x_port_buf_conf_set(vtss_state_t *vtss_state)
     // Default watermarks are used
     for (q = 0; q < VTSS_PRIOS; q++) {
         /* Save initial encoded value of shared area for later use by WRED */
-        REG_RD(QSYS_RES_CFG((q + 216 + 512)),
-               &vtss_state->port.buf_prio_shr[q]);
+        REG_RD(QSYS_RES_CFG((q + 216 + 512)), &vtss_state->port.buf_prio_shr[q]);
     }
     // Set source buffer size for each priority and each port to 1500 bytes */
     for (i = 0; i <= 95; i++) {
@@ -1898,17 +1755,12 @@ static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
     pr("\n");
 
     for (i = 0; i < VTSS_SD6G_40_CNT; i++) {
-        VTSS_FMT(buf, "SD6G[%u]: %s", i,
-                 vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
+        VTSS_FMT(buf, "SD6G[%u]: %s", i, vtss_serdes_if_txt(vtss_state->port.sd6g40_mode[i]));
         vtss_lan966x_debug_reg_header(ss, buf.s);
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_CFG(i)),
-                               "SD_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_CFG2(i)),
-                               "SD_CFG2");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_MPLL_CFG(i)),
-                               "MPLL_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_STAT(i)),
-                               "SD_STAT");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_CFG(i)), "SD_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_CFG2(i)), "SD_CFG2");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_MPLL_CFG(i)), "MPLL_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_STAT(i)), "SD_STAT");
         pr("\n");
     }
 #endif
@@ -1919,42 +1771,24 @@ static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
         }
         VTSS_FMT(buf, "Port %u (%u)", port, port_no);
         vtss_lan966x_debug_reg_header(ss, buf.s);
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_CLOCK_CFG(port)),
-                               "CLOCK_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_ENA_CFG(port)),
-                               "MAC_ENA_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_MODE_CFG(port)),
-                               "MAC_MODE_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss,
-                               REG_ADDR(DEV_MAC_ADV_CHK_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_CLOCK_CFG(port)), "CLOCK_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_ENA_CFG(port)), "MAC_ENA_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_MODE_CFG(port)), "MAC_MODE_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_ADV_CHK_CFG(port)),
                                "MAC_ADV_CHK_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_IFG_CFG(port)),
-                               "MAC_IFG_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_HDX_CFG(port)),
-                               "MAC_HDX_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss,
-                               REG_ADDR(DEV_MAC_MAXLEN_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_IFG_CFG(port)), "MAC_IFG_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_HDX_CFG(port)), "MAC_HDX_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_MAC_MAXLEN_CFG(port)),
                                "MAC_MAXLEN_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss,
-                               REG_ADDR(QSYS_SW_PORT_MODE(port)),
-                               "SW_PORT_MODE");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(QSYS_PORT_MODE(port)),
-                               "PORT_MODE");
-        vtss_lan966x_debug_reg(vtss_state, ss,
-                               REG_ADDR(SYS_FRONT_PORT_MODE(port)),
-                               "SW_PORT_MODE");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(SYS_PAUSE_CFG(port)),
-                               "SYS_PAUSE_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_PFC_CFG(port)),
-                               "ANA_PFC_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PORT_MISC(port)),
-                               "PORT_MISC");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PCS1G_CFG(port)),
-                               "PCS1G_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PCS1G_SD_CFG(port)),
-                               "PCS1G_SD_CFG");
-        vtss_lan966x_debug_reg(vtss_state, ss,
-                               REG_ADDR(DEV_PCS1G_ANEG_CFG(port)),
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(QSYS_SW_PORT_MODE(port)), "SW_PORT_MODE");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(QSYS_PORT_MODE(port)), "PORT_MODE");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(SYS_FRONT_PORT_MODE(port)), "SW_PORT_MODE");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(SYS_PAUSE_CFG(port)), "SYS_PAUSE_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(ANA_PFC_CFG(port)), "ANA_PFC_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PORT_MISC(port)), "PORT_MISC");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PCS1G_CFG(port)), "PCS1G_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PCS1G_SD_CFG(port)), "PCS1G_SD_CFG");
+        vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(DEV_PCS1G_ANEG_CFG(port)),
                                "PCS1G_ANEG_CFG");
         pr("\n");
     }
@@ -1972,8 +1806,7 @@ static void lan966x_debug_cnt_inst(lmu_ss_t            *ss,
 
     VTSS_FMT(buf1, "%s_%u", col1 && VTSS_STRLEN(col1) ? col1 : col2, i);
     VTSS_FMT(buf2, "%s_%u", col2 && VTSS_STRLEN(col2) ? col2 : col1, i);
-    vtss_lan966x_debug_cnt(ss, col1 ? buf1.s : col1, col2 ? buf2.s : col2, c1,
-                           c2);
+    vtss_lan966x_debug_cnt(ss, col1 ? buf1.s : col1, col2 ? buf2.s : col2, c1, c2);
 }
 
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
@@ -2041,13 +1874,11 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t                  *vtss_state,
 
     for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
         if (info->clear) {
-            REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_CLEAR_SHOT(0x7) |
-                                     SYS_STAT_CFG_STAT_VIEW(port));
+            REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_CLEAR_SHOT(0x7) | SYS_STAT_CFG_STAT_VIEW(port));
         }
         if (port < VTSS_CHIP_PORTS) {
             // Normal port
-            if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) ==
-                    VTSS_PORT_NO_NONE ||
+            if ((port_no = vtss_cmn_port2port_no(vtss_state, info, port)) == VTSS_PORT_NO_NONE ||
                 cpu_port)
                 continue;
             cnt = &vtss_state->port.counters[port_no].counter.luton26;
@@ -2060,36 +1891,27 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t                  *vtss_state,
             port_no = VTSS_PORT_NO_NONE;
             pr("Counters CPU port: %u\n\n", port);
         }
-        VTSS_RC(lan966x_port_counters_read(vtss_state, port_no, port, cnt, NULL,
-                                           0));
+        VTSS_RC(lan966x_port_counters_read(vtss_state, port_no, port, cnt, NULL, 0));
         VTSS_EXIT_ENTER();
 
         // Basic MAC counters
         if (port < VTSS_CHIP_PORTS && (info->full || info->action != 3)) {
             lan966x_debug_cnt(ss, "oct", "", &cnt->rx_octets, &cnt->tx_octets);
             lan966x_debug_cnt(ss, "uc", "", &cnt->rx_unicast, &cnt->tx_unicast);
-            lan966x_debug_cnt(ss, "mc", "", &cnt->rx_multicast,
-                              &cnt->tx_multicast);
-            lan966x_debug_cnt(ss, "bc", "", &cnt->rx_broadcast,
-                              &cnt->tx_broadcast);
+            lan966x_debug_cnt(ss, "mc", "", &cnt->rx_multicast, &cnt->tx_multicast);
+            lan966x_debug_cnt(ss, "bc", "", &cnt->rx_broadcast, &cnt->tx_broadcast);
         }
 
         // Detailed MAC counters
         if (port < VTSS_CHIP_PORTS && (info->full || info->action == 2)) {
             lan966x_debug_cnt(ss, "pause", "", &cnt->rx_pause, &cnt->tx_pause);
             lan966x_debug_cnt(ss, "64", "", &cnt->rx_64, &cnt->tx_64);
-            lan966x_debug_cnt(ss, "65_127", "", &cnt->rx_65_127,
-                              &cnt->tx_65_127);
-            lan966x_debug_cnt(ss, "128_255", "", &cnt->rx_128_255,
-                              &cnt->tx_128_255);
-            lan966x_debug_cnt(ss, "256_511", "", &cnt->rx_256_511,
-                              &cnt->tx_256_511);
-            lan966x_debug_cnt(ss, "512_1023", "", &cnt->rx_512_1023,
-                              &cnt->tx_512_1023);
-            lan966x_debug_cnt(ss, "1024_1526", "", &cnt->rx_1024_1526,
-                              &cnt->tx_1024_1526);
-            lan966x_debug_cnt(ss, "jumbo", "", &cnt->rx_1527_max,
-                              &cnt->tx_1527_max);
+            lan966x_debug_cnt(ss, "65_127", "", &cnt->rx_65_127, &cnt->tx_65_127);
+            lan966x_debug_cnt(ss, "128_255", "", &cnt->rx_128_255, &cnt->tx_128_255);
+            lan966x_debug_cnt(ss, "256_511", "", &cnt->rx_256_511, &cnt->tx_256_511);
+            lan966x_debug_cnt(ss, "512_1023", "", &cnt->rx_512_1023, &cnt->tx_512_1023);
+            lan966x_debug_cnt(ss, "1024_1526", "", &cnt->rx_1024_1526, &cnt->tx_1024_1526);
+            lan966x_debug_cnt(ss, "jumbo", "", &cnt->rx_1527_max, &cnt->tx_1527_max);
             lan966x_debug_cnt(ss, "crc", NULL, &cnt->rx_crc_align_errors, NULL);
             lan966x_debug_cnt(ss, "symbol", NULL, &cnt->rx_symbol_errors, NULL);
             lan966x_debug_cnt(ss, "short", NULL, &cnt->rx_shorts, NULL);
@@ -2098,14 +1920,11 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t                  *vtss_state,
             lan966x_debug_cnt(ss, "jabber", NULL, &cnt->rx_jabbers, NULL);
             lan966x_debug_cnt(ss, "control", NULL, &cnt->rx_control, NULL);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-            vtss_lan966x_debug_cnt(ss, "mm_ass_err", NULL,
-                                   &cnt->rx_mm_assembly_errors, NULL);
-            vtss_lan966x_debug_cnt(ss, "mm_smd_err", NULL,
-                                   &cnt->rx_mm_smd_errors, NULL);
-            vtss_lan966x_debug_cnt(ss, "mm_ass_ok", "mm_hold",
-                                   &cnt->rx_mm_assembly_ok, &cnt->tx_mm_hold);
-            vtss_lan966x_debug_cnt(ss, "mm_frag", "", &cnt->rx_mm_fragments,
-                                   &cnt->tx_mm_fragments);
+            vtss_lan966x_debug_cnt(ss, "mm_ass_err", NULL, &cnt->rx_mm_assembly_errors, NULL);
+            vtss_lan966x_debug_cnt(ss, "mm_smd_err", NULL, &cnt->rx_mm_smd_errors, NULL);
+            vtss_lan966x_debug_cnt(ss, "mm_ass_ok", "mm_hold", &cnt->rx_mm_assembly_ok,
+                                   &cnt->tx_mm_hold);
+            vtss_lan966x_debug_cnt(ss, "mm_frag", "", &cnt->rx_mm_fragments, &cnt->tx_mm_fragments);
 #endif
         }
 
@@ -2113,11 +1932,11 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t                  *vtss_state,
         if (info->full || cpu_port || info->action == 3) {
             vtss_lan966x_debug_cnt(ss, "cat_drop", cpu_port ? NULL : "drops",
                                    &cnt->rx_classified_drops, &cnt->tx_drops);
-            vtss_lan966x_debug_cnt(ss, "dr_local", cpu_port ? NULL : "aged",
-                                   &cnt->dr_local, &cnt->tx_aging);
+            vtss_lan966x_debug_cnt(ss, "dr_local", cpu_port ? NULL : "aged", &cnt->dr_local,
+                                   &cnt->tx_aging);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-            vtss_lan966x_debug_cnt(ss, "dr_tail", cpu_port ? NULL : "ct",
-                                   &cnt->dr_tail, &cnt->tx_ct);
+            vtss_lan966x_debug_cnt(ss, "dr_tail", cpu_port ? NULL : "ct", &cnt->dr_tail,
+                                   &cnt->tx_ct);
             if (!cpu_port) {
                 vtss_lan966x_debug_cnt(ss, NULL, "llct", NULL, &cnt->tx_llct);
             }
@@ -2125,20 +1944,16 @@ static vtss_rc lan966x_debug_port_cnt(vtss_state_t                  *vtss_state,
             vtss_lan966x_debug_cnt(ss, "dr_tail", NULL, &cnt->dr_tail, NULL);
 #endif
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(ss, i, "green", "",
-                                       &cnt->rx_green_class[i],
+                lan966x_debug_cnt_inst(ss, i, "green", "", &cnt->rx_green_class[i],
                                        &cnt->tx_green_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(ss, i, "yellow", "",
-                                       &cnt->rx_yellow_class[i],
+                lan966x_debug_cnt_inst(ss, i, "yellow", "", &cnt->rx_yellow_class[i],
                                        &cnt->tx_yellow_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(ss, i, "red", "dr_green",
-                                       &cnt->rx_red_class[i],
+                lan966x_debug_cnt_inst(ss, i, "red", "dr_green", &cnt->rx_red_class[i],
                                        &cnt->dr_green_class[i]);
             for (i = 0; i < VTSS_PRIOS; i++)
-                lan966x_debug_cnt_inst(ss, i, NULL, "dr_yellow", NULL,
-                                       &cnt->dr_yellow_class[i]);
+                lan966x_debug_cnt_inst(ss, i, NULL, "dr_yellow", NULL, &cnt->dr_yellow_class[i]);
         }
         pr("\n");
     }
@@ -2163,8 +1978,7 @@ static char *lan966x_chip_port_to_str(vtss_state_t       *vtss_state,
     case VTSS_CHIP_PORT_CPU_1: VTSS_FMT(buf, "CPU1"); break;
 
     default:
-        port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no,
-                                                chip_port);
+        port_no = vtss_cmn_chip_to_logical_port(vtss_state, vtss_state->chip_no, chip_port);
         if (port_no != VTSS_PORT_NO_NONE) {
             VTSS_FMT(buf, "%u", port_no);
         } else {
@@ -2206,15 +2020,11 @@ static void lan966x_debug_qres_print(vtss_state_t       *vtss_state,
 {
     char buf[20];
 
-    pr("%4u %-8s %7s %9d %4u %10u\n", idx,
-       lan966x_qsys_resource_to_str(resource),
-       lan966x_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio,
-       val);
+    pr("%4u %-8s %7s %9d %4u %10u\n", idx, lan966x_qsys_resource_to_str(resource),
+       lan966x_chip_port_to_str(vtss_state, chip_port, buf), chip_port, prio, val);
 }
 
-vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state,
-                                     lmu_ss_t     *ss,
-                                     BOOL          res_stat_cur)
+vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss, BOOL res_stat_cur)
 {
     vtss_phys_port_no_t chip_port;
     u32                 resource, resource_base, port_base, idx, prio, val;
@@ -2227,8 +2037,7 @@ vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state,
     // Print shared SRC-MEM, because up-flows with CL_DP == 1 are counted here
     // and not in the masquerade port counters.
     REG_RD(QSYS_RES_STAT(255), &val);
-    val =
-        res_stat_cur ? QSYS_RES_STAT_INUSE_X(val) : QSYS_RES_STAT_MAXUSE_X(val);
+    val = res_stat_cur ? QSYS_RES_STAT_INUSE_X(val) : QSYS_RES_STAT_MAXUSE_X(val);
     lan966x_debug_qres_print(vtss_state, ss, 255, -1, 0, 7, val);
 
     for (resource = 0; resource < 4; resource++) {
@@ -2238,12 +2047,10 @@ vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state,
             for (prio = 0; prio < VTSS_PRIOS; prio++) {
                 idx = port_base + prio;
                 REG_RD(QSYS_RES_STAT(idx), &val);
-                val = res_stat_cur ? QSYS_RES_STAT_INUSE_X(val)
-                                   : QSYS_RES_STAT_MAXUSE_X(val);
+                val = res_stat_cur ? QSYS_RES_STAT_INUSE_X(val) : QSYS_RES_STAT_MAXUSE_X(val);
                 if (val) {
                     // Only print non-zero values or we will be flooded.
-                    lan966x_debug_qres_print(vtss_state, ss, idx, chip_port,
-                                             resource, prio, val);
+                    lan966x_debug_qres_print(vtss_state, ss, idx, chip_port, resource, prio, val);
                 }
             }
         }
@@ -2261,11 +2068,7 @@ vtss_rc vtss_lan966x_port_debug_qres(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static void lan966x_debug_wm_dump(lmu_ss_t   *ss,
-                                  const char *reg_name,
-                                  u32        *value,
-                                  u32         i,
-                                  BOOL        bytes)
+static void lan966x_debug_wm_dump(lmu_ss_t *ss, const char *reg_name, u32 *value, u32 i, BOOL bytes)
 {
     u32 q;
     pr("%-26s", reg_name);
@@ -2281,8 +2084,7 @@ static vtss_rc lan966x_debug_wm(vtss_state_t                  *vtss_state,
 
 {
     u32 port_no, value, q, dp, cpu_port, port;
-    u32 id[8] = {0}, val1[8] = {0}, val2[8] = {0}, val3[8] = {0}, val4[8] = {0},
-        val5[8] = {0};
+    u32 id[8] = {0}, val1[8] = {0}, val2[8] = {0}, val3[8] = {0}, val4[8] = {0}, val5[8] = {0};
     const char *txt;
 
     pr("Global configuration:\n");
@@ -2296,12 +2098,10 @@ static vtss_rc lan966x_debug_wm(vtss_state_t                  *vtss_state,
     pr("FC Pause TOT_STOP WM    : %d bytes\n",
        wm_dec_bytes(SYS_PAUSE_TOT_CFG_PAUSE_TOT_STOP_X(value)));
     REG_RD(SYS_ATOP_TOT_CFG, &value);
-    pr("FC TailDrop ATOP_TOT WM : %d bytes\n",
-       wm_dec_bytes(SYS_ATOP_TOT_CFG_ATOP_TOT_X(value)));
+    pr("FC TailDrop ATOP_TOT WM : %d bytes\n", wm_dec_bytes(SYS_ATOP_TOT_CFG_ATOP_TOT_X(value)));
     pr("\n");
 
-    for (port_no = VTSS_PORT_NO_START; port_no <= vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no <= vtss_state->port_count; port_no++) {
         cpu_port = (port_no == vtss_state->port_count);
         if (cpu_port) {
             /* CPU port */
@@ -2323,16 +2123,13 @@ static vtss_rc lan966x_debug_wm(vtss_state_t                  *vtss_state,
             REG_RD(SYS_MAC_FC_CFG(port), &value);
             pr("FC Pause Tx ena     : %d\n", SYS_MAC_FC_CFG_TX_FC_ENA_X(value));
             pr("FC Pause Rx ena     : %d\n", SYS_MAC_FC_CFG_RX_FC_ENA_X(value));
-            pr("FC Pause Time Value : 0x%x\n",
-               SYS_MAC_FC_CFG_PAUSE_VAL_CFG_X(value));
-            pr("FC Zero pause       : %d\n",
-               SYS_MAC_FC_CFG_ZERO_PAUSE_ENA_X(value));
+            pr("FC Pause Time Value : 0x%x\n", SYS_MAC_FC_CFG_PAUSE_VAL_CFG_X(value));
+            pr("FC Zero pause       : %d\n", SYS_MAC_FC_CFG_ZERO_PAUSE_ENA_X(value));
             REG_RD(SYS_PAUSE_CFG(port), &value);
             pr("FC Pause Ena        : %d\n", SYS_PAUSE_CFG_PAUSE_ENA_X(value));
             pr("FC Pause Start WM   : %d bytes\n",
                wm_dec_bytes(SYS_PAUSE_CFG_PAUSE_START_X(value)));
-            pr("FC Pause Stop WM    : %d bytes\n",
-               wm_dec_bytes(SYS_PAUSE_CFG_PAUSE_STOP_X(value)));
+            pr("FC Pause Stop WM    : %d bytes\n", wm_dec_bytes(SYS_PAUSE_CFG_PAUSE_STOP_X(value)));
             REG_RD(ANA_PFC_CFG(port), &value);
             value = ANA_PFC_CFG_RX_PFC_ENA_X(value);
             pr("PFC Enable [0-7]    : ");
@@ -2343,23 +2140,18 @@ static vtss_rc lan966x_debug_wm(vtss_state_t                  *vtss_state,
         }
 
         REG_RD(SYS_ATOP(port), &value);
-        pr("FC TailDrop ATOP WM : %d bytes\n",
-           wm_dec_bytes(SYS_ATOP_ATOP_X(value)));
+        pr("FC TailDrop ATOP WM : %d bytes\n", wm_dec_bytes(SYS_ATOP_ATOP_X(value)));
         REG_RD(QSYS_SW_PORT_MODE(port), &value);
-        pr("Ingress Drop Mode   : %d\n",
-           QSYS_SW_PORT_MODE_INGRESS_DROP_MODE_X(value));
+        pr("Ingress Drop Mode   : %d\n", QSYS_SW_PORT_MODE_INGRESS_DROP_MODE_X(value));
         REG_RD(QSYS_EGR_DROP_MODE, &value);
         pr("Egress Drop Mode    : %d\n",
-           QSYS_EGR_DROP_MODE_EGRESS_DROP_MODE_X(value) & VTSS_BIT(port) ? 1
-                                                                         : 0);
+           QSYS_EGR_DROP_MODE_EGRESS_DROP_MODE_X(value) & VTSS_BIT(port) ? 1 : 0);
         REG_RD(QSYS_IGR_NO_SHARING, &value);
         pr("Ingress No Sharing  : %d\n",
-           QSYS_IGR_NO_SHARING_IGR_NO_SHARING_X(value) & VTSS_BIT(port) ? 1
-                                                                        : 0);
+           QSYS_IGR_NO_SHARING_IGR_NO_SHARING_X(value) & VTSS_BIT(port) ? 1 : 0);
         REG_RD(QSYS_EGR_NO_SHARING, &value);
         pr("Egress No Sharing   : %d\n",
-           QSYS_EGR_NO_SHARING_EGR_NO_SHARING_X(value) & VTSS_BIT(port) ? 1
-                                                                        : 0);
+           QSYS_EGR_NO_SHARING_EGR_NO_SHARING_X(value) & VTSS_BIT(port) ? 1 : 0);
         REG_RD(QSYS_PORT_MODE(port), &value);
         pr("Dequeuing disabled  : %d\n", QSYS_PORT_MODE_DEQUEUE_DIS_X(value));
         pr("\n");
@@ -2432,30 +2224,26 @@ static vtss_rc lan966x_debug_wm(vtss_state_t                  *vtss_state,
     //  xxxxx xxx 0xxxxx xxxxxxx 0xxxxx xxxxxxx 0xxxxx  xxxxxxx
     for (q = VTSS_QUEUE_START; q < VTSS_QUEUE_END; q++) {
         u32 wm_high, red_profile, wm_red_low, wm_red_high;
-        REG_RD(QSYS_RES_CFG(q + 216),
-               &wm_high); /* Shared ingress high watermark for queue */
+        REG_RD(QSYS_RES_CFG(q + 216), &wm_high); /* Shared ingress high watermark for queue */
         for (dp = 0; dp < 2; dp++) {
-            REG_RD(QSYS_RED_PROFILE(q + (8 * dp)),
-                   &red_profile); /* Red profile for queue, dpl */
+            REG_RD(QSYS_RED_PROFILE(q + (8 * dp)), &red_profile); /* Red profile for queue, dpl */
             wm_red_low = QSYS_RED_PROFILE_WM_RED_LOW_X(red_profile);
             wm_red_high = QSYS_RED_PROFILE_WM_RED_HIGH_X(red_profile);
             pr("%5u %3u  0x%04x %6u  0x%04x %6u   0x%04x %6u\n", q, dp, wm_high,
-               wm_dec_bytes(wm_high), wm_red_low, wm_red_low * 1024,
-               wm_red_high, wm_red_high * 1024);
+               wm_dec_bytes(wm_high), wm_red_low, wm_red_low * 1024, wm_red_high,
+               wm_red_high * 1024);
         }
     }
     pr("\n");
 
-    for (port_no = VTSS_PORT_NO_START; port_no <= vtss_state->port_count;
-         port_no++) {
+    for (port_no = VTSS_PORT_NO_START; port_no <= vtss_state->port_count; port_no++) {
         for (q = 0; q < VTSS_PRIOS; q++) {
-            port = (port_no == vtss_state->port_count)
-                       ? VTSS_CHIP_PORT_CPU
-                       : VTSS_CHIP_PORT(port_no);
+            port =
+                (port_no == vtss_state->port_count) ? VTSS_CHIP_PORT_CPU : VTSS_CHIP_PORT(port_no);
             REG_RD(QSYS_RES_STAT(port * VTSS_PRIOS + q + 0), &value);
             if (value > 0) {
-                pr("API port %u (%u), ingress qu %u: Inuse:%u bytes, Maxuse:%u bytes\n",
-                   port_no, port, q, wm_dec_bytes(QSYS_RES_STAT_INUSE_X(value)),
+                pr("API port %u (%u), ingress qu %u: Inuse:%u bytes, Maxuse:%u bytes\n", port_no,
+                   port, q, wm_dec_bytes(QSYS_RES_STAT_INUSE_X(value)),
                    wm_dec_bytes(QSYS_RES_STAT_MAXUSE_X(value)));
             }
         }
@@ -2471,13 +2259,11 @@ vtss_rc vtss_lan966x_port_debug_print(vtss_state_t                  *vtss_state,
                                       lmu_ss_t                      *ss,
                                       const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, lan966x_debug_port,
-                                   vtss_state, ss, info));
-    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT,
-                                   lan966x_debug_port_cnt, vtss_state, ss,
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT, lan966x_debug_port, vtss_state, ss,
                                    info));
-    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, lan966x_debug_wm,
-                                   vtss_state, ss, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_PORT_CNT, lan966x_debug_port_cnt, vtss_state,
+                                   ss, info));
+    VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, lan966x_debug_wm, vtss_state, ss, info));
     return VTSS_RC_OK;
 }
 #endif // VTSS_OPT_DEBUG_PRINT
@@ -2494,17 +2280,14 @@ vtss_rc vtss_lan966x_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     case VTSS_INIT_CMD_INIT:
         /* Clear port counters */
         for (port = 0; port <= VTSS_CHIP_PORTS; port++) {
-            REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_CLEAR_SHOT(0x7) |
-                                     SYS_STAT_CFG_STAT_VIEW(port));
+            REG_WR(SYS_STAT_CFG, SYS_STAT_CFG_STAT_CLEAR_SHOT(0x7) | SYS_STAT_CFG_STAT_VIEW(port));
         }
 
         // Count QS drops at egress port
         REG_WRM_SET(QSYS_STAT_CFG, QSYS_STAT_CFG_DROP_COUNT_EGRESS(1));
         break;
 
-    case VTSS_INIT_CMD_PORT_MAP:
-        VTSS_RC(lan966x_port_buf_conf_set(vtss_state));
-        break;
+    case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(lan966x_port_buf_conf_set(vtss_state)); break;
 
     default: break;
     }

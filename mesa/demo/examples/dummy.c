@@ -25,8 +25,7 @@ static int dummy_init(int argc, const char *argv[])
 {
     uint32_t param1 = ARGV_INT("param1", "Value to be added");
     uint32_t param2 = ARGV_INT("param2", "Value to be added");
-    uint32_t opt1 =
-        ARGV_OPT_INT("opt1", "Optional value to be added. Default is 3", 3);
+    uint32_t opt1 = ARGV_OPT_INT("opt1", "Optional value to be added. Default is 3", 3);
     uint32_t var = 0;
 
     EXAMPLE_BARRIER(argc);

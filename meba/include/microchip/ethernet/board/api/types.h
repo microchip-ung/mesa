@@ -21,8 +21,7 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 #define MEBA_API_MK_VERSION(h, l) ((h << 16) | l)
 #define MEBA_API_VERSION_MAJOR    0
 #define MEBA_API_VERSION_MINOR    4
-#define MEBA_API_VERSION                                                       \
-    MEBA_API_MK_VERSION(MEBA_API_VERSION_MAJOR, MEBA_API_VERSION_MINOR)
+#define MEBA_API_VERSION          MEBA_API_MK_VERSION(MEBA_API_VERSION_MAJOR, MEBA_API_VERSION_MINOR)
 
 #define MEBA_BIT(x)     (1 << (x))
 #define MEBA_BITMASK(x) (MEBA_BIT(x) - 1)
@@ -102,64 +101,57 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 #define MEBA_PORT_CAP_HDX (MEBA_PORT_CAP_10M_HDX | MEBA_PORT_CAP_100M_HDX)
 
 // Tri-speed port full duplex only
-#define MEBA_PORT_CAP_TRI_SPEED_FDX                                            \
-    (MEBA_PORT_CAP_AUTONEG | MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_100M_FDX |   \
+#define MEBA_PORT_CAP_TRI_SPEED_FDX                                                                \
+    (MEBA_PORT_CAP_AUTONEG | MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_100M_FDX |                       \
      MEBA_PORT_CAP_10M_FDX | MEBA_PORT_CAP_FLOW_CTRL)
 
 // Tri-speed port, both full and half duplex */
-#define MEBA_PORT_CAP_TRI_SPEED                                                \
-    (MEBA_PORT_CAP_TRI_SPEED_FDX | MEBA_PORT_CAP_HDX)
+#define MEBA_PORT_CAP_TRI_SPEED (MEBA_PORT_CAP_TRI_SPEED_FDX | MEBA_PORT_CAP_HDX)
 
 // 1G PHY present */
-#define MEBA_PORT_CAP_1G_PHY                                                   \
-    (MEBA_PORT_CAP_COPPER | MEBA_PORT_CAP_FIBER | MEBA_PORT_CAP_DUAL_COPPER |  \
+#define MEBA_PORT_CAP_1G_PHY                                                                       \
+    (MEBA_PORT_CAP_COPPER | MEBA_PORT_CAP_FIBER | MEBA_PORT_CAP_DUAL_COPPER |                      \
      MEBA_PORT_CAP_DUAL_FIBER)
 
 // Tri-speed port copper only
-#define MEBA_PORT_CAP_TRI_SPEED_COPPER                                         \
-    (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_COPPER)
+#define MEBA_PORT_CAP_TRI_SPEED_COPPER (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_COPPER)
 
 // Tri-speed port fiber only
-#define MEBA_PORT_CAP_TRI_SPEED_FIBER                                          \
-    (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_FIBER)
+#define MEBA_PORT_CAP_TRI_SPEED_FIBER (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_FIBER)
 
 // Tri-speed port both fiber and copper. Copper prefered
-#define MEBA_PORT_CAP_TRI_SPEED_DUAL_COPPER                                    \
-    (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_DUAL_COPPER)
+#define MEBA_PORT_CAP_TRI_SPEED_DUAL_COPPER (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_DUAL_COPPER)
 
 // Tri-speed port both fiber and copper. Fiber prefered
-#define MEBA_PORT_CAP_TRI_SPEED_DUAL_FIBER                                     \
-    (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_DUAL_FIBER)
+#define MEBA_PORT_CAP_TRI_SPEED_DUAL_FIBER (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_DUAL_FIBER)
 
 // Any fiber mode
-#define MEBA_PORT_CAP_ANY_FIBER                                                \
-    (MEBA_PORT_CAP_FIBER | MEBA_PORT_CAP_DUAL_FIBER |                          \
-     MEBA_PORT_CAP_DUAL_COPPER | MEBA_PORT_CAP_SFP_DETECT)
+#define MEBA_PORT_CAP_ANY_FIBER                                                                    \
+    (MEBA_PORT_CAP_FIBER | MEBA_PORT_CAP_DUAL_FIBER | MEBA_PORT_CAP_DUAL_COPPER |                  \
+     MEBA_PORT_CAP_SFP_DETECT)
 
 // Any fiber mode, but auto detection not supported
-#define MEBA_PORT_CAP_SPEED_DUAL_ANY_FIBER_FIXED_SPEED                         \
+#define MEBA_PORT_CAP_SPEED_DUAL_ANY_FIBER_FIXED_SPEED                                             \
     (MEBA_PORT_CAP_DUAL_FIBER | MEBA_PORT_CAP_DUAL_COPPER)
 
 // Any fiber mode, auto detection supported
-#define MEBA_PORT_CAP_SPEED_DUAL_ANY_FIBER                                     \
-    (MEBA_PORT_CAP_DUAL_COPPER | MEBA_PORT_CAP_DUAL_FIBER |                    \
-     MEBA_PORT_CAP_DUAL_SFP_DETECT)
+#define MEBA_PORT_CAP_SPEED_DUAL_ANY_FIBER                                                         \
+    (MEBA_PORT_CAP_DUAL_COPPER | MEBA_PORT_CAP_DUAL_FIBER | MEBA_PORT_CAP_DUAL_SFP_DETECT)
 
 // Copper 5 Fiber mode, auto detection supported
-#define MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER                                 \
+#define MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER                                                     \
     (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_SPEED_DUAL_ANY_FIBER)
 
 // Copper & Fiber mode, but SFP auto detection not supported
-#define MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER_FIXED_SFP_SPEED                 \
+#define MEBA_PORT_CAP_TRI_SPEED_DUAL_ANY_FIBER_FIXED_SFP_SPEED                                     \
     (MEBA_PORT_CAP_TRI_SPEED | MEBA_PORT_CAP_SPEED_DUAL_ANY_FIBER_FIXED_SPEED)
 
 // 1000Base-X fiber mode
-#define MEBA_PORT_CAP_DUAL_FIBER_1000X                                         \
-    (MEBA_PORT_CAP_DUAL_FIBER | MEBA_PORT_CAP_DUAL_COPPER)
+#define MEBA_PORT_CAP_DUAL_FIBER_1000X (MEBA_PORT_CAP_DUAL_FIBER | MEBA_PORT_CAP_DUAL_COPPER)
 
 // SFP fiber port 100FX/1G with auto negotiation and flow control
-#define MEBA_PORT_CAP_SFP_1G                                                   \
-    (MEBA_PORT_CAP_AUTONEG | MEBA_PORT_CAP_100M_FDX | MEBA_PORT_CAP_1G_FDX |   \
+#define MEBA_PORT_CAP_SFP_1G                                                                       \
+    (MEBA_PORT_CAP_AUTONEG | MEBA_PORT_CAP_100M_FDX | MEBA_PORT_CAP_1G_FDX |                       \
      MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_SFP_ONLY)
 
 // SFP fiber port 100FX/1G/2.5G with auto negotiation and flow control
@@ -168,31 +160,28 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 // SFP fiber port 100FX/1G/2.5G with auto negotiation and flow control, signal
 // detect high
 
-#define MEBA_PORT_CAP_SFP_SD_HIGH                                              \
-    (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SD_HIGH |                         \
-     MEBA_PORT_CAP_SD_INTERNAL | MEBA_PORT_CAP_SFP_DETECT |                    \
-     MEBA_PORT_CAP_SFP_ONLY)
+#define MEBA_PORT_CAP_SFP_SD_HIGH                                                                  \
+    (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SD_HIGH | MEBA_PORT_CAP_SD_INTERNAL |                 \
+     MEBA_PORT_CAP_SFP_DETECT | MEBA_PORT_CAP_SFP_ONLY)
 
 // SFP fiber port 100FX/1G/2.5G with auto negotiation and flow control, signal
 // detect high
-#define MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT                                    \
-    (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SD_HIGH |                         \
-     MEBA_PORT_CAP_SD_INTERNAL | MEBA_PORT_CAP_SFP_ONLY)
+#define MEBA_PORT_CAP_SFP_SD_HIGH_NO_DETECT                                                        \
+    (MEBA_PORT_CAP_SD_ENABLE | MEBA_PORT_CAP_SD_HIGH | MEBA_PORT_CAP_SD_INTERNAL |                 \
+     MEBA_PORT_CAP_SFP_ONLY)
 
 #define MEBA_PORT_CAP_COPPER_10G (MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_COPPER)
 
 // 100M/1G/2.5G Tri-speed port full duplex only
-#define MEBA_PORT_CAP_2_5G_TRI_SPEED_FDX                                       \
-    (MEBA_PORT_CAP_AUTONEG | MEBA_PORT_CAP_2_5G_FDX | MEBA_PORT_CAP_1G_FDX |   \
+#define MEBA_PORT_CAP_2_5G_TRI_SPEED_FDX                                                           \
+    (MEBA_PORT_CAP_AUTONEG | MEBA_PORT_CAP_2_5G_FDX | MEBA_PORT_CAP_1G_FDX |                       \
      MEBA_PORT_CAP_100M_FDX | MEBA_PORT_CAP_FLOW_CTRL)
 
 // 100M/1G/2.5G Tri-speed port, all full duplex and 100M half duplex
-#define MEBA_PORT_CAP_2_5G_TRI_SPEED                                           \
-    (MEBA_PORT_CAP_2_5G_TRI_SPEED_FDX | MEBA_PORT_CAP_100M_HDX)
+#define MEBA_PORT_CAP_2_5G_TRI_SPEED (MEBA_PORT_CAP_2_5G_TRI_SPEED_FDX | MEBA_PORT_CAP_100M_HDX)
 
 // 100M/1G/2.5G Tri-speed port copper only
-#define MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER                                    \
-    (MEBA_PORT_CAP_2_5G_TRI_SPEED | MEBA_PORT_CAP_COPPER)
+#define MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER (MEBA_PORT_CAP_2_5G_TRI_SPEED | MEBA_PORT_CAP_COPPER)
 
 // Bit-mask containing the port capabilities
 typedef uint64_t meba_port_cap_t;
@@ -427,10 +416,7 @@ typedef void (*meba_event_signal_t)(meba_event_t event, uint32_t instance_no);
 // buf    [OUT] Configuration item value (text)
 // bufsize[IN]  Size of output buffer buf
 // buflen [OUT] Number of valid bytes in buf
-typedef mesa_rc (*meba_conf_get_t)(const char *tag,
-                                   char       *buf,
-                                   size_t      bufsize,
-                                   size_t     *buflen);
+typedef mesa_rc (*meba_conf_get_t)(const char *tag, char *buf, size_t bufsize, size_t *buflen);
 
 typedef void (*meba_debug_t)(meba_trace_level_t level,
                              const char        *location,
@@ -450,8 +436,8 @@ typedef mesa_rc (*meba_clock_event_enable_t)(struct meba_inst *inst,
 //
 // chip_irq        [IN] Chip interrupt which triggered
 // signal_notifier [IN] Function to deliver decoded interrupts to
-typedef mesa_rc (*meba_clock_irq_handler_t)(struct meba_inst *inst,
-                                            mesa_irq_t        chip_irq,
+typedef mesa_rc (*meba_clock_irq_handler_t)(struct meba_inst   *inst,
+                                            mesa_irq_t          chip_irq,
                                             meba_event_signal_t signal_notifier);
 
 // MEBA call-out functions
@@ -464,11 +450,9 @@ typedef struct {
     meba_debug_t              debug;
     meba_clock_event_enable_t clock_event_enable; // TEMPORARY
     meba_clock_irq_handler_t  clock_irq_handler;  // TEMPORARY
-    mepa_lock_func_t
-        lock_enter; // lock callback function called before entering MEPA Api
-    mepa_lock_func_t
-        lock_exit; // unlock callback function called after executing MEPA Api
-    mepa_trace_func_t trace;
+    mepa_lock_func_t          lock_enter; // lock callback function called before entering MEPA Api
+    mepa_lock_func_t          lock_exit; // unlock callback function called after executing MEPA Api
+    mepa_trace_func_t         trace;
 } meba_board_interface_t;
 
 // INTERIM board enum - will be deleted eventually

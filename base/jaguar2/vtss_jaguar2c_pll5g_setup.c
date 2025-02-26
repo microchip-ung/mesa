@@ -29,20 +29,18 @@
 #if defined(VTSS_ARCH_JAGUAR_2_C)
 #include "vtss_jaguar2_inc.h"
 
-static vtss_rc jaguar2c_pll5g_register_cfg(vtss_state_t *vtss_state,
-                                           vtss_pll5g_setup_struct_t
-                                               *const res_struct,
-                                           const u8   inst)
+static vtss_rc jaguar2c_pll5g_register_cfg(vtss_state_t                    *vtss_state,
+                                           vtss_pll5g_setup_struct_t *const res_struct,
+                                           const u8                         inst)
 {
 
     vtss_rc rc = VTSS_RC_OK;
     u32     value;
     if (res_struct->unlock[0] == 1) {
         JR2_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG2(inst),
-                VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST(
-                    res_struct->pll5g_cfg2__ena_gain_test[0]) |
-                    VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST(
-                        res_struct->pll5g_cfg2__gain_test[0]),
+                VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST(res_struct
+                                                                   ->pll5g_cfg2__ena_gain_test[0]) |
+                    VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST(res_struct->pll5g_cfg2__gain_test[0]),
                 VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG2_ENA_GAIN_TEST |
                     VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG2_GAIN_TEST);
 
@@ -55,20 +53,19 @@ static vtss_rc jaguar2c_pll5g_register_cfg(vtss_state_t *vtss_state,
 
         } else {
             JR2_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG4(inst),
-                    VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL(
-                        res_struct->pll5g_cfg4__ib_ctrl[0]),
+                    VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL(res_struct->pll5g_cfg4__ib_ctrl[0]),
                     VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG4_IB_CTRL);
 
-            JR2_WRM(VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0(inst),
-                    VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_ENA_VCO_CONTRH(
-                        res_struct->pll5g_cfg0__ena_vco_contrh[0]) |
-                        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES(
-                            res_struct->pll5g_cfg0__loop_bw_res[0]) |
-                        VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820(
-                            res_struct->pll5g_cfg0__selbgv820[0]),
-                    VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_ENA_VCO_CONTRH |
-                        VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES |
-                        VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820);
+            JR2_WRM(
+                VTSS_HSIO_PLL5G_CFG_PLL5G_CFG0(inst),
+                VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_ENA_VCO_CONTRH(res_struct
+                                                                    ->pll5g_cfg0__ena_vco_contrh[0]) |
+                    VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES(res_struct
+                                                                     ->pll5g_cfg0__loop_bw_res[0]) |
+                    VTSS_F_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820(res_struct->pll5g_cfg0__selbgv820[0]),
+                VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_ENA_VCO_CONTRH |
+                    VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_LOOP_BW_RES |
+                    VTSS_M_HSIO_PLL5G_CFG_PLL5G_CFG0_SELBGV820);
 
             u32 i_var;
             for (i_var = 0; i_var <= 9; i_var++) {
@@ -92,8 +89,7 @@ static vtss_rc jaguar2c_pll5g_register_cfg(vtss_state_t *vtss_state,
                 }
             }
             if (value < 2) {
-                VTSS_E(
-                    "Failed to initialize LCPLL as the gain was not within limits");
+                VTSS_E("Failed to initialize LCPLL as the gain was not within limits");
             }
         }
     }

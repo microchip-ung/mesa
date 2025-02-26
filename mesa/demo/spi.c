@@ -33,8 +33,8 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 
 /* MEBA callouts */
 #define TO_SPI(_a_)     (_a_ & 0x007FFFFF) /* 23 bit SPI address */
-#define SPI_NR_BYTES    7  /* Number of bytes to transmit or receive */
-#define SPI_PADDING_MAX 15 /* Maximum number of optional padding bytes */
+#define SPI_NR_BYTES    7                  /* Number of bytes to transmit or receive */
+#define SPI_PADDING_MAX 15                 /* Maximum number of optional padding bytes */
 
 mesa_rc spi_read(spi_user_t user, const uint32_t addr, uint32_t *const value)
 {
@@ -65,15 +65,13 @@ mesa_rc spi_read(spi_user_t user, const uint32_t addr, uint32_t *const value)
         return MESA_RC_ERROR;
     }
 
-    uint32_t rxword = (rx[3 + spi_padding] << 24) |
-                      (rx[4 + spi_padding] << 16) | (rx[5 + spi_padding] << 8) |
-                      (rx[6 + spi_padding] << 0);
+    uint32_t rxword = (rx[3 + spi_padding] << 24) | (rx[4 + spi_padding] << 16) |
+                      (rx[5 + spi_padding] << 8) | (rx[6 + spi_padding] << 0);
 
     *value = rxword;
 
-    T_D("RX: %02x %02x %02x-%02x %02x %02x %02x", tx[0], tx[1], tx[2],
-        rx[3 + spi_padding], rx[4 + spi_padding], rx[5 + spi_padding],
-        rx[6 + spi_padding]);
+    T_D("RX: %02x %02x %02x-%02x %02x %02x %02x", tx[0], tx[1], tx[2], rx[3 + spi_padding],
+        rx[4 + spi_padding], rx[5 + spi_padding], rx[6 + spi_padding]);
 
     return MESA_RC_OK;
 }
@@ -94,8 +92,7 @@ mesa_rc spi_write(spi_user_t user, const uint32_t addr, const uint32_t value)
     tx[5] = (uint8_t)(value >> 8);
     tx[6] = (uint8_t)(value >> 0);
 
-    T_D("TX: %02x %02x %02x-%02x %02x %02x %02x", tx[0], tx[1], tx[2], tx[3],
-        tx[4], tx[5], tx[6]);
+    T_D("TX: %02x %02x %02x-%02x %02x %02x %02x", tx[0], tx[1], tx[2], tx[3], tx[4], tx[5], tx[6]);
 
     struct spi_ioc_transfer tr = {
         .tx_buf = (unsigned long)tx,
@@ -115,16 +112,12 @@ mesa_rc spi_write(spi_user_t user, const uint32_t addr, const uint32_t value)
     return MESA_RC_OK;
 }
 
-mesa_rc spi_reg_read(const mesa_chip_no_t chip_no,
-                     const uint32_t       addr,
-                     uint32_t *const      value)
+mesa_rc spi_reg_read(const mesa_chip_no_t chip_no, const uint32_t addr, uint32_t *const value)
 {
     return spi_read(SPI_USER_REG, addr, value);
 }
 
-mesa_rc spi_reg_write(const mesa_chip_no_t chip_no,
-                      const uint32_t       addr,
-                      const uint32_t       value)
+mesa_rc spi_reg_write(const mesa_chip_no_t chip_no, const uint32_t addr, const uint32_t value)
 {
     return spi_write(SPI_USER_REG, addr, value);
 }

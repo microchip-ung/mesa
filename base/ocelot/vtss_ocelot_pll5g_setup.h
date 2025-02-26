@@ -28,8 +28,7 @@
 #include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_OCELOT)
 
-vtss_rc vtss_ocelot_pll5g_setup(vtss_state_t                 *vtss_state,
-                                const vtss_pll5g_setup_args_t config);
+vtss_rc vtss_ocelot_pll5g_setup(vtss_state_t *vtss_state, const vtss_pll5g_setup_args_t config);
 
 #endif
 #endif

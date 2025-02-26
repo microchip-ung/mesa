@@ -18,16 +18,15 @@ typedef enum {
 typedef struct {
     mesa_mrp_ring_role_t ring_role;    // MRP ring role
     mesa_mrp_ring_role_t in_ring_role; // MRP Interconnect ring role
-    mesa_bool_t mra; // MRP is MRA. The actual role is given by 'ring_role' and
-                     // can be changed with mesa_mrp_ring_role_set()
-    uint32_t mra_priority; // MRA priority
-    mesa_bool_t
-        in_rc_mode; // Is interconnection in RC-mode (TRUE) or LC-mode (FALSE)?
-    mesa_port_no_t p_port; // Port with Primary port role
-    mesa_port_no_t s_port; // Port with Secondary port role
-    mesa_port_no_t i_port; // Port with Interconnect port role
-    mesa_mac_t     mac;    // MAC address used to determine whether own or other
-                           // MRP_Test/MRP_InTest PDU is received
+    mesa_bool_t          mra;          // MRP is MRA. The actual role is given by 'ring_role' and
+                                       // can be changed with mesa_mrp_ring_role_set()
+    uint32_t       mra_priority;       // MRA priority
+    mesa_bool_t    in_rc_mode;         // Is interconnection in RC-mode (TRUE) or LC-mode (FALSE)?
+    mesa_port_no_t p_port;             // Port with Primary port role
+    mesa_port_no_t s_port;             // Port with Secondary port role
+    mesa_port_no_t i_port;             // Port with Interconnect port role
+    mesa_mac_t     mac;                // MAC address used to determine whether own or other
+                                       // MRP_Test/MRP_InTest PDU is received
 } mesa_mrp_conf_t CAP(MRP);
 
 // Add an MRP instance with configuration.
@@ -69,8 +68,7 @@ mesa_rc mesa_mrp_voe_index_get(const mesa_inst_t         inst,
 // Delete an MRP instance.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the deleted MRP instance.
-mesa_rc mesa_mrp_del(const mesa_inst_t inst, const mesa_mrp_idx_t mrp_idx)
-    CAP(MRP);
+mesa_rc mesa_mrp_del(const mesa_inst_t inst, const mesa_mrp_idx_t mrp_idx) CAP(MRP);
 
 // Set an MRP instance ring role. Requires MRP instance is configured as MRA.
 // inst     [IN] Target instance reference.
@@ -192,8 +190,7 @@ typedef struct {
 // conf     [IN] The TST LOC configuration.
 mesa_rc mesa_mrp_tst_loc_conf_set(const mesa_inst_t                    inst,
                                   const mesa_mrp_idx_t                 mrp_idx,
-                                  const mesa_mrp_tst_loc_conf_t *const conf)
-    CAP(MRP);
+                                  const mesa_mrp_tst_loc_conf_t *const conf) CAP(MRP);
 
 mesa_rc mesa_mrp_tst_loc_conf_get(const mesa_inst_t              inst,
                                   const mesa_mrp_idx_t           mrp_idx,
@@ -206,8 +203,7 @@ mesa_rc mesa_mrp_tst_loc_conf_get(const mesa_inst_t              inst,
 // This only works for MIM-RC instances.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
-mesa_rc mesa_mrp_tst_hitme_once(const mesa_inst_t    inst,
-                                const mesa_mrp_idx_t mrp_idx);
+mesa_rc mesa_mrp_tst_hitme_once(const mesa_inst_t inst, const mesa_mrp_idx_t mrp_idx);
 
 // This function causes the next MRP_InTest PDU that causes the LoC miss counter
 // to be cleared to be copied to the CPU.
@@ -215,8 +211,7 @@ mesa_rc mesa_mrp_tst_hitme_once(const mesa_inst_t    inst,
 // that valid MRP_InTest PDUs are arriving again.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
-mesa_rc mesa_mrp_itst_hitme_once(const mesa_inst_t    inst,
-                                 const mesa_mrp_idx_t mrp_idx);
+mesa_rc mesa_mrp_itst_hitme_once(const mesa_inst_t inst, const mesa_mrp_idx_t mrp_idx);
 
 // Copy of remote MRP_Test/MRP_InTest PDUs to the CPU.
 typedef struct {
@@ -237,8 +232,8 @@ typedef struct {
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
 // copy     [IN] The copy configuration.
-mesa_rc mesa_mrp_tst_copy_conf_set(const mesa_inst_t    inst,
-                                   const mesa_mrp_idx_t mrp_idx,
+mesa_rc mesa_mrp_tst_copy_conf_set(const mesa_inst_t                     inst,
+                                   const mesa_mrp_idx_t                  mrp_idx,
                                    const mesa_mrp_tst_copy_conf_t *const copy);
 
 mesa_rc mesa_mrp_tst_copy_conf_get(const mesa_inst_t               inst,
@@ -295,8 +290,7 @@ mesa_rc mesa_mrp_counters_get(const mesa_inst_t          inst,
 // Clear the MRP instance status counters.
 // inst     [IN] Target instance reference.
 // mrp_idx  [IN] Index of the configured MRP instance.
-mesa_rc mesa_mrp_counters_clear(const mesa_inst_t    inst,
-                                const mesa_mrp_idx_t mrp_idx) CAP(MRP);
+mesa_rc mesa_mrp_counters_clear(const mesa_inst_t inst, const mesa_mrp_idx_t mrp_idx) CAP(MRP);
 
 // MRP Event indication flags.
 // Different events can be enabled/disabled and polled.

@@ -40,8 +40,7 @@ typedef BOOL bool;
 #define VTSS_OS_BIG_ENDIAN /**< We're running big endian */
 #endif
 
-#define VTSS_OS_NTOHL(x)                                                       \
-    __be32_to_cpu(x) /**< Convert a 32-bit value from network to host order */
+#define VTSS_OS_NTOHL(x) __be32_to_cpu(x) /**< Convert a 32-bit value from network to host order */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,23 +61,23 @@ void vsim_nsleep(u32 n);
 #else
 /** Sleep for \param nsec nanoseconds */
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_NSLEEP(nsec)                                                      \
-    {                                                                          \
-        struct timespec ts;                                                    \
-        ts.tv_sec = 0;                                                         \
-        ts.tv_nsec = nsec;                                                     \
-        while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {                  \
-        }                                                                      \
+#define VTSS_NSLEEP(nsec)                                                                          \
+    {                                                                                              \
+        struct timespec ts;                                                                        \
+        ts.tv_sec = 0;                                                                             \
+        ts.tv_nsec = nsec;                                                                         \
+        while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {                                      \
+        }                                                                                          \
     }
 
 /** Sleep for \param msec milliseconds */
-#define VTSS_MSLEEP(msec)                                                      \
-    {                                                                          \
-        struct timespec ts;                                                    \
-        ts.tv_sec = msec / 1000;                                               \
-        ts.tv_nsec = (msec % 1000) * 1000000;                                  \
-        while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {                  \
-        }                                                                      \
+#define VTSS_MSLEEP(msec)                                                                          \
+    {                                                                                              \
+        struct timespec ts;                                                                        \
+        ts.tv_sec = msec / 1000;                                                                   \
+        ts.tv_nsec = (msec % 1000) * 1000000;                                                      \
+        while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {                                      \
+        }                                                                                          \
     }
 #endif // _VTSS_MAIN_TYPES_H_
 #endif /* BOARD_SERVAL_VSIM */
@@ -90,18 +89,18 @@ typedef struct {
     struct timeval now;     /**< Time right now */
 } vtss_mtimer_t;
 
-#define VTSS_MTIMER_START(timer, msec)                                         \
-    {                                                                          \
-        (void)gettimeofday(&((timer)->timeout), NULL);                         \
-        (timer)->timeout.tv_usec += msec * 1000;                               \
-        if ((timer)->timeout.tv_usec >= 1000000) {                             \
-            (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;     \
-            (timer)->timeout.tv_usec %= 1000000;                               \
-        }                                                                      \
+#define VTSS_MTIMER_START(timer, msec)                                                             \
+    {                                                                                              \
+        (void)gettimeofday(&((timer)->timeout), NULL);                                             \
+        (timer)->timeout.tv_usec += msec * 1000;                                                   \
+        if ((timer)->timeout.tv_usec >= 1000000) {                                                 \
+            (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;                         \
+            (timer)->timeout.tv_usec %= 1000000;                                                   \
+        }                                                                                          \
     } /**< Start timer */
 
-#define VTSS_MTIMER_TIMEOUT(timer)                                             \
-    (gettimeofday(&((timer)->now), NULL) == 0 &&                               \
+#define VTSS_MTIMER_TIMEOUT(timer)                                                                 \
+    (gettimeofday(&((timer)->now), NULL) == 0 &&                                                   \
      timercmp(&((timer)->now), &((timer)->timeout), >)) /**< Timer timeout */
 #endif                                                  // _VTSS_MAIN_TYPES_H_
 
@@ -112,11 +111,11 @@ typedef struct {
     time_t sec; /**< Time of day in seconds */
 } vtss_timeofday_t;
 
-#define VTSS_TIME_OF_DAY(tod)                                                  \
-    {                                                                          \
-        struct timeval tve;                                                    \
-        (void)gettimeofday(&tve, NULL);                                        \
-        tod.sec = tve.tv_sec;                                                  \
+#define VTSS_TIME_OF_DAY(tod)                                                                      \
+    {                                                                                              \
+        struct timeval tve;                                                                        \
+        (void)gettimeofday(&tve, NULL);                                                            \
+        tod.sec = tve.tv_sec;                                                                      \
     } /**< Time of day macro */
 
 // vtss_jaguar_1.c requires these defines. When compiling for the
@@ -136,13 +135,13 @@ typedef struct {
  *   or the VTSS_OS_INTERRUPT_DISABLE()/RESTORE() functions.
  */
 #define VTSS_OS_SCHEDULER_FLAGS int
-#define VTSS_OS_SCHEDULER_LOCK(flags)                                          \
-    do {                                                                       \
-        flags = flags;                                                         \
+#define VTSS_OS_SCHEDULER_LOCK(flags)                                                              \
+    do {                                                                                           \
+        flags = flags;                                                                             \
     } while (0); /**< Lock scheduler */
-#define VTSS_OS_SCHEDULER_UNLOCK(flags)                                        \
-    do {                                                                       \
-        flags = flags;                                                         \
+#define VTSS_OS_SCHEDULER_UNLOCK(flags)                                                            \
+    do {                                                                                           \
+        flags = flags;                                                                             \
     } while (0); /**< Unlock scheduler */
 
 /**
@@ -178,10 +177,9 @@ typedef struct {
 #include <linux/time.h>
 #include <linux/math64.h>
 
-#define VTSS_OS_NTOHL(x)                                                       \
-    __be32_to_cpu(x) /**< Convert a 32-bit value from network to host order */
+#define VTSS_OS_NTOHL(x) __be32_to_cpu(x) /**< Convert a 32-bit value from network to host order */
 
-#define VTSS_HAVE_U_TYPES    /* Namespace coexistance - use the ones from the  \
+#define VTSS_HAVE_U_TYPES    /* Namespace coexistance - use the ones from the                      \
                                 kernel */
 
 typedef struct {
@@ -192,14 +190,14 @@ typedef struct {
 #define VTSS_NSLEEP(nsec) ndelay(nsec) /**< Sleep for "msec" milliseconds */
 #define VTSS_MSLEEP(msec) mdelay(msec) /**< Sleep for "nsec" nanoseconds  */
 
-#define VTSS_MTIMER_START(timer, msec)                                         \
-    {                                                                          \
-        (void)do_gettimeofday(&((timer)->timeout));                            \
-        (timer)->timeout.tv_usec += msec * 1000;                               \
-        if ((timer)->timeout.tv_usec >= 1000000) {                             \
-            (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;     \
-            (timer)->timeout.tv_usec %= 1000000;                               \
-        }                                                                      \
+#define VTSS_MTIMER_START(timer, msec)                                                             \
+    {                                                                                              \
+        (void)do_gettimeofday(&((timer)->timeout));                                                \
+        (timer)->timeout.tv_usec += msec * 1000;                                                   \
+        if ((timer)->timeout.tv_usec >= 1000000) {                                                 \
+            (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;                         \
+            (timer)->timeout.tv_usec %= 1000000;                                                   \
+        }                                                                                          \
     }
 
 static __always_inline int vtss_mtimer_timeout(vtss_mtimer_t *t)
@@ -226,10 +224,7 @@ static inline u32 vtss_mod64(u64 div, u32 base)
 
 #define VTSS_LABS(arg) __builtin_labs(arg)
 
-static __always_inline long long vtss_llabs(long long j)
-{
-    return (j < 0 ? -j : j);
-}
+static __always_inline long long vtss_llabs(long long j) { return (j < 0 ? -j : j); }
 
 #define VTSS_LLABS(arg) vtss_llabs(arg)
 
@@ -303,8 +298,7 @@ static __always_inline long long vtss_llabs(long long j)
  *
  * Note: __builtin_ctzl() is undefined for zero input values.
  */
-#define VTSS_OS_CTZ(val32)                                                     \
-    ((val32) == 0 ? 32 : __builtin_ctzl((unsigned long)val32))
+#define VTSS_OS_CTZ(val32) ((val32) == 0 ? 32 : __builtin_ctzl((unsigned long)val32))
 
 /**
  * Count trailing zeros of a 64-bit unsigned.
@@ -316,12 +310,10 @@ static __always_inline long long vtss_llabs(long long j)
  *   VTSS_OS_CTZ64(0x00000000_00000000) >= 64 (if result is taken as unsigned;
  * Most implementations return -1, and (u32)(-1) >= 64).
  */
-#define VTSS_OS_CTZ64(val64)                                                   \
-    ({                                                                         \
-        u32 _r = VTSS_OS_CTZ((u32)(val64));                                    \
-        (val64) == 0 ? 64                                                      \
-        : _r < 32    ? _r                                                      \
-                     : 32 + VTSS_OS_CTZ((u32)((val64) >> 32));                    \
+#define VTSS_OS_CTZ64(val64)                                                                       \
+    ({                                                                                             \
+        u32 _r = VTSS_OS_CTZ((u32)(val64));                                                        \
+        (val64) == 0 ? 64 : _r < 32 ? _r : 32 + VTSS_OS_CTZ((u32)((val64) >> 32));                 \
     })
 
 #if defined(VTSS_NO_CTZL) || (defined(__GNUC__) && __GNUC__ < 3)

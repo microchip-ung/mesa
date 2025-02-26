@@ -24,8 +24,7 @@
 // MEBA_POE_PD69200_CONTROLLER_TYPE
 // MEBA_POE_PD69210_CONTROLLER_TYPE
 // MEBA_POE_PD69220_CONTROLLER_TYPE
-#define LAN9668_POE_PD692x0_CONTROLLER_TYPE_DEFAULT                            \
-    MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+#define LAN9668_POE_PD692x0_CONTROLLER_TYPE_DEFAULT MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 // Set system mode BT or AT firmware:
 // MEBA_POE_FIRMWARE_TYPE_PREBT - AF/AT modes
@@ -61,21 +60,19 @@
 // Type 4(IEEE 802.3bt) 4P 90W
 
 // BT capability
-#define PD69200_BT_CAP                                                         \
-    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 |                         \
-        MEBA_POE_PORT_CAP_TYPE_2 | MEBA_POE_PORT_CAP_TYPE_3 |                  \
-        MEBA_POE_PORT_CAP_TYPE_4 | MEBA_POE_PORT_CAP_4PAIR |                   \
+#define PD69200_BT_CAP                                                                             \
+    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2 |                  \
+        MEBA_POE_PORT_CAP_TYPE_3 | MEBA_POE_PORT_CAP_TYPE_4 | MEBA_POE_PORT_CAP_4PAIR |            \
         MEBA_POE_PORT_CAP_FORCE_ON
 
 // PREBT capability
-#define PD69200_PREBT_CAP                                                      \
-    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 |                         \
-        MEBA_POE_PORT_CAP_TYPE_2 | MEBA_POE_PORT_CAP_FORCE_ON
+#define PD69200_PREBT_CAP                                                                          \
+    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2 |                  \
+        MEBA_POE_PORT_CAP_FORCE_ON
 
-#define PD69200_CAP                                                            \
-    ((LAN9668_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT)          \
-         ? PD69200_BT_CAP                                                      \
-         : PD69200_PREBT_CAP)
+#define PD69200_CAP                                                                                \
+    ((LAN9668_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? PD69200_BT_CAP             \
+                                                                      : PD69200_PREBT_CAP)
 
 // Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max
 // power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
@@ -119,27 +116,23 @@ meba_poe_port_properties_t lan9668_pd69200_4pairs_port_map[] = {
 
 // BT complient port operation Mode
 #define LAN9668_BT_COMPLIANT_15W_DEFAULT 3 // Type4 BT compliant up to 90W
-#define LAN9668_BT_COMPLIANT_30W_DEFAULT                                       \
+#define LAN9668_BT_COMPLIANT_30W_DEFAULT                                                           \
     9 // Type3 BT compliant up to 60W (replaced by AT Compliant 30w)
 #define LAN9668_BT_COMPLIANT_60W_DEFAULT 1 // Type3 BT compliant up to 30W
 #define LAN9668_BT_COMPLIANT_90W_DEFAULT 0 // Type3 BT compliant up to 15W
 
 // BT none complient port operation Mode
-#define LAN9668_BT_NON_COMPLIANT_15W_DEFAULT                                   \
-    0x13 // BT Non Compliant 4P 15w 2P 15w Legacy
-#define LAN9668_BT_NON_COMPLIANT_30W_DEFAULT                                   \
-    0x12 // BT Non Compliant 4P 30w 2P 30w Legacy
-#define LAN9668_BT_NON_COMPLIANT_60W_DEFAULT                                   \
-    0x11 // BT Non Compliant 4P 60w 2P 30w Legacy
-#define LAN9668_BT_NON_COMPLIANT_90W_DEFAULT                                   \
-    0x10 // BT Non Compliant 4P 90w 2P 30w Legacy
+#define LAN9668_BT_NON_COMPLIANT_15W_DEFAULT 0x13 // BT Non Compliant 4P 15w 2P 15w Legacy
+#define LAN9668_BT_NON_COMPLIANT_30W_DEFAULT 0x12 // BT Non Compliant 4P 30w 2P 30w Legacy
+#define LAN9668_BT_NON_COMPLIANT_60W_DEFAULT 0x11 // BT Non Compliant 4P 60w 2P 30w Legacy
+#define LAN9668_BT_NON_COMPLIANT_90W_DEFAULT 0x10 // BT Non Compliant 4P 90w 2P 30w Legacy
 
 // special legacy operation modes (applicable for 60w and 90w)
-#define LAN9668_BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT                       \
+#define LAN9668_BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT                                           \
     0x25 // Lagacy + PoH 45/90W + BT. No demotion in class 4 or 4,4
-#define LAN9668_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT           \
+#define LAN9668_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT                               \
     0x21 // Lagacy + IGNORE_PD_CLASS 60W
-#define LAN9668_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT           \
+#define LAN9668_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT                               \
     0x26 // Lagacy + IGNORE_PD_CLASS 90W
 
 //-- BT individual masks --//

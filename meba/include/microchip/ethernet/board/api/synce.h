@@ -45,45 +45,37 @@
 #define MESA_SYNCE_ARG_1_3(a, b, c, ...)          a, b, c
 #define MESA_SYNCE_ARG_4_6(a, b, c, d, e, f, ...) d, e, f
 
-#define MESA_SYNCE_ATTR_(dev_type, dev_id, dev_idx, type, val)                 \
-    {dev_id, dev_idx, type, val}
-#define MESA_SYNCE_ATTR(...) MESA_SYNCE_ATTR_(__VA_ARGS__)
+#define MESA_SYNCE_ATTR_(dev_type, dev_id, dev_idx, type, val) {dev_id, dev_idx, type, val}
+#define MESA_SYNCE_ATTR(...)                                   MESA_SYNCE_ATTR_(__VA_ARGS__)
 
 #define MESA_SYNCE_DEV_PORT(dev_id, idx) MEBA_SYNCE_DEV_TYPE_PORT, dev_id, idx
 
-#define MESA_SYNCE_DEV_CLOCK_IN(dev_id, idx)                                   \
-    MEBA_SYNCE_DEV_TYPE_CLOCK_IN, dev_id, idx
+#define MESA_SYNCE_DEV_CLOCK_IN(dev_id, idx) MEBA_SYNCE_DEV_TYPE_CLOCK_IN, dev_id, idx
 
-#define MESA_SYNCE_DEV_DIVIDER(dev_id, idx)                                    \
-    MEBA_SYNCE_DEV_TYPE_DIVIDER, dev_id, idx
+#define MESA_SYNCE_DEV_DIVIDER(dev_id, idx) MEBA_SYNCE_DEV_TYPE_DIVIDER, dev_id, idx
 
-#define MESA_SYNCE_DEV_MUX_PHY(dev_id, idx)                                    \
-    MEBA_SYNCE_DEV_TYPE_MUX_PHY, dev_id, idx
+#define MESA_SYNCE_DEV_MUX_PHY(dev_id, idx) MEBA_SYNCE_DEV_TYPE_MUX_PHY, dev_id, idx
 
-#define MESA_SYNCE_DEV_MUX_SWITCH(dev_id, idx)                                 \
-    MEBA_SYNCE_DEV_TYPE_MUX_SWITCH, dev_id, idx
+#define MESA_SYNCE_DEV_MUX_SWITCH(dev_id, idx) MEBA_SYNCE_DEV_TYPE_MUX_SWITCH, dev_id, idx
 
-#define MESA_SYNCE_DEV_MUX_BOARD(dev_id, idx)                                  \
-    MEBA_SYNCE_DEV_TYPE_MUX_BOARD, dev_id, idx
+#define MESA_SYNCE_DEV_MUX_BOARD(dev_id, idx) MEBA_SYNCE_DEV_TYPE_MUX_BOARD, dev_id, idx
 
 #define MESA_SYNCE_DEV_DPLL(dev_id, idx) MEBA_SYNCE_DEV_TYPE_DPLL, dev_id, idx
 
-#define MESA_SYNCE_GRAPH_CONNECTION(...)                                       \
-    {                                                                          \
-        MEBA_SYNCE_GRAPH_ELEMENT_TYPE_CONNECTION,                              \
-            {MESA_SYNCE_ARG_1_3(__VA_ARGS__)},                                 \
-        {                                                                      \
-            MESA_SYNCE_ARG_4_6(__VA_ARGS__)                                    \
-        }                                                                      \
+#define MESA_SYNCE_GRAPH_CONNECTION(...)                                                           \
+    {                                                                                              \
+        MEBA_SYNCE_GRAPH_ELEMENT_TYPE_CONNECTION, {MESA_SYNCE_ARG_1_3(__VA_ARGS__)},               \
+        {                                                                                          \
+            MESA_SYNCE_ARG_4_6(__VA_ARGS__)                                                        \
+        }                                                                                          \
     }
 
-#define MESA_SYNCE_GRAPH_INVALID_CONNECTION(...)                               \
-    {                                                                          \
-        MEBA_SYNCE_GRAPH_ELEMENT_TYPE_INVALID_CONF,                            \
-            {MESA_SYNCE_ARG_1_3(__VA_ARGS__)},                                 \
-        {                                                                      \
-            MESA_SYNCE_ARG_4_6(__VA_ARGS__)                                    \
-        }                                                                      \
+#define MESA_SYNCE_GRAPH_INVALID_CONNECTION(...)                                                   \
+    {                                                                                              \
+        MEBA_SYNCE_GRAPH_ELEMENT_TYPE_INVALID_CONF, {MESA_SYNCE_ARG_1_3(__VA_ARGS__)},             \
+        {                                                                                          \
+            MESA_SYNCE_ARG_4_6(__VA_ARGS__)                                                        \
+        }                                                                                          \
     }
 
 typedef enum {
@@ -307,9 +299,8 @@ typedef mesa_rc (*meba_synce_read_t)(struct meba_inst *inst,
 
 // Detect the type of DPLL present in the system (if any)
 // dpll_type    [IN] Pointer to variable used for returning DPLL type
-typedef mesa_rc (*meba_synce_spi_if_get_dpll_type_t)(struct meba_inst *inst,
-                                                     meba_synce_clock_hw_id_t
-                                                         *dpll_type);
+typedef mesa_rc (*meba_synce_spi_if_get_dpll_type_t)(struct meba_inst         *inst,
+                                                     meba_synce_clock_hw_id_t *dpll_type);
 
 // Find the SPI device file corresponding to a particular SPI attached device
 // id           [IN] Pointer to character string holding the name of the SPI
@@ -322,18 +313,17 @@ typedef mesa_rc (*meba_synce_spi_if_find_spidev_t)(struct meba_inst *inst,
                                                    char             *spi_file,
                                                    size_t            max_size);
 
-typedef mesa_rc (*meba_synce_spi_if_dpll_fw_ver_get_t)(meba_inst_t inst,
-                                                       meba_synce_clock_fw_ver_t
-                                                           *dpll_ver);
+typedef mesa_rc (*meba_synce_spi_if_dpll_fw_ver_get_t)(meba_inst_t                inst,
+                                                       meba_synce_clock_fw_ver_t *dpll_ver);
 
-#define MEBA_LIST_OF_API_SYNCE_CALLS                                           \
-    X(meba_synce_graph_get)                                                    \
-    X(meba_synce_mux_set)                                                      \
-    X(meba_synce_spi_if_spi_transfer)                                          \
-    X(meba_synce_write)                                                        \
-    X(meba_synce_read)                                                         \
-    X(meba_synce_spi_if_get_dpll_type)                                         \
-    X(meba_synce_spi_if_find_spidev)                                           \
+#define MEBA_LIST_OF_API_SYNCE_CALLS                                                               \
+    X(meba_synce_graph_get)                                                                        \
+    X(meba_synce_mux_set)                                                                          \
+    X(meba_synce_spi_if_spi_transfer)                                                              \
+    X(meba_synce_write)                                                                            \
+    X(meba_synce_read)                                                                             \
+    X(meba_synce_spi_if_get_dpll_type)                                                             \
+    X(meba_synce_spi_if_find_spidev)                                                               \
     X(meba_synce_spi_if_dpll_fw_ver_get)
 
 typedef struct {

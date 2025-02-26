@@ -8,8 +8,7 @@
 
 #if defined(VTSS_FEATURE_VOP)
 
-vtss_rc vtss_vop_conf_set(const vtss_inst_t            inst,
-                          const vtss_vop_conf_t *const conf)
+vtss_rc vtss_vop_conf_set(const vtss_inst_t inst, const vtss_vop_conf_t *const conf)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -48,20 +47,18 @@ vtss_rc vtss_voe_alloc(const vtss_inst_t                  inst,
     vtss_voe_type_t      type = VTSS_VOE_TYPE_PORT;
     vtss_rc              rc;
 
-    vtss_state = (inst == NULL ? vtss_default_inst
-                               : inst); /* This is required as VTSS_CHIP_PORT is
-                                           using vtss_state */
+    vtss_state = (inst == NULL ? vtss_default_inst : inst); /* This is required as VTSS_CHIP_PORT is
+                                                               using vtss_state */
     if (VTSS_CHIP_PORT(param->port) >= VTSS_PORT_VOE_CNT) {
         VTSS_E("Invalid port %u", param->port);
         return VTSS_RC_ERROR;
     }
 
 #if !defined(VTSS_ARCH_LAN966X)
-    VTSS_D("Enter  type %d  port %u  direction %u  voe_idx %p", param->type,
-           param->port, param->direction, voe_idx);
+    VTSS_D("Enter  type %d  port %u  direction %u  voe_idx %p", param->type, param->port,
+           param->direction, voe_idx);
 
-    if ((param->type != VTSS_VOE_TYPE_SERVICE) &&
-        (param->type != VTSS_VOE_TYPE_PORT)) {
+    if ((param->type != VTSS_VOE_TYPE_SERVICE) && (param->type != VTSS_VOE_TYPE_PORT)) {
         VTSS_E("Invalid type %u", param->type);
         return VTSS_RC_ERROR;
     }
@@ -179,9 +176,7 @@ vtss_rc vtss_voe_cc_conf_get(const vtss_inst_t         inst,
     return rc;
 }
 
-vtss_rc vtss_voe_cc_rdi_set(const vtss_inst_t    inst,
-                            const vtss_voe_idx_t voe_idx,
-                            const BOOL           rdi)
+vtss_rc vtss_voe_cc_rdi_set(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx, const BOOL rdi)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -196,9 +191,7 @@ vtss_rc vtss_voe_cc_rdi_set(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_voe_cc_rdi_get(const vtss_inst_t    inst,
-                            const vtss_voe_idx_t voe_idx,
-                            BOOL                *rdi)
+vtss_rc vtss_voe_cc_rdi_get(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx, BOOL *rdi)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -212,8 +205,7 @@ vtss_rc vtss_voe_cc_rdi_get(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_voe_cc_cpu_copy_next_set(const vtss_inst_t    inst,
-                                      const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_voe_cc_cpu_copy_next_set(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -360,8 +352,7 @@ vtss_rc vtss_voe_counters_get(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_voe_counters_clear(const vtss_inst_t    inst,
-                                const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_voe_counters_clear(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -407,8 +398,7 @@ vtss_rc vtss_voe_cc_counters_get(const vtss_inst_t       inst,
     return rc;
 }
 
-vtss_rc vtss_voe_cc_counters_clear(const vtss_inst_t    inst,
-                                   const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_voe_cc_counters_clear(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -471,8 +461,7 @@ vtss_rc vtss_voe_lb_counters_get(const vtss_inst_t       inst,
     return rc;
 }
 
-vtss_rc vtss_voe_lb_counters_clear(const vtss_inst_t    inst,
-                                   const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_voe_lb_counters_clear(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -503,9 +492,7 @@ vtss_rc vtss_voe_laps_status_get(const vtss_inst_t       inst,
 }
 #endif
 
-vtss_rc vtss_voe_event_active_get(const vtss_inst_t inst,
-                                  const u32         active_size,
-                                  u32 *const        active)
+vtss_rc vtss_voe_event_active_get(const vtss_inst_t inst, const u32 active_size, u32 *const active)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -562,9 +549,7 @@ vtss_rc vtss_voe_event_mask_get(const vtss_inst_t    inst,
     return rc;
 }
 
-vtss_rc vtss_voe_event_get(const vtss_inst_t    inst,
-                           const vtss_voe_idx_t voe_idx,
-                           u32 *const           mask)
+vtss_rc vtss_voe_event_get(const vtss_inst_t inst, const vtss_voe_idx_t voe_idx, u32 *const mask)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -717,8 +702,7 @@ static char *debug_cpu_copy_string(const vtss_oam_cpu_copy_t cpu_copy)
 }
 
 #if defined(VTSS_FEATURE_VOP_V2)
-static char *debug_raps_handling_string(const vtss_oam_raps_handling_t
-                                            raps_handling)
+static char *debug_raps_handling_string(const vtss_oam_raps_handling_t raps_handling)
 {
     switch (raps_handling) {
     case VTSS_OAM_RAPS_HANDLING_COPY_CPU:  return ("COPY");
@@ -797,8 +781,7 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
                     break;
                 }
             }
-            if (voe || status ||
-                voi) { /* Calculate the possible VOE/VOI index */
+            if (voe || status || voi) { /* Calculate the possible VOE/VOI index */
                 vo_idx = info->action % div;
             }
         }
@@ -822,8 +805,8 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
         pr("Multicast MAC: %s\n", vtss_mac_txt(&vop_conf->multicast_dmac));
 
 #if defined(VTSS_FEATURE_VOP_V2)
-        pr("Auto copy: Period[0]:%u us Period[1]:%u us\n",
-           vop_conf->auto_copy_period[0], vop_conf->auto_copy_period[1]);
+        pr("Auto copy: Period[0]:%u us Period[1]:%u us\n", vop_conf->auto_copy_period[0],
+           vop_conf->auto_copy_period[1]);
         pr("Auto_Cp_CCM:     Period[%u]\n", vop_conf->auto_copy_ccm_valid & 1);
         pr("Auto_Cp_CCM_TLV: Period[%u]\n", vop_conf->auto_copy_ccm_tlv & 1);
         pr("Auto_Cp_CCM_err: Period[%u]\n", vop_conf->auto_copy_ccm_err & 1);
@@ -850,8 +833,7 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
 
         for (i = 0; i < VTSS_VOE_CNT; ++i) {
             if (voe && (div > 1) &&
-                (vo_idx !=
-                 i)) { /* A specific VOE must be printed - this is not the one */
+                (vo_idx != i)) { /* A specific VOE must be printed - this is not the one */
                 continue;
             }
             if (info->full || vtss_state->oam.voe_alloc_data[i].allocated) {
@@ -865,39 +847,30 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
 #endif
                 voe_event_mask = vtss_state->oam.voe_event_mask[i];
 
-                pr("VOE:%4u  allocated:%s  function %s  type:%s  port:%u  direction:%s\n",
-                   i, YN(voe_alloc->allocated),
-                   ((voe_alloc->function == VTSS_VOE_FUNCTION_OAM) ? "y1731-OAM"
-                                                                   : "MRP"),
-                   ((voe_alloc->type == VTSS_VOE_TYPE_SERVICE) ? "Service"
-                                                               : "Port"),
+                pr("VOE:%4u  allocated:%s  function %s  type:%s  port:%u  direction:%s\n", i,
+                   YN(voe_alloc->allocated),
+                   ((voe_alloc->function == VTSS_VOE_FUNCTION_OAM) ? "y1731-OAM" : "MRP"),
+                   ((voe_alloc->type == VTSS_VOE_TYPE_SERVICE) ? "Service" : "Port"),
                    voe_alloc->port,
-                   ((voe_alloc->direction == VTSS_OAM_DIRECTION_DOWN) ? "Down"
-                                                                      : "Up"));
+                   ((voe_alloc->direction == VTSS_OAM_DIRECTION_DOWN) ? "Down" : "Up"));
                 pr("------------------------------------------------------------------\n");
 
                 if (info->full || voe_conf->enable) {
 #if defined(VTSS_FEATURE_VOP_V2)
                     pr("enable:%4s  unicast_mac:%s  meg_level:%u  dmac_check_type:%s  loop_iflow_id: %u  block_mel_high:%s\n",
-                       YN(voe_conf->enable),
-                       vtss_mac_txt(&voe_conf->unicast_mac),
-                       voe_conf->meg_level,
-                       debug_dmac_check_string(voe_conf->dmac_check_type),
+                       YN(voe_conf->enable), vtss_mac_txt(&voe_conf->unicast_mac),
+                       voe_conf->meg_level, debug_dmac_check_string(voe_conf->dmac_check_type),
                        voe_conf->loop_iflow_id, YN(voe_conf->block_mel_high));
 #else
 #if !defined(VTSS_ARCH_LAN966X)
                     pr("enable:%4s  unicast_mac:%s  meg_level:%u  dmac_check_type:%s  loop_iflow_id: %u\n",
-                       YN(voe_conf->enable),
-                       vtss_mac_txt(&voe_conf->unicast_mac),
-                       voe_conf->meg_level,
-                       debug_dmac_check_string(voe_conf->dmac_check_type),
+                       YN(voe_conf->enable), vtss_mac_txt(&voe_conf->unicast_mac),
+                       voe_conf->meg_level, debug_dmac_check_string(voe_conf->dmac_check_type),
                        voe_conf->loop_iflow_id);
 #else
                     pr("enable:%4s  unicast_mac:%s  meg_level:%u  dmac_check_type:%s\n",
-                       YN(voe_conf->enable),
-                       vtss_mac_txt(&voe_conf->unicast_mac),
-                       voe_conf->meg_level,
-                       debug_dmac_check_string(voe_conf->dmac_check_type));
+                       YN(voe_conf->enable), vtss_mac_txt(&voe_conf->unicast_mac),
+                       voe_conf->meg_level, debug_dmac_check_string(voe_conf->dmac_check_type));
 #endif
 #endif
                     pr("-----\n");
@@ -908,22 +881,17 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
                     u8           *m, max = 100;
 #if !defined(VTSS_ARCH_LAN966X)
                     pr("CC enable:%4s  cpu_copy:%s  seq_no_update:%s  count_as_selected:%s  period %s  prio:%u  peer_mepid %u  rdi_set %u\n",
-                       YN(voe_cc_conf->enable),
-                       debug_cpu_copy_string(voe_cc_conf->cpu_copy),
-                       YN(voe_cc_conf->seq_no_update),
-                       YN(voe_cc_conf->count_as_selected),
+                       YN(voe_cc_conf->enable), debug_cpu_copy_string(voe_cc_conf->cpu_copy),
+                       YN(voe_cc_conf->seq_no_update), YN(voe_cc_conf->count_as_selected),
                        debug_period_string(voe_cc_conf->expected_period),
-                       voe_cc_conf->expected_priority,
-                       voe_cc_conf->expected_peer_mepid,
+                       voe_cc_conf->expected_priority, voe_cc_conf->expected_peer_mepid,
                        vtss_state->oam.voe_rdi_conf[i]);
 #else
                     pr("CC enable:%4s  cpu_copy:%s  seq_no_update:%s  period %s  prio:%u  peer_mepid %u  rdi_set %u\n",
-                       YN(voe_cc_conf->enable),
-                       debug_cpu_copy_string(voe_cc_conf->cpu_copy),
+                       YN(voe_cc_conf->enable), debug_cpu_copy_string(voe_cc_conf->cpu_copy),
                        YN(voe_cc_conf->seq_no_update),
                        debug_period_string(voe_cc_conf->expected_period),
-                       voe_cc_conf->expected_priority,
-                       voe_cc_conf->expected_peer_mepid,
+                       voe_cc_conf->expected_priority, voe_cc_conf->expected_peer_mepid,
                        vtss_state->oam.voe_rdi_conf[i]);
 #endif
                     pr("          %4s  megid:", " ");
@@ -955,17 +923,15 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
                 if (info->full || voe_lt_conf->enable) {
                     pr("LT enable:%4s  ltm_cpu_copy:%s  ltr_cpu_copy:%s  count_as_selected:%s\n",
                        YN(voe_lt_conf->enable), YN(voe_lt_conf->ltm_cpu_copy),
-                       YN(voe_lt_conf->ltr_cpu_copy),
-                       YN(voe_lt_conf->count_as_selected));
+                       YN(voe_lt_conf->ltr_cpu_copy), YN(voe_lt_conf->count_as_selected));
                     pr("-----\n");
                 }
 
                 if (info->full || voe_lb_conf->enable) {
                     pr("LB enable:%4s  lbm_cpu_copy:%s  lbr_cpu_copy:%s  trans_id_update %s  trans_id %u  count_as_selected:%s\n",
                        YN(voe_lb_conf->enable), YN(voe_lb_conf->lbm_cpu_copy),
-                       YN(voe_lb_conf->lbr_cpu_copy),
-                       YN(voe_lb_conf->lbr_cpu_copy), voe_lb_conf->trans_id,
-                       YN(voe_lb_conf->count_as_selected));
+                       YN(voe_lb_conf->lbr_cpu_copy), YN(voe_lb_conf->lbr_cpu_copy),
+                       voe_lb_conf->trans_id, YN(voe_lb_conf->count_as_selected));
                     pr("-----\n");
                 }
 
@@ -980,12 +946,9 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_VOP_V2)
                     pr("EVENT enable:%4s  scr_port:%s  tlv_port:%s  tlv_if:%s  period:%s  zero_period:%s  priority:%s  loc:%s  mep_id:%s  meg_id:%s  level:%s  rdi:%s\n",
                        YN(voe_event_mask != VTSS_VOE_EVENT_MASK_NONE),
-                       YN(voe_event_mask &
-                          VTSS_VOE_EVENT_MASK_CCM_SRC_PORT_MOVE),
-                       YN(voe_event_mask &
-                          VTSS_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS),
-                       YN(voe_event_mask &
-                          VTSS_VOE_EVENT_MASK_CCM_TLV_IF_STATUS),
+                       YN(voe_event_mask & VTSS_VOE_EVENT_MASK_CCM_SRC_PORT_MOVE),
+                       YN(voe_event_mask & VTSS_VOE_EVENT_MASK_CCM_TLV_PORT_STATUS),
+                       YN(voe_event_mask & VTSS_VOE_EVENT_MASK_CCM_TLV_IF_STATUS),
                        YN(voe_event_mask & VTSS_VOE_EVENT_MASK_CCM_PERIOD),
                        YN(voe_event_mask & VTSS_VOE_EVENT_MASK_CCM_ZERO_PERIOD),
                        YN(voe_event_mask & VTSS_VOE_EVENT_MASK_CCM_PRIORITY),
@@ -1019,8 +982,7 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
 
         for (i = 0; i < VTSS_VOE_CNT; ++i) {
             if (status && (div > 1) &&
-                (vo_idx !=
-                 i)) { /* A specific VOE must be printed - this is not the one */
+                (vo_idx != i)) { /* A specific VOE must be printed - this is not the one */
                 continue;
             }
             if (info->full || vtss_state->oam.voe_alloc_data[i].allocated) {
@@ -1032,47 +994,35 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
                 }
                 pr("VOE:%4u  allocated:%s  type:%s  port:%u  direction:%s\n", i,
                    YN(voe_alloc->allocated),
-                   ((voe_alloc->type == VTSS_VOE_TYPE_SERVICE) ? "Service"
-                                                               : "Port"),
+                   ((voe_alloc->type == VTSS_VOE_TYPE_SERVICE) ? "Service" : "Port"),
                    voe_alloc->port,
-                   ((voe_alloc->direction == VTSS_OAM_DIRECTION_DOWN) ? "Down"
-                                                                      : "Up"));
+                   ((voe_alloc->direction == VTSS_OAM_DIRECTION_DOWN) ? "Down" : "Up"));
                 pr("------------------------------------------------------------------\n");
 
-                if (VTSS_FUNC(oam.voe_status_get, i, &voe_status) ==
-                        VTSS_RC_OK &&
-                    VTSS_FUNC(oam.voe_counters_get, i, &voe_counters) ==
-                        VTSS_RC_OK) {
+                if (VTSS_FUNC(oam.voe_status_get, i, &voe_status) == VTSS_RC_OK &&
+                    VTSS_FUNC(oam.voe_counters_get, i, &voe_counters) == VTSS_RC_OK) {
                     pr("VOE status:\n");
 #if defined(VTSS_FEATURE_VOP_V2)
                     pr("opcode_unexp_seen %s  dmac_unexp_seen %s  tx_level_low_seen %s  version_unexp_seen %s  rx_level_low_seen %s  rx_level_high_seen %s\n",
-                       YN(voe_status.opcode_unexp_seen),
-                       YN(voe_status.dmac_unexp_seen),
-                       YN(voe_status.tx_level_low_seen),
-                       YN(voe_status.version_unexp_seen),
-                       YN(voe_status.rx_level_low_seen),
-                       YN(voe_status.rx_level_high_seen));
+                       YN(voe_status.opcode_unexp_seen), YN(voe_status.dmac_unexp_seen),
+                       YN(voe_status.tx_level_low_seen), YN(voe_status.version_unexp_seen),
+                       YN(voe_status.rx_level_low_seen), YN(voe_status.rx_level_high_seen));
 #else
                     pr("opcode_unexp_seen %s  dmac_unexp_seen %s\n",
-                       YN(voe_status.opcode_unexp_seen),
-                       YN(voe_status.dmac_unexp_seen));
+                       YN(voe_status.opcode_unexp_seen), YN(voe_status.dmac_unexp_seen));
 #endif
 
 #if defined(VTSS_FEATURE_VOP_V2)
                     pr("rx_counter %" PRIu64 "  tx_counter %" PRIu64
-                       "  rx_selected_counter %" PRIu64
-                       "  tx_selected_counter %" PRIu64
-                       "  rx_discard_counter %" PRIu64
-                       "  tx_discard_counter %" PRIu64 "\n",
+                       "  rx_selected_counter %" PRIu64 "  tx_selected_counter %" PRIu64
+                       "  rx_discard_counter %" PRIu64 "  tx_discard_counter %" PRIu64 "\n",
                        voe_counters.rx_counter, voe_counters.tx_counter,
-                       voe_counters.rx_selected_counter,
-                       voe_counters.tx_selected_counter,
-                       voe_counters.rx_discard_counter,
-                       voe_counters.tx_discard_counter);
+                       voe_counters.rx_selected_counter, voe_counters.tx_selected_counter,
+                       voe_counters.rx_discard_counter, voe_counters.tx_discard_counter);
 #else
 #if defined(VTSS_FEATURE_VOP_CFM)
-                    pr("rx_counter %" PRIu64 "  tx_counter %" PRIu64 "\n",
-                       voe_counters.rx_counter, voe_counters.tx_counter);
+                    pr("rx_counter %" PRIu64 "  tx_counter %" PRIu64 "\n", voe_counters.rx_counter,
+                       voe_counters.tx_counter);
 #else
                     pr("rx_counter %" PRIu64 "\n", voe_counters.rx_counter);
 #endif
@@ -1080,78 +1030,65 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
                     pr("-----\n");
                 }
 
-                if (VTSS_FUNC(oam.voe_cc_status_get, i, &cc_status) ==
-                        VTSS_RC_OK &&
-                    VTSS_FUNC(oam.voe_cc_counters_get, i, &cc_counters) ==
-                        VTSS_RC_OK) {
+                if (VTSS_FUNC(oam.voe_cc_status_get, i, &cc_status) == VTSS_RC_OK &&
+                    VTSS_FUNC(oam.voe_cc_counters_get, i, &cc_counters) == VTSS_RC_OK) {
                     pr("CC status:\n");
 #if defined(VTSS_FEATURE_VOP_V2)
                     pr("zero_period %s  rdi %s  loc %s  period_unexp %s  priority_unexp %s  mep_id_unexp %s  meg_id_unexp %s  mel_unexp %s\n",
-                       YN(cc_status.zero_period), YN(cc_status.rdi),
-                       YN(cc_status.loc), YN(cc_status.period_unexp),
-                       YN(cc_status.priority_unexp), YN(cc_status.mep_id_unexp),
-                       YN(cc_status.meg_id_unexp), YN(cc_status.mel_unexp));
+                       YN(cc_status.zero_period), YN(cc_status.rdi), YN(cc_status.loc),
+                       YN(cc_status.period_unexp), YN(cc_status.priority_unexp),
+                       YN(cc_status.mep_id_unexp), YN(cc_status.meg_id_unexp),
+                       YN(cc_status.mel_unexp));
 #else
                     pr("zero_period %s  rdi %s  loc %s  period_unexp %s  priority_unexp %s  mep_id_unexp %s  meg_id_unexp %s\n",
-                       YN(cc_status.zero_period), YN(cc_status.rdi),
-                       YN(cc_status.loc), YN(cc_status.period_unexp),
-                       YN(cc_status.priority_unexp), YN(cc_status.mep_id_unexp),
-                       YN(cc_status.meg_id_unexp));
+                       YN(cc_status.zero_period), YN(cc_status.rdi), YN(cc_status.loc),
+                       YN(cc_status.period_unexp), YN(cc_status.priority_unexp),
+                       YN(cc_status.mep_id_unexp), YN(cc_status.meg_id_unexp));
 #endif
 #if defined(VTSS_FEATURE_VOP_V2)
-                    pr("seen %s  tlv_seen %s  seq_unexp_seen %s\n",
-                       YN(cc_status.seen), YN(cc_status.tlv_seen),
-                       YN(cc_status.seq_unexp_seen));
+                    pr("seen %s  tlv_seen %s  seq_unexp_seen %s\n", YN(cc_status.seen),
+                       YN(cc_status.tlv_seen), YN(cc_status.seq_unexp_seen));
 #else
                     pr("seen %s\n", YN(cc_status.seen));
 #endif
 #if defined(VTSS_FEATURE_VOP_V2)
-                    pr("rx_port %u  port_status_tlv %u  if_status_tlv %u\n",
-                       cc_status.rx_port, cc_status.port_status_tlv,
-                       cc_status.if_status_tlv);
+                    pr("rx_port %u  port_status_tlv %u  if_status_tlv %u\n", cc_status.rx_port,
+                       cc_status.port_status_tlv, cc_status.if_status_tlv);
 #endif
-                    pr("rx_valid_counter %" PRIu64
-                       "  rx_invalid_counter %" PRIu64
+                    pr("rx_valid_counter %" PRIu64 "  rx_invalid_counter %" PRIu64
                        "  rx_oo_counter %" PRIu64 "  tx_counter %" PRIu64 "\n",
-                       cc_counters.rx_valid_counter,
-                       cc_counters.rx_invalid_counter,
+                       cc_counters.rx_valid_counter, cc_counters.rx_invalid_counter,
                        cc_counters.rx_oo_counter, cc_counters.tx_counter);
                     pr("-----\n");
                 }
 
 #if defined(VTSS_FEATURE_VOP_CFM)
-                if (VTSS_FUNC(oam.voe_lt_status_get, i, &lt_status) ==
-                    VTSS_RC_OK) {
+                if (VTSS_FUNC(oam.voe_lt_status_get, i, &lt_status) == VTSS_RC_OK) {
                     pr("LT status:\n");
                     pr("ltm_seen %s  ltr_seen %s\n", YN(lt_status.ltm_seen),
                        YN(lt_status.ltr_seen));
                     pr("-----\n");
                 }
 
-                if (VTSS_FUNC(oam.voe_lb_status_get, i, &lb_status) ==
-                        VTSS_RC_OK &&
-                    VTSS_FUNC(oam.voe_lb_counters_get, i, &lb_counters) ==
-                        VTSS_RC_OK) {
+                if (VTSS_FUNC(oam.voe_lb_status_get, i, &lb_status) == VTSS_RC_OK &&
+                    VTSS_FUNC(oam.voe_lb_counters_get, i, &lb_counters) == VTSS_RC_OK) {
                     pr("LB status:\n");
 #if defined(VTSS_FEATURE_VOP_V2)
-                    pr("lbm_seen %s  lbr_seen %s  trans_unexp_seen %s\n",
-                       YN(lb_status.lbm_seen), YN(lb_status.lbr_seen),
-                       YN(lb_status.trans_unexp_seen));
+                    pr("lbm_seen %s  lbr_seen %s  trans_unexp_seen %s\n", YN(lb_status.lbm_seen),
+                       YN(lb_status.lbr_seen), YN(lb_status.trans_unexp_seen));
 #else
                     pr("lbm_seen %s  lbr_seen %s\n", YN(lb_status.lbm_seen),
                        YN(lb_status.lbr_seen));
 #endif
-                    pr("tx_trans_id %u  rx_trans_id %u\n",
-                       lb_status.tx_trans_id, lb_status.rx_trans_id);
+                    pr("tx_trans_id %u  rx_trans_id %u\n", lb_status.tx_trans_id,
+                       lb_status.rx_trans_id);
 
 #if defined(VTSS_FEATURE_VOP_V2)
                     pr("rx_lbr_counter %" PRIu64 "  tx_lbm_counter %" PRIu64
-                       "  rx_lbr_oo_counter %" PRIu64
-                       "  rx_lbr_crc_counter %" PRIu64
+                       "  rx_lbr_oo_counter %" PRIu64 "  rx_lbr_crc_counter %" PRIu64
                        "  tx_lbr_counter %" PRIu64 "\n",
                        lb_counters.rx_lbr_counter, lb_counters.tx_lbm_counter,
-                       lb_counters.rx_lbr_oo_counter,
-                       lb_counters.rx_lbr_crc_counter,
+                       lb_counters.rx_lbr_oo_counter, lb_counters.rx_lbr_crc_counter,
                        lb_counters.tx_lbr_counter);
 #else
                     pr("rx_lbr_counter %" PRIu64 "  tx_lbm_counter %" PRIu64
@@ -1162,8 +1099,7 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
                     pr("-----\n");
                 }
 
-                if (VTSS_FUNC(oam.voe_laps_status_get, i, &laps_status) ==
-                    VTSS_RC_OK) {
+                if (VTSS_FUNC(oam.voe_laps_status_get, i, &laps_status) == VTSS_RC_OK) {
                     pr("LAPS status:\n");
                     pr("seen %s\n", YN(laps_status.seen));
                     pr("-----\n");
@@ -1180,24 +1116,21 @@ void vtss_oam_debug_print(vtss_state_t                  *vtss_state,
 
         for (i = 0; i < VTSS_VOI_CNT; ++i) {
             if (voi && (div > 1) &&
-                (vo_idx !=
-                 i)) { /* A specific VOI must be printed - this is not the one */
+                (vo_idx != i)) { /* A specific VOI must be printed - this is not the one */
                 continue;
             }
             if (info->full || vtss_state->oam.voi_alloc_data[i].allocated) {
                 voi_alloc = &vtss_state->oam.voi_alloc_data[i];
                 voi_conf = &vtss_state->oam.voi_conf[i];
 
-                pr("VOI:%4u  allocated:%s  port:%u  direction:%s\n", i,
-                   YN(voi_alloc->allocated), voi_alloc->port,
-                   ((voi_alloc->direction == VTSS_OAM_DIRECTION_DOWN) ? "Down"
-                                                                      : "Up"));
+                pr("VOI:%4u  allocated:%s  port:%u  direction:%s\n", i, YN(voi_alloc->allocated),
+                   voi_alloc->port,
+                   ((voi_alloc->direction == VTSS_OAM_DIRECTION_DOWN) ? "Down" : "Up"));
                 pr("------------------------------------------------------------------\n");
 
                 if (info->full || voi_conf->enable) {
                     pr("enable:%4s  unicast_mac:%s  meg_level:%u  lbm_cpu_redir: %s  ltm_cpu_redir: %s  raps_handle: %s\n",
-                       YN(voi_conf->enable),
-                       vtss_mac_txt(&voi_conf->unicast_mac),
+                       YN(voi_conf->enable), vtss_mac_txt(&voi_conf->unicast_mac),
                        voi_conf->meg_level, YN(voi_conf->lbm_cpu_redir),
                        YN(voi_conf->ltm_cpu_redir),
                        debug_raps_handling_string(voi_conf->raps_handling));
