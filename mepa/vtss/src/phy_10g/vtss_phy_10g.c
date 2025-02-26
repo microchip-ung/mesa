@@ -2321,7 +2321,7 @@ static vtss_rc vtss_phy_10g_mode_set_init (vtss_state_t *vtss_state,
     return rc;
 }
 static vtss_rc vtss_phy_10g_auto_failover_set_priv(vtss_state_t  *vtss_state,
-                                                   const vtss_phy_10g_auto_failover_conf_t  *mode);
+                                                   const vtss_phy_10g_auto_failover_conf_t  *const mode);
 
 static vtss_rc vtss_phy_10g_custom_mode_set_priv (vtss_state_t *vtss_state,
                                            const vtss_port_no_t port_no,
@@ -2561,7 +2561,7 @@ static vtss_rc vtss_phy_10g_init_private (vtss_state_t *vtss_state,
     return rc;
 }
 static vtss_rc vtss_phy_10g_auto_failover_set_priv(vtss_state_t  *vtss_state,
-                                              const vtss_phy_10g_auto_failover_conf_t  *mode)
+                                              const vtss_phy_10g_auto_failover_conf_t  *const mode)
 {
     VTSS_RC(VTSS_FUNC_COLD(cil.malibu_phy_10g_auto_failover_set,mode));
     return VTSS_RC_OK;
@@ -4947,7 +4947,7 @@ vtss_rc vtss_phy_warm_start_10g_failed_get(const vtss_inst_t    inst,
 /* - Debug print --------------------------------------------------- */
 
 vtss_rc vtss_phy_10g_auto_failover_set(const vtss_inst_t      inst,
-                                       vtss_phy_10g_auto_failover_conf_t  *const mode)
+                                       const vtss_phy_10g_auto_failover_conf_t  *const mode)
 {
     vtss_state_t *vtss_state;
     vtss_rc      rc;

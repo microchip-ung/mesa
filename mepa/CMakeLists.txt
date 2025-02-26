@@ -3,7 +3,7 @@
 
 project(MEPA)
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.5)
 include(.cmake/mepa-macros.cmake)
 
 include_directories(common/include)
@@ -80,7 +80,7 @@ MEPA_LIB(LIB_NAME mepa_sparx5_bringup ADVANCED
          DEFS     -DMEPA_HAS_VTSS
          DRVS     mepa_drv_vtss_10g_ts)
 
-MEPA_LIB(LIB_NAME mepa_lan966x ADVANCED
+MEPA_LIB(LIB_NAME mepa_eds2 ADVANCED
          DEFS     -DMEPA_HAS_VTSS  -DMEPA_HAS_KSZ9031  -D MEPA_HAS_LAN8814 -DMEPA_HAS_LAN884x
          DRVS     mepa_drv_vtss    mepa_drv_ksz9031    mepa_drv_lan8814   mepa_drv_lan884x)
 
