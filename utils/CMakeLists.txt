@@ -1,7 +1,7 @@
 # Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
 # SPDX-License-Identifier: MIT
 
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.15)
 
 project(lm_utils C ASM)
 enable_language(C ASM)
