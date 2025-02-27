@@ -526,6 +526,20 @@ typedef enum {
     VTSS_VLAN_PORT_TYPE_S_CUSTOM /**< S-port using alternative Ethernet Type */
 } vtss_vlan_port_type_t;
 
+/**
+ * \brief Tag discard identification.
+ * If no bool is true the tag is not discarded.
+ **/
+typedef struct {
+    BOOL no_tag;            /**< Discard if there is no tag - tag is required */
+    BOOL c_tag;             /**< Discard C-tag with VID > 0 */
+    BOOL c_prio_tag;        /**< Discard C-tag with VID == 0 */
+    BOOL s_tag;             /**< Discard S-tag with VID > 0 */
+    BOOL s_prio_tag;        /**< Discard S-tag with VID == 0 */
+    BOOL s_custom_tag;      /**< Discard alternative S-tag with VID > 0 */
+    BOOL s_custom_prio_tag; /**< Discard alternative S-tag with VID == 0 */
+} vtss_tag_discard_t;
+
 /** \brief VLAN port configuration */
 typedef struct {
     vtss_vlan_port_type_t port_type;      /**< Port type (ingress and egress) */
@@ -535,6 +549,12 @@ typedef struct {
     BOOL                  ingress_filter; /**< Ingress filtering */
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
     vtss_etype_t s_etype; /**< Alternative S-tag Ethernet Type, if non-zero */
+#endif
+#if defined(VTSS_FEATURE_TAG_DISCARD)
+    /** Discard frame based on inner (second) tag.
+     *  This only have effect if the port_type is tag aware
+     **/
+    vtss_tag_discard_t inner_tag_discard;
 #endif
 } vtss_vlan_port_conf_t;
 

@@ -155,6 +155,7 @@ typedef enum {
     MESA_CAP_L2_REDBOX_CNT,            /**< Number of RedBoxes */
     MESA_CAP_L2_ONE_SHOT,              /**< Learn frames cannot move to other port */
     MESA_CAP_L2_LEARN_LIMIT,           /**< MAC learning limit per port */
+    MESA_CAP_L2_TAG_DISCARD,           /**< Tag discard identification */
 
     // Layer 3
     MESA_CAP_L3 = 500,    /**< Layer 3 switching */

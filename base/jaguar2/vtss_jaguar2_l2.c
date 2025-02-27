@@ -711,6 +711,41 @@ vtss_rc vtss_jr2_vlan_port_conf_apply(vtss_state_t          *vtss_state,
                 VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_STAG_DIS |
                 VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_CUST1_STAG_DIS);
 
+    /* Second tag discard */
+    value = 0;
+    if (aware) {
+        if (conf->inner_tag_discard.no_tag) {
+            value |= VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_TAG_REQUIRED_ENA;
+        }
+        if (conf->inner_tag_discard.c_tag) {
+            value |= VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_CTAG_DIS;
+        }
+        if (conf->inner_tag_discard.c_prio_tag) {
+            value |= VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_PRIO_CTAG_DIS;
+        }
+        if (conf->inner_tag_discard.s_tag) {
+            value |= VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_STAG_DIS;
+        }
+        if (conf->inner_tag_discard.s_prio_tag) {
+            value |= VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_PRIO_STAG_DIS;
+        }
+        if (conf->inner_tag_discard.s_custom_tag) {
+            value |= VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_STAG_DIS;
+        }
+        if (conf->inner_tag_discard.s_custom_prio_tag) {
+            value |= VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_CUST1_STAG_DIS;
+        }
+    }
+
+    JR2_WRM(VTSS_ANA_CL_PORT_VLAN_FILTER_CTRL(port, 1), value,
+            VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_TAG_REQUIRED_ENA |
+                VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_PRIO_CTAG_DIS |
+                VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_PRIO_STAG_DIS |
+                VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_PRIO_CUST1_STAG_DIS |
+                VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_CTAG_DIS |
+                VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_STAG_DIS |
+                VTSS_M_ANA_CL_PORT_VLAN_FILTER_CTRL_CUST1_STAG_DIS);
+
     /* Ingress filtering */
     pmask = vtss_jr2_pmask(port);
     JR2_WRM_PMASK(VTSS_ANA_L3_COMMON_VLAN_FILTER_CTRL, (conf->ingress_filter ? pmask : 0ULL),

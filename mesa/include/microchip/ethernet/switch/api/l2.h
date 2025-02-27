@@ -225,6 +225,18 @@ typedef enum {
     MESA_VLAN_PORT_TYPE_S_CUSTOM // S-port using alternative Ethernet Type
 } mesa_vlan_port_type_t;
 
+// Tag discard identification.
+// If no bool is true the tag is not discarded.
+typedef struct {
+    mesa_bool_t no_tag;            // Discard if there is no tag - tag required
+    mesa_bool_t c_tag;             // Discard C-tag with VID > 0
+    mesa_bool_t c_prio_tag;        // Discard C-tag with VID == 0
+    mesa_bool_t s_tag;             // Discard S-tag with VID > 0
+    mesa_bool_t s_prio_tag;        // Discard S-tag with VID == 0
+    mesa_bool_t s_custom_tag;      // Discard alternative S-tag with VID > 0
+    mesa_bool_t s_custom_prio_tag; // Discard alternative S-tag with VID == 0
+} mesa_tag_discard_t CAP(L2_TAG_DISCARD);
+
 // VLAN port configuration
 typedef struct {
     mesa_vlan_port_type_t port_type;      // Port type (ingress and egress)
@@ -232,6 +244,9 @@ typedef struct {
     mesa_vid_t            untagged_vid;   // Port untagged VLAN ID (UVID, egress)
     mesa_vlan_frame_t     frame_type;     // Acceptable frame type (ingress)
     mesa_bool_t           ingress_filter; // Ingress filtering
+    // Discard frame based on inner (second) tag.
+    // This only have effect if the port_type is tag aware
+    mesa_tag_discard_t inner_tag_discard CAP(L2_TAG_DISCARD); // Inner tag discard identification
 } mesa_vlan_port_conf_t;
 
 // Get VLAN mode for port.

@@ -26,4 +26,5 @@ run %w{./l2_vcl_ops.rb}
 run %w{./l2_vlan.rb}
 run %w{./l2_vlan_counters.rb}
 run %w{./l2_vlan_tag.rb}
+run %w{./l2_tag_discard.rb}
 run %w{./l2_vlan_translation.rb}

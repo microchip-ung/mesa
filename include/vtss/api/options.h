@@ -255,6 +255,8 @@
                                            */
 #define VTSS_FEATURE_ACL_EXT_MAC          /**< ACL extended IPv4/IPv6 rules with MAC               \
                                              address matching */
+#define VTSS_FEATURE_TAG_DISCARD          /**< Discard frame based on TAGs */
+
 #if !defined(VTSS_OPT_FPGA)
 #define VTSS_FEATURE_TEMP_SENSOR /**< Temperature Sensor */
 #endif
@@ -578,12 +580,13 @@
 #if !defined(VTSS_OPT_PCIE_ACCESS) && !defined(VTSS_OPT_VRAP_ACCESS)
 #define VTSS_OPT_PCIE_ACCESS /**< PCIe access from external CPU */
 #endif
-#define VTSS_FEATURE_XFLOW     /**< Ingress and egress flows */
-#define VTSS_FEATURE_XSTAT     /**< Ingress and egress statistics */
-#define VTSS_FEATURE_XDLB      /**< DLB policers allocated dynamically */
-#define VTSS_FEATURE_VSCOPE    /**< Virtual Scope for eye signal monitoring                        \
-                                  (debug) */
-#endif                         /* VTSS_ARCH_JAGUAR_2 */
+#define VTSS_FEATURE_XFLOW       /**< Ingress and egress flows */
+#define VTSS_FEATURE_XSTAT       /**< Ingress and egress statistics */
+#define VTSS_FEATURE_XDLB        /**< DLB policers allocated dynamically */
+#define VTSS_FEATURE_VSCOPE      /**< Virtual Scope for eye signal monitoring                      \
+                                    (debug) */
+#define VTSS_FEATURE_TAG_DISCARD /**< Discard frame based on TAGs */
+#endif                           /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_ARCH_JAGUAR_2_CE)
 #endif /* VTSS_ARCH_JAGUAR_2_CE */
