@@ -8045,19 +8045,20 @@ static vtss_rc vtss_vlan_trans_port_list_del(vtss_state_t *vtss_state,
     vtss_vlan_trans_port2grp_entry_t *tmp, *prev;
     vtss_vlan_trans_port2grp_conf_t   conf;
     BOOL                              modified_entry, del_entry;
-    u32                               i;
+    vtss_port_no_t                    port_no;
 
     /* Delete all the port to group mappings corresponding to the ports list */
     for (tmp = list->used, prev = NULL; tmp != NULL;) {
         modified_entry = FALSE;
         del_entry = TRUE;
         conf = tmp->conf; // Copy configuration
-        for (i = 0; i < VTSS_PORT_BF_SIZE; i++) {
-            if (ports[i] & conf.ports[i]) {
-                modified_entry = TRUE;
-                /* Remove the ports */
-                tmp->conf.ports[i] &= ~(ports[i]);
-                if (tmp->conf.ports[i]) {
+        for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
+            if (VTSS_PORT_BF_GET(tmp->conf.ports, port_no)) {
+                if (VTSS_PORT_BF_GET(ports, port_no)) {
+                    // Remove port
+                    modified_entry = TRUE;
+                    VTSS_PORT_BF_SET(tmp->conf.ports, port_no, 0);
+                } else {
                     del_entry = FALSE;
                 }
             }
