@@ -454,12 +454,11 @@ mepa_rc meba_port_status_get(meba_inst_t               inst,
                              mepa_port_no_t            port_no,
                              mesa_port_status_t *const status)
 {
-    mesa_port_conf_t      conf;
-    mepa_status_t         status_mepa;
-    vtss_phy_10g_id_t     id;
-    vtss_phy_10g_mode_t   mode;
-    vtss_phy_10g_status_t status_10g;
-    meba_port_entry_t     entry;
+    mesa_port_conf_t  conf;
+    mepa_status_t     status_mepa;
+    mepa_phy_info_t   id;
+    mepa_conf_t       mode;
+    meba_port_entry_t entry;
 
     // Intel/ML driver uses the old link-status
     status_mepa.link = status->link;
@@ -498,17 +497,19 @@ mepa_rc meba_port_status_get(meba_inst_t               inst,
     // Get switch status by default
     MESA_RC(mesa_port_status_get(NULL, port_no, status));
 
+    meba_phy_info_get(inst, port_no, &id);
     // Check that it is Venice/Malibu - otherwise return
-    if ((entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) == 0 ||
-        vtss_phy_10g_id_get(NULL, port_no, &id) != MESA_RC_OK ||
-        (id.family != VTSS_PHY_FAMILY_VENICE && id.family != VTSS_PHY_FAMILY_MALIBU)) {
+    if (((entry.cap & MEBA_PORT_CAP_VTSS_10G_PHY) == 0) ||
+        ((id.part_number != 0x8489) && (id.part_number != 0x8490) && (id.part_number != 0x8491) &&
+         (id.part_number != 0x8256) && (id.part_number != 0x8257) && (id.part_number != 0x8258) &&
+         (id.part_number != 0x8254))) {
         return MESA_RC_OK;
     }
 
     // If the 10G PHY is in 1G mode, combine with 10G PHY clause 37 status
     if (conf.if_type != MESA_PORT_INTERFACE_XAUI &&
-        vtss_phy_10g_mode_get(NULL, port_no, &mode) == MESA_RC_OK &&
-        mode.oper_mode == VTSS_PHY_1G_MODE) {
+        meba_phy_conf_get(inst, port_no, &mode) == MESA_RC_OK &&
+        mode.conf_10g.oper_mode == MEPA_PHY_1G_MODE) {
         vtss_phy_10g_clause_37_cmn_status_t c37_status;
         vtss_phy_10g_clause_37_status_t    *line = &c37_status.line;
         vtss_phy_10g_clause_37_status_t    *host = &c37_status.host;
@@ -554,10 +555,13 @@ mepa_rc meba_port_status_get(meba_inst_t               inst,
         }
     }
 
-    // If the host MAC in the 10G PHY is enabled, combine with 10G PHY status
-    if (vtss_phy_10g_status_get(NULL, port_no, &status_10g) == MESA_RC_OK &&
-        status_10g.status == 0) {
-        status->link = 0;
+    if (meba_phy_status_poll(inst, port_no, &status_mepa) == MESA_RC_OK) {
+        status->link = status_mepa.link;
+        status->speed = status_mepa.speed;
+        status->fdx = status_mepa.fdx;
+        status->aneg = status_mepa.aneg;
+        status->copper = status_mepa.copper;
+        status->fiber = status_mepa.fiber;
     }
 
     return MESA_RC_OK;

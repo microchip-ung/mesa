@@ -1853,41 +1853,64 @@ static void jr2_hard_reset_wait_aqr(meba_inst_t inst)
 
 static void malibu_init(meba_inst_t inst)
 {
-    /* The following Malibu initialization is board specific and therefore is
-     * located in MEBA */
-    vtss_phy_10g_mode_t oper_mode = {};
-    oper_mode.oper_mode = VTSS_PHY_LAN_MODE;
-    oper_mode.xfi_pol_invert = 1;
-    oper_mode.polarity.host_rx = true;
-    oper_mode.polarity.line_rx = true;
-    oper_mode.polarity.host_tx = false;
-    oper_mode.polarity.line_tx = false;
-    oper_mode.is_host_wan = false;
-    oper_mode.lref_for_host = false;
-    oper_mode.h_clk_src.is_high_amp = true;
-    oper_mode.l_clk_src.is_high_amp = true;
-    oper_mode.h_media = VTSS_MEDIA_TYPE_SR;
-    oper_mode.l_media = VTSS_MEDIA_TYPE_SR;
-    oper_mode.serdes_conf.l_offset_guard = true;
-    oper_mode.serdes_conf.h_offset_guard = true;
+    // For this Reference Board, the following applies:
+    // port_no    miim    channel
+    // 24         3       3
+    // 25         2       2
+    // 26         1       1
+    // 27         0       0 : must be initilized first
 
-    /* port_no    miim    channel */
-    /* 24         3       3 */
-    /* 25         2       2 */
-    /* 26         1       1 */
-    /* 27         0       0 : must be initilized first */
+    mepa_reset_param_t rst_conf = {};
+    mepa_conf_t        phy_conf = {};
 
+    //  MEPA_RESET_POINT_PRE:     Reset and activate malibu defaults
+    //  MEPA_RESET_POINT_DEFAULT: Does nothing, not used
+    //  MEPA_RESET_POINT_POST:    Does nothing, not used
     for (mesa_port_no_t iport = 27; iport > 23; iport--) {
-        if (iport == 25) {
-            oper_mode.polarity.host_rx = false;
-            oper_mode.polarity.line_rx = false;
-            oper_mode.polarity.host_tx = true;
-            oper_mode.polarity.line_tx = true;
-        }
-        if (vtss_phy_10g_mode_set(PHY_INST, iport, &oper_mode) != MESA_RC_OK) {
-            T_E(inst, "vtss_phy_10g_mode_set failed, port_no %u", iport);
+        rst_conf.reset_point = MEPA_RESET_POINT_PRE;
+        if (meba_phy_reset(inst, iport, &rst_conf) != MESA_RC_OK) {
+            T_E(inst, "meba_phy_reset (Malibu10G - MEPA_RESET_POINT_PRE) failed, port_no %u",
+                iport);
         }
     }
+
+    //  Get defaults, assign port order (base port first), apply board specifics
+    for (mesa_port_no_t iport = 27; iport > 23; iport--) {
+        if (meba_phy_conf_get(inst, iport, &phy_conf) != MESA_RC_OK) {
+            T_E(inst, "meba_phy_conf_get failed, port_no %u", iport);
+            return;
+        }
+        phy_conf.conf_10g.channel_high_to_low = FALSE;
+        phy_conf.conf_10g.xfi_pol_invert = 1;
+        // Type changed. To choose to VTSS_CHANNEL_AUTO
+        // then MEPA_CHANNELID_NONE must be used.
+        phy_conf.conf_10g.channel_id = MEPA_CHANNELID_NONE;
+
+        if (iport == 25 || iport == 24) {
+            phy_conf.conf_10g.polarity.host_rx = false;
+            phy_conf.conf_10g.polarity.line_rx = false;
+            phy_conf.conf_10g.polarity.host_tx = true;
+            phy_conf.conf_10g.polarity.line_tx = true;
+        } else {
+            phy_conf.conf_10g.polarity.host_rx = true;
+            phy_conf.conf_10g.polarity.line_rx = true;
+            phy_conf.conf_10g.polarity.host_tx = false;
+            phy_conf.conf_10g.polarity.line_tx = false;
+        }
+        phy_conf.conf_10g.is_host_wan = false;
+        phy_conf.conf_10g.lref_for_host = false;
+        phy_conf.conf_10g.h_clk_src_is_high_amp = true;
+        phy_conf.conf_10g.l_clk_src_is_high_amp = true;
+        phy_conf.conf_10g.h_media = VTSS_MEDIA_TYPE_SR2_SC;
+        phy_conf.conf_10g.l_media = VTSS_MEDIA_TYPE_SR2_SC;
+
+        if (meba_phy_conf_set(inst, iport, &phy_conf) != MESA_RC_OK) {
+            T_E(inst, "meba_phy_conf_set failed, port_no %u", iport);
+        }
+    }
+
+    // Malibu is now reset and defaults + board specifics applied.
+    // Further configuration are performed by the application.
 }
 
 static void venice_init(meba_inst_t inst)
@@ -2265,8 +2288,9 @@ static mesa_rc malibu_mode_conf(const meba_inst_t inst)
         board->port[iport].map.mac_if = MESA_PORT_INTERFACE_SFI;
         board->port[iport].map.map.miim_controller = MESA_MIIM_CONTROLLER_0;
         board->port[iport].map.map.miim_addr = 27 - iport;
-        board->port[iport].map.cap = (MEBA_PORT_CAP_VTSS_10G_PHY | MEBA_PORT_CAP_10G_FDX |
-                                      MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_1G_FDX);
+        board->port[iport].map.cap =
+            (MEBA_PORT_CAP_VTSS_10G_PHY | MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_FLOW_CTRL |
+             MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_AUTONEG | MEBA_PORT_CAP_SD_INTERNAL);
     }
 
     if ((rc = mesa_sgpio_conf_get(NULL, 0, 2, &conf)) == MESA_RC_OK) {
