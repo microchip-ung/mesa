@@ -311,7 +311,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     mscc_appl_port_conf_t *pc = &entry->conf;
     mesa_port_status_t    *ps = &entry->status;
     mesa_port_conf_t       conf;
-    mepa_conf_t            phy;
+    mepa_conf_t            phy = {};
     meba_port_cap_t        cap = entry->meba.cap;
 
     if (mesa_port_conf_get(NULL, port_no, &conf) != MESA_RC_OK) {
@@ -355,9 +355,6 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     } else {
         /* Setup port based on configuration */
         if (entry->media_type == MSCC_PORT_TYPE_CU) {
-
-            /* Setup PHY */
-            memset(&phy, 0, sizeof(phy));
             if (pc->admin.enable) {
                 phy.admin.enable = 1;
                 if (pc->autoneg || pc->speed == MESA_SPEED_1G) {
@@ -381,10 +378,26 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
             }
 
             conf.speed = pc->speed;
+
         } else if (entry->media_type == MSCC_PORT_TYPE_SFP) {
             /* Get interface and speed from SFP */
             if (port_setup_sfp(port_no, entry, &conf) != MESA_RC_OK) {
                 T_E("Could not configure SFP port(%u)", port_no);
+            }
+            if (cap & MEBA_PORT_CAP_VTSS_10G_PHY) {
+                // We only consider speed (1G-forced/1G-auto/10G) for VTSS 10G phys
+                if (meba_phy_conf_get(meba_global_inst, port_no, &phy) != MESA_RC_OK) {
+                    T_E("meba_phy_conf_get(%u) failed", port_no);
+                    return;
+                }
+                phy.admin.enable = pc->admin.enable;
+                phy.speed = pc->autoneg ? MESA_SPEED_AUTO : pc->speed;
+                phy.conf_10g.oper_mode =
+                    (phy.speed == MESA_SPEED_10G) ? MEPA_PHY_LAN_MODE : MEPA_PHY_1G_MODE;
+                if (meba_phy_conf_set(meba_global_inst, port_no, &phy) != MESA_RC_OK) {
+                    T_E("meba_phy_conf_set(%u) failed", port_no);
+                    return;
+                }
             }
         } else {
             conf.speed = pc->speed;
@@ -394,7 +407,6 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     if (port_no == loop_port) { // This port is the active loop port
         conf.loop = 1;
     }
-
     T_I("Port: %d if_type = %s, speed:%s %s %s %s, loop %u", port_no,
         mesa_port_if2txt(conf.if_type), mesa_port_spd2txt(conf.speed), conf.fdx ? "FDX" : "HDX",
         conf.flow_control.obey ? "OBEY" : "", conf.flow_control.generate ? "GENERATE" : "",
@@ -1630,7 +1642,7 @@ static void port_init(meba_inst_t inst)
             break;
         default: T_E("unknown if_type on port %u", port_no); break;
         }
-        if (entry->media_type == MSCC_PORT_TYPE_CU) {
+        if ((entry->media_type == MSCC_PORT_TYPE_CU) || (cap & MEBA_PORT_CAP_VTSS_10G_PHY)) {
             mepa_reset_param_t phy_reset = {};
             phy_reset.media_intf = MESA_PHY_MEDIA_IF_CU;
             phy_reset.reset_point = MEPA_RESET_POINT_DEFAULT;
