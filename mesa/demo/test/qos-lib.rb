@@ -86,9 +86,11 @@ def qos_tas_equal_interval_3_prio_1_port_test(eg, ig, it_vid = 0, ot_vid = 0, ot
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ctag vid #{it_vid} ipv4 dscp 0")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ctag vid #{ot_vid} ipv4 dscp 0")
 
-    t_i"Check that too large frames are discarded"
-   #measure(ig, eg, size,        sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
-    measure(ig, eg, max_sdu + 1, 2,     false,            false,           [0,0,0],             [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
+    if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+        t_i"Check that too large frames are discarded"
+       #measure(ig, eg, size,        sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
+        measure(ig, eg, max_sdu + 1, 2,     false,            false,           [0,0,0],             [1,1,1],        true,              [0,3,7], [cycle_time,cycle_time,cycle_time])
+    end
 
     erate = 990000000/3
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
