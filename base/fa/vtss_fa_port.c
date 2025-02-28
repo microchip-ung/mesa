@@ -35,30 +35,39 @@ u32 fla_port_is_2G5(vtss_state_t *vtss_state, u32 port)
 {
     if (FA_TGT) {
         return (port >= 16 && port <= 47);
-    } else {
+    } else if (LA_TGT) {
         return ((port >= 1 && port <= 3) || (port >= 5 && port <= 7) || (port == 10) ||
                 (port == 11) || (port >= 14 && port <= 15) || (port == 18) || (port == 19) ||
                 (port == 22) || (port == 23) || (port == 28) || (port == 29));
+    } else if (LK_TGT) {
+        return (port >= 1 && port <= 31) && ((port % 2) == 1);
     }
+    // No return here, rely on -Wreturn-type.
 }
 
 u32 fla_port_is_5G(vtss_state_t *vtss_state, u32 port)
 {
     if (FA_TGT) {
         return (port <= 11 || port == 64);
-    } else {
+    } else if (LA_TGT) {
         return ((port == 9) || (port == 13) || (port == 17) || (port == 21));
+    } else if (LK_TGT) {
+        return (0);
     }
+    // No return here, rely on -Wreturn-type.
 }
 
 u32 fla_port_is_10G(vtss_state_t *vtss_state, u32 port)
 {
     if (FA_TGT) {
         return ((port >= 12 && port <= 15) || (port >= 48 && port <= 55));
-    } else {
+    } else if (LA_TGT) {
         return ((port == 0) || (port == 4) || (port == 8) || (port == 12) || (port == 16) ||
                 (port == 20) || (port >= 24 && port <= 27));
+    } else if (LK_TGT) {
+        return (port >= 0 && port <= 30) && ((port % 2) == 0);
     }
+    // No return here, rely on -Wreturn-type.
 }
 
 u32 fla_port_is_25G(vtss_state_t *vtss_state, u32 port)
@@ -93,7 +102,7 @@ static u32 fla_port_dev_index(vtss_state_t *vtss_state, u32 port, BOOL modes)
         } else {
             VTSS_E("illegal  port number %d", port);
         }
-    } else {
+    } else if (LA_TGT) {
         if (VTSS_PORT_IS_2G5(port)) {
             return port;
         } else if (VTSS_PORT_IS_5G(port)) {
@@ -124,6 +133,12 @@ static u32 fla_port_dev_index(vtss_state_t *vtss_state, u32 port, BOOL modes)
             case 26: return 8;
             case 27: return 9;
             }
+        } else {
+            VTSS_E("illegal  port number %d", port);
+        }
+    } else if (LK_TGT) {
+        if (VTSS_PORT_IS_2G5(port) || VTSS_PORT_IS_10G(port)) {
+            return port / 2;
         } else {
             VTSS_E("illegal  port number %d", port);
         }
