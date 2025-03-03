@@ -1101,7 +1101,7 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t  *vtss_state,
         // Internal ports
         *port = (RT_CHIP_PORT_CPU + port_no - RT_CHIP_PORTS);
         if (port_no == RT_CHIP_PORT_CPU_0 || port_no == RT_CHIP_PORT_CPU_1) {
-            return FA_CAL_SPEED_2G5; // Equals 1.25G
+            return LK_TGT ? FA_CAL_SPEED_MAX : FA_CAL_SPEED_2G5;
         } else if (port_no == RT_CHIP_PORT_VD0) {
             // IPMC only idle BW
             return FA_CAL_SPEED_NONE;
