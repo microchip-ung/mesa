@@ -2203,6 +2203,7 @@ static void vtss_port_debug_print_conf(vtss_state_t                  *vtss_state
                    : map->max_bw == VTSS_BW_5G   ? "5G"
                    : map->max_bw == VTSS_BW_10G  ? "10G"
                    : map->max_bw == VTSS_BW_25G  ? "25G"
+                   : map->max_bw == VTSS_BW_40G  ? "40G"
                    : map->max_bw == VTSS_BW_NONE ? "None"
                                                  : "N/A");
 #endif

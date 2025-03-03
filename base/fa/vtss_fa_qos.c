@@ -1499,6 +1499,7 @@ static vtss_rc fa_qos_ot_queue_shaper_conf_set(vtss_state_t        *vtss_state,
     case VTSS_BW_5G:  port_max_rate = 5000000; break;
     case VTSS_BW_10G: port_max_rate = 10000000; break;
     case VTSS_BW_25G: port_max_rate = 25000000; break;
+    case VTSS_BW_40G: port_max_rate = 40000000; break;
     default:          port_max_rate = 1000000;
     }
 

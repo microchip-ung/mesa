@@ -1086,7 +1086,7 @@ typedef enum {
     FA_CAL_SPEED_2G5 = 2,
     FA_CAL_SPEED_5G = 3,
     FA_CAL_SPEED_10G = 4,
-    FA_CAL_SPEED_25G = 5
+    FA_CAL_SPEED_MAX = 5
 } fa_cal_speed_t;
 
 static fa_cal_speed_t fa_cal_speed_get(vtss_state_t  *vtss_state,
@@ -1108,7 +1108,7 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t  *vtss_state,
         } else if (port_no == RT_CHIP_PORT_VD1) {
 #if defined(VTSS_ARCH_SPARX5)
             if (max_bw - used_bw >= 25000) {
-                return FA_CAL_SPEED_25G; // OAM equals 12.5G
+                return FA_CAL_SPEED_MAX; // OAM equals 12.5G
             } else if (max_bw - used_bw >= 10000) {
                 return FA_CAL_SPEED_10G; // OAM equals 5G
             } else if (max_bw - used_bw >= 5000) {
@@ -1149,13 +1149,14 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t  *vtss_state,
         return (VTSS_PORT_IS_2G5(*port)   ? FA_CAL_SPEED_2G5
                 : VTSS_PORT_IS_5G(*port)  ? FA_CAL_SPEED_5G
                 : VTSS_PORT_IS_10G(*port) ? FA_CAL_SPEED_10G
-                                          : FA_CAL_SPEED_25G);
+                                          : FA_CAL_SPEED_MAX);
         break;
     case VTSS_BW_1G:   return FA_CAL_SPEED_1G;
     case VTSS_BW_2G5:  return FA_CAL_SPEED_2G5;
     case VTSS_BW_5G:   return FA_CAL_SPEED_5G;
     case VTSS_BW_10G:  return FA_CAL_SPEED_10G;
-    case VTSS_BW_25G:  return FA_CAL_SPEED_25G;
+    case VTSS_BW_25G:  return FA_CAL_SPEED_MAX;
+    case VTSS_BW_40G:  return FA_CAL_SPEED_MAX;
     case VTSS_BW_NONE: return FA_CAL_SPEED_NONE;
     case VTSS_BW_UNDEFINED:
     default:
@@ -1192,7 +1193,7 @@ static vtss_internal_bw_t cal2bw(fa_cal_speed_t cal_spd)
     case FA_CAL_SPEED_2G5:  return VTSS_BW_2G5;
     case FA_CAL_SPEED_5G:   return VTSS_BW_5G;
     case FA_CAL_SPEED_10G:  return VTSS_BW_10G;
-    case FA_CAL_SPEED_25G:  return VTSS_BW_25G;
+    case FA_CAL_SPEED_MAX:  return LK_TGT ? VTSS_BW_40G : VTSS_BW_25G;
     case FA_CAL_SPEED_NONE: return VTSS_BW_NONE;
     }
     return VTSS_BW_NONE;
@@ -1207,7 +1208,7 @@ static u32 calspd2int(fa_cal_speed_t spd, vtss_port_no_t port_no)
     case FA_CAL_SPEED_2G5: val = 2500; break;
     case FA_CAL_SPEED_5G:  val = 5000; break;
     case FA_CAL_SPEED_10G: val = 10000; break;
-    case FA_CAL_SPEED_25G: val = 25000; break;
+    case FA_CAL_SPEED_MAX: val = (LK_TGT ? 40000 : 25000); break;
     default:               break;
     }
 
@@ -1226,6 +1227,7 @@ static u32 bwd2int(vtss_internal_bw_t bw)
     case VTSS_BW_5G:  return 5000;
     case VTSS_BW_10G: return 10000;
     case VTSS_BW_25G: return 25000;
+    case VTSS_BW_40G: return 40000;
     default:          break;
     }
     return 0;
@@ -1542,11 +1544,19 @@ static char *cal2txt(vtss_state_t *vtss_state, u32 port, fa_cal_speed_t spd)
         } else {
             return "5G";
         }
-    case FA_CAL_SPEED_25G:
-        if (port < RT_CHIP_PORTS) {
-            return "25G";
+    case FA_CAL_SPEED_MAX:
+        if (LK_TGT) {
+            if (port < RT_CHIP_PORTS) {
+                return "40G";
+            } else {
+                return "20G";
+            }
         } else {
-            return "12.5G";
+            if (port < RT_CHIP_PORTS) {
+                return "25G";
+            } else {
+                return "12.5G";
+            }
         }
     default: break;
     }

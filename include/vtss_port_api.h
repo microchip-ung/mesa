@@ -62,6 +62,7 @@ typedef enum {
     VTSS_BW_5G,        /**< Max 5G */
     VTSS_BW_10G,       /**< Max 10G */
     VTSS_BW_25G,       /**< Max 25G */
+    VTSS_BW_40G,       /**< Max 40G */
     VTSS_BW_NONE,      /**< No bandwith allocated */
     VTSS_BW_UNDEFINED, /**< Undefined */
 } vtss_internal_bw_t;

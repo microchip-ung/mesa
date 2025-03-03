@@ -1247,6 +1247,7 @@ static void cli_cmd_deb_port_dynamic(cli_req_t *req)
                     : map[iport].max_bw == MESA_BW_5G   ? "BW-5G"
                     : map[iport].max_bw == MESA_BW_10G  ? "BW-10G"
                     : map[iport].max_bw == MESA_BW_25G  ? "BW-25G"
+                    : map[iport].max_bw == MESA_BW_40G  ? "BW-40G"
                     : map[iport].max_bw == MESA_BW_NONE ? "BW-None"
                                                         : "N/A");
 
