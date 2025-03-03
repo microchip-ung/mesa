@@ -7721,7 +7721,7 @@ vtss_rc vtss_cmn_vlan_trans_group_add(vtss_state_t                              
     BOOL                            ports_exist = TRUE;
     vtss_res_t                      res;
     vtss_res_chg_t                 *chg;
-    vtss_vcap_key_size_t            key_size;
+    vtss_vcap_key_size_t            key_size = VTSS_VCAP_KEY_SIZE_FULL;
     vtss_vlan_trans_grp2vlan_conf_t conf;
 
     VTSS_MEMSET(ports, 0, VTSS_VLAN_TRANS_PORT_BF_SIZE);
