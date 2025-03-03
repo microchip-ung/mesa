@@ -1198,6 +1198,32 @@ static vtss_internal_bw_t cal2bw(fa_cal_speed_t cal_spd)
     return VTSS_BW_NONE;
 }
 
+static u32 calspd2int(fa_cal_speed_t spd)
+{
+    switch (spd) {
+    case FA_CAL_SPEED_1G:  return 1000;
+    case FA_CAL_SPEED_2G5: return 2500;
+    case FA_CAL_SPEED_5G:  return 5000;
+    case FA_CAL_SPEED_10G: return 10000;
+    case FA_CAL_SPEED_25G: return 25000;
+    default:               break;
+    }
+    return 0;
+}
+
+static u32 bwd2int(vtss_internal_bw_t bw)
+{
+    switch (bw) {
+    case VTSS_BW_1G:  return 1000;
+    case VTSS_BW_2G5: return 2500;
+    case VTSS_BW_5G:  return 5000;
+    case VTSS_BW_10G: return 10000;
+    case VTSS_BW_25G: return 25000;
+    default:          break;
+    }
+    return 0;
+}
+
 // Auto configure the calendar based on port-map
 vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
 {
@@ -1217,11 +1243,7 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
         if (port == CHIP_PORT_UNUSED || spd == FA_CAL_SPEED_NONE) {
             continue;
         }
-        this_bw = (spd == FA_CAL_SPEED_1G    ? 1000
-                   : spd == FA_CAL_SPEED_2G5 ? 2500
-                   : spd == FA_CAL_SPEED_5G  ? 5000
-                   : spd == FA_CAL_SPEED_10G ? 10000
-                                             : 25000);
+        this_bw = calspd2int(spd);
 
         if (port < RT_CHIP_PORTS) {
             port_bw += this_bw;
@@ -1527,32 +1549,6 @@ static char *cal2txt(vtss_state_t *vtss_state, u32 port, fa_cal_speed_t spd)
     return "?";
 }
 #endif
-
-static u32 calspd2int(fa_cal_speed_t spd)
-{
-    switch (spd) {
-    case FA_CAL_SPEED_1G:  return 1000;
-    case FA_CAL_SPEED_2G5: return 2500;
-    case FA_CAL_SPEED_5G:  return 5000;
-    case FA_CAL_SPEED_10G: return 10000;
-    case FA_CAL_SPEED_25G: return 25000;
-    default:               break;
-    }
-    return 0;
-}
-
-static u32 bwd2int(vtss_internal_bw_t bw)
-{
-    switch (bw) {
-    case VTSS_BW_1G:  return 1000;
-    case VTSS_BW_2G5: return 2500;
-    case VTSS_BW_5G:  return 5000;
-    case VTSS_BW_10G: return 10000;
-    case VTSS_BW_25G: return 25000;
-    default:          break;
-    }
-    return 0;
-}
 
 static void taxi2ports(vtss_state_t *vtss_state, u32 taxi, u32 *port_ptr)
 {
@@ -1877,11 +1873,7 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
            : port == RT_CHIP_PORT_VD1   ? "(AFI/OAM)"
            : port == RT_CHIP_PORT_VD2   ? "(IPinIP)"
                                         : "");
-        this_bw = (spd == FA_CAL_SPEED_1G    ? 1000
-                   : spd == FA_CAL_SPEED_2G5 ? 2500
-                   : spd == FA_CAL_SPEED_5G  ? 5000
-                   : spd == FA_CAL_SPEED_10G ? 10000
-                                             : 25000);
+        this_bw = calspd2int(spd);
         if (port < RT_CHIP_PORTS) {
             port_bw += this_bw;
         } else {
