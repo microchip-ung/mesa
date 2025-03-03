@@ -1198,17 +1198,24 @@ static vtss_internal_bw_t cal2bw(fa_cal_speed_t cal_spd)
     return VTSS_BW_NONE;
 }
 
-static u32 calspd2int(fa_cal_speed_t spd)
+static u32 calspd2int(fa_cal_speed_t spd, vtss_port_no_t port_no)
 {
+    u32 val = 0;
+
     switch (spd) {
-    case FA_CAL_SPEED_1G:  return 1000;
-    case FA_CAL_SPEED_2G5: return 2500;
-    case FA_CAL_SPEED_5G:  return 5000;
-    case FA_CAL_SPEED_10G: return 10000;
-    case FA_CAL_SPEED_25G: return 25000;
+    case FA_CAL_SPEED_1G:  val = 1000; break;
+    case FA_CAL_SPEED_2G5: val = 2500; break;
+    case FA_CAL_SPEED_5G:  val = 5000; break;
+    case FA_CAL_SPEED_10G: val = 10000; break;
+    case FA_CAL_SPEED_25G: val = 25000; break;
     default:               break;
     }
-    return 0;
+
+    if (port_no >= RT_CHIP_PORTS) {
+        val = val / 2; // Internal ports are granted half the value
+    }
+
+    return val;
 }
 
 static u32 bwd2int(vtss_internal_bw_t bw)
@@ -1243,15 +1250,12 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
         if (port == CHIP_PORT_UNUSED || spd == FA_CAL_SPEED_NONE) {
             continue;
         }
-        this_bw = calspd2int(spd);
+        this_bw = calspd2int(spd, port_no);
 
         if (port < RT_CHIP_PORTS) {
             port_bw += this_bw;
         }
 
-        if (port_no >= RT_CHIP_PORTS) {
-            this_bw = this_bw / 2; // Internal ports are granted half the value
-        }
         bw += this_bw;
         VTSS_D("chip_port = %u, this_bw = %u, summed bw = %u", port, this_bw, bw);
         cal[port / 10] += (spd << ((port % 10) * 3));
@@ -1657,7 +1661,7 @@ static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *sch
 
     for (u32 p = 0; p < vtss_state->port_count; p++) {
         cal_spd = fa_cal_speed_get(vtss_state, p, &port, 0, 0);
-        port_spd = calspd2int(cal_spd);
+        port_spd = calspd2int(cal_spd, p);
         port_speeds[port] = port_spd;
     }
     // Map ports to taxi positions
@@ -1873,11 +1877,9 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
            : port == RT_CHIP_PORT_VD1   ? "(AFI/OAM)"
            : port == RT_CHIP_PORT_VD2   ? "(IPinIP)"
                                         : "");
-        this_bw = calspd2int(spd);
+        this_bw = calspd2int(spd, port);
         if (port < RT_CHIP_PORTS) {
             port_bw += this_bw;
-        } else {
-            this_bw = this_bw / 2; // Internal ports are granted half the value
         }
         bw += this_bw;
     }
