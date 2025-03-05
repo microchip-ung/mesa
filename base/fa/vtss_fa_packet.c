@@ -272,7 +272,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
               VTSS_F_ANA_CL_CAPTURE_CFG_CPU_IP4_MC_COPY_ENA(reg->ipmc_ctrl_cpu_copy) |
               VTSS_F_ANA_CL_CAPTURE_CFG_CPU_IGMP_REDIR_ENA(reg->igmp_cpu_only);
 
-    // Calculate offset for port L2CP profiles
+    // Calculate offset for port L2CP profiles. LK_TGT and LA_TGT is 16, FA_TGT is 64.
     offs = (FA_TGT ? 64 : 16);
 
     // Setup Rx registrations that we have per-port
