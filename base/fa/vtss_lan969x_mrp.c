@@ -13,7 +13,7 @@
 
 #define CONFIG_TEST    0
 #define CONFIG_INTEST  1
-#define LOC_PERIOD_CNT 10
+#define LOC_PERIOD_CNT 27
 
 static const char *sel2txt(u32 sel)
 {
