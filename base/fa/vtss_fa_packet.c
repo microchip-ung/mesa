@@ -614,7 +614,7 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
                                 vtss_packet_rx_info_t *const info)
 {
     u16                 vstax_hi, vstax_one, rb = 0;
-    u32                 fwd, misc, sflow_id;
+    u32                 fwd, misc, tagging, sflow_id;
     u64                 tstamp, dst, vstax_lo;
     u8                  xtr_hdr_2;
     vtss_phys_port_no_t chip_port;
@@ -666,6 +666,9 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
     misc = ((u32)xtr_hdr[30] << 16) | ((u32)xtr_hdr[31] << 8) | ((u32)xtr_hdr[32] << 0);
     misc = (misc >> 5);
 
+    // TAGGING is bit 8-28 (21 bits)
+    tagging = ((u32)xtr_hdr[32] << 16) | ((u32)xtr_hdr[33] << 8) | ((u32)xtr_hdr[34] << 0);
+
     // The VStaX header's MSbit must be 1.
     if (vstax_one != 1) {
         VTSS_EG(trc_grp, "Invalid Rx header signature");
@@ -714,6 +717,8 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
     info->tag.vid = VTSS_EXTRACT_BITFIELD64(vstax_lo, 16, 12);
     info->rb_port_a = (VTSS_EXTRACT_BITFIELD(rb, 7, 1) == 0);
     info->rb_tagged = VTSS_EXTRACT_BITFIELD(rb, 8, 1);
+    info->rb_path_id = VTSS_EXTRACT_BITFIELD64(dst, 9, 4);   // DST:MPLS
+    info->rb_seq_no = VTSS_EXTRACT_BITFIELD(tagging, 0, 16); // TAGGING:SEQ_NO
 
     VTSS_RC(vtss_cmn_packet_hints_update(state, trc_grp, meta->etype, info));
 

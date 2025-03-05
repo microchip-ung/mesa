@@ -413,6 +413,12 @@ typedef struct {
     // RedBox: True if frame was received with either an RCT or an HSR-tag,
     // false otherwise
     mesa_bool_t rb_tagged;
+
+    // RedBox: Path ID
+    uint8_t rb_path_id;
+
+    // RedBox: Sequence number
+    uint16_t rb_seq_no;
 } mesa_packet_rx_info_t;
 
 // Chip pipeline injection point.
