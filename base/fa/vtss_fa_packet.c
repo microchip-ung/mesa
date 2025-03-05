@@ -258,7 +258,7 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
     // Each CPU queue gets reserved extraction buffer space. No sharing at port
     // or buffer level
     offs = 2048; // Egress/destination memory
-    port = RT_CHIP_PORT_CPU_1;
+    port = (LK_TGT ? RT_CHIP_PORT_CPU_0 : RT_CHIP_PORT_CPU_1);
     for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
         i = conf->queue[queue].size / FA_BUFFER_CELL_SZ;
         REG_WR(VTSS_QRES_RES_CFG(offs + port * VTSS_PRIOS + queue), i);
