@@ -88,6 +88,7 @@ static BOOL is_internal_cu(vtss_state_t *vtss_state, vtss_port_no_t port)
     switch (vtss_state->init_conf.mux_mode) {
     case VTSS_PORT_MUX_MODE_1:
     case VTSS_PORT_MUX_MODE_2:
+    case VTSS_PORT_MUX_MODE_3:
     case VTSS_PORT_MUX_MODE_5:
         if (port < 2) {
             // Port 0/1: Cu
@@ -317,7 +318,6 @@ static vtss_rc lan966x_port_type_calc(vtss_state_t       *vtss_state,
             *idx = 2;
         }
         break;
-
     case VTSS_PORT_MUX_MODE_2:
         // 2xCu/1G + 1x2,5G + 2xRGMII
         *port_type = PORT_TYPE_SD;
@@ -331,7 +331,22 @@ static vtss_rc lan966x_port_type_calc(vtss_state_t       *vtss_state,
             *idx = (port == 2) ? 0 : 1;
         }
         break;
-
+    case VTSS_PORT_MUX_MODE_3:
+        // 2xCu/1G + 2xRGMII + 1xQSGMII (LAN9668)
+        *port_type = PORT_TYPE_SD;
+        *idx = 2;
+        if (port < 2) {
+            // Port 0/1: Cu/1G
+            *idx = port;
+        } else if (port < 4) {
+            // Port 2/3: RGMII
+            *port_type = PORT_TYPE_RGMII;
+            *idx = (port == 2) ? 0 : 1;
+        } else if (lan9668) {
+            // Port 4-7: QSGMII
+            *mode_req = VTSS_SERDES_MODE_QSGMII;
+        }
+        break;
     case VTSS_PORT_MUX_MODE_5:
         // 2xCu + 3x1G
         *port_type = PORT_TYPE_SD;

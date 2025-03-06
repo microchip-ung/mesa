@@ -276,36 +276,48 @@ vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state) { return VTSS_RC_OK;
 static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
 {
 #if !defined(VTSS_OPT_FPGA)
+    BOOL cu_phy = TRUE;
+    u32  rgmii = 0, sd0 = 0, sd1 = 0, gmii = 0, qsgmii = 0;
+
     switch (vtss_state->init_conf.mux_mode) {
     case VTSS_PORT_MUX_MODE_0:
         // 2xQSGMII
-        REG_WR(HSIO_HW_CFG, HSIO_HW_CFG_QSGMII_ENA(3));
+        cu_phy = FALSE;
+        qsgmii = 3;
         break;
     case VTSS_PORT_MUX_MODE_1:
         // 2xCu + 2x2,5G + 1xQSGMII
-        REG_WR(HSIO_HW_CFG, HSIO_HW_CFG_SD6G_0_CFG(1) | HSIO_HW_CFG_SD6G_1_CFG(1) |
-                                HSIO_HW_CFG_GMII_ENA(3) | HSIO_HW_CFG_QSGMII_ENA(2));
-        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG, CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
-                                              CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
-                                              CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
+        sd0 = 1;
+        sd1 = 1;
+        gmii = 0x3;
+        qsgmii = 2;
         break;
     case VTSS_PORT_MUX_MODE_2:
         // 2xCu/1G + 1x2,5G + 2xRGMII(dev2,dev3)
-        REG_WR(HSIO_HW_CFG, HSIO_HW_CFG_RGMII_ENA(3) | HSIO_HW_CFG_GMII_ENA(0xf));
-
-        REG_WR(CHIP_TOP_CUPHY_COMMON_CFG, CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
-                                              CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
-                                              CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
+        rgmii = 3;
+        gmii = 0xf;
+        break;
+    case VTSS_PORT_MUX_MODE_3:
+        // 2xCu/1G + 2xRGMII + 1xQSGMII (LAN9668)
+        rgmii = 3;
+        gmii = 0xf;
+        qsgmii = 2;
         break;
     case VTSS_PORT_MUX_MODE_5:
         // 2xCu + 3x1G
-        REG_WR(HSIO_HW_CFG, HSIO_HW_CFG_SD6G_0_CFG(1) | HSIO_HW_CFG_SD6G_1_CFG(1) |
-                                HSIO_HW_CFG_GMII_ENA(3) | HSIO_HW_CFG_QSGMII_ENA(0));
+        sd0 = 1;
+        sd1 = 1;
+        gmii = 3;
+        break;
+    default: VTSS_E("unknown mux mode"); return VTSS_RC_ERROR;
+    }
+    REG_WR(HSIO_HW_CFG, HSIO_HW_CFG_RGMII_ENA(rgmii) | HSIO_HW_CFG_SD6G_0_CFG(sd0) |
+                            HSIO_HW_CFG_SD6G_1_CFG(sd1) | HSIO_HW_CFG_GMII_ENA(gmii) |
+                            HSIO_HW_CFG_QSGMII_ENA(qsgmii));
+    if (cu_phy) {
         REG_WR(CHIP_TOP_CUPHY_COMMON_CFG, CHIP_TOP_CUPHY_COMMON_CFG_XPHYAD0(1) |
                                               CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
                                               CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
-        break;
-    default: VTSS_E("unknown mux mode"); return VTSS_RC_ERROR;
     }
 #endif
     return VTSS_RC_OK;

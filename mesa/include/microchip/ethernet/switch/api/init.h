@@ -256,6 +256,8 @@ typedef mesa_rc (*mesa_mmd_write_t)(const mesa_inst_t    inst,
 // LAN966X
 // MESA_PORT_MUX_MODE_0: 2xQSGMII (LAN9668)
 // MESA_PORT_MUX_MODE_1: 2xCu + 2x2.5G (+ 1xQSGMII for LAN9668)
+// MESA_PORT_MUX_MODE_2: 2xCu + 1x2.5G + 2xRGMII
+// MESA_PORT_MUX_MODE_3: 2xCu + 2xRGMII + 1xQSGMII (LAN9668)
 // MESA_PORT_MUX_MODE_5: 2xCu + 3x1G (LAN9668)
 
 typedef enum {
