@@ -51,7 +51,7 @@ INLINE_SCHEMA = {
           "description" => <<~END
            Timestamp when this file is created in ISO8601 with second resolution
            (do a'data -Iseconds')
-           END
+          END
         }
       },
       "required" => ["repo", "branch", "build-no", "git-sha", "timestamp"]},
@@ -130,7 +130,7 @@ INLINE_SCHEMA = {
               "description" => <<~END
                 Fixed string which can be used for identification. This string
                 shall not include any version information.
-                END
+              END
             },
             "type" => {
               "enum" => ["docker", "build-artifact", "generic-file"],
@@ -173,7 +173,7 @@ INLINE_SCHEMA = {
                     listing page, containing a manifest.json file among others.
 
                     Typically it will look like this: https://artifacts-aws.devops.microchip.com/artifactory/<ARTIFACTORY-REPO>/<ONE-OR-MORE-PATH-ELEMENTS>/<GIT-REPO>/<BRANCH>/<BUILD-NO>"
-                    END
+                END
                 },
                 "build-artifact-version-string" => {
                   "type" => "string",
@@ -182,7 +182,7 @@ INLINE_SCHEMA = {
                     name, if this is the case, then this field can contain the
                     version part to make it easier to predict the filename (and
                     see if it is installed already) from the dependency file.
-                    END
+                  END
 
                 }
               },
@@ -216,28 +216,28 @@ INLINE_SCHEMA = {
 $trace_mutex = Mutex.new
 
 def err msg
-    $trace_mutex.synchronize do
-        STDERR.puts "ERROR: #{msg}"
-        $err += 1
-    end
+  $trace_mutex.synchronize do
+    STDERR.puts "ERROR: #{msg}"
+    $err += 1
+  end
 end
 
 def warn msg
-    $trace_mutex.synchronize do
-        STDERR.puts "WARN:  #{msg}"
-    end
+  $trace_mutex.synchronize do
+    STDERR.puts "WARN:  #{msg}"
+  end
 end
 
 def info msg
-    $trace_mutex.synchronize do
-        puts "INFO:  #{msg}" if $verbose > 0
-    end
+  $trace_mutex.synchronize do
+    puts "INFO:  #{msg}" if $verbose > 0
+  end
 end
 
 def dbg msg
-    $trace_mutex.synchronize do
-        puts "DBG:   #{msg}" if $verbose > 1
-    end
+  $trace_mutex.synchronize do
+    puts "DBG:   #{msg}" if $verbose > 1
+  end
 end
 
 def validate_manifest_data json
@@ -250,213 +250,222 @@ def validate_manifest_data json
 end
 
 def load_manifest_file f
-    m = JSON.parse(f.read)
-    validate_manifest_data m
-    return m
+  m = JSON.parse(f.read)
+  validate_manifest_data m
+  return m
 end
 
 def save_manifest_file f
-    f.seek 0
-    f.truncate 0
-    f.write JSON.pretty_generate($m)
-    f.close
+  f.seek 0
+  f.truncate 0
+  f.write JSON.pretty_generate($m)
+  f.close
 end
 
 def add_file path_local, path_remote
-    info "File #{path_local} -> #{path_remote}"
+  info "File #{path_local} -> #{path_remote}"
 
-    rec = {
-        "path" => path_remote.to_s,
-        "ci-path" => path_local.to_s,
-        "md5" => Digest::MD5.file(path_local.to_s).to_s,
-        "size" => path_local.size,
-    }
+  rec = {
+    "path" => path_remote.to_s,
+    "ci-path" => path_local.to_s,
+    "md5" => Digest::MD5.file(path_local.to_s).to_s,
+    "size" => path_local.size,
+  }
 
-    $m_files << rec
-    $files << rec
+  $m_files << rec
+  $files << rec
 end
 
 def add_dep path_local, path_remote
 
-    return if File.zero?(path_local)
+  return if File.zero?(path_local)
 
-    info "Dep #{path_local} -> #{path_remote}"
+  info "Dep #{path_local} -> #{path_remote}"
 
-    rec = {
-        "type" => "generic-file",
-        "generic-file-url" => "#{$target_url}/#{path_remote.to_s}",
-        "generic-file-local-path" => path_local.to_s,
-    }
+  rec = {
+    "type" => "generic-file",
+    "generic-file-url" => "#{$target_url}/#{path_remote.to_s}",
+    "generic-file-local-path" => path_local.to_s,
+  }
 
-    $m_deps << rec
+  $m_deps << rec
 end
 
 def process_upload_list f, pop_cnt = $upload_folder_pop_cnt
-    p = Pathname(f).cleanpath
-    return if p.symlink?
+  p = Pathname(f).cleanpath
+  return if p.symlink?
 
-    if p.directory?
-        dbg "Expanding directory #{p}" if $verbose > 0
-        Dir.glob("*", File::FNM_DOTMATCH, base: p.to_s).each do |f|
-            next if f == "." or f == ".."
-            pp = p + Pathname(f)
-            process_upload_list pp, pop_cnt
-        end
-        dbg "Expanding directory #{p} - DONE" if $verbose > 0
-
-    elsif p.file? and p.readable?
-        pp = p
-        if pop_cnt != 0
-            pp = p.ascend.collect{|x| x.basename}.reverse[pop_cnt..].inject(:+)
-        end
-        if pp.to_s == "" or pp.to_s == "/"
-            warn "Skipping invalid path after pop_cnt: #{p} -> #{pp}" if $verbose > 0
-        else
-            if $dep_generic_file_dst
-                add_dep(p, pp)
-            else
-                add_file(p, pp)
-            end
-        end
-    else
-        warn "Not a file or not readable: #{p}"
+  if p.directory?
+    dbg "Expanding directory #{p}" if $verbose > 0
+    Dir.glob("*", File::FNM_DOTMATCH, base: p.to_s).each do |f|
+      next if f == "." or f == ".."
+      pp = p + Pathname(f)
+      process_upload_list pp, pop_cnt
     end
+    dbg "Expanding directory #{p} - DONE" if $verbose > 0
+
+  elsif p.file? and p.readable?
+    pp = p
+    if pop_cnt != 0
+      pp = p.ascend.collect{|x| x.basename}.reverse[pop_cnt..].inject(:+)
+    end
+    if pp.to_s == "" or pp.to_s == "/"
+      warn "Skipping invalid path after pop_cnt: #{p} -> #{pp}" if $verbose > 0
+    else
+      if $dep_generic_file_dst
+        add_dep(p, pp)
+      else
+        add_file(p, pp)
+      end
+    end
+  else
+    warn "Not a file or not readable: #{p}"
+  end
 end
 
 def size_of_txt a
-    if a.nil?
-        return "0b"
-    end
+  if a.nil?
+    return "0b"
+  end
 
-    s = a.size
+  s = a.size
 
-    if s.to_s.size <= 4
-        return "#{s}B"
-    end
+  if s.to_s.size <= 4
+    return "#{s}B"
+  end
 
-    s /= 1024
-    if s.to_s.size <= 4
-        return "#{s}K"
-    end
+  s /= 1024
+  if s.to_s.size <= 4
+    return "#{s}K"
+  end
 
-    s /= 1024
-    if s.to_s.size <= 4
-        return "#{s}M"
-    end
+  s /= 1024
+  if s.to_s.size <= 4
+    return "#{s}M"
+  end
 
-    s /= 1024
-    return "#{s}G"
+  s /= 1024
+  return "#{s}G"
 end
 
 def uri_to_txt u
-    s = u.to_s
-    base = "https://artifacts-aws.devops.microchip.com/artifactory/"
+  s = u.to_s
+  base = "https://artifacts-aws.devops.microchip.com/artifactory/"
 
-    if s.start_with? base
-        return s[base.size..]
-    else
-        return s
-    end
+  if s.start_with? base
+    return s[base.size..]
+  else
+    return s
+  end
 end
 
 def http_req uri, req
-    http = Net::HTTP.new(uri.host, uri.port)
-    #http.set_debug_output($stdout)
-    http.use_ssl = true
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+  http = Net::HTTP.new(uri.host, uri.port)
+  #http.set_debug_output($stdout)
+  http.use_ssl = true
+  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-    req.basic_auth $user, $token
+  req.basic_auth $user, $token
 
-    if uri.to_s =~ /https.*https/
-      puts "!!!!!!!!!!!!!!!!!!!!!!!  URI looks wrong: #{uri}"
-      raise "URI looks wrong: #{uri}"
-    end
+  if uri.to_s =~ /https.*https/
+    puts "!!!!!!!!!!!!!!!!!!!!!!!  URI looks wrong: #{uri}"
+    raise "URI looks wrong: #{uri}"
+  end
 
-    dbg "%-12s %5s             %s" % [req.method + "-START", size_of_txt(req.body), uri_to_txt(uri)]
+  dbg "%-12s %5s             %s" % [req.method + "-START", size_of_txt(req.body), uri_to_txt(uri)]
 
-    ts_a = Time.now
-    res = http.request(req)
-    ts_b = Time.now
+  ts_a = Time.now
+  res = http.request(req)
+  ts_b = Time.now
 
-    dbg "%-6s %3d %7.2f %5s/%-5s %s" % [req.method, res.code.to_i, ts_b - ts_a,
-                                        size_of_txt(req.body), size_of_txt(res.body), uri_to_txt(uri)]
+  dbg "%-6s %3d %7.2f %5s/%-5s %s" % [req.method, res.code.to_i, ts_b - ts_a,
+                                      size_of_txt(req.body), size_of_txt(res.body), uri_to_txt(uri)]
 
-    # raise an excetion if not success
-    res.value
+  # raise an excetion if not success
+  res.value
 
-    return res.body, res.code.to_i
+  return res.body, res.code.to_i
 end
 
 def http_put url, data, params = {}
-    uri = URI(url)
+  uri = URI(url)
 
-    if params.size >= 1
-        uri.query = URI.encode_www_form(params)
-    end
+  if params.size >= 1
+    uri.query = URI.encode_www_form(params)
+  end
 
-    req = Net::HTTP::Put.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
-    req.delete "Accept-Encoding"
-    req.delete "User-Agent"
-    req.body = data
+  req = Net::HTTP::Put.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+  req.delete "Accept-Encoding"
+  req.delete "User-Agent"
+  req.body = data
 
-    http_req(uri, req)
+  http_req(uri, req)
 end
 
 def http_del url
-    uri = URI(url)
 
-    req = Net::HTTP::Delete.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
-    req.delete "Accept-Encoding"
-    req.delete "User-Agent"
+  if $dry_run
+    return
+  end
 
-    # when deleting a file it is possible that the file is already deleted
-    begin
-        http_req(uri, req)
-    rescue
-    end
+  uri = URI(url)
+
+  req = Net::HTTP::Delete.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+  req.delete "Accept-Encoding"
+  req.delete "User-Agent"
+
+  # when deleting a file it is possible that the file is already deleted
+  begin
+    http_req(uri, req)
+  rescue
+  end
 end
 
 def http_get_prop url
-    uri = URI(url + "?properties")
+  uri = URI(url + "?properties")
 
-    req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
-    req.delete "Accept-Encoding"
-    req.delete "User-Agent"
+  req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+  req.delete "Accept-Encoding"
+  req.delete "User-Agent"
 
-    body, code = http_req(uri, req)
-    return body
+  body, code = http_req(uri, req)
+  return body
 end
 
 def http_get url
-    uri = URI(url)
+  uri = URI(url)
 
-    req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
-    req.delete "Accept-Encoding"
-    req.delete "User-Agent"
+  req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+  req.delete "Accept-Encoding"
+  req.delete "User-Agent"
 
-    body, code = http_req(uri, req)
-    return body
+  body, code = http_req(uri, req)
+  return body
 end
 
 def http_head url
-    uri = URI(url)
+  uri = URI(url)
 
-    req = Net::HTTP::Head.new(uri)
+  req = Net::HTTP::Head.new(uri)
+  begin
     body, code = http_req(uri, req)
-    return code
+  rescue
+    return 404
+  end
+  return code
 end
 
 def http_get_keep_until url
-    puts "http_get_keep_until url: #{url}"
-    begin
-        body = http_get_prop url
-        m = JSON.parse(body)
-        # apparently this is an array
-        #raise "unexpected array length: #{m.inspect}" if m.class != Array or m.size != 1
-        return Time.parse m["properties"]["unge-keep-until"][0]
-    rescue
-        return Time.new
-    end
+  puts "http_get_keep_until url: #{url}"
+  begin
+    body = http_get_prop url
+    m = JSON.parse(body)
+    # apparently this is an array
+    #raise "unexpected array length: #{m.inspect}" if m.class != Array or m.size != 1
+    return Time.parse m["properties"]["unge-keep-until"][0]
+  rescue
+    return Time.new
+  end
 end
 
 def url_to_path url
@@ -474,385 +483,418 @@ def http_set_keep_until url, keep_until
   res = "#{base}/api/storage/#{path}"
 
   if $dry_run
-      return
+    return
   end
 
   http_put res, nil, {"properties" => "unge-keep-until=#{keep_until}", "recursive" => 0}
 end
 
 def http_get_deps url
-    u = "#{url}/manifest.json"
-    uri = URI(u)
+  u = "#{url}/manifest.json"
+  uri = URI(u)
 
-    req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
-    req.delete "Accept-Encoding"
-    req.delete "User-Agent"
+  req = Net::HTTP::Get.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
+  req.delete "Accept-Encoding"
+  req.delete "User-Agent"
 
-    body, code = http_req(uri, req)
+  body, code = http_req(uri, req)
 
-    file = JSON.parse(body)
-    validate_manifest_data file
+  file = JSON.parse(body)
+  validate_manifest_data file
 
-    return file["dependencies"]
+  return file["dependencies"]
 end
 
 def code_2xx? c
-    c >= 200 and c < 300
+  c >= 200 and c < 300
 end
 
 def a_exists_folder_or_path path
-    a = nil
-    if path[-1] == "/"
-        a = path[0..-2]
-    else
-        a = path
-    end
+  a = nil
+  if path[-1] == "/"
+    a = path[0..-2]
+  else
+    a = path
+  end
 
-    begin
-        code_a = http_head a
-    rescue
-        return false
-    else
-        return true
+  begin
+    code_a = http_head a
+    if code_a == 404
+      return false
     end
+  rescue
+    return false
+  else
+    return true
+  end
 end
 
 def a_upload path, data
-    if a_exists_folder_or_path path
-        if $skip_files_already_present
-            return
-        end
-        raise "Exists already, skipping: #{path}"
+  if a_exists_folder_or_path path
+    if $skip_files_already_present
+      return
     end
+    raise "Exists already, skipping: #{path}"
+  end
 
-    dbg "Uploading (#{size_of_txt(data)}) to #{path}"
-    body, code = http_put path, data
+  dbg "Uploading (#{size_of_txt(data)}) to #{path}"
+  body, code = http_put path, data
 end
 
 def update_keep_until_deps deps, indent = ""
-    threads=[]
-    dbg "#{indent}update_keep_until_deps - generics"
+  threads=[]
+  dbg "#{indent}update_keep_until_deps - generics"
 
-    deps.filter{|x| x["type"] == "generic-file"}.each do |d|
-        dbg "#{indent}#{d.inspect}"
-        threads << Thread.new do
-            time = http_get_keep_until d["generic-file-url"]
-            if time < $keep_until
-                info "keep_until: #{indent}generic-file: Update: #{d["generic-file-url"]} #{time} -> #{$keep_until + $buffer}"
-                http_set_keep_until d["generic-file-url"], $keep_until + $buffer
-            else
-                dbg "keep_until: #{indent}generic-file: No-update: #{d["generic-file-url"]} #{time} >= #{$keep_until}"
-            end
-        end
+  deps.filter{|x| x["type"] == "generic-file"}.each do |d|
+    dbg "#{indent}#{d.inspect}"
+    func = -> (d, indent) {
+      time = http_get_keep_until d["generic-file-url"]
+      if time < $keep_until
+        info "keep_until: #{indent}generic-file: Update: #{d["generic-file-url"]} #{time} -> #{$keep_until + $buffer}"
+        http_set_keep_until d["generic-file-url"], $keep_until + $buffer
+      else
+        dbg "keep_until: #{indent}generic-file: No-update: #{d["generic-file-url"]} #{time} >= #{$keep_until}"
+      end
+    }
+    if $threads_support == true
+      threads << Thread.new { func.call(d, indent) }
+    else
+      func.call(d, indent)
     end
-    threads.each do |t|
-        t.join
+  end
+  threads.each do |t|
+    t.join
+  end
+
+  dbg "#{indent}update_keep_until_deps - non-generics"
+  deps.each do |d|
+    dbg "#{indent}#{d.inspect}"
+    if d["type"] == "generic-file"
+      # Handled above (in multiple threads)
+    elsif d["type"] == "build-artifact"
+      manifest_path = nil
+      if d["build-artifact-url"]
+        manifest_path = d["build-artifact-url"]
+      else
+        raise "No path and no build-artifact-url in #{d.inspect}"
+      end
+
+      manifest_file = manifest_path  + "/manifest.json"
+      time = http_get_keep_until manifest_file
+
+      if time < $keep_until
+        info "keep_until: #{indent}build-artifact: Update-recursive: #{manifest_file} #{time} -> #{$keep_until + $buffer}"
+        manifest_deps = http_get_deps manifest_path
+        update_keep_until_deps manifest_deps, indent + "    "
+
+        # Notice, update the keep-until of the manifest after the
+        # recursive call to ensure this operation is re-done in case
+        # the script crash or is interrupted
+        http_set_keep_until manifest_file, $keep_until + $buffer
+        info "keep_until: #{indent}build-artifact: Update-done: #{manifest_file} #{time} -> #{$keep_until + $buffer}"
+      else
+        dbg "keep_until: #{indent}build-artifact: No-update: #{manifest_file} #{time} >= #{$keep_until}"
+      end
+
+    elsif d["type"] == "docker"
+      u = URI.parse("https://#{d["docker-path"]}")
+      repo = "unknown"
+      case u.port
+      when 7996
+        repo = "ung-docker-dev-local"
+      else
+        raise "Unexpected port: #{u.port}, in #{d.inspect}"
+      end
+      manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
+      manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
+
+      time = http_get_keep_until manifest_file
+      if time < $keep_until
+        http_set_keep_until manifest_file, $keep_until + $buffer
+        info "keep_until: #{indent}docker: Update-done: #{manifest_file} #{time} -> #{$keep_until + $buffer}"
+      else
+        dbg "keep_until: #{indent}docker: No-update: #{manifest_file} #{time} >= #{$keep_until}"
+      end
+    else
+      raise "Unknown dependency type in: #{d.inspect}"
     end
-
-    dbg "#{indent}update_keep_until_deps - non-generics"
-    deps.each do |d|
-      dbg "#{indent}#{d.inspect}"
-        if d["type"] == "generic-file"
-            # Handled above (in multiple threads)
-        elsif d["type"] == "build-artifact"
-            manifest_path = nil
-            if d["build-artifact-url"]
-                manifest_path = d["build-artifact-url"]
-            else
-                raise "No path and no build-artifact-url in #{d.inspect}"
-            end
-
-            manifest_file = manifest_path  + "/manifest.json"
-            time = http_get_keep_until manifest_file
-
-            if time < $keep_until
-                info "keep_until: #{indent}build-artifact: Update-recursive: #{manifest_file} #{time} -> #{$keep_until + $buffer}"
-                manifest_deps = http_get_deps manifest_path
-                update_keep_until_deps manifest_deps, indent + "    "
-
-                # Notice, update the keep-until of the manifest after the
-                # recursive call to ensure this operation is re-done in case
-                # the script crash or is interrupted
-                http_set_keep_until manifest_file, $keep_until + $buffer
-                info "keep_until: #{indent}build-artifact: Update-done: #{manifest_file} #{time} -> #{$keep_until + $buffer}"
-            else
-                dbg "keep_until: #{indent}build-artifact: No-update: #{manifest_file} #{time} >= #{$keep_until}"
-            end
-
-        elsif d["type"] == "docker"
-            u = URI.parse("https://#{d["docker-path"]}")
-            repo = "unknown"
-            case u.port
-            when 7996
-                repo = "ung-docker-dev-local"
-            else
-                raise "Unexpected port: #{u.port}, in #{d.inspect}"
-            end
-            manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
-            manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
-
-            time = http_get_keep_until manifest_file
-            if time < $keep_until
-                http_set_keep_until manifest_file, $keep_until + $buffer
-                info "keep_until: #{indent}docker: Update-done: #{manifest_file} #{time} -> #{$keep_until + $buffer}"
-            else
-                dbg "keep_until: #{indent}docker: No-update: #{manifest_file} #{time} >= #{$keep_until}"
-            end
-        else
-            raise "Unknown dependency type in: #{d.inspect}"
-        end
-    end
+  end
 end
 
 def promote_build url
-    if not url.end_with? ("manifest.json")
-        puts "It is possible to promote only manifest.json files"
-        puts "As this will take care of promoting all dependencies"
-        exit -1
-    end
+  if not url.end_with? ("manifest.json")
+    puts "It is possible to promote only manifest.json files"
+    puts "As this will take care of promoting all dependencies"
+    exit -1
+  end
 
-    body = http_get url
-    manifest = JSON.parse(body)
+  body = http_get url
+  manifest = JSON.parse(body)
 
-    # before going through the manifest file and updating the unge-keep-until
-    # property set the keep_until to a high value (100 years),
-    $keep_until = Time.now + ($days * 24 * 60 * 60)
-    update_keep_until_deps manifest["dependencies"]
+  # before going through the manifest file and updating the unge-keep-until
+  # property set the keep_until to a high value (100 years),
+  $keep_until = Time.now + ($days * 24 * 60 * 60)
+  update_keep_until_deps manifest["dependencies"]
 
-    # now update also the keep until on the manifest file
-    http_set_keep_until url, $keep_until + $buffer
+  # now update also the keep until on the manifest file
+  http_set_keep_until url, $keep_until + $buffer
 end
 
 def check_build url
-    if not url.end_with? ("manifest.json")
-        puts "It is possible to check only manifest.json files"
-        puts "As this will take care of checking all dependencies and the files"
-        exit -1
-    end
+  if not url.end_with? ("manifest.json")
+    puts "It is possible to check only manifest.json files"
+    puts "As this will take care of checking all dependencies and the files"
+    exit -1
+  end
 
-    threads = []
+  threads = []
 
-    body = http_get url
-    manifest = JSON.parse(body)
-    manifest["dependencies"].each do |d|
-        threads << Thread.new do
-            if d["type"] == "generic-file"
-                if not a_exists_folder_or_path d["generic-file-url"]
-                  err "Path #{d["generic-file-url"]} doesn't exist"
-                  exit
-                end
-            elsif d["type"] == "docker"
-                u = URI.parse("https://#{d["docker-path"]}")
-                repo = "unknown"
-                case u.port
-                when 7996
-                    repo = "ung-docker-dev-local"
-                else
-                    raise "Unexpected port: #{u.port}, in #{d.inspect}"
-                end
-                manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
-                manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
-
-                if not a_exists_folder_or_path manifest_file
-                  err "Path #{manifest_file} doesn't exist"
-                  exit
-                end
-            elsif d["type"] == "build-artifact"
-                puts d
-                check_build "#{d["build-artifact-url"]}/manifest.json"
-            end
+  body = http_get url
+  manifest = JSON.parse(body)
+  manifest["dependencies"].each do |d|
+    func = -> (d) {
+      if d["type"] == "generic-file"
+        if not a_exists_folder_or_path d["generic-file-url"]
+          err "Path #{d["generic-file-url"]} doesn't exist"
+          exit
         end
-    end
-    threads.each do |t|
-        t.join
-    end
-
-    url = url.sub("manifest.json", "")
-    manifest["files"].each do |f|
-        threads << Thread.new do
-            if not a_exists_folder_or_path "#{url}/#{f["path"]}"
-                err "Path #{url}/#{f["path"]}"
-                exit
-            end
+      elsif d["type"] == "docker"
+        u = URI.parse("https://#{d["docker-path"]}")
+        repo = "unknown"
+        case u.port
+        when 7996
+          repo = "ung-docker-dev-local"
+        else
+          raise "Unexpected port: #{u.port}, in #{d.inspect}"
         end
+        manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
+        manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
+
+        if not a_exists_folder_or_path manifest_file
+          err "Path #{manifest_file} doesn't exist"
+          exit
+        end
+      elsif d["type"] == "build-artifact"
+        puts d
+        check_build "#{d["build-artifact-url"]}/manifest.json"
+      end
+    }
+    if $threads_support == true
+      threads << Thread.new { func.call(d) }
+    else
+      func.call(d)
     end
-    threads.each do |t|
-        t.join
+  end
+  threads.each do |t|
+    t.join
+  end
+
+  url = url.sub("manifest.json", "")
+  manifest["files"].each do |f|
+    func = -> (f, url) {
+      if not a_exists_folder_or_path "#{url}/#{f["path"]}"
+        err "Path #{url}/#{f["path"]}"
+        exit
+      end
+    }
+    if $threads_support == true
+      threads << Thread.new { func.call(f, url) }
+    else
+      func.call(f, url)
     end
+  end
+  threads.each do |t|
+    t.join
+  end
 end
 
 def exists_manifest info
-    if info["children"].nil?
-      err "There is no children key for this info #{info} something is wrong"
-      exit
-    end
+  if info["children"].nil?
+    err "There is no children key for this info #{info} something is wrong"
+    exit
+  end
 
-    info["children"].each do |c|
-        next if c["folder"] == true
-        return true if c["uri"] == "/manifest.json"
-    end
-    return false;
+  info["children"].each do |c|
+    next if c["folder"] == true
+    return true if c["uri"] == "/manifest.json"
+  end
+  return false;
 end
 
 def delete_manifest url
-    info "Delete manifest at path #{url}"
+  info "Delete manifest at path #{url}"
 
-    body = http_get url
-    manifest = JSON.parse(body)
+  code = http_head url
+  if code == 404
+    return
+  end
 
-    time = http_get_keep_until url
-    if time > Time.now
-        return
-    end
+  time = http_get_keep_until url
+  if time > Time.now
+    return
+  end
 
-    threads = []
-    manifest["dependencies"].each do |d|
-        threads << Thread.new do
-            if d["type"] == "generic-file"
-                time = http_get_keep_until d["generic-file-url"]
-                if time < Time.now
-                    http_del d["generic-file=url"]
-                end
-            elsif d["type"] == "docker"
-                u = URI.parse("https://#{d["docker-path"]}")
-                repo = "unknown"
-                case u.port
-                when 7996
-                    repo = "ung-docker-dev-local"
-                else
-                    raise "Unexpected port: #{u.port}, in #{d.inspect}"
-                end
-                manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
-                manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
+  body = http_get url
+  manifest = JSON.parse(body)
 
-                time = http_get_keep_until manifest_file
-                if time < Time.now
-                    http_del "#{repo}/#{u.path}/#{d["docker-tag"]}"
-                end
-            elsif d["type"] == "build-artifact"
-                delete_manifest "#{d["build-artifact-url"]}/manifest.json"
-            end
+  threads = []
+  manifest["dependencies"].each do |d|
+    func = -> (d) {
+      if d["type"] == "generic-file"
+        time = http_get_keep_until d["generic-file-url"]
+        if time < Time.now
+          http_del d["generic-file-url"]
         end
-    end
-    threads.each do |t|
-        t.join
-    end
-
-    url_path = url.sub("/manifest.json", "")
-    threads = []
-    manifest["files"].each do |f|
-        threads << Thread.new do
-            http_del "#{url_path}/#{f["path"]}"
+      elsif d["type"] == "docker"
+        u = URI.parse("https://#{d["docker-path"]}")
+        repo = "unknown"
+        case u.port
+        when 7996
+          repo = "ung-docker-dev-local"
+        else
+          raise "Unexpected port: #{u.port}, in #{d.inspect}"
         end
-    end
-    threads.each do |t|
-        t.join
-    end
+        manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
+        manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
 
-    http_del url
+        time = http_get_keep_until manifest_file
+        if time < Time.now
+          http_del "#{repo}/#{u.path}/#{d["docker-tag"]}"
+        end
+      elsif d["type"] == "build-artifact"
+        delete_manifest "#{d["build-artifact-url"]}/manifest.json"
+      end
+    }
+    if $threads_support == true
+      threads << Thread.new { func.call(d) }
+    else
+      func.call(d)
+    end
+  end
+  threads.each do |t|
+    t.join
+  end
+
+  url_path = url.sub("/manifest.json", "")
+  threads = []
+  manifest["files"].each do |f|
+    func = -> (f, url_path) {
+      http_del "#{url_path}/#{f["path"]}"
+    }
+    if $threads_support == true
+      threads << Thread.new { func.call(f, url) }
+    else
+      func.call(f, url)
+    end
+  end
+  threads.each do |t|
+    t.join
+  end
+
+  http_del url
 end
 
 def read_manifest_files url
-    body = http_get url
-    manifest = JSON.parse(body)
+  body = http_get url
+  manifest = JSON.parse(body)
 
-    result = []
-    manifest["files"].each do |f|
-        result << "/#{f["path"]}"
-    end
+  result = []
+  manifest["files"].each do |f|
+    result << "/#{f["path"]}"
+  end
 
-    result << "/manifest.json"
+  result << "/manifest.json"
 
-    return result
+  return result
 end
 
 def get_path_files url, folder_path
-    body = http_get url
-    info = JSON.parse(body)
+  body = http_get url
+  info = JSON.parse(body)
 
-    result = []
-    info["children"].each do |c|
-        if c["folder"] == true
-            result += get_path_files "#{url}/#{c["uri"]}", "#{folder_path}#{c["uri"]}"
-        else
-            result << "#{folder_path}#{c["uri"]}"
-        end
+  result = []
+  info["children"].each do |c|
+    if c["folder"] == true
+      result += get_path_files "#{url}/#{c["uri"]}", "#{folder_path}#{c["uri"]}"
+    else
+      result << "#{folder_path}#{c["uri"]}"
     end
+  end
 
-    return result
+  return result
 end
 
 def clear_path base, url
-    # iterate all folders
-    #  if the folder contains a manifest file
-    #   - then check the keep until time if expire
-    #     - if expired, remove all the files from there
-    #     - if expired, look at dependecies and if they are also expired remove
-    #     them
-    #     - if not expired, iterate all files and compare with the files from
-    #     manifest, if there is a missmatch then remove the extra files
-    #  if the folder doesn't contain a manifest
-    #   - then look at the keep until time of the files underneed
-    #     - if expired then just remove it.
-    #     - if not expired then just continue.
-    #   - if there is no property, then remove it
+  # iterate all folders
+  #  if the folder contains a manifest file
+  #   - then check the keep until time if expire
+  #     - if expired, remove all the files from there
+  #     - if expired, look at dependecies and if they are also expired remove
+  #     them
+  #     - if not expired, iterate all files and compare with the files from
+  #     manifest, if there is a missmatch then remove the extra files
+  #  if the folder doesn't contain a manifest
+  #   - then look at the keep until time of the files underneed
+  #     - if expired then just remove it.
+  #     - if not expired then just continue.
+  #   - if there is no property, then remove it
 
-    content_base = "https://artifacts-aws.devops.microchip.com/artifactory/"
+  content_base = "https://artifacts-aws.devops.microchip.com/artifactory/"
 
+  body = http_get "#{base}#{url}"
+  info = JSON.parse(body)
+
+  if exists_manifest(info)
+    time = http_get_keep_until "#{content_base}#{url}/manifest.json"
+    if time <= Time.now
+      delete_manifest "#{content_base}#{url}/manifest.json"
+
+      # call itself again to delete files that are not in manifest
+      clear_path base, url
+    else
+      # read the manifest files and the files under the current directory
+      files_manifest = read_manifest_files "#{content_base}#{url}/manifest.json"
+      files_path = get_path_files "#{base}#{url}", ""
+
+      # find files that are in the manifest file but not in files_path
+      tmp = files_manifest - files_path
+      if tmp.size != 0
+        puts "The following files don't exist anymore #{tmp}"
+      end
+
+      # find files that are in files path but not in the manifest files,
+      # these files need to be removed, there is an issue if someone does
+      # this
+      tmp = files_path - files_manifest
+      if tmp.size != 0
+        tmp.each do |f|
+          http_del "#{base}#{url}/#{f}"
+        end
+      end
+    end
+  else
+    # if there is no manifest file in folder then just go through the childs
+    # and figure out if there are folders, in that case just go through,
+    # otherwise get the keep until and see if it needs to be deleted
+    info["children"].each do |c|
+      if c["folder"] == true
+        clear_path base, "#{url}#{c["uri"]}"
+      else
+        time = http_get_keep_until "#{content_base}#{url}#{c["uri"]}"
+        if time <= Time.now
+          http_del "#{base}/#{url}/#{c["uri"]}"
+        end
+      end
+    end
+
+    # if there is nothing under this folder, it means that is an empty
+    # folder so just remove it
     body = http_get "#{base}#{url}"
     info = JSON.parse(body)
-
-    if exists_manifest(info)
-        time = http_get_keep_until "#{content_base}#{url}/manifest.json"
-        if time <= Time.now
-            delete_manifest "#{content_base}#{url}/manifest.json"
-
-            # call itself again to delete files that are not in manifest
-            clear_path base, url
-        else
-            # read the manifest files and the files under the current directory
-            files_manifest = read_manifest_files "#{content_base}#{url}/manifest.json"
-            files_path = get_path_files "#{base}#{url}", ""
-
-            # find files that are in the manifest file but not in files_path
-            tmp = files_manifest - files_path
-            if tmp.size != 0
-                puts "The following files don't exist anymore #{tmp}"
-            end
-
-            # find files that are in files path but not in the manifest files,
-            # these files need to be removed, there is an issue if someone does
-            # this
-            tmp = files_path - files_manifest
-            if tmp.size != 0
-                tmp.each do |f|
-                    http_del "#{base}#{url}/#{f}"
-                end
-            end
-        end
-    else
-        # if there is no manifest file in folder then just go through the childs
-        # and figure out if there are folders, in that case just go through,
-        # otherwise get the keep until and see if it needs to be deleted
-        info["children"].each do |c|
-            if c["folder"] == true
-                clear_path base, "#{url}#{c["uri"]}"
-            else
-                time = http_get_keep_until "#{content_base}#{url}#{c["uri"]}"
-                if time <= Time.now
-                    http_del "#{base}/#{url}/#{c["uri"]}"
-                end
-            end
-        end
-
-        # if there is nothing under this folder, it means that is an empty
-        # folder so just remove it
-        body = http_get "#{base}#{url}"
-        info = JSON.parse(body)
-        if info["children"].size == 0
-            http_del "#{content_base}#{url}"
-        end
+    if info["children"].size == 0
+      http_del "#{content_base}#{url}"
     end
+  end
 end
 
 VERSION = "0.0.1"
@@ -874,6 +916,7 @@ $dep_docker = []
 $upload_list = []
 $upload_folder_pop_cnt = 0
 $schema = JSONSchemer.schema(INLINE_SCHEMA)
+$threads_support = true
 
 opt_parser = OptionParser.new do |opts|
   opts.banner = """Usage: artifactory-ci [options] [FILES/FOLDERS...]
@@ -935,107 +978,111 @@ Following is a descriptions of the different commands supported:
   If the argument --days is not passed then, the default value will be 10 days.
 
 Options:"""
-    opts.separator("\nCommand info:") ############################################
-    opts.on("--command <cmd>", "Command to execute, by default will be upload") do |c|
-        $cmd = c
-    end
+  opts.separator("\nCommand info:") ############################################
+  opts.on("--command <cmd>", "Command to execute, by default will be upload") do |c|
+    $cmd = c
+  end
 
-    opts.separator("\nBuild/destination info:") ############################################
-    opts.on("--git-repo <REPO>", "Repository. Default: ${git remote get-url origin} with transport layer removed") do |r|
-        $repo = r
-    end
+  opts.separator("\nBuild/destination info:") ############################################
+  opts.on("--git-repo <REPO>", "Repository. Default: ${git remote get-url origin} with transport layer removed") do |r|
+    $repo = r
+  end
 
-    opts.on("--git-branch <BRANCH>", "Git branch. Default: $GIT_BRANCH' or ${git branch --show-current}") do |b|
-        $branch = b
-    end
+  opts.on("--git-branch <BRANCH>", "Git branch. Default: $GIT_BRANCH' or ${git branch --show-current}") do |b|
+    $branch = b
+  end
 
-    opts.on("--git-sha <SHA>", "Git SHA. Default: $GIT_COMMIT or ${git rev-parse HEAD}") do |s|
-        $sha = s
-    end
+  opts.on("--git-sha <SHA>", "Git SHA. Default: $GIT_COMMIT or ${git rev-parse HEAD}") do |s|
+    $sha = s
+  end
 
-    opts.on("--build-no <NUM>", "Build number. Default: $BUILD_NUMBER") do |s|
-        $build_no = s
-    end
+  opts.on("--build-no <NUM>", "Build number. Default: $BUILD_NUMBER") do |s|
+    $build_no = s
+  end
 
-    opts.separator("\nIncremental use:") ############################################
-    opts.separator("When used in incremental mode (-i) the manifest file (<FILE>) is stored locally,")
-    opts.separator("and not uploaded right away. If called multiple time, each invocation")
-    opts.separator("will lock and add to the file.")
-    opts.separator("Once called with -f, the manifest file is loaded from the disk and uploaded.\n")
-    opts.on("-i", "--incremental <FILE>", "Load/generate the manifest locally, but do not upload it.") do |a|
-        $incremental = true
-        $manifest_file = a
-    end
+  opts.separator("\nIncremental use:") ############################################
+  opts.separator("When used in incremental mode (-i) the manifest file (<FILE>) is stored locally,")
+  opts.separator("and not uploaded right away. If called multiple time, each invocation")
+  opts.separator("will lock and add to the file.")
+  opts.separator("Once called with -f, the manifest file is loaded from the disk and uploaded.\n")
+  opts.on("-i", "--incremental <FILE>", "Load/generate the manifest locally, but do not upload it.") do |a|
+    $incremental = true
+    $manifest_file = a
+  end
 
-    opts.on("-f", "--final <FILE>", "Load, update and upload the final manifest file.") do |a|
-        $final = true
-        $manifest_file = a
-    end
+  opts.on("-f", "--final <FILE>", "Load, update and upload the final manifest file.") do |a|
+    $final = true
+    $manifest_file = a
+  end
 
-    opts.on("--no-manifest", "Do not create a manifest file - just upload a generic") do |a|
-        $no_manifest = true
-    end
+  opts.on("--no-manifest", "Do not create a manifest file - just upload a generic") do |a|
+    $no_manifest = true
+  end
 
-    opts.separator("\nDependencies (only dependencies hosted on artifacts):")
-    opts.on("--dep-file <PATH>", "Path to dependency file.") do |a|
-        $dep_file << a
-    end
+  opts.separator("\nDependencies (only dependencies hosted on artifacts):")
+  opts.on("--dep-file <PATH>", "Path to dependency file.") do |a|
+    $dep_file << a
+  end
 
-    opts.separator("\nArtifactory settings:") ##################################
-    opts.on("-r", "--root <root-folder>", "Root foder in artifactory. Default: 'ci'") do |r|
-        $root = r
-    end
+  opts.separator("\nArtifactory settings:") ##################################
+  opts.on("-r", "--root <root-folder>", "Root foder in artifactory. Default: 'ci'") do |r|
+    $root = r
+  end
 
-    opts.on("-d", "--days <DAYS>", Integer, "Initial retention duration. Default: 10 days") do |d|
-        $days = d
-    end
+  opts.on("-d", "--days <DAYS>", Integer, "Initial retention duration. Default: 10 days") do |d|
+    $days = d
+  end
 
-    opts.on("--dep-generic-file-dst <STRING>", "Instead of uploading the list of files to the usual\n",
-            "ung-generic-dev-local/<ROOT>/<REPO-BASE>/<BRANCH>/<BUILD-NO>/... location, upload to the specified path\n",
-            "This will also add the files to the manifest.json file as a generic-file dependency.\n",
-            "If used as a cache, make sure to add the --skip-files-already-present flag\n",
-            "This option is not allowed to be used along with --git-repo, --git-branch, --git-sha or --build-no") do |s|
-        $dep_generic_file_dst = s
-    end
+  opts.on("--dep-generic-file-dst <STRING>", "Instead of uploading the list of files to the usual\n",
+          "ung-generic-dev-local/<ROOT>/<REPO-BASE>/<BRANCH>/<BUILD-NO>/... location, upload to the specified path\n",
+          "This will also add the files to the manifest.json file as a generic-file dependency.\n",
+          "If used as a cache, make sure to add the --skip-files-already-present flag\n",
+          "This option is not allowed to be used along with --git-repo, --git-branch, --git-sha or --build-no") do |s|
+            $dep_generic_file_dst = s
+          end
 
-    opts.on("--artifactory-path <STRING>", "Artifactory path from where to execute the command\n") do |s|
-        $artifactory_path = s
-    end
+  opts.on("--artifactory-path <STRING>", "Artifactory path from where to execute the command\n") do |s|
+    $artifactory_path = s
+  end
 
-    opts.on("--skip-files-already-present", "If a file is already there, just skip it") do
-        $skip_files_already_present = true
-    end
+  opts.on("--skip-files-already-present", "If a file is already there, just skip it") do
+    $skip_files_already_present = true
+  end
 
-    opts.on("-p", "--path-pop-cnt <CNT>", Integer, "Number of path elements to pop when creating files on artifactory") do |s|
-        $upload_folder_pop_cnt = s
-    end
+  opts.on("-p", "--path-pop-cnt <CNT>", Integer, "Number of path elements to pop when creating files on artifactory") do |s|
+    $upload_folder_pop_cnt = s
+  end
 
-    opts.on("--user <USER>", "User. Default: $ARTIFACTORY_USER") do |d|
-        $user = d
-    end
+  opts.on("--user <USER>", "User. Default: $ARTIFACTORY_USER") do |d|
+    $user = d
+  end
 
-    opts.on("--token <TOKEN>", "Token. Default: $ARTIFACTORY_PASS") do |d|
-        $token = d
-    end
+  opts.on("--token <TOKEN>", "Token. Default: $ARTIFACTORY_PASS") do |d|
+    $token = d
+  end
 
-    opts.separator("\nGeneral:") ###############################################
-    opts.on("--no-dry-run <VAL>", "Dry run the command") do
-        $dry_run = false
-    end
+  opts.separator("\nGeneral:") ###############################################
+  opts.on("--no-dry-run <VAL>", "Dry run the command") do
+    $dry_run = false
+  end
 
-    opts.on("--version", "Script version") do |p|
-        puts VERSION
-        exit
-    end
+  opts.on("--no-threads", "Disable threading") do
+    $threads_support = false
+  end
 
-    opts.on("-v", "--verbose", "Enable verbose trace output") do |d|
-        $verbose += 1
-    end
+  opts.on("--version", "Script version") do |p|
+    puts VERSION
+    exit
+  end
 
-    opts.on("-h", "--help", "Show this message") do
-        puts opts
-        exit
-    end
+  opts.on("-v", "--verbose", "Enable verbose trace output") do |d|
+    $verbose += 1
+  end
+
+  opts.on("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
 end
 
 opt_parser.summary_width = 30
@@ -1044,86 +1091,86 @@ opt_parser.parse!(ARGV)
 $upload_list = ARGV.clone
 
 if $incremental and $final
-    puts "-i and -f are mutually exclusive"
-    exit -1
+  puts "-i and -f are mutually exclusive"
+  exit -1
 end
 
 if $cmd.nil?
-    $cmd = "upload"
+  $cmd = "upload"
 end
 
 if $cmd == "upload"
-    $dry_run = false
+  $dry_run = false
 end
 
 if $dry_run.nil?
-    $dry_run = true
+  $dry_run = true
 end
 
 if $repo.nil?
-    $repo = %x{git remote get-url origin 2>/dev/null}.strip
-    if $?.to_i != 0
-        puts "No repo name"
-        exit -1
-    end
+  $repo = %x{git remote get-url origin 2>/dev/null}.strip
+  if $?.to_i != 0
+    puts "No repo name"
+    exit -1
+  end
 end
 
 if $sha.nil?
-    $sha = %x{git rev-parse HEAD 2>/dev/null}.strip
-    if $?.to_i != 0
-        puts "No sha"
-        exit -1
-    end
+  $sha = %x{git rev-parse HEAD 2>/dev/null}.strip
+  if $?.to_i != 0
+    puts "No sha"
+    exit -1
+  end
 end
 
 if $branch.nil?
-    $branch = %x{git branch --show-current 2>/dev/null}.strip
-    if $?.to_i != 0
-        puts "No branch"
-        exit -1
-    end
+  $branch = %x{git branch --show-current 2>/dev/null}.strip
+  if $?.to_i != 0
+    puts "No branch"
+    exit -1
+  end
 end
 
 if $cmd == "upload" and ($build_no.nil? or $build_no.size == 0) and not $no_manifest
-    puts "No build number!"
-    exit -1
+  puts "No build number!"
+  exit -1
 end
 
 case $repo
 when /(bitbucket\.microchip\.com)\/scm\/(.*)\/(.*)\.git/
-    $git_host = $1
-    $git_org = $2.upcase
-    $git_repo_base = $3
+  $git_host = $1
+  $git_org = $2.upcase
+  $git_repo_base = $3
 when /(bitbucket\.microchip\.com)\/(.*)\/(.*)\.git/
-    $git_host = $1
-    $git_org = $2.upcase
-    $git_repo_base = $3
+  $git_host = $1
+  $git_org = $2.upcase
+  $git_repo_base = $3
 when /(bitbucket\.microchip\.com):scm\/(.*)\/(.*)\.git/
-    $git_host = $1
-    $git_org = $2.upcase
-    $git_repo_base = $3
+  $git_host = $1
+  $git_org = $2.upcase
+  $git_repo_base = $3
 when /(bitbucket\.microchip\.com):(.*)\/(.*)\.git/
-    $git_host = $1
-    $git_org = $2.upcase
-    $git_repo_base = $3
+  $git_host = $1
+  $git_org = $2.upcase
+  $git_repo_base = $3
 when /(bitbucket\.microchip\.com)\/scm\/(.*)\/(.*)/
-    $git_host = $1
-    $git_org = $2.upcase
-    $git_repo_base = $3
+  $git_host = $1
+  $git_org = $2.upcase
+  $git_repo_base = $3
 when /(bitbucket\.microchip\.com)\/(.*)\/(.*)/
-    $git_host = $1
-    $git_org = $2.upcase
-    $git_repo_base = $3
+  $git_host = $1
+  $git_org = $2.upcase
+  $git_repo_base = $3
 else
-    puts "Repo name looks wrong!"
-    puts "Got: #{$repo}"
-    exit -1
+  puts "Repo name looks wrong!"
+  puts "Got: #{$repo}"
+  exit -1
 end
 $repo = "#{$git_host}/#{$git_org}/#{$git_repo_base}"
 
 if $cmd == "upload" && $upload_list.size == 0 and not $final
-    puts "No upload folder/file!"
-    exit -1
+  puts "No upload folder/file!"
+  exit -1
 end
 
 $ts = Time.now
@@ -1131,12 +1178,12 @@ $m = nil
 
 load_manifest_from_file = false
 if $final or ($incremental and File.exist? $manifest_file)
-    load_manifest_from_file = true
+  load_manifest_from_file = true
 end
 
 if $manifest_file
-    $manifest_file_h = File.open($manifest_file, File::CREAT | File::RDWR)
-    $manifest_file_h.flock(File::LOCK_EX)
+  $manifest_file_h = File.open($manifest_file, File::CREAT | File::RDWR)
+  $manifest_file_h.flock(File::LOCK_EX)
 end
 
 if load_manifest_from_file
@@ -1148,29 +1195,29 @@ if load_manifest_from_file
   end
   $ts = Time.parse $m["build-info"]["timestamp"]
 else
-    # Bootstrap the manifest file...
-    # NOTE: We will do this even in the case of not having a manifest file
-    # (generic use)
-    $m = {
-        "schema-version" =>  1,
-        "build-info" => {
-            "repo" => $repo,
-            "branch" => $branch,
-            "build-no" => $build_no.to_s,
-            "git-sha" => $sha,
-            "timestamp" => $ts,
-        },
-        "retention" => {
-            "initial-retention-time-days" => $days,
-        },
-        "files" => [],
-        "dependencies" => [],
-    }
+  # Bootstrap the manifest file...
+  # NOTE: We will do this even in the case of not having a manifest file
+  # (generic use)
+  $m = {
+    "schema-version" =>  1,
+    "build-info" => {
+      "repo" => $repo,
+      "branch" => $branch,
+      "build-no" => $build_no.to_s,
+      "git-sha" => $sha,
+      "timestamp" => $ts,
+    },
+    "retention" => {
+      "initial-retention-time-days" => $days,
+    },
+    "files" => [],
+    "dependencies" => [],
+  }
 end
 
 if $m.nil?
-    puts "Failed to load the manifest file"
-    exit
+  puts "Failed to load the manifest file"
+  exit
 end
 
 $keep_until = $ts + ($days * 24 * 60 * 60)
@@ -1180,69 +1227,78 @@ $files = []
 $m_deps = $m["dependencies"]
 
 if $cmd == "upload" and ($repo != $m_build_info["repo"] or
-        $branch != $m_build_info["branch"] or
-        $build_no != $m_build_info["build-no"] or
-        $sha != $m_build_info["git-sha"] or
-        #$ts.to_s != $m_build_info["timestamp"] or
-        $days != $m["retention"]["initial-retention-time-days"])
-    puts "repo: #{$repo} != #{$m_build_info["repo"]}" if $repo != $m_build_info["repo"]
-    puts "branch: #{$branch} != #{$m_build_info["branch"]}" if $branch != $m_build_info["branch"]
-    puts "build_no: '#{$build_no}' != '#{$m_build_info["build-no"]}'" if $build_no != $m_build_info["build-no"]
-    puts "sha: #{$sha} != #{$m_build_info["git-sha"]}" if $sha != $m_build_info["git-sha"]
-    puts "days: #{$days} != #{$m["retention"]["initial-retention-time-days"]}" if $days != $m["retention"]["initial-retention-time-days"]
-    puts "The provided repo/branch/build-no/git-sha/timestamp/days does not match what is loaded from the manifest file!"
-    exit -1
+    $branch != $m_build_info["branch"] or
+    $build_no != $m_build_info["build-no"] or
+    $sha != $m_build_info["git-sha"] or
+    #$ts.to_s != $m_build_info["timestamp"] or
+    $days != $m["retention"]["initial-retention-time-days"])
+  puts "repo: #{$repo} != #{$m_build_info["repo"]}" if $repo != $m_build_info["repo"]
+  puts "branch: #{$branch} != #{$m_build_info["branch"]}" if $branch != $m_build_info["branch"]
+  puts "build_no: '#{$build_no}' != '#{$m_build_info["build-no"]}'" if $build_no != $m_build_info["build-no"]
+  puts "sha: #{$sha} != #{$m_build_info["git-sha"]}" if $sha != $m_build_info["git-sha"]
+  puts "days: #{$days} != #{$m["retention"]["initial-retention-time-days"]}" if $days != $m["retention"]["initial-retention-time-days"]
+  puts "The provided repo/branch/build-no/git-sha/timestamp/days does not match what is loaded from the manifest file!"
+  exit -1
 end
 
 $base_url = "#{$root}/#{$git_org}/#{$git_repo_base}/#{$branch}/#{$build_no}"
 if $dep_generic_file_dst.nil?
-    $target_url = "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/#{$base_url}"
+  $target_url = "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/#{$base_url}"
 else
-    $target_url = "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/#{$dep_generic_file_dst}"
+  $target_url = "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/#{$dep_generic_file_dst}"
 end
 
 if $verbose > 0
-    info "Version: #{VERSION}"
-    info "Input:"
-    info "  root:                       #{$root}"
-    info "  user:                       #{$user}"
-    info "  token:                      #{$token.gsub(/./, "x")}"
-    info "  branch:                     #{$branch}"
-    info "  repo:                       #{$repo}"
-    info "  build_no:                   #{$build_no}"
-    info "  sha:                        #{$sha}"
-    info "  days:                       #{$days}"
-    info "  ts:                         #{$ts}"
-    info "  keep_until:                 #{$keep_until}"
-    info "  verbose:                    #{$verbose}"
-    info "  dep_gen_mani:               #{$dep_gen_mani}"
-    info "  dep_gen_file:               #{$dep_gen_file}"
-    info "  dep_docker:                 #{$dep_docker}"
-    info "  upload_list:                #{$upload_list}"
-    info "  upload_folder_pop_cnt       #{$upload_folder_pop_cnt}"
-    info "  target url:                 #{$target_url}"
-    info "  local-manifest-file:        #{$manifest_file}"
-    info "  incremental                 #{$incremental}"
-    info "  final                       #{$final}"
-    info "  skip_files_already_present  #{$skip_files_already_present}"
+  info "Version: #{VERSION}"
+  info "Input:"
+  info "  root:                       #{$root}"
+  info "  user:                       #{$user}"
+  info "  token:                      #{$token.gsub(/./, "x")}"
+  info "  branch:                     #{$branch}"
+  info "  repo:                       #{$repo}"
+  info "  build_no:                   #{$build_no}"
+  info "  sha:                        #{$sha}"
+  info "  days:                       #{$days}"
+  info "  ts:                         #{$ts}"
+  info "  keep_until:                 #{$keep_until}"
+  info "  verbose:                    #{$verbose}"
+  info "  dep_gen_mani:               #{$dep_gen_mani}"
+  info "  dep_gen_file:               #{$dep_gen_file}"
+  info "  dep_docker:                 #{$dep_docker}"
+  info "  upload_list:                #{$upload_list}"
+  info "  upload_folder_pop_cnt       #{$upload_folder_pop_cnt}"
+  info "  target url:                 #{$target_url}"
+  info "  local-manifest-file:        #{$manifest_file}"
+  info "  incremental                 #{$incremental}"
+  info "  final                       #{$final}"
+  info "  skip_files_already_present  #{$skip_files_already_present}"
+  info "  threads_support             #{$threads_support}"
 end
 
 $upload_list.each do |f|
-    process_upload_list f
+  process_upload_list f
 end
 
 if $dep_generic_file_dst
-    threads=[]
-    $m_deps.each do |e|
-        threads << Thread.new do
-            a_upload(e["generic-file-url"], File.binread(e["generic-file-local-path"]))
-            http_set_keep_until e["generic-file-url"], $keep_until
-            e.delete("local-path")
-        end
+  threads=[]
+  $m_deps.each do |e|
+    func = ->(e) {
+      a_upload(e["generic-file-url"], File.binread(e["generic-file-local-path"]))
+      time = http_get_keep_until e["generic-file-url"]
+      if time < $keep_until
+        http_set_keep_until e["generic-file-url"], $keep_until
+      end
+      e.delete("local-path")
+    }
+    if $threads_support == true
+      threads << Thread.new { func.call(e) }
+    else
+      func.call(e)
     end
-    threads.each do |t|
-        t.join
-    end
+  end
+  threads.each do |t|
+    t.join
+  end
 end
 
 if $dep_file.size > 0
@@ -1267,8 +1323,8 @@ end
 $m["dependencies"] = $m_deps
 
 if $incremental
-    save_manifest_file($manifest_file_h)
-    $manifest_file_h = nil
+  save_manifest_file($manifest_file_h)
+  $manifest_file_h = nil
 end
 
 slice = $files.length / NR_THREADS
@@ -1276,49 +1332,54 @@ slice = 1 if slice == 0
 
 threads=[]
 $files.each_slice(slice) do |s|
-    threads << Thread.new do
-        s.each do |e|
-            a_upload("#{$target_url}/#{e["path"]}", File.binread(e["ci-path"]))
-        end
+  func = ->(s) {
+    s.each do |e|
+      a_upload("#{$target_url}/#{e["path"]}", File.binread(e["ci-path"]))
     end
+  }
+  if $threads_support == true
+    threads << Thread.new { func.call(s) }
+  else
+    func.call(s)
+  end
 end
 threads.each do |t|
-    t.join
+  t.join
 end
 
 if $no_manifest
 
 elsif $cmd == "upload" and ($final or $manifest_file.nil?)
-    dbg "upload manifest: #{$target_url}/manifest.json"
-    http_put "#{$target_url}/manifest.json", JSON.pretty_generate($m)
+  dbg "upload manifest: #{$target_url}/manifest.json"
+  http_put "#{$target_url}/manifest.json", JSON.pretty_generate($m)
 
-    http_set_keep_until "#{$target_url}/manifest.json", $keep_until + $buffer
+  http_set_keep_until "#{$target_url}/manifest.json", $keep_until + $buffer
 
-    update_keep_until_deps $m_deps
+  update_keep_until_deps $m_deps
 
-    if $final
-        save_manifest_file($manifest_file_h)
-        $manifest_file_h = nil
-        File.unlink($manifest_file)
-    end
+  if $final
+    save_manifest_file($manifest_file_h)
+    $manifest_file_h = nil
+    File.unlink($manifest_file)
+  end
 end
 
 if $cmd == "upload"
-    exit 0
+  exit 0
 end
 
 if $cmd != "delete" and
-   $cmd != "promote" and
-   $cmd != "check"
-    puts "Invalid command"
-    exit -1
+    $cmd != "promote" and
+    $cmd != "check"
+  puts "Invalid command"
+  exit -1
 end
 
 case $cmd
 when "promote"
-    promote_build "https://artifacts-aws.devops.microchip.com/artifactory/#{$artifactory_path}"
+  promote_build "https://artifacts-aws.devops.microchip.com/artifactory/#{$artifactory_path}"
 when "check"
-    check_build "https://artifacts-aws.devops.microchip.com/artifactory/#{$artifactory_path}"
+  check_build "https://artifacts-aws.devops.microchip.com/artifactory/#{$artifactory_path}"
 when "delete"
-    clear_path "https://artifacts-aws.devops.microchip.com/artifactory/api/storage/", "#{$artifactory_path}"
+  clear_path "https://artifacts-aws.devops.microchip.com/artifactory/api/storage/", "#{$artifactory_path}"
 end
