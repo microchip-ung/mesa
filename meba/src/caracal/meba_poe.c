@@ -154,8 +154,6 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");
 
     caracal_pd69200_system.controller_count = 1;
-    caracal_pd69200_system.controllers =
-        malloc(sizeof(meba_poe_ctrl_inst_t) * caracal_pd69200_system.controller_count);
 
     switch (inst->props.board_type) {
     case VTSS_BOARD_LUTON10_PDS408G: {
