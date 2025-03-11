@@ -805,6 +805,19 @@ static mesa_rc caracal_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list
     return MESA_RC_OK;
 }
 
+static mesa_rc caracal_sfp_status_get(meba_inst_t        inst,
+                                  mesa_port_no_t     port_no,
+                                  meba_sfp_status_t *status)
+{
+    mesa_rc          rc;
+    mesa_port_list_t present;
+
+    rc = caracal_sfp_insertion_status_get(inst, &present);
+    status->present = mesa_port_list_get(&present, port_no);
+    return rc;
+}
+
+
 static mesa_rc caracal_port_admin_state_set(meba_inst_t                    inst,
                                             mesa_port_no_t                 port_no,
                                             const meba_port_admin_state_t *state)
@@ -1413,7 +1426,7 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
     inst->api.meba_sensor_get = caracal_sensor_get;
     inst->api.meba_sfp_i2c_xfer = caracal_sfp_i2c_xfer;
     inst->api.meba_sfp_insertion_status_get = caracal_sfp_insertion_status_get;
-    // inst->api.meba_sfp_status_get             = caracal_sfp_status_get;
+    inst->api.meba_sfp_status_get = caracal_sfp_status_get;
     inst->api.meba_port_admin_state_set = caracal_port_admin_state_set;
     inst->api.meba_status_led_set = caracal_status_led_set;
     inst->api.meba_port_led_update = caracal_port_led_update;
