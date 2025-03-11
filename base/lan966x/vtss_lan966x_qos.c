@@ -1266,10 +1266,8 @@ static vtss_rc tas_list_start(vtss_state_t             *vtss_state,
 
     /* Configure the profile */
     for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
-        maxsdu = (fp_enable_tx != 0)
-                     ? 1
-                     : (max_sdu[i] / 64) + (max_sdu[i] ? 1 : 0); /* In case of FP aktive the MAXSDU
-                                                                    must be as small as possible */
+        /* In case of FP aktive the MAXSDU must be as small as possible */
+        maxsdu = (fp_enable_tx != 0) ? 1 : (max_sdu[i] / 64) + ((max_sdu[i] % 64) ? 1 : 0);
         REG_WR(QSYS_TAS_QMAXSDU_CFG(profile_idx, i), QSYS_TAS_QMAXSDU_CFG_QMAXSDU_VAL(maxsdu));
     }
     /* Configure the queue max sdu */
@@ -1384,11 +1382,8 @@ static vtss_rc lan966x_qos_tas_frag_size_update(struct vtss_state_s *vtss_state,
 
         /* This must be done depending on FP enabled or disabled */
         for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
-            maxsdu =
-                (fp_enable_tx != 0)
-                    ? 1
-                    : (max_sdu[i] / 64) + (max_sdu[i] ? 1 : 0); /* In case of FP active the MAXSDU
-                                                                   must be as small as possible */
+            /* In case of FP aktive the MAXSDU must be as small as possible */
+            maxsdu = (fp_enable_tx != 0) ? 1 : (max_sdu[i] / 64) + ((max_sdu[i] % 64) ? 1 : 0);
             REG_WR(QSYS_TAS_QMAXSDU_CFG(profile_idx, i), QSYS_TAS_QMAXSDU_CFG_QMAXSDU_VAL(maxsdu));
         }
 
