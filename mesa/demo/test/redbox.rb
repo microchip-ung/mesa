@@ -1185,6 +1185,27 @@ test_table =
             {port: "b", name: "tx_dupl_one", val: 1},
         ]
     },
+    {
+        # Refer to Laguna DOS section 8.3.2
+        txt: "PTP Synchronization",
+        cfg: {mode: "HSR_PRP", ptp: "ETHERNET",
+              # Type 0: Sync
+              acl: [{idx_rx: "a", idx_tx: "c", type: 0, srcid: true}],
+              ts: [{idx: "c", srcid: true}]},
+        tab: [
+            # Sync frame from port A
+            {frm: {ptp: {type: "sync"}},
+             fwd: [{idx_tx: "a", hsr: {}},
+                   {idx_rx: "c", src: (2 << 14)}]},
+            # Sync frame from port B
+            {frm: {ptp: {type: "sync"}},
+             fwd: [{idx_tx: "b", hsr: {}},
+                   {idx_rx: "c", src: (3 << 14)}]},
+        ],
+        cnt: [
+            {port: "c", name: "tx_dupl_zero", val: 0},
+            {port: "c", name: "tx_untagged", val: 2}]
+    },
 
     # HSR-HSR tests
     {
@@ -1388,12 +1409,10 @@ test_table =
 
 def vlan_port_conf_set(idx, e)
     port = $ts.dut.p[idx]
-    conf = {}
+    conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
     conf["port_type"] = ("MESA_VLAN_PORT_TYPE_" + fld_get(e, :type, "UNAWARE"))
     conf["pvid"] = fld_get(e, :pvid, 1)
     conf["untagged_vid"] = fld_get(e, :uvid, 1)
-    conf["frame_type"] = "MESA_VLAN_FRAME_ALL"
-    conf["ingress_filter"] = false
     $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
 end
 
@@ -1644,6 +1663,16 @@ def redbox_test(t)
         conf["mode"] = ("MESA_RB_PTP_MODE_" + ptp)
         conf["vid"] = fld_get(cfg, :vid)
         $ts.dut.call("mesa_rb_ptp_conf_set", $rb_id, conf)
+    end
+
+    # Timestamp configuration
+    ts = fld_get(cfg, :ts, [])
+    ts.each do |e|
+        idx = rb_idx(fld_get(e, :idx))
+        port = $ts.dut.p[idx]
+        c = $ts.dut.call("mesa_ts_operation_mode_get", port)
+        c["rb_srcid"] = fld_get(e, :srcid, false)
+        $ts.dut.call("mesa_ts_operation_mode_set", port, c)
     end
 
     # Remove nodes and proxy nodes from previous tests

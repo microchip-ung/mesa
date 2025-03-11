@@ -816,6 +816,7 @@ typedef struct vtss_ts_operation_mode_t {
 #endif
 #if defined(VTSS_FEATURE_REDBOX)
     vtss_ts_rb_discard_t rb_discard; // RedBox discard mode
+    BOOL                 rb_srcid;   // RedBox srcid selection, TRUE for bit 15:14 (else bit 13:12)
 #endif
 } vtss_ts_operation_mode_t;
 

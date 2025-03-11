@@ -612,6 +612,8 @@ static vtss_rc fa_ts_operation_mode_set(vtss_state_t  *vtss_state,
 
 #if defined(VTSS_FEATURE_REDBOX)
     VTSS_RC(vtss_fa_rb_port_update(vtss_state, port_no));
+    REG_WRM_CTL(VTSS_REW_PTP_MISC_CFG(port), o_mode->rb_srcid,
+                VTSS_M_REW_PTP_MISC_CFG_PTP_RB_ID_SEL);
 #endif
 
     if (!mode_domain_config) {

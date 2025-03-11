@@ -711,6 +711,7 @@ typedef struct mesa_ts_operation_mode_t {
     mesa_ts_pch_rx_mode_t rx_pch_mode CAP(PCH);   /**< PCH RX mode */
     uint32_t pch_port_id              CAP(PCH);   /**< PCH sub-portID. */
     mesa_ts_rb_discard_t              rb_discard; // RedBox discard mode
+    mesa_bool_t rb_srcid; // RedBox srcid selection, TRUE for bit 15:14 (else bit 13:12)
 } mesa_ts_operation_mode_t CAP(TS);
 
 /**
