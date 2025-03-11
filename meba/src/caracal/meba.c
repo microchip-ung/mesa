@@ -806,8 +806,8 @@ static mesa_rc caracal_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list
 }
 
 static mesa_rc caracal_sfp_status_get(meba_inst_t        inst,
-                                  mesa_port_no_t     port_no,
-                                  meba_sfp_status_t *status)
+                                      mesa_port_no_t     port_no,
+                                      meba_sfp_status_t *status)
 {
     mesa_rc          rc;
     mesa_port_list_t present;
@@ -816,7 +816,6 @@ static mesa_rc caracal_sfp_status_get(meba_inst_t        inst,
     status->present = mesa_port_list_get(&present, port_no);
     return rc;
 }
-
 
 static mesa_rc caracal_port_admin_state_set(meba_inst_t                    inst,
                                             mesa_port_no_t                 port_no,
