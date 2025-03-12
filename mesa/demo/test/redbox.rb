@@ -587,6 +587,33 @@ test_table =
             {port: "c", name: "tx_dupl_multi", val: 1},
         ]
     },
+    {
+        # Refer to Laguna DOS section 8.3.3
+        txt: "PTP Synchronization",
+        cfg: {mode: "HSR_SAN",
+              # Type 0: Sync
+              # Type 1: Delay_Req
+              # Type 9: Delay_Resp
+              acl: [{idx_rx: "a", idx_tx: "c", type: 0, srcid: true},
+                    {idx_rx: "c", idx_tx: "a", type: 1}]},
+        tab: [
+            # Sync frame from port A
+            {frm: {ptp: {type: "sync"}},
+             fwd: [{idx_tx: "a", hsr: {}},
+                   {idx_rx: "b", hsr: {}},
+                   {idx_rx: "c", src: (2 << 12)}]},
+            # Sync frame from port B
+            {frm: {ptp: {type: "sync"}},
+             fwd: [{idx_tx: "b", hsr: {}},
+                   {idx_rx: "a", hsr: {}},
+                   {idx_rx: "c", src: (3 << 12)}]},
+            # Delay_Req frame from port C
+            {frm: {ptp: {type: "request"}},
+             fwd: [{idx_tx: "c"},
+                   {idx_rx: "a", hsr: {}},
+                   {idx_rx: "b", hsr: {lan_id: 1}}]},
+        ],
+    },
 
     # PRP-SAN tests
     {
@@ -1193,11 +1220,11 @@ test_table =
               acl: [{idx_rx: "a", idx_tx: "c", type: 0, srcid: true}],
               ts: [{idx: "c", srcid: true}]},
         tab: [
-            # Sync frame from port A
+            # Sync frame from port A, redirect to interlink
             {frm: {ptp: {type: "sync"}},
              fwd: [{idx_tx: "a", hsr: {}},
                    {idx_rx: "c", src: (2 << 14)}]},
-            # Sync frame from port B
+            # Sync frame from port B, redirect to interlink
             {frm: {ptp: {type: "sync"}},
              fwd: [{idx_tx: "b", hsr: {}},
                    {idx_rx: "c", src: (3 << 14)}]},
@@ -1525,11 +1552,11 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
                 if (req != nil)
                     cmd += (" rpi-portNumber 0x%04x" % req)
                 end
-                src = fld_get(ptp, :src, nil)
                 src = fld_get(e, :src, src)
                 if (src != nil)
                     cmd += (" hdr-portNumber 0x%04x" % src)
                 end
+                cmd += " data hex 1122"
             elsif (add_cmd != nil)
                 cmd += " #{add_cmd}"
             else
