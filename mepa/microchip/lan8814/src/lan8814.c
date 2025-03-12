@@ -9,7 +9,6 @@
 #include "microchip/lan8814_cs.h"
 #include "lan8814_ts_registers.h"
 
-#include "string.h"
 #include "lan8814_private.h"
 
 extern mepa_ts_driver_t lan8814_ts_drivers;

@@ -211,7 +211,7 @@ typedef struct {
     vtss_rc (*malibu_phy_10g_clause_37_control_set) (struct vtss_state_s     *vtss_state,
                                                      const vtss_port_no_t     port_no);
     vtss_rc (* malibu_phy_10g_auto_failover_set)(struct vtss_state_s *vtss_state,
-                                            const vtss_phy_10g_auto_failover_conf_t    *mode);
+                                            const vtss_phy_10g_auto_failover_conf_t    *const mode);
     vtss_rc (* malibu_phy_10g_gpio_read) (struct vtss_state_s *vtss_state,
                                           const vtss_port_no_t             port_no,
                                           const vtss_gpio_10g_no_t    gpio_no,

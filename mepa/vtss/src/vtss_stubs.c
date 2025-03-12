@@ -778,7 +778,7 @@ vtss_rc vtss_phy_10g_failover_get(const vtss_inst_t inst, const vtss_port_no_t p
     return VTSS_RC_NOT_IMPLEMENTED;
 }
 
-vtss_rc vtss_phy_10g_auto_failover_set(const vtss_inst_t inst, vtss_phy_10g_auto_failover_conf_t *const mode)
+vtss_rc vtss_phy_10g_auto_failover_set(const vtss_inst_t inst, const vtss_phy_10g_auto_failover_conf_t *const mode)
 {
     return VTSS_RC_NOT_IMPLEMENTED;
 }

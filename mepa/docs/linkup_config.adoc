@@ -112,20 +112,28 @@ Following table will provide the short Description about different arguments ava
 |===
 
 To configure the VSC 10G PHYs the argument `conf_10g` of `mepa_conf_t` needs to be configured following table provides the
-breakdown the argument `conf_10g` with Short Description of each argument.
+breakdown the argument `phy10g_conf_t` with Short Description of each argument.
 
 [cols="1,1", options="header"]
 |===
-| Arguments of `conf_10g`                     | Description
+| Arguments of `phy10g_conf_t`                | Description
 | oper_mode - `phy10g_oper_mode_t`            | Phy Operating Mode based on Speed
 | interface_mode  - `phy10g_interface_mode_t` | Phy Interface, this will vary for different SKUs of various VSC 10G PHYs
-| channel_id - `mepa_phy_channel_id_t `       | Channel Number of the PHY Port
-| h_media  - `phy_media_t`                    | Host side Media Connected
-| l_media  - `phy_media_t`                    | Line side Media Connected
+| channel_id                                  | Channel Number of the PHY Port
+| h_media  - `phy10g_media_t`                 | Host side Media Connected
+| l_media  - `phy10g_media_t`                 | Line side Media Connected
 | channel_high_to_low                         | If Channel id decreasing order w.r.t port number increasing then set this to `1`
+| xfi_pol_invert                              | Selects polarity to the TX XFI data. 1:Invert 0:Normal
+| xaui_lane_flip                              | Swaps XAUI Lane 0 <--> 3 and 1 <--> 2 for both RX/TX for Venice PHY family
+| polarity - `phy_10g_polarity_inv_t`         | polarity inversion configuration
+| hl_clk_synth                                | 0: Free running clock  1: Hitless clock
+| is_host_wan                                 | HOST WAN/LAN Selection for SerDes config
+| lref_for_host                               | Clock source selection HREF or LREF on HOST side
+| h_clk_src_is_high_amp                       | Host H_PLL5G Amplitude selection HIGH or LOW
+| l_clk_src_is_high_amp                       | Line L_PLL5G Amplitude selection HIGH or LOW
 |===
 
-MEPA Supports different Host Side and Line Side Media Connections provided in `phy_media_t`, but VSC 10G PHYs will only support
+MEPA Supports different Host Side and Line Side Media Connections provided in `phy10g_media_t`, but VSC 10G PHYs will only support
 following Media.
 
 . MEPA_MEDIA_TYPE_SR_SC +
