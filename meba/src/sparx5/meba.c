@@ -1444,8 +1444,8 @@ static mesa_bool_t fa_1g_viper_detect(const meba_inst_t inst)
     uint16_t reg3 = 0;
     uint16_t model = 0;
 
-    mebaux_miim_rd(inst, &rawio, 0, MESA_MIIM_CONTROLLER_0, 2, &reg2);
-    mebaux_miim_rd(inst, &rawio, 0, MESA_MIIM_CONTROLLER_0, 3, &reg3);
+    mebaux_miim_rd(inst, &rawio, MESA_MIIM_CONTROLLER_0, 0, 2, &reg2);
+    mebaux_miim_rd(inst, &rawio, MESA_MIIM_CONTROLLER_0, 0, 3, &reg3);
 
     phy_id = ((uint32_t)reg2) << 16 | reg3;
     model = ((phy_id & 0xffff0) >> 4);
@@ -1463,8 +1463,8 @@ static mesa_bool_t fa_1g_tesla_detect(const meba_inst_t inst)
     uint16_t reg3 = 0;
     uint16_t model = 0;
 
-    mebaux_miim_rd(inst, &rawio, 0, MESA_MIIM_CONTROLLER_0, 2, &reg2);
-    mebaux_miim_rd(inst, &rawio, 0, MESA_MIIM_CONTROLLER_0, 3, &reg3);
+    mebaux_miim_rd(inst, &rawio, MESA_MIIM_CONTROLLER_0, 0, 2, &reg2);
+    mebaux_miim_rd(inst, &rawio, MESA_MIIM_CONTROLLER_0, 0, 3, &reg3);
 
     phy_id = ((uint32_t)reg2) << 16 | reg3;
     model = ((phy_id & 0xffff0) >> 4);

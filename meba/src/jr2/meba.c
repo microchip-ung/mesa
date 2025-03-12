@@ -255,7 +255,7 @@ static mesa_bool_t jr2_10g_malibu_detect(const meba_inst_t inst)
     uint16_t model = 0;
 
     /* Trying to read PHY ID at MIIM controller = 0 */
-    if (mebaux_mmd_rd(inst, &rawio, 0, 0, 30, 0, &model) == MESA_RC_OK) {
+    if (mebaux_mmd_rd(inst, &rawio, MESA_MIIM_CONTROLLER_0, 0, 30, 0, &model) == MESA_RC_OK) {
         T_I(inst, "10g phy model %x\n", model);
         if (model == 0x8254 || model == 0x8256 || model == 0x8257 || model == 0x8258) {
             return true;
@@ -270,13 +270,13 @@ static mesa_bool_t jr2_10g_venice_detect(const meba_inst_t inst)
     meba_board_state_t *board = INST2BOARD(inst);
     uint16_t            model = 0;
     /* Trying to read PHY ID at MIIM controller = 0 */
-    if (mebaux_mmd_rd(inst, &rawio, 0, 0, 30, 0, &model) == MESA_RC_OK) {
+    if (mebaux_mmd_rd(inst, &rawio, MESA_MIIM_CONTROLLER_0, 0, 30, 0, &model) == MESA_RC_OK) {
         if (model == 0x8484 || model == 0x8487 || model == 0x8488) {
             board->venice_present = model;
             return true;
         }
     }
-    if (mebaux_mmd_rd(inst, &rawio, 0, 24, 30, 0, &model) == MESA_RC_OK) {
+    if (mebaux_mmd_rd(inst, &rawio, MESA_MIIM_CONTROLLER_0, 24, 30, 0, &model) == MESA_RC_OK) {
         if (model == 0x8489 || model == 0x8490 || model == 0x8491) {
             board->venice_present = model;
             return true;
@@ -2290,7 +2290,8 @@ static mesa_rc malibu_mode_conf(const meba_inst_t inst)
         board->port[iport].map.map.miim_addr = 27 - iport;
         board->port[iport].map.cap =
             (MEBA_PORT_CAP_VTSS_10G_PHY | MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_FLOW_CTRL |
-             MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_AUTONEG | MEBA_PORT_CAP_SD_INTERNAL);
+             MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_AUTONEG | MEBA_PORT_CAP_SD_INTERNAL |
+             MEBA_PORT_CAP_SFP_ONLY | MEBA_PORT_CAP_SFP_DETECT);
     }
 
     if ((rc = mesa_sgpio_conf_get(NULL, 0, 2, &conf)) == MESA_RC_OK) {
@@ -2426,7 +2427,6 @@ static mesa_rc jr2_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list_t *
     mesa_rc             rc = MESA_RC_OK;
 
     T_N(inst, "Called");
-
     mesa_port_list_clear(present);
 
     if (board->type == BOARD_TYPE_JAGUAR2_AQR) {
@@ -2464,93 +2464,99 @@ static mesa_rc jr2_sfp_insertion_status_get(meba_inst_t inst, mesa_port_list_t *
                     uint32_t chip_port = board->port[port_no].map.map.chip_port;
 
                     // SGPIO2 port/bit       Input                     Output
-                    // 0b0    Port  9 (SFP)  LOS (1=LOS from SFP)      Port 9
-                    // (SFP) TXEN (1=enable) 0b1    Port  9 (SFP)  MODDETn
-                    // (0=SFP present)   Port 9 (SFP) RATESEL 0b2    Port  9
-                    // (SFP)  TXFAULT (1=TX fault)      Port 10 (SFP) TXEN
-                    // (1=enable) 1b0    Port 10 (SFP)  LOS (1=LOS from SFP)
-                    // Port 10 (SFP) RATESEL 1b1    Port 10 (SFP)  MODDETn
-                    // (0=SFP present)   Port 11 (SFP) TXEN (1=enable) 1b2 Port
-                    // 10 (SFP)  TXFAULT (1=TX fault)      Port 11 (SFP) RATESEL
-                    // 2b0    Port 11 (SFP)  LOS (1=LOS from SFP)      Port 12
-                    // (SFP) TXEN (1=enable) 2b1    Port 11 (SFP)  MODDETn
-                    // (0=SFP present)   Port 12 (SFP) RATESEL 2b2    Port 11
-                    // (SFP)  TXFAULT (1=TX fault)      Port 13 (SFP) TXEN
-                    // (1=enable) 3b0    Port 12 (SFP)  LOS (1=LOS from SFP)
-                    // Port 13 (SFP) RATESEL 3b1    Port 12 (SFP)  MODDETn
-                    // (0=SFP present)   Port 14 (SFP) TXEN (1=enable) 3b2 Port
-                    // 12 (SFP)  TXFAULT (1=TX fault)      Port 14 (SFP) RATESEL
-                    // 4b0    Port 13 (SFP)  LOS (1=LOS from SFP)      Port 15
-                    // (SFP) TXEN (1=enable) 4b1    Port 13 (SFP)  MODDETn
-                    // (0=SFP present)   Port 15 (SFP) RATESEL 4b2    Port 13
-                    // (SFP)  TXFAULT (1=TX fault)      Port 16 (SFP) TXEN
-                    // (1=enable) 5b0    Port 14 (SFP)  LOS (1=LOS from SFP)
-                    // Port 16 (SFP) RATESEL 5b1    Port 14 (SFP)  MODDETn
-                    // (0=SFP present)   Port 17 (SFP) TXEN (1=enable) 5b2 Port
-                    // 14 (SFP)  TXFAULT (1=TX fault)      Port 17 (SFP) RATESEL
-                    // 6b0    Port 15 (SFP)  LOS (1=LOS from SFP)      Port 18
-                    // (SFP) TXEN (1=enable) 6b1    Port 15 (SFP)  MODDETn
-                    // (0=SFP present)   Port 18 (SFP) RATESEL 6b2    Port 15
-                    // (SFP)  TXFAULT (1=TX fault)      Port 19 (SFP) TXEN
-                    // (1=enable) 7b0    Port 16 (SFP)  LOS (1=LOS from SFP)
-                    // Port 19 (SFP) RATESEL 7b1    Port 16 (SFP)  MODDETn
-                    // (0=SFP present)   Port 20 (SFP) TXEN (1=enable) 7b2 Port
-                    // 16 (SFP)  TXFAULT (1=TX fault)      Port 20 (SFP) RATESEL
-                    // 8b0    Port 17 (SFP)  LOS (1=LOS from SFP)      Port 21
-                    // (SFP) TXEN (1=enable) 8b1    Port 17 (SFP)  MODDETn
-                    // (0=SFP present)   Port 21 (SFP) RATESEL 8b2    Port 17
-                    // (SFP)  TXFAULT (1=TX fault)      Port 22 (SFP) TXEN
-                    // (1=enable) 9b0    Port 18 (SFP)  LOS (1=LOS from SFP)
-                    // Port 22 (SFP) RATESEL 9b1    Port 18 (SFP)  MODDETn
-                    // (0=SFP present)   Port 23 (SFP) TXEN (1=enable) 9b2 Port
-                    // 18 (SFP)  TXFAULT (1=TX fault)      Port 23 (SFP) RATESEL
-                    // 10b0   Port 19 (SFP)  LOS (1=LOS from SFP)      Port 24
-                    // (SFP) TXEN (1=enable) 10b1   Port 19 (SFP)  MODDETn
-                    // (0=SFP present)   Port 24 (SFP) RATESEL 10b2   Port 19
-                    // (SFP)  TXFAULT (1=TX fault)      X2_TXONOFF_A 11b0   Port
-                    // 20 (SFP)  LOS (1=LOS from SFP)      X2_TXONOFF_B 11b1
-                    // Port 20 (SFP)  MODDETn (0=SFP present)   FAN1_ENn
-                    // (0=enable) 11b2   Port 20 (SFP)  TXFAULT (1=TX fault)
-                    // FAN2_ENn (0=enable) 12b0   Port 21 (SFP)  LOS (1=LOS from
-                    // SFP)      SFP+ 1 TXEN (1=enable) 12b1   Port 21 (SFP)
-                    // MODDETn (0=SFP present)   SFP+ 2 TXEN (1=enable) 12b2
-                    // Port 21 (SFP)  TXFAULT (1=TX fault)      SFP+ 3 TXEN
-                    // (1=enable) 13b0   Port 22 (SFP)  LOS (1=LOS from SFP)
-                    // SFP+ 4 TXEN (1=enable) 13b1   Port 22 (SFP)  MODDETn
-                    // (0=SFP present)   SFP+ 1 RateSel0 13b2   Port 22 (SFP)
-                    // TXFAULT (1=TX fault)      SFP+ 1 RateSel1 14b0   Port 23
-                    // (SFP)  LOS (1=LOS from SFP)      SFP+ 2 RateSel0 14b1
-                    // Port 23 (SFP)  MODDETn (0=SFP present)   SFP+ 2 RateSel1
-                    // 14b2   Port 23 (SFP)  TXFAULT (1=TX fault)      SFP+ 3
-                    // RateSel0 15b0   Port 24 (SFP)  LOS (1=LOS from SFP) SFP+
-                    // 3 RateSel1 15b1   Port 24 (SFP)  MODDETn (0=SFP present)
-                    // SFP+ 4 RateSel0 15b2   Port 24 (SFP)  TXFAULT (1=TX
-                    // fault)      SFP+ 4 RateSel1 24b0   nINT_PHY1 (PHY for
-                    // ports 1-4)            NPI LED, green (1=on) 24b1
-                    // nINT_PHY2 (PHY for ports 5-8)            NPI LED, yellow
-                    // (1=on) 24b2   nMODULE_INT (interrupt for X2, Malibu, NPI,
-                    // SyncE)    not used 25b0   SFP+ 1         LOS (1=LOS from
-                    // SFP+)     X2_A LED, green (1=on) 25b1   SFP+ 1 MODDETn
-                    // (0=SFP+ present)  X2_A LED, yellow (1=on) 25b2   SFP+ 1
-                    // TXFAULT (1=TX fault)       not used 26b0   SFP+ 2 LOS
-                    // (1=LOS from SFP+)     X2_B LED, green (1=on) 26b1   SFP+
-                    // 2         MODDETn (0=SFP+ present)  X2_B LED, yellow
-                    // (1=on) 26b2   SFP+ 2         TXFAULT (1=TX fault) not
-                    // used 27b0   SFP+ 3         LOS (1=LOS from SFP+)     not
-                    // used 27b1   SFP+ 3         MODDETn (0=SFP+ present)  not
-                    // used 27b2   SFP+ 3         TXFAULT (1=TX fault)      not
-                    // used 28b0   SFP+ 4         LOS (1=LOS from SFP+)     not
-                    // used 28b1   SFP+ 4         MODDETn (0=SFP+ present)  not
-                    // used 28b2   SFP+ 4         TXFAULT (1=TX fault)      not
-                    // used 29b0   SyncE module   PRESENT_n                 not
-                    // used 29b1   Ext CPU module PRESENTn                  not
-                    // used 29b2   not used       not used
+                    // 0b0    Port  9 (SFP)  LOS (1=LOS from SFP)      Port 9 (SFP) TXEN (1=enable)
+                    // 0b1    Port  9 (SFP)  MODDETn (0=SFP present)   Port 9 (SFP) RATESEL
+                    // 0b2    Port  9 (SFP)  TXFAULT (1=TX fault)      Port 10 (SFP) TXEN (1=enable)
+                    // 1b0    Port 10 (SFP)  LOS (1=LOS from SFP)      Port 10 (SFP) RATESEL
+                    // 1b1    Port 10 (SFP)  MODDETn (0=SFP present)   Port 11 (SFP) TXEN (1=enable)
+                    // 1b2    Port 10 (SFP)  TXFAULT (1=TX fault)      Port 11 (SFP) RATESEL
+                    // 2b0    Port 11 (SFP)  LOS (1=LOS from SFP)      Port 12 (SFP) TXEN (1=enable)
+                    // 2b1    Port 11 (SFP)  MODDETn (0=SFP present)   Port 12 (SFP) RATESEL
+                    // 2b2    Port 11 (SFP)  TXFAULT (1=TX fault)      Port 13 (SFP) TXEN (1=enable)
+                    // 3b0    Port 12 (SFP)  LOS (1=LOS from SFP)      Port 13 (SFP) RATESEL
+                    // 3b1    Port 12 (SFP)  MODDETn (0=SFP present)   Port 14 (SFP) TXEN (1=enable)
+                    // 3b2    Port 12 (SFP)  TXFAULT (1=TX fault)      Port 14 (SFP) RATESEL
+                    // 4b0    Port 13 (SFP)  LOS (1=LOS from SFP)      Port 15 (SFP) TXEN (1=enable)
+                    // 4b1    Port 13 (SFP)  MODDETn (0=SFP present)   Port 15 (SFP) RATESEL
+                    // 4b2    Port 13 (SFP)  TXFAULT (1=TX fault)      Port 16 (SFP) TXEN (1=enable)
+                    // 5b0    Port 14 (SFP)  LOS (1=LOS from SFP)      Port 16 (SFP) RATESEL
+                    // 5b1    Port 14 (SFP)  MODDETn (0=SFP present)   Port 17 (SFP) TXEN (1=enable)
+                    // 5b2    Port 14 (SFP)  TXFAULT (1=TX fault)      Port 17 (SFP) RATESEL
+                    // 6b0    Port 15 (SFP)  LOS (1=LOS from SFP)      Port 18 (SFP) TXEN (1=enable)
+                    // 6b1    Port 15 (SFP)  MODDETn (0=SFP present)   Port 18 (SFP) RATESEL
+                    // 6b2    Port 15 (SFP)  TXFAULT (1=TX fault)      Port 19 (SFP) TXEN (1=enable)
+                    // 7b0    Port 16 (SFP)  LOS (1=LOS from SFP)      Port 19 (SFP) RATESEL
+                    // 7b1    Port 16 (SFP)  MODDETn (0=SFP present)   Port 20 (SFP) TXEN (1=enable)
+                    // 7b2    Port 16 (SFP)  TXFAULT (1=TX fault)      Port 20 (SFP) RATESEL
+                    // 8b0    Port 17 (SFP)  LOS (1=LOS from SFP)      Port 21 (SFP) TXEN (1=enable)
+                    // 8b1    Port 17 (SFP)  MODDETn (0=SFP present)   Port 21 (SFP) RATESEL
+                    // 8b2    Port 17 (SFP)  TXFAULT (1=TX fault)      Port 22 (SFP) TXEN (1=enable)
+                    // 9b0    Port 18 (SFP)  LOS (1=LOS from SFP)      Port 22 (SFP) RATESEL
+                    // 9b1    Port 18 (SFP)  MODDETn (0=SFP present)   Port 23 (SFP) TXEN (1=enable)
+                    // 9b2    Port 18 (SFP)  TXFAULT (1=TX fault)      Port 23 (SFP) RATESEL
+                    // 10b0   Port 19 (SFP)  LOS (1=LOS from SFP)      Port 24 (SFP) TXEN (1=enable)
+                    // 10b1   Port 19 (SFP)  MODDETn (0=SFP present)   Port 24 (SFP) RATESEL
+                    // 10b2   Port 19 (SFP)  TXFAULT (1=TX fault)      X2_TXONOFF_A
+                    // 11b0   Port 20 (SFP)  LOS (1=LOS from SFP)      X2_TXONOFF_B
+                    // 11b1   Port 20 (SFP)  MODDETn (0=SFP present)   FAN1_ENn (0=enable)
+                    // 11b2   Port 20 (SFP)  TXFAULT (1=TX fault)      FAN2_ENn (0=enable)
+                    // 12b0   Port 21 (SFP)  LOS (1=LOS from SFP)      SFP+ 1 TXEN (1=enable)
+                    // 12b1   Port 21 (SFP)  MODDETn (0=SFP present)   SFP+ 2 TXEN (1=enable)
+                    // 12b2   Port 21 (SFP)  TXFAULT (1=TX fault)      SFP+ 3 TXEN (1=enable)
+                    // 13b0   Port 22 (SFP)  LOS (1=LOS from SFP)      SFP+ 4 TXEN (1=enable)
+                    // 13b1   Port 22 (SFP)  MODDETn (0=SFP present)   SFP+ 1 RateSel0
+                    // 13b2   Port 22 (SFP)  TXFAULT (1=TX fault)      SFP+ 1 RateSel1
+                    // 14b0   Port 23 (SFP)  LOS (1=LOS from SFP)      SFP+ 2 RateSel0
+                    // 14b1   Port 23 (SFP)  MODDETn (0=SFP present)   SFP+ 2 RateSel1
+                    // 14b2   Port 23 (SFP)  TXFAULT (1=TX fault)      SFP+ 3 RateSel0
+                    // 15b0   Port 24 (SFP)  LOS (1=LOS from SFP)      SFP+ 3 RateSel1
+                    // 15b1   Port 24 (SFP)  MODDETn (0=SFP present)   SFP+ 4 RateSel0
+                    // 15b2   Port 24 (SFP)  TXFAULT (1=TX fault)      SFP+ 4 RateSel1
+                    // 24b0   nINT_PHY1 (PHY for ports 1-4)            NPI LED, green (1=on)
+                    // 24b1   nINT_PHY2 (PHY for ports 5-8)            NPI LED, yellow (1=on)
+                    // 24b2   nMODULE_INT (interrupt for X2, Malibu,   NPI, SyncE)    not used
+                    // 25b0   SFP+ 1         LOS (1=LOS from SFP+)     X2_A LED, green (1=on)
+                    // 25b1   SFP+ 1         MODDETn (0=SFP+ present)  X2_A LED, yellow (1=on)
+                    // 25b2   SFP+ 1         TXFAULT (1=TX fault)       not used
+                    // 26b0   SFP+ 2         LOS (1=LOS from SFP+)     X2_B LED, green (1=on)
+                    // 26b1   SFP+ 2         MODDETn (0=SFP+ present)  X2_B LED, yellow (1=on)
+                    // 26b2   SFP+ 2         TXFAULT (1=TX fault)      not used
+                    // 27b0   SFP+ 3         LOS (1=LOS from SFP+)     not used
+                    // 27b1   SFP+ 3         MODDETn (0=SFP+ present)  not used
+                    // 27b2   SFP+ 3         TXFAULT (1=TX fault)      not used
+                    // 28b0   SFP+ 4         LOS (1=LOS from SFP+)     not used
+                    // 28b1   SFP+ 4         MODDETn (0=SFP+ present)  not used
+                    // 28b2   SFP+ 4         TXFAULT (1=TX fault)      not used
+                    // 29b0   SyncE module   PRESENT_n                 not used
+                    // 29b1   Ext CPU module PRESENTn                  not used
+                    // 29b2   not used       not used
 
                     if (chip_port >= 8 && chip_port <= 23) {
                         mesa_port_list_set(present, port_no,
                                            !data[chip_port - 8].value[1]); // Schematic U142
                     } else if (chip_port >= 49 && chip_port <= 52) {
-                        mesa_port_list_set(present, port_no, !data[chip_port - 24].value[1]);
+                        mesa_bool_t detect;
+
+                        if (!board->malibu_present) {
+                            // inv log. HW reports inserted SFP as level 0, and we need to repot
+                            // inserted SFP as 1
+                            detect = !data[chip_port - 24].value[1];
+                        } else {
+                            const jr2_malibu_gpio_port_map_t *gmap =
+                                &malibu_gpio_map[chip_port - 49];
+
+                            if ((rc = vtss_phy_10g_gpio_read(PHY_INST, port_no,
+                                                             gmap->gpio_sfp_mod_det, &detect)) !=
+                                MESA_RC_OK) {
+                                T_E(inst,
+                                    "Fail to read SFP insertion status for port #%d. rc = %d !!",
+                                    port_no, rc);
+                            }
+                            detect ^= 1; // inv log. HW reports inserted SFP as level 0, and we need
+                                         // to repot inserted SFP as 1
+                        }
+                        mesa_port_list_set(present, port_no, detect);
+                        T_N(inst, "port:%d, insertion status:%d (1=inserted)\n\r", port_no, detect);
                     }
                 }
             }
@@ -2596,129 +2602,161 @@ static mesa_rc jr2_port_admin_state_set(meba_inst_t                    inst,
 {
     mesa_rc             rc = MESA_RC_OK;
     meba_board_state_t *board = INST2BOARD(inst);
-    if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE) {
-        mesa_sgpio_conf_t conf;
-        mesa_sgpio_mode_t sgpio_mode = (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
-        if (board->type == BOARD_TYPE_SERVAL2_NID) {
-            // TxDisable maps to SGPIO port bit 0
-            static uint8_t port_to_tx_disable_map_nid[] = {0,  0, 0, 0, 8, 9,  10,
-                                                           11, 4, 5, 6, 7, 12, 13};
-            if (port_no < sizeof(port_to_tx_disable_map_nid) &&
-                (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
-                conf.port_conf[port_to_tx_disable_map_nid[port_no]].mode[0] = sgpio_mode;
-                rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
-            }
-        } else if (board->type == BOARD_TYPE_JAGUAR2) {
-            vtss_gpio_10g_gpio_mode_t gpio_conf;
-            vtss_gpio_10g_no_t        gpio_no;
-            uint32_t                  global_dev = 0x1e, lopc_reg = 0xf234, value = 0x13f;
+    uint32_t            chip_port = board->port[port_no].map.map.chip_port;
 
-            if ((rc = mesa_sgpio_conf_get(NULL, 0, 2, &conf)) == MESA_RC_OK) {
-                switch (board->port[port_no].map.map.chip_port) {
-                case 8:  conf.port_conf[0].mode[0] = sgpio_mode; break;
-                case 9:  conf.port_conf[0].mode[2] = sgpio_mode; break;
-                case 10: conf.port_conf[1].mode[1] = sgpio_mode; break;
-                case 11: conf.port_conf[2].mode[0] = sgpio_mode; break;
-                case 12: conf.port_conf[2].mode[2] = sgpio_mode; break;
-                case 13: conf.port_conf[3].mode[1] = sgpio_mode; break;
-                case 14: conf.port_conf[4].mode[0] = sgpio_mode; break;
-                case 15: conf.port_conf[4].mode[2] = sgpio_mode; break;
-                case 16: conf.port_conf[5].mode[1] = sgpio_mode; break;
-                case 17: conf.port_conf[6].mode[0] = sgpio_mode; break;
-                case 18: conf.port_conf[6].mode[2] = sgpio_mode; break;
-                case 19: conf.port_conf[7].mode[1] = sgpio_mode; break;
-                case 20: conf.port_conf[8].mode[0] = sgpio_mode; break;
-                case 21: conf.port_conf[8].mode[2] = sgpio_mode; break;
-                case 22: conf.port_conf[9].mode[1] = sgpio_mode; break;
-                case 23: conf.port_conf[10].mode[0] = sgpio_mode; break;
-                case 49:
-                    gpio_conf.mode = VTSS_10G_PHY_GPIO_DRIVE_LOW;
-                    gpio_no = 28;
-                    (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
-                    gpio_conf.mode = VTSS_10G_PHY_GPIO_AGG_INT_0;
-                    gpio_conf.aggr_intrpt = (1 << VTSS_10G_GPIO_AGGR_INTRPT_CH3_INTR0_EN) |
-                                            (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR3_EN) |
-                                            (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR3_EN);
-                    gpio_conf.c_intrpt = VTSS_10G_GPIO_INTRPT_HPMA;
-                    gpio_no = 34;
-                    rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
-                    /* SFP+ TX disable */
-                    conf.port_conf[12].mode[0] = sgpio_mode;
-                    break;
-                case 50:
-                    gpio_conf.mode = VTSS_10G_PHY_GPIO_DRIVE_LOW;
-                    gpio_no = 20;
-                    (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
-                    gpio_conf.mode = VTSS_10G_PHY_GPIO_AGG_INT_0;
-                    gpio_conf.aggr_intrpt = (1 << VTSS_10G_GPIO_AGGR_INTRPT_CH2_INTR0_EN) |
-                                            (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR2_EN) |
-                                            (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR2_EN);
-                    gpio_conf.c_intrpt = VTSS_10G_GPIO_INTRPT_HPMA;
-                    gpio_no = 34;
-                    rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
-                    /* SFP+ TX disable */
-                    conf.port_conf[12].mode[1] = sgpio_mode;
-                    break;
-                case 51:
-                    gpio_conf.mode = VTSS_10G_PHY_GPIO_DRIVE_LOW;
-                    gpio_no = 12;
-                    (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
-                    gpio_conf.mode = VTSS_10G_PHY_GPIO_AGG_INT_0;
-                    gpio_conf.aggr_intrpt = (1 << VTSS_10G_GPIO_AGGR_INTRPT_CH1_INTR0_EN) |
-                                            (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR1_EN) |
-                                            (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR1_EN);
-                    gpio_conf.c_intrpt = VTSS_10G_GPIO_INTRPT_HPMA;
-                    gpio_no = 34;
-                    rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
-                    /* SFP+ TX disable */
-                    conf.port_conf[12].mode[2] = sgpio_mode;
-                    break;
-                case 52:
-                    gpio_conf.mode = VTSS_10G_PHY_GPIO_DRIVE_LOW;
-                    gpio_no = 4;
-                    (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
-                    gpio_conf.mode = VTSS_10G_PHY_GPIO_AGG_INT_0;
-                    gpio_conf.aggr_intrpt = (1 << VTSS_10G_GPIO_AGGR_INTRPT_CH0_INTR0_EN) |
-                                            (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR0_EN) |
-                                            (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR0_EN);
-                    gpio_conf.c_intrpt = VTSS_10G_GPIO_INTRPT_HPMA;
-                    gpio_no = 34;
-                    (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
-                    /* By default GPIO 34 is used as INPUT for LOPC on channel
-                       0,Now as we are changing its default behaviour
-                       Configuring registers accordingly */
-                    if (vtss_phy_10g_csr_write(PHY_INST, port_no, global_dev, lopc_reg, value) !=
-                        MESA_RC_OK) {
-                        return rc;
+    if ((!board->malibu_present) || (chip_port < 49) || (chip_port > 52)) {
+        T_I(inst, "1. board->malibu_present=%d, port_no=%d, chip_port=%d, state->enable=%d\n\r",
+            board->malibu_present, port_no, chip_port, state->enable);
+        if (board->port[port_no].map.map.miim_controller == MESA_MIIM_CONTROLLER_NONE) {
+            mesa_sgpio_conf_t conf;
+            mesa_sgpio_mode_t sgpio_mode =
+                (state->enable ? MESA_SGPIO_MODE_ON : MESA_SGPIO_MODE_OFF);
+            if (board->type == BOARD_TYPE_SERVAL2_NID) {
+                // TxDisable maps to SGPIO port bit 0
+                static uint8_t port_to_tx_disable_map_nid[] = {0,  0, 0, 0, 8, 9,  10,
+                                                               11, 4, 5, 6, 7, 12, 13};
+                if (port_no < sizeof(port_to_tx_disable_map_nid) &&
+                    (rc = mesa_sgpio_conf_get(NULL, 0, 0, &conf)) == MESA_RC_OK) {
+                    conf.port_conf[port_to_tx_disable_map_nid[port_no]].mode[0] = sgpio_mode;
+                    rc = mesa_sgpio_conf_set(NULL, 0, 0, &conf);
+                }
+            } else if (board->type == BOARD_TYPE_JAGUAR2) {
+                vtss_gpio_10g_gpio_mode_t gpio_conf;
+                vtss_gpio_10g_no_t        gpio_no;
+                uint32_t                  global_dev = 0x1e, lopc_reg = 0xf234, value = 0x13f;
+
+                if ((rc = mesa_sgpio_conf_get(NULL, 0, 2, &conf)) == MESA_RC_OK) {
+                    switch (board->port[port_no].map.map.chip_port) {
+                    case 8:  conf.port_conf[0].mode[0] = sgpio_mode; break;
+                    case 9:  conf.port_conf[0].mode[2] = sgpio_mode; break;
+                    case 10: conf.port_conf[1].mode[1] = sgpio_mode; break;
+                    case 11: conf.port_conf[2].mode[0] = sgpio_mode; break;
+                    case 12: conf.port_conf[2].mode[2] = sgpio_mode; break;
+                    case 13: conf.port_conf[3].mode[1] = sgpio_mode; break;
+                    case 14: conf.port_conf[4].mode[0] = sgpio_mode; break;
+                    case 15: conf.port_conf[4].mode[2] = sgpio_mode; break;
+                    case 16: conf.port_conf[5].mode[1] = sgpio_mode; break;
+                    case 17: conf.port_conf[6].mode[0] = sgpio_mode; break;
+                    case 18: conf.port_conf[6].mode[2] = sgpio_mode; break;
+                    case 19: conf.port_conf[7].mode[1] = sgpio_mode; break;
+                    case 20: conf.port_conf[8].mode[0] = sgpio_mode; break;
+                    case 21: conf.port_conf[8].mode[2] = sgpio_mode; break;
+                    case 22: conf.port_conf[9].mode[1] = sgpio_mode; break;
+                    case 23: conf.port_conf[10].mode[0] = sgpio_mode; break;
+                    case 49:
+                        gpio_conf.mode = VTSS_10G_PHY_GPIO_DRIVE_LOW;
+                        gpio_no = 28;
+                        (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
+                        gpio_conf.mode = VTSS_10G_PHY_GPIO_AGG_INT_0;
+                        gpio_conf.aggr_intrpt = (1 << VTSS_10G_GPIO_AGGR_INTRPT_CH3_INTR0_EN) |
+                                                (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR3_EN) |
+                                                (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR3_EN);
+                        gpio_conf.c_intrpt = VTSS_10G_GPIO_INTRPT_HPMA;
+                        gpio_no = 34;
+                        rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
+                        /* SFP+ TX disable */
+                        conf.port_conf[12].mode[0] = sgpio_mode;
+                        break;
+                    case 50:
+                        gpio_conf.mode = VTSS_10G_PHY_GPIO_DRIVE_LOW;
+                        gpio_no = 20;
+                        (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
+                        gpio_conf.mode = VTSS_10G_PHY_GPIO_AGG_INT_0;
+                        gpio_conf.aggr_intrpt = (1 << VTSS_10G_GPIO_AGGR_INTRPT_CH2_INTR0_EN) |
+                                                (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR2_EN) |
+                                                (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR2_EN);
+                        gpio_conf.c_intrpt = VTSS_10G_GPIO_INTRPT_HPMA;
+                        gpio_no = 34;
+                        rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
+                        /* SFP+ TX disable */
+                        conf.port_conf[12].mode[1] = sgpio_mode;
+                        break;
+                    case 51:
+                        gpio_conf.mode = VTSS_10G_PHY_GPIO_DRIVE_LOW;
+                        gpio_no = 12;
+                        (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
+                        gpio_conf.mode = VTSS_10G_PHY_GPIO_AGG_INT_0;
+                        gpio_conf.aggr_intrpt = (1 << VTSS_10G_GPIO_AGGR_INTRPT_CH1_INTR0_EN) |
+                                                (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR1_EN) |
+                                                (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR1_EN);
+                        gpio_conf.c_intrpt = VTSS_10G_GPIO_INTRPT_HPMA;
+                        gpio_no = 34;
+                        rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
+                        /* SFP+ TX disable */
+                        conf.port_conf[12].mode[2] = sgpio_mode;
+                        break;
+                    case 52:
+                        gpio_conf.mode = VTSS_10G_PHY_GPIO_DRIVE_LOW;
+                        gpio_no = 4;
+                        (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
+                        gpio_conf.mode = VTSS_10G_PHY_GPIO_AGG_INT_0;
+                        gpio_conf.aggr_intrpt = (1 << VTSS_10G_GPIO_AGGR_INTRPT_CH0_INTR0_EN) |
+                                                (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_0_INTR0_EN) |
+                                                (1 << VTSS_10G_GPIO_AGGR_INTRPT_IP1588_1_INTR0_EN);
+                        gpio_conf.c_intrpt = VTSS_10G_GPIO_INTRPT_HPMA;
+                        gpio_no = 34;
+                        (void)vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gpio_no, &gpio_conf);
+                        /* By default GPIO 34 is used as INPUT for LOPC on channel
+                           0,Now as we are changing its default behaviour
+                           Configuring registers accordingly */
+                        if (vtss_phy_10g_csr_write(PHY_INST, port_no, global_dev, lopc_reg,
+                                                   value) != MESA_RC_OK) {
+                            return rc;
+                        }
+                        /* SFP+ TX disable */
+                        conf.port_conf[13].mode[0] = sgpio_mode;
+                        break;
+                    default: return rc; // Nothing to do, return
                     }
+                    rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
+                }
+            } else if (board->type == BOARD_TYPE_JAGUAR2_CU48) {
+                if ((rc = mesa_sgpio_conf_get(NULL, 0, 2, &conf)) == MESA_RC_OK) {
                     /* SFP+ TX disable */
-                    conf.port_conf[13].mode[0] = sgpio_mode;
-                    break;
-                default: return rc; // Nothing to do, return
+                    switch (board->port[port_no].map.map.chip_port) {
+                    case 49: conf.port_conf[28].mode[0] = sgpio_mode; break;
+                    case 50: conf.port_conf[28].mode[1] = sgpio_mode; break;
+                    case 51: conf.port_conf[28].mode[2] = sgpio_mode; break;
+                    case 52: conf.port_conf[29].mode[0] = sgpio_mode; break;
+                    default: return rc; // Nothing to do, return
+                    }
+                    rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
                 }
-                rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
-            }
-        } else if (board->type == BOARD_TYPE_JAGUAR2_CU48) {
-            if ((rc = mesa_sgpio_conf_get(NULL, 0, 2, &conf)) == MESA_RC_OK) {
-                /* SFP+ TX disable */
-                switch (board->port[port_no].map.map.chip_port) {
-                case 49: conf.port_conf[28].mode[0] = sgpio_mode; break;
-                case 50: conf.port_conf[28].mode[1] = sgpio_mode; break;
-                case 51: conf.port_conf[28].mode[2] = sgpio_mode; break;
-                case 52: conf.port_conf[29].mode[0] = sgpio_mode; break;
-                default: return rc; // Nothing to do, return
-                }
-                rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
-            }
 
-        } else if (board->type == BOARD_TYPE_JAGUAR2_AQR) {
-            mesa_bool_t gpio_value = state->enable ? false : true;
-            switch (board->port[port_no].map.map.chip_port) {
-            /* SFP+ TX disable */
-            case 51: rc = mesa_gpio_write(NULL, 0, 23, gpio_value); break;
-            case 52: rc = mesa_gpio_write(NULL, 0, 21, gpio_value);
+            } else if (board->type == BOARD_TYPE_JAGUAR2_AQR) {
+                mesa_bool_t gpio_value = state->enable ? false : true;
+                switch (board->port[port_no].map.map.chip_port) {
+                /* SFP+ TX disable */
+                case 51: rc = mesa_gpio_write(NULL, 0, 23, gpio_value); break;
+                case 52: rc = mesa_gpio_write(NULL, 0, 21, gpio_value);
+                }
             }
         }
+        return rc;
+
+    } else if ((board->malibu_present) && (chip_port >= 49) && (chip_port <= 52)) {
+        T_I(inst, "2. board->malibu_present=%d, port_no=%d, chip_port=%d, state->enable=%d\n\r",
+            board->malibu_present, port_no, chip_port, state->enable);
+        // Malibu PHY was detetced and chip ports are 49-52
+        const jr2_malibu_gpio_port_map_t *gmap = &malibu_gpio_map[chip_port - 49];
+        vtss_gpio_10g_gpio_mode_t         gpio_conf;
+
+        if ((rc = vtss_phy_10g_gpio_mode_get(PHY_INST, port_no, gmap->gpio_tx_dis, &gpio_conf)) !=
+            MESA_RC_OK) {
+            T_E(inst, "Fail to read malibu gpio_tx_dis pin");
+            return rc;
+        }
+        gpio_conf.mode = (state->enable == MESA_SGPIO_MODE_ON)
+                             ? VTSS_10G_PHY_GPIO_DRIVE_LOW
+                             : VTSS_10G_PHY_GPIO_DRIVE_HIGH; // Low=Tx-Leser On
+        if ((rc = vtss_phy_10g_gpio_mode_set(PHY_INST, port_no, gmap->gpio_tx_dis, &gpio_conf)) !=
+            MESA_RC_OK) {
+            T_E(inst, "Fail to write to malibu gpio_tx_dis pin");
+            return rc;
+        }
+        T_I(inst, "Malibu: Set port_no:%d (chip_port:%d) SFP TX-Laser to: %s", port_no, chip_port,
+            (state->enable == MESA_SGPIO_MODE_ON) ? "On" : "Off");
+        return rc;
     }
     return rc;
 }
