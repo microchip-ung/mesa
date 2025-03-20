@@ -360,6 +360,10 @@ libvsc*.so:
   :int: 430
   :val:
   :chip: libvsc*.so
+- :str: MESA_CAP_L2_TAG_DISCARD
+  :int: 431
+  :val:
+  :chip: libvsc*.so
 - :str: MESA_CAP_L3
   :int: 500
   :val:
@@ -1144,84 +1148,88 @@ libvsc*.so:
   :int: 1516
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_PTP_RS422
+- :str: MESA_CAP_TS_DOMAIN_CNT
   :int: 1517
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_MISSING_PTP_ON_INTERNAL_PORTS
+- :str: MESA_CAP_TS_PTP_RS422
   :int: 1518
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_PPS_VIA_CONFIGURABLE_IO_PINS
+- :str: MESA_CAP_TS_MISSING_PTP_ON_INTERNAL_PORTS
   :int: 1519
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_PPS_MODE_OVERRULES_CLK_OUT
+- :str: MESA_CAP_TS_PPS_VIA_CONFIGURABLE_IO_PINS
   :int: 1520
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_PPS_OUT_OVERRULES_CLK_OUT
+- :str: MESA_CAP_TS_PPS_MODE_OVERRULES_CLK_OUT
   :int: 1521
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_HAS_PTP_IO_PIN
+- :str: MESA_CAP_TS_PPS_OUT_OVERRULES_CLK_OUT
   :int: 1522
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_HAS_ALT_PIN
+- :str: MESA_CAP_TS_HAS_PTP_IO_PIN
   :int: 1523
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_PPS_IN_VIA_IO_PIN
+- :str: MESA_CAP_TS_HAS_ALT_PIN
   :int: 1524
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_USE_EXTERNAL_INPUT_SERVO
+- :str: MESA_CAP_TS_PPS_IN_VIA_IO_PIN
   :int: 1525
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_TOD_INTERNAL_TC_MODE
+- :str: MESA_CAP_TS_USE_EXTERNAL_INPUT_SERVO
   :int: 1526
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_HW_FWD_P2P_1STEP
+- :str: MESA_CAP_TS_TOD_INTERNAL_TC_MODE
   :int: 1527
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_HW_FWD_E2E_1STEP_INTERNAL
+- :str: MESA_CAP_TS_HW_FWD_P2P_1STEP
   :int: 1528
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_C_DTC_SUPPORTED
+- :str: MESA_CAP_TS_HW_FWD_E2E_1STEP_INTERNAL
   :int: 1529
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_INTERNAL_MODE_SUPPORTED
+- :str: MESA_CAP_TS_C_DTC_SUPPORTED
   :int: 1530
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_TWOSTEP_ALWAYS_REQUIRED
+- :str: MESA_CAP_TS_INTERNAL_MODE_SUPPORTED
   :int: 1531
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_INTERNAL_PORTS_REQ_TWOSTEP
+- :str: MESA_CAP_TS_TWOSTEP_ALWAYS_REQUIRED
   :int: 1532
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_BC_TS_COMBO_IS_SPECIAL
+- :str: MESA_CAP_TS_INTERNAL_PORTS_REQ_TWOSTEP
   :int: 1533
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
+- :str: MESA_CAP_TS_BC_TS_COMBO_IS_SPECIAL
   :int: 1534
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TS_PCH
+- :str: MESA_CAP_TS_TWOSTEP_USE_PTP_ID
   :int: 1535
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+- :str: MESA_CAP_TS_PCH
   :int: 1536
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_TOD_SAMPLES_PR_SEC
+  :int: 1537
   :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_PHY_10G
