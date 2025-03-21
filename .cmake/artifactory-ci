@@ -183,7 +183,25 @@ INLINE_SCHEMA = {
                     version part to make it easier to predict the filename (and
                     see if it is installed already) from the dependency file.
                   END
+                },
+                "build-artifact-url-ext" => {
+                  "type" => "string",
+                  "description" => <<~END
+                    The full URL to an external repo that can be accessed outside
+                    of Microchip network. This doesn't contain any manifest or
+                    dependency files.
 
+                    Typically it will look like this: http://mscc-ent-open-source.s3-eu-west-1.amazonaws.com/public_root/toolchain/"
+                END
+                },
+                "build-artifact-version-string-ext" => {
+                  "type" => "string",
+                  "description" => <<~END
+                    File may include a stringified version as part of the file
+                    name, if this is the case, then this field can contain the
+                    version part to make it easier to predict the filename (and
+                    see if it is installed already) from the dependency file.
+                  END
                 }
               },
               "required" => ["build-artifact-url"]
