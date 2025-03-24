@@ -39,13 +39,6 @@ conf:
   friendly_name_prv: MESA-2024.12
   friendly_name_cur: MESA-2025.03
 
-  # Disclaimer input file. Will be added as is between a small header and the
-  # new-features section of the release note.
-  # The path to the file must be relative to the top of the GIT repo.
-  #
-  # OPTIONAL.
-  disclaimer: .cmake/release_note_disclaimer.txt
-
   # If set to true, the script will attempt to map the bugs into "modules" and
   # sort them by these modules along with the name of the module. This only
   # works for Bugzilla bugs, because these are the only ones mapped into a
