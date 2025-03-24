@@ -180,6 +180,14 @@ global = OptionParser.new do |opts|
 
 end.order!
 
+def url_concat a, b
+  if a[-1] == "/"
+    "#{a}#{b}"
+  else
+    "#{a}/#{b}"
+  end
+end
+
 
 $cmake_presents = YAML.load_file("#{$top}/.cmake/cmake-presets.yaml")
 $bsp_deps = JSON.load_file("#{$top}/.cmake/deps-bsp.json").filter{|x| x["id"] == "bsp"}
@@ -223,26 +231,38 @@ base = nil
 
 # Not all presets use a brsdk, some only use the toolchain
 if c[:brsdk_arch]
-  brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string"]}"
+  if is_internal?
+    brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string"]}"
+  else
+    brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string-ext"]}"
+  end
+
   brsdk_base = "/opt/mchp/#{brsdk_name}"
   base = brsdk_base
-  puts brsdk_name
+  puts "BSP: #{brsdk_name}"
 
   if not File.exist? brsdk_base
     if is_internal?
-      sys "wget --quiet -O- #{$bsp_deps["build-artifact-url"]}/#{brsdk_name}.tar.gz | tar -xz -C /opt/mchp/"
+      bsp_link = url_concat($bsp_deps["build-artifact-url"], "#{brsdk_name}.tar.gz")
+      sys "wget --quiet -O- #{bsp_link} | tar -xz -C /opt/mchp/"
     else
+      bsp_link = url_concat($bsp_deps["build-artifact-url-ext"], "#{brsdk_name}.tar.gz")
       puts "Please install the BSP: #{brsdk_base}"
       puts ""
-      puts "This may be done by using the following command:"
-      puts "sudo sh -c \"mkdir -p /opt/mchp && wget -O- http://mscc-ent-open-source.s3-eu-west-1.amazonaws.com/public_root/bsp/#{brsdk_name}.tar.gz | tar -xz -C /opt/mchp/\""
+      puts "This may be done by using the following command (ensure you have the needed permissions):"
+      puts "sh -c \"mkdir -p /opt/mchp && wget -O- #{$bsp_deps["build-artifact-url-ext"]}/#{brsdk_name}.tar.gz | tar -xz -C /opt/mchp/\""
       exit 1
     end
   end
 
   $tc = JSON.load_file("#{brsdk_base}/.deps.json").find{|x| x["id"] == "toolchain"}
-  $tc_name = "mchp-toolchain-bin-#{$tc["build-artifact-version-string"]}"
+  if is_internal?
+    $tc_name = "mchp-toolchain-bin-#{$tc["build-artifact-version-string"]}"
+  else
+    $tc_name = "mchp-toolchain-bin-#{$tc["build-artifact-version-string-ext"]}"
+  end
   $tc_path = "/opt/mchp/#{$tc_name}"
+  puts "TC: #{$tc_path}"
 
 else
   raise "not supported"
@@ -250,14 +270,14 @@ end
 
 if not File.exist? $tc_path
   if is_internal?
-    tc_link = "#{$tc["build-artifact-url"]}/#{$tc_name}.tar.gz"
+    tc_link = url_concat($tc["build-artifact-url"], "#{$tc_name}.tar.gz")
     sys "wget --quiet -O- #{tc_link} | tar -xz -C /opt/mchp/"
   else
-    raise "not implemented!"
+    tc_link = url_concat($tc["build-artifact-url-ext"], "#{$tc_name}.tar.gz")
     puts "Please install the toolchain: #{$tc_name} into /opt/mchp/"
     puts ""
-    puts "This may be done by using the following command:"
-    puts "sudo sh -c \"mkdir -p /opt/mchp && wget -O- http://mscc-ent-open-source.s3-eu-west-1.amazonaws.com/public_root/toolchain/#{$tc_name}.tar.gz | tar -xz -C /opt/mchp/\""
+    puts "This may be done by using the following command (ensure you have the needed permissions):"
+    puts "sh -c \"mkdir -p /opt/mchp && wget -O- #{tc_link} | tar -xz -C /opt/mchp/\""
     exit 1
   end
 end
