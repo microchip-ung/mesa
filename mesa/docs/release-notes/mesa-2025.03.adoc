@@ -1,0 +1,47 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2025.03
+
+== MESA-2025.03
+
+|===
+|Version:          |MESA-2025.03
+|Previous Version: |MESA-2024.12-1
+|Date:             |2025-03-27
+|Description:      |Roadmap release
+|===
+
+=== LAN966x: Added additional MUX-Modes
+
+The following MUX modes have been added:
+
+- 2xCu + 1x2.5G + 2xRGMII
+- 2xCu + 2xRGMII + 1xQSGMII (LAN9668)
+
+=== RedBox (HSR/PRP) PTP Configuration support added
+
+Notice: this feature is only available on SoCs with HSR/PRP support. Currently,
+this is limited to the LAN969x-RED family.
+
+The `mesa_rb_ptp_conf_get` and `mesa_rb_ptp_conf_set` APIs have been added to
+configure how PTP frames shall be handled in the RedBox.
+
+In addition, the `mesa_packet_rx_info_t` struct has also been extended with
+additional RedBox meta-data.
+
+=== Add API to get PCS status
+
+Notice: this feature is currently only implemented for LAN966x.
+
+The `mesa_port_pcs_status_get` API has been added to allow polling/reading the
+PCS status.
+
+This is useful if having a board with dual-media ports where either the
+integrated Cu PHY can be used _or_ the SFP. In this case, it is possible to check
+if there is a link on the SFP before switching to SFP.
+
+=== Per port inner-TAG based discard of frames
+
+The `mesa_tag_discard_t` structure has been added to support discarding selected
+frames with an inner tag.
