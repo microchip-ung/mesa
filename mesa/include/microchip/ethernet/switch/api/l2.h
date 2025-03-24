@@ -1512,7 +1512,8 @@ typedef struct {
 // Get RedBox capabilities.
 // rb_id [IN]  RedBox ID.
 // cap [OUT]   RedBox capabilities.
-mesa_rc mesa_rb_cap_get(const mesa_inst_t inst, const mesa_rb_id_t rb_id, mesa_rb_cap_t *const cap);
+mesa_rc mesa_rb_cap_get(const mesa_inst_t inst, const mesa_rb_id_t rb_id, mesa_rb_cap_t *const cap)
+    CAP(L2_REDBOX_CNT);
 
 // RedBox mode
 typedef enum {
@@ -1576,14 +1577,14 @@ typedef struct {
 // conf [OUT]  RedBox configuration structure.
 mesa_rc mesa_rb_conf_get(const mesa_inst_t     inst,
                          const mesa_rb_id_t    rb_id,
-                         mesa_rb_conf_t *const conf);
+                         mesa_rb_conf_t *const conf) CAP(L2_REDBOX_CNT);
 
 // Set RedBox configuration.
 // rb_id [IN]  RedBox ID.
 // conf [IN]   RedBox configuration structure.
 mesa_rc mesa_rb_conf_set(const mesa_inst_t           inst,
                          const mesa_rb_id_t          rb_id,
-                         const mesa_rb_conf_t *const conf);
+                         const mesa_rb_conf_t *const conf) CAP(L2_REDBOX_CNT);
 
 // RedBox PTP filter mode
 typedef enum {
@@ -1604,14 +1605,14 @@ typedef struct {
 // conf [OUT]  RedBox PTP configuration structure.
 mesa_rc mesa_rb_ptp_conf_get(const mesa_inst_t         inst,
                              const mesa_rb_id_t        rb_id,
-                             mesa_rb_ptp_conf_t *const conf);
+                             mesa_rb_ptp_conf_t *const conf) CAP(L2_REDBOX_CNT);
 
 // Set RedBox PTP configuration.
 // rb_id [IN]  RedBox ID.
 // conf [IN]   RedBox PTP configuration structure.
 mesa_rc mesa_rb_ptp_conf_set(const mesa_inst_t               inst,
                              const mesa_rb_id_t              rb_id,
-                             const mesa_rb_ptp_conf_t *const conf);
+                             const mesa_rb_ptp_conf_t *const conf) CAP(L2_REDBOX_CNT);
 
 // RedBox port counters
 typedef struct {
@@ -1640,11 +1641,11 @@ typedef struct {
 // counters [OUT]  RedBox counters.
 mesa_rc mesa_rb_counters_get(const mesa_inst_t         inst,
                              const mesa_rb_id_t        rb_id,
-                             mesa_rb_counters_t *const counters);
+                             mesa_rb_counters_t *const counters) CAP(L2_REDBOX_CNT);
 
 // Clear RedBox counters.
 // rb_id [IN]  RedBox ID.
-mesa_rc mesa_rb_counters_clear(const mesa_inst_t inst, const mesa_rb_id_t rb_id);
+mesa_rc mesa_rb_counters_clear(const mesa_inst_t inst, const mesa_rb_id_t rb_id) CAP(L2_REDBOX_CNT);
 
 // Node ID
 typedef uint16_t mesa_rb_node_id_t;
@@ -1669,14 +1670,14 @@ typedef struct {
 mesa_rc mesa_rb_node_add(const mesa_inst_t                inst,
                          const mesa_rb_id_t               rb_id,
                          const mesa_mac_t *const          mac,
-                         const mesa_rb_node_conf_t *const conf);
+                         const mesa_rb_node_conf_t *const conf) CAP(L2_REDBOX_CNT);
 
 // Delete node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
 mesa_rc mesa_rb_node_del(const mesa_inst_t       inst,
                          const mesa_rb_id_t      rb_id,
-                         const mesa_mac_t *const mac);
+                         const mesa_mac_t *const mac) CAP(L2_REDBOX_CNT);
 
 // Redbox table clear command
 typedef enum {
@@ -1690,7 +1691,7 @@ typedef enum {
 // clear [IN]  Clear command
 mesa_rc mesa_rb_node_table_clear(const mesa_inst_t     inst,
                                  const mesa_rb_id_t    rb_id,
-                                 const mesa_rb_clear_t clear);
+                                 const mesa_rb_clear_t clear) CAP(L2_REDBOX_CNT);
 
 // Node counters
 typedef struct {
@@ -1722,7 +1723,7 @@ typedef struct {
 mesa_rc mesa_rb_node_get(const mesa_inst_t       inst,
                          const mesa_rb_id_t      rb_id,
                          const mesa_mac_t *const mac,
-                         mesa_rb_node_t *const   entry);
+                         mesa_rb_node_t *const   entry) CAP(L2_REDBOX_CNT);
 
 // Get next node entry based on MAC address.
 // rb_id [IN]   RedBox ID.
@@ -1731,7 +1732,7 @@ mesa_rc mesa_rb_node_get(const mesa_inst_t       inst,
 mesa_rc mesa_rb_node_get_next(const mesa_inst_t       inst,
                               const mesa_rb_id_t      rb_id,
                               const mesa_mac_t *const mac,
-                              mesa_rb_node_t *const   entry);
+                              mesa_rb_node_t *const   entry) CAP(L2_REDBOX_CNT);
 
 // Get next node entry based on ID (for IEC-62439-3-MIB).
 // rb_id [IN]   RedBox ID.
@@ -1740,7 +1741,7 @@ mesa_rc mesa_rb_node_get_next(const mesa_inst_t       inst,
 mesa_rc mesa_rb_node_id_get_next(const mesa_inst_t       inst,
                                  const mesa_rb_id_t      rb_id,
                                  const mesa_rb_node_id_t id,
-                                 mesa_rb_node_t *const   entry);
+                                 mesa_rb_node_t *const   entry) CAP(L2_REDBOX_CNT);
 
 // Proxy node ID
 typedef uint16_t mesa_rb_proxy_node_id_t;
@@ -1764,21 +1765,21 @@ typedef struct {
 mesa_rc mesa_rb_proxy_node_add(const mesa_inst_t                      inst,
                                const mesa_rb_id_t                     rb_id,
                                const mesa_mac_t *const                mac,
-                               const mesa_rb_proxy_node_conf_t *const conf);
+                               const mesa_rb_proxy_node_conf_t *const conf) CAP(L2_REDBOX_CNT);
 
 // Delete proxy node entry.
 // rb_id [IN]  RedBox ID.
 // mac [IN]    MAC address.
 mesa_rc mesa_rb_proxy_node_del(const mesa_inst_t       inst,
                                const mesa_rb_id_t      rb_id,
-                               const mesa_mac_t *const mac);
+                               const mesa_mac_t *const mac) CAP(L2_REDBOX_CNT);
 
 // Clear proxy node table.
 // rb_id [IN]  RedBox ID.
 // clear [IN]  Clear command
 mesa_rc mesa_rb_proxy_node_table_clear(const mesa_inst_t     inst,
                                        const mesa_rb_id_t    rb_id,
-                                       const mesa_rb_clear_t clear);
+                                       const mesa_rb_clear_t clear) CAP(L2_REDBOX_CNT);
 
 // Proxy node counters
 typedef struct {
@@ -1803,7 +1804,7 @@ typedef struct {
 mesa_rc mesa_rb_proxy_node_get(const mesa_inst_t           inst,
                                const mesa_rb_id_t          rb_id,
                                const mesa_mac_t *const     mac,
-                               mesa_rb_proxy_node_t *const entry);
+                               mesa_rb_proxy_node_t *const entry) CAP(L2_REDBOX_CNT);
 
 // Get next proxy node entry based on MAC address.
 // rb_id [IN]   RedBox ID.
@@ -1812,7 +1813,7 @@ mesa_rc mesa_rb_proxy_node_get(const mesa_inst_t           inst,
 mesa_rc mesa_rb_proxy_node_get_next(const mesa_inst_t           inst,
                                     const mesa_rb_id_t          rb_id,
                                     const mesa_mac_t *const     mac,
-                                    mesa_rb_proxy_node_t *const entry);
+                                    mesa_rb_proxy_node_t *const entry) CAP(L2_REDBOX_CNT);
 
 // Get next proxy node entry based on ID (for IEC-62439-3-MIB).
 // rb_id [IN]   RedBox ID.
@@ -1821,7 +1822,7 @@ mesa_rc mesa_rb_proxy_node_get_next(const mesa_inst_t           inst,
 mesa_rc mesa_rb_proxy_node_id_get_next(const mesa_inst_t             inst,
                                        const mesa_rb_id_t            rb_id,
                                        const mesa_rb_proxy_node_id_t id,
-                                       mesa_rb_proxy_node_t *const   entry);
+                                       mesa_rb_proxy_node_t *const   entry) CAP(L2_REDBOX_CNT);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_SWITCH_API_L2_

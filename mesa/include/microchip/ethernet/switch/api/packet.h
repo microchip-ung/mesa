@@ -408,17 +408,17 @@ typedef struct {
     mesa_iflow_id_t iflow_id;
 
     // RedBox: True if frame was received on port A, false if port B
-    mesa_bool_t rb_port_a;
+    mesa_bool_t rb_port_a CAP(L2_REDBOX_CNT);
 
     // RedBox: True if frame was received with either an RCT or an HSR-tag,
     // false otherwise
-    mesa_bool_t rb_tagged;
+    mesa_bool_t rb_tagged CAP(L2_REDBOX_CNT);
 
     // RedBox: Path ID
-    uint8_t rb_path_id;
+    uint8_t rb_path_id CAP(L2_REDBOX_CNT);
 
     // RedBox: Sequence number
-    uint16_t rb_seq_no;
+    uint16_t rb_seq_no CAP(L2_REDBOX_CNT);
 } mesa_packet_rx_info_t;
 
 // Chip pipeline injection point.
@@ -563,17 +563,17 @@ typedef struct {
     mesa_packet_pipeline_pt_t pipeline_pt;
 
     // RedBox HSR/PRP tag disable
-    mesa_bool_t rb_tag_disable;
+    mesa_bool_t rb_tag_disable CAP(L2_REDBOX_CNT);
 
     // RedBox HSR duplicate discard disable
-    mesa_bool_t rb_dd_disable;
+    mesa_bool_t rb_dd_disable CAP(L2_REDBOX_CNT);
 
     // RedBox inserts ring_netid (always 0) rather than its configred NetId in
     // HSR tag
-    mesa_bool_t rb_ring_netid_enable;
+    mesa_bool_t rb_ring_netid_enable CAP(L2_REDBOX_CNT);
 
     // RedBox forwarding selection
-    mesa_packet_rb_fwd_t rb_fwd;
+    mesa_packet_rb_fwd_t rb_fwd CAP(L2_REDBOX_CNT);
 } mesa_packet_tx_info_t;
 
 // Decode binary extraction/Rx header.
