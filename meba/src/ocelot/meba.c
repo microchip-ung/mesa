@@ -1524,6 +1524,13 @@ static mesa_rc ocelot_event_enable(meba_inst_t inst, meba_event_t event_id, mesa
                     T_E(inst, "mesa_sgpio_event_enable(%d) = %d", sgpio_port, rc);
                 }
             }
+            if (is_phy_internal(board->port[port_no].map.cap)) {
+                T_D(inst, "port(%d) %sable DEV_ALL", port_no, enable ? "en" : "dis");
+                if ((rc = mesa_dev_all_event_enable(NULL, port_no, MESA_DEV_ALL_LINK_EV, enable)) !=
+                    MESA_RC_OK) {
+                    T_E(inst, "Could not enable event for dev #%d = %d", port_no, rc);
+                }
+            }
             if (is_phy_port(board->port[port_no].map.cap)) {
                 T_D(inst, "%sable LOS on port %d", enable ? "en" : "dis", port_no);
                 if ((rc = meba_phy_event_enable_set(inst, port_no, MEPA_LINK_LOS, enable)) !=
