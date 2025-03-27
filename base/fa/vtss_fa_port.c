@@ -2183,7 +2183,7 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t         *vtss_state,
         return FALSE;
     case VTSS_PORT_INTERFACE_QXGMII: /* QXGMII:    4x2G5 devices. Mode 'R'. Use
                                         2G5 device. */
-        if (port > 64) {
+        if (port > 64 || LK_TGT) {
             VTSS_E("port %d does not support QXGMII", port);
             return FALSE;
         }
