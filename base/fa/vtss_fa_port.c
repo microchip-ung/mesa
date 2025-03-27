@@ -510,10 +510,8 @@ static vtss_rc fa_port_usxgmii_status_get(vtss_state_t                       *vt
     status->autoneg.complete = REG_BF(DEV10G_USXGMII_ANEG_STATUS_ANEG_COMPLETE, aneg);
     adv = VTSS_X_DEV10G_USXGMII_ANEG_STATUS_LP_ADV_ABILITY(aneg);
     VTSS_RC(vtss_cmn_port_usxgmii_aneg_get(adv, usxgmii));
-#if !defined(VTSS_ARCH_LAIKA)
-    status->link = !VTSS_X_DEV1G_USXGMII_ANEG_STATUS_PAGE_RX_STICKY(aneg) &&
-                   !VTSS_X_DEV1G_USXGMII_ANEG_STATUS_LINK_DOWN_STATUS(aneg);
-#endif
+    status->link = !VTSS_X_DEV10G_USXGMII_ANEG_STATUS_PAGE_RX_STICKY(aneg) &&
+                   !VTSS_X_DEV10G_USXGMII_ANEG_STATUS_LINK_DOWN_STATUS(aneg);
 
     return VTSS_RC_OK;
 }
