@@ -679,6 +679,14 @@ static void cli_cmd_port_loopback(cli_req_t *req)
             if (mesa_port_test_conf_set(NULL, iport, &conf) != MESA_RC_OK) {
                 printf("Loopback set failed for port %u\n", uport);
             }
+            if (port_table[iport].media_type == MSCC_PORT_TYPE_CU) {
+                mepa_loopback_t lb = {};
+                lb.near_end_ena = mreq->near_end;
+                lb.far_end_ena = mreq->far_end;
+                if (meba_phy_loopback_set(meba_global_inst, iport, &lb) != MESA_RC_OK) {
+                    printf("PHY loopback set failed for port %u\n", uport);
+                }
+            }
         } else {
             if (first) {
                 cli_table_header("Port  Loopback");
