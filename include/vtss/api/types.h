@@ -214,42 +214,6 @@ typedef u32 vtss_port_no_t;
 /** \brief Physical port number */
 typedef u32 vtss_phys_port_no_t;
 
-/**
- * \brief Memory allocation flags.
- *
- * The VTSS API asks the application to
- * allocate dynamic memory for its internal structures
- * through calls to VTSS_OS_MALLOC().
- *
- * The application should normally just associate
- * this with a call to malloc() or kmalloc()
- * depending on the OS and the runtime model (API running
- * in Kernel or User space).
- *
- * However, on some OSs, it's required to allocate
- * specially if the memory is going to be associated
- * with DMA, hence the VTSS_MEM_FLAGS_DMA enumeration.
- *
- * Also, to be able to support warm restart, another
- * enumeration, VTSS_MEM_FLAGS_PERSIST, tells
- * the application to allocate the memory in a part
- * of RAM that won't be affected by a subsequent boot.
- *
- * VTSS_OS_MALLOC() must not block or make waiting points
- * if called with flags != VTSS_MEM_FLAGS_NONE.
- *
- * Each of the enumerations are ORed together to form
- * the final flags that are used in a call to VTSS_OS_MALLOC().
- *
- * The same set of flags are used in calls to VTSS_OS_FREE().
- */
-typedef enum {
-    VTSS_MEM_FLAGS_NONE = 0x0,    /**< Allocate normally according to runtime model
-                                     (User or Kernel space). */
-    VTSS_MEM_FLAGS_DMA = 0x1,     /**< Allocate memory that can be used with a DMA. */
-    VTSS_MEM_FLAGS_PERSIST = 0x2, /**< Allocate memory that will survive a warm restart. */
-} vtss_mem_flags_t;
-
 #define VTSS_PORT_COUNT 1 /**< Default number of ports */
 
 #if defined(VTSS_CHIP_SERVAL_LITE) || defined(VTSS_CHIP_CARACAL_LITE)

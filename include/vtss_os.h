@@ -11,6 +11,7 @@
 #define _VTSS_OS_H_
 
 #include "lm_utils.h"
+#include <vtss_os_common.h>
 
 #if defined(VTSS_OPSYS_ECOS)
 #include <vtss_os_ecos.h>
