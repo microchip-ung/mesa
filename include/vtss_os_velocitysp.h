@@ -40,10 +40,11 @@ typedef struct {
 } vtss_mtimer_t;
 
 uint8_t lm_mesa_timeval_init(vtss_timeval_t *timeval);
-void   *lm_mesa_pseudo_malloc(uint32_t size);
+void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
 
-#define VTSS_OS_RAND()       lmu_pseudo_rand()
-#define VTSS_OS_MALLOC(s, f) lm_mesa_pseudo_malloc(s)
+#define VTSS_OS_RAND()             lmu_pseudo_rand()
+#define VTSS_OS_MALLOC(s, f)       lm_mesa_pseudo_malloc(s, f)
+#define VTSS_OS_CPU_TO_DMA_ADDR(a) lm_os_to_dma_addr(a)
 
 #define VTSS_OS_FREE(s, f)
 

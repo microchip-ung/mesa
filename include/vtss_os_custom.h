@@ -87,6 +87,17 @@ typedef int vtss_mtimer_t; /**< Timer */
 #define VTSS_OS_FREE(ptr, flags) <your impl>
 
 /**
+ * Convert a CPU address into a DMA address.
+ *
+ * The first argument is a CPU address that was obtain with
+ * VTSS_OS_MALLOC() using the VTSS_MEM_FLAGS_DMA flag.
+ *
+ * The returned value is a DMA address that can be passed
+ * to DMA capable hardware.
+ */
+#define VTSS_OS_CPU_TO_DMA_ADDR(addr) <your impl>
+
+/**
  * Wrap of call to rand() defined in stdlib.h
  */
 #define VTSS_OS_RAND() <your impl>
