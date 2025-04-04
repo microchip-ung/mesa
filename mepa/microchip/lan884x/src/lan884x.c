@@ -119,12 +119,19 @@ static mepa_device_t *pfe_probe(mepa_driver_t *drv,
 
 static mepa_rc pfe_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
 {
+    mepa_rc rc = MEPA_RC_OK;
     if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
         pfe_direct_reg_wr(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_RESET, LAN8814_F_BASIC_CTRL_SOFT_RESET);
     }
     MEPA_MSLEEP(1);
+
+    /* LDO Adjustment errata */
+    rc = pfe_mmd_reg_wr(dev, LAN8841_MMD_ANALOG_REG,
+                        LAN8841_ANALOG_CONTROL_11,
+                        LAN8841_ANALOG_CONTROL_11_LDO_REF(1), 0x7000);
+
     pfe_get_device_info(dev);
-    return MEPA_RC_OK;
+    return rc;
 }
 
 static mepa_rc pfe_conf_get(mepa_device_t *dev, mepa_conf_t *const config)

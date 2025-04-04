@@ -21,6 +21,10 @@
 #define PFE_TXC_DLL_CTRL		77
 #define PFE_DLL_ENABLE_DELAY	0
 
+#define LAN8841_MMD_ANALOG_REG    28
+#define LAN8841_ANALOG_CONTROL_11 14
+#define LAN8841_ANALOG_CONTROL_11_LDO_REF(x) (((x) & 0x7) << 12)
+
 typedef enum {
 	PHY_INTERFACE_MODE_RGMII,      // Reduced gigabit media-independent interface
 	PHY_INTERFACE_MODE_RGMII_ID,   // RGMII with Internal RX+TX delay
