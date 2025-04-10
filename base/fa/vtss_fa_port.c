@@ -4815,6 +4815,7 @@ static vtss_rc fa_debug_kr(vtss_state_t                  *vtss_state,
 }
 #endif // VTSS_FEATURE_PORT_KR_IRQ
 
+#if defined(VTSS_ARCH_SPARX5)
 static vtss_rc fa_debug_mux(vtss_state_t                  *vtss_state,
                             lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
@@ -4829,12 +4830,13 @@ static vtss_rc fa_debug_mux(vtss_state_t                  *vtss_state,
         }
         REG_RD(VTSS_PORT_CONF_USXGMII_CFG(a), &val);
         if (VTSS_X_PORT_CONF_USXGMII_CFG_NUM_PORTS(val) == 0) {
+            pr("port mode 0 not supported\n");
             if (a > 15) {
                 pr("USX extender:%d is in SXGMII mode with chip port %d --> SD%d\n", a, a + 32,
                    a + 1);
             }
         } else if (VTSS_X_PORT_CONF_USXGMII_CFG_NUM_PORTS(val) == 1) {
-            pr("2 port mode not currently supported\n");
+            pr("port mode 1 not supported\n");
         } else {
             pr("USX extender:%d is in QXGMII mode with chip ports: [", a);
             for (u32 i = 0; i < 4; i++) {
@@ -4857,6 +4859,67 @@ static vtss_rc fa_debug_mux(vtss_state_t                  *vtss_state,
 
     return VTSS_RC_OK;
 }
+#else // Laguna
+static vtss_rc fa_debug_mux(vtss_state_t                  *vtss_state,
+                            lmu_ss_t                      *ss,
+                            const vtss_debug_info_t *const info)
+{
+    u32 val, val2, cp;
+
+    REG_RD(VTSS_PORT_CONF_USXGMII_ENA, &val2);
+    for (u32 a = 0; a < 10; a++) {
+        if ((val2 & VTSS_BIT(a)) == 0) {
+            continue;
+        }
+        REG_RD(VTSS_PORT_CONF_USXGMII_CFG(a), &val);
+        if (VTSS_X_PORT_CONF_USXGMII_CFG_NUM_PORTS(val) == 0) {
+            if (a > 1 && a < 6) {
+                pr("%d not supported as USXGMII\n", a);
+                continue;
+            }
+            if (a == 0) {
+                cp = 0;
+            } else if (a == 1) {
+                cp = 4;
+            } else if (a == 6) {
+                cp = 24;
+            } else if (a == 7) {
+                cp = 25;
+            } else if (a == 8) {
+                cp = 26;
+            } else {
+                cp = 27;
+            }
+            pr("USX extender:%d is in USXGMII mode with chip port %d --> SD%d\n", a, cp, a);
+        } else if (VTSS_X_PORT_CONF_USXGMII_CFG_NUM_PORTS(val) == 1) {
+            pr("port mode 1 not supported\n");
+        } else {
+            if (a < 2 || a > 5) {
+                pr("%d not supported as QXGMII\n", a);
+                continue;
+            }
+            pr("USX extender:%d is in QXGMII mode with chip ports: [", a);
+            for (u32 i = 0; i < 4; i++) {
+                pr("  %d", 8 + (a - 2) * 4 + i);
+            }
+            pr(" ]  --> SD%d\n", a);
+        }
+    }
+    REG_RD(VTSS_PORT_CONF_QSGMII_ENA, &val2);
+    for (u32 a = 0; a < 6; a++) {
+        if ((val2 & VTSS_BIT(a)) == 0) {
+            continue;
+        }
+        pr("MUX:%d is in QSGMII mode with chip ports: [", a);
+        for (u32 i = 0; i < 4; i++) {
+            pr("  %d", a * 4 + i);
+        }
+        pr(" ]  --> SD%d\n", a);
+    }
+
+    return VTSS_RC_OK;
+}
+#endif
 
 static vtss_rc fa_debug_port(vtss_state_t                  *vtss_state,
                              lmu_ss_t                      *ss,
