@@ -978,18 +978,15 @@ test_table =
                fwd: [{idx_tx: "c", prp: {seqn: 10}},
                      {idx_rx: "a", hsr: {seqn: 10}},
                      {idx_rx: "b", hsr: {seqn: 10}},
-                     {idx_rx: "d", prp: {seqn: 10}}]},
-              {fwd: [{idx_tx: "c"},
-                     {idx_rx: "d"}]}
-             ]
+                     {idx_rx: "d", prp: {seqn: 10}}]}]
     },
     {
         txt: "port C to port A/B/D - max-length",
         cfg: {mode: "HSR_PRP"},
         tab: [{frm: {len: 1500},
                fwd: [{idx_tx: "c", prp: {seqn: 7}},
-                     {idx_rx: "a", hsr: {}, prp: {seqn: 7}},
-                     {idx_rx: "b", hsr: {}, prp: {seqn: 7, lan_id: 0}},
+                     {idx_rx: "a", hsr: {seqn: 7}},
+                     {idx_rx: "b", hsr: {seqn: 7}},
                      {idx_rx: "d", prp: {seqn: 7}}]}]
     },
     {
@@ -1008,13 +1005,6 @@ test_table =
         tab: [{fwd: [{idx_tx: "c"},
                      {idx_rx: "a", hsr: {}},
                      {idx_rx: "b", hsr: {}},
-                     {idx_rx: "d"}]}]
-    },
-    {
-        txt: "port C to port D - untagged DAN discard",
-        cfg: {mode: "HSR_PRP"},
-        tab: [{proxy: {mac: 0x0c, type: "DAN"},
-               fwd: [{idx_tx: "c"},
                      {idx_rx: "d"}]}]
     },
     {
@@ -1992,9 +1982,9 @@ def redbox_pair_test
                {idx_rx: "b", hsr: {lan_id: 1}},
                {idx_rx: "d", prp: {}}]},
         {fwd: [{idx_tx: "d", prp: {}},
-               {idx_rx: "a", hsr: {}, prp: {}},
-               {idx_rx: "b", hsr: {lan_id: 0}, prp: {lan_id: 0}},
-               {idx_rx: "c", prp: {}}]},
+               {idx_rx: "a", hsr: {}},
+               {idx_rx: "b", hsr: {lan_id: 0}},
+               {idx_rx: "c"}]},
     ]
     tab.each do |entry|
         rb_frame_test("", entry, nil, 1, 0)

@@ -2015,7 +2015,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t *vtss_state, const vtss_rb_id_t rb_
     }
     val = (VTSS_F_RB_RB_CFG_KEEP_PRP_ALL_ENA(1) | VTSS_F_RB_RB_CFG_ABORT_DISC_ENA(1) |
            VTSS_F_RB_RB_CFG_DEFAULT_FWD_MASK(mask) | VTSS_F_RB_RB_CFG_RCT_MISSING_DISC_ENA(1) |
-           VTSS_F_RB_RB_CFG_RCT_VALIDATE_ENA(1) | VTSS_F_RB_RB_CFG_DAN_DETECT_ENA(1) |
+           VTSS_F_RB_RB_CFG_RCT_VALIDATE_ENA(0) | VTSS_F_RB_RB_CFG_DAN_DETECT_ENA(1) |
            VTSS_F_RB_RB_CFG_IRI_ENA(1) | VTSS_F_RB_RB_CFG_KEEP_INT_ENA(hsr) |
            VTSS_F_RB_RB_CFG_HSR_TAG_SEL(1) | VTSS_F_RB_RB_CFG_RB_MODE(mode) |
            VTSS_F_RB_RB_CFG_RB_ENA(ena));
