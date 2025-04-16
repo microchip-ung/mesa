@@ -193,8 +193,15 @@ static void fa_gpy241_detect(meba_inst_t inst)
         // Did not find Elise Phy which means PCB135 version 3
         // Note Indy / Maxlinear phy's are in reset at this point
         board->gpy241_present = TRUE;
-        /* Default to SGMII mode */
-        board->gpy241_usxgmii_mode = FALSE;
+
+        // If QXGMII mode is wanted then change port_cnt to 45
+        // (UBOOT PCB_VAR=45) or manually change
+        // it below.  Default 2.5G SGMII mode is enabled
+        if (board->port_cfg == VTSS_BOARD_CONF_36x1G_4x2G5_4x25G_NPI) {
+            board->gpy241_usxgmii_mode = TRUE;
+        } else {
+            board->gpy241_usxgmii_mode = FALSE;
+        }
     }
 }
 
@@ -483,7 +490,29 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
             entry->map.chip_port = CHIP_PORT_UNUSED;
         }
         break;
-
+    case VTSS_BOARD_CONF_36x1G_4x2G5_4x25G_NPI:
+        uint32_t map[] = {0,  1,  2,  3,  4,  5,  6,  7,  12, 13, 14, 15, 16, 17, 18,
+                          19, 20, 21, 22, 23, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+                          38, 39, 44, 45, 46, 47, 8,  24, 40, 56, 60, 61, 62, 63, 64};
+        chip_port = map[port_no];
+        if (port_no < 36) {
+            entry->phy_base_port = (port_no / 4) * 4;
+            board->port[port_no].ts_phy = true;
+            if_type = MESA_PORT_INTERFACE_QSGMII;
+            bw = MESA_BW_1G;
+        } else if (port_no < 40) {
+            if_type = MESA_PORT_INTERFACE_QXGMII; // chip_ports 8,24,40,56 -> SD25
+            bw = MESA_BW_2G5;
+        } else if (port_no < 44) {
+            if_type = MESA_PORT_INTERFACE_SFI;
+            bw = MESA_BW_25G;
+        } else {
+            bw = MESA_BW_1G;
+            entry->phy_base_port = port_no;
+            if_type = MESA_PORT_INTERFACE_SGMII;
+        }
+        update_entry(inst, entry, if_type, bw, chip_port);
+        break;
     default: T_E(inst, "Board type (%d) not supported!", board->type);
     }
     if (entry->map.chip_port >= 56 && entry->map.chip_port <= 59) {
@@ -2287,6 +2316,9 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
     case BOARD_TYPE_SPARX5_PCB135:
         if (board->port_cnt == 29) {
             board->port_cfg = VTSS_BOARD_CONF_24x1G_4x10G_NPI;
+        } else if (board->port_cnt == 45) {
+            board->port_cfg = VTSS_BOARD_CONF_36x1G_4x2G5_4x25G_NPI;
+            board->gpy241_usxgmii_mode = 1;
         } else if (board->port_cnt == 53) {
             board->port_cfg = VTSS_BOARD_CONF_48x1G_4x10G_NPI;
         } else if (board->port_cnt == 57) {
@@ -2308,6 +2340,11 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
         }
         // Detect gpy241 / PCB135v4 board
         fa_gpy241_detect(inst);
+        if (board->gpy241_usxgmii_mode) {
+            board->port_cfg = VTSS_BOARD_CONF_36x1G_4x2G5_4x25G_NPI;
+            board->port_cnt = 45; // 36xQSGMII + 4xQXGMII + 4x25G + NPI
+        }
+
         break;
     default: T_E(inst, "Unknown PCB type"); goto error_out;
     }
@@ -2454,6 +2491,13 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
                     } else {
                         board->port[port_no].sgpio_port = MESA_SGPIO_PORTS;
                     }
+                }
+            } else if (board->port_cfg == VTSS_BOARD_CONF_36x1G_4x2G5_4x25G_NPI) {
+                board->port[port_no].board_port = port_no;
+                if ((port_no >= board->port_cnt - 5) && (port_no < board->port_cnt - 1)) {
+                    // 4x25G SFP ports
+                    // These are physical ports 52-55
+                    board->port[port_no].sgpio_port = board->port[port_no].map.map.chip_port - 32;
                 }
             } else {
                 T_E(inst, "Board type (%d) and port_cfg (%d) not supported!", board->type,
