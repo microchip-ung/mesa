@@ -2224,45 +2224,6 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t         *vtss_state,
     return TRUE;
 }
 
-static vtss_rc fa_enable_usx_extender(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
-{
-    if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_QXGMII ||
-        vtss_state->port.current_if_type[port_no] == VTSS_PORT_INTERFACE_QXGMII) {
-        return VTSS_RC_OK; // Already configured
-    }
-    u32 p = VTSS_CHIP_PORT(port_no), R, port, tgt, cnt;
-
-    /* Enable the USXGMII extender after the last port is configured */
-    if (p > 47 && p < 64) {
-        R = (p < 16) ? p : (p < 32) ? p - 16 : (p < 48) ? p - 32 : p - 48;
-        R = R + 16;
-        REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(R),
-                VTSS_F_PORT_CONF_USXGMII_CFG_TX_ENA(1) | VTSS_F_PORT_CONF_USXGMII_CFG_RX_ENA(1) |
-                    VTSS_F_PORT_CONF_USXGMII_CFG_NUM_PORTS(2),
-                VTSS_M_PORT_CONF_USXGMII_CFG_TX_ENA | VTSS_M_PORT_CONF_USXGMII_CFG_RX_ENA |
-                    VTSS_M_PORT_CONF_USXGMII_CFG_NUM_PORTS);
-
-        REG_WRM(VTSS_PORT_CONF_USXGMII_ENA, VTSS_BIT(R), VTSS_BIT(R));
-        VTSS_MSLEEP(3);
-
-        /* The usx channel is ready, restart aneg for all 4 ports in the group */
-        for (cnt = 0; cnt < 4; cnt++) {
-            port = p - (16 * cnt);
-            tgt = VTSS_TO_DEV2G5(port);
-
-#if !defined(VTSS_ARCH_LAIKA)
-            REG_WRM(VTSS_DEV1G_USXGMII_ANEG_CFG(tgt),
-                    VTSS_F_DEV1G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1),
-                    VTSS_M_DEV1G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT);
-#else
-            (void)tgt;
-#endif
-        }
-    }
-
-    return VTSS_RC_OK;
-}
-
 #if defined(VTSS_ARCH_SPARX5)
 // Configure port muxing:
 // QSGMII:     4x2G5 devices
@@ -2273,7 +2234,7 @@ static vtss_rc fa_enable_usx_extender(vtss_state_t *vtss_state, const vtss_port_
 // USXGMII:    1x10G devices
 static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    u32 p = VTSS_CHIP_PORT(port_no), Q, X, U, F, S, mask;
+    u32 p = VTSS_CHIP_PORT(port_no), R, Q, X, U, F, S, mask;
 
     if (vtss_state->port.current_if_type[port_no] == vtss_state->port.conf[port_no].if_type) {
         return VTSS_RC_OK; // Nothing to do
@@ -2311,6 +2272,19 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         } else if (VTSS_PORT_IS_25G(p)) {
             mask = VTSS_BIT(fla_port_dev_index(vtss_state, p, TRUE));
             REG_WRM(VTSS_PORT_CONF_DEV25G_MODES, mask, mask);
+        }
+
+        if (p > 47 && p < 64) {
+            R = (p < 16) ? p : (p < 32) ? p - 16 : (p < 48) ? p - 32 : p - 48 + 16;
+            // R = 16-31
+            REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(R),
+                    VTSS_F_PORT_CONF_USXGMII_CFG_TX_ENA(1) |
+                        VTSS_F_PORT_CONF_USXGMII_CFG_RX_ENA(1) |
+                        VTSS_F_PORT_CONF_USXGMII_CFG_NUM_PORTS(2),
+                    VTSS_M_PORT_CONF_USXGMII_CFG_TX_ENA | VTSS_M_PORT_CONF_USXGMII_CFG_RX_ENA |
+                        VTSS_M_PORT_CONF_USXGMII_CFG_NUM_PORTS);
+
+            REG_WRM(VTSS_PORT_CONF_USXGMII_ENA, VTSS_BIT(R), VTSS_BIT(R));
         }
         break;
     case VTSS_PORT_INTERFACE_DXGMII_5G: /* DXGMII_5G: 2x2G5 devices. Mode 'F'.
@@ -3388,10 +3362,6 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     if (pcs_usx) {
         /* Enable in-band-aneg, etc (config only needed once) */
         VTSS_RC(fa_usxgmii_enable(vtss_state, port_no, FALSE));
-
-        /* Enable the usx extender (only for the last port in the QXGMII group
-         * and only once) */
-        VTSS_RC(fa_enable_usx_extender(vtss_state, port_no));
     }
 
     /* Setup QoS - out of reset */
@@ -4410,7 +4380,23 @@ vtss_rc vtss_cil_port_conf_set_bulk(vtss_state_t *vtss_state)
                     break;
                 }
             }
-            if (!(sd_mode_org == VTSS_SERDES_MODE_QSGMII && ((VTSS_CHIP_PORT(port_no) % 4) != 0))) {
+            // Only add one instance of the serdes to the mask
+            u32 chip_port = VTSS_CHIP_PORT(port_no);
+            if (sd_mode_org == VTSS_SERDES_MODE_QSGMII) {
+                if (chip_port % 4 == 0) {
+                    vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
+                }
+            } else if (sd_mode_org == VTSS_SERDES_MODE_QXGMII) {
+                if (FA_TGT) {
+                    if (chip_port > 47) {
+                        vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
+                    }
+                } else {
+                    if (chip_port % 4 == 0) {
+                        vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
+                    }
+                }
+            } else {
                 vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
             }
         }

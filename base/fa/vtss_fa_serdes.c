@@ -4018,6 +4018,11 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t  *vtss_state,
         return VTSS_RC_OK; // Not available
     }
 
+    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QXGMII ||
+        vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) {
+        return VTSS_RC_OK;
+    }
+
     rc = fa_port_kr_tap_get(vtss_state, port_no, &tap_dly, &tap_adv, &ampl);
 
     if (vtss_state->init_conf.serdes_tap_get(NULL, port_no, speed, VTSS_SERDES_POST_CURSOR,
