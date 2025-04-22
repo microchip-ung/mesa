@@ -40,7 +40,6 @@ extern "C" {
 #define VTSS_HW_TIME_CNT_PR_SEC 1000000000
 /** \brief Number of nanoseconds pr clock count. */
 #define VTSS_HW_TIME_NSEC_PR_CNT  1
-#define VTSS_HW_TIME_WRAP_LIMIT   0  /* time counter wrap around limit+1 */
 #define VTSS_HW_TIME_MIN_ADJ_RATE 10 /* 1 ppb */
 #endif
 
@@ -48,14 +47,19 @@ extern "C" {
 #define VTSS_HW_TIME_CNT_PR_SEC 1000000000
 /** \brief Number of nanoseconds pr clock count. */
 #define VTSS_HW_TIME_NSEC_PR_CNT 1
-/** \brief Jaguar2 nanosecond time counter wrap around value (jaguar2 time
- * counter wraps when 0xffffffff is reached). */
-#define VTSS_HW_TIME_WRAP_LIMIT 0 /* time counter wrap around limit+1 */
 #endif
 
-#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
-/** \brief Caracal nanosecond time counter wrap around value (Caracal time
- * counter wraps when 0xffffffff is reached). */
+#if defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
+/** \brief All the newer platforms do not use separate time counter for timestamping
+ *   other than LTC. So time wrap around limit is same as nano second rollover i.e. 10^9. */
+#define VTSS_HW_TIME_WRAP_LIMIT 1000000000
+#endif
+
+#if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2)
+/** \brief nanosecond time counter wrap around value. All the older platforms like
+ *   caracal, ocelot and Jaguar-2 maintain 32-bit time counter for ingress timestamps. This
+ *   counter wraps when 0xffffffff is reached. So, wrap around value is obtained by adding 1
+ *   to this value. */
 #define VTSS_HW_TIME_WRAP_LIMIT 0 /* time counter wrap around limit+1 (=0 if wrap at 0xffffffff) */
 #endif
 
