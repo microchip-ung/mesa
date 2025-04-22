@@ -1817,6 +1817,21 @@ static u32 fa_rb_age_unit(u32 unit)
     return (unit == 0 ? 32 : unit == 1 ? 256 : unit == 2 ? 4096 : 65536);
 }
 
+static vtss_rc fa_rb_host_cmd(vtss_state_t *vtss_state, const vtss_rb_id_t rb_id, u32 cmd, u32 idx)
+{
+    u32 val, tgt = fa_rb_tgt(rb_id);
+
+    REG_WR(VTSS_RB_HOST_ACCESS_CTRL(tgt),
+           VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(idx % FA_HT_COL_CNT) |
+               VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(idx / FA_HT_COL_CNT) |
+               VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_CMD(cmd) |
+               VTSS_F_RB_HOST_ACCESS_CTRL_HOST_TABLE_ACCESS_SHOT(1));
+    do {
+        REG_RD(VTSS_RB_HOST_ACCESS_CTRL(tgt), &val);
+    } while VTSS_X_RB_HOST_ACCESS_CTRL_HOST_TABLE_ACCESS_SHOT(val);
+    return VTSS_RC_OK;
+}
+
 static vtss_rc fa_rb_port_conf_set(vtss_state_t      *vtss_state,
                                    const vtss_rb_id_t rb_id,
                                    u32                j,
@@ -2049,6 +2064,11 @@ vtss_rc vtss_cil_l2_rb_conf_set(vtss_state_t *vtss_state, const vtss_rb_id_t rb_
         REG_WRM_CLR(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
         REG_WRM_CLR(VTSS_REW_PTP_MISC_CFG(port), VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS);
         VTSS_RC(vtss_fa_rb_port_update(vtss_state, port_no));
+        if (ena == 0) {
+            // Clear counters and host table
+            VTSS_RC(vtss_cil_l2_rb_counters_update(vtss_state, rb_id, TRUE));
+            VTSS_RC(fa_rb_host_cmd(vtss_state, rb_id, FA_HT_CMD_CLEAR, 0));
+        }
     }
     if (ena) {
         // Enable IFH/preamble transfers for new interlink port
@@ -2222,21 +2242,6 @@ vtss_rc vtss_cil_l2_rb_counters_update(vtss_state_t      *vtss_state,
         RB_CNT(VTSS_RB_CNT_DUPL_ONE, tgt, j, &c->tx_dupl_one, clear);
         RB_CNT(VTSS_RB_CNT_DUPL_TWO, tgt, j, &c->tx_dupl_multi, clear);
     }
-    return VTSS_RC_OK;
-}
-
-static vtss_rc fa_rb_host_cmd(vtss_state_t *vtss_state, const vtss_rb_id_t rb_id, u32 cmd, u32 idx)
-{
-    u32 val, tgt = fa_rb_tgt(rb_id);
-
-    REG_WR(VTSS_RB_HOST_ACCESS_CTRL(tgt),
-           VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_COL(idx % FA_HT_COL_CNT) |
-               VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_DIRECT_ROW(idx / FA_HT_COL_CNT) |
-               VTSS_F_RB_HOST_ACCESS_CTRL_CPU_ACCESS_CMD(cmd) |
-               VTSS_F_RB_HOST_ACCESS_CTRL_HOST_TABLE_ACCESS_SHOT(1));
-    do {
-        REG_RD(VTSS_RB_HOST_ACCESS_CTRL(tgt), &val);
-    } while VTSS_X_RB_HOST_ACCESS_CTRL_HOST_TABLE_ACCESS_SHOT(val);
     return VTSS_RC_OK;
 }
 
@@ -3278,9 +3283,11 @@ static void fa_debug_rb_fld(lmu_ss_t   *ss,
     char         *p;
 
     VTSS_FMT(buf, "%s%s", prefix ? prefix : "", name);
-    if ((p = strstr(buf.s, "_CFG_")) != NULL) {
-        if (p[5] < '0' || p[5] > '9') {
+    for (p = buf.s; *p != '\0'; p++) {
+        if (p[0] == '_' && p[1] == 'C' && p[2] == 'F' && p[3] == 'G' && p[4] == '_' &&
+            (p[5] < '0' || p[5] > '9')) {
             p[4] = ':';
+            break;
         }
     }
     pr("%-30s ", &buf);
@@ -3637,7 +3644,7 @@ static vtss_rc fa_debug_redbox(vtss_state_t                  *vtss_state,
 
         // Node table and proxy node table
         for (j = 0; j < 2; j++) {
-            memset(&host, 0, sizeof(host));
+            VTSS_MEMSET(&host, 0, sizeof(host));
             cnt = 0;
             VTSS_FMT(buf, "RedBox %u %sNode Table", i, j ? "Proxy " : "");
             while (1) {

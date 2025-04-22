@@ -8241,7 +8241,7 @@ vtss_rc vtss_rb_cap_get(const vtss_inst_t inst, const vtss_rb_id_t rb_id, vtss_r
     VTSS_RC(vtss_rb_id_check(rb_id));
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        memset(cap, 0, sizeof(*cap));
+        VTSS_MEMSET(cap, 0, sizeof(*cap));
         rc = vtss_cil_l2_rb_cap_get(vtss_state, rb_id, cap);
     }
     VTSS_EXIT();
@@ -9217,7 +9217,7 @@ static void vtss_debug_cnt(lmu_ss_t      *ss,
         pr("%-41s", "");
     }
     if (col2 != NULL) {
-        VTSS_FMT(buf, "Tx %s:", strlen(col2) ? col2 : col1);
+        VTSS_FMT(buf, "Tx %s:", lmu_czstrlen(col2) ? col2 : col1);
         pr("%-19s%19" PRIu64, &buf, c2);
     }
     pr("\n");
@@ -9311,7 +9311,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
             continue;
         }
 
-        memset(&node, 0, sizeof(node));
+        VTSS_MEMSET(&node, 0, sizeof(node));
         while (1) {
             rc = (info->action ? vtss_cil_l2_rb_node_id_get_next(vtss_state, i, node.id, &node)
                                : vtss_cil_l2_rb_node_get_next(vtss_state, i, &node.mac, &node));
@@ -9344,7 +9344,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
             header = 1;
         }
 
-        memset(&pnode, 0, sizeof(pnode));
+        VTSS_MEMSET(&pnode, 0, sizeof(pnode));
         while (1) {
             rc = (info->action
                       ? vtss_cil_l2_rb_proxy_node_id_get_next(vtss_state, i, pnode.id, &pnode)

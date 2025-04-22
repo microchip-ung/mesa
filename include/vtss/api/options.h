@@ -367,12 +367,12 @@
                                                elements are linked */
 #define VTSS_FEATURE_ACL_EXT_ETYPE          /**< ACL Ethernet Type extended rules with             \
                                                MAC address matching */
+#define VTSS_FEATURE_REDBOX                 /**< PRP/HSR RedBox */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_MAC_INDEX_TABLE /**< Index-based MAC address table */
 #define VTSS_FEATURE_QOS_OT          /**< Operational Technology traffic handling */
 #define VTSS_FEATURE_MRP             /**< IEC 62439-2 MRP */
 #define VTSS_FEATURE_MRP_V1          /**< Version 1 MRP implementation. */
-#define VTSS_FEATURE_REDBOX          /**< PRP/HSR RedBox */
 #endif                               // !VTSS_OPT_LIGHT
 #endif
 
