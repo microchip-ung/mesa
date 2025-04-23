@@ -44,6 +44,10 @@
 #include "vtss_qos_state.h"
 #endif
 
+#if defined(VTSS_ARCH_LAIKA)
+#include "vtss_lk_packet_state.h"
+#endif
+
 #if defined(VTSS_FEATURE_PACKET)
 #include "vtss_packet_state.h"
 #endif

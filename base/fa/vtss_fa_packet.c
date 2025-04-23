@@ -370,16 +370,17 @@ static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-#if !defined(VTSS_ARCH_LAIKA)
-
 static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
 {
-    u32 queue, byte_swap, port = RT_CHIP_PORT_CPU_1, grp = 1;
+    u32 queue, byte_swap, port = LK_TGT ? RT_CHIP_PORT_CPU_0 : RT_CHIP_PORT_CPU_1, grp = 1;
 #ifdef VTSS_OS_BIG_ENDIAN
     byte_swap = 0;
 #else
     byte_swap = 1;
 #endif
+
+    (void)byte_swap;
+    (void)grp;
 
     if (!vtss_state->packet.manual_mode) {
         /* Change mode to manual extraction and injection */
@@ -406,6 +407,8 @@ static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
     }
     return VTSS_RC_OK;
 }
+
+#if !defined(VTSS_ARCH_LAIKA)
 
 #ifdef VTSS_OS_BIG_ENDIAN
 #define XTR_EOF_0          0x80000000U
@@ -619,7 +622,6 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
     u8                  xtr_hdr_2;
     vtss_phys_port_no_t chip_port;
     vtss_trace_group_t  trc_grp = VTSS_TRACE_GROUP_PACKET;
-
     VTSS_DG(trc_grp, "IFH (36 bytes) + bit of packet:");
     VTSS_DG_HEX(trc_grp, &xtr_hdr[0], 96);
     // (Fireant) Bit 272-287 (16 bits) are unused
@@ -721,12 +723,29 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
     info->rb_seq_no = VTSS_EXTRACT_BITFIELD(tagging, 0, 16); // TAGGING:SEQ_NO
 
     VTSS_RC(vtss_cmn_packet_hints_update(state, trc_grp, meta->etype, info));
-
     return VTSS_RC_OK;
 }
 
-#if !defined(VTSS_ARCH_LAIKA)
+#if defined(VTSS_ARCH_LAIKA)
 
+static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
+                           u8 *const                    data,
+                           const u32                    buflen,
+                           vtss_packet_rx_info_t *const rx_info)
+{
+    u8                    ifh[VTSS_PACKET_HDR_SIZE_BYTES];
+    vtss_packet_rx_meta_t meta = {};
+    u32                   length;
+    vtss_rc               rc = VTSS_RC_INCOMPLETE;
+    VTSS_RC(fa_packet_mode_update(vtss_state));
+    VTSS_RC(lk_pie_chnl_rx(vtss_state, data, buflen, ifh, &length));
+    meta.length = length;
+    meta.etype = (data[12] << 8) | data[13];
+    rc = fa_rx_hdr_decode(vtss_state, &meta, ifh, rx_info);
+    return rc;
+}
+
+#else
 static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
                            u8 *const                    data,
                            const u32                    buflen,
@@ -734,7 +753,6 @@ static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
 {
     vtss_rc rc = VTSS_RC_INCOMPLETE;
     u32     val;
-
     VTSS_RC(fa_packet_mode_update(vtss_state));
 
     /* Check if data is ready for grp */
@@ -1151,14 +1169,24 @@ static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
         }
     }
 #endif
-
     VTSS_IG(VTSS_TRACE_GROUP_PACKET, "IFH:");
     VTSS_IG_HEX(VTSS_TRACE_GROUP_PACKET, &bin_hdr[0], *bin_hdr_len);
-
     return VTSS_RC_OK;
 }
 
-#if !defined(VTSS_ARCH_LAIKA)
+#if defined(VTSS_ARCH_LAIKA)
+
+static vtss_rc fa_tx_frame_ifh(vtss_state_t                     *vtss_state,
+                               const vtss_packet_tx_ifh_t *const ifh,
+                               const u8 *const                   frame,
+                               const u32                         length)
+{
+    VTSS_RC(fa_packet_mode_update(vtss_state));
+    return lk_pie_chnl_tx(vtss_state, frame, length, ifh);
+}
+
+#else
+
 
 static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
                                    const vtss_packet_tx_ifh_t *const ifh,
@@ -1346,13 +1374,17 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     u32                    val;
     u32                    i, port;
     int                    pcp, dei;
+    vtss_rc                rc = VTSS_RC_INCOMPLETE;
+// The extraction queues can be redirected to any port.
+// This is used to redirect selected queues to an NPI port, but also the
+// FDMA (if included) may use this feature to redirect to a dummy port when
+// throttling. The NPI settings take precedence over the FDMA, but we need
+// to keep track of what the FDMA wants to set it to in case the application
+// enables and disables NPI redirection.
+#if defined(VTSS_ARCH_LAIKA)
+    rc = lk_init(vtss_state);
+#endif
 
-    // The extraction queues can be redirected to any port.
-    // This is used to redirect selected queues to an NPI port, but also the
-    // FDMA (if included) may use this feature to redirect to a dummy port when
-    // throttling. The NPI settings take precedence over the FDMA, but we need
-    // to keep track of what the FDMA wants to set it to in case the application
-    // enables and disables NPI redirection.
     for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
         i = QFWD_FRAME_COPY_CFG_CPU_QU(qu);
         REG_RD(VTSS_QFWD_FRAME_COPY_CFG(i), &val);
@@ -1420,7 +1452,7 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
                 VTSS_M_ASM_PORT_CFG_VSTAX2_AWR_ENA);
     }
 
-    return VTSS_RC_OK;
+    return rc;
 }
 
 vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
@@ -1429,10 +1461,10 @@ vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-#if !defined(VTSS_ARCH_LAIKA)
         state->rx_frame = fa_rx_frame;
         state->tx_frame_ifh = fa_tx_frame_ifh;
-#endif
+        state->rx_frame = fa_rx_frame;
+        state->tx_frame_ifh = fa_tx_frame_ifh;
         state->rx_conf_set = fa_rx_conf_set;
         state->rx_hdr_decode = fa_rx_hdr_decode;
         state->rx_ifh_size = VTSS_FA_RX_IFH_SIZE;

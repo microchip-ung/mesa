@@ -55,7 +55,9 @@ typedef struct {
     // Desired redirect port for a given Rx queue.
     vtss_phys_port_no_t default_qu_redirect[VTSS_PACKET_RX_QUEUE_CNT];
 #endif
-
+#if defined(VTSS_ARCH_LAIKA)
+    vtss_lk_packet_state_t lk;
+#endif
     /* RX IFH Size */
     unsigned int rx_ifh_size;
 } vtss_packet_state_t;
