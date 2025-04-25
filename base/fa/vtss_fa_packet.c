@@ -385,6 +385,7 @@ static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
     if (!vtss_state->packet.manual_mode) {
         /* Change mode to manual extraction and injection */
         vtss_state->packet.manual_mode = 1;
+#if !defined(VTSS_ARCH_LAIKA)
         REG_WR(VTSS_DEVCPU_QS_XTR_GRP_CFG(grp),
                VTSS_F_DEVCPU_QS_XTR_GRP_CFG_MODE(1) |
                    VTSS_F_DEVCPU_QS_XTR_GRP_CFG_STATUS_WORD_POS(0) |
@@ -392,6 +393,7 @@ static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
         REG_WR(VTSS_DEVCPU_QS_INJ_GRP_CFG(grp),
                VTSS_F_DEVCPU_QS_INJ_GRP_CFG_MODE(1) |
                    VTSS_F_DEVCPU_QS_INJ_GRP_CFG_BYTE_SWAP(byte_swap));
+#endif
         REG_WR(VTSS_ASM_PORT_CFG(port),
                VTSS_F_ASM_PORT_CFG_NO_PREAMBLE_ENA(1) | VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(1));
         // Kernel driver changes this for FDMA, so change it back
@@ -736,7 +738,7 @@ static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
     u8                    ifh[VTSS_PACKET_HDR_SIZE_BYTES];
     vtss_packet_rx_meta_t meta = {};
     u32                   length;
-    vtss_rc               rc = VTSS_RC_INCOMPLETE;
+    vtss_rc rc = VTSS_RC_INCOMPLETE;
     VTSS_RC(fa_packet_mode_update(vtss_state));
     VTSS_RC(lk_pie_chnl_rx(vtss_state, data, buflen, ifh, &length));
     meta.length = length;
@@ -1186,8 +1188,6 @@ static vtss_rc fa_tx_frame_ifh(vtss_state_t                     *vtss_state,
 }
 
 #else
-
-
 static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
                                    const vtss_packet_tx_ifh_t *const ifh,
                                    const u8 *const                   frame,
@@ -1374,7 +1374,7 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     u32                    val;
     u32                    i, port;
     int                    pcp, dei;
-    vtss_rc                rc = VTSS_RC_INCOMPLETE;
+    vtss_rc rc = VTSS_RC_INCOMPLETE;
 // The extraction queues can be redirected to any port.
 // This is used to redirect selected queues to an NPI port, but also the
 // FDMA (if included) may use this feature to redirect to a dummy port when
@@ -1461,8 +1461,6 @@ vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->rx_frame = fa_rx_frame;
-        state->tx_frame_ifh = fa_tx_frame_ifh;
         state->rx_frame = fa_rx_frame;
         state->tx_frame_ifh = fa_tx_frame_ifh;
         state->rx_conf_set = fa_rx_conf_set;

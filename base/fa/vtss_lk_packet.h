@@ -4,7 +4,6 @@
 #ifndef __VTSS_LK_PACKET_H__
 #define __VTSS_LK_PACKET_H__
 
-#include "vtss_fa_cil.h"
 #if defined(VTSS_ARCH_LAIKA)
 
 vtss_rc lk_init(vtss_state_t *vtss_state);
@@ -15,4 +14,5 @@ vtss_rc lk_pie_chnl_tx(vtss_state_t                     *vtss_state,
                        const vtss_packet_tx_ifh_t *const ifh);
 
 #endif /* VTSS_ARCH_LAIKA */
+
 #endif /* __VTSS_LK_PACKET_H__ */
