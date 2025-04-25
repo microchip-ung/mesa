@@ -41,7 +41,7 @@ typedef struct {
 } vtss_lk_pie_chnl_t;
 
 typedef struct {
-    vtss_lk_pie_chnl_t chnls[2];
+    vtss_lk_pie_chnl_t chnls[1];
 } vtss_lk_packet_state_t;
 
 #endif /* VTSS_ARCH_LAIKA */

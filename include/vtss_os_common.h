@@ -22,9 +22,12 @@
  * depending on the OS and the runtime model (API running
  * in Kernel or User space).
  *
- * However, on some OSs, it's required to allocate
- * specially if the memory is going to be associated
- * with DMA, hence the VTSS_MEM_FLAGS_DMA enumeration.
+ * The VTSS_MEM_FLAGS_DMA flag indicates that the memory needs to be
+ * contiguous in physical address space so that it can be used by a
+ * DMA. This physical address is possibly different than the CPU
+ * address and can be retrieved with VTSS_OS_CPU_TO_DMA_ADDR().
+ * The OS must guarantee that caching is disabled for the whole memory
+ * chunk allocated.
  *
  * Also, to be able to support warm restart, another
  * enumeration, VTSS_MEM_FLAGS_PERSIST, tells

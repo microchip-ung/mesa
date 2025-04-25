@@ -7,6 +7,7 @@
 #include "lm_utils.h"
 #include "lm_switch.h"
 #include "lm_os.h"
+#include "lm_os_drv.h"
 
 /** \brief Fallback Integer types */
 typedef signed char  i8;  /**<  8-bit signed */
@@ -44,7 +45,7 @@ void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
 
 #define VTSS_OS_RAND()             lmu_pseudo_rand()
 #define VTSS_OS_MALLOC(s, f)       lm_mesa_pseudo_malloc(s, f)
-#define VTSS_OS_CPU_TO_DMA_ADDR(a) lm_os_to_dma_addr(a)
+#define VTSS_OS_CPU_TO_DMA_ADDR(a) lm_os_drv_to_dma_addr(a)
 
 #define VTSS_OS_FREE(s, f)
 

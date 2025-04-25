@@ -7,6 +7,10 @@
 #if defined(VTSS_ARCH_FA)
 #include "vtss_ts_api.h"
 
+#if defined(VTSS_ARCH_LAIKA)
+#include "vtss_lk_packet.h"
+#endif
+
 /* - CIL functions ------------------------------------------------- */
 
 #define FA_IFH_WORDS (VTSS_FA_RX_IFH_SIZE / 4) /* 9 32-bit words in an IFH */
@@ -738,7 +742,7 @@ static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
     u8                    ifh[VTSS_PACKET_HDR_SIZE_BYTES];
     vtss_packet_rx_meta_t meta = {};
     u32                   length;
-    vtss_rc rc = VTSS_RC_INCOMPLETE;
+    vtss_rc               rc = VTSS_RC_INCOMPLETE;
     VTSS_RC(fa_packet_mode_update(vtss_state));
     VTSS_RC(lk_pie_chnl_rx(vtss_state, data, buflen, ifh, &length));
     meta.length = length;
@@ -1374,17 +1378,17 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     u32                    val;
     u32                    i, port;
     int                    pcp, dei;
-    vtss_rc rc = VTSS_RC_INCOMPLETE;
-// The extraction queues can be redirected to any port.
-// This is used to redirect selected queues to an NPI port, but also the
-// FDMA (if included) may use this feature to redirect to a dummy port when
-// throttling. The NPI settings take precedence over the FDMA, but we need
-// to keep track of what the FDMA wants to set it to in case the application
-// enables and disables NPI redirection.
+    vtss_rc                rc = VTSS_RC_OK;
+
 #if defined(VTSS_ARCH_LAIKA)
     rc = lk_init(vtss_state);
 #endif
-
+    // The extraction queues can be redirected to any port.
+    // This is used to redirect selected queues to an NPI port, but also the
+    // FDMA (if included) may use this feature to redirect to a dummy port when
+    // throttling. The NPI settings take precedence over the FDMA, but we need
+    // to keep track of what the FDMA wants to set it to in case the application
+    // enables and disables NPI redirection.
     for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
         i = QFWD_FRAME_COPY_CFG_CPU_QU(qu);
         REG_RD(VTSS_QFWD_FRAME_COPY_CFG(i), &val);
