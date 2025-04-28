@@ -87,10 +87,11 @@ static void cli_cmd_mac_lookup(cli_req_t *req)
 static void cli_cmd_mac_dump(cli_req_t *req)
 {
     mesa_mac_table_entry_t entry;
+    mesa_vid_mac_t         vid_mac = {};
     mesa_bool_t            first = 1;
 
-    memset(&entry, 0, sizeof(entry));
-    while (mesa_mac_table_get_next(NULL, &entry.vid_mac, &entry) == MESA_RC_OK) {
+    while (mesa_mac_table_get_next(NULL, &vid_mac, &entry) == MESA_RC_OK) {
+        vid_mac = entry.vid_mac;
         cli_mac_print(&entry, first);
         first = 0;
     }
