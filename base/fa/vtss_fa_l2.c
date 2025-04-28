@@ -3796,8 +3796,12 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
            VTSS_F_QSYS_FRM_AGING_MAX_AGE(500000 / 4)); /* Set tick to 0.5 sec */
     for (port = 0; port < RT_CHIP_PORTS; port++) {
         /* Enable aging in disassembler for each port */
-        REG_WRM(VTSS_DSM_BUF_CFG(port), VTSS_F_DSM_BUF_CFG_AGING_ENA(1),
-                VTSS_M_DSM_BUF_CFG_AGING_ENA);
+        // Due to potentially short taxi bus calendars that can drain the
+        // disassembler and cause underrun, which in turn may cause frames to be
+        // dropped, we also disable DSM underrun detection.
+        REG_WRM(VTSS_DSM_BUF_CFG(port), VTSS_F_DSM_BUF_CFG_AGING_ENA(1) |
+                VTSS_F_DSM_BUF_CFG_UNDERFLOW_WATCHDOG_DIS(1),
+                VTSS_M_DSM_BUF_CFG_AGING_ENA | VTSS_M_DSM_BUF_CFG_UNDERFLOW_WATCHDOG_DIS);
     }
 
     /* Disable advanced (VStaX) learning, that is, use basic learning */
