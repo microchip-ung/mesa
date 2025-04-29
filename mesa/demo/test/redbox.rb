@@ -29,6 +29,11 @@ $rb_id = nil
 # Global hash for connecting two RedBoxes
 $rb_pair = nil
 
+# Global PTP type
+$ptp_encap = "etype"
+$ptp_encap = "ipv4"
+$ptp_encap = "ipv6"
+
 # Check that two ports can be part of a RedBox
 check_capabilities do
     cnt = cap_get("L2_REDBOX_CNT")
@@ -1535,6 +1540,9 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
                 cmd += " htag pathid #{path_id} size #{size} seqn #{seqn + index}"
             end
             if (ptp != nil)
+                if ($ptp_encap != "etype")
+                    cmd += " #{$ptp_encap} udp chksum 0"
+                end
                 type = fld_get(ptp, :type, "?")
                 cmd += " ptp-#{type}"
                 req = fld_get(ptp, :req, nil)
@@ -1716,11 +1724,17 @@ def redbox_test(t)
     # ACE/PTP configuration
     acl = fld_get(cfg, :acl, [])
     acl.each_with_index do |ace, i|
-        conf = $ts.dut.call("mesa_ace_init", "MESA_ACE_TYPE_ETYPE")
+        conf = $ts.dut.call("mesa_ace_init", "MESA_ACE_TYPE_" + $ptp_encap.upcase)
         conf["id"] = (i + 1)
         idx = rb_idx(ace[:idx_rx])
         conf["port_list"] = "#{$ts.dut.p[idx]}"
-        ptp = conf["frame"]["etype"]["ptp"]
+        frame = conf["frame"][$ptp_encap]
+        if ($ptp_encap != "etype")
+            proto = frame["proto"]
+            proto["value"] = 17
+            proto["mask"] = 0xff
+        end
+        ptp = frame["ptp"]
         ptp["enable"] = true
         h = ptp["header"]
         h["value"][0] = ace[:type]
