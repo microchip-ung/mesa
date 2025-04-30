@@ -1210,7 +1210,7 @@ test_table =
     {
         # Refer to Laguna DOS section 8.3.2
         txt: "PTP Synchronization",
-        cfg: {mode: "HSR_PRP", ptp: "ETHERNET",
+        cfg: {mode: "HSR_PRP", ptp: ($ptp_encap == "etype" ? "ETHERNET" : $ptp_encap.upcase),
               # Type 0: Sync
               acl: [{idx_rx: "a", idx_tx: "c", type: 0, srcid: true}],
               ts: [{idx: "c", srcid: true}]},
@@ -1470,13 +1470,18 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
     smac = "01"
     et = fld_get(f, :et, 0xeeee)
     ptp = fld_get(f, :ptp, nil)
-    if (ptp != nil)
-        dmac = "01:1b:19:00:00:00"
-    end
     add_cmd = fld_get(f, :cmd, nil)
     len = fld_get(f, :len, 46)
     fwd = fld_get(entry, :fwd, [])
     rep = fld_get(entry, :rep, 1)
+    if (ptp != nil)
+        dmac = "01:1b:19:00:00:00"
+        if ($ptp_encap == "ipv4")
+            len += 28
+        elsif ($ptp_encap == "ipv6")
+            len += 48
+        end
+    end
     port_c_done = false
     fwd.each_with_index do |e, i|
         idx_name = e[:idx_tx]
@@ -1541,7 +1546,7 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
             end
             if (ptp != nil)
                 if ($ptp_encap != "etype")
-                    cmd += " #{$ptp_encap} udp chksum 0"
+                    cmd += " #{$ptp_encap} udp dport 320 chksum 0"
                 end
                 type = fld_get(ptp, :type, "?")
                 cmd += " ptp-#{type}"
