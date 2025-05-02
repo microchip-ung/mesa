@@ -109,6 +109,15 @@ vtss_rc vtss_trace_conf_set(const vtss_trace_group_t group, const vtss_trace_con
  *
  * \return Nothing.
  **/
+#if defined(VTSS_OPSYS_VELOCITYSP)
+void vtss_callout_trace_printf(const vtss_trace_layer_t layer,
+                               const vtss_trace_group_t group,
+                               const vtss_trace_level_t level,
+                               const char              *file,
+                               const int                line,
+                               const char              *function,
+                               const char              *msg);
+#else
 void vtss_callout_trace_printf(const vtss_trace_layer_t layer,
                                const vtss_trace_group_t group,
                                const vtss_trace_level_t level,
@@ -117,6 +126,7 @@ void vtss_callout_trace_printf(const vtss_trace_layer_t layer,
                                const char              *function,
                                const char              *format,
                                ...) VTSS_ATTR_PRINTF(7, 8);
+#endif
 
 /**
  * \brief Trace hex-dump callout function

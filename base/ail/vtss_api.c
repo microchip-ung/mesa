@@ -66,7 +66,7 @@ vtss_rc vtss_inst_check_get(const vtss_inst_t inst, vtss_state_t **vtss_state)
 
     /* Check cookie */
     if (*vtss_state == NULL || (*vtss_state)->cookie != VTSS_STATE_COOKIE) {
-        VTSS_E("illegal inst: %p", inst);
+        VTSS_E("illegal inst: %p", (uintptr_t)inst);
         return VTSS_RC_ERROR;
     }
 
@@ -95,7 +95,7 @@ vtss_state_t *vtss_inst_check_no_persist(const vtss_inst_t inst)
 
     /* Check cookie */
     if (state == NULL || state->cookie != VTSS_STATE_COOKIE) {
-        VTSS_E("illegal inst: %p", inst);
+        VTSS_E("illegal inst: %p", (uintptr_t)inst);
     }
 
     return state;
@@ -503,6 +503,47 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
 /* ================================================================= *
  *  Miscellaneous
  * ================================================================= */
+
+static void vtss_trace_buf_init(lmu_fmt_state_buf128_t *buf, const char *fmt)
+{
+    lmu_fmt_state_buf128_init(buf, fmt);
+    buf->ss.buf.end--;
+    *buf->ss.buf.end = '\0';
+}
+
+#define VTSS_TRACE_TYPE_X(TYPE, BASE, SINGLE, FIRST, LAST)                                         \
+    void SINGLE(const vtss_trace_layer_t layer, const vtss_trace_group_t group,                    \
+                const vtss_trace_level_t level, const char *file, const int line,                  \
+                const char *func, const char *fmt, const TYPE val)                                 \
+    {                                                                                              \
+        lmu_fmt_state_buf128_t lmu_fmt_state__;                                                    \
+        if (vtss_trace_conf[group].level[layer] >= level) {                                        \
+            vtss_trace_buf_init(&lmu_fmt_state__, fmt);                                            \
+            BASE(&lmu_fmt_state__.state, val);                                                     \
+            vtss_callout_trace_printf(layer, group, level, file, line, func,                       \
+                                      lmu_fmt_state__.ss.buf.begin);                               \
+        }                                                                                          \
+    }                                                                                              \
+    BOOL FIRST(const vtss_trace_layer_t layer, const vtss_trace_group_t group,                     \
+               const vtss_trace_level_t level, const char *fmt, lmu_fmt_state_buf128_t *state,     \
+               const TYPE val)                                                                     \
+    {                                                                                              \
+        if (vtss_trace_conf[group].level[layer] >= level) {                                        \
+            vtss_trace_buf_init(state, fmt);                                                       \
+            BASE(&state->state, val);                                                              \
+            return TRUE;                                                                           \
+        }                                                                                          \
+        return FALSE;                                                                              \
+    }                                                                                              \
+    void LAST(const vtss_trace_layer_t layer, const vtss_trace_group_t group,                      \
+              const vtss_trace_level_t level, const char *file, const int line, const char *func,  \
+              lmu_fmt_state_t *state, const TYPE val)                                              \
+    {                                                                                              \
+        BASE(state, val);                                                                          \
+        vtss_callout_trace_printf(layer, group, level, file, line, func, state->ss->buf.begin);    \
+    }
+VTSS_TRACE_TYPES
+#undef VTSS_TRACE_TYPE_X
 
 /* Get trace configuration */
 vtss_rc vtss_trace_conf_get(const vtss_trace_group_t group, vtss_trace_conf_t *const conf)

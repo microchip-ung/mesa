@@ -534,13 +534,226 @@ extern vtss_trace_conf_t vtss_trace_conf[];
 #define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_DEFAULT
 #endif /* VTSS_TRACE_GROUP */
 
-#define VTSS_T(_grp, _lvl, ...)                                                                    \
-    {                                                                                              \
-        if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl)                                 \
-            vtss_callout_trace_printf(VTSS_TRACE_LAYER, _grp, _lvl, __FILE__, __LINE__,            \
-                                      __FUNCTION__, __VA_ARGS__);                                  \
+#define VTSS_TRACE_TYPES                                                                           \
+    VTSS_TRACE_TYPE_X(uint64_t, lmu_fmt_u64, vtss_trace_single_u64, vtss_trace_first_u64,          \
+                      vtss_trace_last_u64)                                                         \
+    VTSS_TRACE_TYPE_X(uint32_t, lmu_fmt_u32, vtss_trace_single_u32, vtss_trace_first_u32,          \
+                      vtss_trace_last_u32)                                                         \
+    VTSS_TRACE_TYPE_X(uint16_t, lmu_fmt_u16, vtss_trace_single_u16, vtss_trace_first_u16,          \
+                      vtss_trace_last_u16)                                                         \
+    VTSS_TRACE_TYPE_X(uint8_t, lmu_fmt_u8, vtss_trace_single_u8, vtss_trace_first_u8,              \
+                      vtss_trace_last_u8)                                                          \
+    VTSS_TRACE_TYPE_X(int64_t, lmu_fmt_i64, vtss_trace_single_i64, vtss_trace_first_i64,           \
+                      vtss_trace_last_i64)                                                         \
+    VTSS_TRACE_TYPE_X(int32_t, lmu_fmt_i32, vtss_trace_single_i32, vtss_trace_first_i32,           \
+                      vtss_trace_last_i32)                                                         \
+    VTSS_TRACE_TYPE_X(int16_t, lmu_fmt_i16, vtss_trace_single_i16, vtss_trace_first_i16,           \
+                      vtss_trace_last_i16)                                                         \
+    VTSS_TRACE_TYPE_X(int8_t, lmu_fmt_i8, vtss_trace_single_i8, vtss_trace_first_i8,               \
+                      vtss_trace_last_i8)                                                          \
+    VTSS_TRACE_TYPE_X(char, lmu_fmt_char, vtss_trace_single_char, vtss_trace_first_char,           \
+                      vtss_trace_last_char)                                                        \
+    VTSS_TRACE_TYPE_X(char *, lmu_fmt_czstr, vtss_trace_single_czstr, vtss_trace_first_czstr,      \
+                      vtss_trace_last_czstr)                                                       \
+    VTSS_TRACE_TYPE_X(lmu_str_t *, lmu_fmt_str, vtss_trace_single_str, vtss_trace_first_str,       \
+                      vtss_trace_last_str)                                                         \
+    VTSS_TRACE_TYPE_X(lmu_cstr_t *, lmu_fmt_cstr, vtss_trace_single_cstr, vtss_trace_first_cstr,   \
+                      vtss_trace_last_cstr)                                                        \
+    VTSS_TRACE_TYPE_X(lm_ipv4_t *, lmu_fmt_ipv4, vtss_trace_single_ipv4, vtss_trace_first_ipv4,    \
+                      vtss_trace_last_ipv4)                                                        \
+    VTSS_TRACE_TYPE_X(lm_ipv4_prefix_t *, lmu_fmt_ipv4_prefix, vtss_trace_single_ipv4_prefix,      \
+                      vtss_trace_first_ipv4_prefix, vtss_trace_last_ipv4_prefix)                   \
+    VTSS_TRACE_TYPE_X(lmu_bin4_t *, lmu_fmt_bin4, vtss_trace_single_bin4, vtss_trace_first_bin4,   \
+                      vtss_trace_last_bin4)                                                        \
+    VTSS_TRACE_TYPE_X(lm_port_list_t *, lmu_fmt_port_list, vtss_trace_single_port_list,            \
+                      vtss_trace_first_port_list, vtss_trace_last_port_list)                       \
+    VTSS_TRACE_TYPE_X(lm_mac_t *, lmu_fmt_mac, vtss_trace_single_mac, vtss_trace_first_mac,        \
+                      vtss_trace_last_mac)
+
+////////////////////////////////////////////////////////////////////////////////
+// Declare the the single/first/last prototype for each type.
+#define VTSS_TRACE_TYPE_X(TYPE, BASE, SINGLE, FIRST, LAST)                                         \
+    void SINGLE(const vtss_trace_layer_t layer, const vtss_trace_group_t group,                    \
+                const vtss_trace_level_t level, const char *file, const int line,                  \
+                const char *func, const char *fmt, const TYPE val);                                \
+    BOOL FIRST(const vtss_trace_layer_t layer, const vtss_trace_group_t group,                     \
+               const vtss_trace_level_t level, const char *fmt, lmu_fmt_state_buf128_t *state,     \
+               const TYPE val);                                                                    \
+    void LAST(const vtss_trace_layer_t layer, const vtss_trace_group_t group,                      \
+              const vtss_trace_level_t level, const char *file, const int line, const char *func,  \
+              lmu_fmt_state_t *state, const TYPE val);
+VTSS_TRACE_TYPES
+#undef VTSS_TRACE_TYPE_X
+
+// Special handling of uintptr_t formating
+#if defined(__arm__) && !defined(__linux__)
+#define VTSS_TRACE_GENERIC_SINGLE_UINTPTR                                                          \
+    uintptr_t:                                                                                     \
+    vtss_trace_single_i32,
+#define VTSS_TRACE_GENERIC_FIRST_UINTPTR                                                           \
+    uintptr_t:                                                                                     \
+    vtss_trace_first_i32,
+#define VTSS_TRACE_GENERIC_LAST_UINTPTR                                                            \
+    uintptr_t:                                                                                     \
+    vtss_trace_last_i32,
+#else
+// Need to be empty to avoid clashing with uint32_t/uint64_t
+#define VTSS_TRACE_GENERIC_SINGLE_UINTPTR
+#define VTSS_TRACE_GENERIC_FIRST_UINTPTR
+#define VTSS_TRACE_GENERIC_LAST_UINTPTR
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+// Using the _Generic keyword introduce in C11 to choose a fucntion based on the
+// type of an expression.
+#define VTSS_TRACE_GENERIC_SINGLE(LYR, GRP, LVL, FMT, X)                                           \
+    _Generic((X),                                                                                  \
+        VTSS_TRACE_GENERIC_SINGLE_UINTPTR uint64_t: vtss_trace_single_u64,                         \
+        uint32_t: vtss_trace_single_u32,                                                           \
+        uint16_t: vtss_trace_single_u16,                                                           \
+        uint8_t: vtss_trace_single_u8,                                                             \
+        int64_t: vtss_trace_single_i64,                                                            \
+        int32_t: vtss_trace_single_i32,                                                            \
+        int16_t: vtss_trace_single_i16,                                                            \
+        int8_t: vtss_trace_single_i8,                                                              \
+        char: vtss_trace_single_char,                                                              \
+        char *: vtss_trace_single_czstr,                                                           \
+        const char *: vtss_trace_single_czstr,                                                     \
+        lmu_str_t *: vtss_trace_single_str,                                                        \
+        lmu_cstr_t *: vtss_trace_single_cstr,                                                      \
+        const lmu_cstr_t *: vtss_trace_single_cstr,                                                \
+        lm_ipv4_t *: vtss_trace_single_ipv4,                                                       \
+        lm_ipv4_prefix_t *: vtss_trace_single_ipv4_prefix,                                         \
+        lmu_bin4_t *: vtss_trace_single_bin4,                                                      \
+        lm_port_list_t *: vtss_trace_single_port_list,                                             \
+        lm_mac_t *: vtss_trace_single_mac)(LYR, GRP, LVL, __FILE__, __LINE__, __FUNCTION__, FMT,   \
+                                           X)
+
+#define VTSS_TRACE_GENERIC_FIRST(LYR, GRP, LVL, FMT, X)                                            \
+    _Generic((X),                                                                                  \
+        VTSS_TRACE_GENERIC_FIRST_UINTPTR uint64_t: vtss_trace_first_u64,                           \
+        uint32_t: vtss_trace_first_u32,                                                            \
+        uint16_t: vtss_trace_first_u16,                                                            \
+        uint8_t: vtss_trace_first_u8,                                                              \
+        int64_t: vtss_trace_first_i64,                                                             \
+        int32_t: vtss_trace_first_i32,                                                             \
+        int16_t: vtss_trace_first_i16,                                                             \
+        int8_t: vtss_trace_first_i8,                                                               \
+        char: vtss_trace_first_char,                                                               \
+        char *: vtss_trace_first_czstr,                                                            \
+        const char *: vtss_trace_first_czstr,                                                      \
+        lmu_str_t *: vtss_trace_first_str,                                                         \
+        lmu_cstr_t *: vtss_trace_first_cstr,                                                       \
+        const lmu_cstr_t *: vtss_trace_first_cstr,                                                 \
+        lm_ipv4_t *: vtss_trace_first_ipv4,                                                        \
+        lm_ipv4_prefix_t *: vtss_trace_first_ipv4_prefix,                                          \
+        lmu_bin4_t *: vtss_trace_first_bin4,                                                       \
+        lm_port_list_t *: vtss_trace_first_port_list,                                              \
+        lm_mac_t *: vtss_trace_first_mac)(LYR, GRP, LVL, FMT, &lmu_fmt_state__, X)
+
+#define VTSS_TRACE_GENERIC_LAST(LYR, GRP, LVL, X)                                                  \
+    _Generic((X),                                                                                  \
+        VTSS_TRACE_GENERIC_LAST_UINTPTR uint64_t: vtss_trace_last_u64,                             \
+        uint32_t: vtss_trace_last_u32,                                                             \
+        uint16_t: vtss_trace_last_u16,                                                             \
+        uint8_t: vtss_trace_last_u8,                                                               \
+        int64_t: vtss_trace_last_i64,                                                              \
+        int32_t: vtss_trace_last_i32,                                                              \
+        int16_t: vtss_trace_last_i16,                                                              \
+        int8_t: vtss_trace_last_i8,                                                                \
+        char: vtss_trace_last_char,                                                                \
+        char *: vtss_trace_last_czstr,                                                             \
+        const char *: vtss_trace_last_czstr,                                                       \
+        lmu_str_t *: vtss_trace_last_str,                                                          \
+        lmu_cstr_t *: vtss_trace_last_cstr,                                                        \
+        const lmu_cstr_t *: vtss_trace_last_cstr,                                                  \
+        lm_ipv4_t *: vtss_trace_last_ipv4,                                                         \
+        lm_ipv4_prefix_t *: vtss_trace_last_ipv4_prefix,                                           \
+        lmu_bin4_t *: vtss_trace_last_bin4,                                                        \
+        lm_port_list_t *: vtss_trace_last_port_list,                                               \
+        lm_mac_t *: vtss_trace_last_mac)(LYR, GRP, LVL, __FILE__, __LINE__, __FUNCTION__,          \
+                                         &lmu_fmt_state__.state, X)
+
+////////////////////////////////////////////////////////////////////////////////
+// PRE-PROCESSOR Iterator over arguments. Will "call" LMU_FMT_GENERIC on each
+// argument except the last where it "calls" VTSS_TRACE_GENERIC_LAST
+#define VTSS_TRACE_FOREACH_0()
+#define VTSS_TRACE_FOREACH_1(LYR, GRP, LVL, X) VTSS_TRACE_GENERIC_LAST(LYR, GRP, LVL, X);
+#define VTSS_TRACE_FOREACH_2(LYR, GRP, LVL, X, ...)                                                \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_1(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_3(LYR, GRP, LVL, X, ...)                                                \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_2(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_4(LYR, GRP, LVL, X, ...)                                                \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_3(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_5(LYR, GRP, LVL, X, ...)                                                \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_4(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_6(LYR, GRP, LVL, X, ...)                                                \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_5(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_7(LYR, GRP, LVL, X, ...)                                                \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_6(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_8(LYR, GRP, LVL, X, ...)                                                \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_7(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_9(LYR, GRP, LVL, X, ...)                                                \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_8(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_10(LYR, GRP, LVL, X, ...)                                               \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_9(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_11(LYR, GRP, LVL, X, ...)                                               \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_10(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_12(LYR, GRP, LVL, X, ...)                                               \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_11(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_13(LYR, GRP, LVL, X, ...)                                               \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_12(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_14(LYR, GRP, LVL, X, ...)                                               \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_13(LYR, GRP, LVL, __VA_ARGS__)
+#define VTSS_TRACE_FOREACH_15(LYR, GRP, LVL, X, ...)                                               \
+    LMU_FMT_GENERIC(&lmu_fmt_state__.state, X);                                                    \
+    VTSS_TRACE_FOREACH_14(LYR, GRP, LVL, __VA_ARGS__)
+
+// Entry point in the foreach loop to iterate over arguments.
+#define VTSS_TRACE_FOREACH(LYR, GRP, LVL, FMT, ...)                                                \
+    LMU_PP_VA_ARGS_OVERLOAD(VTSS_TRACE_FOREACH_, ##__VA_ARGS__)                                    \
+    (LYR, GRP, LVL, ##__VA_ARGS__)
+
+////////////////////////////////////////////////////////////////////////////////
+// PreProcessor overloading to branch out based on the number of arguments.
+
+// Trace called with 0 arguments
+#define VTSS_TRACE0(LYR, GRP, LVL, FMT, ...)                                                       \
+    if (vtss_trace_conf[GRP].level[LYR] >= LVL) {                                                  \
+        vtss_callout_trace_printf(LYR, GRP, LVL, __FILE__, __LINE__, __FUNCTION__, FMT);           \
     }
 
+// Trace called with 1 argument
+#define VTSS_TRACE1(LYR, GRP, LVL, FMT, X) VTSS_TRACE_GENERIC_SINGLE(LYR, GRP, LVL, FMT, X);
+
+// Trace called with 2 or more arguments!
+#define VTSS_TRACE2(LYR, GRP, LVL, FMT, X, ...)                                                    \
+    do {                                                                                           \
+        lmu_fmt_state_buf128_t lmu_fmt_state__;                                                    \
+        if (VTSS_TRACE_GENERIC_FIRST(LYR, GRP, LVL, FMT, X)) {                                     \
+            VTSS_TRACE_FOREACH(LYR, GRP, LVL, FMT, ##__VA_ARGS__)                                  \
+        }                                                                                          \
+    } while (0)
+
+#define VTSS_TRACE_FMT(LYR, GRP, LVL, FMT, ...)                                                    \
+    LMU_PP_VA_ARGS_OVERLOAD_TWO_OR_MORE(VTSS_TRACE, ##__VA_ARGS__)                                 \
+    (LYR, GRP, LVL, FMT, ##__VA_ARGS__)
+
+#define VTSS_T(_grp, _lvl, fmt_str, ...)                                                           \
+    VTSS_TRACE_FMT(VTSS_TRACE_LAYER, _grp, _lvl, fmt_str, ##__VA_ARGS__)
 #define VTSS_HEX(_grp, _lvl, _byte_p, _byte_cnt)                                                   \
     {                                                                                              \
         if (vtss_trace_conf[_grp].level[VTSS_TRACE_LAYER] >= _lvl)                                 \
@@ -550,9 +763,9 @@ extern vtss_trace_conf_t vtss_trace_conf[];
 
 // Error trace
 #if VTSS_OPT_TRACE_ERROR
-#define VTSS_E(...)                    VTSS_EG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
+#define VTSS_E(fmt_str, ...)           VTSS_EG(VTSS_TRACE_GROUP, fmt_str, ##__VA_ARGS__)
 #define VTSS_E_HEX(_byte_p, _byte_cnt) VTSS_EG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
-#define VTSS_EG(_grp, ...)             VTSS_T(_grp, VTSS_TRACE_LEVEL_ERROR, __VA_ARGS__)
+#define VTSS_EG(_grp, fmt_str, ...)    VTSS_T(_grp, VTSS_TRACE_LEVEL_ERROR, fmt_str, __VA_ARGS__)
 #define VTSS_EG_HEX(_grp, _byte_p, _byte_cnt)                                                      \
     VTSS_HEX(_grp, VTSS_TRACE_LEVEL_ERROR, _byte_p, _byte_cnt)
 #else
@@ -565,17 +778,17 @@ extern vtss_trace_conf_t vtss_trace_conf[];
 // Info/debug/noise trace
 #if VTSS_OPT_TRACE
 
-#define VTSS_I(...) VTSS_IG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
-#define VTSS_D(...) VTSS_DG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
-#define VTSS_N(...) VTSS_NG(VTSS_TRACE_GROUP, ##__VA_ARGS__)
+#define VTSS_I(fmt_str, ...) VTSS_IG(VTSS_TRACE_GROUP, fmt_str, ##__VA_ARGS__)
+#define VTSS_D(fmt_str, ...) VTSS_DG(VTSS_TRACE_GROUP, fmt_str, ##__VA_ARGS__)
+#define VTSS_N(fmt_str, ...) VTSS_NG(VTSS_TRACE_GROUP, fmt_str, ##__VA_ARGS__)
 
 #define VTSS_I_HEX(_byte_p, _byte_cnt) VTSS_IG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
 #define VTSS_D_HEX(_byte_p, _byte_cnt) VTSS_DG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
 #define VTSS_N_HEX(_byte_p, _byte_cnt) VTSS_NG_HEX(VTSS_TRACE_GROUP, _byte_p, _byte_cnt)
 
-#define VTSS_IG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_INFO, __VA_ARGS__)
-#define VTSS_DG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_DEBUG, __VA_ARGS__)
-#define VTSS_NG(_grp, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_NOISE, __VA_ARGS__)
+#define VTSS_IG(_grp, fmt_str, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_INFO, fmt_str, __VA_ARGS__)
+#define VTSS_DG(_grp, fmt_str, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_DEBUG, fmt_str, __VA_ARGS__)
+#define VTSS_NG(_grp, fmt_str, ...) VTSS_T(_grp, VTSS_TRACE_LEVEL_NOISE, fmt_str, __VA_ARGS__)
 
 #define VTSS_IG_HEX(_grp, _byte_p, _byte_cnt)                                                      \
     VTSS_HEX(_grp, VTSS_TRACE_LEVEL_INFO, _byte_p, _byte_cnt)
