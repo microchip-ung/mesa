@@ -1324,7 +1324,7 @@ static vtss_rc jr2_cbc_slot_acceptable(cbc_rtl_cfg_t      *rtl_cfg,
     // MIN_SLOT_DIST check
     for (i = 0; i < rtl_cfg->cbc_len; i++) {
         if (cbc->cbc[i] == port_cfg->chip_port) {
-            u32 dist;
+            u32 dist = 0;
 
             VTSS_RC(jr2_cbc_dist(rtl_cfg, cbc, port_cfg, pos, i, &dist));
             if (dist < rtl_cfg->port_cfg[port_cfg->chip_port].min_slot_dist) {

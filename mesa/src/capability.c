@@ -259,7 +259,7 @@ static uint32_t mesa_feature(mesa_inst_t inst, uint32_t f)
 {
     vtss_state_t *vtss_state;
     if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
-        VTSS_E("Unable to get state from inst = %p", inst);
+        VTSS_E("Unable to get state from inst = %p", (uintptr_t)inst);
         MESA_ASSERT(0);
     }
     return (vtss_state->vtss_features[f] ? 1 : 0);
@@ -442,7 +442,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         vtss_state_t *vtss_state;
 
         if ((vtss_state = vtss_inst_check_no_persist((const vtss_inst_t)inst)) == NULL) {
-            VTSS_E("Unable to get state from inst = %p", inst);
+            VTSS_E("Unable to get state from inst = %p", (uintptr_t)inst);
             MESA_ASSERT(0);
         }
 

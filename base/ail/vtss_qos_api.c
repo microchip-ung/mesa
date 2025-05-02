@@ -437,7 +437,7 @@ vtss_rc vtss_cmn_qos_map_add(struct vtss_state_s *vtss_state,
 
         if (id != m->ix[old_res].entry[old_ix].id) {
             VTSS_E("%s Map: Inconsistent tables id: %u, old_ix: %u, m->ix[%u].entry[old_ix].id: %u!",
-                   m->name, id, old_ix, old_res, m->ix[old_res].entry[old_ix].id);
+                   m->name, id, old_ix, old_res, (u16)m->ix[old_res].entry[old_ix].id);
             return VTSS_RC_ERROR;
         }
 
@@ -549,7 +549,7 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state, vtss_qos_map_adm_t
 
     if (id != m->ix[res].entry[ix].id) {
         VTSS_E("%s Map: Inconsistent tables id %u, ix %u, m->ix[%u].entry[ix].id %u!", m->name, id,
-               ix, res, m->ix[res].entry[ix].id);
+               ix, res, (u16)m->ix[res].entry[ix].id);
         return VTSS_RC_ERROR;
     }
 

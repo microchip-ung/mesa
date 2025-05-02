@@ -1128,8 +1128,7 @@ static void jr2_clm_action_update(vtss_state_t    *vtss_state,
 
 static void jr2_clm_port_sel_update(jr2_vcap_data_t *data, vtss_is1_key_t *key)
 {
-    VTSS_D("key %p  port_hit %u  looped %u  masqueraded %u", key, key->port_hit, key->looped,
-           key->masqueraded);
+    VTSS_D("port_hit %u  looped %u  masqueraded %u", key->port_hit, key->looped, key->masqueraded);
 
     /* If no specific match type (port_hit - masqueraded - looped) is selected,
      * matching is done on port and masqueraded frames */

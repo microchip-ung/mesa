@@ -471,7 +471,7 @@ static vtss_rc jr2_qos_leak_list_unlink(vtss_state_t *vtss_state, const u32 laye
                 VTSS_RC(jr2_qos_leak_time(vtss_state, layer, le->group, 0));
                 if (lg->cur_ses != 1) {
                     VTSS_E("Layer %u, group %u. Unlink first&last SE but lg->cur_ses == %u!", layer,
-                           le->group, lg->cur_ses);
+                           (u32)le->group, lg->cur_ses);
                     return VTSS_RC_ERROR;
                 }
             } else { /* not last */
@@ -480,7 +480,7 @@ static vtss_rc jr2_qos_leak_list_unlink(vtss_state_t *vtss_state, const u32 laye
                 VTSS_RC(jr2_qos_leak_first(vtss_state, layer, le->group, le->next));
                 if (lg->cur_ses < 2) {
                     VTSS_E("Layer %u, group %u. Unlink first SE but lg->cur_ses == %u!", layer,
-                           le->group, lg->cur_ses);
+                           (u32)le->group, lg->cur_ses);
                     return VTSS_RC_ERROR;
                 }
             }
@@ -491,7 +491,7 @@ static vtss_rc jr2_qos_leak_list_unlink(vtss_state_t *vtss_state, const u32 laye
                 VTSS_RC(jr2_qos_leak_link(vtss_state, layer, le->group, le->prev, le->prev));
                 if (lg->cur_ses < 2) {
                     VTSS_E("Layer %u, group %u. Unlink last SE but lg->cur_ses == %u!", layer,
-                           le->group, lg->cur_ses);
+                           (u32)le->group, lg->cur_ses);
                     return VTSS_RC_ERROR;
                 }
             } else { /* not last */
@@ -500,7 +500,7 @@ static vtss_rc jr2_qos_leak_list_unlink(vtss_state_t *vtss_state, const u32 laye
                 VTSS_RC(jr2_qos_leak_link(vtss_state, layer, le->group, le->prev, le->next));
                 if (lg->cur_ses < 3) {
                     VTSS_E("Layer %u, group %u. Unlink middle SE but lg->cur_ses == %u!", layer,
-                           le->group, lg->cur_ses);
+                           (u32)le->group, lg->cur_ses);
                     return VTSS_RC_ERROR;
                 }
             }

@@ -2648,8 +2648,8 @@ static vtss_rc es6514_clock_output_frequency_ratio_set(vtss_state_t             
         (vtss_state->clock.par_output_frequency[clock_output] != par_freq_khz) ||
         (vtss_state->clock.output_frequency_ratio[clock_output].num != ratio->num) ||
         (vtss_state->clock.output_frequency_ratio[clock_output].den != ratio->den)) {
-        VTSS_D("state %p, clock_output %d, Selected frequency %u kHz", vtss_state, clock_output,
-               freq_khz);
+        VTSS_D("state %p, clock_output %d, Selected frequency %u kHz", (uintptr_t)vtss_state,
+               clock_output, freq_khz);
         if ((freq_khz == 0) && (par_freq_khz == 0)) {
             /* Disable output */
             ES6514_WRXF(SD10G65_DIG, SD10G65_SYNC_CTRL_SYNC_CTRL_CFG, dig_tgt, LANE_SYNC_SRC, 3);
