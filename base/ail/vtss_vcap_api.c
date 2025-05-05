@@ -2350,6 +2350,7 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
     vtss_acl_action_t    *act;
     vtss_acl_policer_no_t policer_no;
     lmu_fmt_buf_t         buf;
+    u32                   cnt, a = info->action;
 #endif
 
     if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_ACL)) {
@@ -2357,7 +2358,22 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
     }
 
 #if defined(VTSS_FEATURE_IS2)
-    for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
+    if (info->has_action && a == 0) {
+        pr("ACL debug group actions:\n");
+        pr("1: ACL port configuration\n");
+        pr("2: ACL policers\n");
+        pr("3: IS2 rules\n");
+#if defined(VTSS_FEATURE_IS2_B)
+        pr("4: IS2_B rules\n");
+#endif
+#if defined(VTSS_FEATURE_ES2)
+        pr("5: ES2 rules\n");
+#endif
+        return;
+    }
+
+    cnt = (a < 2 ? vtss_state->port_count : 0);
+    for (port_no = VTSS_PORT_NO_START; port_no < cnt; port_no++) {
         if (!info->port_list[port_no]) {
             continue;
         }
@@ -2401,18 +2417,23 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
         pr("\n");
     }
     if (!header) {
+        header = 1;
         pr("\n");
     }
 
-    pr("Policer  Rate        ");
-#if defined(VTSS_ARCH_LUTON26)
-    pr("Count  L26 Policer");
-#endif /* VTSS_ARCH_LUTON26 */
-    pr("\n");
-    for (policer_no = VTSS_ACL_POLICER_NO_START; policer_no < VTSS_ACL_POLICER_NO_END;
-         policer_no++) {
+    cnt = (a == 0 || a == 2 ? VTSS_ACL_POLICERS : 0);
+    for (policer_no = 0; policer_no < cnt; policer_no++) {
         vtss_acl_policer_conf_t *pol_conf = &vtss_state->vcap.acl_policer_conf[policer_no];
         vtss_packet_rate_t       rate;
+
+        if (header) {
+            header = 0;
+            pr("Policer  Rate        ");
+#if defined(VTSS_ARCH_LUTON26)
+            pr("Count  L26 Policer");
+#endif /* VTSS_ARCH_LUTON26 */
+            pr("\n");
+        }
 
         if (pol_conf->bit_rate_enable) {
             rate = pol_conf->bit_rate;
@@ -2446,20 +2467,28 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
 #endif /* VTSS_ARCH_LUTON26 */
         pr("\n");
     }
-    pr("\n");
+    if (!header) {
+        pr("\n");
+    }
 
 #if defined(VTSS_ARCH_FA)
-    vtss_debug_range_checkers(&vtss_state->vcap.is2_range, "IS2 Range Checkers", ss, info);
-    vtss_debug_range_checkers(&vtss_state->vcap.es2_range, "ES2 Range Checkers", ss, info);
+    if (a == 0 || a == 3 || a == 4) {
+        vtss_debug_range_checkers(&vtss_state->vcap.is2_range, "IS2 Range Checkers", ss, info);
+    }
+    if (a == 0 || a == 5) {
+        vtss_debug_range_checkers(&vtss_state->vcap.es2_range, "ES2 Range Checkers", ss, info);
+    }
 #endif
 #endif // VTSS_FEATURE_IS2
 
 #if defined(VTSS_FEATURE_VCAP)
-    vtss_vcap_debug_print_range_checkers(vtss_state, ss, info);
+    if (a == 0) {
+        vtss_vcap_debug_print_range_checkers(vtss_state, ss, info);
+    }
 #endif /* VTSS_FEATURE_VCAP */
 
-#if defined(VTSS_ARCH_JAGUAR_2)
-    {
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
+    if (a == 0 || a == 3) {
         u32             i, j;
         vtss_ip_addr_t *sip;
 
@@ -2485,22 +2514,30 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
 #endif /* VTSS_ARCH_LUTON26 */
 
 #if defined(VTSS_FEATURE_IS2)
-    vtss_vcap_debug_print_is2(vtss_state, ss, info);
+    if (a == 0 || a == 3) {
+        vtss_vcap_debug_print_is2(vtss_state, ss, info);
+    }
 #endif /* VTSS_FEATURE_IS2 */
 
 #if defined(VTSS_FEATURE_LPM)
-    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.lpm.obj, sizeof(vtss_lpm_data_t),
-                          sizeof(vtss_lpm_info_t));
+    if (a == 0) {
+        vtss_vcap_debug_print(ss, info, &vtss_state->vcap.lpm.obj, sizeof(vtss_lpm_data_t),
+                              sizeof(vtss_lpm_info_t));
+    }
 #endif /* VTSS_FEATURE_LPM */
 
 #if defined(VTSS_FEATURE_IS2_B)
-    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.is2_b.obj, sizeof(vtss_is2_data_t),
-                          sizeof(vtss_is2_info_t));
+    if (a == 0 || a == 4) {
+        vtss_vcap_debug_print(ss, info, &vtss_state->vcap.is2_b.obj, sizeof(vtss_is2_data_t),
+                              sizeof(vtss_is2_info_t));
+    }
 #endif /* VTSS_FEATURE_IS2_B */
 
 #if defined(VTSS_FEATURE_ES2)
-    vtss_vcap_debug_print(ss, info, &vtss_state->vcap.es2.obj, sizeof(vtss_is2_data_t),
-                          sizeof(vtss_is2_info_t));
+    if (a == 0 || a == 5) {
+        vtss_vcap_debug_print(ss, info, &vtss_state->vcap.es2.obj, sizeof(vtss_is2_data_t),
+                              sizeof(vtss_is2_info_t));
+    }
 #endif /* VTSS_FEATURE_ES2 */
 }
 #endif // VTSS_OPT_DEBUG_PRINT

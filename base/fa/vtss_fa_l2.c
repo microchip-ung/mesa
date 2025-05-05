@@ -3100,16 +3100,26 @@ static vtss_rc fa_debug_vxlat(vtss_state_t                  *vtss_state,
                               lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_fa_debug_clm_b(vtss_state, ss, info));
-    VTSS_RC(vtss_fa_debug_es0(vtss_state, ss, info));
+    u32 a = info->action;
+
+    if (a == 0 || a == 3) {
+        VTSS_RC(vtss_fa_debug_clm_b(vtss_state, ss, info));
+    }
+    if (a == 0 || a == 4) {
+        VTSS_RC(vtss_fa_debug_es0(vtss_state, ss, info));
+    }
 #if defined(VTSS_FEATURE_FRER)
-    if (vtss_state->vtss_features[FEATURE_FRER]) {
-        VTSS_RC(fa_debug_frer(vtss_state, ss, info));
+    if (a == 0 || a == 10) {
+        if (vtss_state->vtss_features[FEATURE_FRER]) {
+            VTSS_RC(fa_debug_frer(vtss_state, ss, info));
+        }
     }
 #endif
 #if defined(VTSS_FEATURE_PSFP)
-    if (vtss_state->vtss_features[FEATURE_PSFP]) {
-        VTSS_RC(fa_debug_psfp(vtss_state, ss, info));
+    if (a == 0 || a == 11) {
+        if (vtss_state->vtss_features[FEATURE_PSFP]) {
+            VTSS_RC(fa_debug_psfp(vtss_state, ss, info));
+        }
     }
 #endif
     return VTSS_RC_OK;

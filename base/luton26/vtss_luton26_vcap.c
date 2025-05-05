@@ -2262,11 +2262,20 @@ static vtss_rc l26_debug_acl(vtss_state_t                  *vtss_state,
                              lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_l26_debug_range_checkers(vtss_state, ss, info));
-    VTSS_RC(vtss_l26_debug_vcap_port(vtss_state, ss, info));
-    VTSS_RC(vtss_l26_debug_vcap_is1(vtss_state, ss, info));
-    VTSS_RC(l26_debug_vcap(vtss_state, VTSS_TCAM_S2, "IS2", ss, info, l26_debug_is2));
+    u32 a = info->action;
 
+    if (a == 0 || a == 1) {
+        VTSS_RC(vtss_l26_debug_vcap_port(vtss_state, ss, info));
+    }
+    if (a == 0 || a == 3) {
+        VTSS_RC(vtss_l26_debug_range_checkers(vtss_state, ss, info));
+    }
+    if (a == 0) {
+        VTSS_RC(vtss_l26_debug_vcap_is1(vtss_state, ss, info));
+    }
+    if (a == 0 || a == 3) {
+        VTSS_RC(l26_debug_vcap(vtss_state, VTSS_TCAM_S2, "IS2", ss, info, l26_debug_is2));
+    }
     return VTSS_RC_OK;
 }
 

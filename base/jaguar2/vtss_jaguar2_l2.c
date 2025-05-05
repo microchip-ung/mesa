@@ -1679,8 +1679,14 @@ static vtss_rc jr2_debug_vxlat(vtss_state_t                  *vtss_state,
                                lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_jr2_debug_clm_b(vtss_state, ss, info));
-    VTSS_RC(vtss_jr2_debug_es0(vtss_state, ss, info));
+    u32 a = info->action;
+
+    if (a == 0 || a == 3) {
+        VTSS_RC(vtss_jr2_debug_clm_b(vtss_state, ss, info));
+    }
+    if (a == 0 || a == 4) {
+        VTSS_RC(vtss_jr2_debug_es0(vtss_state, ss, info));
+    }
     return VTSS_RC_OK;
 }
 

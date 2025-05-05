@@ -1637,10 +1637,20 @@ static vtss_rc lan966x_debug_vxlat(vtss_state_t                  *vtss_state,
                                    lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_lan966x_debug_is1(vtss_state, ss, info));
-    VTSS_RC(vtss_lan966x_debug_es0(vtss_state, ss, info));
-    VTSS_RC(lan966x_debug_frer(vtss_state, ss, info));
-    VTSS_RC(lan966x_debug_psfp(vtss_state, ss, info));
+    u32 a = info->action;
+
+    if (a == 0 || a == 3) {
+        VTSS_RC(vtss_lan966x_debug_is1(vtss_state, ss, info));
+    }
+    if (a == 0 || a == 4) {
+        VTSS_RC(vtss_lan966x_debug_es0(vtss_state, ss, info));
+    }
+    if (a == 0 || a == 10) {
+        VTSS_RC(lan966x_debug_frer(vtss_state, ss, info));
+    }
+    if (a == 0 || a == 11) {
+        VTSS_RC(lan966x_debug_psfp(vtss_state, ss, info));
+    }
     return VTSS_RC_OK;
 }
 #endif

@@ -7085,64 +7085,121 @@ static void vtss_debug_print_vlan_trans(vtss_state_t                  *vtss_stat
     vtss_vlan_trans_grp2vlan_conf_t conf;
     vtss_vlan_trans_port2grp_conf_t port_conf;
     BOOL                            next = FALSE;
+    u32                             a = info->action;
 
-    pr("VLAN Translation Group Table\n");
-    pr("----------------------------\n");
-    VTSS_MEMSET(&conf, 0, sizeof(vtss_vlan_trans_grp2vlan_conf_t));
-    while ((vtss_cmn_vlan_trans_group_get(vtss_state, &conf, next)) == VTSS_RC_OK) {
-        if (!next) {
-            pr("GroupID  VID   Trans_VID  Direction\n");
-            pr("-------  ---   ---------  ---------\n");
-            next = TRUE;
-        }
-        pr("%-9u%-6u%-11u%s\n", conf.group_id, conf.vid, conf.trans_vid,
-           vtss_vlan_trans_dir_txt(conf.dir));
-    }
-    pr("\nVLAN Translation Port Table\n");
-    pr("---------------------------\n");
-    next = FALSE;
-    // vtss_cmn_vlan_trans_port_conf_get(vtss_vlan_trans_port2grp_conf_t *conf,
-    // BOOL next);
-    VTSS_MEMSET(&port_conf, 0, sizeof(vtss_vlan_trans_port2grp_conf_t));
-    while ((vtss_cmn_vlan_trans_port_conf_get(vtss_state, &port_conf, next)) == VTSS_RC_OK) {
-        if (!next) {
-            pr("GroupID  Ports\n");
-            pr("-------  -----\n");
-            next = TRUE;
-        }
-        pr("%-7u  ", port_conf.group_id);
-        vtss_debug_print_ports(vtss_state, ss, port_conf.ports, 1);
-    }
-
-    pr("\n");
-#if defined(VTSS_FEATURE_IS1) || defined(VTSS_FEATURE_CLM)
-    vtss_vcap_debug_print_is1(vtss_state, ss, info);
-#endif /* VTSS_FEATURE_IS1/CLM */
-    vtss_vcap_debug_print_es0(vtss_state, ss, info);
-    vtss_debug_print_vcl(vtss_state, ss, info);
+    if (info->has_action && a == 0) {
+        pr("VLAN translation debug group actions:\n");
+        pr("1 : VLAN translation configuration\n");
+        pr("2 : VCL configuration\n");
+        pr("3 : IS1/CLM rules\n");
+        pr("4 : ES0 rules\n");
 #if defined(VTSS_FEATURE_XFLOW)
-    vtss_debug_print_iflow(vtss_state, ss, info);
+        pr("5 : Ingress flows\n");
 #endif
 #if defined(VTSS_FEATURE_XSTAT)
-    vtss_debug_print_istat(vtss_state, ss, info);
+        pr("6 : Ingress statistics\n");
 #endif
 #if defined(VTSS_FEATURE_XDLB)
-    vtss_debug_print_dlb(vtss_state, ss, info);
+        pr("7 : Ingress policers\n");
 #endif
 #if defined(VTSS_FEATURE_XFLOW)
-    vtss_debug_print_eflow(vtss_state, ss, info);
+        pr("8 : Egress flows\n");
 #endif
 #if defined(VTSS_FEATURE_XSTAT)
-    vtss_debug_print_estat(vtss_state, ss, info);
+        pr("9 : Egress statistics\n");
 #endif
 #if defined(VTSS_FEATURE_FRER)
-    vtss_debug_print_frer(vtss_state, ss, info);
+        pr("10: FRER\n");
 #endif
 #if defined(VTSS_FEATURE_PSFP)
-    vtss_debug_print_psfp(vtss_state, ss, info);
+        pr("11: PSFP\n");
 #endif
 #if defined(VTSS_FEATURE_RCL)
-    vtss_debug_print_rcl(vtss_state, ss, info);
+        pr("12: RCL\n");
+#endif
+        return;
+    }
+
+    if (a < 2) {
+        pr("VLAN Translation Group Table\n");
+        pr("----------------------------\n");
+        VTSS_MEMSET(&conf, 0, sizeof(vtss_vlan_trans_grp2vlan_conf_t));
+        while ((vtss_cmn_vlan_trans_group_get(vtss_state, &conf, next)) == VTSS_RC_OK) {
+            if (!next) {
+                pr("GroupID  VID   Trans_VID  Direction\n");
+                pr("-------  ---   ---------  ---------\n");
+                next = TRUE;
+            }
+            pr("%-9u%-6u%-11u%s\n", conf.group_id, conf.vid, conf.trans_vid,
+               vtss_vlan_trans_dir_txt(conf.dir));
+        }
+        pr("\nVLAN Translation Port Table\n");
+        pr("---------------------------\n");
+        next = FALSE;
+        // vtss_cmn_vlan_trans_port_conf_get(vtss_vlan_trans_port2grp_conf_t *conf,
+        // BOOL next);
+        VTSS_MEMSET(&port_conf, 0, sizeof(vtss_vlan_trans_port2grp_conf_t));
+        while ((vtss_cmn_vlan_trans_port_conf_get(vtss_state, &port_conf, next)) == VTSS_RC_OK) {
+            if (!next) {
+                pr("GroupID  Ports\n");
+                pr("-------  -----\n");
+                next = TRUE;
+            }
+            pr("%-7u  ", port_conf.group_id);
+            vtss_debug_print_ports(vtss_state, ss, port_conf.ports, 1);
+        }
+        pr("\n");
+    }
+    if (a == 0 || a == 2) {
+        vtss_debug_print_vcl(vtss_state, ss, info);
+    }
+#if defined(VTSS_FEATURE_IS1) || defined(VTSS_FEATURE_CLM)
+    if (a == 0 || a == 3) {
+        vtss_vcap_debug_print_is1(vtss_state, ss, info);
+    }
+#endif /* VTSS_FEATURE_IS1/CLM */
+    if (a == 0 || a == 4) {
+        vtss_vcap_debug_print_es0(vtss_state, ss, info);
+    }
+#if defined(VTSS_FEATURE_XFLOW)
+    if (a == 0 || a == 5) {
+        vtss_debug_print_iflow(vtss_state, ss, info);
+    }
+#endif
+#if defined(VTSS_FEATURE_XSTAT)
+    if (a == 0 || a == 6) {
+        vtss_debug_print_istat(vtss_state, ss, info);
+    }
+#endif
+#if defined(VTSS_FEATURE_XDLB)
+    if (a == 0 || a == 7) {
+        vtss_debug_print_dlb(vtss_state, ss, info);
+    }
+#endif
+#if defined(VTSS_FEATURE_XFLOW)
+    if (a == 0 || a == 8) {
+        vtss_debug_print_eflow(vtss_state, ss, info);
+    }
+#endif
+#if defined(VTSS_FEATURE_XSTAT)
+    if (a == 0 || a == 9) {
+        vtss_debug_print_estat(vtss_state, ss, info);
+    }
+#endif
+#if defined(VTSS_FEATURE_FRER)
+    if (a == 0 || a == 10) {
+        vtss_debug_print_frer(vtss_state, ss, info);
+    }
+#endif
+#if defined(VTSS_FEATURE_PSFP)
+    if (a == 0 || a == 11) {
+        vtss_debug_print_psfp(vtss_state, ss, info);
+    }
+#endif
+#if defined(VTSS_FEATURE_RCL)
+    if (a == 0 || a == 12) {
+        vtss_debug_print_rcl(vtss_state, ss, info);
+    }
 #endif
 }
 #endif // VTSS_FEATURE_VCAP

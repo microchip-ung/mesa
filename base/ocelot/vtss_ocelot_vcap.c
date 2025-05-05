@@ -2879,10 +2879,11 @@ static vtss_rc srvl_debug_is2_all(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
 {
-    u32  port;
+    u32  port, cnt, a = info->action;
     BOOL header = 1;
 
-    for (port = 0; port < VTSS_CHIP_PORTS; port++) {
+    cnt = (a < 2 ? VTSS_CHIP_PORTS : 0);
+    for (port = 0; port < cnt; port++) {
         if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
             continue;
         if (header)
@@ -2894,7 +2895,10 @@ static vtss_rc srvl_debug_is2_all(vtss_state_t                  *vtss_state,
     }
     if (!header)
         pr("\n");
-    return srvl_debug_vcap(vtss_state, VTSS_TCAM_IS2, "IS2", ss, info, srvl_debug_is2);
+    if (a == 0 || a == 3) {
+        VTSS_RC(srvl_debug_vcap(vtss_state, VTSS_TCAM_IS2, "IS2", ss, info, srvl_debug_is2));
+    }
+    return VTSS_RC_OK;
 }
 
 /* ================================================================= *
@@ -3669,7 +3673,9 @@ static vtss_rc srvl_debug_acl(vtss_state_t                  *vtss_state,
                               lmu_ss_t                      *ss,
                               const vtss_debug_info_t *const info)
 {
-    VTSS_RC(vtss_srvl_debug_range_checkers(vtss_state, ss, info));
+    if (info->action == 0 || info->action == 3) {
+        VTSS_RC(vtss_srvl_debug_range_checkers(vtss_state, ss, info));
+    }
     return srvl_debug_is2_all(vtss_state, ss, info);
 }
 

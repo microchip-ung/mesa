@@ -994,13 +994,19 @@ static vtss_rc srvl_debug_vxlat(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info)
 {
+    u32  a = info->action;
     BOOL header = 1;
 
-    VTSS_RC(vtss_srvl_debug_is1_all(vtss_state, ss, info));
-    VTSS_RC(vtss_srvl_debug_es0_all(vtss_state, ss, info));
-    VTSS_RC(vtss_srvl_debug_isdx_list(vtss_state, ss, vtss_state->l2.sdx_info.iflow, 0, &header,
-                                      FALSE));
-
+    if (a == 0 || a == 3) {
+        VTSS_RC(vtss_srvl_debug_is1_all(vtss_state, ss, info));
+    }
+    if (a == 0 || a == 4) {
+        VTSS_RC(vtss_srvl_debug_es0_all(vtss_state, ss, info));
+    }
+    if (a == 0 || a == 5) {
+        VTSS_RC(vtss_srvl_debug_isdx_list(vtss_state, ss, vtss_state->l2.sdx_info.iflow, 0, &header,
+                                          FALSE));
+    }
     return VTSS_RC_OK;
 }
 

@@ -2822,10 +2822,11 @@ static vtss_rc lan966x_debug_acl(vtss_state_t                  *vtss_state,
                                  const vtss_debug_info_t *const info)
 {
 #if defined(VTSS_FEATURE_IS2)
-    u32  port;
+    u32  port, cnt, a = info->action;
     BOOL header = 1;
 
-    for (port = 0; port < VTSS_CHIP_PORTS; port++) {
+    cnt = (a < 2 ? VTSS_CHIP_PORTS : 0);
+    for (port = 0; port < cnt; port++) {
         if (vtss_cmn_port2port_no(vtss_state, info, port) == VTSS_PORT_NO_NONE)
             continue;
         if (header)
@@ -2836,7 +2837,9 @@ static vtss_rc lan966x_debug_acl(vtss_state_t                  *vtss_state,
     }
     if (!header)
         pr("\n");
-    VTSS_RC(lan966x_debug_vcap(vtss_state, ss, info, VTSS_LAN966X_VCAP_IS2, lan966x_debug_is2));
+    if (a == 0 || a == 3) {
+        VTSS_RC(lan966x_debug_vcap(vtss_state, ss, info, VTSS_LAN966X_VCAP_IS2, lan966x_debug_is2));
+    }
 #endif
     return VTSS_RC_OK;
 }
