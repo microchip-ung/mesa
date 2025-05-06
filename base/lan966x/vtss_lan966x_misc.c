@@ -610,8 +610,6 @@ static vtss_rc lan966x_gpio_sd_map_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
-
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_misc(vtss_state_t                  *vtss_state,
@@ -658,7 +656,6 @@ vtss_rc vtss_lan966x_misc_debug_print(vtss_state_t                  *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_MISC, lan966x_debug_misc, vtss_state, ss, info);
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - Initialization ------------------------------------------------ */
 

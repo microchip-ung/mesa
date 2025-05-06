@@ -225,14 +225,12 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t          *vtss_state,
 }
 
 /* - Debug print --------------------------------------------------- */
-#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_fa_misc_debug_print(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info)
 {
     return VTSS_RC_OK;
 }
-#endif
 
 /* - Initialization ------------------------------------------------ */
 vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)

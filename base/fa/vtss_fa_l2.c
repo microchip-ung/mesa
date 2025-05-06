@@ -2693,7 +2693,6 @@ vtss_rc vtss_cil_l2_rb_proxy_node_id_get_next(vtss_state_t                 *vtss
 
 /* - Debug print --------------------------------------------------- */
 
-#if VTSS_OPT_DEBUG_PRINT
 static void fa_debug_pmask_header(vtss_state_t *vtss_state, lmu_ss_t *ss, const char *name)
 {
     lmu_fmt_buf_t buf;
@@ -3741,7 +3740,6 @@ vtss_rc vtss_fa_l2_debug_print(vtss_state_t                  *vtss_state,
 #endif
     return VTSS_RC_OK;
 }
-#endif
 
 /* - Initialization ------------------------------------------------ */
 

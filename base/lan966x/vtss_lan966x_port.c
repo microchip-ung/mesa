@@ -49,9 +49,7 @@ static u32 wm_dec(u32 value, BOOL bytes)
 
 static u32 wm_dec_bytes(u32 value) { return wm_dec(value, 1); }
 
-#if VTSS_OPT_DEBUG_PRINT
 static u32 wm_dec_frames(u32 value) { return wm_dec(value, 0); }
-#endif
 
 u32 vtss_lan966x_wm_high_get(vtss_state_t *vtss_state, u32 queue)
 {
@@ -1750,8 +1748,6 @@ static vtss_rc lan966x_port_buf_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
-
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
@@ -2281,7 +2277,6 @@ vtss_rc vtss_lan966x_port_debug_print(vtss_state_t                  *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_WM, lan966x_debug_wm, vtss_state, ss, info));
     return VTSS_RC_OK;
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - Initialization ------------------------------------------------ */
 

@@ -1379,7 +1379,6 @@ vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state, const vtss_ts_conf
 
 /* - Debug print --------------------------------------------------- */
 
-#if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
                            lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info)
@@ -1546,7 +1545,6 @@ vtss_rc vtss_fa_ts_debug_print(vtss_state_t                  *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_TS, fa_debug_ts, vtss_state, ss, info);
 }
-#endif
 
 /* - Initialization ------------------------------------------------ */
 

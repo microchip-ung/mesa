@@ -6461,7 +6461,6 @@ vtss_rc vtss_cmn_vce_del(vtss_state_t *vtss_state, const vtss_vce_id_t vce_id)
 }
 #endif // VTSS_FEATURE_VCAP
 
-#if VTSS_OPT_DEBUG_PRINT
 #if defined(VTSS_FEATURE_XFLOW)
 static void vtss_debug_print_w6(lmu_ss_t *ss, BOOL enable, u32 val)
 {
@@ -7203,7 +7202,6 @@ static void vtss_debug_print_vlan_trans(vtss_state_t                  *vtss_stat
 #endif
 }
 #endif // VTSS_FEATURE_VCAP
-#endif // VTSS_OPT_DEBUG_PRINT
 
 #if defined(VTSS_FEATURE_VCAP)
 /* VTE(VLAN Translation Entry) ID */
@@ -8655,7 +8653,6 @@ vtss_rc vtss_rb_proxy_node_id_get_next(const vtss_inst_t             inst,
 }
 #endif /* VTSS_FEATURE_REDBOX */
 
-#if VTSS_OPT_DEBUG_PRINT
 /* - Debug print --------------------------------------------------- */
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
@@ -9473,6 +9470,5 @@ void vtss_l2_debug_print(vtss_state_t                  *vtss_state,
     }
 #endif
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 #endif /* VTSS_FEATURE_LAYER2 */

@@ -847,8 +847,6 @@ static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
     return lan966x_npi_mask_set(vtss_state);
 }
 
-#if VTSS_OPT_DEBUG_PRINT
-
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_pkt(vtss_state_t                  *vtss_state,
@@ -897,7 +895,6 @@ vtss_rc vtss_lan966x_packet_debug_print(vtss_state_t                  *vtss_stat
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_PACKET, lan966x_debug_pkt, vtss_state, ss, info);
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - Initialization ------------------------------------------------ */
 

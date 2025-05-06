@@ -1384,8 +1384,6 @@ vtss_rc vtss_ts_inst_create(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
-
 /* - Debug print --------------------------------------------------- */
 
 static const char *one_pps_mode_disp(vtss_ts_ext_clock_one_pps_mode_t m)
@@ -1458,5 +1456,4 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 #endif /* VTSS_FEATURE_TIMESTAMP */

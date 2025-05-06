@@ -127,8 +127,6 @@ vtss_rc vtss_lan966x_counter_update(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
-
 /* ================================================================= *
  *  Debug print utility functions
  * ================================================================= */
@@ -233,7 +231,6 @@ vtss_rc vtss_cil_debug_info_print(vtss_state_t                  *vtss_state,
 #endif /* VTSS_FEATURE_MRP */
     return VTSS_RC_OK;
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 vtss_rc vtss_lan966x_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {

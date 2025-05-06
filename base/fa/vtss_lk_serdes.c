@@ -31,19 +31,15 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_se
 vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
 
 vtss_rc fa_serdes_ctle_adjust(vtss_state_t *vtss_state,
-#if VTSS_OPT_DEBUG_PRINT
-                              lmu_ss_t *ss,
-#endif
-                              u32  port_no,
-                              BOOL ro,
-                              u32 *vga,
-                              u32 *eqr,
-                              u32 *eqc)
+                              lmu_ss_t     *ss,
+                              u32           port_no,
+                              BOOL          ro,
+                              u32          *vga,
+                              u32          *eqr,
+                              u32          *eqc)
 {
     return VTSS_RC_OK;
 }
-
-#if VTSS_OPT_DEBUG_PRINT
 
 vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
                              lmu_ss_t                      *ss,
@@ -52,7 +48,5 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
 {
     return VTSS_RC_OK;
 }
-
-#endif /* VTSS_OPT_DEBUG_PRINT */
 
 #endif /* VTSS_ARCH_LAIKA */

@@ -899,10 +899,6 @@
 #define VTSS_OPT_TRACE_ERROR 1 /**< Error trace enabled by default */
 #endif                         /* VTSS_OPT_TRACE_ERROR */
 
-#ifndef VTSS_OPT_DEBUG_PRINT
-#define VTSS_OPT_DEBUG_PRINT 1 /**< Debug print enabled by default */
-#endif                         /* VTSS_OPT_DEBUG_PRINT */
-
 /* VAUI equalization control, change value to 10 if PCB trace is more than 15 cm
  */
 #if !defined(VTSS_OPT_VAUI_EQ_CTRL)

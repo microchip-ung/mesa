@@ -42,10 +42,8 @@ typedef struct {
     u32              type;                        /* Action type */
 
     /* Debug print fields */
-    BOOL is_action;
-#if VTSS_OPT_DEBUG_PRINT
+    BOOL      is_action;
     lmu_ss_t *ss;
-#endif
 } fa_vcap_data_t;
 
 typedef struct {
@@ -835,12 +833,10 @@ static vtss_rc fa_clm_range_commit(vtss_state_t *vtss_state)
     return fa_vcap_range_commit(vtss_state, VTSS_VCAP_TYPE_CLM_A, NULL);
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 static u32 fa_entry_bs_get(fa_vcap_data_t *data, u32 offs, u32 len)
 {
     return vtss_bs_get(data->entry, offs, len);
 }
-#endif
 
 #if defined(VTSS_FEATURE_IS2)
 static u32 fa_mask_bs_get(fa_vcap_data_t *data, u32 offs, u32 len)
@@ -849,12 +845,10 @@ static u32 fa_mask_bs_get(fa_vcap_data_t *data, u32 offs, u32 len)
 }
 #endif
 
-#if VTSS_OPT_DEBUG_PRINT
 static u32 fa_act_get(fa_vcap_data_t *data, u32 offs, u32 len)
 {
     return vtss_bs_get(data->action, offs, len);
 }
-#endif
 
 static void fa_act_set(fa_vcap_data_t *data, u32 offs, u32 len, u32 value)
 {
@@ -941,7 +935,6 @@ static void fa_vcap_key_u128_set(fa_vcap_data_t *data, u32 offset, vtss_vcap_u12
     fa_vcap_key_bytes_set(data, offset, fld->value, fld->mask, 16);
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 static void fa_debug_action(fa_vcap_data_t *data, const char *name, u32 offs, u32 len)
 {
     lmu_ss_t *ss = data->ss;
@@ -1004,7 +997,6 @@ static void fa_debug_bits(fa_vcap_data_t *data, const char *name, u32 offset, u3
     }
     pr(len > 24 ? "\n" : " ");
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 /* VCAP set macros */
 #define FA_ACT_SET(vcap, fld, val) fa_act_set(data, vcap##_AO_##fld, vcap##_AL_##fld, val)
@@ -1012,7 +1004,6 @@ static void fa_debug_bits(fa_vcap_data_t *data, const char *name, u32 offset, u3
     fa_act_ena_set(data, vcap##_AO_##fld##_ENA, vcap##_AO_##fld##_VAL, vcap##_AL_##fld##_VAL, ena, \
                    val)
 
-#if VTSS_OPT_DEBUG_PRINT
 #define FA_DEBUG_ACT(vcap, name, fld) fa_debug_action(data, name, vcap##_AO_##fld, vcap##_AL_##fld)
 #define FA_DEBUG_ACT_ENA(vcap, name, f1, f2)                                                       \
     fa_debug_action_ena(data, name, vcap##_AO_##f1, vcap##_AO_##f2, vcap##_AL_##f2)
@@ -1226,7 +1217,6 @@ static vtss_rc fa_debug_vcap(vtss_state_t                  *vtss_state,
     pr("\n");
     return VTSS_RC_OK;
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - CLM ----------------------------------------------------------- */
 
@@ -2044,7 +2034,6 @@ static vtss_rc fa_clm_c_entry_get(vtss_state_t    *vtss_state,
     return fa_vcap_entry_get(vtss_state, VTSS_VCAP_TYPE_CLM_C, idx, counter, clear);
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
 {
     lmu_ss_t *ss = data->ss;
@@ -2446,7 +2435,6 @@ vtss_rc vtss_fa_debug_clm_c(vtss_state_t                  *vtss_state,
 {
     return fa_debug_clm_all(vtss_state, VTSS_VCAP_TYPE_CLM_C, ss, info);
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - LPM ----------------------------------------------------------- */
 
@@ -5307,7 +5295,6 @@ vtss_rc vtss_fa_vcap_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_n
                              FA_VCAP_SEL_ACTION);
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 static void fa_debug_es0_tag(const char     *name,
                              fa_vcap_data_t *data,
                              u32             tpid_sel,
@@ -5469,7 +5456,6 @@ vtss_rc vtss_fa_debug_es0(vtss_state_t                  *vtss_state,
 
     return fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_ES0, ss, info, fa_debug_es0);
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 static vtss_rc fa_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 esdx_new)
 {

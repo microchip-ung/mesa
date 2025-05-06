@@ -686,8 +686,6 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t *const    state,
     return VTSS_RC_OK;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
-
 /* - Debug print --------------------------------------------------- */
 
 static const char *vtss_packet_reg_txt(vtss_packet_reg_type_t type)
@@ -811,5 +809,5 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
     }
 #endif
 }
-#endif // VTSS_OPT_DEBUG_PRINT
+
 #endif /* VTSS_FEATURE_PACKET */

@@ -47,9 +47,7 @@ typedef struct {
     u32                           act_tg;
     u32                           cnt;
     BOOL                          is_action;
-#if VTSS_OPT_DEBUG_PRINT
-    lmu_ss_t *ss;
-#endif
+    lmu_ss_t                     *ss;
 } lan966x_vcap_info_t;
 
 static vtss_rc lan966x_vcap_cmd(vtss_state_t *vtss_state, lan966x_vcap_info_t *info)
@@ -78,7 +76,6 @@ static vtss_rc lan966x_vcap_cmd(vtss_state_t *vtss_state, lan966x_vcap_info_t *i
 
 static u32 lan966x_vcap_tg_count(u32 tg) { return tg; }
 
-#if VTSS_OPT_DEBUG_PRINT
 static const char *lan966x_vcap_tg_txt(u8 tg)
 {
     return (tg == LAN966X_VCAP_TG_X1   ? "X1"
@@ -86,7 +83,6 @@ static const char *lan966x_vcap_tg_txt(u8 tg)
             : tg == LAN966X_VCAP_TG_X4 ? "X4"
                                        : "XX");
 }
-#endif
 
 static u32 lan966x_vcap_entry_addr(enum vtss_lan966x_vcap vcap, vtss_vcap_idx_t *idx)
 {
@@ -466,7 +462,6 @@ static void lan966x_port_no_set(vtss_state_t                *vtss_state,
  *  Debug print utilities
  * ================================================================= */
 
-#if VTSS_OPT_DEBUG_PRINT
 static u32 lan966x_act_get(lan966x_vcap_info_t *info, u32 offs, u32 len)
 {
     return vtss_bs_get(info->data.action, offs, len);
@@ -530,7 +525,6 @@ static void lan966x_debug_action_ena(lan966x_vcap_info_t *info,
         pr(":%u ", lan966x_act_get(info, offs_val, len));
     }
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 #define LAN966X_DEBUG_ACT(vcap, name, fld)                                                         \
     lan966x_debug_action(info, name, VTSS_LAN966X_VCAP_##vcap##_ACTION_##fld##_O,                  \
@@ -2178,7 +2172,6 @@ vtss_rc vtss_lan966x_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_lan966x_debug_range_checkers(vtss_state_t                  *vtss_state,
                                           lmu_ss_t                      *ss,
                                           const vtss_debug_info_t *const info)
@@ -2864,7 +2857,6 @@ vtss_rc vtss_lan966x_debug_es0(vtss_state_t                  *vtss_state,
 {
     return lan966x_debug_vcap(vtss_state, ss, info, VTSS_LAN966X_VCAP_ES0, lan966x_debug_es0);
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - Initialization ------------------------------------------------ */
 

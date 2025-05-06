@@ -2075,7 +2075,6 @@ vtss_rc vtss_vcap_inst_create(vtss_state_t *vtss_state)
 
 /* - Debug print --------------------------------------------------- */
 
-#if VTSS_OPT_DEBUG_PRINT
 static void vtss_debug_range_checkers(vtss_vcap_range_chk_table_t   *table,
                                       const char                    *name,
                                       lmu_ss_t                      *ss,
@@ -2107,7 +2106,6 @@ void vtss_vcap_debug_print_range_checkers(vtss_state_t                  *vtss_st
 {
     vtss_debug_range_checkers(&vtss_state->vcap.range, "Range Checkers", ss, info);
 }
-#endif
 
 #if defined(VTSS_FEATURE_VCAP_SUPER)
 const char *vtss_vcap_type_txt(vtss_vcap_type_t type)
@@ -2127,7 +2125,6 @@ const char *vtss_vcap_type_txt(vtss_vcap_type_t type)
 }
 #endif /* VTSS_FEATURE_VCAP_SUPER */
 
-#if VTSS_OPT_DEBUG_PRINT
 static void vtss_vcap_debug_print(lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info,
                                   vtss_vcap_obj_t               *obj,
@@ -2540,5 +2537,4 @@ void vtss_vcap_debug_print_acl(vtss_state_t                  *vtss_state,
     }
 #endif /* VTSS_FEATURE_ES2 */
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 #endif /* VTSS_FEATURE_VCAP */

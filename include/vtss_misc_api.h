@@ -151,8 +151,6 @@ void vtss_callout_trace_hex_dump(const vtss_trace_layer_t layer,
                                  const u8                *byte_p,
                                  const int                byte_cnt);
 
-#if VTSS_OPT_DEBUG_PRINT
-
 /** \brief Debug layer */
 /* Debug layer */
 typedef enum {
@@ -262,7 +260,6 @@ vtss_rc vtss_debug_info_print_buf(const vtss_inst_t              inst,
                                   const vtss_debug_info_t *const info,
                                   const int                      len,
                                   char                          *buf);
-#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - API protection functions -------------------------------------- */
 

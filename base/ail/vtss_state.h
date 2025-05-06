@@ -311,12 +311,6 @@ typedef struct {
 #if defined(VTSS_FEATURE_WARM_START)
     vtss_rc (*restart_conf_set)(struct vtss_state_s *vtss_state);
 #endif /* VTSS_FEATURE_WARM_START */
-
-#if VTSS_OPT_DEBUG_PRINT
-    vtss_rc (*debug_info_print)(struct vtss_state_s           *vtss_state,
-                                lmu_ss_t                      *ssntf,
-                                const vtss_debug_info_t *const info);
-#endif
 } vtss_cil_func_t;
 
 /* ================================================================= *

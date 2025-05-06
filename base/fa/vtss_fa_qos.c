@@ -4154,7 +4154,7 @@ vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no
 }
 
 /* - Debug print --------------------------------------------------- */
-#if VTSS_OPT_DEBUG_PRINT
+
 static void fa_debug_print_reg2bf(lmu_ss_t *ss, u32 value, u32 len)
 {
     u32 i;
@@ -5689,7 +5689,6 @@ vtss_rc vtss_fa_qos_debug_print(vtss_state_t                  *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, fa_debug_qos, vtss_state, ss, info);
 }
-#endif
 
 /* - Initialization ------------------------------------------------ */
 vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent)

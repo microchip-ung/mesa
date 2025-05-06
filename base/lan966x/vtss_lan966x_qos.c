@@ -1912,7 +1912,6 @@ vtss_rc vtss_lan966x_qos_port_change(vtss_state_t  *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-#if VTSS_OPT_DEBUG_PRINT
 #if defined(VTSS_FEATURE_QOS_TAS)
 static char *debug_tas_state_string(u32 value)
 {
@@ -2632,7 +2631,6 @@ vtss_rc vtss_lan966x_qos_debug_print(vtss_state_t                  *vtss_state,
 {
     return vtss_debug_print_group(VTSS_DEBUG_GROUP_QOS, lan966x_qos_debug, vtss_state, ss, info);
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 static vtss_rc lan966x_qos_port_map_set(vtss_state_t *vtss_state)
 {

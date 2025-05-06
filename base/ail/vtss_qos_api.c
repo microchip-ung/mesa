@@ -1866,7 +1866,6 @@ vtss_rc vtss_cmn_qce_del(vtss_state_t       *vtss_state,
 
 /* - Debug print --------------------------------------------------- */
 
-#if VTSS_OPT_DEBUG_PRINT
 #if defined(VTSS_FEATURE_EVC_POLICERS)
 void vtss_qos_debug_print_dlb(vtss_state_t                  *vtss_state,
                               lmu_ss_t                      *ss,
@@ -2514,6 +2513,5 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
     pr("\n");
 #endif /* VTSS_FEATURE_QOS_FRAME_PREEMPTION */
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 #endif /* VTSS_FEATURE_QOS */

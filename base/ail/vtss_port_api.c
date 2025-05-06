@@ -1169,7 +1169,6 @@ vtss_port_no_t vtss_cmn_first_port_no_get(vtss_state_t *vtss_state,
     return VTSS_PORT_NO_NONE;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 vtss_port_no_t vtss_cmn_port2port_no(vtss_state_t                  *vtss_state,
                                      const vtss_debug_info_t *const info,
                                      u32                            chip_port)
@@ -1186,7 +1185,6 @@ vtss_port_no_t vtss_cmn_port2port_no(vtss_state_t                  *vtss_state,
     }
     return VTSS_PORT_NO_NONE;
 }
-#endif
 
 vtss_port_no_t vtss_api_port(vtss_state_t *vtss_state, u32 chip_port)
 {
@@ -2159,8 +2157,6 @@ vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t                     inst,
     return rc;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
-
 /* - Debug print --------------------------------------------------- */
 
 static void vtss_port_debug_print_conf(vtss_state_t                  *vtss_state,
@@ -2473,6 +2469,5 @@ void vtss_port_debug_print(vtss_state_t                  *vtss_state,
     vtss_port_debug_print_conf(vtss_state, ss, info);
     vtss_port_debug_print_counters(vtss_state, ss, info);
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 #endif /* VTSS_FEATURE_PORT_CONTROL */

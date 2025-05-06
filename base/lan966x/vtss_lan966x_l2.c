@@ -1332,7 +1332,6 @@ vtss_rc vtss_cil_l2_sflow_port_conf_set(vtss_state_t                       *vtss
     return VTSS_RC_OK;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 /* ================================================================= *
  *  Debug print
  * ================================================================= */
@@ -1790,7 +1789,6 @@ vtss_rc vtss_lan966x_l2_debug_print(vtss_state_t                  *vtss_state,
                                    info));
     return VTSS_RC_OK;
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 /* - Initialization ------------------------------------------------ */
 

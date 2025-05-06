@@ -622,11 +622,9 @@ vtss_rc vtss_port_restart_sync(struct vtss_state_s *vtss_state);
 
 vtss_port_no_t vtss_cmn_first_port_no_get(struct vtss_state_s *vtss_state,
                                           const BOOL           port_list[VTSS_PORT_ARRAY_SIZE]);
-#if VTSS_OPT_DEBUG_PRINT
 vtss_port_no_t vtss_cmn_port2port_no(struct vtss_state_s           *vtss_state,
                                      const vtss_debug_info_t *const info,
                                      u32                            port);
-#endif
 vtss_port_no_t vtss_api_port(struct vtss_state_s *vtss_state, u32 chip_port);
 vtss_rc        vtss_port_conf_set_private(struct vtss_state_s          *vtss_state,
                                           const vtss_port_no_t          port_no,
@@ -637,11 +635,9 @@ vtss_rc        vtss_cmn_port_clause_37_adv_set(u32                       *value,
                                                BOOL                       aneg_enable);
 vtss_rc        vtss_cmn_port_sgmii_cisco_aneg_get(u32 value, vtss_port_sgmii_aneg_t *sgmii_adv);
 vtss_rc        vtss_cmn_port_usxgmii_aneg_get(u32 value, vtss_port_usxgmii_aneg_t *usxgmii);
-#if VTSS_OPT_DEBUG_PRINT
-void vtss_port_debug_print(struct vtss_state_s           *vtss_state,
-                           lmu_ss_t                      *ss,
-                           const vtss_debug_info_t *const info);
-#endif
+void           vtss_port_debug_print(struct vtss_state_s           *vtss_state,
+                                     lmu_ss_t                      *ss,
+                                     const vtss_debug_info_t *const info);
 
 #endif /* VTSS_FEATURE_PORT_CONTROL */
 

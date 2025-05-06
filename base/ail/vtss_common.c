@@ -288,7 +288,6 @@ char *vtss_mac_txt(vtss_mac_t *mac)
     return str;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 void vtss_debug_print_header_underlined(lmu_ss_t *ss, const char *header, BOOL layer)
 {
     int i, len = VTSS_STRLEN(header);
@@ -687,7 +686,6 @@ vtss_rc vtss_cmn_debug_info_print(vtss_state_t                  *vtss_state,
     VTSS_RC(vtss_debug_ail_print(vtss_state, ss, info));
     return vtss_debug_cil_print(vtss_state, ss, info);
 }
-#endif // VTSS_OPT_DEBUG_PRINT
 
 vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos)
 {

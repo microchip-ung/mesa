@@ -79,7 +79,6 @@ vtss_rc vtss_fa_wrm(vtss_state_t *vtss_state, u32 addr, u32 value, u32 mask)
     return rc;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 void vtss_fa_debug_print_port_header(vtss_state_t *vtss_state, lmu_ss_t *ss, const char *txt)
 {
     vtss_debug_print_port_header(vtss_state, ss, txt, RT_CHIP_PORTS, 1);
@@ -167,7 +166,6 @@ void vtss_fa_debug_cnt(lmu_ss_t            *ss,
     }
     pr("\n");
 }
-#endif
 
 #if defined(VTSS_ARCH_LAN969X)
 /* Read or write register indirectly */
@@ -381,7 +379,6 @@ BOOL fa_is_target(vtss_state_t *vtss_state)
  *  Debug print utility functions
  * ================================================================= */
 
-#if VTSS_OPT_DEBUG_PRINT
 vtss_rc vtss_cil_debug_info_print(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info)
@@ -422,7 +419,6 @@ vtss_rc vtss_cil_debug_info_print(vtss_state_t                  *vtss_state,
 #endif
     return VTSS_RC_OK;
 }
-#endif
 
 vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
@@ -1516,7 +1512,6 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 #endif
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 static char *cal2txt(vtss_state_t *vtss_state, u32 port, fa_cal_speed_t spd)
 {
     switch (spd) {
@@ -1562,7 +1557,6 @@ static char *cal2txt(vtss_state_t *vtss_state, u32 port, fa_cal_speed_t spd)
     }
     return "?";
 }
-#endif
 
 static void taxi2ports(vtss_state_t *vtss_state, u32 taxi, u32 *port_ptr)
 {
@@ -1833,7 +1827,6 @@ static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *sch
     return VTSS_RC_OK;
 }
 
-#if VTSS_OPT_DEBUG_PRINT
 // Dump the dsm taxi calendar
 vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
 {
@@ -1919,7 +1912,6 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
 
     return VTSS_RC_OK;
 }
-#endif
 
 #if defined(VTSS_FEATURE_REDBOX)
 /******************************************************************************/

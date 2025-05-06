@@ -710,11 +710,9 @@ void    vtss_qos_debug_print_dlb(struct vtss_state_s           *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_EVC_POLICERS */
-#if VTSS_OPT_DEBUG_PRINT
 void vtss_qos_debug_print(struct vtss_state_s           *vtss_state,
                           lmu_ss_t                      *ss,
                           const vtss_debug_info_t *const info);
-#endif
 #endif /* VTSS_FEATURE_QOS */
 
 #endif /* _VTSS_QOS_STATE_H_ */

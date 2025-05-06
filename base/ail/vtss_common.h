@@ -38,37 +38,35 @@ const char *vtss_serdes_mode_txt(vtss_serdes_mode_t mode);
 
 const char *vtss_bool_txt(BOOL enabled);
 char       *vtss_mac_txt(vtss_mac_t *mac);
-#if VTSS_OPT_DEBUG_PRINT
-vtss_rc vtss_cmn_debug_info_print(vtss_state_t                  *vtss_state,
-                                  lmu_ss_t                      *ss,
-                                  const vtss_debug_info_t *const info);
-void    vtss_debug_print_header_underlined(lmu_ss_t *ss, const char *header, BOOL layer);
-void    vtss_debug_print_header(lmu_ss_t *ss, const char *header);
-void    vtss_debug_print_port_header(vtss_state_t *vtss_state,
-                                     lmu_ss_t     *ss,
-                                     const char   *txt,
-                                     u32           count,
-                                     BOOL          nl);
-void    vtss_debug_print_ports(vtss_state_t *vtss_state, lmu_ss_t *ss, u8 *member, BOOL nl);
-void    vtss_debug_print_port_members(vtss_state_t *vtss_state,
-                                      lmu_ss_t     *ss,
-                                      BOOL          port_member[VTSS_PORT_ARRAY_SIZE],
-                                      BOOL          nl);
-BOOL    vtss_debug_group_enabled(lmu_ss_t                      *ss,
-                                 const vtss_debug_info_t *const info,
-                                 const vtss_debug_group_t       group);
-vtss_rc vtss_debug_print_group(const vtss_debug_group_t group,
-                               vtss_rc (*dbg)(vtss_state_t                  *vtss_state,
+vtss_rc     vtss_cmn_debug_info_print(vtss_state_t                  *vtss_state,
+                                      lmu_ss_t                      *ss,
+                                      const vtss_debug_info_t *const info);
+void        vtss_debug_print_header_underlined(lmu_ss_t *ss, const char *header, BOOL layer);
+void        vtss_debug_print_header(lmu_ss_t *ss, const char *header);
+void        vtss_debug_print_port_header(vtss_state_t *vtss_state,
+                                         lmu_ss_t     *ss,
+                                         const char   *txt,
+                                         u32           count,
+                                         BOOL          nl);
+void        vtss_debug_print_ports(vtss_state_t *vtss_state, lmu_ss_t *ss, u8 *member, BOOL nl);
+void        vtss_debug_print_port_members(vtss_state_t *vtss_state,
+                                          lmu_ss_t     *ss,
+                                          BOOL          port_member[VTSS_PORT_ARRAY_SIZE],
+                                          BOOL          nl);
+BOOL        vtss_debug_group_enabled(lmu_ss_t                      *ss,
+                                     const vtss_debug_info_t *const info,
+                                     const vtss_debug_group_t       group);
+vtss_rc     vtss_debug_print_group(const vtss_debug_group_t group,
+                                   vtss_rc (*dbg)(vtss_state_t                  *vtss_state,
                                               lmu_ss_t                      *ss,
                                               const vtss_debug_info_t *const info),
-                               vtss_state_t                  *vtss_state,
-                               lmu_ss_t                      *ss,
-                               const vtss_debug_info_t *const info);
-void    vtss_debug_print_sticky(lmu_ss_t *ss, const char *name, u32 value, u32 offset);
-void    vtss_debug_print_value(lmu_ss_t *ss, const char *name, u32 value);
-void    vtss_debug_print_reg_header(lmu_ss_t *ss, const char *name);
-void    vtss_debug_print_reg(lmu_ss_t *ss, const char *name, u32 value);
-#endif // VTSS_OPT_DEBUG_PRINT
+                                   vtss_state_t                  *vtss_state,
+                                   lmu_ss_t                      *ss,
+                                   const vtss_debug_info_t *const info);
+void        vtss_debug_print_sticky(lmu_ss_t *ss, const char *name, u32 value, u32 offset);
+void        vtss_debug_print_value(lmu_ss_t *ss, const char *name, u32 value);
+void        vtss_debug_print_reg_header(lmu_ss_t *ss, const char *name);
+void        vtss_debug_print_reg(lmu_ss_t *ss, const char *name, u32 value);
 
 vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos);
 
