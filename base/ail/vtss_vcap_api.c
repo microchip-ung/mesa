@@ -345,7 +345,7 @@ vtss_rc vtss_vcap_range_commit(vtss_state_t *vtss_state, vtss_vcap_range_chk_tab
     if (VTSS_MEMCMP(&vtss_state->vcap.range, range_new, sizeof(*range_new))) {
         /* The temporary working copy has changed - Save it and commit */
         vtss_state->vcap.range = *range_new;
-        return VTSS_FUNC_COLD_0(vcap.range_commit);
+        return vtss_cil_vcap_range_commit(vtss_state);
     }
     return VTSS_RC_OK;
 }
@@ -1012,7 +1012,7 @@ vtss_rc vtss_vcap_is1_update(vtss_state_t *vtss_state, vtss_is1_action_t *act)
         if (data->u.is1.isdx == act->isdx) {
             idx.key_size = key_size;
             vtss_vcap_pos_get(obj, &idx, ndx[key_size]);
-            VTSS_FUNC_RC(vcap.is1_entry_update, &idx, act);
+            VTSS_RC(vtss_cil_vcap_is1_entry_update(vtss_state, &idx, act));
         }
         ndx[key_size]++;
     }
@@ -1058,7 +1058,7 @@ vtss_rc vtss_vcap_clm_update(vtss_state_t *vtss_state, const vtss_qos_egress_map
             if ((data->flags & VTSS_IS1_FLAG_MAP_ID) && data->map_id == id) {
                 idx.key_size = key_size;
                 vtss_vcap_pos_get(obj, &idx, ndx[key_size]);
-                VTSS_FUNC_RC(vcap.clm_entry_update, type, &idx, data);
+                VTSS_RC(vtss_cil_vcap_clm_entry_update(vtss_state, type, &idx, data));
             }
             ndx[key_size]++;
         }
@@ -1100,7 +1100,8 @@ vtss_rc vtss_vcap_clm_update_masq_hit_ena(vtss_state_t    *vtss_state,
             /* Found rule */
             idx.key_size = key_size;
             vtss_vcap_pos_get(obj, &idx, ndx[key_size]);
-            VTSS_FUNC_RC(vcap.clm_entry_update_masq_hit_ena, type, &idx, &cur->data, enable);
+            VTSS_RC(vtss_cil_vcap_clm_entry_update_masq_hit_ena(vtss_state, type, &idx, &cur->data,
+                                                                enable));
         }
         ndx[key_size]++;
     }
@@ -1254,7 +1255,7 @@ vtss_rc vtss_vcap_es0_emap_update(vtss_state_t *vtss_state, vtss_qos_egress_map_
              vtss_state->qos.port_conf[data->port_no].egress_map == map_id)) {
             data->entry = &entry;
             vtss_cmn_es0_action_get(vtss_state, data);
-            VTSS_FUNC_RC(vcap.es0_entry_update, &idx, data);
+            VTSS_RC(vtss_cil_vcap_es0_entry_update(vtss_state, &idx, data));
         }
     }
     return VTSS_RC_OK;
@@ -1280,7 +1281,7 @@ vtss_rc vtss_vcap_es0_update(vtss_state_t *vtss_state, const vtss_port_no_t port
             (data->nni == port_no && (data->flags & flags & VTSS_ES0_FLAG_MASK_NNI))) {
             data->entry = &entry;
             vtss_cmn_es0_action_get(vtss_state, data);
-            VTSS_FUNC_RC(vcap.es0_entry_update, &idx, data);
+            VTSS_RC(vtss_cil_vcap_es0_entry_update(vtss_state, &idx, data));
         }
     }
     return VTSS_RC_OK;
@@ -1308,7 +1309,7 @@ vtss_rc vtss_vcap_is2_update(vtss_state_t *vtss_state)
         if (conf->action.port_action == VTSS_ACL_PORT_ACTION_REDIR) {
             VTSS_I("update port_no: %u", port_no);
             vcap->acl_old_port_conf = *conf;
-            VTSS_FUNC_RC(vcap.acl_port_set, port_no);
+            VTSS_RC(vtss_cil_vcap_acl_port_conf_set(vtss_state, port_no));
         }
     }
 
@@ -1320,7 +1321,7 @@ vtss_rc vtss_vcap_is2_update(vtss_state_t *vtss_state)
         if (is2->action.redir) {
             vtss_vcap_pos_get(obj, &idx, ndx[idx.key_size]);
             VTSS_I("update row: %u, col: %u", idx.row, idx.col);
-            VTSS_FUNC_RC(vcap.is2_entry_update, &idx, is2);
+            VTSS_RC(vtss_cil_vcap_is2_entry_update(vtss_state, &idx, is2));
         }
         ndx[idx.key_size]++;
     }
@@ -1442,7 +1443,7 @@ vtss_rc vtss_acl_policer_conf_set(const vtss_inst_t                    inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
         (rc = vtss_acl_policer_no_check(policer_no)) == VTSS_RC_OK) {
         vtss_state->vcap.acl_policer_conf[policer_no] = *conf;
-        rc = VTSS_FUNC_COLD(vcap.acl_policer_set, policer_no);
+        rc = vtss_cil_vcap_acl_policer_set(vtss_state, policer_no);
     }
     VTSS_EXIT();
     return rc;
@@ -1461,7 +1462,7 @@ vtss_rc vtss_acl_sip_conf_set(const vtss_inst_t                inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (idx < VTSS_ACL_SIP_CNT && (conf->sip.type == VTSS_IP_TYPE_IPV4 || (idx % 4) == 0)) {
             vtss_state->vcap.acl_sip_table[idx] = *conf;
-            rc = VTSS_FUNC_COLD(vcap.acl_sip_set, idx);
+            rc = vtss_cil_vcap_acl_sip_set(vtss_state, idx);
         } else {
             VTSS_E("illegal idx: %u", idx);
             rc = VTSS_RC_ERROR;
@@ -1500,7 +1501,7 @@ vtss_rc vtss_acl_port_conf_set(const vtss_inst_t                 inst,
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->vcap.acl_old_port_conf = vtss_state->vcap.acl_port_conf[port_no];
         vtss_state->vcap.acl_port_conf[port_no] = *conf;
-        rc = VTSS_FUNC_COLD(vcap.acl_port_set, port_no);
+        rc = vtss_cil_vcap_acl_port_conf_set(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;
@@ -1516,7 +1517,7 @@ vtss_rc vtss_acl_port_counter_get(const vtss_inst_t              inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.acl_port_counter_get, port_no, counter);
+        rc = vtss_cil_vcap_acl_port_counter_get(vtss_state, port_no, counter);
     }
     VTSS_EXIT();
     return rc;
@@ -1530,7 +1531,7 @@ vtss_rc vtss_acl_port_counter_clear(const vtss_inst_t inst, const vtss_port_no_t
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.acl_port_counter_clear, port_no);
+        rc = vtss_cil_vcap_acl_port_counter_clear(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;
@@ -1579,7 +1580,7 @@ vtss_rc vtss_ace_add(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.acl_ace_add, ace_id, ace);
+        rc = vtss_cil_vcap_ace_add(vtss_state, ace_id, ace);
     }
     VTSS_EXIT();
     return rc;
@@ -1594,7 +1595,7 @@ vtss_rc vtss_ace_del(const vtss_inst_t inst, const vtss_ace_id_t ace_id)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.acl_ace_del, ace_id);
+        rc = vtss_cil_vcap_ace_del(vtss_state, ace_id);
     }
     VTSS_EXIT();
     return rc;
@@ -1611,7 +1612,7 @@ vtss_rc vtss_ace_counter_get(const vtss_inst_t         inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.acl_ace_counter_get, ace_id, counter);
+        rc = vtss_cil_vcap_ace_counter_get(vtss_state, ace_id, counter);
     }
     VTSS_EXIT();
     return rc;
@@ -1626,7 +1627,7 @@ vtss_rc vtss_ace_counter_clear(const vtss_inst_t inst, const vtss_ace_id_t ace_i
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.acl_ace_counter_clear, ace_id);
+        rc = vtss_cil_vcap_ace_counter_clear(vtss_state, ace_id);
     }
     VTSS_EXIT();
     return rc;
@@ -1644,7 +1645,7 @@ vtss_rc vtss_ace_status_get(const vtss_inst_t        inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.acl_ace_status_get, ace_id, status);
+        rc = vtss_cil_vcap_ace_status_get(vtss_state, ace_id, status);
     }
     VTSS_EXIT();
     return rc;
@@ -1734,7 +1735,7 @@ vtss_rc vtss_hace_add(const vtss_inst_t        inst,
            ace_id_next == VTSS_ACE_ID_LAST ? "(last)" : "");
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.hace_add, type, ace_id_next, hace);
+        rc = vtss_cil_vcap_hace_add(vtss_state, type, ace_id_next, hace);
     }
     VTSS_EXIT();
     return rc;
@@ -1750,7 +1751,7 @@ vtss_rc vtss_hace_del(const vtss_inst_t      inst,
     VTSS_D("type: %s, ace_id: %u", vtss_hacl_type_txt(type), ace_id);
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.hace_del, type, ace_id);
+        rc = vtss_cil_vcap_hace_del(vtss_state, type, ace_id);
     }
     VTSS_EXIT();
     return rc;
@@ -1767,7 +1768,7 @@ vtss_rc vtss_hace_counter_get(const vtss_inst_t         inst,
     VTSS_D("type: %s, ace_id: %u", vtss_hacl_type_txt(type), ace_id);
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.hace_counter_get, type, ace_id, counter);
+        rc = vtss_cil_vcap_hace_counter_get(vtss_state, type, ace_id, counter);
     }
     VTSS_EXIT();
     return rc;
@@ -1783,7 +1784,7 @@ vtss_rc vtss_hace_counter_clear(const vtss_inst_t      inst,
     VTSS_D("type: %s, ace_id: %u", vtss_hacl_type_txt(type), ace_id);
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(vcap.hace_counter_clear, type, ace_id);
+        rc = vtss_cil_vcap_hace_counter_clear(vtss_state, type, ace_id);
     }
     VTSS_EXIT();
     return rc;
@@ -1859,11 +1860,11 @@ vtss_rc vtss_vcap_restart_sync(vtss_state_t *vtss_state)
     vtss_acl_policer_no_t policer_no;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        VTSS_FUNC_RC(vcap.acl_port_set, port_no);
+        VTSS_RC(vtss_cil_vcap_acl_port_conf_set(vtss_state, port_no));
     }
 
     for (policer_no = 0; policer_no < VTSS_ACL_POLICERS; policer_no++) {
-        VTSS_FUNC_RC(vcap.acl_policer_set, policer_no);
+        VTSS_RC(vtss_cil_vcap_acl_policer_set(vtss_state, policer_no));
     }
 #endif // VTSS_FEATURE_IS2
 #if defined(VTSS_FEATURE_IS0)
@@ -1880,7 +1881,7 @@ vtss_rc vtss_vcap_restart_sync(vtss_state_t *vtss_state)
 #endif /* VTSS_FEATURE_ES0 */
 
     /* Commit range checkers */
-    return VTSS_FUNC_0(vcap.range_commit);
+    return vtss_cil_vcap_range_commit(vtss_state);
 }
 #endif /* VTSS_FEATURE_WARM_START */
 

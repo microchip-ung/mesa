@@ -3265,7 +3265,7 @@ static vtss_rc vtss_cmn_estat_move(vtss_state_t *vtss_state, u16 idx_old, u16 id
         vtss_cmn_cnt_copy(&c_old->tx_green, &c_new->tx_green);
         vtss_cmn_cnt_copy(&c_old->tx_yellow, &c_new->tx_yellow);
     }
-    return VTSS_FUNC(vcap.es0_esdx_update, idx_old, idx_new);
+    return vtss_cil_vcap_es0_esdx_update(vtss_state, idx_old, idx_new);
 }
 
 static vtss_rc vtss_cmn_estat_clear(vtss_state_t *vtss_state, u16 idx)
@@ -4925,7 +4925,7 @@ vtss_rc vtss_eflow_conf_set(const vtss_inst_t              inst,
             rc = VTSS_RC_ERROR;
         } else {
             eflow->conf = *conf;
-            rc = VTSS_FUNC(vcap.es0_eflow_update, id);
+            rc = vtss_cil_vcap_es0_eflow_update(vtss_state, id);
         }
     }
     VTSS_EXIT();

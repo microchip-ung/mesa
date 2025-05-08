@@ -1734,10 +1734,10 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t     *vtss_state,
                               JR2_VCAP_SEL_ALL);
 }
 
-static vtss_rc jr2_clm_entry_update(vtss_state_t    *vtss_state,
-                                    vtss_vcap_type_t type,
-                                    vtss_vcap_idx_t *idx,
-                                    vtss_is1_data_t *is1)
+vtss_rc vtss_cil_vcap_clm_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_type_t type,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_is1_data_t *is1)
 {
 #if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_SUPER];
@@ -1767,11 +1767,11 @@ static vtss_rc jr2_clm_entry_update(vtss_state_t    *vtss_state,
 
 /* Updating a CLM entry action with specified Pipeline Point forced enable. The
  * 'enable' parameter controls if Y.1731 hitting this entry is enabled */
-static vtss_rc jr2_clm_entry_update_masq_hit_ena(vtss_state_t     *vtss_state,
-                                                 vtss_vcap_type_t  type,
-                                                 vtss_vcap_idx_t  *idx,
-                                                 vtss_vcap_data_t *vcap_data,
-                                                 BOOL              enable)
+vtss_rc vtss_cil_vcap_clm_entry_update_masq_hit_ena(vtss_state_t     *vtss_state,
+                                                    vtss_vcap_type_t  type,
+                                                    vtss_vcap_idx_t  *idx,
+                                                    vtss_vcap_data_t *vcap_data,
+                                                    BOOL              enable)
 {
 #if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_SUPER];
@@ -3145,9 +3145,9 @@ static vtss_rc jr2_is2_entry_get(vtss_state_t    *vtss_state,
     return (clear ? jr2_is2_cnt_set(vtss_state, cnt_id, 0) : VTSS_RC_OK);
 }
 
-static vtss_rc jr2_is2_entry_update(vtss_state_t    *vtss_state,
-                                    vtss_vcap_idx_t *idx,
-                                    vtss_is2_data_t *is2)
+vtss_rc vtss_cil_vcap_is2_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_is2_data_t *is2)
 {
 #if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_SUPER];
@@ -3763,9 +3763,9 @@ static vtss_rc jr2_es0_entry_get(vtss_state_t    *vtss_state,
 }
 
 /* Update outer tag TPID for ES0 entry if VLAN port type has changed */
-static vtss_rc jr2_es0_entry_update(vtss_state_t    *vtss_state,
-                                    vtss_vcap_idx_t *idx,
-                                    vtss_es0_data_t *es0)
+vtss_rc vtss_cil_vcap_es0_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_es0_data_t *es0)
 {
 #if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_ES0];
@@ -3986,7 +3986,8 @@ vtss_rc vtss_jr2_debug_es0(vtss_state_t                  *vtss_state,
 
 /* - ACL ----------------------------------------------------------- */
 
-static vtss_rc jr2_acl_policer_set(vtss_state_t *vtss_state, const vtss_acl_policer_no_t policer_no)
+vtss_rc vtss_cil_vcap_acl_policer_set(vtss_state_t               *vtss_state,
+                                      const vtss_acl_policer_no_t policer_no)
 {
     u32                      rate, i = (policer_no - VTSS_ACL_POLICER_NO_START);
     vtss_acl_policer_conf_t *conf = &vtss_state->vcap.acl_policer_conf[i];
@@ -4017,7 +4018,7 @@ static vtss_rc jr2_acl_policer_set(vtss_state_t *vtss_state, const vtss_acl_poli
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_acl_sip_set(vtss_state_t *vtss_state, const vtss_acl_sip_idx_t idx)
+vtss_rc vtss_cil_vcap_acl_sip_set(vtss_state_t *vtss_state, const vtss_acl_sip_idx_t idx)
 {
     vtss_ip_addr_t *sip = &vtss_state->vcap.acl_sip_table[idx].sip;
     u32             i, j, addr;
@@ -4064,7 +4065,7 @@ static vtss_rc jr2_ace_cnt_id_free(vtss_state_t *vtss_state, u32 cnt_id)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_acl_port_conf_t *conf = &vtss_state->vcap.acl_port_conf[port_no];
     jr2_vcap_data_t       vcap_data, *data = &vcap_data;
@@ -4117,25 +4118,25 @@ static vtss_rc jr2_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
                               JR2_VCAP_SEL_ACTION);
 }
 
-static vtss_rc jr2_acl_port_counter_get(vtss_state_t                  *vtss_state,
-                                        const vtss_port_no_t           port_no,
-                                        vtss_acl_port_counter_t *const counter)
+vtss_rc vtss_cil_vcap_acl_port_counter_get(vtss_state_t                  *vtss_state,
+                                           const vtss_port_no_t           port_no,
+                                           vtss_acl_port_counter_t *const counter)
 {
     u32 cnt_id = jr2_acl_port_cnt_id(VTSS_CHIP_PORT(port_no));
 
     return jr2_is2_cnt_get(vtss_state, cnt_id, counter);
 }
 
-static vtss_rc jr2_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 cnt_id = jr2_acl_port_cnt_id(VTSS_CHIP_PORT(port_no));
 
     return jr2_is2_cnt_set(vtss_state, cnt_id, 0);
 }
 
-static vtss_rc jr2_ace_add(vtss_state_t           *vtss_state,
-                           const vtss_ace_id_t     ace_id,
-                           const vtss_ace_t *const ace)
+vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
+                              const vtss_ace_id_t     ace_id,
+                              const vtss_ace_t *const ace)
 {
     vtss_vcap_obj_t             *obj = &vtss_state->vcap.is2.obj;
     vtss_vcap_obj_t             *obj_lpm = &vtss_state->vcap.lpm.obj;
@@ -4250,7 +4251,7 @@ static vtss_rc jr2_ace_add(vtss_state_t           *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
+vtss_rc vtss_cil_vcap_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
 {
     vtss_vcap_data_t data;
 
@@ -4267,7 +4268,18 @@ static vtss_rc jr2_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
     return vtss_vcap_del(vtss_state, &vtss_state->vcap.lpm.obj, VTSS_LPM_USER_ACL, ace_id);
 }
 
-static vtss_rc jr2_vcap_range_commit(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_vcap_ace_counter_get(struct vtss_state_s      *vtss_state,
+                                      const vtss_ace_id_t       ace_id,
+                                      vtss_ace_counter_t *const counter)
+{
+    return vtss_cmn_ace_counter_get(vtss_state, ace_id, counter);
+}
+
+vtss_rc vtss_cil_vcap_ace_counter_clear(struct vtss_state_s *vtss_state, const vtss_ace_id_t ace_id)
+{
+    return vtss_cmn_ace_counter_clear(vtss_state, ace_id);
+}
+vtss_rc vtss_cil_vcap_range_commit(vtss_state_t *vtss_state)
 {
     u32                    i, type;
     vtss_vcap_range_chk_t *entry;
@@ -4473,7 +4485,7 @@ vtss_rc vtss_jr2_vcap_port_qos_update(vtss_state_t *vtss_state, vtss_port_no_t p
     return vtss_jr2_vcap_port_l2_update(vtss_state, port_no);
 }
 
-static vtss_rc jr2_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 esdx_new)
+vtss_rc vtss_cil_vcap_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 esdx_new)
 {
 #if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_ES0];
@@ -4514,7 +4526,7 @@ static vtss_rc jr2_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 e
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
+vtss_rc vtss_cil_vcap_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
 {
 #if VTSS_OPT_TRACE
     const jr2_vcap_props_t *vcap = &jr2_vcap_info[JR2_VCAP_ES0];
@@ -4732,7 +4744,7 @@ static vtss_rc jr2_vcap_port_map(vtss_state_t *vtss_state)
                    VTSS_F_ANA_CL_PORT_ADV_CL_CFG_ETYPE_CLM_KEY_SEL(key_sel) |
                        VTSS_M_ANA_CL_PORT_ADV_CL_CFG_LOOKUP_ENA);
         }
-        VTSS_RC(jr2_acl_port_conf_set(vtss_state, port_no));
+        VTSS_RC(vtss_cil_vcap_acl_port_conf_set(vtss_state, port_no));
 
         /* IPMC: Enable IP4_VID/IP6_VID in second IS2 lookup */
         mask = (VTSS_F_ANA_ACL_VCAP_S2_VCAP_S2_CFG_SEC_TYPE_IP6_VID_ENA(lookup) |
@@ -4829,8 +4841,6 @@ vtss_rc vtss_jr2_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         clm_c->entry_move = jr2_clm_c_entry_move;
         clm_c->entry_get = jr2_clm_c_entry_get;
         clm_c->vcap_super = vcap_super;
-        state->clm_entry_update = jr2_clm_entry_update;
-        state->clm_entry_update_masq_hit_ena = jr2_clm_entry_update_masq_hit_ena;
 
         /* LPM */
         lpm->entry_add = jr2_lpm_entry_add;
@@ -4845,28 +4855,12 @@ vtss_rc vtss_jr2_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         is2->entry_move = jr2_is2_entry_move;
         is2->entry_get = jr2_is2_entry_get;
         is2->vcap_super = vcap_super;
-        state->is2_entry_update = jr2_is2_entry_update;
 
         /* ES0 */
         es0->entry_add = jr2_es0_entry_add;
         es0->entry_del = jr2_es0_entry_del;
         es0->entry_move = jr2_es0_entry_move;
         es0->entry_get = jr2_es0_entry_get;
-        state->es0_entry_update = jr2_es0_entry_update;
-        state->es0_esdx_update = jr2_es0_esdx_update;
-        state->es0_eflow_update = jr2_es0_eflow_update;
-
-        /* ACL */
-        state->acl_policer_set = jr2_acl_policer_set;
-        state->acl_sip_set = jr2_acl_sip_set;
-        state->acl_port_set = jr2_acl_port_conf_set;
-        state->acl_port_counter_get = jr2_acl_port_counter_get;
-        state->acl_port_counter_clear = jr2_acl_port_counter_clear;
-        state->acl_ace_add = jr2_ace_add;
-        state->acl_ace_del = jr2_ace_del;
-        state->acl_ace_counter_get = vtss_cmn_ace_counter_get;
-        state->acl_ace_counter_clear = vtss_cmn_ace_counter_clear;
-        state->range_commit = jr2_vcap_range_commit;
         break;
 
     case VTSS_INIT_CMD_INIT: VTSS_RC(jr2_vcap_init(vtss_state)); break;

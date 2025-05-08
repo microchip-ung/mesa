@@ -1015,9 +1015,9 @@ static vtss_rc lan966x_is1_entry_move(vtss_state_t    *vtss_state,
     return lan966x_vcap_entry_move(vtss_state, VTSS_LAN966X_VCAP_IS1, idx, count, up);
 }
 
-static vtss_rc lan966x_is1_entry_update(vtss_state_t      *vtss_state,
-                                        vtss_vcap_idx_t   *idx,
-                                        vtss_is1_action_t *act)
+vtss_rc vtss_cil_vcap_is1_entry_update(vtss_state_t      *vtss_state,
+                                       vtss_vcap_idx_t   *idx,
+                                       vtss_is1_action_t *act)
 {
     lan966x_vcap_info_t info = {0};
 
@@ -1508,9 +1508,9 @@ static vtss_rc lan966x_is2_entry_move(vtss_state_t    *vtss_state,
     return lan966x_vcap_entry_move(vtss_state, VTSS_LAN966X_VCAP_IS2, idx, count, up);
 }
 
-static vtss_rc lan966x_is2_entry_update(vtss_state_t    *vtss_state,
-                                        vtss_vcap_idx_t *idx,
-                                        vtss_is2_data_t *is2)
+vtss_rc vtss_cil_vcap_is2_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_is2_data_t *is2)
 {
     lan966x_vcap_info_t info = {0};
     vtss_port_no_t      port_no;
@@ -1697,9 +1697,9 @@ static vtss_rc lan966x_es0_entry_move(vtss_state_t    *vtss_state,
     return lan966x_vcap_entry_move(vtss_state, VTSS_LAN966X_VCAP_ES0, idx, count, up);
 }
 
-static vtss_rc lan966x_es0_entry_update(vtss_state_t    *vtss_state,
-                                        vtss_vcap_idx_t *idx,
-                                        vtss_es0_data_t *es0)
+vtss_rc vtss_cil_vcap_es0_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_es0_data_t *es0)
 {
     lan966x_vcap_info_t info = {0};
     vtss_es0_action_t  *action = &es0->entry->action;
@@ -1747,7 +1747,7 @@ static vtss_rc lan966x_es0_entry_update(vtss_state_t    *vtss_state,
     return lan966x_vcap_entry_cmd(vtss_state, &info);
 }
 
-static vtss_rc lan966x_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
+vtss_rc vtss_cil_vcap_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
 {
     lan966x_vcap_info_t info = {0};
     vtss_vcap_obj_t    *obj = &vtss_state->vcap.es0.obj;
@@ -1783,13 +1783,18 @@ static vtss_rc lan966x_es0_eflow_update(vtss_state_t *vtss_state, const vtss_efl
     return VTSS_RC_OK;
 }
 
+vtss_rc vtss_cil_vcap_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 esdx_new)
+{
+    return VTSS_RC_OK;
+}
+
 /* ================================================================= *
  *  ACL
  * ================================================================= */
 
 #if defined(VTSS_FEATURE_IS2)
-static vtss_rc lan966x_acl_policer_set(vtss_state_t               *vtss_state,
-                                       const vtss_acl_policer_no_t policer_no)
+vtss_rc vtss_cil_vcap_acl_policer_set(vtss_state_t               *vtss_state,
+                                      const vtss_acl_policer_no_t policer_no)
 {
     vtss_acl_policer_conf_t *conf = &vtss_state->vcap.acl_policer_conf[policer_no];
     vtss_policer_conf_t      pol_conf;
@@ -1806,7 +1811,7 @@ static vtss_rc lan966x_acl_policer_set(vtss_state_t               *vtss_state,
                                              &pol_conf);
 }
 
-static vtss_rc lan966x_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     const struct vtss_lan966x_vcap_attrs *va = vtss_lan966x_vcap_attrs_get(VTSS_LAN966X_VCAP_IS2);
     lan966x_vcap_info_t                   info = {0};
@@ -1858,22 +1863,21 @@ static vtss_rc lan966x_acl_port_counter(vtss_state_t                  *vtss_stat
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_acl_port_counter_get(vtss_state_t                  *vtss_state,
-                                            const vtss_port_no_t           port_no,
-                                            vtss_acl_port_counter_t *const counter)
+vtss_rc vtss_cil_vcap_acl_port_counter_get(vtss_state_t                  *vtss_state,
+                                           const vtss_port_no_t           port_no,
+                                           vtss_acl_port_counter_t *const counter)
 {
     return lan966x_acl_port_counter(vtss_state, port_no, counter);
 }
 
-static vtss_rc lan966x_acl_port_counter_clear(vtss_state_t        *vtss_state,
-                                              const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     return lan966x_acl_port_counter(vtss_state, port_no, NULL);
 }
 
-static vtss_rc lan966x_ace_add(vtss_state_t           *vtss_state,
-                               const vtss_ace_id_t     ace_id,
-                               const vtss_ace_t *const ace)
+vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
+                              const vtss_ace_id_t     ace_id,
+                              const vtss_ace_t *const ace)
 {
     vtss_vcap_obj_t            *obj = &vtss_state->vcap.is2.obj;
     vtss_vcap_user_t            user = VTSS_IS2_USER_ACL;
@@ -1971,7 +1975,7 @@ static vtss_rc lan966x_ace_add(vtss_state_t           *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
+vtss_rc vtss_cil_vcap_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
 {
     // Delete main entry
     VTSS_RC(vtss_cmn_ace_del(vtss_state, ace_id));
@@ -1980,9 +1984,21 @@ static vtss_rc lan966x_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace
     VTSS_RC(vtss_vcap_del(vtss_state, &vtss_state->vcap.is2.obj, VTSS_IS2_USER_ACL_SIP, ace_id));
     return VTSS_RC_OK;
 }
+
+vtss_rc vtss_cil_vcap_ace_counter_get(struct vtss_state_s      *vtss_state,
+                                      const vtss_ace_id_t       ace_id,
+                                      vtss_ace_counter_t *const counter)
+{
+    return vtss_cmn_ace_counter_get(vtss_state, ace_id, counter);
+}
+
+vtss_rc vtss_cil_vcap_ace_counter_clear(struct vtss_state_s *vtss_state, const vtss_ace_id_t ace_id)
+{
+    return vtss_cmn_ace_counter_clear(vtss_state, ace_id);
+}
 #endif // VTSS_FEATURE_IS2
 
-static vtss_rc lan966x_vcap_range_commit(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_vcap_range_commit(vtss_state_t *vtss_state)
 {
     u32                    i, type;
     vtss_vcap_range_chk_t *entry;
@@ -2904,7 +2920,7 @@ static vtss_rc lan966x_vcap_port_map(vtss_state_t *vtss_state)
 
 #if defined(VTSS_FEATURE_IS2)
         // Setup ACL port configuration
-        VTSS_RC(lan966x_acl_port_conf_set(vtss_state, port_no));
+        VTSS_RC(vtss_cil_vcap_acl_port_conf_set(vtss_state, port_no));
 #endif
 
         // Enable ES0
@@ -2931,7 +2947,6 @@ vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         is1->entry_add = lan966x_is1_entry_add;
         is1->entry_del = lan966x_is1_entry_del;
         is1->entry_move = lan966x_is1_entry_move;
-        state->is1_entry_update = lan966x_is1_entry_update;
 
 #if defined(VTSS_FEATURE_IS2)
         // IS2
@@ -2941,7 +2956,6 @@ vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         is2->entry_add = lan966x_is2_entry_add;
         is2->entry_del = lan966x_is2_entry_del;
         is2->entry_move = lan966x_is2_entry_move;
-        state->is2_entry_update = lan966x_is2_entry_update;
 #endif
 
         // ES0
@@ -2949,21 +2963,6 @@ vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         es0->entry_add = lan966x_es0_entry_add;
         es0->entry_del = lan966x_es0_entry_del;
         es0->entry_move = lan966x_es0_entry_move;
-        state->es0_entry_update = lan966x_es0_entry_update;
-        state->es0_eflow_update = lan966x_es0_eflow_update;
-
-#if defined(VTSS_FEATURE_IS2)
-        // ACL
-        state->acl_policer_set = lan966x_acl_policer_set;
-        state->acl_port_set = lan966x_acl_port_conf_set;
-        state->acl_port_counter_get = lan966x_acl_port_counter_get;
-        state->acl_port_counter_clear = lan966x_acl_port_counter_clear;
-        state->acl_ace_add = lan966x_ace_add;
-        state->acl_ace_del = lan966x_ace_del;
-        state->acl_ace_counter_get = vtss_cmn_ace_counter_get;
-        state->acl_ace_counter_clear = vtss_cmn_ace_counter_clear;
-#endif
-        state->range_commit = lan966x_vcap_range_commit;
         break;
 
     case VTSS_INIT_CMD_INIT: VTSS_RC(lan966x_vcap_init(vtss_state)); break;

@@ -2589,9 +2589,9 @@ static vtss_rc srvl_is2_entry_move(vtss_state_t    *vtss_state,
     return srvl_vcap_entry_move(vtss_state, VTSS_TCAM_IS2, idx, count, up);
 }
 
-static vtss_rc srvl_is2_entry_update(vtss_state_t    *vtss_state,
-                                     vtss_vcap_idx_t *idx,
-                                     vtss_is2_data_t *is2)
+vtss_rc vtss_cil_vcap_is2_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_is2_data_t *is2)
 {
     const tcam_props_t *tcam = &tcam_info[VTSS_TCAM_IS2];
     srvl_tcam_data_t    tcam_data, *data = &tcam_data;
@@ -3078,9 +3078,9 @@ static vtss_rc srvl_es0_entry_move(vtss_state_t    *vtss_state,
 }
 
 /* Update outer tag TPID for ES0 entry if VLAN port type has changed */
-static vtss_rc srvl_es0_entry_update(vtss_state_t    *vtss_state,
-                                     vtss_vcap_idx_t *idx,
-                                     vtss_es0_data_t *es0)
+vtss_rc vtss_cil_vcap_es0_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_es0_data_t *es0)
 {
     const tcam_props_t *tcam = &tcam_info[VTSS_TCAM_ES0];
     srvl_tcam_data_t    tcam_data, *data = &tcam_data;
@@ -3132,7 +3132,7 @@ static vtss_rc srvl_es0_entry_update(vtss_state_t    *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
+vtss_rc vtss_cil_vcap_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
 {
     const tcam_props_t *tcam = &tcam_info[VTSS_TCAM_ES0];
     srvl_tcam_data_t    tcam_data, *data = &tcam_data;
@@ -3264,8 +3264,8 @@ vtss_rc vtss_srvl_debug_es0_all(vtss_state_t                  *vtss_state,
  *  ACL
  * ================================================================= */
 
-static vtss_rc srvl_acl_policer_set(vtss_state_t               *vtss_state,
-                                    const vtss_acl_policer_no_t policer_no)
+vtss_rc vtss_cil_vcap_acl_policer_set(vtss_state_t               *vtss_state,
+                                      const vtss_acl_policer_no_t policer_no)
 {
     vtss_acl_policer_conf_t *conf = &vtss_state->vcap.acl_policer_conf[policer_no];
     vtss_policer_conf_t      pol_conf;
@@ -3282,7 +3282,7 @@ static vtss_rc srvl_acl_policer_set(vtss_state_t               *vtss_state,
     return vtss_srvl_qos_policer_conf_set(vtss_state, policer_no + SRVL_POLICER_ACL, &pol_conf);
 }
 
-static vtss_rc srvl_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     const tcam_props_t   *tcam = &tcam_info[VTSS_TCAM_IS2];
     srvl_tcam_data_t      data;
@@ -3327,14 +3327,14 @@ static vtss_rc srvl_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
     return rc;
 }
 
-static vtss_rc srvl_acl_port_counter_get(vtss_state_t                  *vtss_state,
-                                         const vtss_port_no_t           port_no,
-                                         vtss_acl_port_counter_t *const counter)
+vtss_rc vtss_cil_vcap_acl_port_counter_get(vtss_state_t                  *vtss_state,
+                                           const vtss_port_no_t           port_no,
+                                           vtss_acl_port_counter_t *const counter)
 {
     return srvl_vcap_port_get(vtss_state, VTSS_TCAM_IS2, VTSS_CHIP_PORT(port_no), counter, 0);
 }
 
-static vtss_rc srvl_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 counter;
 
@@ -3345,9 +3345,9 @@ static vtss_rc srvl_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_
 #define SRVL_VCAP_ID_SMAC_SIP4_DEF 0x100000000
 #define SRVL_VCAP_ID_SMAC_SIP6_DEF 0x200000000
 
-static vtss_rc srvl_ace_add(vtss_state_t           *vtss_state,
-                            const vtss_ace_id_t     ace_id,
-                            const vtss_ace_t *const ace)
+vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
+                              const vtss_ace_id_t     ace_id,
+                              const vtss_ace_t *const ace)
 {
     vtss_vcap_obj_t            *obj = &vtss_state->vcap.is2.obj;
     vtss_vcap_user_t            user = VTSS_IS2_USER_ACL;
@@ -3447,7 +3447,7 @@ static vtss_rc srvl_ace_add(vtss_state_t           *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
+vtss_rc vtss_cil_vcap_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
 {
     /* Delete main entry */
     VTSS_RC(vtss_cmn_ace_del(vtss_state, ace_id));
@@ -3458,7 +3458,19 @@ static vtss_rc srvl_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_vcap_range_commit(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_vcap_ace_counter_get(struct vtss_state_s      *vtss_state,
+                                      const vtss_ace_id_t       ace_id,
+                                      vtss_ace_counter_t *const counter)
+{
+    return vtss_cmn_ace_counter_get(vtss_state, ace_id, counter);
+}
+
+vtss_rc vtss_cil_vcap_ace_counter_clear(struct vtss_state_s *vtss_state, const vtss_ace_id_t ace_id)
+{
+    return vtss_cmn_ace_counter_clear(vtss_state, ace_id);
+}
+
+vtss_rc vtss_cil_vcap_range_commit(vtss_state_t *vtss_state)
 {
     u32                    i, type;
     vtss_vcap_range_chk_t *entry;
@@ -3787,26 +3799,12 @@ vtss_rc vtss_srvl_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         is2->entry_add = srvl_is2_entry_add;
         is2->entry_del = srvl_is2_entry_del;
         is2->entry_move = srvl_is2_entry_move;
-        state->is2_entry_update = srvl_is2_entry_update;
 
         /* ES0 */
         es0->entry_get = srvl_es0_entry_get;
         es0->entry_add = srvl_es0_entry_add;
         es0->entry_del = srvl_es0_entry_del;
         es0->entry_move = srvl_es0_entry_move;
-        state->es0_entry_update = srvl_es0_entry_update;
-        state->es0_eflow_update = srvl_es0_eflow_update;
-
-        /* ACL */
-        state->acl_policer_set = srvl_acl_policer_set;
-        state->acl_port_set = srvl_acl_port_conf_set;
-        state->acl_port_counter_get = srvl_acl_port_counter_get;
-        state->acl_port_counter_clear = srvl_acl_port_counter_clear;
-        state->acl_ace_add = srvl_ace_add;
-        state->acl_ace_del = srvl_ace_del;
-        state->acl_ace_counter_get = vtss_cmn_ace_counter_get;
-        state->acl_ace_counter_clear = vtss_cmn_ace_counter_clear;
-        state->range_commit = srvl_vcap_range_commit;
         break;
     case VTSS_INIT_CMD_INIT: VTSS_RC(srvl_vcap_init(vtss_state)); break;
     default:                 break;

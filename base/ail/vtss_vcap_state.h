@@ -1329,84 +1329,87 @@ typedef struct {
 } vtss_dmac_dip_conf_t;
 #endif /* VTSS_ARCH_OCELOT */
 
-typedef struct {
-    /* CIL function pointers */
-    vtss_rc (*range_commit)(struct vtss_state_s *vtss_state);
+/* CIL functions */
+vtss_rc vtss_cil_vcap_range_commit(struct vtss_state_s *vtss_state);
 #if defined(VTSS_FEATURE_CLM)
-    vtss_rc (*clm_entry_update)(struct vtss_state_s *vtss_state,
-                                vtss_vcap_type_t     type,
-                                vtss_vcap_idx_t     *idx,
-                                vtss_is1_data_t     *is1);
-    vtss_rc (*clm_entry_update_masq_hit_ena)(struct vtss_state_s *vtss_state,
-                                             vtss_vcap_type_t     type,
-                                             vtss_vcap_idx_t     *idx,
-                                             vtss_vcap_data_t    *vcap_data,
-                                             BOOL                 enable);
+vtss_rc vtss_cil_vcap_clm_entry_update(struct vtss_state_s *vtss_state,
+                                       vtss_vcap_type_t     type,
+                                       vtss_vcap_idx_t     *idx,
+                                       vtss_is1_data_t     *is1);
+vtss_rc vtss_cil_vcap_clm_entry_update_masq_hit_ena(struct vtss_state_s *vtss_state,
+                                                    vtss_vcap_type_t     type,
+                                                    vtss_vcap_idx_t     *idx,
+                                                    vtss_vcap_data_t    *vcap_data,
+                                                    BOOL                 enable);
 #endif /* VTSS_FEATURE_CLM */
 #if defined(VTSS_FEATURE_IS1)
-    vtss_rc (*is1_entry_update)(struct vtss_state_s *vtss_state,
-                                vtss_vcap_idx_t     *idx,
-                                vtss_is1_action_t   *act);
+vtss_rc vtss_cil_vcap_is1_entry_update(struct vtss_state_s *vtss_state,
+                                       vtss_vcap_idx_t     *idx,
+                                       vtss_is1_action_t   *act);
 #endif
 #if defined(VTSS_FEATURE_IS2)
-    vtss_rc (*is2_entry_update)(struct vtss_state_s *vtss_state,
-                                vtss_vcap_idx_t     *idx,
-                                vtss_is2_data_t     *is2);
+vtss_rc vtss_cil_vcap_is2_entry_update(struct vtss_state_s *vtss_state,
+                                       vtss_vcap_idx_t     *idx,
+                                       vtss_is2_data_t     *is2);
 #endif
 #if defined(VTSS_FEATURE_ES0)
-    vtss_rc (*es0_entry_update)(struct vtss_state_s *vtss_state,
-                                vtss_vcap_idx_t     *idx,
-                                vtss_es0_data_t     *es0);
-    vtss_rc (*es0_esdx_update)(struct vtss_state_s *vtss_state,
-                               const u16            idx_old,
-                               const u16            idx_new);
+vtss_rc vtss_cil_vcap_es0_entry_update(struct vtss_state_s *vtss_state,
+                                       vtss_vcap_idx_t     *idx,
+                                       vtss_es0_data_t     *es0);
+vtss_rc vtss_cil_vcap_es0_esdx_update(struct vtss_state_s *vtss_state,
+                                      const u16            idx_old,
+                                      const u16            idx_new);
 #if defined(VTSS_FEATURE_XFLOW)
-    vtss_rc (*es0_eflow_update)(struct vtss_state_s *vtss_state, const vtss_eflow_id_t flow_id);
+vtss_rc vtss_cil_vcap_es0_eflow_update(struct vtss_state_s  *vtss_state,
+                                       const vtss_eflow_id_t flow_id);
 #endif
 #endif /* VTSS_FEATURE_ES0 */
 #if defined(VTSS_FEATURE_IS2)
-    vtss_rc (*acl_policer_set)(struct vtss_state_s        *vtss_state,
-                               const vtss_acl_policer_no_t policer_no);
+vtss_rc vtss_cil_vcap_acl_policer_set(struct vtss_state_s        *vtss_state,
+                                      const vtss_acl_policer_no_t policer_no);
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-    vtss_rc (*acl_sip_set)(struct vtss_state_s *vtss_state, const vtss_acl_sip_idx_t idx);
+vtss_rc vtss_cil_vcap_acl_sip_set(struct vtss_state_s *vtss_state, const vtss_acl_sip_idx_t idx);
 #endif
-    vtss_rc (*acl_port_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
-    vtss_rc (*acl_port_counter_get)(struct vtss_state_s           *vtss_state,
-                                    const vtss_port_no_t           port_no,
-                                    vtss_acl_port_counter_t *const counter);
-    vtss_rc (*acl_port_counter_clear)(struct vtss_state_s *vtss_state,
-                                      const vtss_port_no_t port_no);
-    vtss_rc (*acl_ace_add)(struct vtss_state_s    *vtss_state,
-                           const vtss_ace_id_t     ace_id,
-                           const vtss_ace_t *const ace);
-    vtss_rc (*acl_ace_del)(struct vtss_state_s *vtss_state, const vtss_ace_id_t ace_id);
-    vtss_rc (*acl_ace_counter_get)(struct vtss_state_s      *vtss_state,
-                                   const vtss_ace_id_t       ace_id,
-                                   vtss_ace_counter_t *const counter);
-    vtss_rc (*acl_ace_counter_clear)(struct vtss_state_s *vtss_state, const vtss_ace_id_t ace_id);
+vtss_rc vtss_cil_vcap_acl_port_conf_set(struct vtss_state_s *vtss_state,
+                                        const vtss_port_no_t port_no);
+vtss_rc vtss_cil_vcap_acl_port_counter_get(struct vtss_state_s           *vtss_state,
+                                           const vtss_port_no_t           port_no,
+                                           vtss_acl_port_counter_t *const counter);
+vtss_rc vtss_cil_vcap_acl_port_counter_clear(struct vtss_state_s *vtss_state,
+                                             const vtss_port_no_t port_no);
+vtss_rc vtss_cil_vcap_ace_add(struct vtss_state_s    *vtss_state,
+                              const vtss_ace_id_t     ace_id,
+                              const vtss_ace_t *const ace);
+vtss_rc vtss_cil_vcap_ace_del(struct vtss_state_s *vtss_state, const vtss_ace_id_t ace_id);
+vtss_rc vtss_cil_vcap_ace_counter_get(struct vtss_state_s      *vtss_state,
+                                      const vtss_ace_id_t       ace_id,
+                                      vtss_ace_counter_t *const counter);
+vtss_rc vtss_cil_vcap_ace_counter_clear(struct vtss_state_s *vtss_state,
+                                        const vtss_ace_id_t  ace_id);
 #if defined(VTSS_ARCH_LUTON26)
-    vtss_rc (*acl_ace_status_get)(struct vtss_state_s     *vtss_state,
-                                  const vtss_ace_id_t      ace_id,
-                                  vtss_ace_status_t *const status);
+vtss_rc vtss_cil_vcap_ace_status_get(struct vtss_state_s     *vtss_state,
+                                     const vtss_ace_id_t      ace_id,
+                                     vtss_ace_status_t *const status);
 #endif /* VTSS_ARCH_LUTON26 */
 #endif // VTSS_FEATURE_IS2
 #if defined(VTSS_FEATURE_HACL)
-    vtss_rc (*hace_add)(struct vtss_state_s     *vtss_state,
-                        const vtss_hacl_type_t   type,
-                        const vtss_ace_id_t      ace_id_next,
-                        const vtss_hace_t *const hace);
-    vtss_rc (*hace_del)(struct vtss_state_s   *vtss_state,
-                        const vtss_hacl_type_t type,
-                        const vtss_ace_id_t    ace_id);
-    vtss_rc (*hace_counter_get)(struct vtss_state_s      *vtss_state,
-                                const vtss_hacl_type_t    type,
-                                const vtss_ace_id_t       ace_id,
-                                vtss_ace_counter_t *const counter);
-    vtss_rc (*hace_counter_clear)(struct vtss_state_s   *vtss_state,
-                                  const vtss_hacl_type_t type,
-                                  const vtss_ace_id_t    ace_id);
+vtss_rc vtss_cil_vcap_hace_add(struct vtss_state_s     *vtss_state,
+                               const vtss_hacl_type_t   type,
+                               const vtss_ace_id_t      ace_id_next,
+                               const vtss_hace_t *const hace);
+vtss_rc vtss_cil_vcap_hace_del(struct vtss_state_s   *vtss_state,
+                               const vtss_hacl_type_t type,
+                               const vtss_ace_id_t    ace_id);
+vtss_rc vtss_cil_vcap_hace_counter_get(struct vtss_state_s      *vtss_state,
+                                       const vtss_hacl_type_t    type,
+                                       const vtss_ace_id_t       ace_id,
+                                       vtss_ace_counter_t *const counter);
+vtss_rc vtss_cil_vcap_hace_counter_clear(struct vtss_state_s   *vtss_state,
+                                         const vtss_hacl_type_t type,
+                                         const vtss_ace_id_t    ace_id);
 #endif /* VTSS_FEATURE_HACL */
 
+typedef struct {
     /* Configuration/state */
     vtss_vcap_range_chk_table_t range;
     u32                         counter[2]; /* Multi-chip support */

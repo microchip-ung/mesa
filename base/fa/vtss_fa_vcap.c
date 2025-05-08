@@ -828,7 +828,7 @@ static vtss_rc fa_vcap_range_commit(vtss_state_t                *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_clm_range_commit(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_vcap_range_commit(vtss_state_t *vtss_state)
 {
     return fa_vcap_range_commit(vtss_state, VTSS_VCAP_TYPE_CLM_A, NULL);
 }
@@ -1915,10 +1915,10 @@ static vtss_rc fa_clm_entry_add(vtss_state_t     *vtss_state,
     return fa_vcap_entry_cmd(vtss_state, data, addr, data->tg, FA_VCAP_CMD_WRITE, FA_VCAP_SEL_ALL);
 }
 
-static vtss_rc fa_clm_entry_update(vtss_state_t    *vtss_state,
-                                   vtss_vcap_type_t type,
-                                   vtss_vcap_idx_t *idx,
-                                   vtss_is1_data_t *is1)
+vtss_rc vtss_cil_vcap_clm_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_type_t type,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_is1_data_t *is1)
 {
     fa_vcap_data_t fa_data, *data = &fa_data;
     u32            addr;
@@ -3386,9 +3386,9 @@ static vtss_rc fa_is2_b_entry_get(vtss_state_t    *vtss_state,
     return fa_is2_entry_get(vtss_state, VTSS_VCAP_TYPE_IS2_B, idx, counter, clear);
 }
 
-static vtss_rc fa_is2_entry_update(vtss_state_t    *vtss_state,
-                                   vtss_vcap_idx_t *idx,
-                                   vtss_is2_data_t *is2)
+vtss_rc vtss_cil_vcap_is2_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_is2_data_t *is2)
 {
 #if VTSS_OPT_TRACE
     const fa_vcap_props_t *vcap = &fa_vcap_info[FA_VCAP_SUPER];
@@ -4274,10 +4274,10 @@ typedef struct {
     u32 mask[3];
 } vtss_fa_prl_range_t;
 
-static vtss_rc fa_hace_add(vtss_state_t            *vtss_state,
-                           const vtss_hacl_type_t   type,
-                           const vtss_ace_id_t      ace_id_next,
-                           const vtss_hace_t *const hace)
+vtss_rc vtss_cil_vcap_hace_add(vtss_state_t            *vtss_state,
+                               const vtss_hacl_type_t   type,
+                               const vtss_ace_id_t      ace_id_next,
+                               const vtss_hace_t *const hace)
 {
     vtss_vcap_entry_t            *cur;
     vtss_vcap_obj_t              *obj, *obj_lpm = &vtss_state->vcap.lpm.obj;
@@ -4620,31 +4620,32 @@ static vtss_rc fa_hace_cmd(vtss_state_t             *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_hace_del(vtss_state_t          *vtss_state,
-                           const vtss_hacl_type_t type,
-                           const vtss_ace_id_t    ace_id)
+vtss_rc vtss_cil_vcap_hace_del(vtss_state_t          *vtss_state,
+                               const vtss_hacl_type_t type,
+                               const vtss_ace_id_t    ace_id)
 {
     return fa_hace_cmd(vtss_state, type, ace_id, NULL, FALSE);
 }
 
-static vtss_rc fa_hace_counter_get(vtss_state_t          *vtss_state,
-                                   const vtss_hacl_type_t type,
-                                   const vtss_ace_id_t    ace_id,
-                                   vtss_ace_counter_t    *counter)
+vtss_rc vtss_cil_vcap_hace_counter_get(vtss_state_t          *vtss_state,
+                                       const vtss_hacl_type_t type,
+                                       const vtss_ace_id_t    ace_id,
+                                       vtss_ace_counter_t    *counter)
 {
     return fa_hace_cmd(vtss_state, type, ace_id, counter, FALSE);
 }
 
-static vtss_rc fa_hace_counter_clear(vtss_state_t          *vtss_state,
-                                     const vtss_hacl_type_t type,
-                                     const vtss_ace_id_t    ace_id)
+vtss_rc vtss_cil_vcap_hace_counter_clear(vtss_state_t          *vtss_state,
+                                         const vtss_hacl_type_t type,
+                                         const vtss_ace_id_t    ace_id)
 {
     vtss_ace_counter_t counter;
 
     return fa_hace_cmd(vtss_state, type, ace_id, &counter, TRUE);
 }
 
-static vtss_rc fa_acl_policer_set(vtss_state_t *vtss_state, const vtss_acl_policer_no_t policer_no)
+vtss_rc vtss_cil_vcap_acl_policer_set(vtss_state_t               *vtss_state,
+                                      const vtss_acl_policer_no_t policer_no)
 {
     u32                      rate, i = (policer_no - VTSS_ACL_POLICER_NO_START);
     vtss_acl_policer_conf_t *conf = &vtss_state->vcap.acl_policer_conf[i];
@@ -4676,7 +4677,7 @@ static vtss_rc fa_acl_policer_set(vtss_state_t *vtss_state, const vtss_acl_polic
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_acl_sip_set(vtss_state_t *vtss_state, const vtss_acl_sip_idx_t idx)
+vtss_rc vtss_cil_vcap_acl_sip_set(vtss_state_t *vtss_state, const vtss_acl_sip_idx_t idx)
 {
     vtss_ip_addr_t *sip = &vtss_state->vcap.acl_sip_table[idx].sip;
     u32             i, j, addr;
@@ -4694,7 +4695,7 @@ static vtss_rc fa_acl_sip_set(vtss_state_t *vtss_state, const vtss_acl_sip_idx_t
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_acl_port_conf_t *conf = &vtss_state->vcap.acl_port_conf[port_no];
     fa_vcap_data_t        vcap_data, *data = &vcap_data;
@@ -4742,25 +4743,25 @@ static vtss_rc fa_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no
                              FA_VCAP_SEL_ACTION);
 }
 
-static vtss_rc fa_acl_port_counter_get(vtss_state_t                  *vtss_state,
-                                       const vtss_port_no_t           port_no,
-                                       vtss_acl_port_counter_t *const counter)
+vtss_rc vtss_cil_vcap_acl_port_counter_get(vtss_state_t                  *vtss_state,
+                                           const vtss_port_no_t           port_no,
+                                           vtss_acl_port_counter_t *const counter)
 {
     u32 cnt_id = fa_acl_port_cnt_id(VTSS_CHIP_PORT(port_no));
 
     return fa_is2_cnt_get(vtss_state, VTSS_VCAP_TYPE_IS2, cnt_id, counter);
 }
 
-static vtss_rc fa_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 cnt_id = fa_acl_port_cnt_id(VTSS_CHIP_PORT(port_no));
 
     return fa_is2_cnt_set(vtss_state, VTSS_VCAP_TYPE_IS2, cnt_id, 0);
 }
 
-static vtss_rc fa_ace_add(vtss_state_t           *vtss_state,
-                          const vtss_ace_id_t     ace_id,
-                          const vtss_ace_t *const ace)
+vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
+                              const vtss_ace_id_t     ace_id,
+                              const vtss_ace_t *const ace)
 {
     vtss_hace_t                   hace;
     vtss_hace_key_t              *key = &hace.key;
@@ -4866,16 +4867,28 @@ static vtss_rc fa_ace_add(vtss_state_t           *vtss_state,
     default: break;
     }
     fa_action_old2new(&ace->action, &hace.action);
-    return fa_hace_add(vtss_state, VTSS_HACL_TYPE_IPACL, ace_id, &hace);
+    return vtss_cil_vcap_hace_add(vtss_state, VTSS_HACL_TYPE_IPACL, ace_id, &hace);
 }
 
-static vtss_rc fa_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
+vtss_rc vtss_cil_vcap_ace_del(vtss_state_t *vtss_state, const vtss_ace_id_t ace_id)
 {
     /* Delete rules */
-    VTSS_RC(fa_hace_del(vtss_state, VTSS_HACL_TYPE_IPACL, ace_id));
+    VTSS_RC(vtss_cil_vcap_hace_del(vtss_state, VTSS_HACL_TYPE_IPACL, ace_id));
 
     /* Delete SMAC/SIP entry */
     return vtss_vcap_del(vtss_state, &vtss_state->vcap.lpm.obj, VTSS_LPM_USER_ACL, ace_id);
+}
+
+vtss_rc vtss_cil_vcap_ace_counter_get(struct vtss_state_s      *vtss_state,
+                                      const vtss_ace_id_t       ace_id,
+                                      vtss_ace_counter_t *const counter)
+{
+    return vtss_cmn_ace_counter_get(vtss_state, ace_id, counter);
+}
+
+vtss_rc vtss_cil_vcap_ace_counter_clear(struct vtss_state_s *vtss_state, const vtss_ace_id_t ace_id)
+{
+    return vtss_cmn_ace_counter_clear(vtss_state, ace_id);
 }
 #endif // VTSS_FEATURE_IS2
 
@@ -5160,9 +5173,9 @@ static vtss_rc fa_es0_entry_get(vtss_state_t    *vtss_state,
 }
 
 /* Update outer tag TPID for ES0 entry if VLAN port type has changed */
-static vtss_rc fa_es0_entry_update(vtss_state_t    *vtss_state,
-                                   vtss_vcap_idx_t *idx,
-                                   vtss_es0_data_t *es0)
+vtss_rc vtss_cil_vcap_es0_entry_update(vtss_state_t    *vtss_state,
+                                       vtss_vcap_idx_t *idx,
+                                       vtss_es0_data_t *es0)
 {
 #if VTSS_OPT_TRACE
     const fa_vcap_props_t *vcap = &fa_vcap_info[FA_VCAP_ES0];
@@ -5457,7 +5470,7 @@ vtss_rc vtss_fa_debug_es0(vtss_state_t                  *vtss_state,
     return fa_debug_vcap(vtss_state, VTSS_VCAP_TYPE_ES0, ss, info, fa_debug_es0);
 }
 
-static vtss_rc fa_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 esdx_new)
+vtss_rc vtss_cil_vcap_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 esdx_new)
 {
 #if VTSS_OPT_TRACE
     const fa_vcap_props_t *vcap = &fa_vcap_info[FA_VCAP_ES0];
@@ -5498,7 +5511,7 @@ static vtss_rc fa_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u16 es
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
+vtss_rc vtss_cil_vcap_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflow_id_t flow_id)
 {
 #if VTSS_OPT_TRACE
     const fa_vcap_props_t *vcap = &fa_vcap_info[FA_VCAP_ES0];
@@ -5740,7 +5753,7 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
                        VTSS_F_EACL_VCAP_ES2_KEY_SEL_KEY_ENA(1));
         }
 #if defined(VTSS_FEATURE_IS2)
-        VTSS_RC(fa_acl_port_conf_set(vtss_state, port_no));
+        VTSS_RC(vtss_cil_vcap_acl_port_conf_set(vtss_state, port_no));
 #endif
         /* Enable IS2 lookup 1-3 */
         REG_WRM_CTL(VTSS_ANA_ACL_VCAP_S2_CFG(port), 1, VTSS_F_ANA_ACL_VCAP_S2_CFG_SEC_ENA(0xe));
@@ -5883,8 +5896,6 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         clm_c->entry_move = fa_clm_c_entry_move;
         clm_c->entry_get = fa_clm_c_entry_get;
         clm_c->vcap_super = vcap_super;
-        state->clm_entry_update = fa_clm_entry_update;
-        state->range_commit = fa_clm_range_commit;
         state->range.max = 8;
 
 #if defined(VTSS_FEATURE_LPM)
@@ -5910,7 +5921,6 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         is2_b->entry_move = fa_is2_b_entry_move;
         is2_b->entry_get = fa_is2_b_entry_get;
         is2_b->vcap_super = vcap_super;
-        state->is2_entry_update = fa_is2_entry_update;
         state->is2_range.max = VTSS_VCAP_RANGE_CHK_CNT;
 #endif
 
@@ -5919,9 +5929,6 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         es0->entry_del = fa_es0_entry_del;
         es0->entry_move = fa_es0_entry_move;
         es0->entry_get = fa_es0_entry_get;
-        state->es0_entry_update = fa_es0_entry_update;
-        state->es0_esdx_update = fa_es0_esdx_update;
-        state->es0_eflow_update = fa_es0_eflow_update;
 
 #if defined(VTSS_FEATURE_ES2)
         /* ES2 */
@@ -5932,25 +5939,6 @@ vtss_rc vtss_fa_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         es2->entry_move = fa_es2_entry_move;
         es2->entry_get = fa_es2_entry_get;
         state->es2_range.max = VTSS_VCAP_RANGE_CHK_CNT;
-#endif
-
-#if defined(VTSS_FEATURE_IS2)
-        /* ACL */
-        state->acl_policer_set = fa_acl_policer_set;
-        state->acl_sip_set = fa_acl_sip_set;
-        state->acl_port_set = fa_acl_port_conf_set;
-        state->acl_port_counter_get = fa_acl_port_counter_get;
-        state->acl_port_counter_clear = fa_acl_port_counter_clear;
-        state->acl_ace_add = fa_ace_add;
-        state->acl_ace_del = fa_ace_del;
-        state->acl_ace_counter_get = vtss_cmn_ace_counter_get;
-        state->acl_ace_counter_clear = vtss_cmn_ace_counter_clear;
-
-        /* HACL */
-        state->hace_add = fa_hace_add;
-        state->hace_del = fa_hace_del;
-        state->hace_counter_get = fa_hace_counter_get;
-        state->hace_counter_clear = fa_hace_counter_clear;
 #endif
         break;
 
