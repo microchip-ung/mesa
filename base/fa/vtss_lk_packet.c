@@ -588,7 +588,7 @@ vtss_rc lk_init(vtss_state_t *vtss_state)
     const lk_pie_chnl_tx_cfg_t tx_cfg = {
         .size_ctrl_adjt_fh = 1,
         .size_ctrl_adjt_rem_fh = 1,
-        .ins_fcs  = 1,
+        .ins_fcs = 1,
         .ins_tofh = 0,
         .src_tofh = 0,
     };
