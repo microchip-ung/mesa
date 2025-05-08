@@ -1910,6 +1910,7 @@ vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_
     return VTSS_RC_OK;
 }
 
+#if defined(VTSS_FEATURE_QCL)
 vtss_rc vtss_cil_qos_qce_add(struct vtss_state_s    *vtss_state,
                              const vtss_qcl_id_t     qcl_id,
                              const vtss_qce_id_t     qce_id,
@@ -1924,6 +1925,7 @@ vtss_rc vtss_cil_qos_qce_del(struct vtss_state_s *vtss_state,
 {
     return vtss_cmn_qce_del(vtss_state, qcl_id, qce_id);
 }
+#endif
 
 static vtss_rc fa_storm_policer_set(vtss_state_t             *vtss_state,
                                     u32                       idx,
