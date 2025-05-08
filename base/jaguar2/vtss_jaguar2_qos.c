@@ -686,7 +686,12 @@ static vtss_rc jr2_qos_queue_shaper_conf_set(vtss_state_t *vtss_state, const vts
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    return vtss_cmn_qos_port_conf_set(vtss_state, port_no);
+}
+
+vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_qos_port_conf_t *conf = &vtss_state->qos.port_conf[port_no];
     u32                   chip_port = VTSS_CHIP_PORT(port_no);
@@ -956,7 +961,7 @@ static vtss_rc jr2_qos_wred_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
+vtss_rc vtss_cil_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
 {
     vtss_qos_conf_t *conf = &vtss_state->qos.conf;
     vtss_port_no_t   port_no;
@@ -965,7 +970,7 @@ static vtss_rc jr2_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
     if (changed) {
         /* Number of priorities changed, update QoS setup for all ports */
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-            VTSS_RC(jr2_qos_port_conf_set(vtss_state, port_no));
+            VTSS_RC(vtss_cil_qos_port_conf_update(vtss_state, port_no));
         }
     }
 
@@ -1017,7 +1022,7 @@ static vtss_rc jr2_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_ingress_map_vcap_update(vtss_state_t *vtss_state, const u16 id)
+vtss_rc vtss_cil_qos_ingress_map_vcap_update(vtss_state_t *vtss_state, const u16 id)
 {
     vtss_port_no_t port_no;
 
@@ -1054,11 +1059,11 @@ static vtss_rc jr2_qos_ingress_map_hw_entry_update(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_ingress_map_hw_update(vtss_state_t     *vtss_state,
-                                             const u16         res,
-                                             const u16         ix,
-                                             const int         len,
-                                             const void *const map)
+vtss_rc vtss_cil_qos_ingress_map_hw_update(vtss_state_t     *vtss_state,
+                                           const u16         res,
+                                           const u16         ix,
+                                           const int         len,
+                                           const void *const map)
 {
     u32                                 col, row;
     const vtss_qos_ingress_map_t *const m = map;
@@ -1145,11 +1150,11 @@ static vtss_rc jr2_qos_ingress_map_hw_update(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_ingress_map_hw_copy(vtss_state_t *vtss_state,
-                                           const u16     res,
-                                           const u16     src,
-                                           const u16     dst,
-                                           const int     len)
+vtss_rc vtss_cil_qos_ingress_map_hw_copy(vtss_state_t *vtss_state,
+                                         const u16     res,
+                                         const u16     src,
+                                         const u16     dst,
+                                         const int     len)
 {
     u32 col, row, val;
 
@@ -1166,20 +1171,20 @@ static vtss_rc jr2_qos_ingress_map_hw_copy(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_ingress_map_add(vtss_state_t                       *vtss_state,
-                                       const vtss_qos_ingress_map_t *const map)
+vtss_rc vtss_cil_qos_ingress_map_add(vtss_state_t                       *vtss_state,
+                                     const vtss_qos_ingress_map_t *const map)
 {
     VTSS_D("id %u, key %u", map->id, map->key);
     return vtss_cmn_qos_map_add(vtss_state, &vtss_state->qos.imap, map->id, map->key, 0, map);
 }
 
-static vtss_rc jr2_qos_ingress_map_del(vtss_state_t *vtss_state, const vtss_qos_ingress_map_id_t id)
+vtss_rc vtss_cil_qos_ingress_map_del(vtss_state_t *vtss_state, const vtss_qos_ingress_map_id_t id)
 {
     VTSS_D("id %u", id);
     return vtss_cmn_qos_map_del(vtss_state, &vtss_state->qos.imap, id);
 }
 
-static vtss_rc jr2_qos_egress_map_vcap_update(vtss_state_t *vtss_state, const u16 id)
+vtss_rc vtss_cil_qos_egress_map_vcap_update(vtss_state_t *vtss_state, const u16 id)
 {
     vtss_port_no_t port_no;
 
@@ -1224,11 +1229,11 @@ static vtss_rc jr2_qos_egress_map_hw_entry_update(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_egress_map_hw_update(vtss_state_t     *vtss_state,
-                                            const u16         res,
-                                            const u16         ix,
-                                            const int         len,
-                                            const void *const map)
+vtss_rc vtss_cil_qos_egress_map_hw_update(vtss_state_t     *vtss_state,
+                                          const u16         res,
+                                          const u16         ix,
+                                          const int         len,
+                                          const void *const map)
 {
     u32                                col, row, dpl;
     const vtss_qos_egress_map_t *const m = map;
@@ -1309,11 +1314,11 @@ static vtss_rc jr2_qos_egress_map_hw_update(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_egress_map_hw_copy(vtss_state_t *vtss_state,
-                                          const u16     res,
-                                          const u16     src,
-                                          const u16     dst,
-                                          const int     len)
+vtss_rc vtss_cil_qos_egress_map_hw_copy(vtss_state_t *vtss_state,
+                                        const u16     res,
+                                        const u16     src,
+                                        const u16     dst,
+                                        const int     len)
 {
     u32 col, row, val;
 
@@ -1333,8 +1338,8 @@ static vtss_rc jr2_qos_egress_map_hw_copy(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_egress_map_add(vtss_state_t                      *vtss_state,
-                                      const vtss_qos_egress_map_t *const map)
+vtss_rc vtss_cil_qos_egress_map_add(vtss_state_t                      *vtss_state,
+                                    const vtss_qos_egress_map_t *const map)
 {
     u8 flags = 0;
 
@@ -1359,13 +1364,13 @@ static vtss_rc jr2_qos_egress_map_add(vtss_state_t                      *vtss_st
     return vtss_cmn_qos_map_add(vtss_state, &vtss_state->qos.emap, map->id, map->key, flags, map);
 }
 
-static vtss_rc jr2_qos_egress_map_del(vtss_state_t *vtss_state, const vtss_qos_egress_map_id_t id)
+vtss_rc vtss_cil_qos_egress_map_del(vtss_state_t *vtss_state, const vtss_qos_egress_map_id_t id)
 {
     VTSS_D("id %u", id);
     return vtss_cmn_qos_map_del(vtss_state, &vtss_state->qos.emap, id);
 }
 
-static vtss_rc jr2_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
+vtss_rc vtss_cil_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
 {
     vtss_shaper_t shaper;
     u32           se, i;
@@ -1628,7 +1633,7 @@ static vtss_rc jr2_debug_qos_leak_chain(vtss_state_t                  *vtss_stat
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
+vtss_rc vtss_cil_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
 {
     u32 value;
 
@@ -1642,6 +1647,21 @@ static vtss_rc jr2_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *s
         VTSS_BOOL(value & VTSS_M_ANA_AC_POL_POL_ALL_CFG_POL_STICKY_POL_STORM_ACTIVE_STICKY);
 
     return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_qos_qce_add(struct vtss_state_s    *vtss_state,
+                             const vtss_qcl_id_t     qcl_id,
+                             const vtss_qce_id_t     qce_id,
+                             const vtss_qce_t *const qce)
+{
+    return vtss_cmn_qce_add(vtss_state, qcl_id, qce_id, qce);
+}
+
+vtss_rc vtss_cil_qos_qce_del(struct vtss_state_s *vtss_state,
+                             const vtss_qcl_id_t  qcl_id,
+                             const vtss_qce_id_t  qce_id)
+{
+    return vtss_cmn_qce_del(vtss_state, qcl_id, qce_id);
 }
 
 static vtss_rc jr2_debug_qos(vtss_state_t                  *vtss_state,
@@ -2110,36 +2130,10 @@ static vtss_rc jr2_qos_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_jr2_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_qos_state_t *state = &vtss_state->qos;
-
     switch (cmd) {
-    case VTSS_INIT_CMD_CREATE:
-        state->conf_set = jr2_qos_conf_set;
-
-        state->port_conf_set = vtss_cmn_qos_port_conf_set;
-        state->port_conf_update = jr2_qos_port_conf_set;
-
-        state->qce_add = vtss_cmn_qce_add;
-        state->qce_del = vtss_cmn_qce_del;
-
-        state->ingress_map_add = jr2_qos_ingress_map_add;
-        state->ingress_map_del = jr2_qos_ingress_map_del;
-        state->ingress_map_vcap_update = jr2_qos_ingress_map_vcap_update;
-        state->ingress_map_hw_update = jr2_qos_ingress_map_hw_update;
-        state->ingress_map_hw_copy = jr2_qos_ingress_map_hw_copy;
-
-        state->egress_map_add = jr2_qos_egress_map_add;
-        state->egress_map_del = jr2_qos_egress_map_del;
-        state->egress_map_vcap_update = jr2_qos_egress_map_vcap_update;
-        state->egress_map_hw_update = jr2_qos_egress_map_hw_update;
-        state->egress_map_hw_copy = jr2_qos_egress_map_hw_copy;
-
-        state->cpu_port_shaper_set = jr2_qos_cpu_port_shaper_set;
-
-        state->status_get = jr2_qos_status_get;
-        break;
-    case VTSS_INIT_CMD_INIT: VTSS_RC(jr2_qos_init(vtss_state)); break;
-    default:                 break;
+    case VTSS_INIT_CMD_CREATE: break;
+    case VTSS_INIT_CMD_INIT:   VTSS_RC(jr2_qos_init(vtss_state)); break;
+    default:                   break;
     }
     return VTSS_RC_OK;
 }

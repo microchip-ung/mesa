@@ -291,7 +291,12 @@ vtss_rc vtss_srvl_qos_port_conf_change(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    return vtss_cmn_qos_port_conf_set(vtss_state, port_no);
+}
+
+vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_qos_port_conf_t *conf = &vtss_state->qos.port_conf[port_no];
     u32                   port = VTSS_CHIP_PORT(port_no);
@@ -586,7 +591,7 @@ static vtss_rc srvl_qos_wred_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
+vtss_rc vtss_cil_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
 {
     vtss_qos_conf_t *conf = &vtss_state->qos.conf;
     vtss_port_no_t   port_no;
@@ -595,7 +600,7 @@ static vtss_rc srvl_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
     if (changed) {
         /* Number of priorities changed, update QoS setup for all ports */
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-            VTSS_RC(srvl_qos_port_conf_set(vtss_state, port_no));
+            VTSS_RC(vtss_cil_qos_port_conf_update(vtss_state, port_no));
         }
     }
     /* Storm control */
@@ -673,8 +678,8 @@ static vtss_rc srvl_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
 }
 
 #if defined(VTSS_FEATURE_EVC_POLICERS)
-static vtss_rc srvl_evc_policer_conf_set(vtss_state_t               *vtss_state,
-                                         const vtss_evc_policer_id_t policer_id)
+vtss_rc vtss_cil_qos_evc_policer_conf_set(vtss_state_t               *vtss_state,
+                                          const vtss_evc_policer_id_t policer_id)
 {
     vtss_evc_policer_conf_t *conf = &vtss_state->qos.evc_policer_conf[policer_id];
     vtss_policer_conf_t      pol_conf;
@@ -708,16 +713,14 @@ static vtss_rc srvl_evc_policer_conf_set(vtss_state_t               *vtss_state,
 }
 #endif /* VTSS_FEATURE_EVC_POLICERS */
 
-/*lint -sem(srvl_qos_shaper_calibrate, thread_protected) ... function only
- * called from one thread */
-static vtss_rc srvl_qos_shaper_calibrate(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_qos_shaper_calibrate(vtss_state_t *vtss_state)
 {
     vtss_rc worst_case_rc = VTSS_RC_OK;
 
     return worst_case_rc;
 }
 
-static vtss_rc srvl_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
+vtss_rc vtss_cil_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
 {
     u32           i, se, queue, packet_rate;
     vtss_shaper_t shaper;
@@ -744,7 +747,7 @@ static vtss_rc srvl_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
+vtss_rc vtss_cil_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
 {
     u32 value;
 
@@ -757,6 +760,21 @@ static vtss_rc srvl_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *
     /* Detect storm events */
     status->storm = VTSS_BOOL(value & VTSS_F_ANA_ANA_ANEVENTS_STORM_DROP);
     return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_qos_qce_add(struct vtss_state_s    *vtss_state,
+                             const vtss_qcl_id_t     qcl_id,
+                             const vtss_qce_id_t     qce_id,
+                             const vtss_qce_t *const qce)
+{
+    return vtss_cmn_qce_add(vtss_state, qcl_id, qce_id, qce);
+}
+
+vtss_rc vtss_cil_qos_qce_del(struct vtss_state_s *vtss_state,
+                             const vtss_qcl_id_t  qcl_id,
+                             const vtss_qce_id_t  qce_id)
+{
+    return vtss_cmn_qce_del(vtss_state, qcl_id, qce_id);
 }
 
 /* - Debug print --------------------------------------------------- */
@@ -1139,16 +1157,7 @@ vtss_rc vtss_srvl_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->conf_set = srvl_qos_conf_set;
-        state->port_conf_set = vtss_cmn_qos_port_conf_set;
-        state->port_conf_update = srvl_qos_port_conf_set;
-        state->status_get = srvl_qos_status_get;
-        state->qce_add = vtss_cmn_qce_add;
-        state->qce_del = vtss_cmn_qce_del;
-        state->shaper_calibrate = srvl_qos_shaper_calibrate;
-        state->cpu_port_shaper_set = srvl_qos_cpu_port_shaper_set;
 #if defined(VTSS_FEATURE_EVC_POLICERS)
-        state->evc_policer_conf_set = srvl_evc_policer_conf_set;
         state->evc_policer_max = 1022;
 #endif /* VTSS_FEATURE_EVC_POLICERS */
         break;

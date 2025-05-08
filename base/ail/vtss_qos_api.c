@@ -62,7 +62,7 @@ vtss_rc vtss_qos_conf_set(const vtss_inst_t inst, const vtss_qos_conf_t *const c
         if ((prios != 0) && !(prios & (prios - 1)) && (prios <= vtss_state->qos.prio_count)) {
             changed = (vtss_state->qos.conf.prios != prios);
             vtss_state->qos.conf = *conf;
-            rc = VTSS_FUNC_COLD(qos.conf_set, changed);
+            rc = vtss_cil_qos_conf_set(vtss_state, changed);
         } else {
             VTSS_E("illegal prios: %u", prios);
             rc = VTSS_RC_ERROR;
@@ -102,7 +102,7 @@ vtss_rc vtss_qos_port_conf_set(const vtss_inst_t                 inst,
         port_conf = &vtss_state->qos.port_conf[port_no];
         vtss_state->qos.port_conf_old = *port_conf;
         *port_conf = *conf;
-        if ((rc = VTSS_FUNC_COLD(qos.port_conf_set, port_no)) != VTSS_RC_OK) {
+        if ((rc = vtss_cil_qos_port_conf_set(vtss_state, port_no)) != VTSS_RC_OK) {
             *port_conf = vtss_state->qos.port_conf_old;
         }
     }
@@ -118,7 +118,7 @@ vtss_rc vtss_qos_status_get(const vtss_inst_t inst, vtss_qos_status_t *const sta
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(qos.status_get, status);
+        rc = vtss_cil_qos_status_get(vtss_state, status);
     }
     VTSS_EXIT();
     return rc;
@@ -132,7 +132,7 @@ vtss_rc vtss_qos_shaper_calibrate(const vtss_inst_t inst)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_0(qos.shaper_calibrate);
+        rc = vtss_cil_qos_shaper_calibrate(vtss_state);
     }
     VTSS_EXIT();
     return rc;
@@ -164,7 +164,7 @@ vtss_rc vtss_qce_add(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(qos.qce_add, qcl_id, qce_id, qce);
+        rc = vtss_cil_qos_qce_add(vtss_state, qcl_id, qce_id, qce);
     }
     VTSS_EXIT();
     return rc;
@@ -179,7 +179,7 @@ vtss_rc vtss_qce_del(const vtss_inst_t inst, const vtss_qcl_id_t qcl_id, const v
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(qos.qce_del, qcl_id, qce_id);
+        rc = vtss_cil_qos_qce_del(vtss_state, qcl_id, qce_id);
     }
     VTSS_EXIT();
     return rc;
@@ -727,7 +727,7 @@ vtss_rc vtss_qos_ingress_map_add(const vtss_inst_t inst, const vtss_qos_ingress_
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if ((rc = vtss_qos_ingress_map_check(vtss_state, map)) == VTSS_RC_OK) {
-            rc = VTSS_FUNC(qos.ingress_map_add, map);
+            rc = vtss_cil_qos_ingress_map_add(vtss_state, map);
         }
     }
     VTSS_EXIT();
@@ -747,7 +747,7 @@ vtss_rc vtss_qos_ingress_map_del(const vtss_inst_t inst, const vtss_qos_ingress_
             VTSS_E("Invalid ingress map id: %u!", id);
             rc = VTSS_RC_ERROR;
         } else {
-            rc = VTSS_FUNC(qos.ingress_map_del, id);
+            rc = vtss_cil_qos_ingress_map_del(vtss_state, id);
         }
     }
     VTSS_EXIT();
@@ -765,7 +765,7 @@ vtss_rc vtss_qos_ingress_map_del_all(const vtss_inst_t inst)
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (id = VTSS_QOS_INGRESS_MAP_ID_START; id < VTSS_QOS_INGRESS_MAP_ID_END; id++) {
-            (void)VTSS_FUNC(qos.ingress_map_del, id);
+            (void)vtss_cil_qos_ingress_map_del(vtss_state, id);
         }
         vtss_cmn_qos_map_adm_init(&vtss_state->qos.imap);
     }
@@ -901,7 +901,7 @@ vtss_rc vtss_qos_egress_map_add(const vtss_inst_t inst, const vtss_qos_egress_ma
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if ((rc = vtss_qos_egress_map_check(vtss_state, map)) == VTSS_RC_OK) {
-            rc = VTSS_FUNC(qos.egress_map_add, map);
+            rc = vtss_cil_qos_egress_map_add(vtss_state, map);
         }
     }
     VTSS_EXIT();
@@ -920,7 +920,7 @@ vtss_rc vtss_qos_egress_map_del(const vtss_inst_t inst, const vtss_qos_egress_ma
             VTSS_E("Invalid egress map id: %u!", id);
             rc = VTSS_RC_ERROR;
         } else {
-            rc = VTSS_FUNC(qos.egress_map_del, id);
+            rc = vtss_cil_qos_egress_map_del(vtss_state, id);
         }
     }
     VTSS_EXIT();
@@ -938,7 +938,7 @@ vtss_rc vtss_qos_egress_map_del_all(const vtss_inst_t inst)
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         for (id = VTSS_QOS_EGRESS_MAP_ID_START; id < VTSS_QOS_EGRESS_MAP_ID_END; id++) {
-            (void)VTSS_FUNC(qos.egress_map_del, id);
+            (void)vtss_cil_qos_egress_map_del(vtss_state, id);
         }
         vtss_cmn_qos_map_adm_init(&vtss_state->qos.emap);
     }
@@ -996,7 +996,7 @@ vtss_rc vtss_evc_policer_conf_set(const vtss_inst_t                    inst,
     VTSS_RC(vtss_evc_policer_id_check(vtss_state, policer_id, 0));
     VTSS_ENTER();
     vtss_state->qos.evc_policer_conf[policer_id] = *conf;
-    rc = VTSS_FUNC_COLD(qos.evc_policer_conf_set, policer_id);
+    rc = vtss_cil_qos_evc_policer_conf_set(vtss_state, policer_id);
     VTSS_EXIT();
     return rc;
 }
@@ -1031,7 +1031,7 @@ vtss_rc vtss_qos_tas_conf_set(const vtss_inst_t inst, const vtss_qos_tas_conf_t 
     VTSS_ENTER();
     tas_conf = &vtss_state->qos.tas.global_conf;
     *tas_conf = *conf;
-    rc = VTSS_FUNC_COLD(qos.tas_conf_set);
+    rc = vtss_cil_qos_tas_conf_set(vtss_state);
     VTSS_EXIT();
 
     VTSS_D("Exit");
@@ -1069,7 +1069,7 @@ vtss_rc vtss_qos_tas_port_conf_set(const vtss_inst_t                     inst,
     VTSS_ENTER();
     tas_port_conf = &vtss_state->qos.tas.port_conf[port_no];
     *tas_port_conf = *conf;
-    rc = VTSS_FUNC_COLD(qos.tas_port_conf_set, port_no);
+    rc = vtss_cil_qos_tas_port_conf_set(vtss_state, port_no);
     VTSS_EXIT();
 
     VTSS_D("Exit");
@@ -1087,7 +1087,7 @@ vtss_rc vtss_qos_tas_port_status_get(const vtss_inst_t                 inst,
 
     VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
     VTSS_ENTER();
-    rc = VTSS_FUNC(qos.tas_port_status_get, port_no, status);
+    rc = vtss_cil_qos_tas_port_status_get(vtss_state, port_no, status);
     VTSS_EXIT();
 
     VTSS_D("Exit");
@@ -1126,7 +1126,7 @@ vtss_rc vtss_qos_fp_port_conf_set(const vtss_inst_t                    inst,
         fp_conf = &vtss_state->qos.fp.port_conf[port_no];
         fp_conf_old = *fp_conf;
         *fp_conf = *conf;
-        if ((rc = VTSS_FUNC_COLD(qos.fp_port_conf_set, port_no)) != VTSS_RC_OK) {
+        if ((rc = vtss_cil_qos_fp_port_conf_set(vtss_state, port_no)) != VTSS_RC_OK) {
             *fp_conf = fp_conf_old;
         }
     }
@@ -1146,7 +1146,7 @@ vtss_rc vtss_qos_fp_port_status_get(const vtss_inst_t                inst,
 
     VTSS_RC(vtss_inst_port_no_check(inst, &vtss_state, port_no));
     VTSS_ENTER();
-    rc = VTSS_FUNC(qos.fp_port_status_get, port_no, status);
+    rc = vtss_cil_qos_fp_port_status_get(vtss_state, port_no, status);
     VTSS_EXIT();
 
     VTSS_D("Exit");
@@ -1163,17 +1163,17 @@ vtss_rc vtss_qos_restart_sync(vtss_state_t *vtss_state)
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         vtss_state->qos.port_conf_old = vtss_state->qos.port_conf[port_no];
-        VTSS_FUNC_RC(qos.port_conf_set, port_no);
+        VTSS_RC(vtss_cil_qos_port_conf_set(vtss_state, port_no));
     }
 
-    VTSS_FUNC_RC(qos.conf_set, 1);
+    VTSS_RC(vtss_cil_qos_conf_set(vtss_state, 1));
 
 #if defined(VTSS_FEATURE_EVC_POLICERS)
     {
         vtss_evc_policer_id_t policer_id;
 
         for (policer_id = 0; policer_id < vtss_state->qos.evc_policer_max; policer_id++) {
-            VTSS_FUNC_RC(qos.evc_policer_conf_set, policer_id);
+            VTSS_RC(vtss_cil_qos_evc_policer_conf_set(vtss_state, policer_id));
         }
     }
 #endif /* VTSS_FEATURE_EVC_POLICERS */
@@ -1445,24 +1445,11 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         /* Ix table. Ingress mapping has only one resource */
         m->ix[0].entry = vtss_state->qos.imap_ix;
 
-        /* Store function pointers locally. Check for missing function pointers
-         * here and not every time they are called */
+        // Store function pointers locally
         m->key2len = vtss_qos_ingress_map_key2len;
-        if (vtss_state->qos.ingress_map_vcap_update) {
-            m->vcap_update = vtss_state->qos.ingress_map_vcap_update;
-        } else {
-            VTSS_E("Missing function pointer: vtss_state->qos.ingress_map_vcap_update");
-        }
-        if (vtss_state->qos.ingress_map_hw_update) {
-            m->hw_update = vtss_state->qos.ingress_map_hw_update;
-        } else {
-            VTSS_E("Missing function pointer: vtss_state->qos.ingress_map_hw_update");
-        }
-        if (vtss_state->qos.ingress_map_hw_copy) {
-            m->hw_copy = vtss_state->qos.ingress_map_hw_copy;
-        } else {
-            VTSS_E("Missing function pointer: vtss_state->qos.ingress_map_hw_copy");
-        }
+        m->vcap_update = vtss_cil_qos_ingress_map_vcap_update;
+        m->hw_update = vtss_cil_qos_ingress_map_hw_update;
+        m->hw_copy = vtss_cil_qos_ingress_map_hw_copy;
 
         vtss_cmn_qos_map_adm_init(m);
     }
@@ -1484,24 +1471,11 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         /* Ix table resource B */
         m->ix[1].entry = vtss_state->qos.emap_ix_b;
 
-        /* Store function pointers locally. Check for missing function pointers
-         * here and not every time they are called */
+        // Store function pointers locally
         m->key2len = vtss_qos_egress_map_key2len;
-        if (vtss_state->qos.egress_map_vcap_update) {
-            m->vcap_update = vtss_state->qos.egress_map_vcap_update;
-        } else {
-            VTSS_E("Missing function pointer: vtss_state->qos.egress_map_vcap_update");
-        }
-        if (vtss_state->qos.egress_map_hw_update) {
-            m->hw_update = vtss_state->qos.egress_map_hw_update;
-        } else {
-            VTSS_E("Missing function pointer: vtss_state->qos.egress_map_hw_update");
-        }
-        if (vtss_state->qos.egress_map_hw_copy) {
-            m->hw_copy = vtss_state->qos.egress_map_hw_copy;
-        } else {
-            VTSS_E("Missing function pointer: vtss_state->qos.egress_map_hw_copy");
-        }
+        m->vcap_update = vtss_cil_qos_egress_map_vcap_update;
+        m->hw_update = vtss_cil_qos_egress_map_hw_update;
+        m->hw_copy = vtss_cil_qos_egress_map_hw_copy;
 
         vtss_cmn_qos_map_adm_init(m);
     }
@@ -1534,7 +1508,7 @@ vtss_rc vtss_cmn_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_
 #endif /* VTSS_FEATURE_ES0 */
 
     VTSS_D("Enter - port_no: %u", port_no);
-    rc = vtss_state->qos.port_conf_update(vtss_state, port_no);
+    rc = vtss_cil_qos_port_conf_update(vtss_state, port_no);
 
 #if defined(VTSS_FEATURE_ES0)
     if (old->tag_remark_mode != new->tag_remark_mode ||
@@ -2495,7 +2469,7 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
         }
         pr("   %-8u%-7u%-13u", VTSS_BOOL(conf->verify_disable_tx), conf->verify_time,
            conf->add_frag_size);
-        if (VTSS_FUNC(qos.fp_port_status_get, port_no, &status) == VTSS_RC_OK) {
+        if (vtss_cil_qos_fp_port_status_get(vtss_state, port_no, &status) == VTSS_RC_OK) {
             v = status.status_verify;
             pr("%-11s%u",
                v == VTSS_MM_STATUS_VERIFY_INITIAL     ? "INITIAL"

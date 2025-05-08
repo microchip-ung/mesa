@@ -37,7 +37,7 @@ vtss_rc vtss_packet_rx_conf_set(const vtss_inst_t inst, const vtss_packet_rx_con
         rc = VTSS_FUNC_0(packet.rx_conf_set);
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
         if (rc == VTSS_RC_OK) {
-            rc = VTSS_FUNC(qos.cpu_port_shaper_set, conf->shaper_rate);
+            rc = vtss_cil_qos_cpu_port_shaper_set(vtss_state, conf->shaper_rate);
         }
 #endif /* defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER) */
     }

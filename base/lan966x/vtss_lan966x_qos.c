@@ -339,7 +339,12 @@ static vtss_rc lan966x_qos_queue_cut_through_set(vtss_state_t        *vtss_state
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    return vtss_cmn_qos_port_conf_set(vtss_state, port_no);
+}
+
+vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_qos_port_conf_t *conf = &vtss_state->qos.port_conf[port_no];
     int                   pcp, dei, queue, class, dpl;
@@ -524,7 +529,7 @@ static vtss_rc lan966x_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_po
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
+vtss_rc vtss_cil_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
 {
     vtss_qos_conf_t *conf = &vtss_state->qos.conf;
     vtss_port_no_t   port_no;
@@ -533,7 +538,7 @@ static vtss_rc lan966x_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
     if (changed) {
         /* Number of priorities changed, update QoS setup for all ports */
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-            VTSS_RC(lan966x_qos_port_conf_set(vtss_state, port_no));
+            VTSS_RC(vtss_cil_qos_port_conf_update(vtss_state, port_no));
         }
     }
     /* Storm control */
@@ -603,15 +608,15 @@ static vtss_rc lan966x_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
 }
 
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
-static vtss_rc lan966x_evc_policer_conf_set(vtss_state_t               *vtss_state,
-                                            const vtss_evc_policer_id_t policer_id)
+vtss_rc vtss_cil_evc_policer_conf_set(vtss_state_t               *vtss_state,
+                                      const vtss_evc_policer_id_t policer_id)
 {
     return VTSS_RC_OK;
 }
 #endif
 
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
-static vtss_rc lan966x_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
+vtss_rc vtss_cil_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)
 {
     u32           i, se, queue, packet_rate;
     vtss_shaper_t shaper;
@@ -639,7 +644,7 @@ static vtss_rc lan966x_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const v
 }
 #endif
 
-static vtss_rc lan966x_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
+vtss_rc vtss_cil_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
 {
     VTSS_MEMSET(status, 0, sizeof(*status));
 
@@ -648,6 +653,21 @@ static vtss_rc lan966x_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_
     vtss_state->qos.storm = FALSE;
 #endif
     return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_qos_qce_add(struct vtss_state_s    *vtss_state,
+                             const vtss_qcl_id_t     qcl_id,
+                             const vtss_qce_id_t     qce_id,
+                             const vtss_qce_t *const qce)
+{
+    return vtss_cmn_qce_add(vtss_state, qcl_id, qce_id, qce);
+}
+
+vtss_rc vtss_cil_qos_qce_del(struct vtss_state_s *vtss_state,
+                             const vtss_qcl_id_t  qcl_id,
+                             const vtss_qce_id_t  qce_id)
+{
+    return vtss_cmn_qce_del(vtss_state, qcl_id, qce_id);
 }
 
 #if defined(VTSS_FEATURE_QOS_TAS)
@@ -1472,7 +1492,7 @@ static BOOL tas_cycle_time_ok(vtss_qos_tas_port_conf_t *new_port_conf)
     return TRUE;
 }
 
-static vtss_rc lan966x_qos_tas_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_qos_tas_conf_set(vtss_state_t *vtss_state)
 {
     vtss_qos_tas_conf_t *conf = &vtss_state->qos.tas.global_conf;
 
@@ -1483,7 +1503,7 @@ static vtss_rc lan966x_qos_tas_conf_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 i, profile_idx, trunk_profile_idx, trunk_startup_time, stop_startup_time, time_gap,
         new_startup_time = 2000; /* two nanoseconds */
@@ -1783,9 +1803,9 @@ static vtss_rc lan966x_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vts
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_qos_tas_port_status_get(vtss_state_t                     *vtss_state,
-                                               const vtss_port_no_t              port_no,
-                                               vtss_qos_tas_port_status_t *const status)
+vtss_rc vtss_cil_qos_tas_port_status_get(vtss_state_t                     *vtss_state,
+                                         const vtss_port_no_t              port_no,
+                                         vtss_qos_tas_port_status_t *const status)
 {
     u32                      list_idx = TAS_LIST_IDX_NONE;
     vtss_tas_gcl_state_t    *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
@@ -1831,7 +1851,7 @@ static vtss_rc lan966x_qos_tas_port_status_get(vtss_state_t                     
 }
 #endif // VTSS_FEATURE_QOS_TAS
 
-static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     BOOL                     enable_tx = (conf->enable_tx ? 1 : 0);
@@ -1871,9 +1891,9 @@ static vtss_rc lan966x_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_qos_fp_port_status_get(vtss_state_t                    *vtss_state,
-                                              const vtss_port_no_t             port_no,
-                                              vtss_qos_fp_port_status_t *const status)
+vtss_rc vtss_cil_qos_fp_port_status_get(vtss_state_t                    *vtss_state,
+                                        const vtss_port_no_t             port_no,
+                                        vtss_qos_fp_port_status_t *const status)
 {
     u32                      value, v, port = VTSS_CHIP_PORT(port_no);
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
@@ -2653,7 +2673,6 @@ static vtss_rc lan966x_qos_port_map_set(vtss_state_t *vtss_state)
 /* - Initialization ------------------------------------------------ */
 vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_qos_state_t   *state = &vtss_state->qos;
     vtss_policer_conf_t pol_conf;
 #if defined(VTSS_FEATURE_QOS_TAS)
     u32 i, clk_period;
@@ -2661,29 +2680,8 @@ vtss_rc vtss_lan966x_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->conf_set = lan966x_qos_conf_set;
-        state->port_conf_set = vtss_cmn_qos_port_conf_set;
-        state->port_conf_update = lan966x_qos_port_conf_set;
-        state->status_get = lan966x_qos_status_get;
-#if defined(VTSS_FEATURE_QCL)
-        state->qce_add = vtss_cmn_qce_add;
-        state->qce_del = vtss_cmn_qce_del;
-#endif
-#if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
-        state->cpu_port_shaper_set = lan966x_qos_cpu_port_shaper_set;
-#endif
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
-        state->evc_policer_conf_set = lan966x_evc_policer_conf_set;
-#endif
-#if defined(VTSS_FEATURE_QOS_TAS)
-        state->tas_conf_set = lan966x_qos_tas_conf_set;
-        state->tas_port_conf_set = lan966x_qos_tas_port_conf_set;
-        state->tas_port_status_get = lan966x_qos_tas_port_status_get;
-#endif
-        state->fp_port_status_get = lan966x_qos_fp_port_status_get;
-        state->fp_port_conf_set = lan966x_qos_fp_port_conf_set;
 #if defined(VTSS_FEATURE_EVC_POLICERS)
-        state->evc_policer_max = 1022;
+        vtss_state->qos.evc_policer_max = 1022;
 #endif
         break;
 

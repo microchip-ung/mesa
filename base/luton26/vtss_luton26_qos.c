@@ -26,7 +26,7 @@ static vtss_rc l26_evc_policer_move(vtss_state_t *vtss_state, u32 policer)
             VTSS_RC(vtss_l26_policer_free_get(vtss_state, &pol_alloc->policer));
 
             /* Update new EVC policer */
-            VTSS_RC(vtss_l26_evc_policer_conf_set(vtss_state, policer_id));
+            VTSS_RC(vtss_cil_qos_evc_policer_conf_set(vtss_state, policer_id));
 
             /* Update rules to point to new policer */
             VTSS_RC(vtss_l26_acl_evc_policer_move(vtss_state, VTSS_POLICER_USER_EVC, policer_id,
@@ -37,8 +37,8 @@ static vtss_rc l26_evc_policer_move(vtss_state_t *vtss_state, u32 policer)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_l26_evc_policer_conf_set(vtss_state_t               *vtss_state,
-                                      const vtss_evc_policer_id_t policer_id)
+vtss_rc vtss_cil_qos_evc_policer_conf_set(vtss_state_t               *vtss_state,
+                                          const vtss_evc_policer_id_t policer_id)
 {
     vtss_evc_policer_conf_t *conf = &vtss_state->qos.evc_policer_conf[policer_id];
     vtss_policer_alloc_t    *pol_alloc = &vtss_state->qos.evc_policer_alloc[policer_id];
@@ -421,7 +421,12 @@ static vtss_rc l26_qcl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_l26_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+{
+    return vtss_cmn_qos_port_conf_set(vtss_state, port_no);
+}
+
+vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_qos_port_conf_t   *conf = &vtss_state->qos.port_conf[port_no];
     u32                     port = VTSS_CHIP_PORT(port_no);
@@ -583,7 +588,7 @@ vtss_rc vtss_l26_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
+vtss_rc vtss_cil_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
 {
     vtss_qos_conf_t *conf = &vtss_state->qos.conf;
     vtss_port_no_t   port_no;
@@ -592,7 +597,7 @@ static vtss_rc l26_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
     if (changed) {
         /* Number of priorities changed, update QoS setup for all ports */
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-            VTSS_RC(vtss_l26_qos_port_conf_set(vtss_state, port_no));
+            VTSS_RC(vtss_cil_qos_port_conf_update(vtss_state, port_no));
         }
     }
     /* Storm control */
@@ -666,7 +671,7 @@ static vtss_rc l26_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
+vtss_rc vtss_cil_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *status)
 {
     u32 value;
 
@@ -678,6 +683,21 @@ static vtss_rc l26_qos_status_get(vtss_state_t *vtss_state, vtss_qos_status_t *s
     status->storm = VTSS_BOOL(value & VTSS_F_ANA_ANA_ANEVENTS_STORM_DROP);
 
     return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_qos_qce_add(struct vtss_state_s    *vtss_state,
+                             const vtss_qcl_id_t     qcl_id,
+                             const vtss_qce_id_t     qce_id,
+                             const vtss_qce_t *const qce)
+{
+    return vtss_cmn_qce_add(vtss_state, qcl_id, qce_id, qce);
+}
+
+vtss_rc vtss_cil_qos_qce_del(struct vtss_state_s *vtss_state,
+                             const vtss_qcl_id_t  qcl_id,
+                             const vtss_qce_id_t  qce_id)
+{
+    return vtss_cmn_qce_del(vtss_state, qcl_id, qce_id);
 }
 
 /* - Debug print --------------------------------------------------- */
@@ -996,16 +1016,6 @@ vtss_rc vtss_l26_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        /* QoS */
-        state->conf_set = l26_qos_conf_set;
-        state->port_conf_set = vtss_cmn_qos_port_conf_set;
-        state->port_conf_update = vtss_l26_qos_port_conf_set;
-        state->qce_add = vtss_cmn_qce_add;
-        state->qce_del = vtss_cmn_qce_del;
-        state->status_get = l26_qos_status_get;
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
-        state->evc_policer_conf_set = vtss_l26_evc_policer_conf_set;
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
         /* Reserve policer for ACL discarding) */
         state->policer_user[L26_ACL_POLICER_DISC] = VTSS_POLICER_USER_DISCARD;
         break;

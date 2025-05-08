@@ -1289,7 +1289,7 @@ static vtss_rc l26_acl_policer_alloc(vtss_state_t *vtss_state, const vtss_acl_ac
             return l26_acl_policer_set(vtss_state, action->policer_no);
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
         if (user == VTSS_POLICER_USER_EVC)
-            return vtss_l26_evc_policer_conf_set(vtss_state, action->evc_policer_id);
+            return vtss_cil_qos_evc_policer_conf_set(vtss_state, action->evc_policer_id);
 #endif /* VTSS_FEATURE_QOS_POLICER_DLB */
     }
     VTSS_I("no more policers");

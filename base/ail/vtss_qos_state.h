@@ -557,68 +557,83 @@ typedef struct {
 #define LB_SET_CNT   4615 /* The number of LB sets */
 #endif                    /* defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) */
 
-typedef struct {
-    /* CIL function pointers */
-    vtss_rc (*conf_set)(struct vtss_state_s *vtss_state, BOOL changed);
-    vtss_rc (*port_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
-    vtss_rc (*port_conf_update)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
-    vtss_rc (*status_get)(struct vtss_state_s *vtss_state, vtss_qos_status_t *const status);
-
+/* CIL function pointers */
+vtss_rc vtss_cil_qos_conf_set(struct vtss_state_s *vtss_state, BOOL changed);
+vtss_rc vtss_cil_qos_port_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
+vtss_rc vtss_cil_qos_port_conf_update(struct vtss_state_s *vtss_state,
+                                      const vtss_port_no_t port_no);
+vtss_rc vtss_cil_qos_status_get(struct vtss_state_s *vtss_state, vtss_qos_status_t *const status);
 #if defined(VTSS_FEATURE_QCL)
-    vtss_rc (*qce_add)(struct vtss_state_s    *vtss_state,
-                       const vtss_qcl_id_t     qcl_id,
-                       const vtss_qce_id_t     qce_id,
-                       const vtss_qce_t *const qce);
-    vtss_rc (*qce_del)(struct vtss_state_s *vtss_state,
-                       const vtss_qcl_id_t  qcl_id,
-                       const vtss_qce_id_t  qce_id);
-#endif /* VTSS_FEATURE_QCL */
+vtss_rc vtss_cil_qos_qce_add(struct vtss_state_s    *vtss_state,
+                             const vtss_qcl_id_t     qcl_id,
+                             const vtss_qce_id_t     qce_id,
+                             const vtss_qce_t *const qce);
+vtss_rc vtss_cil_qos_qce_del(struct vtss_state_s *vtss_state,
+                             const vtss_qcl_id_t  qcl_id,
+                             const vtss_qce_id_t  qce_id);
+#endif
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
-    vtss_rc (*evc_policer_conf_set)(struct vtss_state_s        *vtss_state,
-                                    const vtss_evc_policer_id_t policer_id);
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
+vtss_rc vtss_cil_qos_evc_policer_conf_set(struct vtss_state_s        *vtss_state,
+                                          const vtss_evc_policer_id_t policer_id);
+#endif
 #if defined(VTSS_ARCH_OCELOT)
-    vtss_rc (*shaper_calibrate)(struct vtss_state_s *vtss_state);
-#endif /* defined(VTSS_ARCH_OCELOT) */
-
+vtss_rc vtss_cil_qos_shaper_calibrate(struct vtss_state_s *vtss_state);
+#endif
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
-    vtss_rc (*ingress_map_add)(struct vtss_state_s                *vtss_state,
-                               const vtss_qos_ingress_map_t *const map);
-    vtss_rc (*ingress_map_del)(struct vtss_state_s *vtss_state, const vtss_qos_ingress_map_id_t id);
-    vtss_qos_map_vcap_update_t ingress_map_vcap_update;
-    vtss_qos_map_hw_update_t   ingress_map_hw_update;
-    vtss_qos_map_hw_copy_t     ingress_map_hw_copy;
-#endif /* VTSS_FEATURE_QOS_INGRESS_MAP */
-
+vtss_rc vtss_cil_qos_ingress_map_add(struct vtss_state_s                *vtss_state,
+                                     const vtss_qos_ingress_map_t *const map);
+vtss_rc vtss_cil_qos_ingress_map_del(struct vtss_state_s            *vtss_state,
+                                     const vtss_qos_ingress_map_id_t id);
+vtss_rc vtss_cil_qos_ingress_map_vcap_update(struct vtss_state_s *vtss_state, const u16 id);
+vtss_rc vtss_cil_qos_ingress_map_hw_update(struct vtss_state_s *vtss_state,
+                                           const u16            res,
+                                           const u16            ix,
+                                           const int            len,
+                                           const void *const    map);
+vtss_rc vtss_cil_qos_ingress_map_hw_copy(struct vtss_state_s *vtss_state,
+                                         const u16            res,
+                                         const u16            src,
+                                         const u16            dst,
+                                         const int            len);
+#endif
 #if defined(VTSS_FEATURE_QOS_EGRESS_MAP)
-    vtss_rc (*egress_map_add)(struct vtss_state_s               *vtss_state,
-                              const vtss_qos_egress_map_t *const map);
-    vtss_rc (*egress_map_del)(struct vtss_state_s *vtss_state, const vtss_qos_egress_map_id_t id);
-    vtss_qos_map_vcap_update_t egress_map_vcap_update;
-    vtss_qos_map_hw_update_t   egress_map_hw_update;
-    vtss_qos_map_hw_copy_t     egress_map_hw_copy;
-#endif /* VTSS_FEATURE_QOS_EGRESS_MAP */
-
+vtss_rc vtss_cil_qos_egress_map_add(struct vtss_state_s               *vtss_state,
+                                    const vtss_qos_egress_map_t *const map);
+vtss_rc vtss_cil_qos_egress_map_del(struct vtss_state_s           *vtss_state,
+                                    const vtss_qos_egress_map_id_t id);
+vtss_rc vtss_cil_qos_egress_map_vcap_update(struct vtss_state_s *vtss_state, const u16 id);
+vtss_rc vtss_cil_qos_egress_map_hw_update(struct vtss_state_s *vtss_state,
+                                          const u16            res,
+                                          const u16            ix,
+                                          const int            len,
+                                          const void *const    map);
+vtss_rc vtss_cil_qos_egress_map_hw_copy(struct vtss_state_s *vtss_state,
+                                        const u16            res,
+                                        const u16            src,
+                                        const u16            dst,
+                                        const int            len);
+#endif
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
-    vtss_rc (*cpu_port_shaper_set)(struct vtss_state_s *vtss_state, const vtss_bitrate_t rate);
-#endif /* defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER) */
-
+vtss_rc vtss_cil_qos_cpu_port_shaper_set(struct vtss_state_s *vtss_state,
+                                         const vtss_bitrate_t rate);
+#endif
 #if defined(VTSS_FEATURE_QOS_TAS)
-    vtss_rc (*tas_conf_set)(struct vtss_state_s *vtss_state);
-    vtss_rc (*tas_port_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
-    vtss_rc (*tas_port_status_get)(struct vtss_state_s              *vtss_state,
-                                   const vtss_port_no_t              port_no,
-                                   vtss_qos_tas_port_status_t *const status);
-#endif /* defined(VTSS_FEATURE_QOS_QBV) */
-
+vtss_rc vtss_cil_qos_tas_conf_set(struct vtss_state_s *vtss_state);
+vtss_rc vtss_cil_qos_tas_port_conf_set(struct vtss_state_s *vtss_state,
+                                       const vtss_port_no_t port_no);
+vtss_rc vtss_cil_qos_tas_port_status_get(struct vtss_state_s              *vtss_state,
+                                         const vtss_port_no_t              port_no,
+                                         vtss_qos_tas_port_status_t *const status);
+#endif
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-    vtss_rc (*fp_port_status_get)(struct vtss_state_s             *vtss_state,
-                                  const vtss_port_no_t             port_no,
-                                  vtss_qos_fp_port_status_t *const status);
+vtss_rc vtss_cil_qos_fp_port_status_get(struct vtss_state_s             *vtss_state,
+                                        const vtss_port_no_t             port_no,
+                                        vtss_qos_fp_port_status_t *const status);
+vtss_rc vtss_cil_qos_fp_port_conf_set(struct vtss_state_s *vtss_state,
+                                      const vtss_port_no_t port_no);
+#endif
 
-    vtss_rc (*fp_port_conf_set)(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
-#endif /* defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION) */
-
+typedef struct {
     /* Configuration/state */
     BOOL        wfq;
     vtss_prio_t prio_count; /* Maximum number of supported priorities. Must be a
