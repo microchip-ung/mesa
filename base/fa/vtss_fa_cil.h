@@ -23,10 +23,6 @@
 #endif
 #include "fla_vcap_regs.h" // New FA/LA merged VCAP header files
 
-#if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA
-#include "vtss_fa_fdma.h"
-#endif
-
 // Fireant port devices:
 // D0  - D11                     DEV5G  (12)
 // D12 - D15                     DEV10G  (4)

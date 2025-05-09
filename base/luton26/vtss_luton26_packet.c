@@ -56,7 +56,7 @@ static vtss_rc l26_npi_update(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
+vtss_rc vtss_cil_packet_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
 {
     vtss_npi_conf_t *conf = &vtss_state->packet.npi_conf;
 
@@ -74,7 +74,7 @@ static vtss_rc l26_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t 
     return vtss_cmn_vlan_update_all(vtss_state);
 }
 
-static vtss_rc l26_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
 {
     VTSS_I("Not supported in this architecture");
     *ts_cnt = 0;
@@ -82,7 +82,7 @@ static vtss_rc l26_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cn
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u32              tc;
@@ -124,13 +124,13 @@ static void l26_packet_pack32(u32 v, u8 *buf)
     buf[3] = v & 0xff;
 }
 
-static vtss_rc l26_ptp_get_timestamp(vtss_state_t                      *vtss_state,
-                                     const u8 *const                    frm,
-                                     const vtss_packet_rx_info_t *const rx_info,
-                                     vtss_packet_ptp_message_type_t     message_type,
-                                     vtss_packet_timestamp_props_t      ts_props,
-                                     u64                               *rxTime,
-                                     BOOL                              *timestamp_ok)
+vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vtss_state,
+                                          const u8 *const                    frm,
+                                          const vtss_packet_rx_info_t *const rx_info,
+                                          vtss_packet_ptp_message_type_t     message_type,
+                                          vtss_packet_timestamp_props_t      ts_props,
+                                          u64                               *rxTime,
+                                          BOOL                              *timestamp_ok)
 {
     vtss_ts_id_t        ts_id;
     vtss_ts_timestamp_t ts;
@@ -164,7 +164,7 @@ static vtss_rc l26_ptp_get_timestamp(vtss_state_t                      *vtss_sta
 #endif
     if (ts_props.ts_feature_is_PTS) {
         ns_32 = l26_packet_unpack32(frm);
-        (void)l26_packet_ns_to_ts_cnt(vtss_state, ns_32, rxTime);
+        (void)vtss_cil_packet_ns_to_ts_cnt(vtss_state, ns_32, rxTime);
         *timestamp_ok = TRUE;
         l26_packet_pack32(0, (u8 *)frm); /* clear reserved field */
         VTSS_I("msgtype %d, rxtime %" PRIu64 "", message_type, *rxTime);
@@ -406,18 +406,18 @@ static vtss_rc l26_tx_frame_ifh_vid(vtss_state_t                     *vtss_state
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_tx_frame_ifh(vtss_state_t                     *vtss_state,
-                                const vtss_packet_tx_ifh_t *const ifh,
-                                const u8 *const                   frame,
-                                const u32                         length)
+vtss_rc vtss_cil_packet_tx_frame_ifh(vtss_state_t                     *vtss_state,
+                                     const vtss_packet_tx_ifh_t *const ifh,
+                                     const u8 *const                   frame,
+                                     const u32                         length)
 {
     return l26_tx_frame_ifh_vid(vtss_state, ifh, frame, length, VTSS_VID_NULL);
 }
 
-static vtss_rc l26_rx_hdr_decode(const vtss_state_t *const          state,
-                                 const vtss_packet_rx_meta_t *const meta,
-                                 const u8                           xtr_hdr[VTSS_L26_RX_IFH_SIZE],
-                                 vtss_packet_rx_info_t *const       info)
+vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
+                                      const vtss_packet_rx_meta_t *const meta,
+                                      const u8 xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                      vtss_packet_rx_info_t *const info)
 {
     u64                 ifh;
     u32                 sflow_id;
@@ -484,15 +484,15 @@ static vtss_rc l26_rx_hdr_decode(const vtss_state_t *const          state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_rx_frame(struct vtss_state_s         *vtss_state,
-                            u8 *const                    data,
-                            const u32                    buflen,
-                            vtss_packet_rx_info_t *const rx_info)
+vtss_rc vtss_cil_packet_rx_frame(struct vtss_state_s         *vtss_state,
+                                 u8 *const                    data,
+                                 const u32                    buflen,
+                                 vtss_packet_rx_info_t *const rx_info)
 {
     vtss_rc               rc = VTSS_RC_INCOMPLETE;
     u32                   val, len;
     vtss_packet_rx_meta_t meta;
-    u8                    ifh[VTSS_L26_RX_IFH_SIZE];
+    u8                    ifh[VTSS_PACKET_HDR_SIZE_BYTES];
 
     if (vtss_state->init_conf.packet_init_disable) {
         VTSS_I("Packet interface not supported");
@@ -509,7 +509,7 @@ static vtss_rc l26_rx_frame(struct vtss_state_s         *vtss_state,
         VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (len - 4);
         meta.etype = (data[12] << 8) | data[13];
-        rc = l26_rx_hdr_decode(vtss_state, &meta, ifh, rx_info);
+        rc = vtss_cil_packet_rx_hdr_decode(vtss_state, &meta, ifh, rx_info);
     }
     return rc;
 }
@@ -534,10 +534,10 @@ static vtss_rc l26_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, u32 *r
     return rc;
 }
 
-static vtss_rc l26_tx_hdr_encode(vtss_state_t *const                state,
-                                 const vtss_packet_tx_info_t *const info,
-                                 u8 *const                          bin_hdr,
-                                 u32 *const                         bin_hdr_len)
+vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                state,
+                                      const vtss_packet_tx_info_t *const info,
+                                      u8 *const                          bin_hdr,
+                                      u32 *const                         bin_hdr_len)
 {
     u64 inj_hdr, ts;
     u32 required_ifh_size = info->ptp_action == 0 ? 8 : 8 + 4;
@@ -646,7 +646,7 @@ static vtss_rc l26_tx_hdr_encode(vtss_state_t *const                state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_rx_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
 {
     vtss_packet_rx_conf_t      *conf = &vtss_state->packet.rx_conf;
     vtss_packet_rx_reg_t       *reg = &conf->reg;
@@ -903,16 +903,7 @@ vtss_rc vtss_l26_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->rx_conf_set = l26_rx_conf_set;
-        state->rx_frame = l26_rx_frame;
-        state->tx_frame_ifh = l26_tx_frame_ifh;
-        state->rx_hdr_decode = l26_rx_hdr_decode;
         state->rx_ifh_size = VTSS_L26_RX_IFH_SIZE;
-        state->tx_hdr_encode = l26_tx_hdr_encode;
-        state->npi_conf_set = l26_npi_conf_set;
-        state->packet_phy_cnt_to_ts_cnt = l26_packet_phy_cnt_to_ts_cnt;
-        state->packet_ns_to_ts_cnt = l26_packet_ns_to_ts_cnt;
-        state->ptp_get_timestamp = l26_ptp_get_timestamp;
         state->rx_queue_count = VTSS_PACKET_RX_QUEUE_CNT;
         break;
     case VTSS_INIT_CMD_INIT:
@@ -922,7 +913,7 @@ vtss_rc vtss_l26_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         break;
     case VTSS_INIT_CMD_PORT_MAP:
         if (!vtss_state->warm_start_cur) {
-            VTSS_RC(l26_rx_conf_set(vtss_state));
+            VTSS_RC(vtss_cil_packet_rx_conf_set(vtss_state));
         }
         break;
     default: break;

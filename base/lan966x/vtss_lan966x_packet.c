@@ -34,7 +34,7 @@ static vtss_rc lan966x_npi_mask_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
+vtss_rc vtss_cil_packet_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
 {
     vtss_npi_conf_t *conf = &vtss_state->packet.npi_conf;
     u32              val = (SYS_PORT_MODE_INCL_INJ_HDR(3) | SYS_PORT_MODE_INCL_XTR_HDR(3));
@@ -54,7 +54,7 @@ static vtss_rc lan966x_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_con
     return vtss_cmn_vlan_update_all(vtss_state);
 }
 
-static vtss_rc lan966x_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
 {
     VTSS_I("Not supported in this architecture");
     *ts_cnt = 0;
@@ -62,7 +62,7 @@ static vtss_rc lan966x_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 ph
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_ns, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_ns, u64 *ts_cnt)
 {
 #if defined(VTSS_FEATURE_TIMESTAMP)
     vtss_timestamp_t ts;
@@ -104,13 +104,13 @@ static u32 lan966x_packet_unpack32(const u8 *buf)
     return (buf[0] << 24) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
 }
 
-static vtss_rc lan966x_ptp_get_timestamp(vtss_state_t                      *vtss_state,
-                                         const u8 *const                    frm,
-                                         const vtss_packet_rx_info_t *const rx_info,
-                                         vtss_packet_ptp_message_type_t     message_type,
-                                         vtss_packet_timestamp_props_t      ts_props,
-                                         u64                               *rxTime,
-                                         BOOL                              *timestamp_ok)
+vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vtss_state,
+                                          const u8 *const                    frm,
+                                          const vtss_packet_rx_info_t *const rx_info,
+                                          vtss_packet_ptp_message_type_t     message_type,
+                                          vtss_packet_timestamp_props_t      ts_props,
+                                          u64                               *rxTime,
+                                          BOOL                              *timestamp_ok)
 {
     if (ts_props.ts_feature_is_PTS) {
         if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_30BIT) {
@@ -213,10 +213,10 @@ static void lan966x_ifh_set(u8 *ifh, u32 pos, u32 len, u32 val)
 #define IFH_GET(ifh, fld)      lan966x_ifh_get(ifh, IFH_POS_##fld, IFH_WID_##fld)
 #define IFH_SET(iff, fld, val) lan966x_ifh_set(ifh, IFH_POS_##fld, IFH_WID_##fld, val)
 
-static vtss_rc lan966x_rx_hdr_decode(const vtss_state_t *const          state,
-                                     const vtss_packet_rx_meta_t *const meta,
-                                     const u8                     ifh[VTSS_PACKET_HDR_SIZE_BYTES],
-                                     vtss_packet_rx_info_t *const info)
+vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
+                                      const vtss_packet_rx_meta_t *const meta,
+                                      const u8                     ifh[VTSS_PACKET_HDR_SIZE_BYTES],
+                                      vtss_packet_rx_info_t *const info)
 {
     u32 port, tci;
 
@@ -306,10 +306,10 @@ static u32 seq_num_oam_calc(vtss_packet_oam_type_t oam_type, u32 chip_port)
 }
 #endif
 
-static vtss_rc lan966x_tx_hdr_encode(vtss_state_t *const                state,
-                                     const vtss_packet_tx_info_t *const info,
-                                     u8 *const                          ifh,
-                                     u32 *const                         ifh_len)
+vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                state,
+                                      const vtss_packet_tx_info_t *const info,
+                                      u8 *const                          ifh,
+                                      u32 *const                         ifh_len)
 {
     vtss_port_no_t port_no;
     u32            mi_port, port, dst_mask, mask = 0, pop_cnt = 0, rew_cmd = 0, tci, cos, etype_ofs;
@@ -666,10 +666,10 @@ static vtss_rc lan966x_rx_frame_get_internal(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_rx_frame(struct vtss_state_s   *vtss_state,
-                                u8 *const              data,
-                                const u32              buflen,
-                                vtss_packet_rx_info_t *rx_info)
+vtss_rc vtss_cil_packet_rx_frame(struct vtss_state_s   *vtss_state,
+                                 u8 *const              data,
+                                 const u32              buflen,
+                                 vtss_packet_rx_info_t *rx_info)
 {
     vtss_rc rc = VTSS_RC_INCOMPLETE;
     u32     val;
@@ -693,7 +693,7 @@ static vtss_rc lan966x_rx_frame(struct vtss_state_s   *vtss_state,
         VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (length - 4);
         meta.etype = (data[12] << 8) | data[13];
-        rc = lan966x_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
+        rc = vtss_cil_packet_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
     return rc;
 }
@@ -714,10 +714,10 @@ static vtss_rc lan966x_inj_wr(vtss_state_t *vtss_state, u32 data)
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_tx_frame_ifh(vtss_state_t                     *vtss_state,
-                                    const vtss_packet_tx_ifh_t *const ifh,
-                                    const u8 *const                   frame,
-                                    const u32                         length)
+vtss_rc vtss_cil_packet_tx_frame_ifh(vtss_state_t                     *vtss_state,
+                                     const vtss_packet_tx_ifh_t *const ifh,
+                                     const u8 *const                   frame,
+                                     const u32                         length)
 {
     u32                  val, w, count, last;
     const u8            *buf = frame;
@@ -776,7 +776,7 @@ static vtss_rc lan966x_tx_frame_ifh(vtss_state_t                     *vtss_state
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_rx_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
 {
     vtss_packet_rx_conf_t      *conf = &vtss_state->packet.rx_conf;
     vtss_packet_rx_reg_t       *reg = &conf->reg;
@@ -936,22 +936,13 @@ vtss_rc vtss_lan966x_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->rx_conf_set = lan966x_rx_conf_set;
-        state->rx_frame = lan966x_rx_frame;
-        state->tx_frame_ifh = lan966x_tx_frame_ifh;
-        state->rx_hdr_decode = lan966x_rx_hdr_decode;
         state->rx_ifh_size = LAN966X_IFH_SIZE;
-        state->tx_hdr_encode = lan966x_tx_hdr_encode;
-        state->npi_conf_set = lan966x_npi_conf_set;
-        state->packet_phy_cnt_to_ts_cnt = lan966x_packet_phy_cnt_to_ts_cnt;
-        state->packet_ns_to_ts_cnt = lan966x_packet_ns_to_ts_cnt;
-        state->ptp_get_timestamp = lan966x_ptp_get_timestamp;
         state->rx_queue_count = VTSS_PACKET_RX_QUEUE_CNT;
         break;
 
     case VTSS_INIT_CMD_INIT: VTSS_RC(lan966x_packet_init(vtss_state)); break;
 
-    case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(lan966x_rx_conf_set(vtss_state)); break;
+    case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(vtss_cil_packet_rx_conf_set(vtss_state)); break;
 
     default: break;
     }

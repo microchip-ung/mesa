@@ -34,7 +34,7 @@ vtss_rc vtss_packet_rx_conf_set(const vtss_inst_t inst, const vtss_packet_rx_con
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->packet.rx_conf = *conf;
-        rc = VTSS_FUNC_0(packet.rx_conf_set);
+        rc = vtss_cil_packet_rx_conf_set(vtss_state);
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
         if (rc == VTSS_RC_OK) {
             rc = vtss_cil_qos_cpu_port_shaper_set(vtss_state, conf->shaper_rate);
@@ -72,7 +72,7 @@ vtss_rc vtss_packet_rx_port_conf_set(const vtss_inst_t                       ins
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->packet.rx_port_conf[port_no] = *conf;
-        rc = VTSS_FUNC_0(packet.rx_conf_set);
+        rc = vtss_cil_packet_rx_conf_set(vtss_state);
     }
     VTSS_EXIT();
     return rc;
@@ -90,7 +90,7 @@ vtss_rc vtss_packet_rx_frame(const vtss_inst_t            inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(packet.rx_frame, data, buflen, rx_info);
+        rc = vtss_cil_packet_rx_frame(vtss_state, data, buflen, rx_info);
     }
     VTSS_EXIT();
     return rc;
@@ -111,7 +111,7 @@ vtss_rc vtss_packet_tx_frame(const vtss_inst_t                  inst,
     ifh.length = sizeof(ifh.ifh);
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
         (rc = vtss_packet_tx_hdr_encode(inst, tx_info, (u8 *)ifh.ifh, &ifh.length)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(packet.tx_frame_ifh, &ifh, frame, length);
+        rc = vtss_cil_packet_tx_frame_ifh(vtss_state, &ifh, frame, length);
     }
     VTSS_EXIT();
     return rc;
@@ -343,7 +343,7 @@ vtss_rc vtss_packet_rx_hdr_decode(const vtss_inst_t                  inst,
     }
 
     // This function executes without locking the API semaphore.
-    return VTSS_FUNC_FROM_STATE(vtss_state, packet.rx_hdr_decode, meta, hdr, info);
+    return vtss_cil_packet_rx_hdr_decode(vtss_state, meta, hdr, info);
 }
 
 /*
@@ -363,7 +363,7 @@ vtss_rc vtss_packet_tx_hdr_encode(const vtss_inst_t                  inst,
     // This function executes without locking the API semaphore.
     // The only parameter it uses from the state variable (#inst) is
     // the port map, which is assumed to be constant once booted.
-    return VTSS_FUNC_FROM_STATE(vtss_state, packet.tx_hdr_encode, info, bin_hdr, bin_hdr_len);
+    return vtss_cil_packet_tx_hdr_encode(vtss_state, info, bin_hdr, bin_hdr_len);
 }
 
 /*
@@ -415,7 +415,7 @@ vtss_rc vtss_npi_conf_set(const vtss_inst_t inst, const vtss_npi_conf_t *const c
                                       conf->enable ? conf->port_no : VTSS_PORT_NO_START)) ==
         VTSS_RC_OK) {
         conf_old = vtss_state->packet.npi_conf;
-        if ((rc = VTSS_FUNC_COLD(packet.npi_conf_set, conf)) == VTSS_RC_OK) {
+        if ((rc = vtss_cil_packet_npi_conf_set(vtss_state, conf)) == VTSS_RC_OK) {
             rc = vtss_update_masks(vtss_state, 1, 0, 0); // Update src masks
             /* Update VLAN configuration for old and new NPI port */
             if (rc == VTSS_RC_OK && conf_old.enable) {
@@ -440,7 +440,7 @@ vtss_rc vtss_packet_phy_cnt_to_ts_cnt(const vtss_inst_t inst, const u32 phy_cnt,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (rc == VTSS_RC_OK) {
-            rc = VTSS_FUNC(packet.packet_phy_cnt_to_ts_cnt, phy_cnt, ts_cnt);
+            rc = vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state, phy_cnt, ts_cnt);
         }
     }
     VTSS_EXIT();
@@ -457,7 +457,7 @@ vtss_rc vtss_packet_ns_to_ts_cnt(const vtss_inst_t inst, const u32 ns, u64 *ts_c
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (rc == VTSS_RC_OK) {
-            rc = VTSS_FUNC(packet.packet_ns_to_ts_cnt, ns, ts_cnt);
+            rc = vtss_cil_packet_ns_to_ts_cnt(vtss_state, ns, ts_cnt);
         }
     }
     VTSS_EXIT();
@@ -479,10 +479,8 @@ vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t                  inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (rc == VTSS_RC_OK) {
-            rc = VTSS_FUNC(packet.ptp_get_timestamp, frm, rx_info, message_type, ts_props, rxTime,
-                           timestamp_ok);
-        }
+        rc = vtss_cil_packet_ptp_get_timestamp(vtss_state, frm, rx_info, message_type, ts_props,
+                                               rxTime, timestamp_ok);
     }
     VTSS_EXIT();
     return rc;

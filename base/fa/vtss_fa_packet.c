@@ -31,28 +31,6 @@ static vtss_rc fa_npi_redirect_qu_to_port(vtss_state_t          *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA
-static vtss_rc fa_fdma_qu_redirect_set(vtss_state_t          *vtss_state,
-                                       vtss_packet_rx_queue_t qu,
-                                       vtss_phys_port_no_t    chip_port)
-{
-    // If the NPI port has taken over the queue, simply cache the FDMA's wanted
-    // setting.
-    BOOL npi_redirect = vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE &&
-                        vtss_state->packet.rx_conf.queue[qu].npi.enable;
-
-    if (!npi_redirect) {
-        // Not taken over by NPI. Do redirect to port specified by FDMA.
-        VTSS_RC(fa_npi_redirect_qu_to_port(vtss_state, qu, chip_port));
-    }
-
-    // Remember the setting wanted by the FDMA.
-    vtss_state->packet.default_qu_redirect[qu] = chip_port;
-
-    return VTSS_RC_OK;
-}
-#endif /* VTSS_FEATURE_FDMA && VTSS_OPT_FDMA */
-
 static vtss_rc fa_npi_mask_set(vtss_state_t *vtss_state)
 {
     vtss_packet_rx_conf_t *rx_conf = &vtss_state->packet.rx_conf;
@@ -90,7 +68,7 @@ static vtss_rc fa_npi_update(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
+vtss_rc vtss_cil_packet_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
 {
     vtss_npi_conf_t *conf = &vtss_state->packet.npi_conf;
 
@@ -105,7 +83,7 @@ static vtss_rc fa_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *
     return vtss_cmn_vlan_update_all(vtss_state);
 }
 
-static vtss_rc fa_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_cnt, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_cnt, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u64              tc;
@@ -130,7 +108,7 @@ static vtss_rc fa_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_c
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_ns, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_ns, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u64              tc;
@@ -171,13 +149,13 @@ static u32 fa_packet_unpack32(const u8 *buf)
     return (buf[0] << 24) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
 }
 
-static vtss_rc fa_ptp_get_timestamp(vtss_state_t                      *vtss_state,
-                                    const u8 *const                    frm,
-                                    const vtss_packet_rx_info_t *const rx_info,
-                                    vtss_packet_ptp_message_type_t     message_type,
-                                    vtss_packet_timestamp_props_t      ts_props,
-                                    u64                               *ts_cnt,
-                                    BOOL                              *timestamp_ok)
+vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vtss_state,
+                                          const u8 *const                    frm,
+                                          const vtss_packet_rx_info_t *const rx_info,
+                                          vtss_packet_ptp_message_type_t     message_type,
+                                          vtss_packet_timestamp_props_t      ts_props,
+                                          u64                               *ts_cnt,
+                                          BOOL                              *timestamp_ok)
 {
     if (ts_props.ts_feature_is_PTS) {
         u32 packet_ns = fa_packet_unpack32(frm);
@@ -190,7 +168,7 @@ static vtss_rc fa_ptp_get_timestamp(vtss_state_t                      *vtss_stat
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_32BIT) {
             /* convert to jaguar 32 bit NSF */
             VTSS_D("ts_cnt before %u", packet_ns);
-            (void)fa_packet_phy_cnt_to_ts_cnt(vtss_state, packet_ns, ts_cnt);
+            (void)vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state, packet_ns, ts_cnt);
             VTSS_D("ts_cnt after %" PRIu64, *ts_cnt);
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_44BIT) {
@@ -248,7 +226,7 @@ static vtss_rc fa_l2cp_conf_set(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_rx_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
 {
     vtss_packet_rx_conf_t      *conf = &vtss_state->packet.rx_conf;
     vtss_packet_rx_reg_t       *reg = &conf->reg;
@@ -617,10 +595,10 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
 #define FWD_SFLOW_ID_POS FA_TGT ? 12 : 11
 #define DST_CL_RSLT_POS  FA_TGT ? 22 : 21
 
-static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
-                                const vtss_packet_rx_meta_t *const meta,
-                                const u8                     xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
-                                vtss_packet_rx_info_t *const info)
+vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
+                                      const vtss_packet_rx_meta_t *const meta,
+                                      const u8 xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                      vtss_packet_rx_info_t *const info)
 {
     u16                 vstax_hi, vstax_one, rb = 0;
     u32                 fwd, misc, tagging, sflow_id;
@@ -734,10 +712,10 @@ static vtss_rc fa_rx_hdr_decode(const vtss_state_t *const          state,
 
 #if defined(VTSS_ARCH_LAIKA)
 
-static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
-                           u8 *const                    data,
-                           const u32                    buflen,
-                           vtss_packet_rx_info_t *const rx_info)
+static vtss_rc vtss_cil_packet_rx_frame(vtss_state_t                *vtss_state,
+                                        u8 *const                    data,
+                                        const u32                    buflen,
+                                        vtss_packet_rx_info_t *const rx_info)
 {
     u8                    ifh[VTSS_PACKET_HDR_SIZE_BYTES];
     vtss_packet_rx_meta_t meta = {};
@@ -752,10 +730,11 @@ static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
 }
 
 #else
-static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
-                           u8 *const                    data,
-                           const u32                    buflen,
-                           vtss_packet_rx_info_t *const rx_info)
+
+vtss_rc vtss_cil_packet_rx_frame(vtss_state_t                *vtss_state,
+                                 u8 *const                    data,
+                                 const u32                    buflen,
+                                 vtss_packet_rx_info_t *const rx_info)
 {
     vtss_rc rc = VTSS_RC_INCOMPLETE;
     u32     val;
@@ -778,7 +757,7 @@ static vtss_rc fa_rx_frame(vtss_state_t                *vtss_state,
         VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (length - 4);
         meta.etype = (data[12] << 8) | data[13];
-        rc = fa_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
+        rc = vtss_cil_packet_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
     return rc;
 }
@@ -950,10 +929,10 @@ static u32 pdu_type_calc(const vtss_packet_tx_info_t *const info)
     return 0;
 }
 
-static vtss_rc fa_tx_hdr_encode(vtss_state_t *const                vtss_state,
-                                const vtss_packet_tx_info_t *const info,
-                                u8 *const                          bin_hdr,
-                                u32 *const                         bin_hdr_len)
+vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_state,
+                                      const vtss_packet_tx_info_t *const info,
+                                      u8 *const                          bin_hdr,
+                                      u32 *const                         bin_hdr_len)
 {
     vtss_prio_t         cos;
     vtss_phys_port_no_t chip_port;
@@ -1269,10 +1248,10 @@ static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_tx_frame_ifh(vtss_state_t                     *vtss_state,
-                               const vtss_packet_tx_ifh_t *const ifh,
-                               const u8 *const                   frame,
-                               const u32                         length)
+vtss_rc vtss_cil_packet_tx_frame_ifh(vtss_state_t                     *vtss_state,
+                                     const vtss_packet_tx_ifh_t *const ifh,
+                                     const u8 *const                   frame,
+                                     const u32                         length)
 {
     return fa_tx_frame_ifh_vid(vtss_state, ifh, frame, length, VTSS_VID_NULL);
 }
@@ -1465,22 +1444,8 @@ vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->rx_frame = fa_rx_frame;
-        state->tx_frame_ifh = fa_tx_frame_ifh;
-        state->rx_conf_set = fa_rx_conf_set;
-        state->rx_hdr_decode = fa_rx_hdr_decode;
         state->rx_ifh_size = VTSS_FA_RX_IFH_SIZE;
-        state->tx_hdr_encode = fa_tx_hdr_encode;
-        state->npi_conf_set = fa_npi_conf_set;
-        state->packet_phy_cnt_to_ts_cnt = fa_packet_phy_cnt_to_ts_cnt;
-        state->packet_ns_to_ts_cnt = fa_packet_ns_to_ts_cnt;
-        state->ptp_get_timestamp = fa_ptp_get_timestamp;
         state->rx_queue_count = VTSS_PACKET_RX_QUEUE_CNT;
-
-#if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA
-        state->fdma_qu_redirect_set = fa_fdma_qu_redirect_set;
-        fa_fdma_func_init(vtss_state);
-#endif /* VTSS_FEATURE_FDMA && VTSS_OPT_FDMA */
         break;
     case VTSS_INIT_CMD_INIT:
         VTSS_PROF_ENTER(LM_PROF_ID_MESA_INIT, 30);
@@ -1490,7 +1455,7 @@ vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     case VTSS_INIT_CMD_PORT_MAP:
         VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 30);
         if (!vtss_state->warm_start_cur) {
-            VTSS_RC(fa_rx_conf_set(vtss_state));
+            VTSS_RC(vtss_cil_packet_rx_conf_set(vtss_state));
         }
         VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 30);
         break;

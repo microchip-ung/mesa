@@ -86,7 +86,7 @@ static vtss_rc jr2_npi_update(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
+vtss_rc vtss_cil_packet_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
 {
     vtss_npi_conf_t *conf = &vtss_state->packet.npi_conf;
 
@@ -101,7 +101,7 @@ static vtss_rc jr2_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t 
     return vtss_cmn_vlan_update_all(vtss_state);
 }
 
-static vtss_rc jr2_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u32              tc;
@@ -125,7 +125,7 @@ static vtss_rc jr2_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cn
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u32              tc;
@@ -175,26 +175,26 @@ static u32 jr2_packet_unpack32(const u8 *buf)
     return (buf[0] << 24) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
 }
 
-static vtss_rc jr2_ptp_get_timestamp(vtss_state_t                      *vtss_state,
-                                     const u8 *const                    frm,
-                                     const vtss_packet_rx_info_t *const rx_info,
-                                     vtss_packet_ptp_message_type_t     message_type,
-                                     vtss_packet_timestamp_props_t      ts_props,
-                                     u64                               *rxTime,
-                                     BOOL                              *timestamp_ok)
+vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vtss_state,
+                                          const u8 *const                    frm,
+                                          const vtss_packet_rx_info_t *const rx_info,
+                                          vtss_packet_ptp_message_type_t     message_type,
+                                          vtss_packet_timestamp_props_t      ts_props,
+                                          u64                               *rxTime,
+                                          BOOL                              *timestamp_ok)
 {
     if (ts_props.ts_feature_is_PTS) {
         u32 packet_ns = jr2_packet_unpack32(frm);
         if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_30BIT) {
             /* convert to jaguar 32 bit NSF */
             VTSS_D("rxTime before %u", packet_ns);
-            (void)jr2_packet_ns_to_ts_cnt(vtss_state, packet_ns, rxTime);
+            (void)vtss_cil_packet_ns_to_ts_cnt(vtss_state, packet_ns, rxTime);
             VTSS_D("rxTime after %" PRIu64 "", *rxTime);
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_32BIT) {
             /* convert to jaguar 32 bit NSF */
             VTSS_D("rxTime before %u", packet_ns);
-            (void)jr2_packet_phy_cnt_to_ts_cnt(vtss_state, packet_ns, rxTime);
+            (void)vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state, packet_ns, rxTime);
             VTSS_D("rxTime after %" PRIu64 "", *rxTime);
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_44BIT) {
@@ -250,7 +250,7 @@ vtss_rc vtss_jr2_l2cp_conf_set(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_rx_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
 {
     vtss_packet_rx_conf_t      *conf = &vtss_state->packet.rx_conf;
     vtss_packet_rx_reg_t       *reg = &conf->reg;
@@ -596,10 +596,10 @@ static vtss_rc jr2_rx_frame_get_internal(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_rx_hdr_decode(const vtss_state_t *const          state,
-                                 const vtss_packet_rx_meta_t *const meta,
-                                 const u8                     xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
-                                 vtss_packet_rx_info_t *const info)
+vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
+                                      const vtss_packet_rx_meta_t *const meta,
+                                      const u8 xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                      vtss_packet_rx_info_t *const info)
 {
     u16                 vstax_hi;
     u32                 tstamp;
@@ -686,10 +686,10 @@ static vtss_rc jr2_rx_hdr_decode(const vtss_state_t *const          state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_rx_frame(vtss_state_t                *vtss_state,
-                            u8 *const                    data,
-                            const u32                    buflen,
-                            vtss_packet_rx_info_t *const rx_info)
+vtss_rc vtss_cil_packet_rx_frame(vtss_state_t                *vtss_state,
+                                 u8 *const                    data,
+                                 const u32                    buflen,
+                                 vtss_packet_rx_info_t *const rx_info)
 {
     vtss_rc rc = VTSS_RC_INCOMPLETE;
     u32     val;
@@ -715,7 +715,7 @@ static vtss_rc jr2_rx_frame(vtss_state_t                *vtss_state,
         meta.etype = (data[12] << 8) | data[13];
         p = &data[length - 4];
         meta.fcs = ((p[0] << 24) | (p[1] << 16) | (p[2] << 8) | p[3]);
-        rc = jr2_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
+        rc = vtss_cil_packet_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
     return rc;
 }
@@ -791,10 +791,10 @@ static vtss_rc jr2_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, BOOL a
 /*****************************************************************************/
 // jr2_tx_hdr_encode()
 /*****************************************************************************/
-static vtss_rc jr2_tx_hdr_encode(vtss_state_t *const                state,
-                                 const vtss_packet_tx_info_t *const info,
-                                 u8 *const                          bin_hdr,
-                                 u32 *const                         bin_hdr_len)
+vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                state,
+                                      const vtss_packet_tx_info_t *const info,
+                                      u8 *const                          bin_hdr,
+                                      u32 *const                         bin_hdr_len)
 {
     u64                 dst, vstax_lo, fwd, ts;
     u32                 isdx = info->iflow_id;
@@ -1215,10 +1215,10 @@ static vtss_rc jr2_tx_frame_ifh_vid(vtss_state_t                     *vtss_state
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_tx_frame_ifh(vtss_state_t                     *vtss_state,
-                                const vtss_packet_tx_ifh_t *const ifh,
-                                const u8 *const                   frame,
-                                const u32                         length)
+vtss_rc vtss_cil_packet_tx_frame_ifh(vtss_state_t                     *vtss_state,
+                                     const vtss_packet_tx_ifh_t *const ifh,
+                                     const u8 *const                   frame,
+                                     const u32                         length)
 {
     return jr2_tx_frame_ifh_vid(vtss_state, ifh, frame, length, VTSS_VID_NULL);
 }
@@ -1418,22 +1418,13 @@ vtss_rc vtss_jr2_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->rx_conf_set = jr2_rx_conf_set;
-        state->rx_frame = jr2_rx_frame;
-        state->tx_frame_ifh = jr2_tx_frame_ifh;
-        state->rx_hdr_decode = jr2_rx_hdr_decode;
         state->rx_ifh_size = VTSS_JR2_RX_IFH_SIZE;
-        state->tx_hdr_encode = jr2_tx_hdr_encode;
-        state->npi_conf_set = jr2_npi_conf_set;
-        state->packet_phy_cnt_to_ts_cnt = jr2_packet_phy_cnt_to_ts_cnt;
-        state->packet_ns_to_ts_cnt = jr2_packet_ns_to_ts_cnt;
-        state->ptp_get_timestamp = jr2_ptp_get_timestamp;
         state->rx_queue_count = VTSS_PACKET_RX_QUEUE_CNT;
         break;
     case VTSS_INIT_CMD_INIT: VTSS_RC(jr2_packet_init(vtss_state)); break;
     case VTSS_INIT_CMD_PORT_MAP:
         if (!vtss_state->warm_start_cur) {
-            VTSS_RC(jr2_rx_conf_set(vtss_state));
+            VTSS_RC(vtss_cil_packet_rx_conf_set(vtss_state));
         }
         break;
     default: break;

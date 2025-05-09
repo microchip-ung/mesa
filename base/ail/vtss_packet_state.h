@@ -14,37 +14,40 @@ typedef struct {
     u32 ifh[VTSS_PACKET_TX_IFH_STORAGE / 4]; /**< Compiled, binary IFH   */
 } vtss_packet_tx_ifh_t;
 
+/* CIL function pointers */
+vtss_rc vtss_cil_packet_rx_conf_set(struct vtss_state_s *vtss_state);
+vtss_rc vtss_cil_packet_rx_frame(struct vtss_state_s         *vtss_state,
+                                 u8 *const                    data,
+                                 const u32                    buflen,
+                                 vtss_packet_rx_info_t *const rx_info);
+vtss_rc vtss_cil_packet_tx_frame_ifh(struct vtss_state_s              *vtss_state,
+                                     const vtss_packet_tx_ifh_t *const ifh,
+                                     const u8 *const                   frame,
+                                     const u32                         length);
+vtss_rc vtss_cil_packet_rx_hdr_decode(const struct vtss_state_s *const   state,
+                                      const vtss_packet_rx_meta_t *const meta,
+                                      const u8                     hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                      vtss_packet_rx_info_t *const info);
+vtss_rc vtss_cil_packet_tx_hdr_encode(struct vtss_state_s *const         state,
+                                      const vtss_packet_tx_info_t *const info,
+                                      u8 *const                          bin_hdr,
+                                      u32 *const                         bin_hdr_len);
+
+vtss_rc vtss_cil_packet_npi_conf_set(struct vtss_state_s         *vtss_state,
+                                     const vtss_npi_conf_t *const conf);
+vtss_rc vtss_cil_packet_phy_cnt_to_ts_cnt(struct vtss_state_s *vtss_state,
+                                          u32                  phy_cnt,
+                                          u64                 *ts_cnt);
+vtss_rc vtss_cil_packet_ns_to_ts_cnt(struct vtss_state_s *vtss_state, u32 ns, u64 *ts_cnt);
+vtss_rc vtss_cil_packet_ptp_get_timestamp(struct vtss_state_s               *vtss_state,
+                                          const u8 *const                    frm,
+                                          const vtss_packet_rx_info_t *const rx_info,
+                                          vtss_packet_ptp_message_type_t     message_type,
+                                          vtss_packet_timestamp_props_t      ts_props,
+                                          u64                               *rxTime,
+                                          BOOL                              *timestamp_ok);
+
 typedef struct {
-    /* CIL function pointers */
-    vtss_rc (*rx_conf_set)(struct vtss_state_s *vtss_state);
-    vtss_rc (*rx_frame)(struct vtss_state_s         *vtss_state,
-                        u8 *const                    data,
-                        const u32                    buflen,
-                        vtss_packet_rx_info_t *const rx_info);
-    vtss_rc (*tx_frame_ifh)(struct vtss_state_s              *vtss_state,
-                            const vtss_packet_tx_ifh_t *const ifh,
-                            const u8 *const                   frame,
-                            const u32                         length);
-    vtss_rc (*rx_hdr_decode)(const struct vtss_state_s *const   state,
-                             const vtss_packet_rx_meta_t *const meta,
-                             const u8                           hdr[VTSS_PACKET_HDR_SIZE_BYTES],
-                             vtss_packet_rx_info_t *const       info);
-    vtss_rc (*tx_hdr_encode)(struct vtss_state_s *const         state,
-                             const vtss_packet_tx_info_t *const info,
-                             u8 *const                          bin_hdr,
-                             u32 *const                         bin_hdr_len);
-
-    vtss_rc (*npi_conf_set)(struct vtss_state_s *vtss_state, const vtss_npi_conf_t *const conf);
-    vtss_rc (*packet_phy_cnt_to_ts_cnt)(struct vtss_state_s *vtss_state, u32 phy_cnt, u64 *ts_cnt);
-    vtss_rc (*packet_ns_to_ts_cnt)(struct vtss_state_s *vtss_state, u32 ns, u64 *ts_cnt);
-    vtss_rc (*ptp_get_timestamp)(struct vtss_state_s               *vtss_state,
-                                 const u8 *const                    frm,
-                                 const vtss_packet_rx_info_t *const rx_info,
-                                 vtss_packet_ptp_message_type_t     message_type,
-                                 vtss_packet_timestamp_props_t      ts_props,
-                                 u64                               *rxTime,
-                                 BOOL                              *timestamp_ok);
-
     /* Configuration/state */
     BOOL                       manual_mode; // Manual injection/extraction
     u32                        rx_queue_count;

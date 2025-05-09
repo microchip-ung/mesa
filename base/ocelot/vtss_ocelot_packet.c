@@ -697,7 +697,7 @@ static vtss_rc srvl_npi_update(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
+vtss_rc vtss_cil_packet_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t *const new)
 {
     vtss_npi_conf_t *conf = &vtss_state->packet.npi_conf;
 
@@ -712,7 +712,7 @@ static vtss_rc srvl_npi_conf_set(vtss_state_t *vtss_state, const vtss_npi_conf_t
     return vtss_cmn_vlan_update_all(vtss_state);
 }
 
-static vtss_rc srvl_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt, u64 *ts_cnt)
 {
     VTSS_I("Not supported in this architecture");
     *ts_cnt = 0;
@@ -720,7 +720,7 @@ static vtss_rc srvl_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_c
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_cnt)
+vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_cnt)
 {
     vtss_timestamp_t ts;
     u32              tc;
@@ -746,13 +746,13 @@ static u32 srvl_packet_unpack32(const u8 *buf)
     return (buf[0] << 24) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
 }
 
-static vtss_rc srvl_ptp_get_timestamp(vtss_state_t                      *vtss_state,
-                                      const u8 *const                    frm,
-                                      const vtss_packet_rx_info_t *const rx_info,
-                                      vtss_packet_ptp_message_type_t     message_type,
-                                      vtss_packet_timestamp_props_t      ts_props,
-                                      u64                               *rxTime,
-                                      BOOL                              *timestamp_ok)
+vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vtss_state,
+                                          const u8 *const                    frm,
+                                          const vtss_packet_rx_info_t *const rx_info,
+                                          vtss_packet_ptp_message_type_t     message_type,
+                                          vtss_packet_timestamp_props_t      ts_props,
+                                          u64                               *rxTime,
+                                          BOOL                              *timestamp_ok)
 {
     vtss_ts_id_t ts_id;
     *rxTime = rx_info->hw_tstamp;
@@ -763,7 +763,7 @@ static vtss_rc srvl_ptp_get_timestamp(vtss_state_t                      *vtss_st
         if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_30BIT) {
             /* convert to 32 bit timestamp */
             VTSS_D("rxTime before %u", packet_ns);
-            (void)srvl_packet_ns_to_ts_cnt(vtss_state, packet_ns, rxTime);
+            (void)vtss_cil_packet_ns_to_ts_cnt(vtss_state, packet_ns, rxTime);
             VTSS_D("rxTime after %" PRIu64 "", *rxTime);
         } else if (ts_props.phy_ts_mode != VTSS_PACKET_INTERNAL_TC_MODE_32BIT) {
             VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
@@ -804,7 +804,7 @@ static u32 srvl_cpu_fwd_mask_get(vtss_packet_reg_type_t type, BOOL redir, u32 i)
     return mask;
 }
 
-static vtss_rc srvl_rx_conf_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
 {
     vtss_packet_rx_conf_t      *conf = &vtss_state->packet.rx_conf;
     vtss_packet_rx_reg_t       *reg = &conf->reg;
@@ -1170,10 +1170,10 @@ static vtss_rc srvl_tx_frame_ifh_vid(vtss_state_t                     *vtss_stat
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_tx_frame_ifh(vtss_state_t                     *vtss_state,
-                                 const vtss_packet_tx_ifh_t *const ifh,
-                                 const u8 *const                   frame,
-                                 const u32                         length)
+vtss_rc vtss_cil_packet_tx_frame_ifh(vtss_state_t                     *vtss_state,
+                                     const vtss_packet_tx_ifh_t *const ifh,
+                                     const u8 *const                   frame,
+                                     const u32                         length)
 {
     return srvl_tx_frame_ifh_vid(vtss_state, ifh, frame, length, VTSS_VID_NULL);
 }
@@ -1182,10 +1182,10 @@ static vtss_rc srvl_tx_frame_ifh(vtss_state_t                     *vtss_state,
 #define IFH_LEN_REW_OP  9
 #define IFH_OFF_REW_VAL 85
 
-static vtss_rc srvl_rx_hdr_decode(const vtss_state_t *const          state,
-                                  const vtss_packet_rx_meta_t *const meta,
-                                  const u8                     xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
-                                  vtss_packet_rx_info_t *const info)
+vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
+                                      const vtss_packet_rx_meta_t *const meta,
+                                      const u8 xtr_hdr[VTSS_PACKET_HDR_SIZE_BYTES],
+                                      vtss_packet_rx_info_t *const info)
 {
     u64                 ifh[2];
     u32                 sflow_id;
@@ -1261,10 +1261,10 @@ static vtss_rc srvl_rx_hdr_decode(const vtss_state_t *const          state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_rx_frame(struct vtss_state_s   *vtss_state,
-                             u8 *const              data,
-                             const u32              buflen,
-                             vtss_packet_rx_info_t *rx_info)
+vtss_rc vtss_cil_packet_rx_frame(struct vtss_state_s   *vtss_state,
+                                 u8 *const              data,
+                                 const u32              buflen,
+                                 vtss_packet_rx_info_t *rx_info)
 {
     vtss_rc rc = VTSS_RC_INCOMPLETE;
     u32     val;
@@ -1288,7 +1288,7 @@ static vtss_rc srvl_rx_frame(struct vtss_state_s   *vtss_state,
         VTSS_MEMSET(&meta, 0, sizeof(meta));
         meta.length = (length - 4);
         meta.etype = (data[12] << 8) | data[13];
-        rc = srvl_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
+        rc = vtss_cil_packet_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
     return rc;
 }
@@ -1351,10 +1351,10 @@ static vtss_rc srvl_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action, u8 pt
 /*****************************************************************************/
 // srvl_tx_hdr_encode()
 /*****************************************************************************/
-static vtss_rc srvl_tx_hdr_encode(vtss_state_t *const                state,
-                                  const vtss_packet_tx_info_t *const info,
-                                  u8 *const                          bin_hdr,
-                                  u32 *const                         bin_hdr_len)
+vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                state,
+                                      const vtss_packet_tx_info_t *const info,
+                                      u8 *const                          bin_hdr,
+                                      u32 *const                         bin_hdr_len)
 {
     u64 inj_hdr[2];
     u32 isdx = info->iflow_id;
@@ -1826,16 +1826,7 @@ vtss_rc vtss_srvl_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        state->rx_conf_set = srvl_rx_conf_set;
-        state->rx_frame = srvl_rx_frame;
-        state->tx_frame_ifh = srvl_tx_frame_ifh;
-        state->rx_hdr_decode = srvl_rx_hdr_decode;
         state->rx_ifh_size = VTSS_SVL_RX_IFH_SIZE;
-        state->tx_hdr_encode = srvl_tx_hdr_encode;
-        state->npi_conf_set = srvl_npi_conf_set;
-        state->packet_phy_cnt_to_ts_cnt = srvl_packet_phy_cnt_to_ts_cnt;
-        state->packet_ns_to_ts_cnt = srvl_packet_ns_to_ts_cnt;
-        state->ptp_get_timestamp = srvl_ptp_get_timestamp;
         state->rx_queue_count = VTSS_PACKET_RX_QUEUE_CNT;
 #if defined(VTSS_FEATURE_AFI_SWC)
         vtss_state->afi.alloc = srvl_afi_alloc;
@@ -1845,7 +1836,7 @@ vtss_rc vtss_srvl_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #endif /* VTSS_FEATURE_AFI_SWC */
         break;
     case VTSS_INIT_CMD_INIT:     VTSS_RC(srvl_packet_init(vtss_state)); break;
-    case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(srvl_rx_conf_set(vtss_state)); break;
+    case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(vtss_cil_packet_rx_conf_set(vtss_state)); break;
     default:                     break;
     }
     return VTSS_RC_OK;

@@ -408,15 +408,6 @@ vtss_rc vtss_cil_debug_info_print(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_MRP)
     VTSS_RC(vtss_lan969x_mrp_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_MRP */
-#if defined(VTSS_FEATURE_FDMA) && VTSS_OPT_FDMA
-    if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_FDMA)) {
-        if (vtss_state->fdma_state.fdma_func.fdma_debug_print != NULL) {
-            return vtss_state->fdma_state.fdma_func.fdma_debug_print(vtss_state, ss, info);
-        } else {
-            return VTSS_RC_ERROR;
-        }
-    }
-#endif
     return VTSS_RC_OK;
 }
 
