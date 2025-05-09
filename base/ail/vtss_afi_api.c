@@ -30,7 +30,7 @@ vtss_rc vtss_afi_alloc(const vtss_inst_t          inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(afi.alloc, dscr, id);
+        rc = vtss_cil_afi_alloc(vtss_state, dscr, id);
     }
 
     VTSS_EXIT();
@@ -48,7 +48,7 @@ vtss_rc vtss_afi_free(const vtss_inst_t inst, vtss_afi_id_t id)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(afi.free, id);
+        rc = vtss_cil_afi_free(vtss_state, id);
     }
 
     VTSS_EXIT();
@@ -67,7 +67,7 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(afi.hijack, id);
+        rc = vtss_cil_afi_hijack(vtss_state, id);
     }
 
     VTSS_EXIT();
@@ -1202,8 +1202,8 @@ static vtss_rc afi_dti_inj_start(vtss_state_t                        *vtss_state
     dti->mode = (cfg->seq_cnt == 0 ? 1 : 0);
     dti->frm_inj_cnt = cfg->seq_cnt;
 
-    rc = vtss_state->afi.dti_start(vtss_state, fastid, do_frm_delay_config,
-                                   TRUE /* do_dti_config */, start_flow);
+    rc = vtss_cil_afi_dti_start(vtss_state, fastid, do_frm_delay_config, TRUE /* do_dti_config */,
+                                start_flow);
     VTSS_I("Exit, ID = %u", fastid);
 
     return rc;
@@ -1267,7 +1267,7 @@ vtss_rc vtss_afi_fast_inj_alloc(const vtss_inst_t                          inst,
 
     // On first alloc, enable AFI (if not already done)
     if (!vtss_state->afi.afi_ena) {
-        if ((rc = vtss_state->afi.afi_enable(vtss_state)) != VTSS_RC_OK) {
+        if ((rc = vtss_cil_afi_enable(vtss_state)) != VTSS_RC_OK) {
             goto do_exit;
         }
 
@@ -1353,7 +1353,7 @@ vtss_rc vtss_afi_fast_inj_free(const vtss_inst_t inst, vtss_afi_fastid_t fastid)
 
     // Inject frames for removal - if any
     if (dti->frm_cnt) {
-        if ((rc = vtss_state->afi.dti_frm_rm_inj(vtss_state, fastid)) != VTSS_RC_OK) {
+        if ((rc = vtss_cil_afi_dti_frm_rm_inj(vtss_state, fastid)) != VTSS_RC_OK) {
             goto do_exit;
         }
     }
@@ -1429,7 +1429,7 @@ vtss_rc vtss_afi_fast_inj_frm_hijack(const vtss_inst_t                        in
         goto do_exit;
     }
 
-    if ((rc = vtss_state->afi.dti_frm_hijack(vtss_state, fastid, cfg->frm_size)) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_afi_dti_frm_hijack(vtss_state, fastid, cfg->frm_size)) != VTSS_RC_OK) {
         (void)afi_hijack_error_print(vtss_state);
     }
 
@@ -1521,7 +1521,7 @@ vtss_rc vtss_afi_fast_inj_stop(const vtss_inst_t inst, vtss_afi_fastid_t fastid)
         goto do_exit;
     }
 
-    rc = vtss_state->afi.dti_stop(vtss_state, fastid);
+    rc = vtss_cil_afi_dti_stop(vtss_state, fastid);
 
 do_exit:
     VTSS_EXIT();
@@ -1556,7 +1556,7 @@ vtss_rc vtss_afi_fast_inj_seq_cnt_get(const vtss_inst_t inst,
         goto do_exit;
     }
 
-    rc = vtss_state->afi.dti_cnt_get(vtss_state, fastid, seq_cnt);
+    rc = vtss_cil_afi_dti_cnt_get(vtss_state, fastid, seq_cnt);
 
 do_exit:
     VTSS_EXIT();
@@ -1615,7 +1615,7 @@ vtss_rc vtss_afi_slow_inj_alloc(const vtss_inst_t                          inst,
 
     // On first alloc, enable AFI and TTIs (if not already done)
     if (!vtss_state->afi.afi_ena) {
-        if ((rc = vtss_state->afi.afi_enable(vtss_state)) != VTSS_RC_OK) {
+        if ((rc = vtss_cil_afi_enable(vtss_state)) != VTSS_RC_OK) {
             goto do_exit;
         }
 
@@ -1623,7 +1623,7 @@ vtss_rc vtss_afi_slow_inj_alloc(const vtss_inst_t                          inst,
     }
 
     if (!vtss_state->afi.tti_ena) {
-        if ((rc = vtss_state->afi.ttis_enable(vtss_state)) != VTSS_RC_OK) {
+        if ((rc = vtss_cil_afi_ttis_enable(vtss_state)) != VTSS_RC_OK) {
             goto do_exit;
         }
 
@@ -1689,7 +1689,7 @@ vtss_rc vtss_afi_slow_inj_free(const vtss_inst_t inst, vtss_afi_slowid_t slowid)
 
     // Inject frame for removal - if any
     if (tti->hijacked) {
-        if ((rc = vtss_state->afi.tti_frm_rm_inj(vtss_state, slowid)) != VTSS_RC_OK) {
+        if ((rc = vtss_cil_afi_tti_frm_rm_inj(vtss_state, slowid)) != VTSS_RC_OK) {
             goto do_exit;
         }
     }
@@ -1726,7 +1726,7 @@ vtss_rc vtss_afi_slow_inj_frm_hijack(const vtss_inst_t inst, vtss_afi_slowid_t s
         goto do_exit;
     }
 
-    if ((rc = vtss_state->afi.tti_frm_hijack(vtss_state, slowid)) == VTSS_RC_OK) {
+    if ((rc = vtss_cil_afi_tti_frm_hijack(vtss_state, slowid)) == VTSS_RC_OK) {
         // Frame is now transferred to H/W
         vtss_state->afi.tti_tbl[slowid].hijacked = TRUE;
     } else {
@@ -1873,7 +1873,7 @@ vtss_rc vtss_afi_slow_inj_start(const vtss_inst_t                          inst,
         do_config = 0;
     }
 
-    rc = vtss_state->afi.tti_start(vtss_state, slowid, do_config);
+    rc = vtss_cil_afi_tti_start(vtss_state, slowid, do_config);
 
 do_exit:
     VTSS_EXIT();
@@ -1910,7 +1910,7 @@ vtss_rc vtss_afi_slow_inj_stop(const vtss_inst_t inst, vtss_afi_slowid_t slowid)
         goto do_exit;
     }
 
-    rc = vtss_state->afi.tti_stop(vtss_state, slowid);
+    rc = vtss_cil_afi_tti_stop(vtss_state, slowid);
 
 do_exit:
     VTSS_EXIT();
@@ -1939,7 +1939,7 @@ vtss_rc vtss_afi_port_start(const vtss_inst_t inst, vtss_port_no_t port_no)
         goto do_exit;
     }
 
-    rc = vtss_state->afi.port_admin_start(vtss_state, port_no);
+    rc = vtss_cil_afi_port_admin_start(vtss_state, port_no);
 
 do_exit:
     VTSS_EXIT();
@@ -1960,7 +1960,7 @@ vtss_rc vtss_afi_port_stop(const vtss_inst_t inst, vtss_port_no_t port_no)
         goto do_exit;
     }
 
-    rc = vtss_state->afi.port_admin_stop(vtss_state, port_no);
+    rc = vtss_cil_afi_port_admin_stop(vtss_state, port_no);
 
 do_exit:
     VTSS_EXIT();

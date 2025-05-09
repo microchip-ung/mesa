@@ -1222,11 +1222,11 @@ static vtss_rc jr2_afi_tti_qu_ref_update(vtss_state_t *const vtss_state, u32 tti
  * do_frm_delay_config: (Re)configure frame-delay sequence before (re)starting
  * do_dti_config:       (Re)configure DTI before (re)starting
  */
-static vtss_rc jr2_afi_dti_start(vtss_state_t *const vtss_state,
-                                 u32                 dti_idx,
-                                 BOOL                do_frm_delay_config,
-                                 BOOL                do_dti_config,
-                                 BOOL                start_flow)
+vtss_rc vtss_cil_afi_dti_start(vtss_state_t *const vtss_state,
+                               u32                 dti_idx,
+                               BOOL                do_frm_delay_config,
+                               BOOL                do_dti_config,
+                               BOOL                start_flow)
 {
     vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
     vtss_afi_frm_t *frm_tbl = vtss_state->afi.frm_tbl;
@@ -1330,7 +1330,7 @@ static vtss_rc jr2_afi_dti_start(vtss_state_t *const vtss_state,
 /*
  * jr2_afi_dti_stop()
  */
-static vtss_rc jr2_afi_dti_stop(vtss_state_t *const vtss_state, u32 dti_idx)
+vtss_rc vtss_cil_afi_dti_stop(vtss_state_t *const vtss_state, u32 dti_idx)
 {
     vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
 
@@ -1352,7 +1352,7 @@ static vtss_rc jr2_afi_dti_stop(vtss_state_t *const vtss_state, u32 dti_idx)
 /*
  * jr2_afi_dti_frm_hijack()
  */
-static vtss_rc jr2_afi_dti_frm_hijack(vtss_state_t *const vtss_state, u32 dti_idx, u32 frm_size)
+vtss_rc vtss_cil_afi_dti_frm_hijack(vtss_state_t *const vtss_state, u32 dti_idx, u32 frm_size)
 {
     vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
     vtss_afi_frm_t *frm_tbl = vtss_state->afi.frm_tbl;
@@ -1400,7 +1400,7 @@ static vtss_rc jr2_afi_dti_frm_hijack(vtss_state_t *const vtss_state, u32 dti_id
 /*
  * jr2_afi_dti_frm_rm_inj()
  */
-static vtss_rc jr2_afi_dti_frm_rm_inj(vtss_state_t *const vtss_state, u32 dti_idx)
+vtss_rc vtss_cil_afi_dti_frm_rm_inj(vtss_state_t *const vtss_state, u32 dti_idx)
 {
     vtss_afi_dti_t *dti = &vtss_state->afi.dti_tbl[dti_idx];
     vtss_afi_frm_t *frm_tbl = vtss_state->afi.frm_tbl;
@@ -1470,7 +1470,7 @@ static vtss_rc jr2_afi_dti_frm_rm_inj(vtss_state_t *const vtss_state, u32 dti_id
 /*
  * jr2_afi_dti_cnt_get()
  */
-static vtss_rc jr2_afi_dti_cnt_get(vtss_state_t *const vtss_state, u32 dti_idx, u32 *const cnt)
+vtss_rc vtss_cil_afi_dti_cnt_get(vtss_state_t *const vtss_state, u32 dti_idx, u32 *const cnt)
 {
     VTSS_I("Enter(%u)", dti_idx);
     JR2_RD(VTSS_AFI_DTI_TBL_DTI_CNT(dti_idx), cnt);
@@ -1487,7 +1487,7 @@ static vtss_rc jr2_afi_dti_cnt_get(vtss_state_t *const vtss_state, u32 dti_idx, 
 /*
  * jr2_afi_ttis_enable()
  */
-static vtss_rc jr2_afi_ttis_enable(vtss_state_t *const vtss_state)
+vtss_rc vtss_cil_afi_ttis_enable(vtss_state_t *const vtss_state)
 {
     VTSS_I("Enter");
     JR2_WRM(VTSS_AFI_TTI_MISC_TTI_CTRL, VTSS_F_AFI_TTI_MISC_TTI_CTRL_TTI_ENA(1),
@@ -1502,7 +1502,7 @@ static vtss_rc jr2_afi_ttis_enable(vtss_state_t *const vtss_state)
  *
  * do_config: (Re)configure TTI before (re)starting
  */
-static vtss_rc jr2_afi_tti_start(vtss_state_t *const vtss_state, u32 tti_idx, BOOL do_config)
+vtss_rc vtss_cil_afi_tti_start(vtss_state_t *const vtss_state, u32 tti_idx, BOOL do_config)
 {
     vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
     u32             rand_tick_cnt;
@@ -1563,7 +1563,7 @@ static vtss_rc jr2_afi_tti_start(vtss_state_t *const vtss_state, u32 tti_idx, BO
 /*
  * jr2_afi_tti_stop()
  */
-static vtss_rc jr2_afi_tti_stop(vtss_state_t *const vtss_state, u32 tti_idx)
+vtss_rc vtss_cil_afi_tti_stop(vtss_state_t *const vtss_state, u32 tti_idx)
 {
     vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
@@ -1585,7 +1585,7 @@ static vtss_rc jr2_afi_tti_stop(vtss_state_t *const vtss_state, u32 tti_idx)
 /*
  * jr2_afi_tti_frm_hijack()
  */
-static vtss_rc jr2_afi_tti_frm_hijack(vtss_state_t *const vtss_state, u32 tti_idx)
+vtss_rc vtss_cil_afi_tti_frm_hijack(vtss_state_t *const vtss_state, u32 tti_idx)
 {
     vtss_rc rc;
     VTSS_I("Enter(%u)", tti_idx);
@@ -1597,7 +1597,7 @@ static vtss_rc jr2_afi_tti_frm_hijack(vtss_state_t *const vtss_state, u32 tti_id
 /*
  * jr2_afi_tti_frm_rm_inj()
  */
-static vtss_rc jr2_afi_tti_frm_rm_inj(vtss_state_t *const vtss_state, u32 tti_idx)
+vtss_rc vtss_cil_afi_tti_frm_rm_inj(vtss_state_t *const vtss_state, u32 tti_idx)
 {
     vtss_afi_tti_t *tti = &vtss_state->afi.tti_tbl[tti_idx];
 
@@ -1639,9 +1639,9 @@ static vtss_rc jr2_afi_tti_frm_rm_inj(vtss_state_t *const vtss_state, u32 tti_id
 /*
  * jr2_afi_link_state_change()
  */
-static vtss_rc jr2_afi_link_state_change(vtss_state_t *const vtss_state,
-                                         vtss_port_no_t      port_no,
-                                         BOOL               *link_up)
+vtss_rc vtss_cil_afi_link_state_change(vtss_state_t *const vtss_state,
+                                       vtss_port_no_t      port_no,
+                                       BOOL               *link_up)
 {
     vtss_afi_port_t *port = jr2_afi_port_tbl_entry(vtss_state, port_no);
     BOOL             return_val = port->link;
@@ -1672,7 +1672,7 @@ static vtss_rc jr2_afi_link_state_change(vtss_state_t *const vtss_state,
 /*
  * jr2_afi_qu_ref_update()
  */
-static vtss_rc jr2_afi_qu_ref_update(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_afi_qu_ref_update(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
 {
     u32 dti_idx, tti_idx;
 
@@ -1702,7 +1702,7 @@ static vtss_rc jr2_afi_qu_ref_update(vtss_state_t *const vtss_state, vtss_port_n
 /*
  * jr2_afi_enable()
  */
-static vtss_rc jr2_afi_enable(vtss_state_t *const vtss_state)
+vtss_rc vtss_cil_afi_enable(vtss_state_t *const vtss_state)
 {
     VTSS_I("Enter");
 
@@ -1725,7 +1725,7 @@ static vtss_rc jr2_afi_enable(vtss_state_t *const vtss_state)
  * Administrative port start
  * Upon init, the ports are in started state.
  */
-static vtss_rc jr2_afi_port_admin_start(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_afi_port_admin_start(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
 {
     vtss_afi_port_t *port = jr2_afi_port_tbl_entry(vtss_state, port_no);
 
@@ -1752,7 +1752,7 @@ static vtss_rc jr2_afi_port_admin_start(vtss_state_t *const vtss_state, vtss_por
  * Administrative port stop
  * Upon init, the ports are in started state.
  */
-static vtss_rc jr2_afi_port_admin_stop(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_afi_port_admin_stop(vtss_state_t *const vtss_state, vtss_port_no_t port_no)
 {
     vtss_afi_port_t *port = jr2_afi_port_tbl_entry(vtss_state, port_no);
 
@@ -1789,32 +1789,11 @@ vtss_rc vtss_jr2_afi_debug_print(vtss_state_t                  *vtss_state,
  */
 vtss_rc vtss_jr2_afi_init(vtss_state_t *const vtss_state, const vtss_init_cmd_t cmd)
 {
-    vtss_afi_state_t   *state = &vtss_state->afi;
     vtss_port_no_t      port_no;
     vtss_phys_port_no_t chip_port;
 
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
-        // Assign CIL function pointers
-        state->afi_enable = jr2_afi_enable;
-        state->ttis_enable = jr2_afi_ttis_enable;
-
-        state->tti_start = jr2_afi_tti_start;
-        state->tti_stop = jr2_afi_tti_stop;
-        state->tti_frm_hijack = jr2_afi_tti_frm_hijack;
-        state->tti_frm_rm_inj = jr2_afi_tti_frm_rm_inj;
-
-        state->dti_start = jr2_afi_dti_start;
-        state->dti_stop = jr2_afi_dti_stop;
-        state->dti_frm_hijack = jr2_afi_dti_frm_hijack;
-        state->dti_frm_rm_inj = jr2_afi_dti_frm_rm_inj;
-        state->dti_cnt_get = jr2_afi_dti_cnt_get;
-
-        state->port_admin_start = jr2_afi_port_admin_start;
-        state->port_admin_stop = jr2_afi_port_admin_stop;
-        state->link_state_change = jr2_afi_link_state_change;
-        state->qu_ref_update = jr2_afi_qu_ref_update;
-
         // Initialize ports to started = 1. This corresponds to
         // calling jr2_afi_port_admin_start() during boot.
         for (port_no = 0; port_no < VTSS_ARRSZ(vtss_state->afi.port_tbl); port_no++) {

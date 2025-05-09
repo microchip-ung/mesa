@@ -1460,7 +1460,7 @@ vtss_rc vtss_port_state_set(const vtss_inst_t inst, const vtss_port_no_t port_no
             // Pause all AFI-generated frames to this port.
             // This must be done prior to actually taking the port down.
             VTSS_I("Pausing AFI on port_no %u", port_no);
-            (void)VTSS_FUNC(afi.link_state_change, port_no, &afi_link);
+            (void)vtss_cil_afi_link_state_change(vtss_state, port_no, &afi_link);
         }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 
@@ -1480,7 +1480,7 @@ vtss_rc vtss_port_state_set(const vtss_inst_t inst, const vtss_port_no_t port_no
             // Resume all AFI-generated frames to this port.
             // This must be done after bringing the port up
             VTSS_I("Resuming AFI on iport %u", port_no);
-            (void)VTSS_FUNC(afi.link_state_change, port_no, &afi_link);
+            (void)vtss_cil_afi_link_state_change(vtss_state, port_no, &afi_link);
         }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 #if defined(VTSS_FEATURE_REDBOX)

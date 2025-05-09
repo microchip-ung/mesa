@@ -180,7 +180,7 @@ vtss_rc vtss_port_conf_set_private(vtss_state_t                 *vtss_state,
     // can be flushed if necessary.
     afi_link = FALSE;
     VTSS_I("Stopping AFI on port_no %u", port_no);
-    (void)VTSS_FUNC(afi.link_state_change, port_no, &afi_link);
+    (void)vtss_cil_afi_link_state_change(vtss_state, port_no, &afi_link);
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 
     if ((rc = vtss_cil_port_conf_set(vtss_state, port_no)) == VTSS_RC_OK) {
@@ -192,7 +192,7 @@ vtss_rc vtss_port_conf_set_private(vtss_state_t                 *vtss_state,
     // this function. Link change is only controlled by vtss_port_state_set().
     if (afi_link) {
         VTSS_I("Resuming AFI on port_no %u", port_no);
-        (void)VTSS_FUNC(afi.link_state_change, port_no, &afi_link);
+        (void)vtss_cil_afi_link_state_change(vtss_state, port_no, &afi_link);
     }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
     return rc;

@@ -191,9 +191,9 @@ do_exit:
  * srvl_afi_link_state_change()
  * Called internally on link-up/down events to resume/pause AFI frames.
  */
-static vtss_rc srvl_afi_link_state_change(vtss_state_t  *vtss_state,
-                                          vtss_port_no_t port_no,
-                                          BOOL          *link_up)
+vtss_rc vtss_cil_afi_link_state_change(vtss_state_t  *vtss_state,
+                                       vtss_port_no_t port_no,
+                                       BOOL          *link_up)
 {
     vtss_afi_id_t afi_id;
     BOOL          resume = *link_up;
@@ -241,9 +241,9 @@ static vtss_rc srvl_afi_link_state_change(vtss_state_t  *vtss_state,
  * Attempts to find a suitable AFI timer and AFI slot for a given frame to be
  * periodically injected.
  */
-static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
-                              vtss_afi_frm_dscr_t *const dscr,
-                              vtss_afi_id_t *const       afi_id)
+vtss_rc vtss_cil_afi_alloc(vtss_state_t              *vtss_state,
+                           vtss_afi_frm_dscr_t *const dscr,
+                           vtss_afi_id_t *const       afi_id)
 {
     u32                    timer, slot, min_slot, max_slot, val;
     vtss_afi_timer_conf_t *timer_conf;
@@ -490,7 +490,7 @@ static vtss_rc srvl_afi_alloc(vtss_state_t              *vtss_state,
  * Cancels a periodically injected frame and frees up the
  * resources allocated for it.
  */
-static vtss_rc srvl_afi_free(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
+vtss_rc vtss_cil_afi_free(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
 {
     vtss_afi_slot_conf_t *slot_conf;
 
@@ -538,7 +538,7 @@ static vtss_rc srvl_afi_free(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
 /*
  * srvl_afi_hijack()
  */
-static vtss_rc srvl_afi_hijack(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
+vtss_rc vtss_cil_afi_hijack(vtss_state_t *vtss_state, vtss_afi_id_t afi_id)
 {
     vtss_afi_slot_conf_t *slot_conf;
     vtss_mtimer_t         timer;
@@ -1828,12 +1828,6 @@ vtss_rc vtss_srvl_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     case VTSS_INIT_CMD_CREATE:
         state->rx_ifh_size = VTSS_SVL_RX_IFH_SIZE;
         state->rx_queue_count = VTSS_PACKET_RX_QUEUE_CNT;
-#if defined(VTSS_FEATURE_AFI_SWC)
-        vtss_state->afi.alloc = srvl_afi_alloc;
-        vtss_state->afi.free = srvl_afi_free;
-        vtss_state->afi.hijack = srvl_afi_hijack;
-        vtss_state->afi.link_state_change = srvl_afi_link_state_change;
-#endif /* VTSS_FEATURE_AFI_SWC */
         break;
     case VTSS_INIT_CMD_INIT:     VTSS_RC(srvl_packet_init(vtss_state)); break;
     case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(vtss_cil_packet_rx_conf_set(vtss_state)); break;

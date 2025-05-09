@@ -44,32 +44,31 @@ typedef struct {
     u32 fps;
 } vtss_afi_timer_conf_t;
 
+// Internal intra-API call to pass link state of a given port to the AFI
+// module. On entry, link_up contains the new value. On exit, it holds the
+// old value (so it's an INOUT).
+vtss_rc vtss_cil_afi_link_state_change(struct vtss_state_s *const vtss_state,
+                                       vtss_port_no_t             port_no,
+                                       BOOL                      *link_up);
+
+// Internal intra-API call to get the AFI to update queue numbers, which may
+// have changed as a result of changing HQoS mode. It is guaranteed that
+// flows on that port are stopped prior to invoking it.
+// This may be NULL on platforms not requiring it.
+vtss_rc vtss_cil_afi_qu_ref_update(struct vtss_state_s *const vtss_state, vtss_port_no_t port_no);
+
+vtss_rc vtss_cil_afi_alloc(struct vtss_state_s       *vtss_state,
+                           vtss_afi_frm_dscr_t *const dscr,
+                           vtss_afi_id_t *const       id);
+vtss_rc vtss_cil_afi_free(struct vtss_state_s *vtss_state, vtss_afi_id_t id);
+vtss_rc vtss_cil_afi_hijack(struct vtss_state_s *vtss_state, vtss_afi_id_t id);
+
 typedef struct {
     vtss_afi_slot_conf_t  slots[VTSS_AFI_SLOT_CNT];
     vtss_afi_timer_conf_t timers[VTSS_AFI_TIMER_CNT];
     u32                   fps_per_section[2];
     BOOL                  link[VTSS_PORTS]; // To keep track of the AFI's knowledge about link
                                             // state
-
-    // Internal intra-API call to pass link state of a given port to the AFI
-    // module. On entry, link_up contains the new value. On exit, it holds the
-    // old value (so it's an INOUT).
-    vtss_rc (*link_state_change)(struct vtss_state_s *const vtss_state,
-                                 vtss_port_no_t             port_no,
-                                 BOOL                      *link_up);
-
-    // Internal intra-API call to get the AFI to update queue numbers, which may
-    // have changed as a result of changing HQoS mode. It is guaranteed that
-    // flows on that port are stopped prior to invoking it.
-    // This may be NULL on platforms not requiring it.
-    vtss_rc (*qu_ref_update)(struct vtss_state_s *const vtss_state, vtss_port_no_t port_no);
-
-    vtss_rc (*alloc)(struct vtss_state_s       *vtss_state,
-                     vtss_afi_frm_dscr_t *const dscr,
-                     vtss_afi_id_t *const       id);
-    vtss_rc (*free)(struct vtss_state_s *vtss_state, vtss_afi_id_t id);
-    vtss_rc (*hijack)(struct vtss_state_s *vtss_state, vtss_afi_id_t id);
-
 } vtss_afi_state_t;
 
 #endif /* defined(VTSS_AFI_V1) */
@@ -431,43 +430,48 @@ typedef struct {
 #endif
 } vtss_afi_port_t;
 
+// CIL function pointers
+vtss_rc vtss_cil_afi_enable(struct vtss_state_s *const vtss_state);
+vtss_rc vtss_cil_afi_ttis_enable(struct vtss_state_s *const vtss_state);
+
+vtss_rc vtss_cil_afi_tti_start(struct vtss_state_s *const vtss_state, u32 tti_idx, BOOL do_config);
+vtss_rc vtss_cil_afi_tti_stop(struct vtss_state_s *const vtss_state, u32 tti_idx);
+vtss_rc vtss_cil_afi_tti_frm_hijack(struct vtss_state_s *const vtss_state, u32 tti_idx);
+vtss_rc vtss_cil_afi_tti_frm_rm_inj(struct vtss_state_s *const vtss_state, u32 tti_idx);
+
+vtss_rc vtss_cil_afi_dti_start(struct vtss_state_s *const vtss_state,
+                               u32                        dti_idx,
+                               BOOL                       do_frm_delay_config,
+                               BOOL                       do_dti_config,
+                               BOOL                       start_flow);
+vtss_rc vtss_cil_afi_dti_stop(struct vtss_state_s *const vtss_state, u32 dti_idx);
+vtss_rc vtss_cil_afi_dti_frm_hijack(struct vtss_state_s *const vtss_state,
+                                    u32                        dti_idx,
+                                    u32                        frm_size);
+vtss_rc vtss_cil_afi_dti_frm_rm_inj(struct vtss_state_s *const vtss_state, u32 dti_idx);
+vtss_rc vtss_cil_afi_dti_cnt_get(struct vtss_state_s *const vtss_state,
+                                 u32                        dti_idx,
+                                 u32 *const                 cnt);
+
+// Administrative port start/stop
+vtss_rc vtss_cil_afi_port_admin_start(struct vtss_state_s *const vtss_state,
+                                      vtss_port_no_t             port_no);
+vtss_rc vtss_cil_afi_port_admin_stop(struct vtss_state_s *const vtss_state, vtss_port_no_t port_no);
+
+// Internal intra-API call to pass link state of a given port to the AFI
+// module. On entry, link_up contains the new value. On exit, it holds the
+// old value (so it's an INOUT).
+vtss_rc vtss_cil_afi_link_state_change(struct vtss_state_s *const vtss_state,
+                                       vtss_port_no_t             port_no,
+                                       BOOL                      *link_up);
+
+// Internal intra-API call to get the AFI to update queue numbers, which may
+// have changed as a result of changing HQoS mode. It is guaranteed that
+// flows on that port are stopped prior to invoking it.
+// This may be NULL on platforms not requiring it.
+vtss_rc vtss_cil_afi_qu_ref_update(struct vtss_state_s *const vtss_state, vtss_port_no_t port_no);
+
 typedef struct {
-    // CIL function pointers
-    vtss_rc (*afi_enable)(struct vtss_state_s *const vtss_state);
-    vtss_rc (*ttis_enable)(struct vtss_state_s *const vtss_state);
-
-    vtss_rc (*tti_start)(struct vtss_state_s *const vtss_state, u32 tti_idx, BOOL do_config);
-    vtss_rc (*tti_stop)(struct vtss_state_s *const vtss_state, u32 tti_idx);
-    vtss_rc (*tti_frm_hijack)(struct vtss_state_s *const vtss_state, u32 tti_idx);
-    vtss_rc (*tti_frm_rm_inj)(struct vtss_state_s *const vtss_state, u32 tti_idx);
-
-    vtss_rc (*dti_start)(struct vtss_state_s *const vtss_state,
-                         u32                        dti_idx,
-                         BOOL                       do_frm_delay_config,
-                         BOOL                       do_dti_config,
-                         BOOL                       start_flow);
-    vtss_rc (*dti_stop)(struct vtss_state_s *const vtss_state, u32 dti_idx);
-    vtss_rc (*dti_frm_hijack)(struct vtss_state_s *const vtss_state, u32 dti_idx, u32 frm_size);
-    vtss_rc (*dti_frm_rm_inj)(struct vtss_state_s *const vtss_state, u32 dti_idx);
-    vtss_rc (*dti_cnt_get)(struct vtss_state_s *const vtss_state, u32 dti_idx, u32 *const cnt);
-
-    // Administrative port start/stop
-    vtss_rc (*port_admin_start)(struct vtss_state_s *const vtss_state, vtss_port_no_t port_no);
-    vtss_rc (*port_admin_stop)(struct vtss_state_s *const vtss_state, vtss_port_no_t port_no);
-
-    // Internal intra-API call to pass link state of a given port to the AFI
-    // module. On entry, link_up contains the new value. On exit, it holds the
-    // old value (so it's an INOUT).
-    vtss_rc (*link_state_change)(struct vtss_state_s *const vtss_state,
-                                 vtss_port_no_t             port_no,
-                                 BOOL                      *link_up);
-
-    // Internal intra-API call to get the AFI to update queue numbers, which may
-    // have changed as a result of changing HQoS mode. It is guaranteed that
-    // flows on that port are stopped prior to invoking it.
-    // This may be NULL on platforms not requiring it.
-    vtss_rc (*qu_ref_update)(struct vtss_state_s *const vtss_state, vtss_port_no_t port_no);
-
     // FRM_TBL/DTI_TBL/TTI_TBL allocation. One bit per entry.
     u32 frms_alloced[(VTSS_AFI_FRM_CNT + 31) / 32];
     u32 dtis_alloced[(VTSS_AFI_FAST_INJ_CNT + 31) / 32];
