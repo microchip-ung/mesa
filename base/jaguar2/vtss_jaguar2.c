@@ -2269,7 +2269,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     }
 
     /* Read chip ID to check CPU interface */
-    VTSS_RC(vtss_jr2_chip_id_get(vtss_state, &vtss_state->misc.chip_id));
+    VTSS_RC(vtss_cil_misc_chip_id_get(vtss_state, &vtss_state->misc.chip_id));
 #if defined(VTSS_ARCH_JAGUAR_2_C) || VTSS_OPT_TRACE
     revision = vtss_state->misc.chip_id.revision;
 #endif

@@ -362,7 +362,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 
     VTSS_RC(lan966x_mux_mode_set(vtss_state));
 
-    VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);
+    VTSS_RC(vtss_cil_misc_chip_id_get(vtss_state, &vtss_state->misc.chip_id));
 
     /* Initialize RAM */
     REG_WRM(SYS_RESET_CFG, SYS_RESET_CFG_CORE_ENA(0), SYS_RESET_CFG_CORE_ENA_M);

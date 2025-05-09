@@ -137,7 +137,6 @@ vtss_rc vtss_l26_gpio_mode(vtss_state_t          *vtss_state,
                            const vtss_chip_no_t   chip_no,
                            const vtss_gpio_no_t   gpio_no,
                            const vtss_gpio_mode_t mode);
-vtss_rc vtss_l26_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id);
 vtss_rc vtss_l26_misc_debug_print(vtss_state_t                  *vtss_state,
                                   lmu_ss_t                      *ss,
                                   const vtss_debug_info_t *const info);

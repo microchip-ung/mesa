@@ -1053,7 +1053,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
            vtss_state->sys_config.using_pcie);
 #endif /* VTSS_OPT_EMUL/VTSS_ARCH_LAIKA */
     /* Read chip ID to check CPU interface */
-    VTSS_FUNC_RC(misc.chip_id_get, &vtss_state->misc.chip_id);
+    VTSS_RC(vtss_cil_misc_chip_id_get(vtss_state, &vtss_state->misc.chip_id));
     VTSS_I("chip_id: 0x%04x, revision: 0x%04x",
            vtss_state->misc.chip_id.part_number, vtss_state->misc.chip_id.revision);
 

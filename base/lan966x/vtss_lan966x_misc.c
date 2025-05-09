@@ -10,31 +10,27 @@
  * =================================================================*/
 
 #if defined(VTSS_FEATURE_EEE)
-static vtss_rc lan966x_eee_port_conf_set(vtss_state_t                     *vtss_state,
-                                         const vtss_port_no_t              port_no,
-                                         const vtss_eee_port_conf_t *const conf)
+vtss_rc vtss_cil_eee_port_conf_set(vtss_state_t                     *vtss_state,
+                                   const vtss_port_no_t              port_no,
+                                   const vtss_eee_port_conf_t *const conf)
 {
     return VTSS_RC_OK;
 }
 #endif
 
 #if defined(VTSS_FEATURE_FAN)
-static vtss_rc lan966x_fan_controller_init(vtss_state_t                *vtss_state,
-                                           const vtss_fan_conf_t *const spec)
+vtss_rc vtss_cil_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_conf_t *const spec)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl) { return VTSS_RC_OK; }
+vtss_rc vtss_cil_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl) { return VTSS_RC_OK; }
 
-static vtss_rc lan966x_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
-{
-    return VTSS_RC_OK;
-}
+vtss_rc vtss_cil_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle) { return VTSS_RC_OK; }
 
-static vtss_rc lan966x_fan_rotation_get(vtss_state_t    *vtss_state,
-                                        vtss_fan_conf_t *fan_spec,
-                                        u32             *rotation_count)
+vtss_rc vtss_cil_fan_rotation_get(vtss_state_t    *vtss_state,
+                                  vtss_fan_conf_t *fan_spec,
+                                  u32             *rotation_count)
 {
     return VTSS_RC_OK;
 }
@@ -43,7 +39,7 @@ static vtss_rc lan966x_fan_rotation_get(vtss_state_t    *vtss_state,
  *  Temperature Sensor
  * ================================================================= */
 #if defined(VTSS_FEATURE_TEMP_SENSOR)
-static vtss_rc lan966x_temp_sensor_init(vtss_state_t *vtss_state, const BOOL enable)
+vtss_rc vtss_cil_chip_temp_init(vtss_state_t *vtss_state, const BOOL enable)
 {
     // Enable/Disable
     REG_WRM(CHIP_TOP_PVT_SENSOR_CFG, enable ? CHIP_TOP_PVT_SENSOR_CFG_SAMPLE_ENA_M : 0,
@@ -52,7 +48,7 @@ static vtss_rc lan966x_temp_sensor_init(vtss_state_t *vtss_state, const BOOL ena
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_temp_sensor_get(vtss_state_t *vtss_state, i16 *temp_celsius)
+vtss_rc vtss_cil_chip_temp_get(vtss_state_t *vtss_state, i16 *temp_celsius)
 {
     u32     val;
     int64_t x, r;
@@ -81,10 +77,10 @@ static vtss_rc lan966x_temp_sensor_get(vtss_state_t *vtss_state, i16 *temp_celsi
  *  Miscellaneous
  * ================================================================= */
 
-static vtss_rc lan966x_reg_read(vtss_state_t        *vtss_state,
-                                const vtss_chip_no_t chip_no,
-                                const u32            addr,
-                                u32 *const           value)
+vtss_rc vtss_cil_misc_reg_read(vtss_state_t        *vtss_state,
+                               const vtss_chip_no_t chip_no,
+                               const u32            addr,
+                               u32 *const           value)
 {
 #if defined(GCB_VA_ADDR)
     u32 ctrl;
@@ -97,10 +93,10 @@ static vtss_rc lan966x_reg_read(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_reg_write(vtss_state_t        *vtss_state,
-                                 const vtss_chip_no_t chip_no,
-                                 const u32            addr,
-                                 const u32            value)
+vtss_rc vtss_cil_misc_reg_write(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const u32            addr,
+                                const u32            value)
 {
 #if defined(GCB_VA_ADDR)
     u32 ctrl;
@@ -112,7 +108,7 @@ static vtss_rc lan966x_reg_write(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
+vtss_rc vtss_cil_misc_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
 #if defined(GCB_CHIP_ID)
     u32 val;
@@ -128,7 +124,7 @@ static vtss_rc lan966x_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *con
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
     u32 sticky, mask;
 
@@ -146,9 +142,9 @@ static vtss_rc lan966x_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_t
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_ptp_event_enable(vtss_state_t         *vtss_state,
-                                        vtss_ptp_event_type_t ev_mask,
-                                        BOOL                  enable)
+vtss_rc vtss_cil_misc_ptp_event_enable(vtss_state_t         *vtss_state,
+                                       vtss_ptp_event_type_t ev_mask,
+                                       BOOL                  enable)
 {
     u32 val = 0, msk = 0, ena = VTSS_BOOL(enable);
 
@@ -174,9 +170,9 @@ static vtss_rc lan966x_ptp_event_enable(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_dev_all_event_poll(vtss_state_t              *vtss_state,
-                                          vtss_dev_all_event_poll_t  poll_type,
-                                          vtss_dev_all_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_dev_all_event_poll(vtss_state_t              *vtss_state,
+                                         vtss_dev_all_event_poll_t  poll_type,
+                                         vtss_dev_all_event_type_t *ev_mask)
 {
 #if defined(CPU_DEV_INTR_IDENT)
     u32            ident, port;
@@ -193,10 +189,10 @@ static vtss_rc lan966x_dev_all_event_poll(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_dev_all_event_enable(vtss_state_t             *vtss_state,
-                                            vtss_port_no_t            port_no,
-                                            vtss_dev_all_event_type_t ev_mask,
-                                            BOOL                      enable)
+vtss_rc vtss_cil_misc_dev_all_event_enable(vtss_state_t             *vtss_state,
+                                           vtss_port_no_t            port_no,
+                                           vtss_dev_all_event_type_t ev_mask,
+                                           BOOL                      enable)
 {
 #if defined(CPU_DEV_INTR_ENA)
     u32 port = VTSS_CHIP_PORT(port_no);
@@ -211,33 +207,31 @@ static vtss_rc lan966x_dev_all_event_enable(vtss_state_t             *vtss_state
 }
 
 #if defined(VTSS_FEATURE_INTERRUPTS)
-static vtss_rc lan966x_intr_cfg(vtss_state_t *vtss_state,
-                                const u32     intr_mask,
-                                const BOOL    polarity,
-                                const BOOL    enable)
+vtss_rc vtss_cil_misc_intr_cfg(vtss_state_t *vtss_state,
+                               const u32     intr_mask,
+                               const BOOL    polarity,
+                               const BOOL    enable)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_intr_pol_negation(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
+vtss_rc vtss_cil_misc_intr_pol_negation(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
 #endif
 
 #if defined(VTSS_FEATURE_IRQ_CONTROL)
-static vtss_rc lan966x_misc_irq_cfg(vtss_state_t                *vtss_state,
-                                    const vtss_irq_t             irq,
-                                    const vtss_irq_conf_t *const conf)
+vtss_rc vtss_cil_misc_irq_cfg(vtss_state_t                *vtss_state,
+                              const vtss_irq_t             irq,
+                              const vtss_irq_conf_t *const conf)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
+vtss_rc vtss_cil_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_misc_irq_enable(vtss_state_t    *vtss_state,
-                                       const vtss_irq_t irq,
-                                       const BOOL       enable)
+vtss_rc vtss_cil_misc_irq_enable(vtss_state_t *vtss_state, const vtss_irq_t irq, const BOOL enable)
 {
     return VTSS_RC_OK;
 }
@@ -305,10 +299,18 @@ vtss_rc vtss_lan966x_gpio_mode(vtss_state_t          *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_gpio_read(vtss_state_t        *vtss_state,
-                                 const vtss_chip_no_t chip_no,
-                                 const vtss_gpio_no_t gpio_no,
-                                 BOOL *const          value)
+vtss_rc vtss_cil_misc_gpio_mode(vtss_state_t          *vtss_state,
+                                const vtss_chip_no_t   chip_no,
+                                const vtss_gpio_no_t   gpio_no,
+                                const vtss_gpio_mode_t mode)
+{
+    return vtss_lan966x_gpio_mode(vtss_state, chip_no, gpio_no, mode);
+}
+
+vtss_rc vtss_cil_misc_gpio_read(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const vtss_gpio_no_t gpio_no,
+                                BOOL *const          value)
 {
 #if defined(GCB_GPIO_IN2)
     u32 val, msk = VTSS_BIT(gpio_no % 32);
@@ -325,10 +327,10 @@ static vtss_rc lan966x_gpio_read(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_gpio_write(vtss_state_t        *vtss_state,
-                                  const vtss_chip_no_t chip_no,
-                                  const vtss_gpio_no_t gpio_no,
-                                  const BOOL           value)
+vtss_rc vtss_cil_misc_gpio_write(vtss_state_t        *vtss_state,
+                                 const vtss_chip_no_t chip_no,
+                                 const vtss_gpio_no_t gpio_no,
+                                 const BOOL           value)
 {
 #if defined(GCB_GPIO_OUT_SET2)
     u32 msk = VTSS_BIT(gpio_no % 32);
@@ -356,10 +358,10 @@ static vtss_rc lan966x_gpio_write(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_gpio_event_enable(vtss_state_t        *vtss_state,
-                                         const vtss_chip_no_t chip_no,
-                                         const vtss_gpio_no_t gpio_no,
-                                         const BOOL           enable)
+vtss_rc vtss_cil_misc_gpio_event_enable(vtss_state_t        *vtss_state,
+                                        const vtss_chip_no_t chip_no,
+                                        const vtss_gpio_no_t gpio_no,
+                                        const BOOL           enable)
 {
 #if defined(GCB_GPIO_INTR_ENA2)
     u32 msk = VTSS_BIT(gpio_no % 32);
@@ -375,9 +377,9 @@ static vtss_rc lan966x_gpio_event_enable(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_gpio_event_poll(vtss_state_t        *vtss_state,
-                                       const vtss_chip_no_t chip_no,
-                                       BOOL *const          events)
+vtss_rc vtss_cil_misc_gpio_event_poll(vtss_state_t        *vtss_state,
+                                      const vtss_chip_no_t chip_no,
+                                      BOOL *const          events)
 {
 #if defined(GCB_GPIO_INTR2)
     u32 msk[3], i;
@@ -397,11 +399,11 @@ static vtss_rc lan966x_gpio_event_poll(vtss_state_t        *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
-static vtss_rc lan966x_sgpio_event_poll(vtss_state_t            *vtss_state,
-                                        const vtss_chip_no_t     chip_no,
-                                        const vtss_sgpio_group_t group,
-                                        const u32                bit,
-                                        BOOL *const              events)
+vtss_rc vtss_cil_misc_sgpio_event_poll(vtss_state_t            *vtss_state,
+                                       const vtss_chip_no_t     chip_no,
+                                       const vtss_sgpio_group_t group,
+                                       const u32                bit,
+                                       BOOL *const              events)
 {
 #if defined(GCB_SIO_CFG)
     u32 i, val;
@@ -417,12 +419,12 @@ static vtss_rc lan966x_sgpio_event_poll(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_sgpio_event_enable(vtss_state_t            *vtss_state,
-                                          const vtss_chip_no_t     chip_no,
-                                          const vtss_sgpio_group_t group,
-                                          const u32                port,
-                                          const u32                bit,
-                                          const BOOL               enable)
+vtss_rc vtss_cil_misc_sgpio_event_enable(vtss_state_t            *vtss_state,
+                                         const vtss_chip_no_t     chip_no,
+                                         const vtss_sgpio_group_t group,
+                                         const u32                port,
+                                         const u32                bit,
+                                         const BOOL               enable)
 {
 #if defined(GCB_SIO_CFG)
     u32 msk = (1 << port);
@@ -443,10 +445,10 @@ static vtss_rc lan966x_sgpio_event_enable(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_sgpio_conf_set(vtss_state_t                  *vtss_state,
-                                      const vtss_chip_no_t           chip_no,
-                                      const vtss_sgpio_group_t       group,
-                                      const vtss_sgpio_conf_t *const conf)
+vtss_rc vtss_cil_misc_sgpio_conf_set(vtss_state_t                  *vtss_state,
+                                     const vtss_chip_no_t           chip_no,
+                                     const vtss_sgpio_group_t       group,
+                                     const vtss_sgpio_conf_t *const conf)
 {
 #if defined(GCB_SIO_CFG)
     u32  i, port, val = 0, msk, bmode[2], bit_idx, cfg;
@@ -534,10 +536,10 @@ static vtss_rc lan966x_sgpio_conf_set(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_sgpio_read(vtss_state_t            *vtss_state,
-                                  const vtss_chip_no_t     chip_no,
-                                  const vtss_sgpio_group_t group,
-                                  vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
+vtss_rc vtss_cil_misc_sgpio_read(vtss_state_t            *vtss_state,
+                                 const vtss_chip_no_t     chip_no,
+                                 const vtss_sgpio_group_t group,
+                                 vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
 {
 #if defined(GCB_SIO_CFG)
     u32 i, port, val;
@@ -610,6 +612,13 @@ static vtss_rc lan966x_gpio_sd_map_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+vtss_rc vtss_cil_misc_mdio_conf_set(vtss_state_t                 *vtss_state,
+                                    u8                            ctrl_id,
+                                    const vtss_mdio_conf_t *const conf)
+{
+    return VTSS_RC_ERROR;
+}
+
 /* - Debug print --------------------------------------------------- */
 
 static vtss_rc lan966x_debug_misc(vtss_state_t                  *vtss_state,
@@ -675,7 +684,7 @@ static vtss_rc lan966x_misc_poll_1sec(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_poll_1sec(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_misc_poll_1sec(vtss_state_t *vtss_state)
 {
     /* Poll function groups */
     return vtss_lan966x_init_groups(vtss_state, VTSS_INIT_CMD_POLL);
@@ -683,52 +692,8 @@ static vtss_rc lan966x_poll_1sec(vtss_state_t *vtss_state)
 
 vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_misc_state_t *state = &vtss_state->misc;
-
     switch (cmd) {
-    case VTSS_INIT_CMD_CREATE:
-        state->reg_read = lan966x_reg_read;
-        state->reg_write = lan966x_reg_write;
-        state->chip_id_get = lan966x_chip_id_get;
-        state->poll_1sec = lan966x_poll_1sec;
-        state->gpio_mode = vtss_lan966x_gpio_mode;
-        state->gpio_read = lan966x_gpio_read;
-        state->gpio_write = lan966x_gpio_write;
-        state->gpio_event_enable = lan966x_gpio_event_enable;
-        state->gpio_event_poll = lan966x_gpio_event_poll;
-#if defined(VTSS_FEATURE_SERIAL_GPIO)
-        state->sgpio_conf_set = lan966x_sgpio_conf_set;
-        state->sgpio_read = lan966x_sgpio_read;
-        state->sgpio_event_enable = lan966x_sgpio_event_enable;
-        state->sgpio_event_poll = lan966x_sgpio_event_poll;
-#endif
-        state->dev_all_event_poll = lan966x_dev_all_event_poll;
-        state->dev_all_event_enable = lan966x_dev_all_event_enable;
-#if defined(VTSS_FEATURE_INTERRUPTS)
-        state->intr_cfg = lan966x_intr_cfg;
-        state->intr_pol_negation = lan966x_intr_pol_negation;
-#endif
-        state->ptp_event_poll = lan966x_ptp_event_poll;
-        state->ptp_event_enable = lan966x_ptp_event_enable;
-#if defined(VTSS_FEATURE_IRQ_CONTROL)
-        state->irq_cfg = lan966x_misc_irq_cfg;
-        state->irq_status = lan966x_misc_irq_status;
-        state->irq_enable = lan966x_misc_irq_enable;
-#endif
-#if defined(VTSS_FEATURE_EEE)
-        vtss_state->eee.port_conf_set = lan966x_eee_port_conf_set;
-#endif
-#if defined(VTSS_FEATURE_FAN)
-        vtss_state->fan.controller_init = lan966x_fan_controller_init;
-        vtss_state->fan.cool_lvl_get = lan966x_fan_cool_lvl_get;
-        vtss_state->fan.cool_lvl_set = lan966x_fan_cool_lvl_set;
-        vtss_state->fan.rotation_get = lan966x_fan_rotation_get;
-#endif
-#if defined(VTSS_FEATURE_TEMP_SENSOR)
-        vtss_state->temp_sensor.chip_temp_init = lan966x_temp_sensor_init;
-        vtss_state->temp_sensor.chip_temp_get = lan966x_temp_sensor_get;
-#endif /* VTSS_FEATURE_TEMP_SENSOR */
-        break;
+    case VTSS_INIT_CMD_CREATE: break;
 
     case VTSS_INIT_CMD_POLL: VTSS_RC(lan966x_misc_poll_1sec(vtss_state)); break;
     case VTSS_INIT_CMD_PORT_MAP:

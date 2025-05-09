@@ -175,7 +175,6 @@ vtss_rc vtss_srvl_wm_update(vtss_state_t *vtss_state);
 
 /* Miscellaneous functions */
 vtss_rc vtss_srvl_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
-vtss_rc vtss_srvl_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id);
 #if defined(VTSS_GPIOS)
 vtss_rc vtss_srvl_gpio_mode(vtss_state_t          *vtss_state,
                             const vtss_chip_no_t   chip_no,

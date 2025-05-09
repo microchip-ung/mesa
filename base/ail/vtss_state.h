@@ -231,11 +231,11 @@ typedef enum {
 #if defined(VTSS_FEATURE_EEE)
 #define VTSS_EEE_TIMER_TABLE_CNT 128
 
+/* CIL function pointers */
+vtss_rc vtss_cil_eee_port_conf_set(struct vtss_state_s              *vtss_state,
+                                   const vtss_port_no_t              port_no,
+                                   const vtss_eee_port_conf_t *const eee_conf);
 typedef struct {
-    /* CIL function pointers */
-    vtss_rc (*port_conf_set)(struct vtss_state_s              *vtss_state,
-                             const vtss_port_no_t              port_no,
-                             const vtss_eee_port_conf_t *const eee_conf);
     /* Configuration/state */
     BOOL ena[VTSS_PORT_ARRAY_SIZE];     // Signaling current state in the switch api
     BOOL ena_phy[VTSS_PORT_ARRAY_SIZE]; // Signaling current state in the phy api
@@ -245,14 +245,15 @@ typedef struct {
 #endif /* VTSS_FEATURE_EEE */
 
 #if defined(VTSS_FEATURE_FAN)
+/* CIL function pointers */
+vtss_rc vtss_cil_fan_controller_init(struct vtss_state_s         *vtss_state,
+                                     const vtss_fan_conf_t *const spec);
+vtss_rc vtss_cil_fan_cool_lvl_set(struct vtss_state_s *vtss_state, u8 lvl);
+vtss_rc vtss_cil_fan_cool_lvl_get(struct vtss_state_s *vtss_state, u8 *lvl);
+vtss_rc vtss_cil_fan_rotation_get(struct vtss_state_s *vtss_state,
+                                  vtss_fan_conf_t     *fan_spec,
+                                  u32                 *rotation_count);
 typedef struct {
-    /* CIL function pointers */
-    vtss_rc (*controller_init)(struct vtss_state_s *vtss_state, const vtss_fan_conf_t *const spec);
-    vtss_rc (*cool_lvl_set)(struct vtss_state_s *vtss_state, u8 lvl);
-    vtss_rc (*cool_lvl_get)(struct vtss_state_s *vtss_state, u8 *lvl);
-    vtss_rc (*rotation_get)(struct vtss_state_s *vtss_state,
-                            vtss_fan_conf_t     *fan_spec,
-                            u32                 *rotation_count);
     /* Configuration/state */
     u16             rotation_count; // Fan rotations count
     vtss_fan_conf_t conf;           // Fan configuration/specifications.
@@ -261,11 +262,11 @@ typedef struct {
 #endif /* VTSS_FEATURE_FAN */
 
 #if defined(VTSS_FEATURE_TEMP_SENSOR)
-typedef struct {
-    /* CIL function pointers */
-    vtss_rc (*chip_temp_get)(struct vtss_state_s *vtss_state, i16 *chip_temp);
-    vtss_rc (*chip_temp_init)(struct vtss_state_s *vtss_state, const BOOL enable);
+/* CIL function pointers */
+vtss_rc vtss_cil_chip_temp_get(struct vtss_state_s *vtss_state, i16 *chip_temp);
+vtss_rc vtss_cil_chip_temp_init(struct vtss_state_s *vtss_state, const BOOL enable);
 
+typedef struct {
     i16 chip_temp; // Chip temperature
 } vtss_temp_sensor_state_t;
 #endif /* VTSS_FEATURE_TEMP_SENSOR */

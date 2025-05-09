@@ -16,9 +16,9 @@
 /* =================================================================
  *  EEE - Energy Efficient Ethernet
  * =================================================================*/
-static vtss_rc jr2_eee_port_conf_set(vtss_state_t                     *vtss_state,
-                                     const vtss_port_no_t              port_no,
-                                     const vtss_eee_port_conf_t *const conf)
+vtss_rc vtss_cil_eee_port_conf_set(vtss_state_t                     *vtss_state,
+                                   const vtss_port_no_t              port_no,
+                                   const vtss_eee_port_conf_t *const conf)
 {
     u32            closest_match_index, closest_match, i, requested_time;
     u32            eee_cfg_reg = 0x0; // SYS::EEE_CFG register value.
@@ -130,7 +130,7 @@ static vtss_rc jr2_eee_port_conf_set(vtss_state_t                     *vtss_stat
 /* =================================================================
  * FAN speed control
  * =================================================================*/
-static vtss_rc jr2_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_conf_t *const spec)
+vtss_rc vtss_cil_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_conf_t *const spec)
 {
 
 #if defined(VTSS_ARCH_SERVAL_T)
@@ -187,7 +187,7 @@ static vtss_rc jr2_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
+vtss_rc vtss_cil_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
 {
     // Set PWM duty cycle (fan speed)
     JR2_WRM(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG, VTSS_F_DEVCPU_GCB_FAN_CTRL_FAN_CFG_DUTY_CYCLE(lvl),
@@ -196,7 +196,7 @@ static vtss_rc jr2_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
+vtss_rc vtss_cil_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
 {
     u32 fan_cfg_reg;
 
@@ -209,9 +209,9 @@ static vtss_rc jr2_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_fan_rotation_get(vtss_state_t    *vtss_state,
-                                    vtss_fan_conf_t *fan_spec,
-                                    u32             *rotation_count)
+vtss_rc vtss_cil_fan_rotation_get(vtss_state_t    *vtss_state,
+                                  vtss_fan_conf_t *fan_spec,
+                                  u32             *rotation_count)
 {
     // Read the register
     JR2_RD(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CNT, rotation_count);
@@ -223,18 +223,22 @@ static vtss_rc jr2_fan_rotation_get(vtss_state_t    *vtss_state,
 /* ================================================================= *
  *  Temperature Sensor
  * ================================================================= */
-#if defined(VTSS_FEATURE_TEMP_SENSOR) &&                                                           \
-    (defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C))
-static vtss_rc jr2_temp_sensor_init(vtss_state_t *vtss_state, const BOOL enable)
+#if defined(VTSS_FEATURE_TEMP_SENSOR)
+vtss_rc vtss_cil_chip_temp_init(vtss_state_t *vtss_state, const BOOL enable)
 {
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
     // Enable/Disable
     JR2_WRM(VTSS_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_CTRL, enable ? 1 : 0,
             VTSS_M_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_CTRL_SAMPLE_ENA);
     return VTSS_RC_OK;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
-static vtss_rc jr2_temp_sensor_get(vtss_state_t *vtss_state, i16 *temp)
+vtss_rc vtss_cil_chip_temp_get(vtss_state_t *vtss_state, i16 *temp)
 {
+#if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
     u32 status = 0;
     JR2_RD(VTSS_DEVCPU_GCB_TEMP_SENSOR_TEMP_SENSOR_STAT, &status);
 
@@ -248,31 +252,33 @@ static vtss_rc jr2_temp_sensor_get(vtss_state_t *vtss_state, i16 *temp)
     }
 
     return VTSS_RC_ERROR;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
-
 #endif /* VTSS_FEATURE_TEMP_SENSOR */
 
 /* ================================================================= *
  *  Miscellaneous
  * ================================================================= */
 
-static vtss_rc jr2_reg_read(vtss_state_t        *vtss_state,
-                            const vtss_chip_no_t chip_no,
-                            const u32            addr,
-                            u32 *const           value)
+vtss_rc vtss_cil_misc_reg_read(vtss_state_t        *vtss_state,
+                               const vtss_chip_no_t chip_no,
+                               const u32            addr,
+                               u32 *const           value)
 {
     return vtss_jr2_rd(vtss_state, addr, value);
 }
 
-static vtss_rc jr2_reg_write(vtss_state_t        *vtss_state,
-                             const vtss_chip_no_t chip_no,
-                             const u32            addr,
-                             const u32            value)
+vtss_rc vtss_cil_misc_reg_write(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const u32            addr,
+                                const u32            value)
 {
     return vtss_jr2_wr(vtss_state, addr, value);
 }
 
-vtss_rc vtss_jr2_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
+vtss_rc vtss_cil_misc_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
     u32 value;
 
@@ -286,7 +292,7 @@ vtss_rc vtss_jr2_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chi
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
     u32 sticky, mask;
 
@@ -314,9 +320,9 @@ static vtss_rc jr2_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ptp_event_enable(vtss_state_t         *vtss_state,
-                                    vtss_ptp_event_type_t ev_mask,
-                                    BOOL                  enable)
+vtss_rc vtss_cil_misc_ptp_event_enable(vtss_state_t         *vtss_state,
+                                       vtss_ptp_event_type_t ev_mask,
+                                       BOOL                  enable)
 {
     /* PTP masks */
 
@@ -348,9 +354,9 @@ static vtss_rc jr2_ptp_event_enable(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_dev_all_event_poll(vtss_state_t              *vtss_state,
-                                      vtss_dev_all_event_poll_t  poll_type,
-                                      vtss_dev_all_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_dev_all_event_poll(vtss_state_t              *vtss_state,
+                                         vtss_dev_all_event_poll_t  poll_type,
+                                         vtss_dev_all_event_type_t *ev_mask)
 {
     u32            ident = 0, chip_port;
     vtss_port_no_t api_port;
@@ -410,10 +416,10 @@ static vtss_rc jr2_dev_all_event_poll(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_dev_all_event_enable(vtss_state_t             *vtss_state,
-                                        vtss_port_no_t            port_no,
-                                        vtss_dev_all_event_type_t ev_mask,
-                                        BOOL                      enable)
+vtss_rc vtss_cil_misc_dev_all_event_enable(vtss_state_t             *vtss_state,
+                                           vtss_port_no_t            port_no,
+                                           vtss_dev_all_event_type_t ev_mask,
+                                           BOOL                      enable)
 {
     u32 chip_port = VTSS_CHIP_PORT(port_no), mask = VTSS_BIT(chip_port), dev_intr = chip_port;
 
@@ -483,16 +489,16 @@ static vtss_rc jr2_dev_all_event_enable(vtss_state_t             *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_intr_cfg(vtss_state_t *vtss_state,
-                            const u32     intr_mask,
-                            const BOOL    polarity,
-                            const BOOL    enable)
+vtss_rc vtss_cil_misc_intr_cfg(vtss_state_t *vtss_state,
+                               const u32     intr_mask,
+                               const BOOL    polarity,
+                               const BOOL    enable)
 {
     // JR2-TBD: Stub
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_intr_pol_negation(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_misc_intr_pol_negation(vtss_state_t *vtss_state)
 {
     // JR2-TBD: Stub
     return VTSS_RC_OK;
@@ -605,9 +611,9 @@ static vtss_rc jr2_misc_irq_remap(vtss_state_t                *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_misc_irq_cfg(vtss_state_t                *vtss_state,
-                                const vtss_irq_t             irq,
-                                const vtss_irq_conf_t *const conf)
+vtss_rc vtss_cil_misc_irq_cfg(vtss_state_t                *vtss_state,
+                              const vtss_irq_t             irq,
+                              const vtss_irq_conf_t *const conf)
 {
     vtss_rc rc = VTSS_RC_OK;
     if (conf->destination > 1) {
@@ -659,7 +665,7 @@ static vtss_rc jr2_misc_irq_cfg(vtss_state_t                *vtss_state,
     return rc;
 }
 
-static vtss_rc jr2_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
+vtss_rc vtss_cil_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
 {
     u32 val, uio_irqs, dest;
 
@@ -754,9 +760,7 @@ static vtss_rc jr2_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_misc_irq_enable(vtss_state_t    *vtss_state,
-                                   const vtss_irq_t irq,
-                                   const BOOL       enable)
+vtss_rc vtss_cil_misc_irq_enable(vtss_state_t *vtss_state, const vtss_irq_t irq, const BOOL enable)
 {
     u32 mask = 0;
     switch (irq) {
@@ -805,7 +809,7 @@ static vtss_rc jr2_misc_irq_enable(vtss_state_t    *vtss_state,
 }
 #endif /* VTSS_FEATURE_IRQ_CONTROL */
 
-static vtss_rc jr2_poll_1sec(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_misc_poll_1sec(vtss_state_t *vtss_state)
 {
     /* Poll function groups */
     return vtss_jr2_init_groups(vtss_state, VTSS_INIT_CMD_POLL);
@@ -869,10 +873,18 @@ vtss_rc vtss_jr2_gpio_mode(vtss_state_t          *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_gpio_read(vtss_state_t        *vtss_state,
-                             const vtss_chip_no_t chip_no,
-                             const vtss_gpio_no_t gpio_no,
-                             BOOL *const          value)
+vtss_rc vtss_cil_misc_gpio_mode(vtss_state_t          *vtss_state,
+                                const vtss_chip_no_t   chip_no,
+                                const vtss_gpio_no_t   gpio_no,
+                                const vtss_gpio_mode_t mode)
+{
+    return vtss_jr2_gpio_mode(vtss_state, chip_no, gpio_no, mode);
+}
+
+vtss_rc vtss_cil_misc_gpio_read(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const vtss_gpio_no_t gpio_no,
+                                BOOL *const          value)
 {
     u32 val, mask;
 
@@ -888,10 +900,10 @@ static vtss_rc jr2_gpio_read(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_gpio_write(vtss_state_t        *vtss_state,
-                              const vtss_chip_no_t chip_no,
-                              const vtss_gpio_no_t gpio_no,
-                              const BOOL           value)
+vtss_rc vtss_cil_misc_gpio_write(vtss_state_t        *vtss_state,
+                                 const vtss_chip_no_t chip_no,
+                                 const vtss_gpio_no_t gpio_no,
+                                 const BOOL           value)
 {
     u32 mask;
 
@@ -913,9 +925,9 @@ static vtss_rc jr2_gpio_write(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_gpio_event_poll(vtss_state_t        *vtss_state,
-                                   const vtss_chip_no_t chip_no,
-                                   BOOL *const          events)
+vtss_rc vtss_cil_misc_gpio_event_poll(vtss_state_t        *vtss_state,
+                                      const vtss_chip_no_t chip_no,
+                                      BOOL *const          events)
 {
     u32 pending, mask, i;
 
@@ -940,10 +952,10 @@ static vtss_rc jr2_gpio_event_poll(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_gpio_event_enable(vtss_state_t        *vtss_state,
-                                     const vtss_chip_no_t chip_no,
-                                     const vtss_gpio_no_t gpio_no,
-                                     const BOOL           enable)
+vtss_rc vtss_cil_misc_gpio_event_enable(vtss_state_t        *vtss_state,
+                                        const vtss_chip_no_t chip_no,
+                                        const vtss_gpio_no_t gpio_no,
+                                        const BOOL           enable)
 {
 
     u32 mask;
@@ -982,11 +994,11 @@ static vtss_rc jr2_sgpio_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_sgpio_event_poll(vtss_state_t            *vtss_state,
-                                    const vtss_chip_no_t     chip_no,
-                                    const vtss_sgpio_group_t group,
-                                    const u32                bit,
-                                    BOOL *const              events)
+vtss_rc vtss_cil_misc_sgpio_event_poll(vtss_state_t            *vtss_state,
+                                       const vtss_chip_no_t     chip_no,
+                                       const vtss_sgpio_group_t group,
+                                       const u32                bit,
+                                       BOOL *const              events)
 {
     u32 i, val;
 
@@ -1008,12 +1020,12 @@ static vtss_rc jr2_sgpio_event_poll(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_sgpio_event_enable(vtss_state_t            *vtss_state,
-                                      const vtss_chip_no_t     chip_no,
-                                      const vtss_sgpio_group_t group,
-                                      const u32                port,
-                                      const u32                bit,
-                                      const BOOL               enable)
+vtss_rc vtss_cil_misc_sgpio_event_enable(vtss_state_t            *vtss_state,
+                                         const vtss_chip_no_t     chip_no,
+                                         const vtss_sgpio_group_t group,
+                                         const u32                port,
+                                         const u32                bit,
+                                         const BOOL               enable)
 {
     u32 i, mask = (1 << port);
 
@@ -1070,10 +1082,10 @@ static vtss_rc jr2_sgpio_event_enable(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_sgpio_conf_set(vtss_state_t                  *vtss_state,
-                                  const vtss_chip_no_t           chip_no,
-                                  const vtss_sgpio_group_t       group,
-                                  const vtss_sgpio_conf_t *const conf)
+vtss_rc vtss_cil_misc_sgpio_conf_set(vtss_state_t                  *vtss_state,
+                                     const vtss_chip_no_t           chip_no,
+                                     const vtss_sgpio_group_t       group,
+                                     const vtss_sgpio_conf_t *const conf)
 {
     u32  i, port, val = 0, pol = 0, bmode[2], bit_idx, value, mask;
     BOOL pol_high;
@@ -1208,10 +1220,10 @@ static vtss_rc jr2_sgpio_conf_set(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_sgpio_read(vtss_state_t            *vtss_state,
-                              const vtss_chip_no_t     chip_no,
-                              const vtss_sgpio_group_t group,
-                              vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
+vtss_rc vtss_cil_misc_sgpio_read(vtss_state_t            *vtss_state,
+                                 const vtss_chip_no_t     chip_no,
+                                 const vtss_sgpio_group_t group,
+                                 vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
 {
     u32 i, port, value;
 
@@ -1260,9 +1272,9 @@ static vtss_rc jr2_vscope_fast_scan_conf_set(struct vtss_state_s *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_vscope_conf_set(struct vtss_state_s            *vtss_state,
-                                   const vtss_port_no_t            port_no,
-                                   const vtss_vscope_conf_t *const conf)
+vtss_rc vtss_cil_misc_vscope_conf_set(struct vtss_state_s            *vtss_state,
+                                      const vtss_port_no_t            port_no,
+                                      const vtss_vscope_conf_t *const conf)
 {
     u32 check_aux_phase, ifmode, tmp;
     u32 chip_port = VTSS_CHIP_PORT(port_no);
@@ -1795,9 +1807,9 @@ static vtss_rc jr2_vscope_fast_scan_status_get(struct vtss_state_s             *
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_vscope_scan_status_get(struct vtss_state_s             *vtss_state,
-                                          const vtss_port_no_t             port_no,
-                                          vtss_vscope_scan_status_t *const conf)
+vtss_rc vtss_cil_misc_vscope_scan_status_get(struct vtss_state_s             *vtss_state,
+                                             const vtss_port_no_t             port_no,
+                                             vtss_vscope_scan_status_t *const conf)
 {
     vtss_vscope_scan_t scan_type;
     scan_type = vtss_state->misc.vscope_conf[port_no].scan_type;
@@ -1811,7 +1823,12 @@ static vtss_rc jr2_vscope_scan_status_get(struct vtss_state_s             *vtss_
 }
 #endif /* VTSS_FEATURE_VSCOPE) */
 
-/* - Debug print --------------------------------------------------- */
+vtss_rc vtss_cil_misc_mdio_conf_set(vtss_state_t                 *vtss_state,
+                                    u8                            ctrl_id,
+                                    const vtss_mdio_conf_t *const conf)
+{
+    return VTSS_RC_ERROR;
+}
 
 /* - Debug print --------------------------------------------------- */
 
@@ -1934,57 +1951,9 @@ vtss_rc vtss_jr2_misc_debug_print(vtss_state_t                  *vtss_state,
 
 vtss_rc vtss_jr2_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_misc_state_t *state = &vtss_state->misc;
-
-    if (cmd == VTSS_INIT_CMD_CREATE) {
-        state->reg_read = jr2_reg_read;
-        state->reg_write = jr2_reg_write;
-        state->chip_id_get = vtss_jr2_chip_id_get;
-        state->poll_1sec = jr2_poll_1sec;
-        state->gpio_mode = vtss_jr2_gpio_mode;
-        state->gpio_read = jr2_gpio_read;
-        state->gpio_write = jr2_gpio_write;
-        state->sgpio_conf_set = jr2_sgpio_conf_set;
-        state->sgpio_read = jr2_sgpio_read;
-        state->sgpio_event_enable = jr2_sgpio_event_enable;
-        state->sgpio_event_poll = jr2_sgpio_event_poll;
-        state->gpio_event_enable = jr2_gpio_event_enable;
-        state->gpio_event_poll = jr2_gpio_event_poll;
-        state->ptp_event_poll = jr2_ptp_event_poll;
-        state->ptp_event_enable = jr2_ptp_event_enable;
-        state->dev_all_event_poll = jr2_dev_all_event_poll;
-        state->dev_all_event_enable = jr2_dev_all_event_enable;
-        state->intr_cfg = jr2_intr_cfg;
-        state->intr_pol_negation = jr2_intr_pol_negation;
-#ifdef VTSS_FEATURE_IRQ_CONTROL
-        vtss_state->misc.irq_cfg = jr2_misc_irq_cfg;
-        vtss_state->misc.irq_status = jr2_misc_irq_status;
-        vtss_state->misc.irq_enable = jr2_misc_irq_enable;
-#endif /* VTSS_FEATURE_IRQ_CONTROL */
-
-#if defined(VTSS_FEATURE_EEE)
-        vtss_state->eee.port_conf_set = jr2_eee_port_conf_set;
-#endif /* VTSS_FEATURE_EEE */
-#if defined(VTSS_FEATURE_FAN)
-        vtss_state->fan.controller_init = jr2_fan_controller_init;
-        vtss_state->fan.cool_lvl_get = jr2_fan_cool_lvl_get;
-        vtss_state->fan.cool_lvl_set = jr2_fan_cool_lvl_set;
-        vtss_state->fan.rotation_get = jr2_fan_rotation_get;
-#endif /* VTSS_FEATURE_FAN */
-
-#if defined(VTSS_FEATURE_TEMP_SENSOR) &&                                                           \
-    (defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C))
-        vtss_state->temp_sensor.chip_temp_init = jr2_temp_sensor_init;
-        vtss_state->temp_sensor.chip_temp_get = jr2_temp_sensor_get;
-#endif /* VTSS_FEATURE_TEMP_SENSOR */
-#if defined(VTSS_FEATURE_VSCOPE)
-        vtss_state->misc.vscope_conf_set = jr2_vscope_conf_set;
-        vtss_state->misc.vscope_scan_status_get = jr2_vscope_scan_status_get;
-#endif /* VTSS_FEATURE_VSCOPE */
-    } else if (cmd == VTSS_INIT_CMD_INIT) {
+    if (cmd == VTSS_INIT_CMD_INIT) {
         VTSS_RC(jr2_sgpio_init(vtss_state));
     }
-
     return VTSS_RC_OK;
 }
 #endif /* VTSS_ARCH_JAGUAR_2 */

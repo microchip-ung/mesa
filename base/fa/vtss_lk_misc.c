@@ -11,9 +11,9 @@
 /* =================================================================
  *  EEE - Energy Efficient Ethernet
  * =================================================================*/
-static vtss_rc fa_eee_port_conf_set(vtss_state_t                     *vtss_state,
-                                    const vtss_port_no_t              port_no,
-                                    const vtss_eee_port_conf_t *const conf)
+vtss_rc vtss_cil_eee_port_conf_set(vtss_state_t                     *vtss_state,
+                                   const vtss_port_no_t              port_no,
+                                   const vtss_eee_port_conf_t *const conf)
 {
     u32            closest_match_index, closest_match, i, requested_time;
     u32            eee_cfg_reg = 0x0; // SYS::EEE_CFG register value.
@@ -120,30 +120,30 @@ static vtss_rc fa_eee_port_conf_set(vtss_state_t                     *vtss_state
  *  Miscellaneous
  * ================================================================= */
 
-static vtss_rc fa_reg_read(vtss_state_t        *vtss_state,
-                           const vtss_chip_no_t chip_no,
-                           const u32            addr,
-                           u32 *const           value)
+vtss_rc vtss_cil_misc_reg_read(vtss_state_t        *vtss_state,
+                               const vtss_chip_no_t chip_no,
+                               const u32            addr,
+                               u32 *const           value)
 {
     return vtss_fa_rd(vtss_state, addr, value);
 }
 
-static vtss_rc fa_reg_write(vtss_state_t        *vtss_state,
-                            const vtss_chip_no_t chip_no,
-                            const u32            addr,
-                            const u32            value)
+vtss_rc vtss_cil_misc_reg_write(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const u32            addr,
+                                const u32            value)
 {
     return vtss_fa_wr(vtss_state, addr, value);
 }
 
-vtss_rc vtss_fa_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
+vtss_rc vtss_cil_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
     chip_id->part_number = 0x6500;
     chip_id->revision = 1;
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
     u32 sticky, mask;
 
@@ -171,9 +171,9 @@ static vtss_rc fa_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_ptp_event_enable(vtss_state_t         *vtss_state,
-                                   vtss_ptp_event_type_t ev_mask,
-                                   BOOL                  enable)
+vtss_rc vtss_cil_ptp_event_enable(vtss_state_t         *vtss_state,
+                                  vtss_ptp_event_type_t ev_mask,
+                                  BOOL                  enable)
 {
     /* PTP masks */
     VTSS_D("ev_mask 0x%x, enable: %d", ev_mask, enable);
@@ -211,7 +211,7 @@ static vtss_rc fa_ptp_event_enable(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_poll_1sec(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_misc_poll_1sec(vtss_state_t *vtss_state)
 {
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_POLL);
 }
@@ -235,18 +235,7 @@ vtss_rc vtss_fa_misc_debug_print(vtss_state_t                  *vtss_state,
 /* - Initialization ------------------------------------------------ */
 vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_misc_state_t *state = &vtss_state->misc;
-
     if (cmd == VTSS_INIT_CMD_CREATE) {
-        state->reg_read = fa_reg_read;
-        state->reg_write = fa_reg_write;
-        state->chip_id_get = vtss_fa_chip_id_get;
-        state->poll_1sec = fa_poll_1sec;
-        state->ptp_event_poll = fa_ptp_event_poll;
-        state->ptp_event_enable = fa_ptp_event_enable;
-#if defined(VTSS_FEATURE_EEE)
-        vtss_state->eee.port_conf_set = fa_eee_port_conf_set;
-#endif /* VTSS_FEATURE_EEE */
     } else if (cmd == VTSS_INIT_CMD_INIT) {
     } else if (cmd == VTSS_INIT_CMD_PORT_MAP) {
     }

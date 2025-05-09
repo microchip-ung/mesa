@@ -56,9 +56,9 @@ static void lu26_misc_owner_mask_update(vtss_state_t *vtss_state, u32 destinatio
     }
 }
 
-static vtss_rc lu26_misc_irq_cfg(vtss_state_t                *vtss_state,
-                                 const vtss_irq_t             irq,
-                                 const vtss_irq_conf_t *const conf)
+vtss_rc vtss_cil_misc_irq_cfg(vtss_state_t                *vtss_state,
+                              const vtss_irq_t             irq,
+                              const vtss_irq_conf_t *const conf)
 {
     vtss_rc rc = VTSS_RC_OK;
     if (conf->destination > 1) {
@@ -144,7 +144,7 @@ static vtss_rc lu26_misc_irq_cfg(vtss_state_t                *vtss_state,
     return rc;
 }
 
-static vtss_rc lu26_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
+vtss_rc vtss_cil_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
 {
     u32 val, uio_irqs;
 
@@ -202,9 +202,7 @@ static vtss_rc lu26_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t 
     return VTSS_RC_OK;
 }
 
-static vtss_rc lu26_misc_irq_enable(vtss_state_t    *vtss_state,
-                                    const vtss_irq_t irq,
-                                    const BOOL       enable)
+vtss_rc vtss_cil_misc_irq_enable(vtss_state_t *vtss_state, const vtss_irq_t irq, const BOOL enable)
 {
     u32 mask;
     VTSS_D("irq:%d, enable:%d", irq, enable);
@@ -241,23 +239,23 @@ static vtss_rc lu26_misc_irq_enable(vtss_state_t    *vtss_state,
 
 #endif /* VTSS_FEATURE_IRQ_CONTROL */
 
-static vtss_rc l26_reg_read(vtss_state_t        *vtss_state,
-                            const vtss_chip_no_t chip_no,
-                            const u32            addr,
-                            u32 *const           value)
+vtss_rc vtss_cil_misc_reg_read(vtss_state_t        *vtss_state,
+                               const vtss_chip_no_t chip_no,
+                               const u32            addr,
+                               u32 *const           value)
 {
     return vtss_l26_rd(vtss_state, addr, value);
 }
 
-static vtss_rc l26_reg_write(vtss_state_t        *vtss_state,
-                             const vtss_chip_no_t chip_no,
-                             const u32            addr,
-                             const u32            value)
+vtss_rc vtss_cil_misc_reg_write(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const u32            addr,
+                                const u32            value)
 {
     return vtss_l26_wr(vtss_state, addr, value);
 }
 
-vtss_rc vtss_l26_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
+vtss_rc vtss_cil_misc_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
     u32 value;
 
@@ -274,7 +272,7 @@ vtss_rc vtss_l26_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chi
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
     u32 sticky, mask;
 
@@ -305,9 +303,9 @@ static vtss_rc l26_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ptp_event_enable(vtss_state_t         *vtss_state,
-                                    vtss_ptp_event_type_t ev_mask,
-                                    BOOL                  enable)
+vtss_rc vtss_cil_misc_ptp_event_enable(vtss_state_t         *vtss_state,
+                                       vtss_ptp_event_type_t ev_mask,
+                                       BOOL                  enable)
 {
 
     /* PTP masks */
@@ -330,10 +328,10 @@ static vtss_rc l26_ptp_event_enable(vtss_state_t         *vtss_state,
 // In: intr_mask - The interrupt bit mask bit.
 //     polarity  - The interrupt polarity.
 //     enable    - Set to enable the interrupts
-static vtss_rc l26_intr_cfg(vtss_state_t *vtss_state,
-                            const u32     intr_mask,
-                            const BOOL    polarity,
-                            const BOOL    enable)
+vtss_rc vtss_cil_misc_intr_cfg(vtss_state_t *vtss_state,
+                               const u32     intr_mask,
+                               const BOOL    polarity,
+                               const BOOL    enable)
 {
     u32 intr_bit;
 
@@ -360,7 +358,7 @@ static vtss_rc l26_intr_cfg(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_intr_pol_negation(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_misc_intr_pol_negation(vtss_state_t *vtss_state)
 {
     u32 ident, polarity;
 
@@ -374,9 +372,9 @@ static vtss_rc l26_intr_pol_negation(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_dev_all_event_poll(vtss_state_t              *vtss_state,
-                                      vtss_dev_all_event_poll_t  poll_type,
-                                      vtss_dev_all_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_dev_all_event_poll(vtss_state_t              *vtss_state,
+                                         vtss_dev_all_event_poll_t  poll_type,
+                                         vtss_dev_all_event_type_t *ev_mask)
 {
     u32            ident = 0, chip_port;
     vtss_port_no_t api_port;
@@ -399,7 +397,7 @@ static vtss_rc l26_dev_all_event_poll(vtss_state_t              *vtss_state,
        polarity.
     */
     if (ident) {
-        l26_intr_pol_negation(vtss_state);
+        vtss_cil_misc_intr_pol_negation(vtss_state);
     }
 
     /* Clear the icpu_dev sticky */
@@ -408,10 +406,10 @@ static vtss_rc l26_dev_all_event_poll(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_dev_all_event_enable(vtss_state_t             *vtss_state,
-                                        vtss_port_no_t            port_no,
-                                        vtss_dev_all_event_type_t ev_mask,
-                                        BOOL                      enable)
+vtss_rc vtss_cil_misc_dev_all_event_enable(vtss_state_t             *vtss_state,
+                                           vtss_port_no_t            port_no,
+                                           vtss_dev_all_event_type_t ev_mask,
+                                           BOOL                      enable)
 {
     u32 chip_port = VTSS_CHIP_PORT(port_no), mask = VTSS_BIT(chip_port), dev_intr = chip_port;
 
@@ -463,10 +461,18 @@ vtss_rc vtss_l26_gpio_mode(vtss_state_t          *vtss_state,
     return VTSS_RC_ERROR;
 }
 
-static vtss_rc l26_gpio_read(vtss_state_t        *vtss_state,
-                             const vtss_chip_no_t chip_no,
-                             const vtss_gpio_no_t gpio_no,
-                             BOOL *const          value)
+vtss_rc vtss_cil_misc_gpio_mode(vtss_state_t          *vtss_state,
+                                const vtss_chip_no_t   chip_no,
+                                const vtss_gpio_no_t   gpio_no,
+                                const vtss_gpio_mode_t mode)
+{
+    return vtss_l26_gpio_mode(vtss_state, chip_no, gpio_no, mode);
+}
+
+vtss_rc vtss_cil_misc_gpio_read(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const vtss_gpio_no_t gpio_no,
+                                BOOL *const          value)
 {
     u32 val, mask = VTSS_BIT(gpio_no);
     L26_RD(VTSS_DEVCPU_GCB_GPIO_GPIO_IN, &val);
@@ -474,10 +480,10 @@ static vtss_rc l26_gpio_read(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_gpio_write(vtss_state_t        *vtss_state,
-                              const vtss_chip_no_t chip_no,
-                              const vtss_gpio_no_t gpio_no,
-                              const BOOL           value)
+vtss_rc vtss_cil_misc_gpio_write(vtss_state_t        *vtss_state,
+                                 const vtss_chip_no_t chip_no,
+                                 const vtss_gpio_no_t gpio_no,
+                                 const BOOL           value)
 {
     u32 mask = VTSS_BIT(gpio_no);
     if (value) {
@@ -488,11 +494,26 @@ static vtss_rc l26_gpio_write(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_sgpio_event_poll(vtss_state_t            *vtss_state,
-                                    const vtss_chip_no_t     chip_no,
-                                    const vtss_sgpio_group_t group,
-                                    const u32                bit,
-                                    BOOL *const              events)
+vtss_rc vtss_cil_misc_gpio_event_enable(vtss_state_t        *vtss_state,
+                                        const vtss_chip_no_t chip_no,
+                                        const vtss_gpio_no_t gpio_no,
+                                        const BOOL           enable)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_misc_gpio_event_poll(vtss_state_t        *vtss_state,
+                                      const vtss_chip_no_t chip_no,
+                                      BOOL *const          events)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_misc_sgpio_event_poll(vtss_state_t            *vtss_state,
+                                       const vtss_chip_no_t     chip_no,
+                                       const vtss_sgpio_group_t group,
+                                       const u32                bit,
+                                       BOOL *const              events)
 {
     u32 i, val = 0;
 
@@ -507,12 +528,12 @@ static vtss_rc l26_sgpio_event_poll(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_sgpio_event_enable(vtss_state_t            *vtss_state,
-                                      const vtss_chip_no_t     chip_no,
-                                      const vtss_sgpio_group_t group,
-                                      const u32                port,
-                                      const u32                bit,
-                                      const BOOL               enable)
+vtss_rc vtss_cil_misc_sgpio_event_enable(vtss_state_t            *vtss_state,
+                                         const vtss_chip_no_t     chip_no,
+                                         const vtss_sgpio_group_t group,
+                                         const u32                port,
+                                         const u32                bit,
+                                         const BOOL               enable)
 {
     u32 data, pol, i;
 
@@ -540,10 +561,10 @@ static vtss_rc l26_sgpio_event_enable(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_sgpio_conf_set(vtss_state_t                  *vtss_state,
-                                  const vtss_chip_no_t           chip_no,
-                                  const vtss_sgpio_group_t       group,
-                                  const vtss_sgpio_conf_t *const conf)
+vtss_rc vtss_cil_misc_sgpio_conf_set(vtss_state_t                  *vtss_state,
+                                     const vtss_chip_no_t           chip_no,
+                                     const vtss_sgpio_group_t       group,
+                                     const vtss_sgpio_conf_t *const conf)
 {
     u32 i, port, val = 0, bmode[2], bit_idx;
 
@@ -614,10 +635,10 @@ static vtss_rc l26_sgpio_conf_set(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_sgpio_read(vtss_state_t            *vtss_state,
-                              const vtss_chip_no_t     chip_no,
-                              const vtss_sgpio_group_t group,
-                              vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
+vtss_rc vtss_cil_misc_sgpio_read(vtss_state_t            *vtss_state,
+                                 const vtss_chip_no_t     chip_no,
+                                 const vtss_sgpio_group_t group,
+                                 vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
 {
     u32 i, port, value;
 
@@ -644,9 +665,9 @@ static vtss_rc l26_sgpio_read(vtss_state_t            *vtss_state,
  *
  * Return : VTSS_RC_OK if configuration done else error code.
  */
-static vtss_rc l26_eee_port_conf_set(vtss_state_t                     *vtss_state,
-                                     const vtss_port_no_t              port_no,
-                                     const vtss_eee_port_conf_t *const conf)
+vtss_rc vtss_cil_eee_port_conf_set(vtss_state_t                     *vtss_state,
+                                   const vtss_port_no_t              port_no,
+                                   const vtss_eee_port_conf_t *const conf)
 {
     u32            closest_match_index, closest_match, i, requested_time;
     u32            eee_cfg_reg = 0x0; // SYS::EEE_CFG register value.
@@ -672,7 +693,7 @@ static vtss_rc l26_eee_port_conf_set(vtss_state_t                     *vtss_stat
                                                       // from internal PHY (12 ports) must be
                                                       // disabled when EEE is enabled
         VTSS_N("conf->eee_ena:%d", conf->eee_ena);
-        VTSS_RC(l26_intr_cfg(vtss_state, (0x01 << chip_port), 0, !conf->eee_ena));
+        VTSS_RC(vtss_cil_misc_intr_cfg(vtss_state, (0x01 << chip_port), 0, !conf->eee_ena));
     }
 
     // Make sure that we don't get out of bound
@@ -772,7 +793,7 @@ static vtss_rc l26_eee_port_conf_set(vtss_state_t                     *vtss_stat
  * In :  spec  - Fan specifications
  *
  */
-static vtss_rc l26_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_conf_t *const spec)
+vtss_rc vtss_cil_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_conf_t *const spec)
 {
     // Set GPIO alternate functions. PWM is bit 29.
     (void)vtss_l26_gpio_mode(vtss_state, 0, 29, VTSS_GPIO_ALT_0);
@@ -815,7 +836,7 @@ static vtss_rc l26_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_
  *
  * return : VTSS_RC_OK when configuration done else error code.
  */
-static vtss_rc l26_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
+vtss_rc vtss_cil_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
 {
     // Set PWM duty cycle (fan speed)
     L26_WRM(VTSS_DEVCPU_GCB_FAN_CFG_FAN_CFG, VTSS_F_DEVCPU_GCB_FAN_CFG_FAN_CFG_DUTY_CYCLE(lvl),
@@ -831,7 +852,7 @@ static vtss_rc l26_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
  *
  */
 
-static vtss_rc l26_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
+vtss_rc vtss_cil_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
 {
     u32 fan_cfg_reg;
 
@@ -888,9 +909,9 @@ static vtss_rc l26_fan_rotation(vtss_state_t *vtss_state, BOOL update, u32 *valu
  *
  * Return : VTSS_OK if rotation was found else error code.
  */
-static vtss_rc l26_fan_rotation_get(vtss_state_t    *vtss_state,
-                                    vtss_fan_conf_t *fan_spec,
-                                    u32             *rotation_count)
+vtss_rc vtss_cil_fan_rotation_get(vtss_state_t    *vtss_state,
+                                  vtss_fan_conf_t *fan_spec,
+                                  u32             *rotation_count)
 {
     return l26_fan_rotation(vtss_state, FALSE, rotation_count);
 }
@@ -908,6 +929,13 @@ static vtss_rc l26_fan_rotation_update(vtss_state_t *vtss_state)
 }
 
 #endif /* VTSS_FEATURE_FAN */
+
+vtss_rc vtss_cil_misc_mdio_conf_set(vtss_state_t                 *vtss_state,
+                                    u8                            ctrl_id,
+                                    const vtss_mdio_conf_t *const conf)
+{
+    return VTSS_RC_ERROR;
+}
 
 /* - Debug print --------------------------------------------------- */
 
@@ -1022,17 +1050,17 @@ static vtss_rc l26_misc_poll_1sec(vtss_state_t *vtss_state)
             for (bit = 0; bit < 4; ++bit) /* port is not enabled - check if it
                                              is configured to be */
                 if (vtss_state->misc.sgpio_event_enabled[0][0].enable[port][bit]) {
-                    rc = l26_sgpio_event_enable(vtss_state, 0, 0, port, bit,
-                                                TRUE); /* this port,bit is
-                                                          configured to be enabled
-                                                          - try and enable */
+                    rc = vtss_cil_misc_sgpio_event_enable(vtss_state, 0, 0, port, bit,
+                                                          TRUE); /* this port,bit is
+                                                                    configured to be enabled
+                                                                    - try and enable */
                 }
 
     VTSS_RC(l26_fan_rotation_update(vtss_state));
     return rc;
 }
 
-static vtss_rc l26_poll_1sec(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_misc_poll_1sec(vtss_state_t *vtss_state)
 {
     /* Poll function groups */
     return vtss_l26_init_groups(vtss_state, VTSS_INIT_CMD_POLL);
@@ -1040,45 +1068,11 @@ static vtss_rc l26_poll_1sec(vtss_state_t *vtss_state)
 
 vtss_rc vtss_l26_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_misc_state_t *state = &vtss_state->misc;
-
     switch (cmd) {
-    case VTSS_INIT_CMD_CREATE:
-        state->reg_read = l26_reg_read;
-        state->reg_write = l26_reg_write;
-        state->chip_id_get = vtss_l26_chip_id_get;
-        state->poll_1sec = l26_poll_1sec;
-        state->gpio_mode = vtss_l26_gpio_mode;
-        state->gpio_read = l26_gpio_read;
-        state->gpio_write = l26_gpio_write;
-        state->sgpio_conf_set = l26_sgpio_conf_set;
-        state->sgpio_read = l26_sgpio_read;
-        state->sgpio_event_enable = l26_sgpio_event_enable;
-        state->sgpio_event_poll = l26_sgpio_event_poll;
-        state->ptp_event_poll = l26_ptp_event_poll;
-        state->ptp_event_enable = l26_ptp_event_enable;
-        state->dev_all_event_poll = l26_dev_all_event_poll;
-        state->dev_all_event_enable = l26_dev_all_event_enable;
-        state->intr_cfg = l26_intr_cfg;
-        state->intr_pol_negation = l26_intr_pol_negation;
-
-#if defined(VTSS_FEATURE_EEE)
-        /* EEE */
-        vtss_state->eee.port_conf_set = l26_eee_port_conf_set;
-#endif
-        vtss_state->fan.controller_init = l26_fan_controller_init;
-        vtss_state->fan.cool_lvl_get = l26_fan_cool_lvl_get;
-        vtss_state->fan.cool_lvl_set = l26_fan_cool_lvl_set;
-        vtss_state->fan.rotation_get = l26_fan_rotation_get;
-#ifdef VTSS_FEATURE_IRQ_CONTROL
-        vtss_state->misc.irq_cfg = lu26_misc_irq_cfg;
-        vtss_state->misc.irq_status = lu26_misc_irq_status;
-        vtss_state->misc.irq_enable = lu26_misc_irq_enable;
-#endif /* VTSS_FEATURE_IRQ_CONTROL */
-        break;
-    case VTSS_INIT_CMD_INIT: break;
-    case VTSS_INIT_CMD_POLL: VTSS_RC(l26_misc_poll_1sec(vtss_state)); break;
-    default:                 break;
+    case VTSS_INIT_CMD_CREATE: break;
+    case VTSS_INIT_CMD_INIT:   break;
+    case VTSS_INIT_CMD_POLL:   VTSS_RC(l26_misc_poll_1sec(vtss_state)); break;
+    default:                   break;
     }
     return VTSS_RC_OK;
 }

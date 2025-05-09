@@ -15,9 +15,9 @@
 /* =================================================================
  *  EEE - Energy Efficient Ethernet
  * =================================================================*/
-static vtss_rc srvl_eee_port_conf_set(vtss_state_t                     *vtss_state,
-                                      const vtss_port_no_t              port_no,
-                                      const vtss_eee_port_conf_t *const conf)
+vtss_rc vtss_cil_eee_port_conf_set(vtss_state_t                     *vtss_state,
+                                   const vtss_port_no_t              port_no,
+                                   const vtss_eee_port_conf_t *const conf)
 {
     u32            closest_match_index, closest_match, i, requested_time;
     u32            eee_cfg_reg = 0x0; // SYS::EEE_CFG register value.
@@ -110,7 +110,7 @@ static vtss_rc srvl_eee_port_conf_set(vtss_state_t                     *vtss_sta
 /* =================================================================
  * FAN speed control
  * =================================================================*/
-static vtss_rc srvl_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_conf_t *const spec)
+vtss_rc vtss_cil_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan_conf_t *const spec)
 {
     // Calculated from 156.25MHz/fan_pwm_freq/256
     u32 pwm_freq[] = {
@@ -163,7 +163,7 @@ static vtss_rc srvl_fan_controller_init(vtss_state_t *vtss_state, const vtss_fan
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
+vtss_rc vtss_cil_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
 {
     // Set PWM duty cycle (fan speed)
     SRVL_WRM(VTSS_DEVCPU_GCB_FAN_CTRL_FAN_CFG, VTSS_F_DEVCPU_GCB_FAN_CTRL_FAN_CFG_DUTY_CYCLE(lvl),
@@ -172,7 +172,7 @@ static vtss_rc srvl_fan_cool_lvl_set(vtss_state_t *vtss_state, u8 lvl)
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
+vtss_rc vtss_cil_fan_cool_lvl_get(vtss_state_t *vtss_state, u8 *duty_cycle)
 {
     u32 fan_cfg_reg;
 
@@ -230,9 +230,9 @@ static vtss_rc srvl_fan_rotation(vtss_state_t *vtss_state, BOOL update, u32 *val
  *
  * Return : VTSS_OK if rotation was found else error code.
  */
-static vtss_rc srvl_fan_rotation_get(vtss_state_t    *vtss_state,
-                                     vtss_fan_conf_t *fan_spec,
-                                     u32             *rotation_count)
+vtss_rc vtss_cil_fan_rotation_get(vtss_state_t    *vtss_state,
+                                  vtss_fan_conf_t *fan_spec,
+                                  u32             *rotation_count)
 {
     return srvl_fan_rotation(vtss_state, FALSE, rotation_count);
 }
@@ -254,23 +254,23 @@ static vtss_rc srvl_fan_rotation_update(vtss_state_t *vtss_state)
  *  Miscellaneous
  * ================================================================= */
 
-static vtss_rc srvl_reg_read(vtss_state_t        *vtss_state,
-                             const vtss_chip_no_t chip_no,
-                             const u32            addr,
-                             u32 *const           value)
+vtss_rc vtss_cil_misc_reg_read(vtss_state_t        *vtss_state,
+                               const vtss_chip_no_t chip_no,
+                               const u32            addr,
+                               u32 *const           value)
 {
     return vtss_srvl_rd(vtss_state, addr, value);
 }
 
-static vtss_rc srvl_reg_write(vtss_state_t        *vtss_state,
-                              const vtss_chip_no_t chip_no,
-                              const u32            addr,
-                              const u32            value)
+vtss_rc vtss_cil_misc_reg_write(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const u32            addr,
+                                const u32            value)
 {
     return vtss_srvl_wr(vtss_state, addr, value);
 }
 
-vtss_rc vtss_srvl_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
+vtss_rc vtss_cil_misc_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
     u32 value;
 
@@ -341,7 +341,7 @@ vtss_rc vtss_srvl_isdx_update_es0(vtss_state_t *vtss_state, BOOL isdx_ena, u32 i
     return srvl_isdx_table_idle(vtss_state);
 }
 
-static vtss_rc srvl_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
 {
     u32 sticky, mask;
 
@@ -368,9 +368,9 @@ static vtss_rc srvl_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_ptp_event_enable(vtss_state_t         *vtss_state,
-                                     vtss_ptp_event_type_t ev_mask,
-                                     BOOL                  enable)
+vtss_rc vtss_cil_misc_ptp_event_enable(vtss_state_t         *vtss_state,
+                                       vtss_ptp_event_type_t ev_mask,
+                                       BOOL                  enable)
 {
     VTSS_D("ev_mask 0x%x, enable: %d", ev_mask, enable);
     if (ev_mask & VTSS_PTP_PIN_0_SYNC_EV) {
@@ -396,9 +396,9 @@ static vtss_rc srvl_ptp_event_enable(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_dev_all_event_poll(vtss_state_t              *vtss_state,
-                                       vtss_dev_all_event_poll_t  poll_type,
-                                       vtss_dev_all_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_dev_all_event_poll(vtss_state_t              *vtss_state,
+                                         vtss_dev_all_event_poll_t  poll_type,
+                                         vtss_dev_all_event_type_t *ev_mask)
 {
     u32            ident = 0, chip_port;
     vtss_port_no_t api_port;
@@ -431,10 +431,10 @@ static vtss_rc srvl_dev_all_event_poll(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_dev_all_event_enable(vtss_state_t             *vtss_state,
-                                         vtss_port_no_t            port_no,
-                                         vtss_dev_all_event_type_t ev_mask,
-                                         BOOL                      enable)
+vtss_rc vtss_cil_misc_dev_all_event_enable(vtss_state_t             *vtss_state,
+                                           vtss_port_no_t            port_no,
+                                           vtss_dev_all_event_type_t ev_mask,
+                                           BOOL                      enable)
 {
     u32 chip_port = VTSS_CHIP_PORT(port_no), mask = VTSS_BIT(chip_port), dev_intr = chip_port;
 
@@ -460,15 +460,15 @@ static vtss_rc srvl_dev_all_event_enable(vtss_state_t             *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_intr_cfg(vtss_state_t *vtss_state,
-                             const u32     intr_mask,
-                             const BOOL    polarity,
-                             const BOOL    enable)
+vtss_rc vtss_cil_misc_intr_cfg(vtss_state_t *vtss_state,
+                               const u32     intr_mask,
+                               const BOOL    polarity,
+                               const BOOL    enable)
 {
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_intr_pol_negation(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
+vtss_rc vtss_cil_misc_intr_pol_negation(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
 
 #ifdef VTSS_FEATURE_IRQ_CONTROL
 
@@ -563,9 +563,9 @@ static vtss_rc srvl_misc_irq_remap(vtss_state_t                *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_misc_irq_cfg(vtss_state_t                *vtss_state,
-                                 const vtss_irq_t             irq,
-                                 const vtss_irq_conf_t *const conf)
+vtss_rc vtss_cil_misc_irq_cfg(vtss_state_t                *vtss_state,
+                              const vtss_irq_t             irq,
+                              const vtss_irq_conf_t *const conf)
 {
     vtss_rc rc = VTSS_RC_ERROR;
     if (conf->destination > 1) {
@@ -613,7 +613,7 @@ static vtss_rc srvl_misc_irq_cfg(vtss_state_t                *vtss_state,
     return rc;
 }
 
-static vtss_rc srvl_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
+vtss_rc vtss_cil_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t *status)
 {
     u32 val, uio_irqs, dest;
 
@@ -701,9 +701,7 @@ static vtss_rc srvl_misc_irq_status(vtss_state_t *vtss_state, vtss_irq_status_t 
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_misc_irq_enable(vtss_state_t    *vtss_state,
-                                    const vtss_irq_t irq,
-                                    const BOOL       enable)
+vtss_rc vtss_cil_misc_irq_enable(vtss_state_t *vtss_state, const vtss_irq_t irq, const BOOL enable)
 {
     u32 mask = 0;
     switch (irq) {
@@ -783,10 +781,18 @@ vtss_rc vtss_srvl_gpio_mode(vtss_state_t          *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_gpio_read(vtss_state_t        *vtss_state,
-                              const vtss_chip_no_t chip_no,
-                              const vtss_gpio_no_t gpio_no,
-                              BOOL *const          value)
+vtss_rc vtss_cil_misc_gpio_mode(vtss_state_t          *vtss_state,
+                                const vtss_chip_no_t   chip_no,
+                                const vtss_gpio_no_t   gpio_no,
+                                const vtss_gpio_mode_t mode)
+{
+    return vtss_srvl_gpio_mode(vtss_state, chip_no, gpio_no, mode);
+}
+
+vtss_rc vtss_cil_misc_gpio_read(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const vtss_gpio_no_t gpio_no,
+                                BOOL *const          value)
 {
     u32 val, mask = VTSS_BIT(gpio_no);
 
@@ -795,10 +801,10 @@ static vtss_rc srvl_gpio_read(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_gpio_write(vtss_state_t        *vtss_state,
-                               const vtss_chip_no_t chip_no,
-                               const vtss_gpio_no_t gpio_no,
-                               const BOOL           value)
+vtss_rc vtss_cil_misc_gpio_write(vtss_state_t        *vtss_state,
+                                 const vtss_chip_no_t chip_no,
+                                 const vtss_gpio_no_t gpio_no,
+                                 const BOOL           value)
 {
     u32 mask = VTSS_BIT(gpio_no);
 
@@ -810,10 +816,10 @@ static vtss_rc srvl_gpio_write(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_gpio_event_enable(vtss_state_t        *vtss_state,
-                                      const vtss_chip_no_t chip_no,
-                                      const vtss_gpio_no_t gpio_no,
-                                      const BOOL           enable)
+vtss_rc vtss_cil_misc_gpio_event_enable(vtss_state_t        *vtss_state,
+                                        const vtss_chip_no_t chip_no,
+                                        const vtss_gpio_no_t gpio_no,
+                                        const BOOL           enable)
 {
     u32 mask = VTSS_BIT(gpio_no);
 
@@ -821,9 +827,9 @@ static vtss_rc srvl_gpio_event_enable(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_gpio_event_poll(vtss_state_t        *vtss_state,
-                                    const vtss_chip_no_t chip_no,
-                                    BOOL *const          events)
+vtss_rc vtss_cil_misc_gpio_event_poll(vtss_state_t        *vtss_state,
+                                      const vtss_chip_no_t chip_no,
+                                      BOOL *const          events)
 {
     u32 pending, mask, i;
 
@@ -837,11 +843,11 @@ static vtss_rc srvl_gpio_event_poll(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_sgpio_event_poll(vtss_state_t            *vtss_state,
-                                     const vtss_chip_no_t     chip_no,
-                                     const vtss_sgpio_group_t group,
-                                     const u32                bit,
-                                     BOOL *const              events)
+vtss_rc vtss_cil_misc_sgpio_event_poll(vtss_state_t            *vtss_state,
+                                       const vtss_chip_no_t     chip_no,
+                                       const vtss_sgpio_group_t group,
+                                       const u32                bit,
+                                       BOOL *const              events)
 {
     u32 i, val;
 
@@ -858,12 +864,12 @@ static vtss_rc srvl_sgpio_event_poll(vtss_state_t            *vtss_state,
 #endif /* VTSS_GPIOS */
 
 #if defined(VTSS_FEATURE_SERIAL_GPIO)
-static vtss_rc srvl_sgpio_event_enable(vtss_state_t            *vtss_state,
-                                       const vtss_chip_no_t     chip_no,
-                                       const vtss_sgpio_group_t group,
-                                       const u32                port,
-                                       const u32                bit,
-                                       const BOOL               enable)
+vtss_rc vtss_cil_misc_sgpio_event_enable(vtss_state_t            *vtss_state,
+                                         const vtss_chip_no_t     chip_no,
+                                         const vtss_sgpio_group_t group,
+                                         const u32                port,
+                                         const u32                bit,
+                                         const BOOL               enable)
 {
     u32 i, mask = (1 << port);
 
@@ -905,10 +911,10 @@ static vtss_rc srvl_sgpio_event_enable(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_sgpio_conf_set(vtss_state_t                  *vtss_state,
-                                   const vtss_chip_no_t           chip_no,
-                                   const vtss_sgpio_group_t       group,
-                                   const vtss_sgpio_conf_t *const conf)
+vtss_rc vtss_cil_misc_sgpio_conf_set(vtss_state_t                  *vtss_state,
+                                     const vtss_chip_no_t           chip_no,
+                                     const vtss_sgpio_group_t       group,
+                                     const vtss_sgpio_conf_t *const conf)
 {
     u32 i, port, val = 0, pol = 0, bmode[2], bit_idx, value, mask;
 
@@ -1031,10 +1037,10 @@ static vtss_rc srvl_sgpio_conf_set(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc srvl_sgpio_read(vtss_state_t            *vtss_state,
-                               const vtss_chip_no_t     chip_no,
-                               const vtss_sgpio_group_t group,
-                               vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
+vtss_rc vtss_cil_misc_sgpio_read(vtss_state_t            *vtss_state,
+                                 const vtss_chip_no_t     chip_no,
+                                 const vtss_sgpio_group_t group,
+                                 vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
 {
     u32 i, port, value;
 
@@ -1048,6 +1054,13 @@ static vtss_rc srvl_sgpio_read(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 #endif /* VTSS_FEATURE_SERIAL_GPIO */
+
+vtss_rc vtss_cil_misc_mdio_conf_set(vtss_state_t                 *vtss_state,
+                                    u8                            ctrl_id,
+                                    const vtss_mdio_conf_t *const conf)
+{
+    return VTSS_RC_ERROR;
+}
 
 /* - Debug print --------------------------------------------------- */
 
@@ -1189,11 +1202,11 @@ static vtss_rc srvl_misc_poll_1sec(vtss_state_t *vtss_state)
             for (bit = 0; bit < 4; ++bit) /* port is not enabled - check if it
                                              is configured to be */
                 if (vtss_state->misc.sgpio_event_enabled[0][0].enable[port][bit]) {
-                    rc = srvl_sgpio_event_enable(vtss_state, 0, 0, port, bit,
-                                                 TRUE); /* this port,bit is
-                                                           configured to be
-                                                           enabled
-                                                           - try and enable */
+                    rc = vtss_cil_misc_sgpio_event_enable(vtss_state, 0, 0, port, bit,
+                                                          TRUE); /* this port,bit is
+                                                                    configured to be
+                                                                    enabled
+                                                                    - try and enable */
                 }
 #if defined(VTSS_FEATURE_FAN)
     VTSS_RC(srvl_fan_rotation_update(vtss_state));
@@ -1202,7 +1215,7 @@ static vtss_rc srvl_misc_poll_1sec(vtss_state_t *vtss_state)
     return rc;
 }
 
-static vtss_rc srvl_poll_1sec(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_misc_poll_1sec(vtss_state_t *vtss_state)
 {
     /* Poll function groups */
     return vtss_srvl_init_groups(vtss_state, VTSS_INIT_CMD_POLL);
@@ -1210,49 +1223,9 @@ static vtss_rc srvl_poll_1sec(vtss_state_t *vtss_state)
 
 vtss_rc vtss_srvl_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_misc_state_t *state = &vtss_state->misc;
-
-    if (cmd == VTSS_INIT_CMD_CREATE) {
-        state->reg_read = srvl_reg_read;
-        state->reg_write = srvl_reg_write;
-        state->chip_id_get = vtss_srvl_chip_id_get;
-        state->poll_1sec = srvl_poll_1sec;
-        state->gpio_mode = vtss_srvl_gpio_mode;
-        state->gpio_read = srvl_gpio_read;
-        state->gpio_write = srvl_gpio_write;
-        state->gpio_event_enable = srvl_gpio_event_enable;
-        state->gpio_event_poll = srvl_gpio_event_poll;
-        state->sgpio_conf_set = srvl_sgpio_conf_set;
-        state->sgpio_read = srvl_sgpio_read;
-        state->sgpio_event_enable = srvl_sgpio_event_enable;
-        state->sgpio_event_poll = srvl_sgpio_event_poll;
-        state->dev_all_event_poll = srvl_dev_all_event_poll;
-        state->dev_all_event_enable = srvl_dev_all_event_enable;
-        state->intr_cfg = srvl_intr_cfg;
-        state->intr_pol_negation = srvl_intr_pol_negation;
-        state->ptp_event_poll = srvl_ptp_event_poll;
-        state->ptp_event_enable = srvl_ptp_event_enable;
-#ifdef VTSS_FEATURE_IRQ_CONTROL
-        vtss_state->misc.irq_cfg = srvl_misc_irq_cfg;
-        vtss_state->misc.irq_status = srvl_misc_irq_status;
-        vtss_state->misc.irq_enable = srvl_misc_irq_enable;
-#endif /* VTSS_FEATURE_IRQ_CONTROL */
-
-        /* EEE */
-        vtss_state->eee.port_conf_set = srvl_eee_port_conf_set;
-
-#if defined(VTSS_FEATURE_FAN)
-        vtss_state->fan.controller_init = srvl_fan_controller_init;
-        vtss_state->fan.cool_lvl_get = srvl_fan_cool_lvl_get;
-        vtss_state->fan.cool_lvl_set = srvl_fan_cool_lvl_set;
-        vtss_state->fan.rotation_get = srvl_fan_rotation_get;
-#endif /* VTSS_FEATURE_FAN */
-    }
-
     if (cmd == VTSS_INIT_CMD_POLL) {
         VTSS_RC(srvl_misc_poll_1sec(vtss_state));
     }
-
     return VTSS_RC_OK;
 }
 #endif /* VTSS_ARCH_OCELOT */

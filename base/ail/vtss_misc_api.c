@@ -18,7 +18,7 @@ vtss_rc vtss_reg_read(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.reg_read, chip_no, addr, value);
+        rc = vtss_cil_misc_reg_read(vtss_state, chip_no, addr, value);
         VTSS_N("addr: 0x%08x, value: 0x%08x", addr, *value);
     }
     VTSS_EXIT();
@@ -37,7 +37,7 @@ vtss_rc vtss_reg_write(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.reg_write, chip_no, addr, value);
+        rc = vtss_cil_misc_reg_write(vtss_state, chip_no, addr, value);
         VTSS_N("addr: 0x%08x, value: 0x%08x", addr, value);
     }
     VTSS_EXIT();
@@ -58,9 +58,9 @@ vtss_rc vtss_reg_write_masked(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = VTSS_FUNC(misc.reg_read, chip_no, addr, &val)) == VTSS_RC_OK) {
+        (rc = vtss_cil_misc_reg_read(vtss_state, chip_no, addr, &val)) == VTSS_RC_OK) {
         val = ((val & ~mask) | (value & mask));
-        rc = VTSS_FUNC(misc.reg_write, chip_no, addr, val);
+        rc = vtss_cil_misc_reg_write(vtss_state, chip_no, addr, val);
         VTSS_D("addr: 0x%08x, value: 0x%08x", addr, val);
     }
     VTSS_EXIT();
@@ -75,20 +75,14 @@ vtss_rc vtss_chip_id_get(const vtss_inst_t inst, vtss_chip_id_t *const chip_id)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.chip_id_get, chip_id);
+        rc = vtss_cil_misc_chip_id_get(vtss_state, chip_id);
     }
     VTSS_EXIT();
     return rc;
 }
 
-vtss_rc vtss_intr_sticky_clear(const vtss_inst_t inst, u32 ext)
-{
-    vtss_state_t *vtss_state = vtss_inst_check_no_persist(inst);
+vtss_rc vtss_intr_sticky_clear(const vtss_inst_t inst, u32 ext) { return VTSS_RC_ERROR; }
 
-    return VTSS_FUNC_FROM_STATE(vtss_state, misc.intr_sticky_clear, ext);
-}
-
-void    vtss_api_l3_integrity_check(const char *file, unsigned line);
 vtss_rc vtss_poll_1sec(const vtss_inst_t inst)
 {
     vtss_state_t *vtss_state;
@@ -96,7 +90,7 @@ vtss_rc vtss_poll_1sec(const vtss_inst_t inst)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        vtss_rc rc2 = VTSS_FUNC_0(misc.poll_1sec);
+        vtss_rc rc2 = vtss_cil_misc_poll_1sec(vtss_state);
         if (rc == VTSS_RC_OK) {
             rc = rc2;
         }
@@ -114,7 +108,7 @@ vtss_rc vtss_mdio_conf_set(const vtss_inst_t             inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.mdio_conf_set, ctrl_id, conf);
+        rc = vtss_cil_misc_mdio_conf_set(vtss_state, ctrl_id, conf);
     }
     VTSS_EXIT();
     return rc;
@@ -127,7 +121,7 @@ vtss_rc vtss_ptp_event_poll(const vtss_inst_t inst, vtss_ptp_event_type_t *const
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.ptp_event_poll, ev_mask);
+        rc = vtss_cil_misc_ptp_event_poll(vtss_state, ev_mask);
     }
     VTSS_EXIT();
     return rc;
@@ -143,7 +137,7 @@ vtss_rc vtss_ptp_event_enable(const vtss_inst_t           inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (rc == VTSS_RC_OK && ev_mask) {
-            rc = VTSS_FUNC(misc.ptp_event_enable, ev_mask, enable);
+            rc = vtss_cil_misc_ptp_event_enable(vtss_state, ev_mask, enable);
         }
     }
     VTSS_EXIT();
@@ -159,7 +153,7 @@ vtss_rc vtss_dev_all_event_poll(const vtss_inst_t                inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.dev_all_event_poll, poll_type, ev_mask);
+        rc = vtss_cil_misc_dev_all_event_poll(vtss_state, poll_type, ev_mask);
     }
     VTSS_EXIT();
     return rc;
@@ -175,7 +169,7 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t               inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK && ev_mask) {
-        rc = VTSS_FUNC(misc.dev_all_event_enable, port_no, ev_mask, enable);
+        rc = vtss_cil_misc_dev_all_event_enable(vtss_state, port_no, ev_mask, enable);
     }
     VTSS_EXIT();
     return rc;
@@ -202,7 +196,7 @@ vtss_rc vtss_gpio_mode_set(const vtss_inst_t      inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
         (rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.gpio_mode, chip_no, gpio_no, mode);
+        rc = vtss_cil_misc_gpio_mode(vtss_state, chip_no, gpio_no, mode);
     }
     VTSS_EXIT();
     return rc;
@@ -228,7 +222,7 @@ vtss_rc vtss_gpio_read(const vtss_inst_t    inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
         (rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.gpio_read, chip_no, gpio_no, value);
+        rc = vtss_cil_misc_gpio_read(vtss_state, chip_no, gpio_no, value);
     }
     VTSS_EXIT();
     return rc;
@@ -245,7 +239,7 @@ vtss_rc vtss_gpio_write(const vtss_inst_t    inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
         (rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.gpio_write, chip_no, gpio_no, value);
+        rc = vtss_cil_misc_gpio_write(vtss_state, chip_no, gpio_no, value);
     }
     VTSS_EXIT();
     return rc;
@@ -260,7 +254,7 @@ vtss_rc vtss_gpio_event_poll(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.gpio_event_poll, chip_no, events);
+        rc = vtss_cil_misc_gpio_event_poll(vtss_state, chip_no, events);
     }
     VTSS_EXIT();
     return rc;
@@ -277,7 +271,7 @@ vtss_rc vtss_gpio_event_enable(const vtss_inst_t    inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
         (rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.gpio_event_enable, chip_no, gpio_no, enable);
+        rc = vtss_cil_misc_gpio_event_enable(vtss_state, chip_no, gpio_no, enable);
     }
     VTSS_EXIT();
     return rc;
@@ -330,7 +324,7 @@ vtss_rc vtss_sgpio_conf_set(const vtss_inst_t              inst,
             rc = VTSS_RC_ERROR;
         } else {
             vtss_state->misc.sgpio_conf[chip_no][group] = *conf;
-            rc = VTSS_FUNC(misc.sgpio_conf_set, chip_no, group, conf);
+            rc = vtss_cil_misc_sgpio_conf_set(vtss_state, chip_no, group, conf);
         }
     }
     VTSS_EXIT();
@@ -348,7 +342,7 @@ vtss_rc vtss_sgpio_read(const vtss_inst_t        inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
         (rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.sgpio_read, chip_no, group, data);
+        rc = vtss_cil_misc_sgpio_read(vtss_state, chip_no, group, data);
     }
     VTSS_EXIT();
     return rc;
@@ -370,7 +364,7 @@ vtss_rc vtss_sgpio_event_poll(const vtss_inst_t        inst,
             VTSS_E("illegal parameter  bit: %u", bit);
             rc = VTSS_RC_ERROR;
         } else {
-            rc = VTSS_FUNC(misc.sgpio_event_poll, chip_no, group, bit, events);
+            rc = vtss_cil_misc_sgpio_event_poll(vtss_state, chip_no, group, bit, events);
         }
     }
     VTSS_EXIT();
@@ -395,7 +389,7 @@ vtss_rc vtss_sgpio_event_enable(const vtss_inst_t        inst,
             rc = VTSS_RC_ERROR;
         } else {
             vtss_state->misc.sgpio_event_enabled[chip_no][group].enable[port][bit] = enable;
-            rc = VTSS_FUNC(misc.sgpio_event_enable, chip_no, group, port, bit, enable);
+            rc = vtss_cil_misc_sgpio_event_enable(vtss_state, chip_no, group, port, bit, enable);
         }
     }
     VTSS_EXIT();
@@ -413,34 +407,14 @@ vtss_rc vtss_intr_cfg(const vtss_inst_t inst, const u32 mask, const BOOL polarit
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
-        rc = VTSS_FUNC(misc.intr_cfg, mask, polarity, enable);
+        rc = vtss_cil_misc_intr_cfg(vtss_state, mask, polarity, enable);
     VTSS_EXIT();
     return rc;
 }
 
-vtss_rc vtss_intr_mask_set(const vtss_inst_t inst, vtss_intr_t *mask)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc       rc;
+vtss_rc vtss_intr_mask_set(const vtss_inst_t inst, vtss_intr_t *mask) { return VTSS_RC_ERROR; }
 
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
-        rc = VTSS_FUNC(misc.intr_mask_set, mask);
-    VTSS_EXIT();
-    return rc;
-}
-
-vtss_rc vtss_intr_status_get(const vtss_inst_t inst, vtss_intr_t *status)
-{
-    vtss_state_t *vtss_state;
-    vtss_rc       rc;
-
-    VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
-        rc = VTSS_FUNC(misc.intr_status_get, status);
-    VTSS_EXIT();
-    return rc;
-}
+vtss_rc vtss_intr_status_get(const vtss_inst_t inst, vtss_intr_t *status) { return VTSS_RC_ERROR; }
 
 vtss_rc vtss_intr_pol_negation(const vtss_inst_t inst)
 {
@@ -449,7 +423,7 @@ vtss_rc vtss_intr_pol_negation(const vtss_inst_t inst)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
-        rc = VTSS_FUNC_0(misc.intr_pol_negation);
+        rc = vtss_cil_misc_intr_pol_negation(vtss_state);
     VTSS_EXIT();
     return rc;
 }
@@ -485,7 +459,7 @@ vtss_rc vtss_irq_conf_set(const vtss_inst_t            inst,
 
     VTSS_ENTER();
     if (irq < VTSS_IRQ_MAX && (rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((rc = VTSS_FUNC(misc.irq_cfg, irq, conf)) == VTSS_RC_OK) {
+        if ((rc = vtss_cil_misc_irq_cfg(vtss_state, irq, conf)) == VTSS_RC_OK) {
             vtss_state->misc.irq_conf[irq] = *conf;
         }
     }
@@ -503,7 +477,7 @@ vtss_rc vtss_irq_status_get_and_mask(const vtss_inst_t inst, vtss_irq_status_t *
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
-        rc = VTSS_FUNC(misc.irq_status, status);
+        rc = vtss_cil_misc_irq_status(vtss_state, status);
     VTSS_EXIT();
     return rc;
 }
@@ -518,7 +492,7 @@ vtss_rc vtss_irq_enable(const vtss_inst_t inst, vtss_irq_t irq, BOOL enable)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK)
-        rc = VTSS_FUNC(misc.irq_enable, irq, enable);
+        rc = vtss_cil_misc_irq_enable(vtss_state, irq, enable);
     VTSS_EXIT();
     return rc;
 }
@@ -536,7 +510,7 @@ vtss_rc vtss_temp_sensor_init(const vtss_inst_t inst, const BOOL enable)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(temp_sensor.chip_temp_init, enable);
+        rc = vtss_cil_chip_temp_init(vtss_state, enable);
     }
     VTSS_EXIT();
 
@@ -550,7 +524,7 @@ vtss_rc vtss_temp_sensor_get(const vtss_inst_t inst, i16 *temperature)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(temp_sensor.chip_temp_get, temperature);
+        rc = vtss_cil_chip_temp_get(vtss_state, temperature);
     }
     VTSS_EXIT();
 
@@ -569,7 +543,7 @@ vtss_rc vtss_fan_rotation_get(const vtss_inst_t      inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(fan.rotation_get, fan_spec, rotation_count);
+        rc = vtss_cil_fan_rotation_get(vtss_state, fan_spec, rotation_count);
     }
     VTSS_EXIT();
 
@@ -583,7 +557,7 @@ vtss_rc vtss_fan_controller_init(const vtss_inst_t inst, const vtss_fan_conf_t *
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(fan.controller_init, fan_spec);
+        rc = vtss_cil_fan_controller_init(vtss_state, fan_spec);
     }
     VTSS_EXIT();
 
@@ -597,7 +571,7 @@ vtss_rc vtss_fan_cool_lvl_set(const vtss_inst_t inst, u8 lvl)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(fan.cool_lvl_set, lvl);
+        rc = vtss_cil_fan_cool_lvl_set(vtss_state, lvl);
     }
     VTSS_EXIT();
 
@@ -611,7 +585,7 @@ vtss_rc vtss_fan_cool_lvl_get(const vtss_inst_t inst, u8 *lvl)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(fan.cool_lvl_get, lvl);
+        rc = vtss_cil_fan_cool_lvl_get(vtss_state, lvl);
     }
     VTSS_EXIT();
 
@@ -632,7 +606,7 @@ vtss_rc vtss_eee_port_conf_set(const vtss_inst_t                 inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         VTSS_D("eee.port_conf_set(%u)", port_no);
-        rc = VTSS_FUNC(eee.port_conf_set, port_no, eee_conf);
+        rc = vtss_cil_eee_port_conf_set(vtss_state, port_no, eee_conf);
     }
     VTSS_EXIT();
     return rc;
@@ -676,8 +650,7 @@ static void vtss_debug_print_misc(vtss_state_t                  *vtss_state,
         return;
     }
 
-    if (vtss_state->misc.chip_id_get != NULL &&
-        vtss_state->misc.chip_id_get(vtss_state, &chip_id) == VTSS_RC_OK) {
+    if (vtss_cil_misc_chip_id_get(vtss_state, &chip_id) == VTSS_RC_OK) {
         pr("Chip ID : 0x%04x\n", chip_id.part_number);
         pr("Revision: 0x%04x\n", chip_id.revision);
     }
@@ -817,7 +790,7 @@ vtss_rc vtss_vscope_conf_set(const vtss_inst_t               inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->misc.vscope_conf[port_no] = *conf;
-        rc = VTSS_FUNC(misc.vscope_conf_set, port_no, conf);
+        rc = vtss_cil_misc_vscope_conf_set(vtss_state, port_no, conf);
     }
     VTSS_EXIT();
     return rc;
@@ -845,7 +818,7 @@ vtss_rc vtss_vscope_scan_status_get(const vtss_inst_t                inst,
     vtss_rc       rc;
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(misc.vscope_scan_status_get, port_no, conf);
+        rc = vtss_cil_misc_vscope_scan_status_get(vtss_state, port_no, conf);
     }
     VTSS_EXIT();
     return rc;
