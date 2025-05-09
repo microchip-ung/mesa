@@ -712,10 +712,10 @@ vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
 
 #if defined(VTSS_ARCH_LAIKA)
 
-static vtss_rc vtss_cil_packet_rx_frame(vtss_state_t                *vtss_state,
-                                        u8 *const                    data,
-                                        const u32                    buflen,
-                                        vtss_packet_rx_info_t *const rx_info)
+vtss_rc vtss_cil_packet_rx_frame(vtss_state_t                *vtss_state,
+                                 u8 *const                    data,
+                                 const u32                    buflen,
+                                 vtss_packet_rx_info_t *const rx_info)
 {
     u8                    ifh[VTSS_PACKET_HDR_SIZE_BYTES];
     vtss_packet_rx_meta_t meta = {};
@@ -725,7 +725,7 @@ static vtss_rc vtss_cil_packet_rx_frame(vtss_state_t                *vtss_state,
     VTSS_RC(lk_pie_chnl_rx(vtss_state, data, buflen, ifh, &length));
     meta.length = length;
     meta.etype = (data[12] << 8) | data[13];
-    rc = fa_rx_hdr_decode(vtss_state, &meta, ifh, rx_info);
+    rc = vtss_cil_packet_rx_hdr_decode(vtss_state, &meta, ifh, rx_info);
     return rc;
 }
 
@@ -1161,10 +1161,10 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_st
 
 #if defined(VTSS_ARCH_LAIKA)
 
-static vtss_rc fa_tx_frame_ifh(vtss_state_t                     *vtss_state,
-                               const vtss_packet_tx_ifh_t *const ifh,
-                               const u8 *const                   frame,
-                               const u32                         length)
+vtss_rc vtss_cil_packet_tx_frame_ifh(vtss_state_t                     *vtss_state,
+                                     const vtss_packet_tx_ifh_t *const ifh,
+                                     const u8 *const                   frame,
+                                     const u32                         length)
 {
     VTSS_RC(fa_packet_mode_update(vtss_state));
     return lk_pie_chnl_tx(vtss_state, frame, length, ifh);
