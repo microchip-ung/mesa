@@ -75,7 +75,7 @@ mask);
 /* Helper Macros                  */
 /* ============================== */
 /* Read register */
-#define ES6514_RD_REG(reg, value) VTSS_RC(vtss_es6514_rd(vtss_state, reg, value));
+#define ES6514_RD_REG(reg, value) VTSS_RC(vtss_cil_clock_rd(vtss_state, reg, value));
 
 /* Read and extract register field */
 #define ES6514_RD_FLD(reg, tgt, addr, fld, value)                                                  \
@@ -94,10 +94,10 @@ mask);
     }
 
 /* Write register */
-#define ES6514_WR_REG(reg, value) VTSS_RC(vtss_es6514_wr(vtss_state, reg, value));
+#define ES6514_WR_REG(reg, value) VTSS_RC(vtss_cil_clock_wr(vtss_state, reg, value));
 
 /* Write register masked */
-#define ES6514_WR_MSK(reg, value, mask) VTSS_RC(vtss_es6514_wrm(vtss_state, reg, value, mask));
+#define ES6514_WR_MSK(reg, value, mask) VTSS_RC(vtss_cil_clock_wrm(vtss_state, reg, value, mask));
 
 /* Write non-replicated register field */
 #define ES6514_WR_FLD(reg, tgt, addr, fld, value)                                                  \

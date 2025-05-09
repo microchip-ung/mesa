@@ -22,7 +22,7 @@ vtss_rc vtss_clock_rd(const vtss_inst_t inst, const u32 addr, u32 *const value)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(clock.rd, addr, value);
+        rc = vtss_cil_clock_rd(vtss_state, addr, value);
     }
     VTSS_EXIT();
     VTSS_I("reg addr: 0x%x, value: 0x%x", addr, *value);
@@ -39,7 +39,7 @@ vtss_rc vtss_clock_wr(const vtss_inst_t inst, const u32 addr, const u32 value)
     VTSS_I("reg addr: 0x%x, value: 0x%x", addr, value);
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(clock.wr, addr, value);
+        rc = vtss_cil_clock_wr(vtss_state, addr, value);
     }
     VTSS_EXIT();
 
@@ -55,7 +55,7 @@ vtss_rc vtss_clock_wrm(const vtss_inst_t inst, const u32 addr, const u32 value, 
     VTSS_I("reg addr: 0x%x, value: 0x%x, mask: 0x%x", addr, value, mask);
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(clock.wrm, addr, value, mask);
+        rc = vtss_cil_clock_wrm(vtss_state, addr, value, mask);
     }
     VTSS_EXIT();
 
@@ -77,7 +77,7 @@ vtss_rc vtss_clock_global_enable_set(const vtss_inst_t inst, const vtss_clock_gl
     VTSS_I("ena: %d", ena);
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(clock.global_enable_set, ena);
+        rc = vtss_cil_clock_global_enable_set(vtss_state, ena);
     }
     VTSS_EXIT();
 
@@ -92,7 +92,7 @@ vtss_rc vtss_clock_global_enable_get(const vtss_inst_t inst, vtss_clock_global_e
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(clock.global_enable_get, ena);
+        rc = vtss_cil_clock_global_enable_get(vtss_state, ena);
     }
     VTSS_EXIT();
     VTSS_I("ena: %d", *ena);
@@ -109,7 +109,7 @@ vtss_rc vtss_clock_global_sw_reset(const vtss_inst_t inst)
     VTSS_I("sw reset");
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(clock.global_sw_reset);
+        rc = vtss_cil_clock_global_sw_reset(vtss_state);
     }
     VTSS_EXIT();
 
@@ -125,7 +125,7 @@ vtss_rc vtss_clock_shutdown(const vtss_inst_t inst)
     VTSS_I("shutdown");
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(clock.clock_shutdown);
+        rc = vtss_cil_clock_shutdown(vtss_state);
     }
     VTSS_EXIT();
 
@@ -146,7 +146,7 @@ vtss_rc vtss_clock_selection_mode_set(const vtss_inst_t                        i
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
             if (conf->clock_input < vtss_state->clock.clock_input_cnt) {
-                rc = VTSS_FUNC(clock.selection_mode_set, dpll, conf);
+                rc = vtss_cil_clock_selection_mode_set(vtss_state, dpll, conf);
             } else {
                 VTSS_E("illegal clock_input value: %u", conf->clock_input);
                 rc = VTSS_RC_ERROR;
@@ -172,7 +172,7 @@ vtss_rc vtss_clock_selection_mode_get(const vtss_inst_t                  inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.selection_mode_get, dpll, conf);
+            rc = vtss_cil_clock_selection_mode_get(vtss_state, dpll, conf);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -196,7 +196,7 @@ vtss_rc vtss_clock_operation_conf_set(const vtss_inst_t                   inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.operation_conf_set, dpll, conf);
+            rc = vtss_cil_clock_operation_conf_set(vtss_state, dpll, conf);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -217,7 +217,7 @@ vtss_rc vtss_clock_operation_conf_get(const vtss_inst_t             inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.operation_conf_get, dpll, conf);
+            rc = vtss_cil_clock_operation_conf_get(vtss_state, dpll, conf);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -242,7 +242,7 @@ vtss_rc vtss_clock_ho_stack_conf_set(const vtss_inst_t                       ins
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.ho_stack_conf_set, dpll, conf);
+            rc = vtss_cil_clock_ho_stack_conf_set(vtss_state, dpll, conf);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -263,7 +263,7 @@ vtss_rc vtss_clock_ho_stack_conf_get(const vtss_inst_t                 inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.ho_stack_conf_get, dpll, conf);
+            rc = vtss_cil_clock_ho_stack_conf_get(vtss_state, dpll, conf);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -287,7 +287,7 @@ vtss_rc vtss_clock_ho_stack_content_get(const vtss_inst_t                    ins
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.ho_stack_content_get, dpll, cont);
+            rc = vtss_cil_clock_ho_stack_content_get(vtss_state, dpll, cont);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -315,7 +315,7 @@ vtss_rc vtss_clock_dco_frequency_offset_set(const vtss_inst_t            inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.dco_frequency_offset_set, dpll, offset);
+            rc = vtss_cil_clock_dco_frequency_offset_set(vtss_state, dpll, offset);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -336,7 +336,7 @@ vtss_rc vtss_clock_dco_frequency_offset_get(const vtss_inst_t            inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.dco_frequency_offset_get, dpll, offset);
+            rc = vtss_cil_clock_dco_frequency_offset_get(vtss_state, dpll, offset);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -359,7 +359,7 @@ vtss_rc vtss_clock_output_filter_bw_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_filter_bw_set, clock_output, bw_100uhz);
+            rc = vtss_cil_clock_output_filter_bw_set(vtss_state, clock_output, bw_100uhz);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -380,7 +380,7 @@ vtss_rc vtss_clock_output_filter_bw_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_filter_bw_get, clock_output, bw_100uhz);
+            rc = vtss_cil_clock_output_filter_bw_get(vtss_state, clock_output, bw_100uhz);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -401,7 +401,7 @@ vtss_rc vtss_clock_output_filter_lock_fast_set(const vtss_inst_t inst, const u8 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_filter_lock_fast_set, clock_output);
+            rc = vtss_cil_clock_output_filter_lock_fast_set(vtss_state, clock_output);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -422,7 +422,8 @@ vtss_rc vtss_clock_output_filter_lock_fast_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_filter_lock_fast_get, clock_output, lock_completed);
+            rc = vtss_cil_clock_output_filter_lock_fast_get(vtss_state, clock_output,
+                                                            lock_completed);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -447,7 +448,7 @@ vtss_rc vtss_clock_output_psl_conf_set(const vtss_inst_t                  inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_psl_conf_set, clock_output, conf);
+            rc = vtss_cil_clock_output_psl_conf_set(vtss_state, clock_output, conf);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -468,7 +469,7 @@ vtss_rc vtss_clock_output_psl_conf_get(const vtss_inst_t            inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_psl_conf_get, clock_output, conf);
+            rc = vtss_cil_clock_output_psl_conf_get(vtss_state, clock_output, conf);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -490,7 +491,7 @@ vtss_rc vtss_clock_adj_frequency_set(const vtss_inst_t inst, const u8 clock_outp
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.adj_frequency_set, clock_output, adj);
+            rc = vtss_cil_clock_adj_frequency_set(vtss_state, clock_output, adj);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -509,7 +510,7 @@ vtss_rc vtss_clock_adj_frequency_get(const vtss_inst_t inst, const u8 clock_outp
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.adj_frequency_get, clock_output, adj);
+            rc = vtss_cil_clock_adj_frequency_get(vtss_state, clock_output, adj);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -530,7 +531,7 @@ vtss_rc vtss_clock_adj_phase_set(const vtss_inst_t inst, const u8 clock_output, 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < 16) {
-            rc = VTSS_FUNC(clock.adj_phase_set, clock_output, adj);
+            rc = vtss_cil_clock_adj_phase_set(vtss_state, clock_output, adj);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -548,7 +549,7 @@ vtss_rc vtss_clock_adj_phase_get(const vtss_inst_t inst, BOOL *const adj_ongoing
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(clock.adj_phase_get, adj_ongoing);
+        rc = vtss_cil_clock_adj_phase_get(vtss_state, adj_ongoing);
     }
     VTSS_EXIT();
     VTSS_I("adj_ongoing: %s", *adj_ongoing ? "TRUE" : "FALSE");
@@ -570,7 +571,7 @@ vtss_rc vtss_clock_priority_set(const vtss_inst_t                           inst
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
             if (clock_input < vtss_state->clock.clock_input_cnt) {
-                rc = VTSS_FUNC(clock.priority_set, dpll, clock_input, conf);
+                rc = vtss_cil_clock_priority_set(vtss_state, dpll, clock_input, conf);
             } else {
                 VTSS_E("illegal clock_input value: %u", clock_input);
                 rc = VTSS_RC_ERROR;
@@ -597,7 +598,7 @@ vtss_rc vtss_clock_priority_get(const vtss_inst_t                     inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
             if (clock_input < vtss_state->clock.clock_input_cnt) {
-                rc = VTSS_FUNC(clock.priority_get, dpll, clock_input, conf);
+                rc = vtss_cil_clock_priority_get(vtss_state, dpll, clock_input, conf);
             } else {
                 VTSS_E("illegal clock_input value: %u", clock_input);
                 rc = VTSS_RC_ERROR;
@@ -627,8 +628,8 @@ vtss_rc vtss_clock_input_frequency_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc =
-                VTSS_FUNC(clock.input_frequency_set, clock_input, freq_khz, use_internal_clock_src);
+            rc = vtss_cil_clock_input_frequency_set(vtss_state, clock_input, freq_khz,
+                                                    use_internal_clock_src);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -650,8 +651,8 @@ vtss_rc vtss_clock_input_frequency_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc =
-                VTSS_FUNC(clock.input_frequency_get, clock_input, freq_khz, use_internal_clock_src);
+            rc = vtss_cil_clock_input_frequency_get(vtss_state, clock_input, freq_khz,
+                                                    use_internal_clock_src);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -678,8 +679,8 @@ vtss_rc vtss_clock_input_frequency_ratio_set(const vtss_inst_t               ins
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_frequency_ratio_set, clock_input, freq_khz, ratio,
-                           use_internal_clock_src);
+            rc = vtss_cil_clock_input_frequency_ratio_set(vtss_state, clock_input, freq_khz, ratio,
+                                                          use_internal_clock_src);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -702,8 +703,8 @@ vtss_rc vtss_clock_input_frequency_ratio_get(const vtss_inst_t         inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_frequency_ratio_get, clock_input, freq_khz, ratio,
-                           use_internal_clock_src);
+            rc = vtss_cil_clock_input_frequency_ratio_get(vtss_state, clock_input, freq_khz, ratio,
+                                                          use_internal_clock_src);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -729,7 +730,8 @@ vtss_rc vtss_clock_output_frequency_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_frequency_set, clock_output, freq_khz, par_freq_khz);
+            rc = vtss_cil_clock_output_frequency_set(vtss_state, clock_output, freq_khz,
+                                                     par_freq_khz);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -751,7 +753,8 @@ vtss_rc vtss_clock_output_frequency_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_frequency_get, clock_output, freq_khz, par_freq_khz);
+            rc = vtss_cil_clock_output_frequency_get(vtss_state, clock_output, freq_khz,
+                                                     par_freq_khz);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -778,8 +781,8 @@ vtss_rc vtss_clock_output_frequency_ratio_set(const vtss_inst_t               in
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_frequency_ratio_set, clock_output, freq_khz, par_freq_khz,
-                           ratio);
+            rc = vtss_cil_clock_output_frequency_ratio_set(vtss_state, clock_output, freq_khz,
+                                                           par_freq_khz, ratio);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -802,8 +805,8 @@ vtss_rc vtss_clock_output_frequency_ratio_get(const vtss_inst_t         inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_frequency_ratio_get, clock_output, freq_khz, par_freq_khz,
-                           ratio);
+            rc = vtss_cil_clock_output_frequency_ratio_get(vtss_state, clock_output, freq_khz,
+                                                           par_freq_khz, ratio);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -827,7 +830,7 @@ vtss_rc vtss_clock_output_level_set(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_level_set, clock_output, level_mv);
+            rc = vtss_cil_clock_output_level_set(vtss_state, clock_output, level_mv);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -848,7 +851,7 @@ vtss_rc vtss_clock_output_level_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_level_get, clock_output, level_mv);
+            rc = vtss_cil_clock_output_level_get(vtss_state, clock_output, level_mv);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -872,7 +875,7 @@ vtss_rc vtss_clock_output_selector_set(const vtss_inst_t                        
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_selector_set, clock_output, input);
+            rc = vtss_cil_clock_output_selector_set(vtss_state, clock_output, input);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -893,7 +896,7 @@ vtss_rc vtss_clock_output_selector_get(const vtss_inst_t                  inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_output < vtss_state->clock.clock_output_cnt) {
-            rc = VTSS_FUNC(clock.output_selector_get, clock_output, input);
+            rc = vtss_cil_clock_output_selector_get(vtss_state, clock_output, input);
         } else {
             VTSS_E("illegal clock_output value: %u", clock_output);
             rc = VTSS_RC_ERROR;
@@ -919,7 +922,7 @@ vtss_rc vtss_clock_input_alarm_conf_set(const vtss_inst_t                    ins
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_alarm_conf_set, clock_input, conf);
+            rc = vtss_cil_clock_input_alarm_conf_set(vtss_state, clock_input, conf);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -940,7 +943,7 @@ vtss_rc vtss_clock_input_alarm_conf_get(const vtss_inst_t              inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_alarm_conf_get, clock_input, conf);
+            rc = vtss_cil_clock_input_alarm_conf_get(vtss_state, clock_input, conf);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -966,7 +969,7 @@ vtss_rc vtss_clock_input_cfm_conf_set(const vtss_inst_t                  inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_cfm_conf_set, clock_input, conf);
+            rc = vtss_cil_clock_input_cfm_conf_set(vtss_state, clock_input, conf);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -987,7 +990,7 @@ vtss_rc vtss_clock_input_cfm_conf_get(const vtss_inst_t            inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_cfm_conf_get, clock_input, conf);
+            rc = vtss_cil_clock_input_cfm_conf_get(vtss_state, clock_input, conf);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -1012,7 +1015,7 @@ vtss_rc vtss_clock_input_pfm_conf_set(const vtss_inst_t                  inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_pfm_conf_set, clock_input, conf);
+            rc = vtss_cil_clock_input_pfm_conf_set(vtss_state, clock_input, conf);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -1033,7 +1036,7 @@ vtss_rc vtss_clock_input_pfm_conf_get(const vtss_inst_t            inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_pfm_conf_get, clock_input, conf);
+            rc = vtss_cil_clock_input_pfm_conf_get(vtss_state, clock_input, conf);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -1060,7 +1063,7 @@ vtss_rc vtss_clock_input_gst_conf_set(const vtss_inst_t                  inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_gst_conf_set, clock_input, conf);
+            rc = vtss_cil_clock_input_gst_conf_set(vtss_state, clock_input, conf);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -1081,7 +1084,7 @@ vtss_rc vtss_clock_input_gst_conf_get(const vtss_inst_t            inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_gst_conf_get, clock_input, conf);
+            rc = vtss_cil_clock_input_gst_conf_get(vtss_state, clock_input, conf);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -1113,7 +1116,7 @@ vtss_rc vtss_clock_selector_state_get(const vtss_inst_t                  inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.selector_state_get, dpll, selector_state, clock_input);
+            rc = vtss_cil_clock_selector_state_get(vtss_state, dpll, selector_state, clock_input);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -1135,7 +1138,7 @@ vtss_rc vtss_clock_dpll_state_get(const vtss_inst_t              inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.dpll_state_get, dpll, pll_state);
+            rc = vtss_cil_clock_dpll_state_get(vtss_state, dpll, pll_state);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -1159,7 +1162,7 @@ vtss_rc vtss_clock_ho_stack_frequency_offset_get(const vtss_inst_t            in
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.ho_stack_frequency_offset_get, dpll, offset);
+            rc = vtss_cil_clock_ho_stack_frequency_offset_get(vtss_state, dpll, offset);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -1181,7 +1184,7 @@ vtss_rc vtss_clock_input_state_get(const vtss_inst_t               inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_state_get, clock_input, input_state);
+            rc = vtss_cil_clock_input_state_get(vtss_state, clock_input, input_state);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -1211,7 +1214,7 @@ vtss_rc vtss_clock_input_event_poll(const vtss_inst_t                    inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_event_poll, clock_input, ev_mask);
+            rc = vtss_cil_clock_input_event_poll(vtss_state, clock_input, ev_mask);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -1235,7 +1238,7 @@ vtss_rc vtss_clock_input_event_enable(const vtss_inst_t                   inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (clock_input < vtss_state->clock.clock_input_cnt) {
-            rc = VTSS_FUNC(clock.input_event_enable, clock_input, ev_mask, enable);
+            rc = vtss_cil_clock_input_event_enable(vtss_state, clock_input, ev_mask, enable);
         } else {
             VTSS_E("illegal clock_input value: %u", clock_input);
             rc = VTSS_RC_ERROR;
@@ -1256,7 +1259,7 @@ vtss_rc vtss_clock_dpll_event_poll(const vtss_inst_t                   inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.dpll_event_poll, dpll, ev_mask);
+            rc = vtss_cil_clock_dpll_event_poll(vtss_state, dpll, ev_mask);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;
@@ -1280,7 +1283,7 @@ vtss_rc vtss_clock_dpll_event_enable(const vtss_inst_t                  inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (dpll < vtss_state->clock.dpll_cnt) {
-            rc = VTSS_FUNC(clock.dpll_event_enable, dpll, ev_mask, enable);
+            rc = vtss_cil_clock_dpll_event_enable(vtss_state, dpll, ev_mask, enable);
         } else {
             VTSS_E("illegal dpll value: %u", dpll);
             rc = VTSS_RC_ERROR;

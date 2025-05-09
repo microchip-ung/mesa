@@ -11,7 +11,7 @@
 /* Read, modify and write register */
 
 /* Read register */
-static vtss_rc vtss_es6514_rd(vtss_state_t *vtss_state, u32 addr, u32 *value)
+vtss_rc vtss_cil_clock_rd(vtss_state_t *vtss_state, u32 addr, u32 *value)
 {
     vtss_init_conf_t *conf = &vtss_state->init_conf;
 
@@ -20,7 +20,7 @@ static vtss_rc vtss_es6514_rd(vtss_state_t *vtss_state, u32 addr, u32 *value)
 }
 
 /* Write register */
-static vtss_rc vtss_es6514_wr(vtss_state_t *vtss_state, u32 addr, u32 value)
+vtss_rc vtss_cil_clock_wr(vtss_state_t *vtss_state, u32 addr, u32 value)
 {
     vtss_init_conf_t *conf = &vtss_state->init_conf;
 
@@ -29,13 +29,13 @@ static vtss_rc vtss_es6514_wr(vtss_state_t *vtss_state, u32 addr, u32 value)
 }
 
 /* Read, Modify and Write register */
-static vtss_rc vtss_es6514_wrm(vtss_state_t *vtss_state, u32 addr, u32 value, u32 mask)
+vtss_rc vtss_cil_clock_wrm(vtss_state_t *vtss_state, u32 addr, u32 value, u32 mask)
 {
     vtss_rc rc;
     u32     val;
 
-    if ((rc = vtss_es6514_rd(vtss_state, addr, &val)) == VTSS_RC_OK)
-        rc = vtss_es6514_wr(vtss_state, addr, (val & ~mask) | (value & mask));
+    if ((rc = vtss_cil_clock_rd(vtss_state, addr, &val)) == VTSS_RC_OK)
+        rc = vtss_cil_clock_wr(vtss_state, addr, (val & ~mask) | (value & mask));
     return rc;
 }
 
@@ -479,19 +479,6 @@ static void es6514_calc_frec_dec_bypass(const u16  freq_mult_in,
     return;
 }
 
-/* ****************************************************************** *
- * Prdeclare functions used by other functions in this file  here     *
- * ****************************************************************** */
-static vtss_rc es6514_clock_output_frequency_get(vtss_state_t *vtss_state,
-                                                 const u8      clock_output,
-                                                 u32 *const    freq_khz,
-                                                 u32 *const    par_freq_khz);
-
-static vtss_rc es6514_clock_output_frequency_set(vtss_state_t *vtss_state,
-                                                 const u8      clock_output,
-                                                 const u32     freq_khz,
-                                                 const u32     par_freq_khz);
-
 static void es6514_delta_f_to_scaled_ppb(u32 value_h, u32 value_l, i64 *const offset)
 {
     i64 tmp;
@@ -519,8 +506,8 @@ static void es6514_delta_f_to_scaled_ppb(u32 value_h, u32 value_l, i64 *const of
 // ***************************************************************************
 
 /* Set global enable */
-static vtss_rc es6514_clock_global_enable_set(vtss_state_t                    *vtss_state,
-                                              const vtss_clock_global_enable_t ena)
+vtss_rc vtss_cil_clock_global_enable_set(vtss_state_t                    *vtss_state,
+                                         const vtss_clock_global_enable_t ena)
 {
     u8  i, j, dpll;
     u32 omega_svn_id;
@@ -652,8 +639,8 @@ static vtss_rc es6514_clock_global_enable_set(vtss_state_t                    *v
 }
 
 /* Get global enable */
-static vtss_rc es6514_clock_global_enable_get(vtss_state_t                     *vtss_state,
-                                              vtss_clock_global_enable_t *const ena)
+vtss_rc vtss_cil_clock_global_enable_get(vtss_state_t                     *vtss_state,
+                                         vtss_clock_global_enable_t *const ena)
 {
     u8 rd_val;
     ES6514_RDB(OMG_MAIN, OMG_MAIN_OMG_MAIN_CFG, SW_ENA, &rd_val);
@@ -671,7 +658,7 @@ static vtss_rc es6514_clock_global_enable_get(vtss_state_t                     *
  * working after DPLL reset */
 /* this setting is moved to the kernel, but it is kept here for the case that
  * this API is used in an other environment */
-static vtss_rc es6514_clock_shutdown(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_clock_shutdown(vtss_state_t *vtss_state)
 {
 #if defined(VTSS_ARCH_SERVAL_T)
     /* set up PLL0 back to default */
@@ -698,12 +685,12 @@ static vtss_rc es6514_clock_shutdown(vtss_state_t *vtss_state)
 }
 
 /* Pull SW reset and release again */
-static vtss_rc es6514_clock_global_sw_reset(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_clock_global_sw_reset(vtss_state_t *vtss_state)
 {
     u8 rd_val;
     u8 i, j;
 
-    if (VTSS_RC_OK != es6514_clock_shutdown(vtss_state)) {
+    if (VTSS_RC_OK != vtss_cil_clock_shutdown(vtss_state)) {
         return VTSS_RC_ERROR;
     }
     ES6514_RDB(OMG_MAIN, OMG_MAIN_OMG_MAIN_CFG, SW_RST, &rd_val);
@@ -736,14 +723,14 @@ static vtss_rc es6514_clock_global_sw_reset(vtss_state_t *vtss_state)
 #if defined(VTSS_ARCH_SERVAL_T)
     /* select internal core/1588 clock from DPLL1 which is first set up to
      * generate 156,250MHz */
-    if (VTSS_RC_OK != es6514_clock_output_frequency_set(vtss_state, 1, 0, 156250)) {
+    if (VTSS_RC_OK != vtss_cil_clock_output_frequency_set(vtss_state, 1, 0, 156250)) {
         return VTSS_RC_ERROR;
     }
     ES6514_WRF(HSIO, HW_CFGSTAT_CLK_CFG, SWC_CLK_SRC, 3);
 
     /* select internal reference clock from DPLL0 which is first set up to
      * generate 100MHz */
-    if (VTSS_RC_OK != es6514_clock_output_frequency_set(vtss_state, 0, 0, 100000)) {
+    if (VTSS_RC_OK != vtss_cil_clock_output_frequency_set(vtss_state, 0, 0, 100000)) {
         return VTSS_RC_ERROR;
     }
     /* set up PLL0 to expect 100MHz input */
@@ -815,9 +802,9 @@ static vtss_rc es6514_clock_global_sw_reset(vtss_state_t *vtss_state)
 }
 
 /* Set Clock selection mode. */
-static vtss_rc es6514_clock_selection_mode_set(vtss_state_t                            *vtss_state,
-                                               const vtss_clock_dpll_inst_t             dpll,
-                                               const vtss_clock_selection_conf_t *const conf)
+vtss_rc vtss_cil_clock_selection_mode_set(vtss_state_t                            *vtss_state,
+                                          const vtss_clock_dpll_inst_t             dpll,
+                                          const vtss_clock_selection_conf_t *const conf)
 {
     u8  i;
     u32 rd_val, conf_value_l, conf_value_h;
@@ -994,9 +981,9 @@ static vtss_rc es6514_clock_selection_mode_set(vtss_state_t                     
 }
 
 /* Get Clock selection mode. */
-static vtss_rc es6514_clock_selection_mode_get(vtss_state_t                      *vtss_state,
-                                               const vtss_clock_dpll_inst_t       dpll,
-                                               vtss_clock_selection_conf_t *const conf)
+vtss_rc vtss_cil_clock_selection_mode_get(vtss_state_t                      *vtss_state,
+                                          const vtss_clock_dpll_inst_t       dpll,
+                                          vtss_clock_selection_conf_t *const conf)
 {
     u8  read_from_hw;
     u8  swb_read_from_hw;
@@ -1090,9 +1077,9 @@ static vtss_rc es6514_clock_selection_mode_get(vtss_state_t                     
 }
 
 /* Set Clock operation mode. */
-static vtss_rc es6514_clock_operation_conf_set(vtss_state_t                       *vtss_state,
-                                               const vtss_clock_dpll_inst_t        dpll,
-                                               const vtss_clock_dpll_conf_t *const conf)
+vtss_rc vtss_cil_clock_operation_conf_set(vtss_state_t                       *vtss_state,
+                                          const vtss_clock_dpll_inst_t        dpll,
+                                          const vtss_clock_dpll_conf_t *const conf)
 {
     /* Paramtere range check */
     if (conf->holdover > ((1 << 17) - 1)) {
@@ -1151,9 +1138,9 @@ static vtss_rc es6514_clock_operation_conf_set(vtss_state_t                     
 }
 
 /* Get Clock operation mode. */
-static vtss_rc es6514_clock_operation_conf_get(vtss_state_t                 *vtss_state,
-                                               const vtss_clock_dpll_inst_t  dpll,
-                                               vtss_clock_dpll_conf_t *const conf)
+vtss_rc vtss_cil_clock_operation_conf_get(vtss_state_t                 *vtss_state,
+                                          const vtss_clock_dpll_inst_t  dpll,
+                                          vtss_clock_dpll_conf_t *const conf)
 {
     u32     rd_val;
     vtss_rc result = VTSS_RC_OK;
@@ -1198,9 +1185,9 @@ static vtss_rc es6514_clock_operation_conf_get(vtss_state_t                 *vts
 }
 
 /* Set holdover stack configuration */
-static vtss_rc es6514_clock_ho_stack_conf_set(vtss_state_t                           *vtss_state,
-                                              const vtss_clock_dpll_inst_t            dpll,
-                                              const vtss_clock_ho_stack_conf_t *const conf)
+vtss_rc vtss_cil_clock_ho_stack_conf_set(vtss_state_t                           *vtss_state,
+                                         const vtss_clock_dpll_inst_t            dpll,
+                                         const vtss_clock_ho_stack_conf_t *const conf)
 {
     u8  ho_filtshft = 27;
     u8  ho_filtcoef;
@@ -1279,9 +1266,9 @@ static vtss_rc es6514_clock_ho_stack_conf_set(vtss_state_t                      
 }
 
 /* Get holdover stack configuration */
-static vtss_rc es6514_clock_ho_stack_conf_get(vtss_state_t                     *vtss_state,
-                                              const vtss_clock_dpll_inst_t      dpll,
-                                              vtss_clock_ho_stack_conf_t *const conf)
+vtss_rc vtss_cil_clock_ho_stack_conf_get(vtss_state_t                     *vtss_state,
+                                         const vtss_clock_dpll_inst_t      dpll,
+                                         vtss_clock_ho_stack_conf_t *const conf)
 {
     u32 rd_val;
     ES6514_RDXF(OMG_MAIN, OMG_CTRL_OMG_CTRL_HO_STACK_CFG, dpll, CTRL_HO_MIN_FILL_LVL, &rd_val);
@@ -1303,9 +1290,9 @@ static vtss_rc es6514_clock_ho_stack_conf_get(vtss_state_t                     *
 }
 
 /* Get holdover stack content */
-static vtss_rc es6514_clock_ho_stack_content_get(vtss_state_t                        *vtss_state,
-                                                 const vtss_clock_dpll_inst_t         dpll,
-                                                 vtss_clock_ho_stack_content_t *const cont)
+vtss_rc vtss_cil_clock_ho_stack_content_get(vtss_state_t                        *vtss_state,
+                                            const vtss_clock_dpll_inst_t         dpll,
+                                            vtss_clock_ho_stack_content_t *const cont)
 {
     u32 rd_val, rd_val_msb;
     u32 fill_level;
@@ -1333,9 +1320,9 @@ static vtss_rc es6514_clock_ho_stack_content_get(vtss_state_t                   
 }
 
 /* Set Clock dpll frequency dco frequency offset */
-static vtss_rc es6514_clock_dco_frequency_offset_set(vtss_state_t                *vtss_state,
-                                                     const vtss_clock_dpll_inst_t dpll,
-                                                     const i64                    offset)
+vtss_rc vtss_cil_clock_dco_frequency_offset_set(vtss_state_t                *vtss_state,
+                                                const vtss_clock_dpll_inst_t dpll,
+                                                const i64                    offset)
 {
     i64 conf_value;
     i64 limit;
@@ -1380,9 +1367,9 @@ static vtss_rc es6514_clock_dco_frequency_offset_set(vtss_state_t               
 }
 
 /* Get Clock dpll frequency adjustment. */
-static vtss_rc es6514_clock_dco_frequency_offset_get(vtss_state_t                *vtss_state,
-                                                     const vtss_clock_dpll_inst_t dpll,
-                                                     i64 *const                   offset)
+vtss_rc vtss_cil_clock_dco_frequency_offset_get(vtss_state_t                *vtss_state,
+                                                const vtss_clock_dpll_inst_t dpll,
+                                                i64 *const                   offset)
 {
     *offset = vtss_state->clock.dco_frequency_offset[dpll];
 
@@ -1390,9 +1377,9 @@ static vtss_rc es6514_clock_dco_frequency_offset_get(vtss_state_t               
 }
 
 /* Set Output Filter Bandwidth */
-static vtss_rc es6514_clock_output_filter_bw_set(vtss_state_t *vtss_state,
-                                                 const u8      clock_output,
-                                                 const u32     bw_100uhz)
+vtss_rc vtss_cil_clock_output_filter_bw_set(vtss_state_t *vtss_state,
+                                            const u8      clock_output,
+                                            const u32     bw_100uhz)
 {
     const u32 core_freq = 312500000; /* 312.5 MHz */
     const u32 pi_times_2p6 = 201;    /* PI * 2^6 */
@@ -1441,17 +1428,16 @@ static vtss_rc es6514_clock_output_filter_bw_set(vtss_state_t *vtss_state,
 }
 
 /* Get Output Filter Bandwidth */
-static vtss_rc es6514_clock_output_filter_bw_get(vtss_state_t *vtss_state,
-                                                 const u8      clock_output,
-                                                 u32          *bw_100uhz)
+vtss_rc vtss_cil_clock_output_filter_bw_get(vtss_state_t *vtss_state,
+                                            const u8      clock_output,
+                                            u32          *bw_100uhz)
 {
     *bw_100uhz = vtss_state->clock.output_filter_bw[clock_output];
     return VTSS_RC_OK;
 }
 
 /* Trigger Output Filter to do a fast lock */
-static vtss_rc es6514_clock_output_filter_lock_fast_set(vtss_state_t *vtss_state,
-                                                        const u8      clock_output)
+vtss_rc vtss_cil_clock_output_filter_lock_fast_set(vtss_state_t *vtss_state, const u8 clock_output)
 {
     ES6514_WRXB(OMG_MAIN, OMG_FILT_OMG_FILTER_MAIN, clock_output, FILT_SYNC_MODE, 0);
     ES6514_WRXB(OMG_MAIN, OMG_FILT_OMG_FILTER_MAIN, clock_output, FILT_SYNC_ONE_SHOT, 1);
@@ -1463,9 +1449,9 @@ static vtss_rc es6514_clock_output_filter_lock_fast_set(vtss_state_t *vtss_state
 }
 
 /* Check, if fast lock has completed */
-static vtss_rc es6514_clock_output_filter_lock_fast_get(vtss_state_t *vtss_state,
-                                                        const u8      clock_output,
-                                                        BOOL         *lock_completed)
+vtss_rc vtss_cil_clock_output_filter_lock_fast_get(vtss_state_t *vtss_state,
+                                                   const u8      clock_output,
+                                                   BOOL         *lock_completed)
 {
     u32 rd_val;
     ES6514_RDXB(OMG_MAIN, OMG_FILT_OMG_FILTER_MAIN, clock_output, FILT_SYNC_ONE_SHOT, &rd_val);
@@ -1474,9 +1460,9 @@ static vtss_rc es6514_clock_output_filter_lock_fast_get(vtss_state_t *vtss_state
 }
 
 /* Set Phase Slope Limit (PSL) */
-static vtss_rc es6514_clock_output_psl_conf_set(vtss_state_t                      *vtss_state,
-                                                const u8                           clock_output,
-                                                const vtss_clock_psl_conf_t *const conf)
+vtss_rc vtss_cil_clock_output_psl_conf_set(vtss_state_t                      *vtss_state,
+                                           const u8                           clock_output,
+                                           const vtss_clock_psl_conf_t *const conf)
 {
     u64 limit_df; /* limit in units of deltaf i.e. integ2 units */
     u8  a, b;
@@ -1528,9 +1514,9 @@ static vtss_rc es6514_clock_output_psl_conf_set(vtss_state_t                    
 }
 
 /* Get Phase Slope Limit (PSL) */
-static vtss_rc es6514_clock_output_psl_conf_get(vtss_state_t                *vtss_state,
-                                                const u8                     clock_output,
-                                                vtss_clock_psl_conf_t *const conf)
+vtss_rc vtss_cil_clock_output_psl_conf_get(vtss_state_t                *vtss_state,
+                                           const u8                     clock_output,
+                                           vtss_clock_psl_conf_t *const conf)
 {
     u32 rd_val;
 
@@ -1573,9 +1559,9 @@ static vtss_rc es6514_clock_output_psl_conf_get(vtss_state_t                *vts
 }
 
 /* Set Clock dpll frequency adjustment. */
-static vtss_rc es6514_clock_adj_frequency_set(vtss_state_t *vtss_state,
-                                              const u8      clock_output,
-                                              const i64     adj)
+vtss_rc vtss_cil_clock_adj_frequency_set(vtss_state_t *vtss_state,
+                                         const u8      clock_output,
+                                         const i64     adj)
 {
     i64 conf_value;
     i64 limit;
@@ -1618,9 +1604,9 @@ static vtss_rc es6514_clock_adj_frequency_set(vtss_state_t *vtss_state,
 }
 
 /* Get Clock dpll frequency adjustment. */
-static vtss_rc es6514_clock_adj_frequency_get(vtss_state_t *vtss_state,
-                                              const u8      clock_output,
-                                              i64 *const    adj)
+vtss_rc vtss_cil_clock_adj_frequency_get(vtss_state_t *vtss_state,
+                                         const u8      clock_output,
+                                         i64 *const    adj)
 {
     *adj = vtss_state->clock.adj_frequency[clock_output];
 
@@ -1628,9 +1614,7 @@ static vtss_rc es6514_clock_adj_frequency_get(vtss_state_t *vtss_state,
 }
 
 /* Set Clock dpll phase adjustment. */
-static vtss_rc es6514_clock_adj_phase_set(vtss_state_t *vtss_state,
-                                          const u8      clock_output,
-                                          const i32     adj)
+vtss_rc vtss_cil_clock_adj_phase_set(vtss_state_t *vtss_state, const u8 clock_output, const i32 adj)
 {
     vtss_rc rc = VTSS_RC_OK;
     u32     rd_val;
@@ -1730,7 +1714,7 @@ static vtss_rc es6514_clock_adj_phase_set(vtss_state_t *vtss_state,
 }
 
 /* Get Clock dpll phase adjustment. */
-static vtss_rc es6514_clock_adj_phase_get(vtss_state_t *vtss_state, BOOL *const adj_ongoing)
+vtss_rc vtss_cil_clock_adj_phase_get(vtss_state_t *vtss_state, BOOL *const adj_ongoing)
 {
     u8 rd_val;
     ES6514_RDB(OMG_MAIN, OMG_PSG_OMG_PS_GEN_MAIN_CFG, PSG_ONE_SHOT, &rd_val);
@@ -1742,10 +1726,10 @@ static vtss_rc es6514_clock_adj_phase_get(vtss_state_t *vtss_state, BOOL *const 
 }
 
 /* Set Clock input priority. */
-static vtss_rc es6514_clock_priority_set(vtss_state_t                               *vtss_state,
-                                         const vtss_clock_dpll_inst_t                dpll,
-                                         const u8                                    clock_input,
-                                         const vtss_clock_priority_selector_t *const conf)
+vtss_rc vtss_cil_clock_priority_set(vtss_state_t                               *vtss_state,
+                                    const vtss_clock_dpll_inst_t                dpll,
+                                    const u8                                    clock_input,
+                                    const vtss_clock_priority_selector_t *const conf)
 {
     u8  enable_as_int;
     u32 rd_val;
@@ -1980,10 +1964,10 @@ static vtss_rc es6514_clock_priority_set(vtss_state_t                           
 }
 
 /* Get Clock input priority. */
-static vtss_rc es6514_clock_priority_get(vtss_state_t                         *vtss_state,
-                                         const vtss_clock_dpll_inst_t          dpll,
-                                         const u8                              clock_input,
-                                         vtss_clock_priority_selector_t *const conf)
+vtss_rc vtss_cil_clock_priority_get(vtss_state_t                         *vtss_state,
+                                    const vtss_clock_dpll_inst_t          dpll,
+                                    const u8                              clock_input,
+                                    vtss_clock_priority_selector_t *const conf)
 {
     u8 rd_val;
     /* check for prio 0 */
@@ -2082,11 +2066,11 @@ static vtss_rc es6514_clock_priority_get(vtss_state_t                         *v
 }
 
 /* Set Clock input frequency with ratio. */
-static vtss_rc es6514_clock_input_frequency_ratio_set(vtss_state_t                   *vtss_state,
-                                                      const u8                        clock_input,
-                                                      const u32                       freq_khz,
-                                                      const vtss_clock_ratio_t *const ratio,
-                                                      const BOOL use_internal_clock_src)
+vtss_rc vtss_cil_clock_input_frequency_ratio_set(vtss_state_t                   *vtss_state,
+                                                 const u8                        clock_input,
+                                                 const u32                       freq_khz,
+                                                 const vtss_clock_ratio_t *const ratio,
+                                                 const BOOL use_internal_clock_src)
 {
     u32  tgt = VTSS_TO_SD10G65(clock_input);
     u32  dig_tgt = VTSS_TO_SD10G65_DIG(clock_input);
@@ -2553,25 +2537,25 @@ static vtss_rc es6514_clock_input_frequency_ratio_set(vtss_state_t              
 }
 
 /* Set Clock input frequency. */
-static vtss_rc es6514_clock_input_frequency_set(vtss_state_t *vtss_state,
-                                                const u8      clock_input,
-                                                const u32     freq_khz,
-                                                const BOOL    use_internal_clock_src)
+vtss_rc vtss_cil_clock_input_frequency_set(vtss_state_t *vtss_state,
+                                           const u8      clock_input,
+                                           const u32     freq_khz,
+                                           const BOOL    use_internal_clock_src)
 {
     vtss_clock_ratio_t ratio;
     ratio.num = 1;
     ratio.den = 1;
-    es6514_clock_input_frequency_ratio_set(vtss_state, clock_input, freq_khz, &ratio,
-                                           use_internal_clock_src);
+    vtss_cil_clock_input_frequency_ratio_set(vtss_state, clock_input, freq_khz, &ratio,
+                                             use_internal_clock_src);
     return VTSS_RC_OK;
 }
 
 /* Get Clock input frequency with ratio */
-static vtss_rc es6514_clock_input_frequency_ratio_get(vtss_state_t             *vtss_state,
-                                                      const u8                  clock_input,
-                                                      u32 *const                freq_khz,
-                                                      vtss_clock_ratio_t *const ratio,
-                                                      BOOL *const use_internal_clock_src)
+vtss_rc vtss_cil_clock_input_frequency_ratio_get(vtss_state_t             *vtss_state,
+                                                 const u8                  clock_input,
+                                                 u32 *const                freq_khz,
+                                                 vtss_clock_ratio_t *const ratio,
+                                                 BOOL *const               use_internal_clock_src)
 {
     u32 tgt = VTSS_TO_SD10G65(clock_input);
     u32 rd_val;
@@ -2586,23 +2570,23 @@ static vtss_rc es6514_clock_input_frequency_ratio_get(vtss_state_t             *
 }
 
 /* Get Clock input frequency. */
-static vtss_rc es6514_clock_input_frequency_get(vtss_state_t *vtss_state,
-                                                const u8      clock_input,
-                                                u32 *const    freq_khz,
-                                                BOOL *const   use_internal_clock_src)
+vtss_rc vtss_cil_clock_input_frequency_get(vtss_state_t *vtss_state,
+                                           const u8      clock_input,
+                                           u32 *const    freq_khz,
+                                           BOOL *const   use_internal_clock_src)
 {
     vtss_clock_ratio_t ratio;
-    es6514_clock_input_frequency_ratio_get(vtss_state, clock_input, freq_khz, &ratio,
-                                           use_internal_clock_src);
+    vtss_cil_clock_input_frequency_ratio_get(vtss_state, clock_input, freq_khz, &ratio,
+                                             use_internal_clock_src);
     return VTSS_RC_OK;
 }
 
 /* Set Clock output frequency with ratio. */
-static vtss_rc es6514_clock_output_frequency_ratio_set(vtss_state_t                   *vtss_state,
-                                                       const u8                        clock_output,
-                                                       const u32                       freq_khz,
-                                                       const u32                       par_freq_khz,
-                                                       const vtss_clock_ratio_t *const ratio)
+vtss_rc vtss_cil_clock_output_frequency_ratio_set(vtss_state_t                   *vtss_state,
+                                                  const u8                        clock_output,
+                                                  const u32                       freq_khz,
+                                                  const u32                       par_freq_khz,
+                                                  const vtss_clock_ratio_t *const ratio)
 {
     u8   i;
     u32  tgt = VTSS_TO_SD10G65(clock_output);
@@ -3110,25 +3094,25 @@ static vtss_rc es6514_clock_output_frequency_ratio_set(vtss_state_t             
 }
 
 /* Set Clock output frequency */
-static vtss_rc es6514_clock_output_frequency_set(vtss_state_t *vtss_state,
-                                                 const u8      clock_output,
-                                                 const u32     freq_khz,
-                                                 const u32     par_freq_khz)
+vtss_rc vtss_cil_clock_output_frequency_set(vtss_state_t *vtss_state,
+                                            const u8      clock_output,
+                                            const u32     freq_khz,
+                                            const u32     par_freq_khz)
 {
     vtss_clock_ratio_t ratio;
     ratio.num = 1;
     ratio.den = 1;
-    es6514_clock_output_frequency_ratio_set(vtss_state, clock_output, freq_khz, par_freq_khz,
-                                            &ratio);
+    vtss_cil_clock_output_frequency_ratio_set(vtss_state, clock_output, freq_khz, par_freq_khz,
+                                              &ratio);
     return VTSS_RC_OK;
 }
 
 /* Get Clock output frequency ratio. */
-static vtss_rc es6514_clock_output_frequency_ratio_get(vtss_state_t             *vtss_state,
-                                                       const u8                  clock_output,
-                                                       u32 *const                freq_khz,
-                                                       u32 *const                par_freq_khz,
-                                                       vtss_clock_ratio_t *const ratio)
+vtss_rc vtss_cil_clock_output_frequency_ratio_get(vtss_state_t             *vtss_state,
+                                                  const u8                  clock_output,
+                                                  u32 *const                freq_khz,
+                                                  u32 *const                par_freq_khz,
+                                                  vtss_clock_ratio_t *const ratio)
 {
     *freq_khz = vtss_state->clock.output_frequency[clock_output];
     *par_freq_khz = vtss_state->clock.par_output_frequency[clock_output];
@@ -3138,21 +3122,21 @@ static vtss_rc es6514_clock_output_frequency_ratio_get(vtss_state_t             
 }
 
 /* Get Clock output frequency. */
-static vtss_rc es6514_clock_output_frequency_get(vtss_state_t *vtss_state,
-                                                 const u8      clock_output,
-                                                 u32 *const    freq_khz,
-                                                 u32 *const    par_freq_khz)
+vtss_rc vtss_cil_clock_output_frequency_get(vtss_state_t *vtss_state,
+                                            const u8      clock_output,
+                                            u32 *const    freq_khz,
+                                            u32 *const    par_freq_khz)
 {
     vtss_clock_ratio_t ratio;
-    es6514_clock_output_frequency_ratio_get(vtss_state, clock_output, freq_khz, par_freq_khz,
-                                            &ratio);
+    vtss_cil_clock_output_frequency_ratio_get(vtss_state, clock_output, freq_khz, par_freq_khz,
+                                              &ratio);
     return VTSS_RC_OK;
 }
 
 /* Set Clock output voltage level. */
-static vtss_rc es6514_clock_output_level_set(vtss_state_t *vtss_state,
-                                             const u8      clock_output,
-                                             const u16     level_mv)
+vtss_rc vtss_cil_clock_output_level_set(vtss_state_t *vtss_state,
+                                        const u8      clock_output,
+                                        const u16     level_mv)
 {
     u32 tgt = VTSS_TO_SD10G65(clock_output);
     u16 level_mv_div25_rounded = (level_mv + 12) / 25;
@@ -3181,18 +3165,18 @@ static vtss_rc es6514_clock_output_level_set(vtss_state_t *vtss_state,
 }
 
 /* Get Clock output voltage level. */
-static vtss_rc es6514_clock_output_level_get(vtss_state_t *vtss_state,
-                                             const u8      clock_output,
-                                             u16 *const    level_mv)
+vtss_rc vtss_cil_clock_output_level_get(vtss_state_t *vtss_state,
+                                        const u8      clock_output,
+                                        u16 *const    level_mv)
 {
     *level_mv = vtss_state->clock.output_level[clock_output];
     return VTSS_RC_OK;
 }
 
 /* Set Clock output selector. */
-static vtss_rc es6514_clock_output_selector_set(vtss_state_t *vtss_state,
-                                                const u8      clock_output,
-                                                const vtss_clock_input_selector_t *const input)
+vtss_rc vtss_cil_clock_output_selector_set(vtss_state_t                            *vtss_state,
+                                           const u8                                 clock_output,
+                                           const vtss_clock_input_selector_t *const input)
 {
     switch (input->input_type) {
     case VTSS_CLOCK_INPUT_TYPE_DPLL: {
@@ -3224,9 +3208,9 @@ static vtss_rc es6514_clock_output_selector_set(vtss_state_t *vtss_state,
 }
 
 /* Get Clock output selector. */
-static vtss_rc es6514_clock_output_selector_get(vtss_state_t                      *vtss_state,
-                                                const u8                           clock_output,
-                                                vtss_clock_input_selector_t *const input)
+vtss_rc vtss_cil_clock_output_selector_get(vtss_state_t                      *vtss_state,
+                                           const u8                           clock_output,
+                                           vtss_clock_input_selector_t *const input)
 {
     u8 rd_val;
     ES6514_RDXF(OMG_MAIN, OMG_FILT_OMG_FILTER_MAIN, clock_output, FILT_SRC_SEL, &rd_val);
@@ -3254,9 +3238,9 @@ static vtss_rc es6514_clock_output_selector_get(vtss_state_t                    
     }
 }
 
-static vtss_rc es6514_clock_input_alarm_conf_set(vtss_state_t                        *vtss_state,
-                                                 const u8                             clock_input,
-                                                 const vtss_clock_input_conf_t *const conf)
+vtss_rc vtss_cil_clock_input_alarm_conf_set(vtss_state_t                        *vtss_state,
+                                            const u8                             clock_input,
+                                            const vtss_clock_input_conf_t *const conf)
 {
     ES6514_WRXM(OMG_MAIN, OMG_QUAL_OMG_QUAL_ALARM_CFG, clock_input,
                 ES6514_PUT_BIT(OMG_MAIN, OMG_QUAL_OMG_QUAL_ALARM_CFG, QUAL_LOS_CTRL_ALARM_ENA,
@@ -3289,9 +3273,9 @@ static vtss_rc es6514_clock_input_alarm_conf_set(vtss_state_t                   
     return VTSS_RC_OK;
 }
 
-static vtss_rc es6514_clock_input_alarm_conf_get(vtss_state_t                  *vtss_state,
-                                                 const u8                       clock_input,
-                                                 vtss_clock_input_conf_t *const conf)
+vtss_rc vtss_cil_clock_input_alarm_conf_get(vtss_state_t                  *vtss_state,
+                                            const u8                       clock_input,
+                                            vtss_clock_input_conf_t *const conf)
 {
     u32 rd_val;
     u8  los_alarm_ena;
@@ -3337,9 +3321,9 @@ static vtss_rc es6514_clock_input_alarm_conf_get(vtss_state_t                  *
     return VTSS_RC_OK;
 }
 
-static vtss_rc es6514_clock_input_cfm_conf_set(vtss_state_t                      *vtss_state,
-                                               const u8                           clock_input,
-                                               const vtss_clock_cfm_conf_t *const conf)
+vtss_rc vtss_cil_clock_input_cfm_conf_set(vtss_state_t                      *vtss_state,
+                                          const u8                           clock_input,
+                                          const vtss_clock_cfm_conf_t *const conf)
 {
     u32 cfm_delta = conf->cfm_set_ppb - conf->cfm_clr_ppb;
     u32 cfm_max;
@@ -3389,18 +3373,18 @@ static vtss_rc es6514_clock_input_cfm_conf_set(vtss_state_t                     
     return VTSS_RC_OK;
 }
 
-static vtss_rc es6514_clock_input_cfm_conf_get(vtss_state_t                *vtss_state,
-                                               const u8                     clock_input,
-                                               vtss_clock_cfm_conf_t *const conf)
+vtss_rc vtss_cil_clock_input_cfm_conf_get(vtss_state_t                *vtss_state,
+                                          const u8                     clock_input,
+                                          vtss_clock_cfm_conf_t *const conf)
 {
     conf->cfm_set_ppb = vtss_state->clock.cfm_conf[clock_input].cfm_set_ppb;
     conf->cfm_clr_ppb = vtss_state->clock.cfm_conf[clock_input].cfm_clr_ppb;
     return VTSS_RC_OK;
 }
 
-static vtss_rc es6514_clock_input_pfm_conf_set(vtss_state_t                      *vtss_state,
-                                               const u8                           clock_input,
-                                               const vtss_clock_pfm_conf_t *const conf)
+vtss_rc vtss_cil_clock_input_pfm_conf_set(vtss_state_t                      *vtss_state,
+                                          const u8                           clock_input,
+                                          const vtss_clock_pfm_conf_t *const conf)
 {
     u32 pfm_delta = conf->pfm_set_ppb - conf->pfm_clr_ppb;
     u32 pfm_max;
@@ -3428,18 +3412,18 @@ static vtss_rc es6514_clock_input_pfm_conf_set(vtss_state_t                     
     return VTSS_RC_OK;
 }
 
-static vtss_rc es6514_clock_input_pfm_conf_get(vtss_state_t                *vtss_state,
-                                               const u8                     clock_input,
-                                               vtss_clock_pfm_conf_t *const conf)
+vtss_rc vtss_cil_clock_input_pfm_conf_get(vtss_state_t                *vtss_state,
+                                          const u8                     clock_input,
+                                          vtss_clock_pfm_conf_t *const conf)
 {
     conf->pfm_set_ppb = vtss_state->clock.pfm_conf[clock_input].pfm_set_ppb;
     conf->pfm_clr_ppb = vtss_state->clock.pfm_conf[clock_input].pfm_clr_ppb;
     return VTSS_RC_OK;
 }
 
-static vtss_rc es6514_clock_input_gst_conf_set(vtss_state_t                      *vtss_state,
-                                               const u8                           clock_input,
-                                               const vtss_clock_gst_conf_t *const conf)
+vtss_rc vtss_cil_clock_input_gst_conf_set(vtss_state_t                      *vtss_state,
+                                          const u8                           clock_input,
+                                          const vtss_clock_gst_conf_t *const conf)
 {
     u32 min_time_us;
     u32 max_time_us;
@@ -3603,9 +3587,9 @@ static vtss_rc es6514_clock_input_gst_conf_set(vtss_state_t                     
     return VTSS_RC_OK;
 }
 
-static vtss_rc es6514_clock_input_gst_conf_get(vtss_state_t                *vtss_state,
-                                               const u8                     clock_input,
-                                               vtss_clock_gst_conf_t *const conf)
+vtss_rc vtss_cil_clock_input_gst_conf_get(vtss_state_t                *vtss_state,
+                                          const u8                     clock_input,
+                                          vtss_clock_gst_conf_t *const conf)
 {
     u32 rd_val;
     u8  los_ena;
@@ -3653,10 +3637,10 @@ static vtss_rc es6514_clock_input_gst_conf_get(vtss_state_t                *vtss
 // ***************************************************************************
 
 /* Get Clock selector state. */
-static vtss_rc es6514_clock_selector_state_get(vtss_state_t                      *vtss_state,
-                                               const vtss_clock_dpll_inst_t       dpll,
-                                               vtss_clock_selector_state_t *const selector_state,
-                                               u8 *const                          clock_input)
+vtss_rc vtss_cil_clock_selector_state_get(vtss_state_t                      *vtss_state,
+                                          const vtss_clock_dpll_inst_t       dpll,
+                                          vtss_clock_selector_state_t *const selector_state,
+                                          u8 *const                          clock_input)
 {
     u8   i;
     u32  rd_val;
@@ -3834,9 +3818,9 @@ static vtss_rc es6514_clock_selector_state_get(vtss_state_t                     
 }
 
 /* Get Clock pll state. */
-static vtss_rc es6514_clock_dpll_state_get(vtss_state_t                  *vtss_state,
-                                           const vtss_clock_dpll_inst_t   dpll,
-                                           vtss_clock_dpll_state_t *const pll_state)
+vtss_rc vtss_cil_clock_dpll_state_get(vtss_state_t                  *vtss_state,
+                                      const vtss_clock_dpll_inst_t   dpll,
+                                      vtss_clock_dpll_state_t *const pll_state)
 {
     u8  ctrl_inp_src_sel;
     u32 rd_val, rd_val2;
@@ -3943,9 +3927,9 @@ static vtss_rc es6514_clock_dpll_state_get(vtss_state_t                  *vtss_s
 }
 
 /* get the frequncy offset stored in the HO stack */
-static vtss_rc es6514_clock_ho_stack_frequency_offset_get(vtss_state_t                *vtss_state,
-                                                          const vtss_clock_dpll_inst_t dpll,
-                                                          i64 *const                   offset)
+vtss_rc vtss_cil_clock_ho_stack_frequency_offset_get(vtss_state_t                *vtss_state,
+                                                     const vtss_clock_dpll_inst_t dpll,
+                                                     i64 *const                   offset)
 {
     u8  conf_value_h;
     u32 conf_value_l;
@@ -3968,9 +3952,9 @@ static vtss_rc es6514_clock_ho_stack_frequency_offset_get(vtss_state_t          
 }
 
 /* Get Clock input state. */
-static vtss_rc es6514_clock_input_state_get(vtss_state_t                   *vtss_state,
-                                            const u8                        clock_input,
-                                            vtss_clock_input_state_t *const input_state)
+vtss_rc vtss_cil_clock_input_state_get(vtss_state_t                   *vtss_state,
+                                       const u8                        clock_input,
+                                       vtss_clock_input_state_t *const input_state)
 {
     u32 rd_val;
     u8  irq_ext_los_status;
@@ -4007,9 +3991,9 @@ static vtss_rc es6514_clock_input_state_get(vtss_state_t                   *vtss
 // ***************************************************************************
 
 // /* Clock input event polling function called by interrupt or periodicly */
-static vtss_rc es6514_clock_input_event_poll(vtss_state_t                        *vtss_state,
-                                             const u8                             clock_input,
-                                             vtss_clock_input_event_type_t *const ev_mask)
+vtss_rc vtss_cil_clock_input_event_poll(vtss_state_t                        *vtss_state,
+                                        const u8                             clock_input,
+                                        vtss_clock_input_event_type_t *const ev_mask)
 {
     u32 pending, int_ena, int_ena_upd_set, int_ena_upd_clr;
     u32 status;
@@ -4165,10 +4149,10 @@ static vtss_rc es6514_clock_input_event_poll(vtss_state_t                       
 }
 
 /* Enable clock input event generation for a specific event type */
-static vtss_rc es6514_clock_input_event_enable(vtss_state_t                       *vtss_state,
-                                               const u8                            clock_input,
-                                               const vtss_clock_input_event_type_t ev_mask,
-                                               const BOOL                          enable)
+vtss_rc vtss_cil_clock_input_event_enable(vtss_state_t                       *vtss_state,
+                                          const u8                            clock_input,
+                                          const vtss_clock_input_event_type_t ev_mask,
+                                          const BOOL                          enable)
 {
     u32 status;
     u8  irq_los_status;
@@ -4317,19 +4301,19 @@ static vtss_rc es6514_clock_input_event_enable(vtss_state_t                     
 }
 
 /* Clock dpll event polling function called by interrupt or periodicly */
-static vtss_rc es6514_clock_dpll_event_poll(vtss_state_t                       *vtss_state,
-                                            const vtss_clock_dpll_inst_t        dpll,
-                                            vtss_clock_dpll_event_type_t *const ev_mask)
+vtss_rc vtss_cil_clock_dpll_event_poll(vtss_state_t                       *vtss_state,
+                                       const vtss_clock_dpll_inst_t        dpll,
+                                       vtss_clock_dpll_event_type_t *const ev_mask)
 {
     VTSS_E("function dpll_event_poll is not supported for es6514\n");
     return VTSS_RC_ERROR;
 }
 
 /* Enable clock dpll event generation for a specific event type */
-static vtss_rc es6514_clock_dpll_event_enable(vtss_state_t                      *vtss_state,
-                                              const vtss_clock_dpll_inst_t       dpll,
-                                              const vtss_clock_dpll_event_type_t ev_mask,
-                                              const BOOL                         enable)
+vtss_rc vtss_cil_clock_dpll_event_enable(vtss_state_t                      *vtss_state,
+                                         const vtss_clock_dpll_inst_t       dpll,
+                                         const vtss_clock_dpll_event_type_t ev_mask,
+                                         const BOOL                         enable)
 {
     VTSS_E("function dpll_event_enable is not supported for es6514\n");
     return VTSS_RC_ERROR;
@@ -4364,70 +4348,6 @@ vtss_rc vtss_es6514_clock_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE:
         VTSS_D("VTSS_INIT_CMD_CREATE");
-        //  Register Access
-        state->rd = vtss_es6514_rd;
-        state->wr = vtss_es6514_wr;
-        state->wrm = vtss_es6514_wrm;
-
-        //  Configuration
-        state->global_enable_set = es6514_clock_global_enable_set;
-        state->global_enable_get = es6514_clock_global_enable_get;
-        state->global_sw_reset = es6514_clock_global_sw_reset;
-        state->clock_shutdown = es6514_clock_shutdown;
-        state->selection_mode_set = es6514_clock_selection_mode_set;
-        state->selection_mode_get = es6514_clock_selection_mode_get;
-        state->operation_conf_set = es6514_clock_operation_conf_set;
-        state->operation_conf_get = es6514_clock_operation_conf_get;
-        state->ho_stack_conf_set = es6514_clock_ho_stack_conf_set;
-        state->ho_stack_conf_get = es6514_clock_ho_stack_conf_get;
-        state->ho_stack_content_get = es6514_clock_ho_stack_content_get;
-        state->dco_frequency_offset_set = es6514_clock_dco_frequency_offset_set;
-        state->dco_frequency_offset_get = es6514_clock_dco_frequency_offset_get;
-        state->output_filter_bw_set = es6514_clock_output_filter_bw_set;
-        state->output_filter_bw_get = es6514_clock_output_filter_bw_get;
-        state->output_filter_lock_fast_set = es6514_clock_output_filter_lock_fast_set;
-        state->output_filter_lock_fast_get = es6514_clock_output_filter_lock_fast_get;
-        state->output_psl_conf_set = es6514_clock_output_psl_conf_set;
-        state->output_psl_conf_get = es6514_clock_output_psl_conf_get;
-        state->adj_frequency_set = es6514_clock_adj_frequency_set;
-        state->adj_frequency_get = es6514_clock_adj_frequency_get;
-        state->adj_phase_set = es6514_clock_adj_phase_set;
-        state->adj_phase_get = es6514_clock_adj_phase_get;
-        state->priority_set = es6514_clock_priority_set;
-        state->priority_get = es6514_clock_priority_get;
-        state->input_frequency_set = es6514_clock_input_frequency_set;
-        state->input_frequency_get = es6514_clock_input_frequency_get;
-        state->input_frequency_ratio_set = es6514_clock_input_frequency_ratio_set;
-        state->input_frequency_ratio_get = es6514_clock_input_frequency_ratio_get;
-        state->output_frequency_set = es6514_clock_output_frequency_set;
-        state->output_frequency_get = es6514_clock_output_frequency_get;
-        state->output_frequency_ratio_set = es6514_clock_output_frequency_ratio_set;
-        state->output_frequency_ratio_get = es6514_clock_output_frequency_ratio_get;
-        state->output_level_set = es6514_clock_output_level_set;
-        state->output_level_get = es6514_clock_output_level_get;
-        state->output_selector_set = es6514_clock_output_selector_set;
-        state->output_selector_get = es6514_clock_output_selector_get;
-        state->input_alarm_conf_set = es6514_clock_input_alarm_conf_set;
-        state->input_alarm_conf_get = es6514_clock_input_alarm_conf_get;
-        state->input_cfm_conf_set = es6514_clock_input_cfm_conf_set;
-        state->input_cfm_conf_get = es6514_clock_input_cfm_conf_get;
-        state->input_pfm_conf_set = es6514_clock_input_pfm_conf_set;
-        state->input_pfm_conf_get = es6514_clock_input_pfm_conf_get;
-        state->input_gst_conf_set = es6514_clock_input_gst_conf_set;
-        state->input_gst_conf_get = es6514_clock_input_gst_conf_get;
-
-        //  Status
-        state->selector_state_get = es6514_clock_selector_state_get;
-        state->dpll_state_get = es6514_clock_dpll_state_get;
-        state->ho_stack_frequency_offset_get = es6514_clock_ho_stack_frequency_offset_get;
-        state->input_state_get = es6514_clock_input_state_get;
-
-        //  Event (interrupt) handling
-        state->input_event_poll = es6514_clock_input_event_poll;
-        state->input_event_enable = es6514_clock_input_event_enable;
-        state->dpll_event_poll = es6514_clock_dpll_event_poll;
-        state->dpll_event_enable = es6514_clock_dpll_event_enable;
-
         /* initialize constants */
         /* Number of DPLLs i.e. controllers in omega*/
         state->dpll_cnt = 2;
