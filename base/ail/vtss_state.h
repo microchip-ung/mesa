@@ -86,47 +86,6 @@
 
 extern const char *vtss_func;
 
-/* Call Chip Interface Layer function if it exists */
-#define VTSS_FUNC(func, ...)                                                                       \
-    (vtss_state->func == NULL ? VTSS_RC_ERROR : vtss_state->func(vtss_state, ##__VA_ARGS__))
-
-/* Call Chip Interface Layer function if it exists, given the state as an
- * argument. This is useful for functions that don't require vtss_state to be
- * set-up. */
-#define VTSS_FUNC_FROM_STATE(state, func, ...)                                                     \
-    ((state == NULL || state->func == NULL) ? VTSS_RC_ERROR : state->func(state, __VA_ARGS__))
-
-/* Call Chip Interface Layer function if it exists, return error code, if error */
-#define VTSS_FUNC_RC(func, ...)                                                                    \
-    {                                                                                              \
-        vtss_rc __rc__ = (vtss_state->func == NULL ? VTSS_RC_ERROR                                 \
-                                                   : vtss_state->func(vtss_state, ##__VA_ARGS__)); \
-        if (__rc__ < VTSS_RC_OK)                                                                   \
-            return __rc__;                                                                         \
-    }
-/* Call Chip Interface Layer function if it exists and we are in cold start mode
- */
-#define VTSS_FUNC_COLD(func, ...)                                                                  \
-    (vtss_state->func == NULL     ? VTSS_RC_ERROR                                                  \
-     : vtss_state->warm_start_cur ? VTSS_RC_OK                                                     \
-                                  : vtss_state->func(vtss_state, ##__VA_ARGS__))
-
-/* The following macros are needed when only the 'vtss_state' is passed to the
-   CIL function, to avoid warnings on certain compilers */
-#define VTSS_FUNC_0(func, ...)                                                                     \
-    (vtss_state->func == NULL ? VTSS_RC_ERROR : vtss_state->func(vtss_state))
-#define VTSS_FUNC_COLD_0(func, ...)                                                                \
-    (vtss_state->func == NULL     ? VTSS_RC_ERROR                                                  \
-     : vtss_state->warm_start_cur ? VTSS_RC_OK                                                     \
-                                  : vtss_state->func(vtss_state))
-#define VTSS_FUNC_RC_0(func, ...)                                                                  \
-    {                                                                                              \
-        vtss_rc __rc__ =                                                                           \
-            (vtss_state->func == NULL ? VTSS_RC_ERROR : vtss_state->func(vtss_state));             \
-        if (__rc__ < VTSS_RC_OK)                                                                   \
-            return __rc__;                                                                         \
-    }
-
 /* Call function in cold start mode only */
 #define VTSS_RC_COLD(expr) (vtss_state->warm_start_cur ? VTSS_RC_OK : (expr))
 
@@ -306,17 +265,8 @@ struct vtss_state_s;
 /* ================================================================= *
  *  Chip Interface Layer functions
  * ================================================================= */
-typedef struct {
-    vtss_rc (*init_conf_set)(struct vtss_state_s *vtss_state);
 
-    vtss_rc (*register_access_mode_set)(struct vtss_state_s *vtss_state);
-
-    vtss_rc (*qs_conf_set)(struct vtss_state_s *vtss_state);
-
-#if defined(VTSS_FEATURE_WARM_START)
-    vtss_rc (*restart_conf_set)(struct vtss_state_s *vtss_state);
-#endif /* VTSS_FEATURE_WARM_START */
-} vtss_cil_func_t;
+vtss_rc vtss_cil_register_access_mode_set(struct vtss_state_s *vtss_state);
 
 /* ================================================================= *
  *  Total API state
@@ -347,8 +297,6 @@ typedef struct vtss_state_s {
     vtss_chip_no_t chip_no;    /* Currently selected device */
     u32            port_count;
     BOOL           create_pre; // AIL create preprocessing
-    /* CIL function pointers not part of a specific group */
-    vtss_cil_func_t cil;
 
 #if defined(VTSS_FEATURE_MISC)
     vtss_misc_state_t misc;

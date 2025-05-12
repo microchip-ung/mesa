@@ -2549,6 +2549,8 @@ static vtss_rc fa_feature_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+vtss_rc vtss_cil_register_access_mode_set(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
+
 vtss_rc vtss_fa_inst_create(vtss_state_t *vtss_state)
 {
     /* Initialization */

@@ -418,10 +418,7 @@ vtss_rc vtss_register_access_mode_set(const vtss_inst_t inst, BOOL spi_bus)
 
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->init_conf.spi_bus = spi_bus;
-        if (vtss_state->cil.register_access_mode_set) {
-            // Some platforms require a CIL call and some don't
-            rc = VTSS_FUNC_0(cil.register_access_mode_set);
-        }
+        rc = vtss_cil_register_access_mode_set(vtss_state);
     }
 
     VTSS_EXIT();
@@ -689,10 +686,6 @@ void vtss_tod_set_ns_cnt_cb(tod_get_ns_cnt_cb_t cb) { hw_get_ns_callout = cb; }
 
 /**
  * \brief Get the current hw nanosec time
- *  Because this function can be called from interrupt and/or with interrupt
- * disabled, the normal VTSS_ENTER macro is not used, neither is the VTSS_FUNC
- * used, because it copies an instance pointer to a global variable. Therefore
- * the CIL layer function is called via the default_inst pointer.
  *
  * \returns actual ns counter
  */

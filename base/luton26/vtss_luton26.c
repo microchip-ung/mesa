@@ -357,6 +357,8 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     return vtss_l26_init_groups(vtss_state, VTSS_INIT_CMD_INIT);
 }
 
+vtss_rc vtss_cil_register_access_mode_set(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
+
 vtss_rc vtss_luton26_inst_create(vtss_state_t *vtss_state)
 {
     /* Create function groups */
