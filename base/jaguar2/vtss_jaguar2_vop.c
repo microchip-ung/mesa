@@ -240,7 +240,7 @@ static vtss_rc voi_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t vo
 /* - CIL functions ------------------------------------------------- */
 /* - CIL functions ------------------------------------------------- */
 
-static vtss_rc jr2_vop_conf_set(vtss_state_t *vtss_state, const vtss_vop_conf_t *const conf)
+vtss_rc vtss_cil_vop_conf_set(vtss_state_t *vtss_state, const vtss_vop_conf_t *const conf)
 {
 
     u32 value, i;
@@ -312,9 +312,9 @@ static vtss_rc jr2_vop_conf_set(vtss_state_t *vtss_state, const vtss_vop_conf_t 
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_event_active_get(vtss_state_t *vtss_state,
-                                        const u32     active_size,
-                                        u32 *const    active)
+vtss_rc vtss_cil_voe_event_active_get(vtss_state_t *vtss_state,
+                                      const u32     active_size,
+                                      u32 *const    active)
 {
     VTSS_D("Enter  active_size %u", active_size);
 
@@ -335,10 +335,10 @@ static vtss_rc jr2_voe_event_active_get(vtss_state_t *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_event_mask_set(vtss_state_t        *vtss_state,
-                                      const vtss_voe_idx_t voe_idx,
-                                      const u32            mask,
-                                      const BOOL           enable)
+vtss_rc vtss_cil_voe_event_mask_set(vtss_state_t        *vtss_state,
+                                    const vtss_voe_idx_t voe_idx,
+                                    const u32            mask,
+                                    const BOOL           enable)
 {
     u32 enable_mask, reg_mask;
 
@@ -388,9 +388,9 @@ static vtss_rc jr2_voe_event_mask_set(vtss_state_t        *vtss_state,
     return enable_mask ? jr2_oam_vop_int_enable(vtss_state, TRUE) : oam_vop_int_update(vtss_state);
 }
 
-static vtss_rc jr2_voe_event_get(vtss_state_t        *vtss_state,
-                                 const vtss_voe_idx_t voe_idx,
-                                 u32 *const           mask)
+vtss_rc vtss_cil_voe_event_get(vtss_state_t        *vtss_state,
+                               const vtss_voe_idx_t voe_idx,
+                               u32 *const           mask)
 {
     u32 enable_mask, sticky_mask;
 
@@ -475,12 +475,12 @@ static vtss_rc jr2_voe_event_get(vtss_state_t        *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static u32     voe_alloc_idx;
-static vtss_rc jr2_voe_alloc(vtss_state_t              *vtss_state,
-                             const vtss_voe_type_t      type,
-                             const vtss_port_no_t       port,
-                             const vtss_oam_direction_t direction,
-                             vtss_voe_idx_t *const      voe_idx)
+static u32 voe_alloc_idx;
+vtss_rc    vtss_cil_voe_alloc(vtss_state_t              *vtss_state,
+                              const vtss_voe_type_t      type,
+                              const vtss_port_no_t       port,
+                              const vtss_oam_direction_t direction,
+                              vtss_voe_idx_t *const      voe_idx)
 {
     u32 i, offset, v;
 
@@ -613,7 +613,7 @@ static vtss_rc jr2_voe_alloc(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_voe_free(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_cil_voe_free(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     vtss_rc           rc, ret_rc = VTSS_RC_OK;
     vtss_voe_alloc_t *alloc_data = &vtss_state->oam.voe_alloc_data[voe_idx];
@@ -640,9 +640,9 @@ static vtss_rc jr2_voe_free(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_i
     return (ret_rc);
 }
 
-static vtss_rc jr2_voe_conf_set(vtss_state_t                *vtss_state,
-                                const vtss_voe_idx_t         voe_idx,
-                                const vtss_voe_conf_t *const conf)
+vtss_rc vtss_cil_voe_conf_set(vtss_state_t                *vtss_state,
+                              const vtss_voe_idx_t         voe_idx,
+                              const vtss_voe_conf_t *const conf)
 {
     u32               i, value, mask;
     vtss_voe_alloc_t *alloc_data = &vtss_state->oam.voe_alloc_data[voe_idx];
@@ -764,9 +764,9 @@ static vtss_rc jr2_voe_conf_set(vtss_state_t                *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_cc_conf_set(vtss_state_t                   *vtss_state,
-                                   const vtss_voe_idx_t            voe_idx,
-                                   const vtss_voe_cc_conf_t *const conf)
+vtss_rc vtss_cil_voe_cc_conf_set(vtss_state_t                   *vtss_state,
+                                 const vtss_voe_idx_t            voe_idx,
+                                 const vtss_voe_cc_conf_t *const conf)
 {
     u32       i, value, mask;
     const u8 *p;
@@ -868,9 +868,9 @@ static vtss_rc jr2_voe_cc_conf_set(vtss_state_t                   *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_cc_rdi_set(vtss_state_t        *vtss_state,
-                                  const vtss_voe_idx_t voe_idx,
-                                  const BOOL           rdi)
+vtss_rc vtss_cil_voe_cc_rdi_set(vtss_state_t        *vtss_state,
+                                const vtss_voe_idx_t voe_idx,
+                                const BOOL           rdi)
 {
     u32 value, mask;
 
@@ -891,7 +891,7 @@ static vtss_rc jr2_voe_cc_rdi_set(vtss_state_t        *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_cc_cpu_copy_next_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_cil_voe_cc_cpu_copy_next_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     u32 value;
 
@@ -913,9 +913,9 @@ static vtss_rc jr2_voe_cc_cpu_copy_next_set(vtss_state_t *vtss_state, const vtss
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_lt_conf_set(vtss_state_t                   *vtss_state,
-                                   const vtss_voe_idx_t            voe_idx,
-                                   const vtss_voe_lt_conf_t *const conf)
+vtss_rc vtss_cil_voe_lt_conf_set(vtss_state_t                   *vtss_state,
+                                 const vtss_voe_idx_t            voe_idx,
+                                 const vtss_voe_lt_conf_t *const conf)
 {
     u32 value, mask;
 
@@ -949,9 +949,9 @@ static vtss_rc jr2_voe_lt_conf_set(vtss_state_t                   *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_lb_conf_set(vtss_state_t                   *vtss_state,
-                                   const vtss_voe_idx_t            voe_idx,
-                                   const vtss_voe_lb_conf_t *const conf)
+vtss_rc vtss_cil_voe_lb_conf_set(vtss_state_t                   *vtss_state,
+                                 const vtss_voe_idx_t            voe_idx,
+                                 const vtss_voe_lb_conf_t *const conf)
 {
     u32  value, mask, transaction_id;
     BOOL doing_lb = 0, doing_tst;
@@ -1011,9 +1011,9 @@ static vtss_rc jr2_voe_lb_conf_set(vtss_state_t                   *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_laps_conf_set(vtss_state_t                     *vtss_state,
-                                     const vtss_voe_idx_t              voe_idx,
-                                     const vtss_voe_laps_conf_t *const conf)
+vtss_rc vtss_cil_voe_laps_conf_set(vtss_state_t                     *vtss_state,
+                                   const vtss_voe_idx_t              voe_idx,
+                                   const vtss_voe_laps_conf_t *const conf)
 {
     u32 value, mask;
 
@@ -1039,9 +1039,9 @@ static vtss_rc jr2_voe_laps_conf_set(vtss_state_t                     *vtss_stat
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_status_get(vtss_state_t            *vtss_state,
-                                  const vtss_voe_idx_t     voe_idx,
-                                  vtss_voe_status_t *const status)
+vtss_rc vtss_cil_voe_status_get(vtss_state_t            *vtss_state,
+                                const vtss_voe_idx_t     voe_idx,
+                                vtss_voe_status_t *const status)
 {
     u32 value;
 
@@ -1079,9 +1079,9 @@ static vtss_rc jr2_voe_status_get(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_voe_cc_status_get(vtss_state_t         *vtss_state,
-                                     const vtss_voe_idx_t  voe_idx,
-                                     vtss_voe_cc_status_t *status)
+vtss_rc vtss_cil_voe_cc_status_get(vtss_state_t         *vtss_state,
+                                   const vtss_voe_idx_t  voe_idx,
+                                   vtss_voe_cc_status_t *status)
 {
     u32 value;
 
@@ -1119,9 +1119,9 @@ static vtss_rc jr2_voe_cc_status_get(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_voe_lt_status_get(vtss_state_t         *vtss_state,
-                                     const vtss_voe_idx_t  voe_idx,
-                                     vtss_voe_lt_status_t *status)
+vtss_rc vtss_cil_voe_lt_status_get(vtss_state_t         *vtss_state,
+                                   const vtss_voe_idx_t  voe_idx,
+                                   vtss_voe_lt_status_t *status)
 {
     u32 value;
 
@@ -1140,9 +1140,9 @@ static vtss_rc jr2_voe_lt_status_get(vtss_state_t         *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_lb_status_get(vtss_state_t         *vtss_state,
-                                     const vtss_voe_idx_t  voe_idx,
-                                     vtss_voe_lb_status_t *status)
+vtss_rc vtss_cil_voe_lb_status_get(vtss_state_t         *vtss_state,
+                                   const vtss_voe_idx_t  voe_idx,
+                                   vtss_voe_lb_status_t *status)
 {
     u32  value;
     BOOL doing_lb = 0, doing_tst = 0;
@@ -1172,9 +1172,9 @@ static vtss_rc jr2_voe_lb_status_get(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_voe_laps_status_get(vtss_state_t           *vtss_state,
-                                       const vtss_voe_idx_t    voe_idx,
-                                       vtss_voe_laps_status_t *status)
+vtss_rc vtss_cil_voe_laps_status_get(vtss_state_t           *vtss_state,
+                                     const vtss_voe_idx_t    voe_idx,
+                                     vtss_voe_laps_status_t *status)
 {
     u32 value;
 
@@ -1193,9 +1193,9 @@ static vtss_rc jr2_voe_laps_status_get(vtss_state_t           *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_counters_get(vtss_state_t              *vtss_state,
-                                    const vtss_voe_idx_t       voe_idx,
-                                    vtss_voe_counters_t *const counters)
+vtss_rc vtss_cil_voe_counters_get(vtss_state_t              *vtss_state,
+                                  const vtss_voe_idx_t       voe_idx,
+                                  vtss_voe_counters_t *const counters)
 {
     vtss_rc                           rc;
     vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
@@ -1216,9 +1216,9 @@ static vtss_rc jr2_voe_counters_get(vtss_state_t              *vtss_state,
     return rc;
 }
 
-static vtss_rc jr2_voe_cc_counters_get(vtss_state_t           *vtss_state,
-                                       const vtss_voe_idx_t    voe_idx,
-                                       vtss_voe_cc_counters_t *counters)
+vtss_rc vtss_cil_voe_cc_counters_get(vtss_state_t           *vtss_state,
+                                     const vtss_voe_idx_t    voe_idx,
+                                     vtss_voe_cc_counters_t *counters)
 {
     vtss_rc                           rc;
     vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
@@ -1237,9 +1237,9 @@ static vtss_rc jr2_voe_cc_counters_get(vtss_state_t           *vtss_state,
     return rc;
 }
 
-static vtss_rc jr2_voe_lb_counters_get(vtss_state_t           *vtss_state,
-                                       const vtss_voe_idx_t    voe_idx,
-                                       vtss_voe_lb_counters_t *counters)
+vtss_rc vtss_cil_voe_lb_counters_get(vtss_state_t           *vtss_state,
+                                     const vtss_voe_idx_t    voe_idx,
+                                     vtss_voe_lb_counters_t *counters)
 {
     vtss_rc                           rc;
     vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
@@ -1259,7 +1259,7 @@ static vtss_rc jr2_voe_lb_counters_get(vtss_state_t           *vtss_state,
     return rc;
 }
 
-static vtss_rc jr2_voe_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_cil_voe_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -1268,7 +1268,7 @@ static vtss_rc jr2_voe_counters_clear(vtss_state_t *vtss_state, const vtss_voe_i
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_cc_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_cil_voe_cc_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -1277,7 +1277,7 @@ static vtss_rc jr2_voe_cc_counters_clear(vtss_state_t *vtss_state, const vtss_vo
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voe_lb_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_cil_voe_lb_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -1286,11 +1286,11 @@ static vtss_rc jr2_voe_lb_counters_clear(vtss_state_t *vtss_state, const vtss_vo
     return (VTSS_RC_OK);
 }
 
-static u32     down_voi_alloc_offset = 0, up_voi_alloc_offset = 0;
-static vtss_rc jr2_voi_alloc(vtss_state_t              *vtss_state,
-                             const vtss_port_no_t       port,
-                             const vtss_oam_direction_t direction,
-                             vtss_voi_idx_t *const      voi_idx)
+static u32 down_voi_alloc_offset = 0, up_voi_alloc_offset = 0;
+vtss_rc    vtss_cil_voi_alloc(vtss_state_t              *vtss_state,
+                              const vtss_port_no_t       port,
+                              const vtss_oam_direction_t direction,
+                              vtss_voi_idx_t *const      voi_idx)
 {
     u32 i, start, count, *alloc_offset;
 
@@ -1327,7 +1327,7 @@ static vtss_rc jr2_voi_alloc(vtss_state_t              *vtss_state,
     return (VTSS_RC_OK);
 }
 
-static vtss_rc jr2_voi_free(vtss_state_t *vtss_state, const vtss_voi_idx_t voi_idx)
+vtss_rc vtss_cil_voi_free(vtss_state_t *vtss_state, const vtss_voi_idx_t voi_idx)
 {
     vtss_voi_alloc_t *alloc_data;
 
@@ -1349,9 +1349,9 @@ static vtss_rc jr2_voi_free(vtss_state_t *vtss_state, const vtss_voi_idx_t voi_i
     return (voi_default_set(vtss_state, voi_idx));
 }
 
-static vtss_rc jr2_voi_conf_set(vtss_state_t                *vtss_state,
-                                const vtss_voi_idx_t         voi_idx,
-                                const vtss_voi_conf_t *const conf)
+vtss_rc vtss_cil_voi_conf_set(vtss_state_t                *vtss_state,
+                              const vtss_voi_idx_t         voi_idx,
+                              const vtss_voi_conf_t *const conf)
 {
     u32               value, mask, mip_idx;
     vtss_voi_alloc_t *alloc_data;
@@ -1867,39 +1867,39 @@ static vtss_rc voe_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t vo
     VTSS_MEMSET(&vtss_state->oam.voe_event_mask[voe_idx], 0,
                 sizeof(vtss_state->oam.voe_event_mask[voe_idx]));
 
-    if ((rc = jr2_voe_event_mask_set(vtss_state, voe_idx, VTSS_VOE_EVENT_MASK_ALL, FALSE)) !=
+    if ((rc = vtss_cil_voe_event_mask_set(vtss_state, voe_idx, VTSS_VOE_EVENT_MASK_ALL, FALSE)) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = jr2_voe_cc_rdi_set(vtss_state, voe_idx, FALSE)) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_cc_rdi_set(vtss_state, voe_idx, FALSE)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = jr2_voe_cc_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_cc_conf[voe_idx])) !=
-        VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_cc_conf_set(vtss_state, voe_idx,
+                                       &vtss_state->oam.voe_cc_conf[voe_idx])) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = jr2_voe_lt_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_lt_conf[voe_idx])) !=
-        VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_lt_conf_set(vtss_state, voe_idx,
+                                       &vtss_state->oam.voe_lt_conf[voe_idx])) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = jr2_voe_lb_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_lb_conf[voe_idx])) !=
-        VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_lb_conf_set(vtss_state, voe_idx,
+                                       &vtss_state->oam.voe_lb_conf[voe_idx])) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = jr2_voe_laps_conf_set(vtss_state, voe_idx,
-                                    &vtss_state->oam.voe_laps_conf[voe_idx])) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_laps_conf_set(vtss_state, voe_idx,
+                                         &vtss_state->oam.voe_laps_conf[voe_idx])) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = jr2_voe_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = jr2_voe_cc_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_cc_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = jr2_voe_lb_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_lb_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = jr2_voe_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_conf[voe_idx])) !=
+    if ((rc = vtss_cil_voe_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_conf[voe_idx])) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
@@ -1913,7 +1913,7 @@ static vtss_rc voi_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t vo
 
     VTSS_MEMSET(&vtss_state->oam.voi_conf[voe_idx], 0, sizeof(vtss_state->oam.voi_conf[voe_idx]));
 
-    rc = jr2_voi_conf_set(vtss_state, voe_idx, &vtss_state->oam.voi_conf[voe_idx]);
+    rc = vtss_cil_voi_conf_set(vtss_state, voe_idx, &vtss_state->oam.voi_conf[voe_idx]);
 
     return (rc);
 }
@@ -1988,41 +1988,11 @@ static vtss_rc jr2_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_jr2_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_oam_state_t *state = &vtss_state->oam;
-
     switch (cmd) {
-    case VTSS_INIT_CMD_CREATE:
-        state->vop_conf_set = jr2_vop_conf_set;
-        state->voe_event_active_get = jr2_voe_event_active_get;
-        state->voe_event_mask_set = jr2_voe_event_mask_set;
-        state->voe_event_get = jr2_voe_event_get;
-        state->voe_alloc = jr2_voe_alloc;
-        state->voe_free = jr2_voe_free;
-        state->voe_conf_set = jr2_voe_conf_set;
-        state->voe_cc_conf_set = jr2_voe_cc_conf_set;
-        state->voe_cc_rdi_set = jr2_voe_cc_rdi_set;
-        state->voe_cc_cpu_copy_next_set = jr2_voe_cc_cpu_copy_next_set;
-        state->voe_lt_conf_set = jr2_voe_lt_conf_set;
-        state->voe_lb_conf_set = jr2_voe_lb_conf_set;
-        state->voe_laps_conf_set = jr2_voe_laps_conf_set;
-        state->voe_status_get = jr2_voe_status_get;
-        state->voe_cc_status_get = jr2_voe_cc_status_get;
-        state->voe_lt_status_get = jr2_voe_lt_status_get;
-        state->voe_lb_status_get = jr2_voe_lb_status_get;
-        state->voe_laps_status_get = jr2_voe_laps_status_get;
-        state->voe_counters_get = jr2_voe_counters_get;
-        state->voe_cc_counters_get = jr2_voe_cc_counters_get;
-        state->voe_lb_counters_get = jr2_voe_lb_counters_get;
-        state->voe_counters_clear = jr2_voe_counters_clear;
-        state->voe_cc_counters_clear = jr2_voe_cc_counters_clear;
-        state->voe_lb_counters_clear = jr2_voe_lb_counters_clear;
-        state->voi_alloc = jr2_voi_alloc;
-        state->voi_free = jr2_voi_free;
-        state->voi_conf_set = jr2_voi_conf_set;
-        break;
-    case VTSS_INIT_CMD_INIT: VTSS_RC(jr2_init(vtss_state)); break;
-    case VTSS_INIT_CMD_POLL: VTSS_RC(jr2_oam_voe_poll_1sec(vtss_state)); break;
-    default:                 break;
+    case VTSS_INIT_CMD_CREATE: break;
+    case VTSS_INIT_CMD_INIT:   VTSS_RC(jr2_init(vtss_state)); break;
+    case VTSS_INIT_CMD_POLL:   VTSS_RC(jr2_oam_voe_poll_1sec(vtss_state)); break;
+    default:                   break;
     }
     return VTSS_RC_OK;
 }

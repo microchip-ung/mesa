@@ -118,11 +118,11 @@ static vtss_rc voe_counter_update(vtss_state_t        *vtss_state,
 #undef UPDATE16
 }
 
-static vtss_rc lan966x_voe_alloc(vtss_state_t              *vtss_state,
-                                 const vtss_voe_type_t      type,
-                                 const vtss_port_no_t       port,
-                                 const vtss_oam_direction_t direction,
-                                 vtss_voe_idx_t *const      voe_idx)
+vtss_rc vtss_cil_voe_alloc(vtss_state_t              *vtss_state,
+                           const vtss_voe_type_t      type,
+                           const vtss_port_no_t       port,
+                           const vtss_oam_direction_t direction,
+                           vtss_voe_idx_t *const      voe_idx)
 {
     u32 i, offset;
 
@@ -174,7 +174,7 @@ static vtss_rc lan966x_voe_alloc(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_free(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_cil_voe_free(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     vtss_rc           rc, ret_rc = VTSS_RC_OK;
     vtss_voe_alloc_t *alloc_data = &vtss_state->oam.voe_alloc_data[voe_idx];
@@ -198,7 +198,7 @@ static vtss_rc lan966x_voe_free(vtss_state_t *vtss_state, const vtss_voe_idx_t v
     return (ret_rc);
 }
 
-static vtss_rc lan966x_vop_conf_set(vtss_state_t *vtss_state, const vtss_vop_conf_t *const conf)
+vtss_rc vtss_cil_vop_conf_set(vtss_state_t *vtss_state, const vtss_vop_conf_t *const conf)
 {
     BOOL npi = vtss_state->packet.npi_conf.enable ? TRUE : FALSE;
     u32  value, npi_port = npi ? VTSS_CHIP_PORT(vtss_state->packet.npi_conf.port_no) : 0;
@@ -246,9 +246,9 @@ static vtss_rc lan966x_vop_conf_set(vtss_state_t *vtss_state, const vtss_vop_con
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_event_active_get(vtss_state_t *vtss_state,
-                                            const u32     active_size,
-                                            u32 *const    active)
+vtss_rc vtss_cil_voe_event_active_get(vtss_state_t *vtss_state,
+                                      const u32     active_size,
+                                      u32 *const    active)
 {
     VTSS_D("Enter  active_size %u", active_size);
 
@@ -261,10 +261,10 @@ static vtss_rc lan966x_voe_event_active_get(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_event_mask_set(vtss_state_t        *vtss_state,
-                                          const vtss_voe_idx_t voe_idx,
-                                          const u32            mask,
-                                          const BOOL           enable)
+vtss_rc vtss_cil_voe_event_mask_set(vtss_state_t        *vtss_state,
+                                    const vtss_voe_idx_t voe_idx,
+                                    const u32            mask,
+                                    const BOOL           enable)
 {
     u32 enable_mask, reg_mask;
 
@@ -292,9 +292,9 @@ static vtss_rc lan966x_voe_event_mask_set(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_event_get(vtss_state_t        *vtss_state,
-                                     const vtss_voe_idx_t voe_idx,
-                                     u32 *const           mask)
+vtss_rc vtss_cil_voe_event_get(vtss_state_t        *vtss_state,
+                               const vtss_voe_idx_t voe_idx,
+                               u32 *const           mask)
 {
     u32 enable_mask, sticky_mask;
 
@@ -329,9 +329,9 @@ static vtss_rc lan966x_voe_event_get(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_conf_set(vtss_state_t                *vtss_state,
-                                    const vtss_voe_idx_t         voe_idx,
-                                    const vtss_voe_conf_t *const conf)
+vtss_rc vtss_cil_voe_conf_set(vtss_state_t                *vtss_state,
+                              const vtss_voe_idx_t         voe_idx,
+                              const vtss_voe_conf_t *const conf)
 {
     u32 value, mask;
 
@@ -378,9 +378,9 @@ static vtss_rc lan966x_voe_conf_set(vtss_state_t                *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_cc_conf_set(vtss_state_t                   *vtss_state,
-                                       const vtss_voe_idx_t            voe_idx,
-                                       const vtss_voe_cc_conf_t *const conf)
+vtss_rc vtss_cil_voe_cc_conf_set(vtss_state_t                   *vtss_state,
+                                 const vtss_voe_idx_t            voe_idx,
+                                 const vtss_voe_cc_conf_t *const conf)
 {
     u32       i, value, mask;
     const u8 *p;
@@ -440,9 +440,9 @@ static vtss_rc lan966x_voe_cc_conf_set(vtss_state_t                   *vtss_stat
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_cc_rdi_set(vtss_state_t        *vtss_state,
-                                      const vtss_voe_idx_t voe_idx,
-                                      const BOOL           rdi)
+vtss_rc vtss_cil_voe_cc_rdi_set(vtss_state_t        *vtss_state,
+                                const vtss_voe_idx_t voe_idx,
+                                const BOOL           rdi)
 {
     VTSS_D("Enter  voe_idx %u  rdi %u", voe_idx, rdi);
 
@@ -452,8 +452,7 @@ static vtss_rc lan966x_voe_cc_rdi_set(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_cc_cpu_copy_next_set(vtss_state_t        *vtss_state,
-                                                const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_cil_voe_cc_cpu_copy_next_set(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     u32 value, mask;
 
@@ -470,9 +469,9 @@ static vtss_rc lan966x_voe_cc_cpu_copy_next_set(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_status_get(vtss_state_t            *vtss_state,
-                                      const vtss_voe_idx_t     voe_idx,
-                                      vtss_voe_status_t *const status)
+vtss_rc vtss_cil_voe_status_get(vtss_state_t            *vtss_state,
+                                const vtss_voe_idx_t     voe_idx,
+                                vtss_voe_status_t *const status)
 {
     u32 value;
 
@@ -491,9 +490,9 @@ static vtss_rc lan966x_voe_status_get(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_cc_status_get(vtss_state_t         *vtss_state,
-                                         const vtss_voe_idx_t  voe_idx,
-                                         vtss_voe_cc_status_t *status)
+vtss_rc vtss_cil_voe_cc_status_get(vtss_state_t         *vtss_state,
+                                   const vtss_voe_idx_t  voe_idx,
+                                   vtss_voe_cc_status_t *status)
 {
     u32 value;
 
@@ -520,9 +519,9 @@ static vtss_rc lan966x_voe_cc_status_get(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_counters_get(vtss_state_t              *vtss_state,
-                                        const vtss_voe_idx_t       voe_idx,
-                                        vtss_voe_counters_t *const counters)
+vtss_rc vtss_cil_voe_counters_get(vtss_state_t              *vtss_state,
+                                  const vtss_voe_idx_t       voe_idx,
+                                  vtss_voe_counters_t *const counters)
 {
     vtss_rc                           rc;
     vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
@@ -539,9 +538,9 @@ static vtss_rc lan966x_voe_counters_get(vtss_state_t              *vtss_state,
     return rc;
 }
 
-static vtss_rc lan966x_voe_cc_counters_get(vtss_state_t           *vtss_state,
-                                           const vtss_voe_idx_t    voe_idx,
-                                           vtss_voe_cc_counters_t *counters)
+vtss_rc vtss_cil_voe_cc_counters_get(vtss_state_t           *vtss_state,
+                                     const vtss_voe_idx_t    voe_idx,
+                                     vtss_voe_cc_counters_t *counters)
 {
     vtss_rc                           rc;
     vtss_oam_voe_internal_counters_t *chipcnt = &vtss_state->oam.voe_internal[voe_idx].counters;
@@ -560,7 +559,7 @@ static vtss_rc lan966x_voe_cc_counters_get(vtss_state_t           *vtss_state,
     return rc;
 }
 
-static vtss_rc lan966x_voe_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_cil_voe_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -569,7 +568,7 @@ static vtss_rc lan966x_voe_counters_clear(vtss_state_t *vtss_state, const vtss_v
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan966x_voe_cc_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
+vtss_rc vtss_cil_voe_cc_counters_clear(vtss_state_t *vtss_state, const vtss_voe_idx_t voe_idx)
 {
     VTSS_D("Enter  voe_idx %u", voe_idx);
 
@@ -800,24 +799,24 @@ static vtss_rc voe_default_set(vtss_state_t *vtss_state, const vtss_voe_idx_t vo
     VTSS_MEMSET(&vtss_state->oam.voe_event_mask[voe_idx], 0,
                 sizeof(vtss_state->oam.voe_event_mask[voe_idx]));
 
-    if ((rc = lan966x_voe_event_mask_set(vtss_state, voe_idx, VTSS_VOE_EVENT_MASK_ALL, FALSE)) !=
+    if ((rc = vtss_cil_voe_event_mask_set(vtss_state, voe_idx, VTSS_VOE_EVENT_MASK_ALL, FALSE)) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = lan966x_voe_cc_rdi_set(vtss_state, voe_idx, FALSE)) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_cc_rdi_set(vtss_state, voe_idx, FALSE)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = lan966x_voe_cc_conf_set(vtss_state, voe_idx,
-                                      &vtss_state->oam.voe_cc_conf[voe_idx])) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_cc_conf_set(vtss_state, voe_idx,
+                                       &vtss_state->oam.voe_cc_conf[voe_idx])) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = lan966x_voe_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = lan966x_voe_cc_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
+    if ((rc = vtss_cil_voe_cc_counters_clear(vtss_state, voe_idx)) != VTSS_RC_OK) {
         ret_rc = rc;
     }
-    if ((rc = lan966x_voe_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_conf[voe_idx])) !=
+    if ((rc = vtss_cil_voe_conf_set(vtss_state, voe_idx, &vtss_state->oam.voe_conf[voe_idx])) !=
         VTSS_RC_OK) {
         ret_rc = rc;
     }
@@ -865,27 +864,8 @@ static vtss_rc lan966x_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_lan966x_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_oam_state_t *state = &vtss_state->oam;
-
     switch (cmd) {
-    case VTSS_INIT_CMD_CREATE:
-        state->voe_alloc = lan966x_voe_alloc;
-        state->voe_free = lan966x_voe_free;
-        state->vop_conf_set = lan966x_vop_conf_set;
-        state->voe_event_active_get = lan966x_voe_event_active_get;
-        state->voe_event_mask_set = lan966x_voe_event_mask_set;
-        state->voe_event_get = lan966x_voe_event_get;
-        state->voe_conf_set = lan966x_voe_conf_set;
-        state->voe_cc_conf_set = lan966x_voe_cc_conf_set;
-        state->voe_cc_rdi_set = lan966x_voe_cc_rdi_set;
-        state->voe_cc_cpu_copy_next_set = lan966x_voe_cc_cpu_copy_next_set;
-        state->voe_status_get = lan966x_voe_status_get;
-        state->voe_cc_status_get = lan966x_voe_cc_status_get;
-        state->voe_counters_get = lan966x_voe_counters_get;
-        state->voe_cc_counters_get = lan966x_voe_cc_counters_get;
-        state->voe_counters_clear = lan966x_voe_counters_clear;
-        state->voe_cc_counters_clear = lan966x_voe_cc_counters_clear;
-        break;
+    case VTSS_INIT_CMD_CREATE: break;
 
     case VTSS_INIT_CMD_INIT: VTSS_RC(lan966x_init(vtss_state)); break;
 

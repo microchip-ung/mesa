@@ -60,85 +60,86 @@ typedef struct {
 } vtss_voi_alloc_t;
 #endif
 
-typedef struct {
-    /* CIL function pointers */
-    vtss_rc (*vop_conf_set)(struct vtss_state_s *, const vtss_vop_conf_t *const);
+/* CIL function pointers */
+vtss_rc vtss_cil_vop_conf_set(struct vtss_state_s *, const vtss_vop_conf_t *const);
 
-    vtss_rc (*voe_event_active_get)(struct vtss_state_s *, u32, u32 *const);
-    vtss_rc (*voe_event_mask_set)(struct vtss_state_s *,
-                                  const vtss_voe_idx_t,
-                                  const u32,
-                                  const BOOL);
-    vtss_rc (*voe_event_get)(struct vtss_state_s *, const vtss_voe_idx_t, u32 *const);
+vtss_rc vtss_cil_voe_event_active_get(struct vtss_state_s *, u32, u32 *const);
+vtss_rc vtss_cil_voe_event_mask_set(struct vtss_state_s *,
+                                    const vtss_voe_idx_t,
+                                    const u32,
+                                    const BOOL);
+vtss_rc vtss_cil_voe_event_get(struct vtss_state_s *, const vtss_voe_idx_t, u32 *const);
 
-    vtss_rc (*voe_alloc)(struct vtss_state_s *,
-                         const vtss_voe_type_t,
-                         const vtss_port_no_t,
-                         const vtss_oam_direction_t,
-                         vtss_voe_idx_t *);
-    vtss_rc (*voe_free)(struct vtss_state_s *, const vtss_voe_idx_t);
+vtss_rc vtss_cil_voe_alloc(struct vtss_state_s *,
+                           const vtss_voe_type_t,
+                           const vtss_port_no_t,
+                           const vtss_oam_direction_t,
+                           vtss_voe_idx_t *);
+vtss_rc vtss_cil_voe_free(struct vtss_state_s *, const vtss_voe_idx_t);
 
-    vtss_rc (*voe_conf_set)(struct vtss_state_s *,
-                            const vtss_voe_idx_t,
-                            const vtss_voe_conf_t *const);
-    vtss_rc (*voe_cc_conf_set)(struct vtss_state_s *,
-                               const vtss_voe_idx_t,
-                               const vtss_voe_cc_conf_t *const);
-    vtss_rc (*voe_cc_rdi_set)(struct vtss_state_s *, const vtss_voe_idx_t, const BOOL);
-    vtss_rc (*voe_cc_cpu_copy_next_set)(struct vtss_state_s *, const vtss_voe_idx_t);
-#if defined(VTSS_FEATURE_VOP_CFM)
-    vtss_rc (*voe_lt_conf_set)(struct vtss_state_s *,
-                               const vtss_voe_idx_t,
-                               const vtss_voe_lt_conf_t *const);
-    vtss_rc (*voe_lb_conf_set)(struct vtss_state_s *,
-                               const vtss_voe_idx_t,
-                               const vtss_voe_lb_conf_t *const);
-    vtss_rc (*voe_laps_conf_set)(struct vtss_state_s *,
-                                 const vtss_voe_idx_t,
-                                 const vtss_voe_laps_conf_t *const);
-#endif
-    vtss_rc (*voe_status_get)(struct vtss_state_s *,
+vtss_rc vtss_cil_voe_conf_set(struct vtss_state_s *,
                               const vtss_voe_idx_t,
-                              vtss_voe_status_t *const);
-    vtss_rc (*voe_cc_status_get)(struct vtss_state_s *,
+                              const vtss_voe_conf_t *const);
+vtss_rc vtss_cil_voe_cc_conf_set(struct vtss_state_s *,
                                  const vtss_voe_idx_t,
-                                 vtss_voe_cc_status_t *const);
+                                 const vtss_voe_cc_conf_t *const);
+vtss_rc vtss_cil_voe_cc_rdi_set(struct vtss_state_s *, const vtss_voe_idx_t, const BOOL);
+vtss_rc vtss_cil_voe_cc_cpu_copy_next_set(struct vtss_state_s *, const vtss_voe_idx_t);
 #if defined(VTSS_FEATURE_VOP_CFM)
-    vtss_rc (*voe_lt_status_get)(struct vtss_state_s *,
+vtss_rc vtss_cil_voe_lt_conf_set(struct vtss_state_s *,
                                  const vtss_voe_idx_t,
-                                 vtss_voe_lt_status_t *const);
-    vtss_rc (*voe_lb_status_get)(struct vtss_state_s *,
+                                 const vtss_voe_lt_conf_t *const);
+vtss_rc vtss_cil_voe_lb_conf_set(struct vtss_state_s *,
                                  const vtss_voe_idx_t,
-                                 vtss_voe_lb_status_t *const);
-    vtss_rc (*voe_laps_status_get)(struct vtss_state_s *,
+                                 const vtss_voe_lb_conf_t *const);
+vtss_rc vtss_cil_voe_laps_conf_set(struct vtss_state_s *,
                                    const vtss_voe_idx_t,
-                                   vtss_voe_laps_status_t *const);
+                                   const vtss_voe_laps_conf_t *const);
 #endif
-    vtss_rc (*voe_counters_get)(struct vtss_state_s *,
+vtss_rc vtss_cil_voe_status_get(struct vtss_state_s *,
                                 const vtss_voe_idx_t,
-                                vtss_voe_counters_t *const);
-    vtss_rc (*voe_cc_counters_get)(struct vtss_state_s *,
+                                vtss_voe_status_t *const);
+vtss_rc vtss_cil_voe_cc_status_get(struct vtss_state_s *,
                                    const vtss_voe_idx_t,
-                                   vtss_voe_cc_counters_t *const);
+                                   vtss_voe_cc_status_t *const);
 #if defined(VTSS_FEATURE_VOP_CFM)
-    vtss_rc (*voe_lb_counters_get)(struct vtss_state_s *,
+vtss_rc vtss_cil_voe_lt_status_get(struct vtss_state_s *,
                                    const vtss_voe_idx_t,
-                                   vtss_voe_lb_counters_t *const);
+                                   vtss_voe_lt_status_t *const);
+vtss_rc vtss_cil_voe_lb_status_get(struct vtss_state_s *,
+                                   const vtss_voe_idx_t,
+                                   vtss_voe_lb_status_t *const);
+vtss_rc vtss_cil_voe_laps_status_get(struct vtss_state_s *,
+                                     const vtss_voe_idx_t,
+                                     vtss_voe_laps_status_t *const);
 #endif
-    vtss_rc (*voe_counters_clear)(struct vtss_state_s *, const vtss_voe_idx_t);
-    vtss_rc (*voe_cc_counters_clear)(struct vtss_state_s *, const vtss_voe_idx_t);
+vtss_rc vtss_cil_voe_counters_get(struct vtss_state_s *,
+                                  const vtss_voe_idx_t,
+                                  vtss_voe_counters_t *const);
+vtss_rc vtss_cil_voe_cc_counters_get(struct vtss_state_s *,
+                                     const vtss_voe_idx_t,
+                                     vtss_voe_cc_counters_t *const);
 #if defined(VTSS_FEATURE_VOP_CFM)
-    vtss_rc (*voe_lb_counters_clear)(struct vtss_state_s *, const vtss_voe_idx_t);
+vtss_rc vtss_cil_voe_lb_counters_get(struct vtss_state_s *,
+                                     const vtss_voe_idx_t,
+                                     vtss_voe_lb_counters_t *const);
+#endif
+vtss_rc vtss_cil_voe_counters_clear(struct vtss_state_s *, const vtss_voe_idx_t);
+vtss_rc vtss_cil_voe_cc_counters_clear(struct vtss_state_s *, const vtss_voe_idx_t);
+#if defined(VTSS_FEATURE_VOP_CFM)
+vtss_rc vtss_cil_voe_lb_counters_clear(struct vtss_state_s *, const vtss_voe_idx_t);
 #endif
 #if defined(VTSS_FEATURE_VOP_V2)
-    vtss_rc (*voi_alloc)(struct vtss_state_s *,
-                         const vtss_port_no_t,
-                         const vtss_oam_direction_t,
-                         vtss_voi_idx_t *);
-    vtss_rc (*voi_free)(struct vtss_state_s *vtss_state, const vtss_voi_idx_t);
+vtss_rc vtss_cil_voi_alloc(struct vtss_state_s *,
+                           const vtss_port_no_t,
+                           const vtss_oam_direction_t,
+                           vtss_voi_idx_t *);
+vtss_rc vtss_cil_voi_free(struct vtss_state_s *vtss_state, const vtss_voi_idx_t);
 
-    vtss_rc (*voi_conf_set)(struct vtss_state_s *, const vtss_voi_idx_t, const vtss_voi_conf_t *);
+vtss_rc vtss_cil_voi_conf_set(struct vtss_state_s *, const vtss_voi_idx_t, const vtss_voi_conf_t *);
 #endif
+
+typedef struct {
     /* Configuration */
     vtss_vop_conf_t    vop_conf;
     vtss_voe_alloc_t   voe_alloc_data[VTSS_VOE_CNT];
