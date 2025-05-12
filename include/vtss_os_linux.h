@@ -374,6 +374,21 @@ static inline int __builtin_ctzl(unsigned long val32)
 #endif
 
 /**
+ * Convert a CPU address into a DMA address.
+ *
+ * The first argument is a CPU address that was obtain with
+ * VTSS_OS_MALLOC() using the VTSS_MEM_FLAGS_DMA flag.
+ *
+ * The returned value is a DMA address that can be passed
+ * to DMA capable hardware.
+ */
+#ifdef __KERNEL__
+#define VTSS_OS_CPU_TO_DMA_ADDR(a) (NULL)
+#else
+#define VTSS_OS_CPU_TO_DMA_ADDR(a) (NULL)
+#endif
+
+/**
  * Wrap of call to rand() defined in stdlib.h
  */
 #define VTSS_OS_RAND() rand()
