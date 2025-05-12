@@ -1052,7 +1052,7 @@ u32 find_unused_loc_idx(vtss_mrp_data_t *mrp_array)
     return i;
 }
 
-static vtss_rc lan969x_mrp_del(vtss_state_t *vtss_state, const vtss_mrp_idx_t mrp_idx)
+vtss_rc vtss_cil_mrp_del(vtss_state_t *vtss_state, const vtss_mrp_idx_t mrp_idx)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
     vtss_voe_idx_t   voe_idx;
@@ -1084,9 +1084,9 @@ static vtss_rc lan969x_mrp_del(vtss_state_t *vtss_state, const vtss_mrp_idx_t mr
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_add(vtss_state_t                *vtss_state,
-                               const vtss_mrp_idx_t         mrp_idx,
-                               const vtss_mrp_conf_t *const conf)
+vtss_rc vtss_cil_mrp_add(vtss_state_t                *vtss_state,
+                         const vtss_mrp_idx_t         mrp_idx,
+                         const vtss_mrp_conf_t *const conf)
 {
     u32              i, p;
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
@@ -1264,15 +1264,15 @@ static vtss_rc lan969x_mrp_add(vtss_state_t                *vtss_state,
 do_exit:
     if (rc != VTSS_RC_OK) {
         // Undo what we just did.
-        lan969x_mrp_del(vtss_state, mrp_idx);
+        vtss_cil_mrp_del(vtss_state, mrp_idx);
     }
 
     return rc;
 }
 
-static vtss_rc lan969x_mrp_ring_role_set(vtss_state_t              *vtss_state,
-                                         const vtss_mrp_idx_t       mrp_idx,
-                                         const vtss_mrp_ring_role_t role)
+vtss_rc vtss_cil_mrp_ring_role_set(vtss_state_t              *vtss_state,
+                                   const vtss_mrp_idx_t       mrp_idx,
+                                   const vtss_mrp_ring_role_t role)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
 
@@ -1326,9 +1326,9 @@ static vtss_rc lan969x_mrp_ring_role_set(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_primary_port_set(vtss_state_t        *vtss_state,
-                                            const vtss_mrp_idx_t mrp_idx,
-                                            const vtss_port_no_t port_no)
+vtss_rc vtss_cil_mrp_primary_port_set(vtss_state_t        *vtss_state,
+                                      const vtss_mrp_idx_t mrp_idx,
+                                      const vtss_port_no_t port_no)
 {
     vtss_mrp_data_t      *mrp_data = &vtss_state->mrp.data[mrp_idx];
     vtss_mrp_port_state_t save_port_state;
@@ -1394,9 +1394,9 @@ static vtss_rc lan969x_mrp_primary_port_set(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_ring_state_set(vtss_state_t               *vtss_state,
-                                          const vtss_mrp_idx_t        mrp_idx,
-                                          const vtss_mrp_ring_state_t state)
+vtss_rc vtss_cil_mrp_ring_state_set(vtss_state_t               *vtss_state,
+                                    const vtss_mrp_idx_t        mrp_idx,
+                                    const vtss_mrp_ring_state_t state)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
     vtss_voe_idx_t   p_voe_idx;
@@ -1430,9 +1430,9 @@ static vtss_rc lan969x_mrp_ring_state_set(vtss_state_t               *vtss_state
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_in_ring_state_set(vtss_state_t               *vtss_state,
-                                             const vtss_mrp_idx_t        mrp_idx,
-                                             const vtss_mrp_ring_state_t state)
+vtss_rc vtss_cil_mrp_in_ring_state_set(vtss_state_t               *vtss_state,
+                                       const vtss_mrp_idx_t        mrp_idx,
+                                       const vtss_mrp_ring_state_t state)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
     vtss_voe_idx_t   p_voe_idx = mrp_data->p_voe_idx;
@@ -1475,10 +1475,10 @@ static vtss_rc lan969x_mrp_in_ring_state_set(vtss_state_t               *vtss_st
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_port_state_set(vtss_state_t               *vtss_state,
-                                          const vtss_mrp_idx_t        mrp_idx,
-                                          const vtss_port_no_t        port,
-                                          const vtss_mrp_port_state_t state)
+vtss_rc vtss_cil_mrp_port_state_set(vtss_state_t               *vtss_state,
+                                    const vtss_mrp_idx_t        mrp_idx,
+                                    const vtss_port_no_t        port,
+                                    const vtss_mrp_port_state_t state)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
 
@@ -1529,9 +1529,9 @@ static vtss_rc lan969x_mrp_port_state_set(vtss_state_t               *vtss_state
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_best_mrm_set(vtss_state_t              *vtss_state,
-                                        const vtss_mrp_idx_t       mrp_idx,
-                                        const vtss_mrp_best_mrm_t *best)
+vtss_rc vtss_cil_mrp_best_mrm_set(vtss_state_t              *vtss_state,
+                                  const vtss_mrp_idx_t       mrp_idx,
+                                  const vtss_mrp_best_mrm_t *best)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
     vtss_voe_idx_t   voe_idx;
@@ -1559,9 +1559,9 @@ static vtss_rc lan969x_mrp_best_mrm_set(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_tst_loc_conf_set(vtss_state_t                        *vtss_state,
-                                            const vtss_mrp_idx_t                 mrp_idx,
-                                            const vtss_mrp_tst_loc_conf_t *const tst_loc_conf)
+vtss_rc vtss_cil_mrp_tst_loc_conf_set(vtss_state_t                        *vtss_state,
+                                      const vtss_mrp_idx_t                 mrp_idx,
+                                      const vtss_mrp_tst_loc_conf_t *const tst_loc_conf)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
 
@@ -1587,7 +1587,7 @@ static vtss_rc lan969x_mrp_tst_loc_conf_set(vtss_state_t                        
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_tst_hitme_once(vtss_state_t *vtss_state, const vtss_mrp_idx_t mrp_idx)
+vtss_rc vtss_cil_mrp_tst_hitme_once(vtss_state_t *vtss_state, const vtss_mrp_idx_t mrp_idx)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
     int              p;
@@ -1607,7 +1607,7 @@ static vtss_rc lan969x_mrp_tst_hitme_once(vtss_state_t *vtss_state, const vtss_m
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_itst_hitme_once(vtss_state_t *vtss_state, const vtss_mrp_idx_t mrp_idx)
+vtss_rc vtss_cil_mrp_itst_hitme_once(vtss_state_t *vtss_state, const vtss_mrp_idx_t mrp_idx)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
     int              p;
@@ -1634,9 +1634,9 @@ static vtss_rc lan969x_mrp_itst_hitme_once(vtss_state_t *vtss_state, const vtss_
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_tst_copy_conf_set(vtss_state_t                         *vtss_state,
-                                             const vtss_mrp_idx_t                  mrp_idx,
-                                             const vtss_mrp_tst_copy_conf_t *const copy)
+vtss_rc vtss_cil_mrp_tst_copy_conf_set(vtss_state_t                         *vtss_state,
+                                       const vtss_mrp_idx_t                  mrp_idx,
+                                       const vtss_mrp_tst_copy_conf_t *const copy)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
     vtss_voe_idx_t   p_voe_idx = mrp_data->p_voe_idx;
@@ -1707,9 +1707,9 @@ static vtss_rc lan969x_mrp_tst_copy_conf_set(vtss_state_t                       
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_status_get(vtss_state_t            *vtss_state,
-                                      const vtss_mrp_idx_t     mrp_idx,
-                                      vtss_mrp_status_t *const status)
+vtss_rc vtss_cil_mrp_status_get(vtss_state_t            *vtss_state,
+                                const vtss_mrp_idx_t     mrp_idx,
+                                vtss_mrp_status_t *const status)
 {
     vtss_mrp_data_t        *mrp_data = &vtss_state->mrp.data[mrp_idx];
     vtss_mrp_port_status_t *port_status;
@@ -1774,9 +1774,9 @@ static vtss_rc lan969x_mrp_status_get(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_counters_get(vtss_state_t              *vtss_state,
-                                        const vtss_mrp_idx_t       mrp_idx,
-                                        vtss_mrp_counters_t *const counters)
+vtss_rc vtss_cil_mrp_counters_get(vtss_state_t              *vtss_state,
+                                  const vtss_mrp_idx_t       mrp_idx,
+                                  vtss_mrp_counters_t *const counters)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
 
@@ -1804,7 +1804,7 @@ static vtss_rc lan969x_mrp_counters_get(vtss_state_t              *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_counters_clear(vtss_state_t *vtss_state, const vtss_mrp_idx_t mrp_idx)
+vtss_rc vtss_cil_mrp_counters_clear(vtss_state_t *vtss_state, const vtss_mrp_idx_t mrp_idx)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
 
@@ -1822,10 +1822,10 @@ static vtss_rc lan969x_mrp_counters_clear(vtss_state_t *vtss_state, const vtss_m
     return VTSS_RC_OK;
 }
 
-static vtss_rc lan969x_mrp_event_mask_set(vtss_state_t        *vtss_state,
-                                          const vtss_mrp_idx_t mrp_idx,
-                                          const u32            mask,
-                                          const BOOL           enable)
+vtss_rc vtss_cil_mrp_event_mask_set(vtss_state_t        *vtss_state,
+                                    const vtss_mrp_idx_t mrp_idx,
+                                    const u32            mask,
+                                    const BOOL           enable)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
     vtss_voe_idx_t   voe_idx;
@@ -1867,9 +1867,9 @@ static vtss_rc lan969x_mrp_event_mask_set(vtss_state_t        *vtss_state,
     return vtss_fa_oam_vop_int_update(vtss_state);
 }
 
-static vtss_rc lan969x_mrp_event_get(vtss_state_t           *vtss_state,
-                                     const vtss_mrp_idx_t    mrp_idx,
-                                     vtss_mrp_event_t *const events)
+vtss_rc vtss_cil_mrp_event_get(vtss_state_t           *vtss_state,
+                               const vtss_mrp_idx_t    mrp_idx,
+                               vtss_mrp_event_t *const events)
 {
     vtss_mrp_data_t *mrp_data = &vtss_state->mrp.data[mrp_idx];
     vtss_voe_idx_t   voe_idx;
@@ -2137,28 +2137,8 @@ static vtss_rc lan969x_mrp_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_lan969x_mrp_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_mrp_state_t *state = &vtss_state->mrp;
-
     switch (cmd) {
-    case VTSS_INIT_CMD_CREATE:
-        state->mrp_add = lan969x_mrp_add;
-        state->mrp_del = lan969x_mrp_del;
-        state->mrp_primary_port_set = lan969x_mrp_primary_port_set;
-        state->mrp_ring_role_set = lan969x_mrp_ring_role_set;
-        state->mrp_ring_state_set = lan969x_mrp_ring_state_set;
-        state->mrp_in_ring_state_set = lan969x_mrp_in_ring_state_set;
-        state->mrp_port_state_set = lan969x_mrp_port_state_set;
-        state->mrp_best_mrm_set = lan969x_mrp_best_mrm_set;
-        state->mrp_tst_loc_conf_set = lan969x_mrp_tst_loc_conf_set;
-        state->mrp_tst_hitme_once = lan969x_mrp_tst_hitme_once;
-        state->mrp_itst_hitme_once = lan969x_mrp_itst_hitme_once;
-        state->mrp_tst_copy_conf_set = lan969x_mrp_tst_copy_conf_set;
-        state->mrp_status_get = lan969x_mrp_status_get;
-        state->mrp_counters_get = lan969x_mrp_counters_get;
-        state->mrp_counters_clear = lan969x_mrp_counters_clear;
-        state->mrp_event_mask_set = lan969x_mrp_event_mask_set;
-        state->mrp_event_get = lan969x_mrp_event_get;
-        break;
+    case VTSS_INIT_CMD_CREATE: break;
 
     case VTSS_INIT_CMD_INIT: VTSS_RC(lan969x_mrp_init(vtss_state)); break;
 

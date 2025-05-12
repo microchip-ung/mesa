@@ -37,7 +37,7 @@ vtss_rc vtss_mrp_add(const vtss_inst_t            inst,
         goto do_exit;
     }
 
-    rc = VTSS_FUNC(mrp.mrp_add, mrp_idx, conf);
+    rc = vtss_cil_mrp_add(vtss_state, mrp_idx, conf);
 
 do_exit:
     VTSS_EXIT();
@@ -106,7 +106,7 @@ vtss_rc vtss_mrp_del(const vtss_inst_t inst, const vtss_mrp_idx_t mrp_idx)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_del, mrp_idx);
+        rc = vtss_cil_mrp_del(vtss_state, mrp_idx);
     }
     VTSS_EXIT();
     return rc;
@@ -127,7 +127,7 @@ vtss_rc vtss_mrp_ring_role_set(const vtss_inst_t          inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_ring_role_set, mrp_idx, role);
+        rc = vtss_cil_mrp_ring_role_set(vtss_state, mrp_idx, role);
     }
     VTSS_EXIT();
     return rc;
@@ -174,7 +174,7 @@ vtss_rc vtss_mrp_primary_port_set(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_primary_port_set, mrp_idx, port_no);
+        rc = vtss_cil_mrp_primary_port_set(vtss_state, mrp_idx, port_no);
     }
     VTSS_EXIT();
     return rc;
@@ -221,7 +221,7 @@ vtss_rc vtss_mrp_ring_state_set(const vtss_inst_t           inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_ring_state_set, mrp_idx, state);
+        rc = vtss_cil_mrp_ring_state_set(vtss_state, mrp_idx, state);
     }
     VTSS_EXIT();
     return rc;
@@ -268,7 +268,7 @@ vtss_rc vtss_mrp_in_ring_state_set(const vtss_inst_t           inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_in_ring_state_set, mrp_idx, state);
+        rc = vtss_cil_mrp_in_ring_state_set(vtss_state, mrp_idx, state);
     }
     VTSS_EXIT();
     return rc;
@@ -316,7 +316,7 @@ vtss_rc vtss_mrp_port_state_set(const vtss_inst_t           inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_port_state_set, mrp_idx, port, state);
+        rc = vtss_cil_mrp_port_state_set(vtss_state, mrp_idx, port, state);
     }
     VTSS_EXIT();
     return rc;
@@ -374,7 +374,7 @@ vtss_rc vtss_mrp_best_mrm_set(const vtss_inst_t                inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((rc = VTSS_FUNC(mrp.mrp_best_mrm_set, mrp_idx, best)) == VTSS_RC_OK) {
+        if ((rc = vtss_cil_mrp_best_mrm_set(vtss_state, mrp_idx, best)) == VTSS_RC_OK) {
             vtss_state->mrp.data[mrp_idx].best_mrm = *best;
         }
     }
@@ -423,7 +423,7 @@ vtss_rc vtss_mrp_tst_loc_conf_set(const vtss_inst_t                    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_tst_loc_conf_set, mrp_idx, conf);
+        rc = vtss_cil_mrp_tst_loc_conf_set(vtss_state, mrp_idx, conf);
     }
     VTSS_EXIT();
     return rc;
@@ -464,7 +464,7 @@ vtss_rc vtss_mrp_tst_hitme_once(const vtss_inst_t inst, const vtss_mrp_idx_t mrp
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_tst_hitme_once, mrp_idx);
+        rc = vtss_cil_mrp_tst_hitme_once(vtss_state, mrp_idx);
     }
     VTSS_EXIT();
     return rc;
@@ -483,7 +483,7 @@ vtss_rc vtss_mrp_itst_hitme_once(const vtss_inst_t inst, const vtss_mrp_idx_t mr
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_itst_hitme_once, mrp_idx);
+        rc = vtss_cil_mrp_itst_hitme_once(vtss_state, mrp_idx);
     }
     VTSS_EXIT();
     return rc;
@@ -504,7 +504,7 @@ vtss_rc vtss_mrp_tst_copy_conf_set(const vtss_inst_t                     inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_tst_copy_conf_set, mrp_idx, copy);
+        rc = vtss_cil_mrp_tst_copy_conf_set(vtss_state, mrp_idx, copy);
     }
     VTSS_EXIT();
     return rc;
@@ -551,7 +551,7 @@ vtss_rc vtss_mrp_status_get(const vtss_inst_t        inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_status_get, mrp_idx, status);
+        rc = vtss_cil_mrp_status_get(vtss_state, mrp_idx, status);
     }
     VTSS_EXIT();
     return rc;
@@ -572,7 +572,7 @@ vtss_rc vtss_mrp_counters_get(const vtss_inst_t          inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_counters_get, mrp_idx, counters);
+        rc = vtss_cil_mrp_counters_get(vtss_state, mrp_idx, counters);
     }
     VTSS_EXIT();
     return rc;
@@ -591,7 +591,7 @@ vtss_rc vtss_mrp_counters_clear(const vtss_inst_t inst, const vtss_mrp_idx_t mrp
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_counters_clear, mrp_idx);
+        rc = vtss_cil_mrp_counters_clear(vtss_state, mrp_idx);
     }
     VTSS_EXIT();
     return rc;
@@ -613,7 +613,7 @@ vtss_rc vtss_mrp_event_mask_set(const vtss_inst_t    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((rc = VTSS_FUNC(mrp.mrp_event_mask_set, mrp_idx, mask, enable)) == VTSS_RC_OK) {
+        if ((rc = vtss_cil_mrp_event_mask_set(vtss_state, mrp_idx, mask, enable)) == VTSS_RC_OK) {
             if (enable) {
                 vtss_state->mrp.data[mrp_idx].event_mask |= mask;
             } else {
@@ -664,7 +664,7 @@ vtss_rc vtss_mrp_event_get(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(mrp.mrp_event_get, mrp_idx, events);
+        rc = vtss_cil_mrp_event_get(vtss_state, mrp_idx, events);
     }
     VTSS_EXIT();
     return rc;
@@ -818,7 +818,7 @@ void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
                     continue;
                 }
 
-                if (VTSS_FUNC(mrp.mrp_status_get, i, &mrp_status) == VTSS_RC_OK) {
+                if (vtss_cil_mrp_status_get(vtss_state, i, &mrp_status) == VTSS_RC_OK) {
                     pr("MRP status:\n");
                     pr("p-port: tst_loc %s  itst_loc %s  mrp_seen %s  mrp_proc_seen %s  dmac_err_seen %s  vers_err_seen %s\n",
                        YN(mrp_status.p_status.tst_loc), YN(mrp_status.p_status.itst_loc),
@@ -838,7 +838,7 @@ void vtss_mrp_debug_print(vtss_state_t                  *vtss_state,
                     pr("-----\n");
                 }
 
-                if (VTSS_FUNC(mrp.mrp_counters_get, i, &mrp_counters) == VTSS_RC_OK) {
+                if (vtss_cil_mrp_counters_get(vtss_state, i, &mrp_counters) == VTSS_RC_OK) {
                     pr("MRP counters:\n");
                     pr("p-port: tst_rx_count %" PRIu64 "  itst_rx_count %" PRIu64 "\n",
                        mrp_counters.p_counters.tst_rx_count, mrp_counters.p_counters.itst_rx_count);

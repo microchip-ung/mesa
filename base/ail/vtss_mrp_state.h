@@ -39,48 +39,50 @@ typedef struct {
     vtss_voe_idx_t i_voe_idx; /* I port VOE index */
 } vtss_mrp_data_t;
 
-typedef struct {
-    /* CIL function pointers */
-    vtss_rc (*mrp_add)(struct vtss_state_s *, const vtss_mrp_idx_t, const vtss_mrp_conf_t *const);
-    vtss_rc (*mrp_del)(struct vtss_state_s *, const vtss_mrp_idx_t);
-    vtss_rc (*mrp_primary_port_set)(struct vtss_state_s *, const vtss_mrp_idx_t, vtss_port_no_t);
-    vtss_rc (*mrp_ring_role_set)(struct vtss_state_s *,
-                                 const vtss_mrp_idx_t,
-                                 const vtss_mrp_ring_role_t);
-    vtss_rc (*mrp_ring_state_set)(struct vtss_state_s *,
-                                  const vtss_mrp_idx_t,
-                                  const vtss_mrp_ring_state_t);
-    vtss_rc (*mrp_port_state_set)(struct vtss_state_s *,
-                                  const vtss_mrp_idx_t,
-                                  const vtss_port_no_t,
-                                  const vtss_mrp_port_state_t);
-    vtss_rc (*mrp_in_ring_state_set)(struct vtss_state_s *,
-                                     const vtss_mrp_idx_t,
-                                     const vtss_mrp_ring_state_t);
-    vtss_rc (*mrp_best_mrm_set)(struct vtss_state_s *,
-                                const vtss_mrp_idx_t,
-                                const vtss_mrp_best_mrm_t *const);
-    vtss_rc (*mrp_tst_loc_conf_set)(struct vtss_state_s *,
+/* CIL function pointers */
+vtss_rc vtss_cil_mrp_add(struct vtss_state_s *, const vtss_mrp_idx_t, const vtss_mrp_conf_t *const);
+vtss_rc vtss_cil_mrp_del(struct vtss_state_s *, const vtss_mrp_idx_t);
+vtss_rc vtss_cil_mrp_primary_port_set(struct vtss_state_s *, const vtss_mrp_idx_t, vtss_port_no_t);
+vtss_rc vtss_cil_mrp_ring_role_set(struct vtss_state_s *,
+                                   const vtss_mrp_idx_t,
+                                   const vtss_mrp_ring_role_t);
+vtss_rc vtss_cil_mrp_ring_state_set(struct vtss_state_s *,
                                     const vtss_mrp_idx_t,
-                                    const vtss_mrp_tst_loc_conf_t *const);
-    vtss_rc (*mrp_tst_hitme_once)(struct vtss_state_s *, const vtss_mrp_idx_t);
-    vtss_rc (*mrp_itst_hitme_once)(struct vtss_state_s *, const vtss_mrp_idx_t);
-    vtss_rc (*mrp_tst_copy_conf_set)(struct vtss_state_s *,
-                                     const vtss_mrp_idx_t,
-                                     const vtss_mrp_tst_copy_conf_t *const);
-    vtss_rc (*mrp_status_get)(struct vtss_state_s *,
-                              const vtss_mrp_idx_t,
-                              vtss_mrp_status_t *const);
-    vtss_rc (*mrp_counters_get)(struct vtss_state_s *,
-                                const vtss_mrp_idx_t,
-                                vtss_mrp_counters_t *const);
-    vtss_rc (*mrp_counters_clear)(struct vtss_state_s *, const vtss_mrp_idx_t);
-    vtss_rc (*mrp_event_mask_set)(struct vtss_state_s *,
+                                    const vtss_mrp_ring_state_t);
+vtss_rc vtss_cil_mrp_port_state_set(struct vtss_state_s *,
+                                    const vtss_mrp_idx_t,
+                                    const vtss_port_no_t,
+                                    const vtss_mrp_port_state_t);
+vtss_rc vtss_cil_mrp_in_ring_state_set(struct vtss_state_s *,
+                                       const vtss_mrp_idx_t,
+                                       const vtss_mrp_ring_state_t);
+vtss_rc vtss_cil_mrp_best_mrm_set(struct vtss_state_s *,
                                   const vtss_mrp_idx_t,
-                                  const u32,
-                                  const BOOL);
-    vtss_rc (*mrp_event_get)(struct vtss_state_s *, const vtss_mrp_idx_t, vtss_mrp_event_t *const);
+                                  const vtss_mrp_best_mrm_t *const);
+vtss_rc vtss_cil_mrp_tst_loc_conf_set(struct vtss_state_s *,
+                                      const vtss_mrp_idx_t,
+                                      const vtss_mrp_tst_loc_conf_t *const);
+vtss_rc vtss_cil_mrp_tst_hitme_once(struct vtss_state_s *, const vtss_mrp_idx_t);
+vtss_rc vtss_cil_mrp_itst_hitme_once(struct vtss_state_s *, const vtss_mrp_idx_t);
+vtss_rc vtss_cil_mrp_tst_copy_conf_set(struct vtss_state_s *,
+                                       const vtss_mrp_idx_t,
+                                       const vtss_mrp_tst_copy_conf_t *const);
+vtss_rc vtss_cil_mrp_status_get(struct vtss_state_s *,
+                                const vtss_mrp_idx_t,
+                                vtss_mrp_status_t *const);
+vtss_rc vtss_cil_mrp_counters_get(struct vtss_state_s *,
+                                  const vtss_mrp_idx_t,
+                                  vtss_mrp_counters_t *const);
+vtss_rc vtss_cil_mrp_counters_clear(struct vtss_state_s *, const vtss_mrp_idx_t);
+vtss_rc vtss_cil_mrp_event_mask_set(struct vtss_state_s *,
+                                    const vtss_mrp_idx_t,
+                                    const u32,
+                                    const BOOL);
+vtss_rc vtss_cil_mrp_event_get(struct vtss_state_s *,
+                               const vtss_mrp_idx_t,
+                               vtss_mrp_event_t *const);
 
+typedef struct {
     /* Internal MRP data */
     u32             mrp_poll_idx; /* The one second MRP poll index */
     vtss_mrp_data_t data[VTSS_MRP_CNT];
