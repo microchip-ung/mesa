@@ -257,7 +257,7 @@
                                              address matching */
 #define VTSS_FEATURE_TAG_DISCARD          /**< Discard frame based on TAGs */
 
-#if !defined(VTSS_OPT_FPGA)
+#if !defined(VTSS_OPT_FPGA) && !defined(VTSS_ARCH_LAIKA)
 #define VTSS_FEATURE_TEMP_SENSOR /**< Temperature Sensor */
 #endif
 
