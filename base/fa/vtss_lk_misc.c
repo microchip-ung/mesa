@@ -211,9 +211,50 @@ vtss_rc vtss_cil_misc_ptp_event_enable(vtss_state_t         *vtss_state,
     return VTSS_RC_OK;
 }
 
+vtss_rc vtss_cil_misc_dev_all_event_poll(vtss_state_t              *vtss_state,
+                                         vtss_dev_all_event_poll_t  poll_type,
+                                         vtss_dev_all_event_type_t *ev_mask)
+{
+    VTSS_E("Not implemented");
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_misc_dev_all_event_enable(vtss_state_t             *vtss_state,
+                                           vtss_port_no_t            port_no,
+                                           vtss_dev_all_event_type_t ev_mask,
+                                           BOOL                      enable)
+{
+    VTSS_E("Not implemented");
+    return VTSS_RC_ERROR;
+}
+
+#ifdef VTSS_FEATURE_INTERRUPTS
+vtss_rc vtss_cil_misc_intr_cfg(vtss_state_t *vtss_state,
+                               const u32     intr_mask,
+                               const BOOL    polarity,
+                               const BOOL    enable)
+{
+    VTSS_E("Not implemented - use misc_irq_cfg");
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_misc_intr_pol_negation(vtss_state_t *vtss_state)
+{
+    VTSS_E("Not implemented - use misc_irq_cfg");
+    return VTSS_RC_OK;
+}
+#endif
+
 vtss_rc vtss_cil_misc_poll_1sec(vtss_state_t *vtss_state)
 {
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_POLL);
+}
+
+vtss_rc vtss_cil_misc_mdio_conf_set(vtss_state_t                 *vtss_state,
+                                    u8                            ctrl_id,
+                                    const vtss_mdio_conf_t *const conf)
+{
+    return VTSS_RC_OK;
 }
 
 vtss_rc vtss_fa_gpio_mode(vtss_state_t          *vtss_state,
