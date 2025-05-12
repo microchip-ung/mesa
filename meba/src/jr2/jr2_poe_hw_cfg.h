@@ -11,25 +11,29 @@
 
 // jr2 2pairs 2pairs has PREBT implementation
 
-//--------------------------------------------------------------------------------------//
-//------------------------------   JR2 general parameters
-//----------------------------//
-//--------------------------------------------------------------------------------------//
+//-------------------------------------//
+//-----   JR2 general parameters ------//
+//-------------------------------------//
 
 // This firmware can be used with the PD692x0 family of PoE controllers
 // (PD69210, PD69220, and PD69200). please choose 'ePoE_Controller_Type_Unknown'
 // for automatic firmware detection or force specific PD692x0 PoE controller
 //
-// MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
-// MEBA_POE_PD69200_CONTROLLER_TYPE
-// MEBA_POE_PD69210_CONTROLLER_TYPE
-// MEBA_POE_PD69220_CONTROLLER_TYPE
-#define JR2_POE_PD692x0_CONTROLLER_TYPE_DEFAULT MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_GEN6_PD69200_CONTROLLER_TYPE
+// MEBA_POE_GEN6_PD69210_CONTROLLER_TYPE
+// MEBA_POE_GEN6_PD69220_CONTROLLER_TYPE
+#define JR2_POE_PD692x0_CONTROLLER_TYPE_DEFAULT MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 // Set system mode BT or AT firmware:
-// MEBA_POE_FIRMWARE_TYPE_PREBT - AF/AT modes
-// MEBA_POE_FIRMWARE_TYPE_BT    - BT mode
-#define JR2_POE_FIRMWARE_TYPE_DEFAULT MEBA_POE_FIRMWARE_TYPE_PREBT
+// MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT
+// MEBA_POE_FIRMWARE_TYPE_GEN6_BT
+#define JR2_POE_FIRMWARE_TYPE_DEFAULT MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT
+
+// Set the number of PoE controllers (can be 1 or 2):
+// MEBA_POE_ONE_CONTROLLER
+// MEBA_POE_TWO_CONTROLLERS
+#define JR2_POE_CONTROLLERS_COUNT MEBA_POE_ONE_CONTROLLER
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
@@ -48,21 +52,14 @@
 #define JR2_POE_CONTROLLER_1_I2C_ADDRESS 0x14
 #define JR2_POE_CONTROLLER_2_I2C_ADDRESS 0x28
 
-// using two PoE MCUs
-// if marked - single PoE MCU (only the first table
-// sparx5_pd69200_4pairs_port_map_1 will be applied) otherwise - 2 PoE MCUs are
-// applied
-#define JR2_TWO_POE_CONTROLLERS
-
 // poe gpio reset pin number
 // 0xFF   - no gpio use for reset poe ports.
 // 0-0xFE - GPIO number used for reset poe ports.
 #define JR2_RESET_POE_GPIO_NUMBER 0xFF
 
-//--------------------------------------------------------------------------------------//
-//-------------------------------  JR2 BT parameters
-//---------------------------------//
-//--------------------------------------------------------------------------------------//
+//------------------------------//
+//-----  JR2 BT parameters -----//
+//------------------------------//
 
 // BT System has 4 modes = 15/30/60/90 (applicable for all poe ports)
 // MEBA_POE_PORT_MAX_POWER_15W
@@ -77,12 +74,16 @@
 // Microchip PD692x0 BT Serial Communication Protocol Table 3-5. 4-Pair/2-Pair
 // Non-Compliant Modes
 
-// BT complient port operation Mode
-#define JR2_BT_COMPLIANT_15W_DEFAULT 3 // Type4 BT compliant up to 90W
-#define JR2_BT_COMPLIANT_30W_DEFAULT                                                               \
-    9 // Type3 BT compliant up to 60W (replaced by AT Compliant 30w)
-#define JR2_BT_COMPLIANT_60W_DEFAULT 1 // Type3 BT compliant up to 30W
-#define JR2_BT_COMPLIANT_90W_DEFAULT 0 // Type3 BT compliant up to 15W
+//--- BT complient port operation Mode ---//
+
+// Type4 BT compliant up to 90W
+#define JR2_BT_COMPLIANT_15W_DEFAULT 3
+// Type3 BT compliant up to 60W (replaced by AT Compliant 30w)
+#define JR2_BT_COMPLIANT_30W_DEFAULT 9
+// Type3 BT compliant up to 30W
+#define JR2_BT_COMPLIANT_60W_DEFAULT 1
+// Type3 BT compliant up to 15W
+#define JR2_BT_COMPLIANT_90W_DEFAULT 0
 
 // BT none complient port operation Mode
 #define JR2_BT_NON_COMPLIANT_15W_DEFAULT 0x13 // BT Non Compliant 4P 15w 2P 15w Legacy
@@ -90,13 +91,14 @@
 #define JR2_BT_NON_COMPLIANT_60W_DEFAULT 0x11 // BT Non Compliant 4P 60w 2P 30w Legacy
 #define JR2_BT_NON_COMPLIANT_90W_DEFAULT 0x10 // BT Non Compliant 4P 90w 2P 30w Legacy
 
-// special legacy operation modes (applicable for 60w and 90w)
-#define JR2_BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT                                               \
-    0x25 // Lagacy + PoH 45/90W + BT. No demotion in class 4 or 4,4
-#define JR2_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT                                   \
-    0x21 // Lagacy + IGNORE_PD_CLASS 60W
-#define JR2_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT                                   \
-    0x26 // Lagacy + IGNORE_PD_CLASS 90W
+//---special legacy operation modes (applicable for 60w and 90w)---//
+
+// Lagacy + PoH 45/90W + BT. No demotion in class 4 or 4,4
+#define JR2_BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT 0x25
+// Lagacy + IGNORE_PD_CLASS 60W
+#define JR2_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT 0x21
+// Lagacy + IGNORE_PD_CLASS 90W
+#define JR2_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT 0x26
 
 //-- BT individual masks --//
 
@@ -178,10 +180,9 @@
 // time duration.
 #define JR2_INDV_MASK_BT_HOCPP_DEFAULT 2
 
-//--------------------------------------------------------------------------------------//
-//-------------------------    PREBT parameters
-//-------------------------------------//
-//--------------------------------------------------------------------------------------//
+//----------------------------//
+//----- PREBT parameters -----//
+//----------------------------//
 
 // 0x00 Ignore higher priority
 // '0' If higher priority port powers up and its power exceeds power limit,
@@ -288,8 +289,7 @@
 //       configuration.
 #define JR2_PM3_PREBT_DEFAULT 0x00
 
-//--------------- PoE cap and port map Customizations starts here
-//---------------//
+//----- PoE cap and port map Customizations starts here -----//
 
 // Type 1(IEEE 802.3af) 2P 15W
 // Type 2(IEEE 802.3at) 2P 30W
@@ -307,11 +307,9 @@
 
 // pd69200 - PREBT mapping - 8 PoE ports 2-pairs
 meba_poe_port_properties_t jr2_pd69200_2pairs_port_map_1[] = {
-    //  PoE-Capability    | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE
-    //  Pair-B
-    //                    | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys
-    //                    Port-ID
-    // ----------------------------------------------------------------------------
+    // PoE-      |PREBT- |App port|PoE port|Physical|Physical
+    // Capability|MAX PWR|Logical |Logical |Pair-A  |Pair-B
+    // ------------------------------------------------------
     {PD69200_PREBT_CAP, 24000, 0,  0,  0,  255},
     {PD69200_PREBT_CAP, 24000, 1,  1,  1,  255},
     {PD69200_PREBT_CAP, 24000, 2,  2,  2,  255},
@@ -339,11 +337,9 @@ meba_poe_port_properties_t jr2_pd69200_2pairs_port_map_1[] = {
 };
 
 meba_poe_port_properties_t jr2_pd69200_2pairs_port_map_2[] = {
-    //  PoE-Capability    | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE
-    //  Pair-B
-    //                    | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys
-    //                    Port-ID
-    //------------------------------------------------------------------------------
+    // PoE-      |PREBT- |App port|PoE port|Physical|Physical
+    // Capability|MAX PWR|Logical |Logical |Pair-A  |Pair-B
+    // ------------------------------------------------------
     {PD69200_PREBT_CAP, 24000, 24, 0,  0,  255},
     {PD69200_PREBT_CAP, 24000, 25, 1,  1,  255},
     {PD69200_PREBT_CAP, 24000, 26, 2,  2,  255},
@@ -374,11 +370,9 @@ meba_poe_port_properties_t jr2_pd69200_2pairs_port_map_2[] = {
 // Note: for PoE BT mode - the user have to update the PoE 4pairs matrix
 
 meba_poe_port_properties_t jr2_pd69200_4pairs_port_map_1[] = {
-    //  PoE-Capability    | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE
-    //  Pair-B
-    //                    | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys
-    //                    Port-ID
-    // ----------------------------------------------------------------------------
+    // PoE-      |PREBT- |App port|PoE port|Physical|Physical
+    // Capability|MAX PWR|Logical |Logical |Pair-A  |Pair-B
+    // ------------------------------------------------------
     {PD69200_PREBT_CAP, 24000, 0,  0,  0,  255},
     {PD69200_PREBT_CAP, 24000, 1,  1,  1,  255},
     {PD69200_PREBT_CAP, 24000, 2,  2,  2,  255},
@@ -406,11 +400,9 @@ meba_poe_port_properties_t jr2_pd69200_4pairs_port_map_1[] = {
 };
 
 meba_poe_port_properties_t jr2_pd69200_4pairs_port_map_2[] = {
-    //  PoE-Capability    | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE
-    //  Pair-B
-    //                    | MAX PWR | Port-ID | Port-ID | Phys Port-ID | Phys
-    //                    Port-ID
-    //------------------------------------------------------------------------------
+    // PoE-      |PREBT- |App port|PoE port|Physical|Physical
+    // Capability|MAX PWR|Logical |Logical |Pair-A  |Pair-B
+    // ------------------------------------------------------
     {PD69200_PREBT_CAP, 24000, 24, 0,  0,  255},
     {PD69200_PREBT_CAP, 24000, 25, 1,  1,  255},
     {PD69200_PREBT_CAP, 24000, 26, 2,  2,  255},
@@ -437,6 +429,6 @@ meba_poe_port_properties_t jr2_pd69200_4pairs_port_map_2[] = {
     {PD69200_PREBT_CAP, 24000, 47, 23, 23, 255},
 };
 
-//--------------- PoE cap and port map Customizations ends here ---------------//
+//----- PoE cap and port map Customizations ends here -----//
 
 #endif // _JR2_POE_HW_CFG_H_

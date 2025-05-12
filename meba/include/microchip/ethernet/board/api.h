@@ -27,7 +27,7 @@ typedef struct {
 struct meba_inst {
     int    api_version;                     /**< The MEBA version of the board implementation */
     size_t instance_size;                   /**< The size of this structure (for compatibility
-                                               checking) */
+                                                 checking) */
     void                  *private_data;    /**< Private (implementation) state data; */
     meba_board_interface_t iface;           /**< Board interface functions */
     meba_board_props_t     props;           /**< Public board properties */
@@ -51,7 +51,7 @@ struct meba_inst {
  *
  * \param callouts_size [IN] The size of the callouts structure
  * \param callouts      [IN] The system interface functions the board API should
- *use
+ *                           use
  *
  * The function must allocate and initialize the instance
  * strucure - the callouts are are copied to the allocated
@@ -78,7 +78,7 @@ typedef struct meba_inst *(*meba_initialize_t)(size_t                        cal
  *
  * \param callouts_size [IN] The size of the callouts structure
  * \param callouts      [IN] The system interface functions the board API should
- *use
+ *                           use
  *
  * \return The board instance (or NULL)
  **/

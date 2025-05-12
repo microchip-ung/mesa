@@ -498,9 +498,9 @@ enum {
     // Clause 37 ERRORS
     MESA_RC_ERR_PCS_BLOCK_NOT_SUPPORTED = -300, // Invalid access to PCS block
 
-    // PoE ERRORS
-    MESA_RC_ERR_POE_FIRMWARE_IS_UP_TO_DATE =
-        -400,                                  // The version of loaded firmware is identical to new
+    //--- PoE ERRORS ---//
+    // The version of loaded firmware is identical to new
+    MESA_RC_ERR_POE_FIRMWARE_IS_UP_TO_DATE = -400,
     MESA_RC_ERR_POE_RX_BUF_EMPTY = -401,       // poe rx buffer empty - data 0x00
     MESA_RC_ERR_POE_FIRM_UPDATE_NEEDED = -402, // poe firmware update error
     MESA_RC_ERR_POE_COMM_PROT_ERR = -403,      // poe rx communication protocol error

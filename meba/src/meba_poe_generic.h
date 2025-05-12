@@ -7,6 +7,25 @@
 #include <stdio.h>
 #include "microchip/ethernet/board/api.h"
 
+#define MEBA_POE_ONE_CONTROLLER  0
+#define MEBA_POE_TWO_CONTROLLERS 1
+
+#define MEBA_POE_FIRMWARE_TYPE_NONE       0
+#define MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT 1
+#define MEBA_POE_FIRMWARE_TYPE_GEN6_BT    2
+#define MEBA_POE_FIRMWARE_TYPE_GEN7_BT    3
+
+#define MEBA_POE_PORT_MAX_POWER_15W 15
+#define MEBA_POE_PORT_MAX_POWER_30W 30
+#define MEBA_POE_PORT_MAX_POWER_60W 60
+#define MEBA_POE_PORT_MAX_POWER_90W 90
+
+#define MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION 0
+#define MEBA_POE_GEN6_PD69200_CONTROLLER_TYPE                1
+#define MEBA_POE_GEN6_PD69210_CONTROLLER_TYPE                2
+#define MEBA_POE_GEN6_PD69220_CONTROLLER_TYPE                3
+#define MEBA_POE_GEN6_PD69200M_CONTROLLER_TYPE               4
+
 mesa_rc meba_poe_generic_chip_initialization(const meba_inst_t inst,
                                              mesa_bool_t       interruptible_power,
                                              int16_t           restart_cause);

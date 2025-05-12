@@ -6,11 +6,12 @@
 #include "caracal_poe_hw_cfg.h"
 
 meba_poe_parameters_t tPoE_parameters = {
-    .ePoE_Controller_Type_default = PDS408G_POE_PD692x0_CONTROLLER_TYPE_DEFAULT, // PD692x0 family
-                                                                                 // detection method
-    .ePoE_port_max_power_default =
-        PDS408G_BT_PORT_MAX_POWER_DEFAULT, // System has 4 modes = 15/30/60/90
-                                           // (applicable for all poe ports)
+    // poe firmware type - TYPE_PREBT , GEN6_BT
+    .tMeba_poe_firmware_type = PDS408G_POE_FIRMWARE_TYPE_DEFAULT,
+    // PD692x0/PD77010 family detection method
+    .ePoE_Controller_Type_default = PDS408G_POE_PD692x0_CONTROLLER_TYPE_DEFAULT,
+    // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
+    .ePoE_port_max_power_default = PDS408G_BT_PORT_MAX_POWER_DEFAULT,
 
     // BT complient port operation Mode
     .bt_operation_mode_compliant_15w_default = PDS408G_BT_COMPLIANT_15W_DEFAULT,
@@ -33,104 +34,86 @@ meba_poe_parameters_t tPoE_parameters = {
 
     .reset_poe_gpio_number = RESET_POE_GPIO_NUMBER,
 
-    .indv_mask_prebt_led_stream_type_default =
-        CARACAL_INDV_MASK_PREBT_LED_STREAM_TYPE_DEFAULT, // prebt led stream type
+    // prebt led stream type
+    .indv_mask_prebt_led_stream_type_default = CARACAL_INDV_MASK_PREBT_LED_STREAM_TYPE_DEFAULT,
+    // power higher priority port.
     .indv_mask_prebt_ignore_higher_priority_default =
-        CARACAL_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT, // power higher
-                                                                // priority port.
+        CARACAL_INDV_MASK_PREBT_IGNORE_HIGHER_PRIORITY_DEFAULT,
+    // En/Dis support of legacy detection
     .indv_mask_prebt_supports_legact_detection_default =
-        CARACAL_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT, // En/Dis
-                                                                   // support of
-                                                                   // legacy
-                                                                   // detection.
-    .indv_mask_prebt_supports_backoff_default =
-        CARACAL_INDV_MASK_PREBT_SUPPORTS_BACKOFF_DEFAULT, // En/Dis supports
-                                                          // backoff.
+        CARACAL_INDV_MASK_PREBT_SUPPORTS_LEGACY_DETECTION_DEFAULT,
+    // En/Dis supports backoff
+    .indv_mask_prebt_supports_backoff_default = CARACAL_INDV_MASK_PREBT_SUPPORTS_BACKOFF_DEFAULT,
+    // en/Dis MESSAGE_READY pin notification
     .indv_mask_prebt_message_ready_notify_default =
-        CARACAL_INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_DEFAULT, // en/Dis
-                                                              // MESSAGE_READY
-                                                              // pin notification.
+        CARACAL_INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_DEFAULT,
+    // En/Dis Layer 2 PD commands
     .indv_mask_prebt_layer2_lldp_enable_default =
-        CARACAL_INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_DEFAULT, // En/Dis Layer 2 PD
-                                                            // commands.
+        CARACAL_INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_DEFAULT,
+    // accept/ignored Port Priority recived from the PD
     .indv_mask_prebt_layer2_priority_by_PD_default =
-        CARACAL_INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_DEFAULT, // accept/ignored
-                                                               // Port Priority
-                                                               // recived from
-                                                               // the PD
-    .indv_mask_prebt_matrix_support_4P_default =
-        CARACAL_INDV_MASK_PREBT_MATRIX_SUPPORT_4P_DEFAULT, // use 4-pair matrix
-                                                           // commands.
+        CARACAL_INDV_MASK_PREBT_LAYER2_PRIORITY_BY_PD_DEFAULT,
+    // use 4-pair matrix commands
+    .indv_mask_prebt_matrix_support_4P_default = CARACAL_INDV_MASK_PREBT_MATRIX_SUPPORT_4P_DEFAULT,
+    // power higher priority port
     .indv_mask_BT_ignore_higher_priority_default =
-        PDS408G_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT, // power higher
-                                                             // priority port.
+        PDS408G_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT,
+    // expand Resistor detection range up to range to 55 K
     .indv_mask_BT_support_high_res_detection_default =
-        PDS408G_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT, // expand
-                                                                 // Resistor
-                                                                 // detection
-                                                                 // range up to
-                                                                 // range to 55 K.
-    .indv_mask_BT_i2c_restart_enable_default =
-        PDS408G_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT, // Initialization of the
-                                                         // I2C module system
-                                                         // after 10 seconds of
-                                                         // inactivity.
-    .indv_mask_BT_led_stream_type_default =
-        PDS408G_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT,                 // led stream type
-    .indv_mask_BT_HOCPP_default = PDS408G_INDV_MASK_BT_HOCPP_DEFAULT, // HOCPP - high_over Current
-                                                                      // Pulse Protection
+        PDS408G_INDV_MASK_BT_SUPPORT_HIGH_RES_DETECTION_DEFAULT,
+    // Initialization of the I2C module system after 10 seconds of inactivity
+    .indv_mask_BT_i2c_restart_enable_default = PDS408G_INDV_MASK_BT_I2C_RESTART_ENABLE_DEFAULT,
+    // led stream type
+    .indv_mask_BT_led_stream_type_default = PDS408G_INDV_MASK_BT_LED_STREAM_TYPE_DEFAULT,
+    // HOCPP - high_over Current Pulse Protection
+    .indv_mask_BT_HOCPP_default = PDS408G_INDV_MASK_BT_HOCPP_DEFAULT,
+    // PSE powering PSE checking
     .indv_mask_BT_PSE_powering_PSE_checking_default =
-        PDS408G_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT, // PSE powering
-                                                                // PSE checking
+        PDS408G_INDV_MASK_BT_PSE_POWERING_PSE_CHECKING_DEFAULT,
+    // Layer2 Power Allocation Limit
     .indv_mask_BT_layer2_power_allocation_limit_default =
-        PDS408G_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT, // Layer2
-                                                                    // Power
-                                                                    // Allocation
-                                                                    // Limit
+        PDS408G_INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_DEFAULT,
+    // Port LED Blinks at invalid signature or connection-check error
     .indv_mask_BT_Port_LED_blinks_at_invalid_signature_or_connection_check_error_default =
-        PDS408G_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT, // Port LED Blinks at invalid signature or connection-check error
+        PDS408G_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT,
+    // Support adding lldp half priority
     .indv_mask_BT_support_adding_lldp_half_priority_default =
-        PDS408G_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT, // Support
-                                                                        // adding
-                                                                        // lldp
-                                                                        // half
-                                                                        // priority
+        PDS408G_INDV_MASK_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT,
 
-    // -----------  PREBT Power Management mode of operation
-    // ----------------------//
-    .prebt_pm1_default = CARACAL_PM1_PREBT_DEFAULT, // Selects the method of calculating total
-                                                    // power consumption.
-    .prebt_pm2_default = CARACAL_PM2_PREBT_DEFAULT, // Selects the power limit at the port
-                                                    // (maximum or according to class or
-                                                    // predefined).
-    .prebt_pm3_default = CARACAL_PM3_PREBT_DEFAULT  // Selects the start condition. (Not
-                                                    // recommended for new designs, keep 0x00).
-};
+    //--  PREBT Power Management mode of operation --//
+    // Selects the method of calculating total power consumption
+    .prebt_pm1_default = CARACAL_PM1_PREBT_DEFAULT,
+    // Selects the power limit at the port (maximum or according to class or predefined)
+    .prebt_pm2_default = CARACAL_PM2_PREBT_DEFAULT,
+    // Selects the start condition. (Not recommended for new designs, keep 0x00)
+    .prebt_pm3_default = CARACAL_PM3_PREBT_DEFAULT};
 
 meba_poe_psu_input_prob_t caracal_power_supplies[] = {
-    {
-     .id = MEBA_POE_CTRL_PSU_ALL,                           // PowerSupply-ID
-        .min_w = 0,                                            // PwrSuply Min-Pwr
-        .max_w = CARACAL_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT, // PwrSuply Max-Pwr
-        .def_w = CARACAL_POE_POWER_SUPPLY_DEF_POWER_W_DEFAULT, // PwrSuply Def-Capab
-        .system_pwr_usage_w = CARACAL_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT,  // System
-                                                                                    // PwrUsage
-        .user_configurable = CARACAL_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT // User Conig
-                                                                                    // 1=Yes,0=No
-    }
+    {.id = MEBA_POE_CTRL_PSU_ALL, // PowerSupply-ID
+                                  // PwrSuply Min-Pwr
+     .min_w = 0,
+     // PwrSuply Max-Pwr
+     .max_w = CARACAL_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT,
+     // PwrSuply Defult -Capab
+     .def_w = CARACAL_POE_POWER_SUPPLY_DEF_POWER_W_DEFAULT,
+     // System PwrUsage
+     .system_pwr_usage_w = CARACAL_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT,
+     // User Conig 1=Yes,0=No
+     .user_configurable = CARACAL_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT}
 };
 
 meba_poe_psu_input_prob_t pds408g_power_supplies[] = {
-    {
-     .id = MEBA_POE_CTRL_PSU_ALL,                           // PowerSupply-ID
-        .min_w = 0,                                            // PwrSuply Min-Pwr
-        .max_w = PDS408G_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT, // PwrSuply Max-Pwr
-        .def_w = PDS408G_POE_POWER_SUPPLY_DEF_POWER_W_DEFAULT, // PwrSuply Def-Capab
-        .system_pwr_usage_w = PDS408G_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT,  // System
-                                                                                    // PwrUsage
-        .user_configurable = PDS408G_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT // User Conig
-                                                                                    // 1=Yes,0=No
-    }
+    {.id = MEBA_POE_CTRL_PSU_ALL, // PowerSupply-ID
+                                  // PwrSuply Min-Pwr
+     .min_w = 0,
+     // PwrSuply Max-Pwr
+     .max_w = PDS408G_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT,
+     // PwrSuply Default-Capability
+     .def_w = PDS408G_POE_POWER_SUPPLY_DEF_POWER_W_DEFAULT,
+     // System  PwrUsage
+     .system_pwr_usage_w = PDS408G_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT,
+     // User Conig 1=Yes,0=No
+     .user_configurable = PDS408G_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT}
 };
 
 meba_poe_system_t caracal_pd69200_system;
@@ -149,8 +132,8 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
                                            meba_poe_init_params_t *tPoe_init_params)
 {
     // Do poe chip detection and fill
-    /* caracal_ctrl.api = ....; */
-    /* caracal_ctrl.private_data = ....; */
+    // caracal_ctrl.api = ....;
+    // caracal_ctrl.private_data = ....;
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");
 
     caracal_pd69200_system.controller_count = 1;
@@ -181,7 +164,7 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
                 tPoe_init_params->power_supply_internal_pwr_usage;
         }
 
-        if (tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_BT) {
+        if (tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
             // overide tMeba_poe_init_params params if using H file parameters
             if (tPoe_init_params->use_poe_static_parameters) {
                 tPoe_init_params->max_poe_ports =
@@ -197,21 +180,22 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
             tPoE_parameters.poe_init_params = *tPoe_init_params;
 
             caracal_pd69200_system.controllers[0].index = 0;
-            meba_pd69200bt_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00bt",
-                                       meba_pd69200_i2c_adapter_open(pds408g_i2c_config.i2c_device,
-                                                                     poe_12c0),
-                                       MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
-                                           MEBA_POE_CTRL_INTERRUPTIBLE_POWER |
-                                           MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
-                                           MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
-                                       pds408g_pd69200_4pairs_port_map,
-                                       sizeof(pds408g_pd69200_4pairs_port_map) /
-                                           sizeof(meba_poe_port_properties_t),
-                                       pds408g_power_supplies,
-                                       sizeof(pds408g_power_supplies) /
-                                           sizeof(meba_poe_psu_input_prob_t),
-                                       inst->iface.debug, tPoE_parameters);
-        } else if (tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_PREBT) {
+            meba_pd_bt_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00bt",
+                                   meba_pd_i2c_adapter_open(&caracal_pd69200_system.controllers[0],
+                                                            pds408g_i2c_config.i2c_device,
+                                                            poe_12c0),
+                                   MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
+                                       MEBA_POE_CTRL_INTERRUPTIBLE_POWER |
+                                       MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
+                                       MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
+                                   pds408g_pd69200_4pairs_port_map,
+                                   sizeof(pds408g_pd69200_4pairs_port_map) /
+                                       sizeof(meba_poe_port_properties_t),
+                                   pds408g_power_supplies,
+                                   sizeof(pds408g_power_supplies) /
+                                       sizeof(meba_poe_psu_input_prob_t),
+                                   inst->iface.debug, tPoE_parameters);
+        } else if (tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT) {
             // overide tMeba_poe_init_params params if using H file parameters
             if (tPoe_init_params->use_poe_static_parameters) {
                 tPoe_init_params->max_poe_ports =
@@ -228,8 +212,9 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
 
             caracal_pd69200_system.controllers[0].index = 0;
             meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00at",
-                                     meba_pd69200_i2c_adapter_open(pds408g_i2c_config.i2c_device,
-                                                                   poe_12c0),
+                                     meba_pd_i2c_adapter_open(&caracal_pd69200_system.controllers[0],
+                                                              pds408g_i2c_config.i2c_device,
+                                                              poe_12c0),
                                      MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                          MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
                                          MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
@@ -262,16 +247,16 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
         if (tPoe_init_params->use_poe_static_parameters) {
             tPoe_init_params->power_supply_max_power_w =
                 CARACAL_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
-            tPoe_init_params->eMeba_poe_firmware_type =
-                CARACAL_POE_FIRMWARE_TYPE_DEFAULT; // PREBT/BT
-        } else {                                   // overide meba power supply by appl init_params
+            // PREBT/BT
+            tPoe_init_params->eMeba_poe_firmware_type = CARACAL_POE_FIRMWARE_TYPE_DEFAULT;
+        } else { // overide meba power supply by appl init_params
             caracal_power_supplies->def_w = tPoe_init_params->power_supply_default_power_limit;
             caracal_power_supplies->max_w = tPoe_init_params->power_supply_max_power_w;
             caracal_power_supplies->system_pwr_usage_w =
                 tPoe_init_params->power_supply_internal_pwr_usage;
         }
 
-        if (tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_BT) {
+        if (tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
             // overide tMeba_poe_init_params params if using H file parameters
             if (tPoe_init_params->use_poe_static_parameters) {
                 tPoe_init_params->max_poe_ports =
@@ -287,21 +272,22 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
             tPoE_parameters.poe_init_params = *tPoe_init_params;
 
             caracal_pd69200_system.controllers[0].index = 0;
-            meba_pd69200bt_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00",
-                                       meba_pd69200_i2c_adapter_open(caracal_i2c_config.i2c_device,
-                                                                     poe_12c0),
-                                       MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
-                                           MEBA_POE_CTRL_INTERRUPTIBLE_POWER |
-                                           MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
-                                           MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
-                                       caracal_pd69200_4pairs_port_map,
-                                       sizeof(caracal_pd69200_4pairs_port_map) /
-                                           sizeof(meba_poe_port_properties_t),
-                                       caracal_power_supplies,
-                                       sizeof(caracal_power_supplies) /
-                                           sizeof(meba_poe_psu_input_prob_t),
-                                       inst->iface.debug, tPoE_parameters);
-        } else if (tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_PREBT) {
+            meba_pd_bt_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00bt",
+                                   meba_pd_i2c_adapter_open(&caracal_pd69200_system.controllers[0],
+                                                            caracal_i2c_config.i2c_device,
+                                                            poe_12c0),
+                                   MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
+                                       MEBA_POE_CTRL_INTERRUPTIBLE_POWER |
+                                       MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
+                                       MEBA_POE_CTRL_LEGACY_PD_CLASS_MODE,
+                                   caracal_pd69200_4pairs_port_map,
+                                   sizeof(caracal_pd69200_4pairs_port_map) /
+                                       sizeof(meba_poe_port_properties_t),
+                                   caracal_power_supplies,
+                                   sizeof(caracal_power_supplies) /
+                                       sizeof(meba_poe_psu_input_prob_t),
+                                   inst->iface.debug, tPoE_parameters);
+        } else if (tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT) {
             // overide tMeba_poe_init_params params if using H file parameters
             if (tPoe_init_params->use_poe_static_parameters) {
                 tPoe_init_params->max_poe_ports =
@@ -317,9 +303,10 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
             tPoE_parameters.poe_init_params = *tPoe_init_params;
 
             caracal_pd69200_system.controllers[0].index = 0;
-            meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00",
-                                     meba_pd69200_i2c_adapter_open(caracal_i2c_config.i2c_device,
-                                                                   poe_12c0),
+            meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00at",
+                                     meba_pd_i2c_adapter_open(&caracal_pd69200_system.controllers[0],
+                                                              caracal_i2c_config.i2c_device,
+                                                              poe_12c0),
                                      MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                          MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
                                          MEBA_POE_CTRL_INTERRUPTIBLE_POWER,

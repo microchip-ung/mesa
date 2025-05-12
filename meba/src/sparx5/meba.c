@@ -824,7 +824,7 @@ static mesa_rc gpio_handler(meba_inst_t         inst,
     memset(gpio_state, 0, sizeof(gpio_state));
     for (gpio = 0; gpio < gpio_cnt; gpio++) {
         if (gpio_events[gpio]) {
-            T_I(inst, "Got interrupt from gpio #%u", gpio);
+            T_D(inst, "Got interrupt from gpio #%u", gpio);
             (void)mesa_gpio_read(NULL, 0, gpio, &gpio_state[gpio]);
         }
     }
@@ -1119,7 +1119,7 @@ static mesa_rc fa_status_led_set(meba_inst_t inst, meba_led_type_t type, meba_le
 {
     mesa_rc rc = MESA_RC_ERROR;
     if (type == MEBA_LED_TYPE_FRONT && color < MEBA_LED_COLOR_COUNT) {
-        T_I(inst, "LED:%d, color=%d", type, color);
+        T_D(inst, "LED:%d, color=%d", type, color);
         switch (color) {
         case MEBA_LED_COLOR_OFF:
             (void)mesa_gpio_write(NULL, 0, STATUSLED_R_GPIO, false);
@@ -1507,7 +1507,7 @@ static mesa_bool_t fa_1g_tesla_detect(const meba_inst_t inst)
 
 static mesa_rc malibu_mode_conf(const meba_inst_t inst)
 {
-    T_I(inst, "MALIBU CONFIGURING\n");
+    T_D(inst, "MALIBU CONFIGURING\n");
     mesa_rc             rc = MESA_RC_OK;
     int                 port_start, port_end;
     meba_board_state_t *board = INST2BOARD(inst);
@@ -1932,7 +1932,7 @@ static mesa_rc fa_event_enable(meba_inst_t inst, meba_event_t event_id, mesa_boo
         }
 
         if (gpio >= 0) {
-            T_I(inst, "%sable Push_button(GPIO_%d) interrupt", enable ? "en" : "dis", gpio);
+            T_D(inst, "%sable Push_button(GPIO_%d) interrupt", enable ? "en" : "dis", gpio);
             // TBD_FA_IRQ
             if (mesa_gpio_event_enable(NULL, 0, gpio, enable) != MESA_RC_OK) {
                 T_E(inst, "Could not control event for gpio #%d", gpio);
@@ -1975,7 +1975,7 @@ static mesa_rc fa_event_enable(meba_inst_t inst, meba_event_t event_id, mesa_boo
     default: return MESA_RC_NOT_IMPLEMENTED; // Will occur as part of probing
     }
 
-    T_I(inst, "%sable event %d", enable ? "en" : "dis", event_id);
+    T_D(inst, "%sable event %d", enable ? "en" : "dis", event_id);
     return rc;
 }
 
@@ -2029,7 +2029,7 @@ repeat_handler:
                     }
                 }
                 if (sgpio_events_bit[hack_bit][sgpio_port]) {
-                    T_I(inst, "%s IRQ port %d gpio %d",
+                    T_D(inst, "%s IRQ port %d gpio %d",
                         (bit == 0) ? "LOS" : ((bit == 1) ? "MODDET" : "TXFAULT"), port_no,
                         sgpio_port);
                     // Disable the interrupt while handling the event
@@ -2510,7 +2510,7 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
         board->port[port_no].activity = true; // Force an LED update
     }
     board->fan_spec = &fan_spec;
-    T_I(inst, "Board: %s, type %d, target %4x, mux %d, %d ports", inst->props.name, board->type,
+    T_D(inst, "Board: %s, type %d, target %4x, mux %d, %d ports", inst->props.name, board->type,
         inst->props.target, inst->props.mux_mode, board->port_cnt);
 
     // Hook up board API functions

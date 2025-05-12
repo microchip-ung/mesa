@@ -118,7 +118,7 @@ mesa_rc meba_generic_phy_timestamp_check(meba_inst_t         inst,
         if ((rc = meba_phy_ts_event_poll(inst, port_no, &ts_events)) == MESA_RC_OK) {
             int handled = 0;
 
-            T_I(inst, "ts_events: 0x%x, port = %u", ts_events, port_no);
+            T_D(inst, "ts_events: 0x%x, port = %u", ts_events, port_no);
 
             if ((rc = meba_phy_ts_event_set(inst, port_no, false, ts_events)) != MESA_RC_OK) {
                 T_E(inst, "meba_phy_ts_event_enable_set = %d", rc);
@@ -161,7 +161,7 @@ mesa_rc meba_generic_phy_timestamp_check(meba_inst_t         inst,
 
             rc = handled ? MESA_RC_OK : MESA_RC_ERROR;
         }
-        T_I(inst, "ts_events: 0x%x, port = %u", ts_events, port_no);
+        T_D(inst, "ts_events: 0x%x, port = %u", ts_events, port_no);
     }
 
     return rc;
@@ -179,7 +179,7 @@ mesa_rc meba_generic_phy_event_check(meba_inst_t         inst,
     } else {
         int handled = 0;
         if (events) {
-            T_I(inst, "Port %u, event: 0x%x", port_no, events);
+            T_D(inst, "Port %u, event: 0x%x", port_no, events);
 
             if ((rc = meba_phy_event_enable_set(inst, port_no, events, false)) != MESA_RC_OK) {
                 T_E(inst, "meba_phy_event_enable_set = %d", rc);

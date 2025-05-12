@@ -12,35 +12,34 @@
 // PDS408G 4pairs has both PREBT and BT implementations
 // CARACAL 2pairs has both PREBT and BT implementations
 
-//--------------------------------------------------------------------------------------//
-//----------------------------  General parameters
-//------------------------------------//
-//--------------------------------------------------------------------------------------//
+//-----------------------------//
+//---- General parameters -----//
+//-----------------------------//
 
 // poe gpio reset pin number (applicable for PDS408G or CARACAL)
 // 0xFF   - no gpio use for reset poe ports.
 // 0-0xFE - GPIO number used for reset poe ports.
 #define RESET_POE_GPIO_NUMBER 0xFF
 
-//--------------------------------------------------------------------------------------//
-//-------------------------   PDS408G general parameters
-//-----------------------------//
-//--------------------------------------------------------------------------------------//
+//--------------------------------------//
+//----- PDS408G general parameters -----//
+//--------------------------------------//
 
 // This firmware can be used with the PD692x0 family of PoE controllers
 // (PD69210, PD69220, and PD69200). please choose 'ePoE_Controller_Type_Unknown'
 // for automatic firmware detection or force specific PD692x0 PoE controller
 //
-// MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
-// MEBA_POE_PD69200_CONTROLLER_TYPE
-// MEBA_POE_PD69210_CONTROLLER_TYPE
-// MEBA_POE_PD69220_CONTROLLER_TYPE
-#define PDS408G_POE_PD692x0_CONTROLLER_TYPE_DEFAULT MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_GEN6_PD69200_CONTROLLER_TYPE
+// MEBA_POE_GEN6_PD69210_CONTROLLER_TYPE
+// MEBA_POE_GEN6_PD69220_CONTROLLER_TYPE
+#define PDS408G_POE_PD692x0_CONTROLLER_TYPE_DEFAULT                                                \
+    MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 // Set system mode BT or AT firmware:
-// MEBA_POE_FIRMWARE_TYPE_PREBT - AF/AT modes
-// MEBA_POE_FIRMWARE_TYPE_BT    - BT mode
-#define PDS408G_POE_FIRMWARE_TYPE_DEFAULT MEBA_POE_FIRMWARE_TYPE_BT
+// MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT
+// MEBA_POE_FIRMWARE_TYPE_GEN6_BT
+#define PDS408G_POE_FIRMWARE_TYPE_DEFAULT MEBA_POE_FIRMWARE_TYPE_GEN6_BT
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
@@ -58,10 +57,9 @@
 // set the PoE MCU controller I2C address (0x1 - 0xFE)
 #define PDS408G_POE_I2C_ADDRESS 0x20
 
-//--------------------------------------------------------------------------------------//
-//-------------------------------  PDS408G BT parameters
-//-----------------------------//
-//--------------------------------------------------------------------------------------//
+//----------------------------------//
+//-----  PDS408G BT parameters -----//
+//----------------------------------//
 
 // BT System has 4 modes = 15/30/60/90 (applicable for all poe ports)
 // MEBA_POE_PORT_MAX_POWER_15W
@@ -76,12 +74,16 @@
 // Microchip PD692x0 BT Serial Communication Protocol Table 3-5. 4-Pair/2-Pair
 // Non-Compliant Modes
 
-// BT complient port operation Mode
-#define PDS408G_BT_COMPLIANT_15W_DEFAULT 3 // Type4 BT compliant up to 90W
-#define PDS408G_BT_COMPLIANT_30W_DEFAULT                                                           \
-    9 // Type3 BT compliant up to 60W (replaced by AT Compliant 30w)
-#define PDS408G_BT_COMPLIANT_60W_DEFAULT 1 // Type3 BT compliant up to 30W
-#define PDS408G_BT_COMPLIANT_90W_DEFAULT 0 // Type3 BT compliant up to 15W
+//--- BT complient port operation Mode ---//
+
+// Type4 BT compliant up to 90W
+#define PDS408G_BT_COMPLIANT_15W_DEFAULT 3
+// Type3 BT compliant up to 60W (replaced by AT Compliant 30w)
+#define PDS408G_BT_COMPLIANT_30W_DEFAULT 9
+// Type3 BT compliant up to 30W
+#define PDS408G_BT_COMPLIANT_60W_DEFAULT 1
+// Type3 BT compliant up to 15W
+#define PDS408G_BT_COMPLIANT_90W_DEFAULT 0
 
 // BT none complient port operation Mode
 #define PDS408G_BT_NON_COMPLIANT_15W_DEFAULT 0x13 // BT Non Compliant 4P 15w 2P 15w Legacy
@@ -89,25 +91,24 @@
 #define PDS408G_BT_NON_COMPLIANT_60W_DEFAULT 0x11 // BT Non Compliant 4P 60w 2P 30w Legacy
 #define PDS408G_BT_NON_COMPLIANT_90W_DEFAULT 0x10 // BT Non Compliant 4P 90w 2P 30w Legacy
 
-// special legacy operation modes (applicable for 60w and 90w)
-#define PDS408G_BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT                                           \
-    0x25 // Lagacy + PoH 45/90W + BT. No demotion in class 4 or 4,4
-#define PDS408G_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT                               \
-    0x21 // Lagacy + IGNORE_PD_CLASS 60W
-#define PDS408G_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT                               \
-    0x26 // Lagacy + IGNORE_PD_CLASS 90W
+//--- special legacy operation modes (applicable for 60w and 90w) ---//
+
+// Lagacy + PoH 45/90W + BT. No demotion in class 4 or 4,4
+#define PDS408G_BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT 0x25
+// Lagacy + IGNORE_PD_CLASS 60W
+#define PDS408G_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT 0x21
+// Lagacy + IGNORE_PD_CLASS 90W
+#define PDS408G_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT 0x26
 
 //-- BT individual masks --//
 
 // 0x00	Ignore higher priority
 // '0' The allocation logic before classification sums the delivering power
-// ports with
-//     lower priority and adds the result to the available power. After
-//     classification, the disconnection function executes and may disconnect
-//     lower priority ports to free power for the higher priority port.
+//     ports with lower priority and adds the result to the available power.
+//     After classification, the disconnection function executes and may
+//     disconnect lower priority ports to free power for the higher priority port
 // '1' If power is not available for powering-up any port, any new connected
-// port
-//     power-up is denied, regardless of its priority.
+//     port power-up is denied, regardless of its priority.
 #define PDS408G_INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_DEFAULT 0
 
 // 0x10	support high res detection
@@ -156,8 +157,8 @@
 
 // 0x30 Port LED Blinks at invalid signature or connection-check error
 // 0 = When port detects invalid signature or connection-check error, LED stays
-// off. 1 = When port detects invalid signature or connection-check error, LED
-// blinks.
+// off.
+// 1 = When port detects invalid signature or connection-check error, LED blinks.
 #define PDS408G_INDV_MASK_BT_PORT_LED_BLINKS_AT_INVALID_SIGNATURE_OR_CONNECTION_CHECK_ERROR_DEFAULT \
     0
 
@@ -169,17 +170,18 @@
 
 // 0x50 HOCPP - High Over Current Pulse Protection
 // 0 = Internal port startup check duration is 500 ms and HOCPP is enabled
-// immediately (0 ms) after port power-up. 1 = Internal port startup check
-// duration is 500 ms and HOCPP is enabled at the end of this time duration. 2 =
-// Internal port startup check duration is 1000 ms and HOCPP is enabled at the
-// end of this time duration. 3 = Internal port startup check duration is 1500
-// ms and HOCPP is enabled at the end of this time duration. 4 = Internal port
-// startup check duration is 2000 ms and HOCPP is enabled at the end of this
-// time duration.
+//     immediately (0 ms) after port power-up.
+// 1 = Internal port startup check duration is 500 ms and HOCPP is enabled
+//     at the end of this time duration.
+// 2 = Internal port startup check duration is 1000 ms and HOCPP is enabled
+//     at the end of this time duration.
+// 3 = Internal port startup check duration is 1500 ms and HOCPP is enabled
+//     at the end of this time duration.
+// 4 = Internal port startup check duration is 2000 ms and HOCPP is enabled
+//      at the end of this time duration.
 #define PDS408G_INDV_MASK_BT_HOCPP_DEFAULT 2
 
-//----------------- BT cap and port map Customizations starts here
-//-----------------//
+//----- BT cap and port map Customizations starts here -----//
 
 // PDS408G CAP and port map
 #define PDS408G_PD69200_BT_CAP                                                                     \
@@ -193,18 +195,18 @@
         MEBA_POE_PORT_CAP_4PAIR | MEBA_POE_PORT_CAP_FORCE_ON
 
 #define PDS408G_PD69200_CAP                                                                        \
-    ((PDS408G_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? PDS408G_PD69200_BT_CAP     \
-                                                                      : PDS408G_PD69200_PREBT_CAP)
+    ((PDS408G_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN6_BT)                         \
+         ? PDS408G_PD69200_BT_CAP                                                                  \
+         : PDS408G_PD69200_PREBT_CAP)
 
-// Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max
-// power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
+// Note: 'PREBT- Max PWR' column is not applicable for PoE BT.
+//       set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
 //       this parameters is the port power limit when using poe PREBT mode.
 
 meba_poe_port_properties_t pds408g_pd69200_4pairs_port_map[] = {
-    // PoE                 | PREBT-  | App-Log | PoE-Log | PoE Pair-A   | PoE
-    // Pair-B Capability          | MAX PWR | Port-ID | Port-ID | Phys Port-ID |
-    // Phys Port-ID
-    //--------------------------------------------------------------------------------
+    // PoE-      |PREBT- |App port|PoE port|Physical|Physical
+    // Capability|MAX PWR|Logical |Logical |Pair-A  |Pair-B
+    // ------------------------------------------------------
     {PDS408G_PD69200_CAP, 24000, 0, 0, 0, 8 },
     {PDS408G_PD69200_CAP, 24000, 1, 1, 1, 9 },
     {PDS408G_PD69200_CAP, 24000, 2, 2, 2, 10},
@@ -215,32 +217,29 @@ meba_poe_port_properties_t pds408g_pd69200_4pairs_port_map[] = {
     {PDS408G_PD69200_CAP, 24000, 7, 7, 7, 15},
 };
 
-//------------------- BT cap and port map Customizations ends here
-//-------------------//
+//--- BT cap and port map Customizations ends here -----//
 
-//--------------------------------------------------------------------------------------//
-//-------------------------------   CARACAL parameters
-//-------------------------------//
-//--------------------------------------------------------------------------------------//
+//--------------------------------//
+//-----   CARACAL parameters -----//
+//--------------------------------//
 
-//-------------------------   CARACAL general parameters
-//-----------------------------//
-//--------------------------------------------------------------------------------------//
+//---- CARACAL general parameters ----//
 
 // This firmware can be used with the PD692x0 family of PoE controllers
 // (PD69210, PD69220, and PD69200). please choose 'ePoE_Controller_Type_Unknown'
 // for automatic firmware detection or force specific PD692x0 PoE controller
 //
-// MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
-// MEBA_POE_PD69200_CONTROLLER_TYPE ,
-// MEBA_POE_PD69210_CONTROLLER_TYPE ,
-// MEBA_POE_PD69220_CONTROLLER_TYPE ,
-#define CARACAL_POE_PD692x0_CONTROLLER_TYPE_DEFAULT MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+// MEBA_POE_GEN6_PD69200_CONTROLLER_TYPE ,
+// MEBA_POE_GEN6_PD69210_CONTROLLER_TYPE ,
+// MEBA_POE_GEN6_PD69220_CONTROLLER_TYPE ,
+#define CARACAL_POE_PD692x0_CONTROLLER_TYPE_DEFAULT                                                \
+    MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 // Set system mode BT or AT firmware:
-// MEBA_POE_FIRMWARE_TYPE_PREBT - AF/AT modes
-// MEBA_POE_FIRMWARE_TYPE_BT    - BT mode
-#define CARACAL_POE_FIRMWARE_TYPE_DEFAULT MEBA_POE_FIRMWARE_TYPE_PREBT
+// MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT - AF/AT modes
+// MEBA_POE_FIRMWARE_TYPE_GEN6_BT   - GEN6_BT mode
+#define CARACAL_POE_FIRMWARE_TYPE_DEFAULT MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT
 
 // Set unit max power as fixed or variable through Web & CLI
 #define CARACAL_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT 1
@@ -257,8 +256,9 @@ meba_poe_port_properties_t pds408g_pd69200_4pairs_port_map[] = {
 // set the PoE MCU controller I2C address
 #define CARACAL_POE_I2C_ADDRESS 0x14
 
-//------------------   CARACAL PREBT parameters    ----------------------//
-//-----------------------------------------------------------------------//
+//------------------------------------//
+//----- CARACAL PREBT parameters -----//
+//------------------------------------//
 
 // 0x00 Ignore higher priority
 // '0' If higher priority port powers up and its power exceeds power limit,
@@ -291,14 +291,13 @@ meba_poe_port_properties_t pds408g_pd69200_4pairs_port_map[] = {
 // 0x1E Message ready notify
 // '0' Disable i2c ready interrupt notification.
 // '1' MESSAGE_READY pin, can be used to notify the host that a reply message is
-// ready.
-//     Refer to PD69200 datasheet or PD69200M shared memory documentation.
+//     ready. Refer to PD69200 datasheet or PD69200M shared memory documentation.
 #define CARACAL_INDV_MASK_PREBT_MESSAGE_READY_NOTIFY_DEFAULT 0
 
 // 0x2E Layer2 (LLDP) enable
 // '0' Layer 2 PD commands will be Ignored and Layer 2 PSE requests will return
-// with zero allocation. '1' Layer 2 operation is enabled. Layer 2 commands are
-// processed.
+//     with zero allocation.
+// '1' Layer 2 operation is enabled. Layer 2 commands are processed.
 #define CARACAL_INDV_MASK_PREBT_LAYER2_LLDP_ENABLE_DEFAULT 1
 
 // 0x2F Layer2 priority by PD
@@ -312,7 +311,7 @@ meba_poe_port_properties_t pds408g_pd69200_4pairs_port_map[] = {
 // '1' Uses new 4-pair matrix commands (in case PREBT 4-pair matrix is needed).
 #define CARACAL_INDV_MASK_PREBT_MATRIX_SUPPORT_4P_DEFAULT 0
 
-// -----------  Legacy Power Management mode of operation ----------------------//
+//------  Legacy Power Management mode of operation -----------//
 
 // PM1: Selects the method of calculating total power consumption.
 // PM2: Selects the power limit at the port (maximum or according to class or
@@ -365,8 +364,7 @@ meba_poe_port_properties_t pds408g_pd69200_4pairs_port_map[] = {
 //       configuration.
 #define CARACAL_PM3_PREBT_DEFAULT 0x00
 
-//----------------- CARACAL cap and port map Customizations starts here
-//---------------//
+//--- CARACAL cap and port map Customizations starts here ---//
 
 // Type 1(IEEE 802.3af) 2P 15W
 // Type 2(IEEE 802.3at) 2P 30W
@@ -385,20 +383,19 @@ meba_poe_port_properties_t pds408g_pd69200_4pairs_port_map[] = {
         MEBA_POE_PORT_CAP_FORCE_ON
 
 #define CARACAL_PD69200_CAP                                                                        \
-    ((CARACAL_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_BT) ? CARACAL_PD69200_BT_CAP     \
-                                                                      : CARACAL_PD69200_PREBT_CAP)
+    ((CARACAL_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN6_BT)                         \
+         ? CARACAL_PD69200_BT_CAP                                                                  \
+         : CARACAL_PD69200_PREBT_CAP)
 
 // Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max
 // power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
-//       this parameters is the port power limit when using poe PREBT mode.
+// this parameters is the port power limit when using poe PREBT mode.
 
 // pd69200 - PREBT mapping - 8 PoE ports 2-pairs
 meba_poe_port_properties_t caracal_pd69200_2pairs_port_map[] = {
-    //  PoE                 | PREBT-  | App-Log |PoE-Log | PoE Pair-A   | PoE
-    //  Pair-B
-    //  Capability          | MAX PWR | Port-ID |Port-ID | Phys Port-ID | Phys
-    //  Port-ID
-    //--------------------------------------------------------------------------------
+    // PoE-      |PREBT- |App port|PoE port|Physical|Physical
+    // Capability|MAX PWR|Logical |Logical |Pair-A  |Pair-B
+    // ------------------------------------------------------
     {CARACAL_PD69200_CAP, 24000, 0,  0,  0,  255},
     {CARACAL_PD69200_CAP, 24000, 1,  1,  1,  255},
     {CARACAL_PD69200_CAP, 24000, 2,  2,  2,  255},
@@ -432,11 +429,9 @@ meba_poe_port_properties_t caracal_pd69200_2pairs_port_map[] = {
 // Note: for PoE BT mode - the user have to update the PoE 4pairs matrix
 // pd69200 - BT mapping - 8 PoE ports 4-pairs
 meba_poe_port_properties_t caracal_pd69200_4pairs_port_map[] = {
-    //  PoE                 | PREBT-  | App-Log |PoE-Log | PoE Pair-A   | PoE
-    //  Pair-B
-    //  Capability          | MAX PWR | Port-ID |Port-ID | Phys Port-ID | Phys
-    //  Port-ID
-    //--------------------------------------------------------------------------------
+    // PoE-      |PREBT- |App port|PoE port|Physical|Physical
+    // Capability|MAX PWR|Logical |Logical |Pair-A  |Pair-B
+    // ------------------------------------------------------
     {CARACAL_PD69200_CAP, 24000, 0,  0,  0,  255},
     {CARACAL_PD69200_CAP, 24000, 1,  1,  1,  255},
     {CARACAL_PD69200_CAP, 24000, 2,  2,  2,  255},
@@ -463,7 +458,6 @@ meba_poe_port_properties_t caracal_pd69200_4pairs_port_map[] = {
     {CARACAL_PD69200_CAP, 24000, 23, 23, 23, 255},
 };
 
-//----------------- CARACAL cap and port map Customizations ends here
-//-------------------//
+//----- CARACAL cap and port map Customizations ends here -----//
 
 #endif // _CARACAL_POE_HW_CFG_H_

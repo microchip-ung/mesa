@@ -4,8 +4,7 @@
 #ifndef _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_
 #define _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_
 
-#include <microchip/ethernet/board/api/types.h>
-#include <microchip/ethernet/switch/api/types.h>
+#include <microchip/ethernet/board/api/poe_ctrl.h>
 
 typedef struct {
     const char   *i2c_device;
@@ -16,13 +15,14 @@ typedef void (*pointer_to_meba_poe_io_reset_t)(mesa_bool_t);
 
 typedef struct {
 
-    mesa_bool_t is_bt;
+    // the type of the firmware: GEN6_BT, GEN7_BT or PreBT
+    uint8_t tMeba_poe_firmware_type; // meba_poe_firmware_type_t
 
     // PD692x0 family detection method
-    meba_poe_controller_type_t ePoE_Controller_Type_default;
+    uint8_t ePoE_Controller_Type_default; // meba_poe_controller_type_t
 
     // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-    meba_poe_port_max_power_t ePoE_port_max_power_default;
+    uint8_t ePoE_port_max_power_default; // meba_poe_port_max_power_t
 
     // BT complient port operation Mode
     uint8_t bt_operation_mode_compliant_15w_default;
@@ -81,7 +81,7 @@ typedef struct {
     // inactivity.
     uint8_t indv_mask_BT_i2c_restart_enable_default;
 
-    // bt - led stream type
+    // gen6 bt - led stream type
     uint8_t indv_mask_BT_led_stream_type_default;
 
     // bt - HOCPP - high_over Current Pulse Protection
@@ -102,8 +102,7 @@ typedef struct {
     // bt - Support adding lldp half priority
     uint8_t indv_mask_BT_support_adding_lldp_half_priority_default;
 
-    // -----------  PREBT Power Management mode of operation
-    // ----------------------//
+    // ----- PREBT Power Management mode of operation -----//
 
     // Selects the method of calculating total power consumption.
     uint8_t prebt_pm1_default;
@@ -124,7 +123,9 @@ typedef struct {
  *
  * \return File descriptor for I2C driver
  */
-int meba_pd69200_i2c_adapter_open(const char *filename, uint8_t i2c_addr);
+int meba_pd_i2c_adapter_open(const meba_poe_ctrl_inst_t *const inst,
+                             const char                       *filename,
+                             uint8_t                           i2c_addr);
 
 /**
  * \brief Initialize driver
@@ -169,15 +170,15 @@ void meba_pd69200_driver_init(meba_poe_ctrl_inst_t       *inst,
  *
  * \return meba_poe_ctrl_inst
  */
-void meba_pd69200bt_driver_init(meba_poe_ctrl_inst_t       *inst,
-                                char const                 *driver_name,
-                                int                         adapter_fd,
-                                meba_poe_ctrl_cap_t         capabilities,
-                                meba_poe_port_properties_t *port_map,
-                                uint32_t                    port_map_length,
-                                meba_poe_psu_input_prob_t  *psu_map,
-                                uint32_t                    psu_map_length,
-                                meba_debug_t                debug,
-                                meba_poe_parameters_t       tMeba_poe_parameters);
+void meba_pd_bt_driver_init(meba_poe_ctrl_inst_t       *inst,
+                            char const                 *driver_name,
+                            int                         adapter_fd,
+                            meba_poe_ctrl_cap_t         capabilities,
+                            meba_poe_port_properties_t *port_map,
+                            uint32_t                    port_map_length,
+                            meba_poe_psu_input_prob_t  *psu_map,
+                            uint32_t                    psu_map_length,
+                            meba_debug_t                debug,
+                            meba_poe_parameters_t       tMeba_poe_parameters);
 
 #endif // _MICROCHIP_ETHERNET_BOARD_POE_DRIVER_H_
