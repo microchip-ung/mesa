@@ -136,7 +136,7 @@ vtss_rc vtss_cil_misc_reg_write(vtss_state_t        *vtss_state,
     return vtss_fa_wr(vtss_state, addr, value);
 }
 
-vtss_rc vtss_cil_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
+vtss_rc vtss_cil_misc_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
 {
     chip_id->part_number = 0x6500;
     chip_id->revision = 1;
@@ -171,9 +171,9 @@ vtss_rc vtss_cil_misc_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_ty
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ptp_event_enable(vtss_state_t         *vtss_state,
-                                  vtss_ptp_event_type_t ev_mask,
-                                  BOOL                  enable)
+vtss_rc vtss_cil_misc_ptp_event_enable(vtss_state_t         *vtss_state,
+                                       vtss_ptp_event_type_t ev_mask,
+                                       BOOL                  enable)
 {
     /* PTP masks */
     VTSS_D("ev_mask 0x%x, enable: %d", ev_mask, enable);
