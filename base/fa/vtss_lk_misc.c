@@ -265,6 +265,45 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t          *vtss_state,
     return VTSS_RC_OK;
 }
 
+vtss_rc vtss_cil_misc_gpio_mode(vtss_state_t          *vtss_state,
+                                const vtss_chip_no_t   chip_no,
+                                const vtss_gpio_no_t   gpio_no,
+                                const vtss_gpio_mode_t mode)
+{
+    return vtss_fa_gpio_mode(vtss_state, chip_no, gpio_no, mode);
+}
+
+vtss_rc vtss_cil_misc_gpio_read(vtss_state_t        *vtss_state,
+                                const vtss_chip_no_t chip_no,
+                                const vtss_gpio_no_t gpio_no,
+                                BOOL *const          value)
+{
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_misc_gpio_write(vtss_state_t        *vtss_state,
+                                 const vtss_chip_no_t chip_no,
+                                 const vtss_gpio_no_t gpio_no,
+                                 const BOOL           value)
+{
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_misc_gpio_event_poll(vtss_state_t        *vtss_state,
+                                      const vtss_chip_no_t chip_no,
+                                      BOOL *const          events)
+{
+    return VTSS_RC_OK;
+}
+
+vtss_rc vtss_cil_misc_gpio_event_enable(vtss_state_t        *vtss_state,
+                                        const vtss_chip_no_t chip_no,
+                                        const vtss_gpio_no_t gpio_no,
+                                        const BOOL           enable)
+{
+    return VTSS_RC_OK;
+}
+
 /* - Debug print --------------------------------------------------- */
 vtss_rc vtss_fa_misc_debug_print(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
