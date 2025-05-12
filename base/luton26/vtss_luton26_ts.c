@@ -69,7 +69,7 @@ static vtss_rc l26_ts_hw_timeofday_read(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_timeofday_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts, u64 *tc)
+vtss_rc vtss_cil_ts_timeofday_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts, u64 *tc)
 {
     vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     u32                value;
@@ -97,10 +97,10 @@ static vtss_rc l26_ts_timeofday_get(vtss_state_t *vtss_state, vtss_timestamp_t *
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
-                                          u32               io,
-                                          vtss_timestamp_t *ts,
-                                          u64              *tc)
+vtss_rc vtss_cil_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
+                                        u32               io,
+                                        vtss_timestamp_t *ts,
+                                        u64              *tc)
 {
     vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     u32                value;
@@ -156,7 +156,7 @@ static vtss_rc l26_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
  * The second offset is adjusted accordingly.
  *
  */
-static vtss_rc l26_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
+vtss_rc vtss_cil_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
 {
     vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     i32                corr;
@@ -203,7 +203,7 @@ static vtss_rc l26_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
  * The second offset is adjusted accordingly.
  *
  */
-static vtss_rc l26_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp_t *ts)
 {
     vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     i32                corr;
@@ -222,7 +222,8 @@ static vtss_rc l26_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timesta
 
     /* corr = PTP_NS - ts.ns */
     corr = value & VTSS_M_DEVCPU_GCB_PTP_TIMERS_PTP_TOD_NANOSECS_PTP_TOD_NANOSECS;
-    VTSS_RC(l26_ts_timeofday_offset_set(vtss_state, corr * HW_NS_PR_CLK_CNT - ts->nanoseconds));
+    VTSS_RC(vtss_cil_ts_timeofday_offset_set(vtss_state,
+                                             corr * HW_NS_PR_CLK_CNT - ts->nanoseconds));
     VTSS_D("PTP_TOD_SECS: %u, PTP_TOD_NANOSECS: %u, PTP_DELAY: %" PRIu64 "", conf->sec_offset,
            value, value2);
     return VTSS_RC_OK;
@@ -232,9 +233,9 @@ static vtss_rc l26_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timesta
  * When the time is set, the SW sec  counters are written. The HW ns clock is
  * adjusted in the next 1 sec call.
  */
-static vtss_rc l26_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
-                                          const vtss_timestamp_t *ts,
-                                          BOOL                    negative)
+vtss_rc vtss_cil_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
+                                        const vtss_timestamp_t *ts,
+                                        BOOL                    negative)
 {
     vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     i32                corr;
@@ -248,7 +249,7 @@ static vtss_rc l26_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
         } else {
             corr = -(i32)ts->nanoseconds;
         }
-        VTSS_RC(l26_ts_timeofday_offset_set(vtss_state, corr));
+        VTSS_RC(vtss_cil_ts_timeofday_offset_set(vtss_state, corr));
     }
     if (negative) {
         conf->sec_offset -= ts->seconds;
@@ -265,7 +266,7 @@ static vtss_rc l26_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
  * This function is called from interrupt, therefore the macros using vtss_state
  * cannot be used.
  */
-static u32 l26_ts_ns_cnt_get(vtss_inst_t inst)
+u32 vtss_cil_ts_ns_cnt_get(vtss_inst_t inst)
 {
     u32 value;
 
@@ -275,7 +276,7 @@ static u32 l26_ts_ns_cnt_get(vtss_inst_t inst)
            HW_NS_PR_CLK_CNT;
 }
 
-static vtss_rc l26_ts_timeofday_one_sec(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_timeofday_one_sec(vtss_state_t *vtss_state)
 {
     vtss_ts_configs_t *conf = &vtss_state->ts.conf;
     u32                value, value1;
@@ -309,7 +310,7 @@ static vtss_rc l26_ts_timeofday_one_sec(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_adjtimer_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_adjtimer_set(vtss_state_t *vtss_state)
 {
     /* adj in units of 0,1 pbb */
     i32 adj = vtss_state->ts.conf.adj[0] / 10L;
@@ -349,7 +350,7 @@ static vtss_rc l26_ts_adjtimer_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_freq_offset_get(vtss_state_t *vtss_state, i32 *const adj)
+vtss_rc vtss_cil_ts_freq_offset_get(vtss_state_t *vtss_state, i32 *const adj)
 {
     i32 offset; /* frequency offset in clock counts pr sec */
     u32 cu;
@@ -364,7 +365,7 @@ static vtss_rc l26_ts_freq_offset_get(vtss_state_t *vtss_state, i32 *const adj)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_external_clock_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 {
     vtss_ts_ext_clock_mode_t *conf = &vtss_state->ts.conf.ext_clock_mode;
     u32                       dividers;
@@ -436,7 +437,7 @@ static vtss_rc l26_ts_external_clock_mode_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
+vtss_rc vtss_cil_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
 {
     vtss_ts_ext_io_mode_t *ext_io_mode;
     if (io >= VTSS_TS_IO_ARRAY_SIZE) {
@@ -515,7 +516,7 @@ static vtss_rc l26_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
     i32                  rx_delay = VTSS_INTERVAL_NS(conf->ingress_latency) / HW_NS_PR_CLK_CNT;
@@ -525,13 +526,13 @@ static vtss_rc l26_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     VTSS_D("Not to be used,a d L26 only supports up to 1 us p2pdelay");
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
     i32                  tx_delay = VTSS_INTERVAL_NS(conf->egress_latency) / HW_NS_PR_CLK_CNT;
@@ -541,9 +542,9 @@ static vtss_rc l26_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_operation_mode_set(vtss_state_t  *vtss_state,
-                                         vtss_port_no_t port_no,
-                                         BOOL           mode_domain_config)
+vtss_rc vtss_cil_ts_operation_mode_set(vtss_state_t  *vtss_state,
+                                       vtss_port_no_t port_no,
+                                       BOOL           mode_domain_config)
 {
     return VTSS_RC_ERROR;
 }
@@ -569,7 +570,7 @@ static u32 api_port(vtss_state_t *vtss_state, u32 chip_port)
     return port_no;
 }
 
-static vtss_rc l26_ts_timestamp_get(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_timestamp_get(vtss_state_t *vtss_state)
 {
     u32 value;
     u32 delay;
@@ -604,7 +605,7 @@ static vtss_rc l26_ts_timestamp_get(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_timestamp_id_release(vtss_state_t *vtss_state, u32 ts_id)
+vtss_rc vtss_cil_ts_timestamp_id_release(vtss_state_t *vtss_state, u32 ts_id)
 {
     /* Clear bit corresponding to ts_id */
     if (ts_id < TS_IDS_RESERVED_FOR_SW) {
@@ -623,7 +624,7 @@ static vtss_rc l26_ts_timestamp_id_release(vtss_state_t *vtss_state, u32 ts_id)
  * Signal port status change (used to detect and compensate for the internal
  * ingress and egress latencies)
  */
-static vtss_rc l26_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_rc rc = VTSS_RC_OK, rc2;
     VTSS_D("port status change %d", port_no);
@@ -646,8 +647,8 @@ static vtss_rc l26_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
     VTSS_D("port_no %d, igr_latency %d, egr_latency %d", port_no,
            vtss_state->ts.port_conf[port_no].default_igr_latency,
            vtss_state->ts.port_conf[port_no].default_egr_latency);
-    rc = l26_ts_ingress_latency_set(vtss_state, port_no);
-    rc2 = l26_ts_egress_latency_set(vtss_state, port_no);
+    rc = vtss_cil_ts_ingress_latency_set(vtss_state, port_no);
+    rc2 = vtss_cil_ts_egress_latency_set(vtss_state, port_no);
     if (rc == VTSS_RC_OK) {
         rc = rc2;
     }
@@ -657,6 +658,72 @@ static vtss_rc l26_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
 vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state, const vtss_ts_conf_t *const conf)
 {
     return VTSS_RC_OK;
+}
+
+// Unsupported APIs
+vtss_rc vtss_cil_ts_timeofday_raw(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts, u64 *tc)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_timeofday_next_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_timeofday_prev_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_multi_domain_timeofday_get(struct vtss_state_s    *vtss_state,
+                                               const uint32_t          domain_cnt,
+                                               vtss_timestamp_t *const ts)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_domain_timeofday_next_pps_get(struct vtss_state_s *vtss_state,
+                                                  u32                  domain,
+                                                  vtss_timestamp_t    *ts)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_external_clock_saved_get(struct vtss_state_s *vtss_state, u32 *saved)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_delay_asymmetry_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_internal_mode_set(struct vtss_state_s *vtss_state) { return VTSS_RC_ERROR; }
+
+vtss_rc vtss_cil_ts_timestamp_convert(struct vtss_state_s *vtss_state,
+                                      vtss_port_no_t       port_no,
+                                      u64                 *ts)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_output_clock_edge_offset_get(struct vtss_state_s *vtss_state,
+                                                 u32                  io,
+                                                 u32                 *offset)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_seq_cnt_get(struct vtss_state_s *vtss_state, u32 sec_cntr, u16 *const cnt_val)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_link_up(struct vtss_state_s *vtss_state, vtss_port_no_t port_no)
+{
+    return VTSS_RC_ERROR;
 }
 
 /* - Debug print --------------------------------------------------- */
@@ -750,54 +817,54 @@ static vtss_rc l26_ts_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc l26_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
-                                           u32               domain,
-                                           vtss_timestamp_t *ts,
-                                           u64              *tc)
+vtss_rc vtss_cil_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
+                                         u32               domain,
+                                         vtss_timestamp_t *ts,
+                                         u64              *tc)
 {
     if (domain == 0) {
-        return l26_ts_timeofday_get(vtss_state, ts, tc);
+        return vtss_cil_ts_timeofday_get(vtss_state, ts, tc);
     } else {
         return VTSS_RC_ERROR;
     }
 }
 
-static vtss_rc l26_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
-                                           u32                     domain,
-                                           const vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
+                                         u32                     domain,
+                                         const vtss_timestamp_t *ts)
 {
     if (domain == 0) {
-        return l26_ts_timeofday_set(vtss_state, ts);
+        return vtss_cil_ts_timeofday_set(vtss_state, ts);
     } else {
         return VTSS_RC_ERROR;
     }
 }
 
-static vtss_rc l26_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_state,
-                                                 u32                     domain,
-                                                 const vtss_timestamp_t *ts,
-                                                 BOOL                    negative)
+vtss_rc vtss_cil_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_state,
+                                               u32                     domain,
+                                               const vtss_timestamp_t *ts,
+                                               BOOL                    negative)
 {
     if (domain == 0) {
-        return l26_ts_timeofday_set_delta(vtss_state, ts, negative);
+        return vtss_cil_ts_timeofday_set_delta(vtss_state, ts, negative);
     } else {
         return VTSS_RC_ERROR;
     }
 }
 
-static vtss_rc l26_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 domain, i32 offset)
+vtss_rc vtss_cil_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 domain, i32 offset)
 {
     if (domain == 0) {
-        return l26_ts_timeofday_offset_set(vtss_state, offset);
+        return vtss_cil_ts_timeofday_offset_set(vtss_state, offset);
     } else {
         return VTSS_RC_ERROR;
     }
 }
 
-static vtss_rc l26_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
+vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
 {
     if (domain == 0) {
-        return l26_ts_adjtimer_set(vtss_state);
+        return vtss_cil_ts_adjtimer_set(vtss_state);
     } else {
         return VTSS_RC_ERROR;
     }
@@ -805,37 +872,10 @@ static vtss_rc l26_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
 
 vtss_rc vtss_l26_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_ts_state_t *state = &vtss_state->ts;
-
     switch (cmd) {
-    case VTSS_INIT_CMD_CREATE:
-        state->timeofday_get = l26_ts_timeofday_get;
-        state->timeofday_set = l26_ts_timeofday_set;
-        state->timeofday_set_delta = l26_ts_timeofday_set_delta;
-        state->timeofday_offset_set = l26_ts_timeofday_offset_set;
-        state->ns_cnt_get = l26_ts_ns_cnt_get;
-        state->timeofday_one_sec = l26_ts_timeofday_one_sec;
-        state->adjtimer_set = l26_ts_adjtimer_set;
-        state->freq_offset_get = l26_ts_freq_offset_get;
-        state->external_clock_mode_set = l26_ts_external_clock_mode_set;
-        state->external_io_mode_set = l26_ts_external_io_mode_set;
-        state->saved_timeofday_get = l26_ts_saved_timeofday_get;
-        state->ingress_latency_set = l26_ts_ingress_latency_set;
-        state->p2p_delay_set = l26_ts_p2p_delay_set;
-        state->egress_latency_set = l26_ts_egress_latency_set;
-        state->operation_mode_set = l26_ts_operation_mode_set;
-        state->timestamp_get = l26_ts_timestamp_get;
-        state->timestamp_id_release = l26_ts_timestamp_id_release;
-        state->status_change = l26_ts_status_change;
-        /* domain specific functions added for new architectures */
-        state->domain_timeofday_get = l26_ts_domain_timeofday_get;
-        state->domain_timeofday_set = l26_ts_domain_timeofday_set;
-        state->domain_timeofday_set_delta = l26_ts_domain_timeofday_set_delta;
-        state->domain_timeofday_offset_set = l26_ts_domain_timeofday_offset_set;
-        state->domain_adjtimer_set = l26_ts_domain_adjtimer_set;
-        break;
-    case VTSS_INIT_CMD_INIT: VTSS_RC(l26_ts_init(vtss_state)); break;
-    default:                 break;
+    case VTSS_INIT_CMD_CREATE: break;
+    case VTSS_INIT_CMD_INIT:   VTSS_RC(l26_ts_init(vtss_state)); break;
+    default:                   break;
     }
     return VTSS_RC_OK;
 }

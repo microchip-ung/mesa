@@ -1466,7 +1466,7 @@ vtss_rc vtss_port_state_set(const vtss_inst_t inst, const vtss_port_no_t port_no
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
         if (!vtss_state->l2.port_state[port_no] && state) {
-            (void)VTSS_FUNC(ts.link_up, port_no);
+            (void)vtss_cil_ts_link_up(vtss_state, port_no);
         }
 #endif
 
@@ -3055,7 +3055,7 @@ vtss_rc vtss_psfp_gate_conf_set(const vtss_inst_t                  inst,
         c = &vtss_state->l2.psfp.gate[id];
         *c = *conf;
         ct = c->config.cycle_time;
-        rc = VTSS_FUNC(ts.timeofday_get, &ts, &tc);
+        rc = vtss_cil_ts_timeofday_get(vtss_state, &ts, &tc);
         if (c->enable && c->config_change && ct > 0U && rc == VTSS_RC_OK) {
             bt = &c->config.base_time;
             base = vtss_ts2nsec(bt);

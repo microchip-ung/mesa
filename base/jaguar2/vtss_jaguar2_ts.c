@@ -79,7 +79,7 @@ static vtss_rc jr2_ts_timeofday_read(vtss_state_t     *vtss_state,
     return jr2_ts_io_pin_timeofday_get(vtss_state, TOD_ACC_PIN, ts, tc);
 }
 
-static vtss_rc jr2_ts_timeofday_sample(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_timeofday_sample(vtss_state_t *vtss_state)
 {
 #if defined(TOD_ACC_EXT_PPS_PIN_SHARED)
     vtss_ts_ext_clock_one_pps_mode_t one_pps_mode = vtss_state->ts.conf.ext_clock_mode.one_pps_mode;
@@ -119,10 +119,10 @@ static vtss_rc jr2_ts_timeofday_sample(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
-                                           u32               domain,
-                                           vtss_timestamp_t *ts,
-                                           u64              *tc)
+vtss_rc vtss_cil_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
+                                         u32               domain,
+                                         vtss_timestamp_t *ts,
+                                         u64              *tc)
 {
 #if defined(TOD_ACC_EXT_PPS_PIN_SHARED)
     if (vtss_state->ts.conf.ext_clock_mode.one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE) {
@@ -139,9 +139,9 @@ static vtss_rc jr2_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_timeofday_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts, u64 *tc)
+vtss_rc vtss_cil_ts_timeofday_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts, u64 *tc)
 {
-    return jr2_ts_domain_timeofday_get(vtss_state, 0, ts, tc);
+    return vtss_cil_ts_domain_timeofday_get(vtss_state, 0, ts, tc);
 }
 
 static vtss_rc jr2_ts_domain_timeofday_prev_pps_get(vtss_state_t     *vtss_state,
@@ -165,9 +165,9 @@ static vtss_rc jr2_ts_domain_timeofday_prev_pps_get(vtss_state_t     *vtss_state
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_domain_timeofday_next_pps_get(vtss_state_t     *vtss_state,
-                                                    u32               domain,
-                                                    vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state_t     *vtss_state,
+                                                  u32               domain,
+                                                  vtss_timestamp_t *ts)
 {
     VTSS_RC(jr2_ts_domain_timeofday_prev_pps_get(vtss_state, domain, ts));
     VTSS_RC(vtss_timestampAddSec(ts));
@@ -177,19 +177,19 @@ static vtss_rc jr2_ts_domain_timeofday_next_pps_get(vtss_state_t     *vtss_state
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_timeofday_next_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_timeofday_next_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
 {
-    return jr2_ts_domain_timeofday_next_pps_get(vtss_state, 0, ts);
+    return vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state, 0, ts);
 }
 
-static vtss_rc jr2_ts_timeofday_prev_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_timeofday_prev_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
 {
     return jr2_ts_domain_timeofday_prev_pps_get(vtss_state, 0, ts);
 }
 
-static vtss_rc jr2_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_state,
-                                                 const uint32_t          domain_cnt,
-                                                 vtss_timestamp_t *const ts)
+vtss_rc vtss_cil_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_state,
+                                               const uint32_t          domain_cnt,
+                                               vtss_timestamp_t *const ts)
 {
 #if defined(VTSS_ARCH_JAGUAR_2_C)
     uint32_t          value, domain;
@@ -225,9 +225,9 @@ static vtss_rc jr2_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_st
 #endif
 }
 
-static vtss_rc jr2_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
-                                           u32                     domain,
-                                           const vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
+                                         u32                     domain,
+                                         const vtss_timestamp_t *ts)
 {
     // truncate nanosec value
     u32 ns =
@@ -249,11 +249,12 @@ static vtss_rc jr2_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp_t *ts)
 {
-    return jr2_ts_domain_timeofday_set(vtss_state, 0, ts);
+    return vtss_cil_ts_domain_timeofday_set(vtss_state, 0, ts);
 }
-static vtss_rc jr2_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 domain, i32 offset)
+
+vtss_rc vtss_cil_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 domain, i32 offset)
 {
     VTSS_D("offset before: %d", offset);
     // truncate nanosec value
@@ -274,15 +275,15 @@ static vtss_rc jr2_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
+vtss_rc vtss_cil_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
 {
-    return jr2_ts_domain_timeofday_offset_set(vtss_state, 0, offset);
+    return vtss_cil_ts_domain_timeofday_offset_set(vtss_state, 0, offset);
 }
 
-static vtss_rc jr2_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_state,
-                                                 u32                     domain,
-                                                 const vtss_timestamp_t *ts,
-                                                 BOOL                    negative)
+vtss_rc vtss_cil_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_state,
+                                               u32                     domain,
+                                               const vtss_timestamp_t *ts,
+                                               BOOL                    negative)
 {
     if (ts->seconds > 0 || ts->sec_msb > 0 || ts->nanoseconds > HW_NS_PR_SEC / 2) {
         vtss_timestamp_t ts_prev;
@@ -298,9 +299,9 @@ static vtss_rc jr2_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_st
             VTSS_RC(vtss_timestampAdd(&ts_prev, ts));
         }
 
-        return jr2_ts_domain_timeofday_set(vtss_state, domain, &ts_prev);
+        return vtss_cil_ts_domain_timeofday_set(vtss_state, domain, &ts_prev);
     } else {
-        return jr2_ts_domain_timeofday_offset_set(
+        return vtss_cil_ts_domain_timeofday_offset_set(
             vtss_state, domain,
             negative ? (i32)ts->nanoseconds
                      : -ts->nanoseconds); /* Function
@@ -311,14 +312,14 @@ static vtss_rc jr2_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_st
     }
 }
 
-static vtss_rc jr2_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
-                                          const vtss_timestamp_t *ts,
-                                          BOOL                    negative)
+vtss_rc vtss_cil_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
+                                        const vtss_timestamp_t *ts,
+                                        BOOL                    negative)
 {
-    return jr2_ts_domain_timeofday_set_delta(vtss_state, 0, ts, negative);
+    return vtss_cil_ts_domain_timeofday_set_delta(vtss_state, 0, ts, negative);
 }
 
-static vtss_rc jr2_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
+vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
 {
     i32 adj;
     if (domain >= VTSS_TS_DOMAIN_ARRAY_SIZE) {
@@ -358,13 +359,13 @@ static vtss_rc jr2_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
     }
 }
 
-static vtss_rc jr2_ts_adjtimer_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_adjtimer_set(vtss_state_t *vtss_state)
 {
-    return jr2_ts_domain_adjtimer_set(vtss_state, 0);
+    return vtss_cil_ts_domain_adjtimer_set(vtss_state, 0);
 }
 
 /* Set the clock mode for the external clock */
-static vtss_rc jr2_ts_external_clock_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 {
     vtss_ts_ext_clock_mode_t *ext_clock_mode = &vtss_state->ts.conf.ext_clock_mode;
 
@@ -419,7 +420,7 @@ static vtss_rc jr2_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 }
 
 /* Get the saved nanosec counter */
-static vtss_rc jr2_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const saved)
+vtss_rc vtss_cil_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const saved)
 {
     u32 nsec;
 
@@ -439,7 +440,7 @@ static vtss_rc jr2_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const s
  *    BOOL save;               Save actual time counter at next 1 PPS input
  *    BOOL load;               Load actual time counter at next 1 PPS input
  */
-static vtss_rc jr2_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
 {
     vtss_ts_alt_clock_mode_t *alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
 
@@ -476,8 +477,8 @@ static vtss_rc jr2_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
 
 /* Set the time to be loaded into the PTP timer at the next 1PPS
  * It is assumed that this function is called at the beginning of a sec */
-static vtss_rc jr2_ts_timeofday_next_pps_set(vtss_state_t                 *vtss_state,
-                                             const vtss_timestamp_t *const ts)
+vtss_rc vtss_cil_ts_timeofday_next_pps_set(vtss_state_t                 *vtss_state,
+                                           const vtss_timestamp_t *const ts)
 {
     if (vtss_state->ts.conf.alt_clock_mode.one_pps_in) {
         JR2_WR(VTSS_DEVCPU_PTP_PTP_PINS_PTP_TOD_SEC_MSB(ALT_LDST_PIN),
@@ -492,7 +493,7 @@ static vtss_rc jr2_ts_timeofday_next_pps_set(vtss_state_t                 *vtss_
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_port_interface_t interface = vtss_state->port.conf[port_no].if_type;
     u32                   port = VTSS_CHIP_PORT(port_no);
@@ -532,7 +533,7 @@ static vtss_rc jr2_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
     i32                  p2p_delay = VTSS_INTERVAL_NS(conf->p2p_delay);
@@ -541,7 +542,7 @@ static vtss_rc jr2_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t por
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_port_interface_t interface = vtss_state->port.conf[port_no].if_type;
     u32                   port = VTSS_CHIP_PORT(port_no);
@@ -581,7 +582,7 @@ static vtss_rc jr2_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_delay_asymmetry_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_delay_asymmetry_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
     i32                  delay = VTSS_INTERVAL_NS(conf->delay_asymmetry);
@@ -596,9 +597,9 @@ static vtss_rc jr2_ts_delay_asymmetry_set(vtss_state_t *vtss_state, vtss_port_no
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_operation_mode_set(vtss_state_t  *vtss_state,
-                                         vtss_port_no_t port_no,
-                                         BOOL           mode_domain_config)
+vtss_rc vtss_cil_ts_operation_mode_set(vtss_state_t  *vtss_state,
+                                       vtss_port_no_t port_no,
+                                       BOOL           mode_domain_config)
 {
     vtss_ts_mode_t         mode = vtss_state->ts.port_conf[port_no].mode.mode;
     u32                    domain = vtss_state->ts.port_conf[port_no].mode.domain;
@@ -666,7 +667,7 @@ static vtss_rc jr2_ts_operation_mode_set(vtss_state_t  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_internal_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_internal_mode_set(vtss_state_t *vtss_state)
 {
     vtss_ts_internal_fmt_t fmt = vtss_state->ts.int_mode.int_fmt;
     switch (fmt) {
@@ -680,7 +681,7 @@ static vtss_rc jr2_ts_internal_mode_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_timestamp_get(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_timestamp_get(vtss_state_t *vtss_state)
 {
     u32  value;
     u32  delay;
@@ -741,7 +742,7 @@ static vtss_rc jr2_ts_timestamp_get(vtss_state_t *vtss_state)
  * Signal port status change (used to detect and compensate for the internal
  * ingress and egress latencies)
  */
-static vtss_rc jr2_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_rc rc = VTSS_RC_OK, rc2;
     i32     rx_delay = 0, tx_delay = 0;
@@ -1128,20 +1129,17 @@ static vtss_rc jr2_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no
     vtss_state->ts.port_conf[port_no].default_igr_latency = rx_delay;
     vtss_state->ts.port_conf[port_no].default_egr_latency = tx_delay;
     VTSS_D("port_no %d, igr_latency %d, egr_latency %d", port_no, rx_delay, tx_delay);
-    rc = jr2_ts_ingress_latency_set(vtss_state, port_no);
-    rc2 = jr2_ts_egress_latency_set(vtss_state, port_no);
+    rc = vtss_cil_ts_ingress_latency_set(vtss_state, port_no);
+    rc2 = vtss_cil_ts_egress_latency_set(vtss_state, port_no);
     if (rc == VTSS_RC_OK) {
         rc = rc2;
     }
     return rc;
 }
 
-static vtss_rc jr2_ts_timestamp_id_release(vtss_state_t *vtss_state, u32 ts_id)
-{
-    return VTSS_RC_OK;
-}
+vtss_rc vtss_cil_ts_timestamp_id_release(vtss_state_t *vtss_state, u32 ts_id) { return VTSS_RC_OK; }
 
-static vtss_rc jr2_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
+vtss_rc vtss_cil_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
 {
     vtss_ts_ext_io_mode_t *ext_io_mode;
     if (io >= VTSS_TS_IO_ARRAY_SIZE) {
@@ -1189,10 +1187,10 @@ static vtss_rc jr2_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
     return VTSS_RC_OK;
 }
 
-static vtss_rc jr2_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
-                                          u32               io,
-                                          vtss_timestamp_t *ts,
-                                          u64              *tc)
+vtss_rc vtss_cil_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
+                                        u32               io,
+                                        vtss_timestamp_t *ts,
+                                        u64              *tc)
 {
     vtss_rc                   rc;
     vtss_ts_ext_io_mode_t    *ext_io_mode;
@@ -1215,7 +1213,7 @@ static vtss_rc jr2_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-static vtss_rc jr2_autoresp_dom_cfg_set(vtss_state_t *vtss_state, u8 domain)
+vtss_rc vtss_cil_autoresp_dom_cfg_set(vtss_state_t *vtss_state, u8 domain)
 {
     vtss_ts_autoresp_dom_cfg_t *cfg;
     if (domain < VTSS_TS_DOMAIN_ARRAY_SIZE) {
@@ -1240,7 +1238,7 @@ static vtss_rc jr2_autoresp_dom_cfg_set(vtss_state_t *vtss_state, u8 domain)
     }
 }
 
-static vtss_rc jr2_ts_smac_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_smac_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     // Set up pr port Source Mac address
@@ -1255,7 +1253,7 @@ static vtss_rc jr2_ts_smac_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 }
 #endif // defined (VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
 
-static vtss_rc jr2_ts_seq_cnt_get(vtss_state_t *vtss_state, u32 sec_cntr, u16 *const cnt_val)
+vtss_rc vtss_cil_ts_seq_cnt_get(vtss_state_t *vtss_state, u32 sec_cntr, u16 *const cnt_val)
 {
     vtss_rc rc = VTSS_RC_OK;
     u32     value;
@@ -1273,6 +1271,50 @@ static vtss_rc jr2_ts_seq_cnt_get(vtss_state_t *vtss_state, u32 sec_cntr, u16 *c
 vtss_rc vtss_cil_ts_conf_set(vtss_state_t *vtss_state, const vtss_ts_conf_t *const conf)
 {
     return VTSS_RC_OK;
+}
+
+// Unsupported APIs
+u32 vtss_cil_ts_ns_cnt_get(vtss_inst_t inst) { return 0; }
+
+vtss_rc vtss_cil_ts_timeofday_raw(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts, u64 *tc)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_timeofday_one_sec(struct vtss_state_s *vtss_state) { return VTSS_RC_ERROR; }
+
+vtss_rc vtss_cil_ts_freq_offset_get(struct vtss_state_s *vtss_state, i32 *adj)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_external_clock_saved_get(struct vtss_state_s *vtss_state, u32 *saved)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_timestamp_convert(struct vtss_state_s *vtss_state,
+                                      vtss_port_no_t       port_no,
+                                      u64                 *ts)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_autoresp_cfg_set(struct vtss_state_s *vtss_state, u8 instance)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_output_clock_edge_offset_get(struct vtss_state_s *vtss_state,
+                                                 u32                  io,
+                                                 u32                 *offset)
+{
+    return VTSS_RC_ERROR;
+}
+
+vtss_rc vtss_cil_ts_link_up(struct vtss_state_s *vtss_state, vtss_port_no_t port_no)
+{
+    return VTSS_RC_ERROR;
 }
 
 /* - Debug print --------------------------------------------------- */
@@ -1426,47 +1468,11 @@ static vtss_rc jr2_ts_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_jr2_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    vtss_ts_state_t *state = &vtss_state->ts;
-    u32              port_no, port;
+    u32 port_no, port;
+
     switch (cmd) {
-    case VTSS_INIT_CMD_CREATE:
-        state->timeofday_get = jr2_ts_timeofday_get;
-        state->domain_timeofday_get = jr2_ts_domain_timeofday_get;
-        state->timeofday_set = jr2_ts_timeofday_set;
-        state->domain_timeofday_set = jr2_ts_domain_timeofday_set;
-        state->timeofday_set_delta = jr2_ts_timeofday_set_delta;
-        state->domain_timeofday_set_delta = jr2_ts_domain_timeofday_set_delta;
-        state->timeofday_next_pps_get = jr2_ts_timeofday_next_pps_get;
-        state->timeofday_prev_pps_get = jr2_ts_timeofday_prev_pps_get;
-        state->domain_timeofday_next_pps_get = jr2_ts_domain_timeofday_next_pps_get;
-        state->multi_domain_timeofday_get = jr2_ts_multi_domain_timeofday_get;
-        state->timeofday_offset_set = jr2_ts_timeofday_offset_set;
-        state->domain_timeofday_offset_set = jr2_ts_domain_timeofday_offset_set;
-        state->adjtimer_set = jr2_ts_adjtimer_set;
-        state->domain_adjtimer_set = jr2_ts_domain_adjtimer_set;
-        state->timeofday_one_sec = jr2_ts_timeofday_sample;
-        state->external_clock_mode_set = jr2_ts_external_clock_mode_set;
-        state->alt_clock_saved_get = jr2_ts_alt_clock_saved_get;
-        state->alt_clock_mode_set = jr2_ts_alt_clock_mode_set;
-        state->timeofday_next_pps_set = jr2_ts_timeofday_next_pps_set;
-        state->ingress_latency_set = jr2_ts_ingress_latency_set;
-        state->p2p_delay_set = jr2_ts_p2p_delay_set;
-        state->egress_latency_set = jr2_ts_egress_latency_set;
-        state->delay_asymmetry_set = jr2_ts_delay_asymmetry_set;
-        state->operation_mode_set = jr2_ts_operation_mode_set;
-        state->internal_mode_set = jr2_ts_internal_mode_set;
-        state->timestamp_get = jr2_ts_timestamp_get;
-        state->status_change = jr2_ts_status_change;
-        state->timestamp_id_release = jr2_ts_timestamp_id_release;
-        state->external_io_mode_set = jr2_ts_external_io_mode_set;
-        state->saved_timeofday_get = jr2_ts_saved_timeofday_get;
-#if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-        state->autoresp_cfg_set = jr2_autoresp_dom_cfg_set;
-        state->smac_set = jr2_ts_smac_set;
-#endif // defined (VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-        state->seq_cnt_get = jr2_ts_seq_cnt_get;
-        break;
-    case VTSS_INIT_CMD_INIT: VTSS_RC(jr2_ts_init(vtss_state)); break;
+    case VTSS_INIT_CMD_CREATE: break;
+    case VTSS_INIT_CMD_INIT:   VTSS_RC(jr2_ts_init(vtss_state)); break;
     case VTSS_INIT_CMD_PORT_MAP:
         /* Initialize the PTP Port ID port number. This is done anyway in the
          * jr2_ts_operation_mode_set() function but this is only called from AIL

@@ -700,13 +700,12 @@ u32 vtss_tod_get_ns_cnt(void)
 {
     if (hw_get_ns_callout) {
         return hw_get_ns_callout();
-#if defined(VTSS_FEATURE_TIMESTAMP)
-    } else if (vtss_default_inst->ts.ns_cnt_get) {
-        return vtss_default_inst->ts.ns_cnt_get(vtss_default_inst);
-#endif
-    } else {
-        return 0; /* currently no HW support */
     }
+#if defined(VTSS_FEATURE_TIMESTAMP)
+    return vtss_cil_ts_ns_cnt_get(vtss_default_inst);
+#else
+    return 0; /* currently no HW support */
+#endif
 }
 
 /* - API SYNCE functions -------------------------------------- */

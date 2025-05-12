@@ -202,7 +202,7 @@ vtss_rc vtss_ts_timeofday_get(const vtss_inst_t inst, vtss_timestamp_t *const ts
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.timeofday_get, ts, tc);
+        rc = vtss_cil_ts_timeofday_get(vtss_state, ts, tc);
     }
     VTSS_EXIT();
     return rc;
@@ -217,7 +217,7 @@ vtss_rc vtss_ts_timeofday_raw(const vtss_inst_t inst, vtss_timestamp_t *const ts
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.timeofday_raw, ts, tc);
+        rc = vtss_cil_ts_timeofday_raw(vtss_state, ts, tc);
     }
     VTSS_EXIT();
     return rc;
@@ -234,7 +234,7 @@ vtss_rc _vtss_ts_domain_timeofday_get(const vtss_inst_t       inst,
     vtss_rc       rc;
 
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.domain_timeofday_get, domain, ts, tc);
+        rc = vtss_cil_ts_domain_timeofday_get(vtss_state, domain, ts, tc);
     }
 
     return rc;
@@ -273,7 +273,7 @@ vtss_rc vtss_ts_multi_domain_timeofday_get(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.multi_domain_timeofday_get, domain_cnt, ts);
+        rc = vtss_cil_ts_multi_domain_timeofday_get(vtss_state, domain_cnt, ts);
     }
     VTSS_EXIT();
 
@@ -288,7 +288,7 @@ vtss_rc vtss_ts_timeofday_next_pps_get(const vtss_inst_t inst, vtss_timestamp_t 
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.timeofday_next_pps_get, ts);
+        rc = vtss_cil_ts_timeofday_next_pps_get(vtss_state, ts);
     }
     VTSS_EXIT();
     return rc;
@@ -302,7 +302,7 @@ vtss_rc vtss_ts_timeofday_prev_pps_get(const vtss_inst_t inst, vtss_timestamp_t 
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.timeofday_prev_pps_get, ts);
+        rc = vtss_cil_ts_timeofday_prev_pps_get(vtss_state, ts);
     }
     VTSS_EXIT();
     return rc;
@@ -318,7 +318,7 @@ vtss_rc vtss_ts_domain_timeofday_next_pps_get(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.domain_timeofday_next_pps_get, domain, ts);
+        rc = vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state, domain, ts);
     }
     VTSS_EXIT();
     return rc;
@@ -332,7 +332,7 @@ vtss_rc vtss_ts_timeofday_set(const vtss_inst_t inst, const vtss_timestamp_t *ts
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.timeofday_set, ts);
+        rc = vtss_cil_ts_timeofday_set(vtss_state, ts);
     }
     VTSS_EXIT();
     return rc;
@@ -348,7 +348,7 @@ vtss_rc vtss_ts_domain_timeofday_set(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.domain_timeofday_set, domain, ts);
+        rc = vtss_cil_ts_domain_timeofday_set(vtss_state, domain, ts);
     }
     VTSS_EXIT();
     return rc;
@@ -364,7 +364,7 @@ vtss_rc vtss_ts_timeofday_set_delta(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.timeofday_set_delta, ts, negative);
+        rc = vtss_cil_ts_timeofday_set_delta(vtss_state, ts, negative);
     }
     VTSS_EXIT();
     return rc;
@@ -381,7 +381,7 @@ vtss_rc vtss_ts_domain_timeofday_set_delta(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.domain_timeofday_set_delta, domain, ts, negative);
+        rc = vtss_cil_ts_domain_timeofday_set_delta(vtss_state, domain, ts, negative);
     }
     VTSS_EXIT();
     return rc;
@@ -395,7 +395,7 @@ vtss_rc vtss_ts_timeofday_offset_set(const vtss_inst_t inst, const i32 offset)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.timeofday_offset_set, offset);
+        rc = vtss_cil_ts_timeofday_offset_set(vtss_state, offset);
     }
     VTSS_EXIT();
     return rc;
@@ -411,7 +411,7 @@ vtss_rc vtss_ts_domain_timeofday_offset_set(const vtss_inst_t inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.domain_timeofday_offset_set, domain, offset);
+        rc = vtss_cil_ts_domain_timeofday_offset_set(vtss_state, domain, offset);
     }
     VTSS_EXIT();
     return rc;
@@ -431,7 +431,7 @@ vtss_rc vtss_ts_adjtimer_one_sec(const vtss_inst_t inst, BOOL *const ongoing_adj
         } else {
             *ongoing_adjustment = FALSE;
         }
-        rc = VTSS_FUNC_COLD_0(ts.timeofday_one_sec);
+        rc = vtss_cil_ts_timeofday_one_sec(vtss_state);
     }
     VTSS_EXIT();
     return rc;
@@ -465,7 +465,7 @@ vtss_rc vtss_ts_adjtimer_set(const vtss_inst_t inst, const i32 adj)
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->ts.conf.adj[0] = adj;
-        rc = VTSS_FUNC_COLD_0(ts.adjtimer_set);
+        rc = vtss_cil_ts_adjtimer_set(vtss_state);
     }
     VTSS_EXIT();
     return rc;
@@ -494,7 +494,7 @@ vtss_rc vtss_ts_domain_adjtimer_set(const vtss_inst_t inst, const u32 domain, co
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->ts.conf.adj[domain] = adj;
-        rc = VTSS_FUNC_COLD(ts.domain_adjtimer_set, domain);
+        rc = vtss_cil_ts_domain_adjtimer_set(vtss_state, domain);
     }
     VTSS_EXIT();
     return rc;
@@ -523,7 +523,7 @@ vtss_rc vtss_ts_freq_offset_get(const vtss_inst_t inst, i32 *const adj)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.freq_offset_get, adj);
+        rc = vtss_cil_ts_freq_offset_get(vtss_state, adj);
     }
     VTSS_EXIT();
     return rc;
@@ -555,9 +555,9 @@ vtss_rc vtss_ts_external_clock_mode_set(const vtss_inst_t                     in
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->ts.conf.ext_clock_mode = *ext_clock_mode;
 #if defined(VTSS_ARCH_OCELOT)
-        rc = VTSS_FUNC_COLD(ts.external_clock_mode_set, 1);
+        rc = vtss_cil_ts_external_clock_mode_set(vtss_state, 1);
 #else
-        rc = VTSS_FUNC_COLD_0(ts.external_clock_mode_set);
+        rc = vtss_cil_ts_external_clock_mode_set(vtss_state);
 #endif
     }
     VTSS_EXIT();
@@ -571,7 +571,7 @@ vtss_rc vtss_ts_external_clock_saved_get(const vtss_inst_t inst, u32 *const save
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.external_clock_saved_get, saved);
+        rc = vtss_cil_ts_external_clock_saved_get(vtss_state, saved);
     }
     VTSS_EXIT();
     return rc;
@@ -586,7 +586,7 @@ vtss_rc vtss_ts_alt_clock_saved_get(const vtss_inst_t inst, u64 *const saved)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.alt_clock_saved_get, saved);
+        rc = vtss_cil_ts_alt_clock_saved_get(vtss_state, saved);
     }
     VTSS_EXIT();
     return rc;
@@ -600,7 +600,7 @@ vtss_rc vtss_ts_alt_clock_saved_timeofday_get(const vtss_inst_t inst, vtss_times
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.alt_clock_saved_timeofday_get, ts);
+        rc = vtss_cil_ts_alt_clock_saved_timeofday_get(vtss_state, ts);
     }
     VTSS_EXIT();
     return rc;
@@ -632,7 +632,7 @@ vtss_rc vtss_ts_alt_clock_mode_set(const vtss_inst_t                     inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->ts.conf.alt_clock_mode = *alt_clock_mode;
-        rc = VTSS_FUNC_COLD_0(ts.alt_clock_mode_set);
+        rc = vtss_cil_ts_alt_clock_mode_set(vtss_state);
     }
     VTSS_EXIT();
     return rc;
@@ -646,7 +646,7 @@ vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t inst, const vtss_timest
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_COLD(ts.timeofday_next_pps_set, ts);
+        rc = vtss_cil_ts_timeofday_next_pps_set(vtss_state, ts);
     }
     VTSS_EXIT();
     return rc;
@@ -692,7 +692,7 @@ vtss_rc vtss_ts_external_io_mode_set(const vtss_inst_t                  inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (io < VTSS_TS_IO_ARRAY_SIZE) {
             vtss_state->ts.io_cfg[io] = *ext_io_mode;
-            rc = VTSS_FUNC_COLD(ts.external_io_mode_set, io);
+            rc = vtss_cil_ts_external_io_mode_set(vtss_state, io);
         } else {
             rc = VTSS_RC_ERROR;
         }
@@ -712,7 +712,7 @@ vtss_rc vtss_ts_saved_timeofday_get(const vtss_inst_t       inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (io < VTSS_TS_IO_ARRAY_SIZE) {
-            rc = VTSS_FUNC_COLD(ts.saved_timeofday_get, io, ts, tc);
+            rc = vtss_cil_ts_saved_timeofday_get(vtss_state, io, ts, tc);
         } else {
             rc = VTSS_RC_ERROR;
         }
@@ -731,7 +731,7 @@ vtss_rc vtss_ts_output_clock_edge_offset_get(const vtss_inst_t inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (io < VTSS_TS_IO_ARRAY_SIZE) {
-            rc = VTSS_FUNC_COLD(ts.output_clock_edge_offset_get, io, offset);
+            rc = vtss_cil_ts_output_clock_edge_offset_get(vtss_state, io, offset);
         } else {
             rc = VTSS_RC_ERROR;
         }
@@ -752,7 +752,7 @@ vtss_rc vtss_ts_ingress_latency_set(const vtss_inst_t                inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->ts.port_conf[port_no].ingress_latency = *ingress_latency;
-        rc = VTSS_FUNC_COLD(ts.ingress_latency_set, port_no);
+        rc = vtss_cil_ts_ingress_latency_set(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;
@@ -785,7 +785,7 @@ vtss_rc vtss_ts_p2p_delay_set(const vtss_inst_t                inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->ts.port_conf[port_no].p2p_delay = *p2p_delay;
-        rc = VTSS_FUNC_COLD(ts.p2p_delay_set, port_no);
+        rc = vtss_cil_ts_p2p_delay_set(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;
@@ -818,7 +818,7 @@ vtss_rc vtss_ts_egress_latency_set(const vtss_inst_t                inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->ts.port_conf[port_no].egress_latency = *egress_latency;
-        rc = VTSS_FUNC_COLD(ts.egress_latency_set, port_no);
+        rc = vtss_cil_ts_egress_latency_set(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;
@@ -851,7 +851,7 @@ vtss_rc vtss_ts_delay_asymmetry_set(const vtss_inst_t                inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->ts.port_conf[port_no].delay_asymmetry = *delay_asymmetry;
-        rc = VTSS_FUNC_COLD(ts.delay_asymmetry_set, port_no);
+        rc = vtss_cil_ts_delay_asymmetry_set(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;
@@ -890,10 +890,10 @@ vtss_rc vtss_ts_operation_mode_set(const vtss_inst_t                     inst,
                                  ? TRUE
                                  : FALSE;
         vtss_state->ts.port_conf[port_no].mode = *mode;
-        rc = VTSS_FUNC_COLD(ts.operation_mode_set, port_no, mode_domain_config);
+        rc = vtss_cil_ts_operation_mode_set(vtss_state, port_no, mode_domain_config);
 #else
         vtss_state->ts.port_conf[port_no].mode = *mode;
-        rc = VTSS_FUNC_COLD(ts.operation_mode_set, port_no, TRUE);
+        rc = vtss_cil_ts_operation_mode_set(vtss_state, port_no, TRUE);
 #endif
     }
     VTSS_EXIT();
@@ -925,7 +925,7 @@ vtss_rc vtss_ts_internal_mode_set(const vtss_inst_t inst, const vtss_ts_internal
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         vtss_state->ts.int_mode = *mode;
-        rc = VTSS_FUNC_COLD_0(ts.internal_mode_set);
+        rc = vtss_cil_ts_internal_mode_set(vtss_state);
     }
     VTSS_EXIT();
     return rc;
@@ -949,14 +949,14 @@ vtss_rc vtss_ts_internal_mode_get(const vtss_inst_t inst, vtss_ts_internal_mode_
 static void vtss_timestamp_flush(vtss_state_t *vtss_state)
 {
     int id;
-    (void)VTSS_FUNC_0(ts.timestamp_get);
+    (void)vtss_cil_ts_timestamp_get(vtss_state);
     VTSS_D("Flushing timestamp fifo");
     for (id = 0; id < VTSS_TS_ID_SIZE; id++) {
         vtss_state->ts.status[id].reserved_mask = 0LL;
         vtss_state->ts.status[id].valid_mask = 0LL;
         vtss_state->ts.status[id].rx_tc_valid = FALSE;
         vtss_state->ts.status[id].age = 0;
-        (void)VTSS_FUNC(ts.timestamp_id_release, id);
+        (void)vtss_cil_ts_timestamp_id_release(vtss_state, id);
     }
 }
 
@@ -975,7 +975,7 @@ vtss_rc vtss_tx_timestamp_update(const vtss_inst_t inst)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_0(ts.timestamp_get);
+        rc = vtss_cil_ts_timestamp_get(vtss_state);
         VTSS_D("rc = %d", rc);
         while ((port_idx < VTSS_PORT_ARRAY_SIZE) && (ts_idx < TS_IDS_RESERVED_FOR_SW)) {
             if (vtss_state->ts.status[ts_idx].valid_mask !=
@@ -1034,7 +1034,7 @@ vtss_rc _vtss_rx_timestamp_get(const vtss_inst_t          inst,
     vtss_rc       rc;
 
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC_0(ts.timestamp_get);
+        rc = vtss_cil_ts_timestamp_get(vtss_state);
         if (ts_id->ts_id >= VTSS_TS_ID_SIZE) {
             /* invalid timestamp id indicates FIFO overflow */
             vtss_timestamp_flush(vtss_state);
@@ -1046,7 +1046,7 @@ vtss_rc _vtss_rx_timestamp_get(const vtss_inst_t          inst,
                 vtss_state->ts.status[ts_id->ts_id].rx_tc_valid = FALSE;
                 if (vtss_state->ts.status[ts_id->ts_id].reserved_mask == 0LL) {
                     vtss_state->ts.status[ts_id->ts_id].age = 0;
-                    rc = VTSS_FUNC(ts.timestamp_id_release, ts_id->ts_id);
+                    rc = vtss_cil_ts_timestamp_id_release(vtss_state, ts_id->ts_id);
                 }
             }
         }
@@ -1080,7 +1080,7 @@ vtss_rc _vtss_rx_timestamp_id_release(const vtss_inst_t inst, const vtss_ts_id_t
             vtss_timestamp_flush(vtss_state);
             rc = VTSS_RC_ERROR;
         } else {
-            rc = VTSS_FUNC(ts.timestamp_id_release, ts_id->ts_id);
+            rc = vtss_cil_ts_timestamp_id_release(vtss_state, ts_id->ts_id);
         }
     }
     return rc;
@@ -1107,7 +1107,7 @@ vtss_rc vtss_rx_master_timestamp_get(const vtss_inst_t          inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.timestamp_convert, port_no, &ts->ts);
+        rc = vtss_cil_ts_timestamp_convert(vtss_state, port_no, &ts->ts);
         if (rc == VTSS_RC_OK) {
             ts->ts_valid = TRUE;
         } else {
@@ -1241,7 +1241,7 @@ vtss_rc vtss_timestamp_age(const vtss_inst_t inst)
         status->rx_tc_valid = FALSE;
         status->age = 0;
 
-        if ((rc = VTSS_FUNC(ts.timestamp_id_release, id)) != VTSS_RC_OK) {
+        if ((rc = vtss_cil_ts_timestamp_id_release(vtss_state, id)) != VTSS_RC_OK) {
             goto do_exit;
         }
     }
@@ -1260,7 +1260,7 @@ vtss_rc vtss_ts_status_change(const vtss_inst_t inst, const vtss_port_no_t port_
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.status_change, port_no);
+        rc = vtss_cil_ts_status_change(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;
@@ -1282,7 +1282,7 @@ vtss_rc vtss_ts_autoresp_dom_cfg_set(const vtss_inst_t                       ins
             vtss_state->ts.auto_resp_cfg[domain] = *cfg;
             VTSS_D("domain %d, ptp_port_individual %d, ptp_port_msb %d, ", domain,
                    cfg->ptp_port_individual, cfg->ptp_port_msb);
-            rc = VTSS_FUNC(ts.autoresp_cfg_set, domain);
+            rc = vtss_cil_ts_autoresp_cfg_set(vtss_state, domain);
         } else {
             rc = VTSS_RC_ERROR;
         }
@@ -1323,7 +1323,7 @@ vtss_rc vtss_ts_smac_set(const vtss_inst_t       inst,
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
         vtss_state->ts.port_conf[port_no].smac = *smac;
-        rc = VTSS_FUNC_COLD(ts.smac_set, port_no);
+        rc = vtss_cil_ts_smac_set(vtss_state, port_no);
 #else
         rc = VTSS_RC_ERROR;
 #endif
@@ -1360,7 +1360,7 @@ vtss_rc vtss_ts_seq_cnt_get(const vtss_inst_t inst, const u32 sec_cntr, u16 *con
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = VTSS_FUNC(ts.seq_cnt_get, sec_cntr, cnt_val);
+        rc = vtss_cil_ts_seq_cnt_get(vtss_state, sec_cntr, cnt_val);
     }
     if (rc != VTSS_RC_OK) {
         *cnt_val = 0;
@@ -1428,7 +1428,7 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
            VTSS_INTERVAL_NS(ts_port_conf->egress_latency), ts_port_conf->mode.mode);
     }
 
-    (void)VTSS_FUNC_0(ts.timestamp_get);
+    (void)vtss_cil_ts_timestamp_get(vtss_state);
     pr("Timestamp fifo data:\n");
 
     for (i = 0; i < VTSS_TS_ID_SIZE; i++) {

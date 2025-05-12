@@ -119,85 +119,92 @@ typedef struct {
 } vtss_oam_timestamp_status_t;
 #endif /* VTSS_ARCH_OCELOT */
 
+/* CIL function pointers */
 vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state, const vtss_ts_conf_t *const conf);
-
-typedef struct {
-    /* CIL function pointers */
-    vtss_rc (*timeofday_get)(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts, u64 *tc);
-    vtss_rc (*timeofday_raw)(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts, u64 *tc);
-    vtss_rc (*timeofday_next_pps_get)(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts);
-    vtss_rc (*timeofday_prev_pps_get)(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts);
-    vtss_rc (*timeofday_set)(struct vtss_state_s *vtss_state, const vtss_timestamp_t *ts);
-    vtss_rc (*timeofday_set_delta)(struct vtss_state_s    *vtss_state,
-                                   const vtss_timestamp_t *ts,
-                                   BOOL                    negative);
-    vtss_rc (*timeofday_offset_set)(struct vtss_state_s *vtss_state, i32 offset);
-    vtss_rc (*multi_domain_timeofday_get)(struct vtss_state_s    *vtss_state,
-                                          const uint32_t          domain_cnt,
-                                          vtss_timestamp_t *const ts);
-    vtss_rc (*domain_timeofday_get)(struct vtss_state_s *vtss_state,
-                                    u32                  domain,
-                                    vtss_timestamp_t    *ts,
-                                    u64                 *tc);
-    vtss_rc (*domain_timeofday_next_pps_get)(struct vtss_state_s *vtss_state,
-                                             u32                  domain,
-                                             vtss_timestamp_t    *ts);
-    vtss_rc (*domain_timeofday_set)(struct vtss_state_s    *vtss_state,
-                                    u32                     domain,
-                                    const vtss_timestamp_t *ts);
-    vtss_rc (*domain_timeofday_set_delta)(struct vtss_state_s    *vtss_state,
-                                          u32                     domain,
-                                          const vtss_timestamp_t *ts,
-                                          BOOL                    negative);
-    vtss_rc (*domain_timeofday_offset_set)(struct vtss_state_s *vtss_state, u32 domain, i32 offset);
-    u32 (*ns_cnt_get)(vtss_inst_t inst);
-    vtss_rc (*timeofday_one_sec)(struct vtss_state_s *vtss_state);
-    vtss_rc (*adjtimer_set)(struct vtss_state_s *vtss_state);
-    vtss_rc (*domain_adjtimer_set)(struct vtss_state_s *vtss_state, u32 domain);
-    vtss_rc (*freq_offset_get)(struct vtss_state_s *vtss_state, i32 *adj);
+vtss_rc vtss_cil_ts_timeofday_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts, u64 *tc);
+vtss_rc vtss_cil_ts_timeofday_raw(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts, u64 *tc);
+vtss_rc vtss_cil_ts_timeofday_next_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts);
+vtss_rc vtss_cil_ts_timeofday_prev_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts);
+vtss_rc vtss_cil_ts_timeofday_set(struct vtss_state_s *vtss_state, const vtss_timestamp_t *ts);
+vtss_rc vtss_cil_ts_timeofday_set_delta(struct vtss_state_s    *vtss_state,
+                                        const vtss_timestamp_t *ts,
+                                        BOOL                    negative);
+vtss_rc vtss_cil_ts_timeofday_offset_set(struct vtss_state_s *vtss_state, i32 offset);
+vtss_rc vtss_cil_ts_multi_domain_timeofday_get(struct vtss_state_s    *vtss_state,
+                                               const uint32_t          domain_cnt,
+                                               vtss_timestamp_t *const ts);
+vtss_rc vtss_cil_ts_domain_timeofday_get(struct vtss_state_s *vtss_state,
+                                         u32                  domain,
+                                         vtss_timestamp_t    *ts,
+                                         u64                 *tc);
+vtss_rc vtss_cil_ts_domain_timeofday_next_pps_get(struct vtss_state_s *vtss_state,
+                                                  u32                  domain,
+                                                  vtss_timestamp_t    *ts);
+vtss_rc vtss_cil_ts_domain_timeofday_set(struct vtss_state_s    *vtss_state,
+                                         u32                     domain,
+                                         const vtss_timestamp_t *ts);
+vtss_rc vtss_cil_ts_domain_timeofday_set_delta(struct vtss_state_s    *vtss_state,
+                                               u32                     domain,
+                                               const vtss_timestamp_t *ts,
+                                               BOOL                    negative);
+vtss_rc vtss_cil_ts_domain_timeofday_offset_set(struct vtss_state_s *vtss_state,
+                                                u32                  domain,
+                                                i32                  offset);
+u32     vtss_cil_ts_ns_cnt_get(vtss_inst_t inst);
+vtss_rc vtss_cil_ts_timeofday_one_sec(struct vtss_state_s *vtss_state);
+vtss_rc vtss_cil_ts_adjtimer_set(struct vtss_state_s *vtss_state);
+vtss_rc vtss_cil_ts_domain_adjtimer_set(struct vtss_state_s *vtss_state, u32 domain);
+vtss_rc vtss_cil_ts_freq_offset_get(struct vtss_state_s *vtss_state, i32 *adj);
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||           \
     defined(VTSS_ARCH_LAN966X) /* TBD_HENRIKB */
-    vtss_rc (*alt_clock_saved_get)(struct vtss_state_s *vtss_state, u64 *saved);
-    vtss_rc (*alt_clock_mode_set)(struct vtss_state_s *vtss_state);
-    vtss_rc (*timeofday_next_pps_set)(struct vtss_state_s *vtss_state, const vtss_timestamp_t *ts);
+vtss_rc vtss_cil_ts_alt_clock_saved_get(struct vtss_state_s *vtss_state, u64 *saved);
+vtss_rc vtss_cil_ts_alt_clock_mode_set(struct vtss_state_s *vtss_state);
+vtss_rc vtss_cil_ts_timeofday_next_pps_set(struct vtss_state_s    *vtss_state,
+                                           const vtss_timestamp_t *ts);
 #endif
 #if defined(VTSS_ARCH_OCELOT)
-    vtss_rc (*external_clock_mode_set)(struct vtss_state_s *vtss_state, int idx);
+vtss_rc vtss_cil_ts_external_clock_mode_set(struct vtss_state_s *vtss_state, int idx);
 #else
-    vtss_rc (*external_clock_mode_set)(struct vtss_state_s *vtss_state);
+vtss_rc vtss_cil_ts_external_clock_mode_set(struct vtss_state_s *vtss_state);
 #endif
-    vtss_rc (*external_clock_saved_get)(struct vtss_state_s *vtss_state, u32 *saved);
-    vtss_rc (*ingress_latency_set)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
-    vtss_rc (*p2p_delay_set)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
-    vtss_rc (*egress_latency_set)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
-    vtss_rc (*delay_asymmetry_set)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
-    vtss_rc (*operation_mode_set)(struct vtss_state_s *vtss_state,
-                                  vtss_port_no_t       port_no,
-                                  BOOL                 mode_domain_config);
-    vtss_rc (*internal_mode_set)(struct vtss_state_s *vtss_state);
-    vtss_rc (*timestamp_get)(struct vtss_state_s *vtss_state);
-    vtss_rc (*timestamp_convert)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no, u64 *ts);
-    vtss_rc (*timestamp_id_release)(struct vtss_state_s *vtss_state, u32 ts_id);
-    vtss_rc (*status_change)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_cil_ts_external_clock_saved_get(struct vtss_state_s *vtss_state, u32 *saved);
+vtss_rc vtss_cil_ts_ingress_latency_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_cil_ts_p2p_delay_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_cil_ts_egress_latency_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_cil_ts_delay_asymmetry_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_cil_ts_operation_mode_set(struct vtss_state_s *vtss_state,
+                                       vtss_port_no_t       port_no,
+                                       BOOL                 mode_domain_config);
+vtss_rc vtss_cil_ts_internal_mode_set(struct vtss_state_s *vtss_state);
+vtss_rc vtss_cil_ts_timestamp_get(struct vtss_state_s *vtss_state);
+vtss_rc vtss_cil_ts_timestamp_convert(struct vtss_state_s *vtss_state,
+                                      vtss_port_no_t       port_no,
+                                      u64                 *ts);
+vtss_rc vtss_cil_ts_timestamp_id_release(struct vtss_state_s *vtss_state, u32 ts_id);
+vtss_rc vtss_cil_ts_status_change(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-    vtss_rc (*autoresp_cfg_set)(struct vtss_state_s *vtss_state, u8 instance);
-    vtss_rc (*smac_set)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_cil_ts_autoresp_cfg_set(struct vtss_state_s *vtss_state, u8 instance);
+vtss_rc vtss_cil_ts_smac_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
 #endif // defined (VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X) ||          \
     defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
-    vtss_rc (*external_io_mode_set)(struct vtss_state_s *vtss_state, u32 io);
-    vtss_rc (*saved_timeofday_get)(struct vtss_state_s *vtss_state,
-                                   u32                  io,
-                                   vtss_timestamp_t    *ts,
-                                   u64                 *tc);
-    vtss_rc (*output_clock_edge_offset_get)(struct vtss_state_s *vtss_state, u32 io, u32 *offset);
+vtss_rc vtss_cil_ts_external_io_mode_set(struct vtss_state_s *vtss_state, u32 io);
+vtss_rc vtss_cil_ts_saved_timeofday_get(struct vtss_state_s *vtss_state,
+                                        u32                  io,
+                                        vtss_timestamp_t    *ts,
+                                        u64                 *tc);
+vtss_rc vtss_cil_ts_output_clock_edge_offset_get(struct vtss_state_s *vtss_state,
+                                                 u32                  io,
+                                                 u32                 *offset);
 #endif
-    vtss_rc (*seq_cnt_get)(struct vtss_state_s *vtss_state, u32 sec_cntr, u16 *const cnt_val);
+vtss_rc vtss_cil_ts_seq_cnt_get(struct vtss_state_s *vtss_state, u32 sec_cntr, u16 *const cnt_val);
 #if defined(VTSS_ARCH_OCELOT)
-    vtss_rc (*alt_clock_saved_timeofday_get)(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts);
+vtss_rc vtss_cil_ts_alt_clock_saved_timeofday_get(struct vtss_state_s *vtss_state,
+                                                  vtss_timestamp_t    *ts);
 #endif
-    vtss_rc (*link_up)(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
+vtss_rc vtss_cil_ts_link_up(struct vtss_state_s *vtss_state, vtss_port_no_t port_no);
 
+typedef struct {
     /* Configuration/state */
     vtss_ts_configs_t          conf;
     vtss_ts_internal_mode_t    int_mode;
