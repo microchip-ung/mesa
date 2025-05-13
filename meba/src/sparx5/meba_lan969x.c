@@ -304,31 +304,24 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
         // bit 0: LOS
         // bit 1: ModDetect
         // bit 2: TxFault
-
-        for (p = 0; p < board->port_cnt; p++) {
-            if (is_sfp_port(board->port[p].map.cap)) {
-                uint32_t sgport = meba_port_map[p].sgpio_port;
-                conf.port_conf[sgport].enabled = 1;
-                // Turn on SFP LEDs while booting
-                conf.port_conf[sgport].mode[0] = MESA_SGPIO_MODE_OFF;
-                conf.port_conf[sgport].mode[1] = MESA_SGPIO_MODE_OFF;
-            }
+        for (p = 24; p < 28; p++) {
+            conf.port_conf[p].enabled = 1;
+            // Turn on SFP LEDs while booting
+            conf.port_conf[p].mode[0] = MESA_SGPIO_MODE_OFF;
+            conf.port_conf[p].mode[1] = MESA_SGPIO_MODE_OFF;
         }
     } else if (board->type == BOARD_TYPE_LAGUNA_PCB8422) {
         // The SGPIO ports are mapped to the port device of the chip, one to one
         // mapping
         conf.bmode[0] = MESA_SGPIO_BMODE_5;
         conf.bit_count = 4;
-
-        for (p = 0; p < board->port_cnt; p++) {
-            if (is_sfp_port(board->port[p].map.cap)) {
-                uint32_t sgport = meba_port_map[p].sgpio_port;
-                conf.port_conf[sgport].enabled = 1;
-                // Turn on SFP LEDs  while booting
-                conf.port_conf[sgport].mode[2] = MESA_SGPIO_MODE_ON;
-                conf.port_conf[sgport].mode[3] = MESA_SGPIO_MODE_ON;
-            }
+        for (p = 24; p < 28; p++) {
+            conf.port_conf[p].enabled = 1;
+            // Turn on SFP LEDs while booting
+            conf.port_conf[p].mode[0] = MESA_SGPIO_MODE_OFF;
+            conf.port_conf[p].mode[1] = MESA_SGPIO_MODE_OFF;
         }
+
         /* 4 bit MUX_SELx (I2C) is controlled by the BSP driver - do not touch */
         conf.port_conf[28].enabled = 1;
         for (i = 0; i < 4; i++) {
