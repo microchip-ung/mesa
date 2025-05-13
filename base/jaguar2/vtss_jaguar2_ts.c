@@ -1213,9 +1213,10 @@ vtss_rc vtss_cil_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
 }
 
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-vtss_rc vtss_cil_autoresp_dom_cfg_set(vtss_state_t *vtss_state, u8 domain)
+vtss_rc vtss_cil_ts_autoresp_cfg_set(vtss_state_t *vtss_state, u8 domain)
 {
     vtss_ts_autoresp_dom_cfg_t *cfg;
+
     if (domain < VTSS_TS_DOMAIN_ARRAY_SIZE) {
         cfg = &vtss_state->ts.auto_resp_cfg[domain];
         u32 msb = (cfg->clock_identity[0] << 24) + (cfg->clock_identity[1] << 16) +
@@ -1296,11 +1297,6 @@ vtss_rc vtss_cil_ts_external_clock_saved_get(struct vtss_state_s *vtss_state, u3
 vtss_rc vtss_cil_ts_timestamp_convert(struct vtss_state_s *vtss_state,
                                       vtss_port_no_t       port_no,
                                       u64                 *ts)
-{
-    return VTSS_RC_ERROR;
-}
-
-vtss_rc vtss_cil_ts_autoresp_cfg_set(struct vtss_state_s *vtss_state, u8 instance)
 {
     return VTSS_RC_ERROR;
 }

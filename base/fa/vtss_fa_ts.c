@@ -1352,7 +1352,7 @@ vtss_rc vtss_cil_ts_output_clock_edge_offset_get(vtss_state_t *vtss_state, u32 i
 }
 
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-vtss_rc vtss_cil_autoresp_ctrl_cfg_set(vtss_state_t *vtss_state, u8 ctrl)
+vtss_rc vtss_cil_ts_autoresp_cfg_set(vtss_state_t *vtss_state, u8 ctrl)
 {
     vtss_ts_autoresp_dom_cfg_t *cfg;
 
@@ -1452,11 +1452,6 @@ vtss_rc vtss_cil_ts_external_clock_saved_get(struct vtss_state_s *vtss_state, u3
 vtss_rc vtss_cil_ts_timestamp_convert(struct vtss_state_s *vtss_state,
                                       vtss_port_no_t       port_no,
                                       u64                 *ts)
-{
-    return VTSS_RC_ERROR;
-}
-
-vtss_rc vtss_cil_ts_autoresp_cfg_set(struct vtss_state_s *vtss_state, u8 instance)
 {
     return VTSS_RC_ERROR;
 }
