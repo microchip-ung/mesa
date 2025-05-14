@@ -311,15 +311,16 @@ static mesa_rc lan969x_board_init(meba_inst_t inst)
             conf.port_conf[p].mode[1] = MESA_SGPIO_MODE_OFF;
         }
     } else if (board->type == BOARD_TYPE_LAGUNA_PCB8422) {
-        // The SGPIO ports are mapped to the port device of the chip, one to one
-        // mapping
+        // Static PCB8422 SGPIO board config
+        uint8_t sgpio[10] = {0, 4, 8, 12, 16, 20, 24, 25, 26, 27};
+        // The SGPIO ports are mapped to the port device of the chip
         conf.bmode[0] = MESA_SGPIO_BMODE_5;
         conf.bit_count = 4;
-        for (p = 24; p < 28; p++) {
-            conf.port_conf[p].enabled = 1;
+        for (p = 0; p < sizeof(sgpio); p++) {
+            conf.port_conf[sgpio[p]].enabled = 1;
             // Turn on SFP LEDs while booting
-            conf.port_conf[p].mode[0] = MESA_SGPIO_MODE_OFF;
-            conf.port_conf[p].mode[1] = MESA_SGPIO_MODE_OFF;
+            conf.port_conf[sgpio[p]].mode[0] = MESA_SGPIO_MODE_OFF;
+            conf.port_conf[sgpio[p]].mode[1] = MESA_SGPIO_MODE_OFF;
         }
 
         /* 4 bit MUX_SELx (I2C) is controlled by the BSP driver - do not touch */
