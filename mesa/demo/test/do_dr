@@ -6,21 +6,16 @@
 set -e
 
 if (( $# < 2 )); then
-   echo "Usage: $0 ca1/ca2/oc/st/j2/mr/mc/m8/fa/la [<test_server>] <test_script> [short]"
+   echo "Usage: $0 all|fam|ca1/ca2/oc/st/j2/mr/mc/m8/fa/la [<test_server>] <test_script> [short]"
    exit
 fi
 
-list=$1
-if [ $list == "all" ]; then
-    # Run for all chips
-    list="ca oc st mc fa la"
-fi
-
+platform=$1
 cnt=$#
 suffix=""
 last=${!#}
 
-# Brief output may be used for test suites or when 'all' chips are tested
+# Brief output may be used for test suites or when 'all' platforms are tested
 if [ $last == "brief" ]; then
     suffix="--brief"
     ((cnt--))
@@ -44,99 +39,131 @@ if [ ! -f $file ]; then
    exit
 fi
 
-# Round 1: build
-# Round 2: reserve/upload/test/release
-for i in 1 2; do
-    for chip in $list; do
-        dir=build-mipsel
-        case $chip in
-            ca|ca2)
-                ts=dk-t35-3
-                img=mipsel_vsc7429.mfi
-                ;;
+# Build list and platform list
+build_list="mipsel arm arm64"
+platform_list=$platform
+case $platform in
+    all)
+        # All platforms
+        platform_list="ca1 ca2 oc st j2 mr mc m8 fa la"
+        ;;
 
-            ca1)
-                ts=dk-t35-4
-                img=mipsel_vsc7428.mfi
-                ;;
+    fam)
+        # All families
+        platform_list="ca oc st mc fa la"
+        ;;
 
-            oc)
-                ts=dk-t35-1
-                img=mipsel_vsc7514_pcb123.mfi
-                ;;
+    ca|ca1|ca2|oc|st|j2)
+        build_list="mipsel"
+        ;;
 
-            st)
-                ts=dk-t35-2
-                img=mipsel_vsc7437.mfi
-                ;;
+    mr|mc|m8)
+        build_list="arm"
+        ;;
 
-            j2)
-                ts=dk-t34-0
-                img=mipsel_vsc7468_pcb110.mfi
-                ;;
+    fa|la)
+        build_list="arm64"
+        ;;
 
-            mr)
-                ts=dk-t33-4
-                img=armv7_lan9662.itb
-                dir=build-arm
-                ;;
+    *)
+        echo "Illegal platform: $platform"
+        exit
+        ;;
+esac
 
-            mc)
-                ts=dk-t33-4
-                img=armv7_lan966x.itb
-                dir=build-arm
-                ;;
+# Build
+for build in $build_list; do
+    cd ../../../build-$build
+    echo "=== Build: $build"
+    dr make -j 10
+    cd -
+done
 
-            me|m8)
-                ts=dk-t33-5
-                img=armv7_lan966x.itb
-                dir=build-arm
-                ;;
+# Reserve/upload/test/release
+for platform in $platform_list; do
+    dir=build-mipsel
+    case $platform in
+        ca|ca2)
+            ts=dk-t35-3
+            img=mipsel_vsc7429.mfi
+            ;;
 
-            fa)
-                ts=dk-t34-4
-                img=arm64_vsc7558TSN.itb # 625MHz
-                dir=build-arm64
-                ;;
+        ca1)
+            ts=dk-t35-4
+            img=mipsel_vsc7428.mfi
+            ;;
 
-            la)
-                ts=dk-t36-2
-                img=arm64_lan9698RED.itb
-                dir=build-arm64
-                ;;
+        oc)
+            ts=dk-t35-1
+            img=mipsel_vsc7514_pcb123.mfi
+            ;;
 
-            *)
-                echo "Illegal chip: $chip"
-                exit
-                ;;
-        esac
+        st)
+            ts=dk-t35-2
+            img=mipsel_vsc7437.mfi
+            ;;
 
-        cd ../../../$dir
-        if [ $i == "1" ]; then
-            echo "--- Build: $dir"
-            dr make -j 10
-            cd -
-        else
-            rel=1
-            if [ -f $HOME/.mscc-libeasy-topology.yaml ]; then
-                et release
-                rel=0
-            fi
-            echo "--- Reserve: $ts"
-            if [ $last == "brief" ]; then
-                et reserve $ts > /dev/null
-            else
-                et reserve $ts
-            fi
-            echo "--- Upload: $img"
-            et upload mesa/demo/$img
-            cd -
+        j2)
+            ts=dk-t34-0
+            img=mipsel_vsc7468_pcb110.mfi
+            ;;
 
-            echo "--- Run: $file"
-            dr "./$file | libeasy/xml2console.rb $suffix"
-            if [ $rel == 1 ]; then
-                et release
-            fi
-        fi
-    done
+        mr)
+            ts=dk-t33-4
+            img=armv7_lan9662.itb
+            dir=build-arm
+            ;;
+
+        mc)
+            ts=dk-t33-4
+            img=armv7_lan966x.itb
+            dir=build-arm
+            ;;
+
+        me|m8)
+            ts=dk-t33-5
+            img=armv7_lan966x.itb
+            dir=build-arm
+            ;;
+
+        fa)
+            ts=dk-t34-4
+            img=arm64_vsc7558TSN.itb # 625MHz
+            dir=build-arm64
+            ;;
+
+        la)
+            ts=dk-t36-2
+            img=arm64_lan9698RED.itb
+            dir=build-arm64
+            ;;
+
+        *)
+            echo "Illegal platform: $platform"
+            exit
+            ;;
+    esac
+
+    rel=1
+    if [ -f $HOME/.mscc-libeasy-topology.yaml ]; then
+        et release
+        rel=0
+    fi
+    echo "=== Reserve: $ts"
+    if [ $last == "brief" ]; then
+        et reserve $ts > /dev/null
+    else
+        et reserve $ts
+    fi
+
+    echo "=== Upload: $img"
+    cd ../../../$dir
+    et upload mesa/demo/$img
+    cd -
+
+    echo "=== Run: $file"
+    dr "./$file | libeasy/xml2console.rb $suffix"
+    if [ $rel == 1 ]; then
+        et release
+    fi
 done
