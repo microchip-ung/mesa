@@ -1593,7 +1593,7 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
         VTSS_RC(vtss_vcap_get_next_id(is2_obj, is2_user, VTSS_IS2_USER_ACL_PTP, ace->id, &id));
 
         /* Restore actions and add PTP entry */
-        *ace_copy = *ace;
+        ace_copy->action = ace->action;
         entry.first = 0;
         is2->action.redir = (ace->action.port_action == VTSS_ACL_PORT_ACTION_REDIR);
         is2->policer_type = policer_type;
