@@ -383,9 +383,9 @@ static inline int __builtin_ctzl(unsigned long val32)
  * to DMA capable hardware.
  */
 #ifdef __KERNEL__
-#define VTSS_OS_CPU_TO_DMA_ADDR(a) (NULL)
+#define VTSS_OS_CPU_TO_DMA_ADDR(a) (0)
 #else
-#define VTSS_OS_CPU_TO_DMA_ADDR(a) (NULL)
+#define VTSS_OS_CPU_TO_DMA_ADDR(a) (0)
 #endif
 
 /**
