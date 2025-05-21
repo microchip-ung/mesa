@@ -266,7 +266,7 @@ APP_TARGET(NAME app_lan966x_lm         MESA lan966x_lm         MEBA meba_lan966x
 APP_TARGET(NAME app_lan966x_ad         MESA lan966x_ad         MEBA meba_lan966x)
 APP_TARGET(NAME app_lan969x            MESA lan969x            MEBA meba_sparx5)
 APP_TARGET(NAME app_lan969x_lm         MESA lan969x_lm         MEBA meba_sparx5)
-APP_TARGET(NAME app_p64h               MESA p64h               MEBA meba_sparx5)
+APP_TARGET(NAME app_p64h               MESA p64h               MEBA meba_p64h)
 
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "mipsel")
