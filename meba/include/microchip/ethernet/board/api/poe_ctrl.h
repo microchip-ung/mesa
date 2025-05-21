@@ -259,26 +259,26 @@ typedef enum {
 } meba_poe_port_pse_prebt_port_type_t;
 
 typedef enum {
-    POE_PORT_MAX_POWER_15W = 15,
-    POE_PORT_MAX_POWER_30W = 30,
-    POE_PORT_MAX_POWER_60W = 60,
-    POE_PORT_MAX_POWER_90W = 90
+    MEBA_POE_PORT_MAX_POWER_15W = 15,
+    MEBA_POE_PORT_MAX_POWER_30W = 30,
+    MEBA_POE_PORT_MAX_POWER_60W = 60,
+    MEBA_POE_PORT_MAX_POWER_90W = 90
 } meba_poe_port_max_power_t;
 
 typedef enum {
-    POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION = 0,
-    POE_PD69200_CONTROLLER_TYPE,
-    POE_PD69210_CONTROLLER_TYPE,
-    POE_PD69220_CONTROLLER_TYPE,
-    POE_PD69200M_CONTROLLER_TYPE,
-    POE_PD7777_CONTROLLER_TYPE
+    MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION = 0,
+    MEBA_POE_PD69200_CONTROLLER_TYPE,
+    MEBA_POE_PD69210_CONTROLLER_TYPE,
+    MEBA_POE_PD69220_CONTROLLER_TYPE,
+    MEBA_POE_PD69200M_CONTROLLER_TYPE,
+    MEBA_POE_PD7777_CONTROLLER_TYPE
 } meba_poe_controller_type_t;
 
 typedef enum {
-    POE_FIRMWARE_TYPE_NONE = 0,
-    POE_FIRMWARE_TYPE_PREBT,
-    POE_FIRMWARE_TYPE_GEN6_BT,
-    POE_FIRMWARE_TYPE_GEN7_BT
+    MEBA_POE_FIRMWARE_TYPE_NONE = 0,
+    MEBA_FIRMWARE_TYPE_PREBT,
+    MEBA_FIRMWARE_TYPE_GEN6_BT,
+    MEBA_FIRMWARE_TYPE_GEN7_BT
 } meba_poe_firmware_type_t;
 
 // ID/handle used by the PoE controller to identify a given port. The
@@ -353,7 +353,7 @@ typedef struct {
 typedef struct {
     meba_poe_indv_mask_prebt_t im_prebt;
     meba_poe_indv_mask_bt_t    im_BT;
-} poe_individual_mask_info_t;
+} meba_poe_individual_mask_info_t;
 
 // PoE PD power type
 // IEEE Std 802.3-2015. Table 79-4. Power type field
@@ -490,12 +490,13 @@ typedef struct {
     uint8_t build_H;
     uint8_t build_L;
     uint8_t app_hw_type_number;
-} file_t;
+} meba_poe_file_t;
 
 // PoE controller status.
 typedef struct {
 
-    poe_individual_mask_info_t tPoe_individual_mask_info;
+    // individual masks info
+    meba_poe_individual_mask_info_t tPoe_individual_mask_info;
 
     // PoE chipset detection state.
     meba_poe_chip_state_t chip_state;
@@ -557,7 +558,7 @@ typedef struct {
     uint16_t internal_sw_number;
     uint16_t asic_patch_number;
 
-    file_t file;
+    meba_poe_file_t poe_file;
 
     // microchip poe proprietary info
     meba_poe_serial_number_t tSN;

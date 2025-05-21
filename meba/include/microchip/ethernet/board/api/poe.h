@@ -31,8 +31,8 @@
 // ===================
 //
 // When implementing the 'microchip/ethernet/board/api/poe.h' and the
-// 'microchip/ethernet/board/api/poe_ctrl.h' API, please follow these guide
-// lines:
+// 'microchip/ethernet/board/api/poe_ctrl.h' API,
+//  please follow these guide lines:
 // - poe_ctrl.h implementation must work on all boards.
 // - poe.h is board specific (or specific to a family of boards).
 // - Customer designing new boards, should only implement poe.h, and can use

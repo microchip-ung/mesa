@@ -2136,7 +2136,7 @@ mesa_rc get_15_bytes_comm_protocol_reply(const meba_poe_ctrl_inst_t *const inst,
                           __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
 
                     if (private_data->tPoE_parameters.tMeba_poe_firmware_type ==
-                        POE_FIRMWARE_TYPE_GEN7_BT) {
+                        MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
                         return check_for_poe_BT_Gen7_firmware_errors(inst, rx_data,
                                                                      ptBT_System_Status);
                     } else {
@@ -2448,7 +2448,7 @@ static mesa_rc meba_poe_pd_get_software_version(const meba_poe_ctrl_inst_t *cons
     ptSoftware_version->build_H = buf[3];        // Gen7 - Build_H #
     ptSoftware_version->product_number = buf[4]; // Prod#
 
-    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == POE_FIRMWARE_TYPE_GEN7_BT) {
+    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
         // Major version is the hundreds digit (3)
         ptSoftware_version->sw_version_H = buf[5];
 
@@ -2559,19 +2559,19 @@ char *get_port_max_power_string(const meba_poe_ctrl_inst_t *const inst,
                                 meba_poe_port_max_power_t         ePOE_PORT_MAX_POWER)
 {
     switch (ePOE_PORT_MAX_POWER) {
-    case POE_PORT_MAX_POWER_15W: {
+    case MEBA_POE_PORT_MAX_POWER_15W: {
         return "15W";
     }
 
-    case POE_PORT_MAX_POWER_30W: {
+    case MEBA_POE_PORT_MAX_POWER_30W: {
         return "30W";
     }
 
-    case POE_PORT_MAX_POWER_60W: {
+    case MEBA_POE_PORT_MAX_POWER_60W: {
         return "60W";
     }
 
-    case POE_PORT_MAX_POWER_90W: {
+    case MEBA_POE_PORT_MAX_POWER_90W: {
         return "90W";
     }
 
@@ -3156,7 +3156,7 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
 
     poe_driver_private_t      *private_data = (poe_driver_private_t *)(inst->private_data);
     meba_poe_controller_type_t ePoE_detected_controller_type =
-        POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION;
+        MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION;
 
     int fd = -1;
 
@@ -3167,8 +3167,8 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
     private_data->status.global.sw_version_L_detected = 0;
     private_data->status.global.param_number_detected = 0;
 
-    private_data->status.global.file.prod_number = 0;
-    private_data->status.global.file.param_number = 0;
+    private_data->status.global.poe_file.prod_number = 0;
+    private_data->status.global.poe_file.param_number = 0;
     // private_data->status.global.build_number = 0;
     private_data->status.global.internal_sw_number = 0;
     private_data->status.global.asic_patch_number = 0;
@@ -3216,19 +3216,19 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
         switch (tBT_System_Status.eGen6_bt_boot_up_error) {
         case eBoot_bt_gen6__Application_CRC_error_Download_is_required_for_PD69200:
         case eBoot_bt_gen6__hW_error_from_Boot_try_to_program_a_PD69210_PD69220_firmware_into_PD69200_device: {
-            ePoE_detected_controller_type = POE_PD69200_CONTROLLER_TYPE;
+            ePoE_detected_controller_type = MEBA_POE_PD69200_CONTROLLER_TYPE;
             break;
         }
 
         case eBoot_bt_gen6__Application_CRC_error_Download_is_required_for_PD69210_PD69220:
         case eBoot_bt_gen6__hw_error_from_Boot_try_to_program_a_PD69200_firmware_into_PD69210_PD69220_device:
         case eBoot_bt_gen6__sys_type_error_from_APP_try_to_program_a_PD69220_firmware_into_PD69210_device:    {
-            ePoE_detected_controller_type = POE_PD69210_CONTROLLER_TYPE;
+            ePoE_detected_controller_type = MEBA_POE_PD69210_CONTROLLER_TYPE;
             break;
         }
 
         case eBoot_bt_gen6__sys_type_error_from_APP_try_to_program_a_PD69210_firmware_into_PD69220_device: {
-            ePoE_detected_controller_type = POE_PD69220_CONTROLLER_TYPE;
+            ePoE_detected_controller_type = MEBA_POE_PD69220_CONTROLLER_TYPE;
             break;
         }
 
@@ -3242,7 +3242,7 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
         // auto detected PoE controller and warn if different
         if ((ePoE_detected_controller_type !=
              private_data->tPoE_parameters.ePoE_Controller_Type_default) &&
-            (ePoE_detected_controller_type != POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION)) {
+            (ePoE_detected_controller_type != MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION)) {
             DEBUG(inst, MEBA_TRACE_LVL_WARNING,
                   "Detected PoE controller: %d is different than USER selection: %d",
                   ePoE_detected_controller_type,
@@ -3272,48 +3272,56 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
         // controllers: PD69200, PD69210, PD69220 (, PD69200M)
         switch (tSoftware_version.product_number) {
         case ePD69200_PREBT: {
-            ePoE_detected_controller_type = POE_PD69200_CONTROLLER_TYPE;
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_PREBT;
+            ePoE_detected_controller_type = MEBA_POE_PD69200_CONTROLLER_TYPE;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69200 PREBT firmware");
             break;
         }
         case ePD69200_BT: {
-            ePoE_detected_controller_type = POE_PD69200_CONTROLLER_TYPE;
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_GEN6_BT;
+            ePoE_detected_controller_type = MEBA_POE_PD69200_CONTROLLER_TYPE;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_BT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69200 BT firmware");
             break;
         }
         case ePD69210_PREBT: {
-            ePoE_detected_controller_type = POE_PD69210_CONTROLLER_TYPE;
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_PREBT;
+            ePoE_detected_controller_type = MEBA_POE_PD69210_CONTROLLER_TYPE;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69210 PREBT firmware");
             break;
         }
         case ePD69210_BT: {
-            ePoE_detected_controller_type = POE_PD69210_CONTROLLER_TYPE;
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_GEN6_BT;
+            ePoE_detected_controller_type = MEBA_POE_PD69210_CONTROLLER_TYPE;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_BT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69210 BT firmware");
             break;
         }
         case ePD69220_PREBT: {
-            ePoE_detected_controller_type = POE_PD69220_CONTROLLER_TYPE;
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_PREBT;
+            ePoE_detected_controller_type = MEBA_POE_PD69220_CONTROLLER_TYPE;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69220 PREBT firmware");
             break;
         }
         case ePD69220_BT: {
-            ePoE_detected_controller_type = POE_PD69220_CONTROLLER_TYPE;
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_GEN6_BT;
+            ePoE_detected_controller_type = MEBA_POE_PD69220_CONTROLLER_TYPE;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_BT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69220 BT firmware");
             break;
         }
         case ePD69200M_PREBT: {
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_PREBT;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69200M PREBT firmware");
             break;
         }
         case ePD69200M_BT: {
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_GEN6_BT;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_BT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69200M BT firmware");
             break;
         }
@@ -3325,7 +3333,7 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
         }
 
         // if detected controller type is unknown - exit with error message
-        if (ePoE_detected_controller_type == POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION) {
+        if (ePoE_detected_controller_type == MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION) {
             DEBUG(inst, MEBA_TRACE_LVL_ERROR, "poe mcu type error: %d",
                   tSoftware_version.product_number);
             private_data->status.global.prod_number_detected = tSoftware_version.product_number;
@@ -3345,32 +3353,32 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
     // set poe firmware file depend on controller type (PD69200, PD69210, PD69220) and software
     // required BT/Legacy
     if (private_data->is_bt) {
-        if (ePoE_detected_controller_type == POE_PD69200_CONTROLLER_TYPE) {
+        if (ePoE_detected_controller_type == MEBA_POE_PD69200_CONTROLLER_TYPE) {
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69200 BT firmware");
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69200_bt_firmware.s19";
-            private_data->status.global.file.prod_number = ePD69200_BT;
-        } else if (ePoE_detected_controller_type == POE_PD69210_CONTROLLER_TYPE) {
+            private_data->status.global.poe_file.prod_number = ePD69200_BT;
+        } else if (ePoE_detected_controller_type == MEBA_POE_PD69210_CONTROLLER_TYPE) {
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69210 BT firmware");
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69210_bt_firmware.s19";
-            private_data->status.global.file.prod_number = ePD69210_BT;
+            private_data->status.global.poe_file.prod_number = ePD69210_BT;
         } else { // if (ePoE_detected_controller_type == POE_PD69220_CONTROLLER_TYPE) {
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69220 BT firmware");
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69220_bt_firmware.s19";
-            private_data->status.global.file.prod_number = ePD69220_BT;
+            private_data->status.global.poe_file.prod_number = ePD69220_BT;
         }
     } else { // PREBT mode
-        if (ePoE_detected_controller_type == POE_PD69200_CONTROLLER_TYPE) {
+        if (ePoE_detected_controller_type == MEBA_POE_PD69200_CONTROLLER_TYPE) {
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69200 PREBT firmware");
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69200_at_firmware.s19";
-            private_data->status.global.file.prod_number = ePD69200_PREBT;
-        } else if (ePoE_detected_controller_type == POE_PD69210_CONTROLLER_TYPE) {
+            private_data->status.global.poe_file.prod_number = ePD69200_PREBT;
+        } else if (ePoE_detected_controller_type == MEBA_POE_PD69210_CONTROLLER_TYPE) {
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69210 PREBT firmware");
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69210_at_firmware.s19";
-            private_data->status.global.file.prod_number = ePD69210_PREBT;
+            private_data->status.global.poe_file.prod_number = ePD69210_PREBT;
         } else { // if(ePoE_detected_controller_type == MEBA_POE_GEN6_PD69220_CONTROLLER_TYPE)
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd69220 PREBT firmware");
             private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd69220_at_firmware.s19";
-            private_data->status.global.file.prod_number = ePD69220_PREBT;
+            private_data->status.global.poe_file.prod_number = ePD69220_PREBT;
         }
     }
 
@@ -3415,9 +3423,9 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
         swNum_ptr += strlen(swNum) + 1;
         uint16_t sw_version = atoi(swNum_ptr);
         // Extract version_high (hundreds digit)
-        private_data->status.global.file.sw_version_H = sw_version / 100;
+        private_data->status.global.poe_file.sw_version_H = sw_version / 100;
         // Extract version_low (last two digits)
-        private_data->status.global.file.sw_version_L = sw_version % 100;
+        private_data->status.global.poe_file.sw_version_L = sw_version % 100;
     } else {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "Not able to read %s from upgrade image", swNum);
         if (fd >= 0) {
@@ -3433,7 +3441,7 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
 
     if (param_ptr && (param_ptr - microsemi_firmware) < MAX_FIRMWARE_HEADER_LEN) {
         param_ptr += strlen(param) + 1;
-        private_data->status.global.file.param_number = atoi(param_ptr);
+        private_data->status.global.poe_file.param_number = atoi(param_ptr);
     } else {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "Not able to read %s from upgrade image", param);
         if (fd >= 0) {
@@ -3449,7 +3457,7 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
 
     if (build_ptr && (build_ptr - microsemi_firmware) < MAX_FIRMWARE_HEADER_LEN) {
         build_ptr += strlen(build) + 1;
-        private_data->status.global.file.build_L = atoi(build_ptr);
+        private_data->status.global.poe_file.build_L = atoi(build_ptr);
     } else {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "Not able to read %s from upgrade image", build);
         if (fd >= 0) {
@@ -3472,27 +3480,28 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
           "detected: %d - %d.%d.%d build %d, from_file: %d - %d.%d.%d build %d",
           tSoftware_version.product_number, tSoftware_version.sw_version_H,
           tSoftware_version.sw_version_L, tSoftware_version.param_number, tSoftware_version.build_L,
-          private_data->status.global.file.prod_number,
-          private_data->status.global.file.sw_version_H,
-          private_data->status.global.file.sw_version_L,
-          private_data->status.global.file.param_number, private_data->status.global.file.build_L);
+          private_data->status.global.poe_file.prod_number,
+          private_data->status.global.poe_file.sw_version_H,
+          private_data->status.global.poe_file.sw_version_L,
+          private_data->status.global.poe_file.param_number,
+          private_data->status.global.poe_file.build_L);
 
-    if ((private_data->status.global.file.prod_number == tSoftware_version.product_number) &&
-        (private_data->status.global.file.sw_version_H == tSoftware_version.sw_version_H) &&
-        (private_data->status.global.file.sw_version_L == tSoftware_version.sw_version_L) &&
-        (private_data->status.global.file.build_L == tSoftware_version.build_L) &&
-        (private_data->status.global.file.param_number == tSoftware_version.param_number)) {
+    if ((private_data->status.global.poe_file.prod_number == tSoftware_version.product_number) &&
+        (private_data->status.global.poe_file.sw_version_H == tSoftware_version.sw_version_H) &&
+        (private_data->status.global.poe_file.sw_version_L == tSoftware_version.sw_version_L) &&
+        (private_data->status.global.poe_file.build_L == tSoftware_version.build_L) &&
+        (private_data->status.global.poe_file.param_number == tSoftware_version.param_number)) {
         return true;
     } else {
         DEBUG(inst, MEBA_TRACE_LVL_INFO,
               "Different PoE MCU firmware versions, found %d - %d.%d.%d.%d ,expecting (file) %d - %d.%d.%d.%d",
               tSoftware_version.product_number, tSoftware_version.sw_version_H,
               tSoftware_version.sw_version_L, tSoftware_version.param_number,
-              tSoftware_version.build_L, private_data->status.global.file.prod_number,
-              private_data->status.global.file.sw_version_H,
-              private_data->status.global.file.sw_version_L,
-              private_data->status.global.file.param_number,
-              private_data->status.global.file.build_L);
+              tSoftware_version.build_L, private_data->status.global.poe_file.prod_number,
+              private_data->status.global.poe_file.sw_version_H,
+              private_data->status.global.poe_file.sw_version_L,
+              private_data->status.global.poe_file.param_number,
+              private_data->status.global.poe_file.build_L);
         return false;
     }
 }
@@ -3514,7 +3523,7 @@ static mesa_bool_t is_gen7_firmware_version_identical(const meba_poe_ctrl_inst_t
     mesa_rc rc = MESA_RC_OK;
 
     poe_driver_private_t      *private_data = (poe_driver_private_t *)(inst->private_data);
-    meba_poe_controller_type_t ePoE_detected_controller_type = POE_PD7777_CONTROLLER_TYPE;
+    meba_poe_controller_type_t ePoE_detected_controller_type = MEBA_POE_PD7777_CONTROLLER_TYPE;
 
     int fd = -1;
 
@@ -3523,8 +3532,8 @@ static mesa_bool_t is_gen7_firmware_version_identical(const meba_poe_ctrl_inst_t
     private_data->status.global.sw_version_L_detected = 0;
     private_data->status.global.param_number_detected = 0;
 
-    private_data->status.global.file.prod_number = 0;
-    private_data->status.global.file.param_number = 0;
+    private_data->status.global.poe_file.prod_number = 0;
+    private_data->status.global.poe_file.param_number = 0;
     // private_data->status.global.build_number = 0;
     private_data->status.global.internal_sw_number = 0;
     private_data->status.global.asic_patch_number = 0;
@@ -3533,7 +3542,7 @@ static mesa_bool_t is_gen7_firmware_version_identical(const meba_poe_ctrl_inst_t
     private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd77010_bt_firmware.hex";
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69210 GEN7 BT firmware");
-    private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_GEN7_BT;
+    private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_GEN7_BT;
 
     int         iCount_up = 0;
     mesa_bool_t bApp_state = FALSE;
@@ -3598,8 +3607,8 @@ static mesa_bool_t is_gen7_firmware_version_identical(const meba_poe_ctrl_inst_t
 
     switch (tSoftware_version.product_number) {
     case ePD69210_GEN7_BT: {
-        ePoE_detected_controller_type = POE_PD7777_CONTROLLER_TYPE;
-        private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_GEN7_BT;
+        ePoE_detected_controller_type = MEBA_POE_PD7777_CONTROLLER_TYPE;
+        private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_GEN7_BT;
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69210 GEN7 BT firmware");
         break;
     }
@@ -3616,10 +3625,10 @@ static mesa_bool_t is_gen7_firmware_version_identical(const meba_poe_ctrl_inst_t
     // set poe firmware file depend on controller type (PD69200, PD69210, PD69220) and software
     // required BT/Legacy
 
-    if (ePoE_detected_controller_type == POE_PD7777_CONTROLLER_TYPE) {
+    if (ePoE_detected_controller_type == MEBA_POE_PD7777_CONTROLLER_TYPE) {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd77010 BT firmware");
         private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd77010_bt_firmware.hex";
-        private_data->status.global.file.prod_number = ePD69210_GEN7_BT;
+        private_data->status.global.poe_file.prod_number = ePD69210_GEN7_BT;
     }
 
     if (!microsemi_firmware) {
@@ -3656,40 +3665,41 @@ static mesa_bool_t is_gen7_firmware_version_identical(const meba_poe_ctrl_inst_t
     if (!get_firmware_file_info(inst, microsemi_firmware, &tFileInfo))
         return FALSE;
 
-    private_data->status.global.file.sw_version_H = tFileInfo.firmware_H;
-    private_data->status.global.file.sw_version_L = tFileInfo.firmware_L;
+    private_data->status.global.poe_file.sw_version_H = tFileInfo.firmware_H;
+    private_data->status.global.poe_file.sw_version_L = tFileInfo.firmware_L;
 
-    private_data->status.global.file.build_H = tFileInfo.firmware_build_H;
-    private_data->status.global.file.build_L = tFileInfo.firmware_build_L;
+    private_data->status.global.poe_file.build_H = tFileInfo.firmware_build_H;
+    private_data->status.global.poe_file.build_L = tFileInfo.firmware_build_L;
 
-    private_data->status.global.file.param_number = tFileInfo.param;
-    private_data->status.global.file.app_hw_type_number = tFileInfo.app_hardware_type;
+    private_data->status.global.poe_file.param_number = tFileInfo.param;
+    private_data->status.global.poe_file.app_hw_type_number = tFileInfo.app_hardware_type;
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO,
           "detected: 0x%X - %d.%d.%d build: %d.%d, file: 0x%X - %d.%d.%d build: %d.%d",
           tSoftware_version.product_number, tSoftware_version.sw_version_H,
           tSoftware_version.sw_version_L, tSoftware_version.param_number, tSoftware_version.build_H,
-          tSoftware_version.build_L, private_data->status.global.file.prod_number,
-          private_data->status.global.file.sw_version_H,
-          private_data->status.global.file.sw_version_L,
-          private_data->status.global.file.param_number, private_data->status.global.file.build_H,
-          private_data->status.global.file.build_L);
+          tSoftware_version.build_L, private_data->status.global.poe_file.prod_number,
+          private_data->status.global.poe_file.sw_version_H,
+          private_data->status.global.poe_file.sw_version_L,
+          private_data->status.global.poe_file.param_number,
+          private_data->status.global.poe_file.build_H,
+          private_data->status.global.poe_file.build_L);
 
-    if ((private_data->status.global.file.sw_version_H == tSoftware_version.sw_version_H) &&
-        (private_data->status.global.file.sw_version_L == tSoftware_version.sw_version_L) &&
-        (private_data->status.global.file.param_number == tSoftware_version.param_number) &&
-        (private_data->status.global.file.build_H == tSoftware_version.build_H) &&
-        (private_data->status.global.file.build_L == tSoftware_version.build_L)) {
+    if ((private_data->status.global.poe_file.sw_version_H == tSoftware_version.sw_version_H) &&
+        (private_data->status.global.poe_file.sw_version_L == tSoftware_version.sw_version_L) &&
+        (private_data->status.global.poe_file.param_number == tSoftware_version.param_number) &&
+        (private_data->status.global.poe_file.build_H == tSoftware_version.build_H) &&
+        (private_data->status.global.poe_file.build_L == tSoftware_version.build_L)) {
         return true;
     } else {
         DEBUG(inst, MEBA_TRACE_LVL_INFO,
               "Different PoE MCU firmware versions, found 0x%X - %d.%d.%d ,expecting (file) 0x%X - %d.%d.%d",
               tSoftware_version.product_number, tSoftware_version.sw_version_H,
               tSoftware_version.sw_version_L, tSoftware_version.param_number,
-              private_data->status.global.file.prod_number,
-              private_data->status.global.file.sw_version_H,
-              private_data->status.global.file.sw_version_L,
-              private_data->status.global.file.param_number);
+              private_data->status.global.poe_file.prod_number,
+              private_data->status.global.poe_file.sw_version_H,
+              private_data->status.global.poe_file.sw_version_L,
+              private_data->status.global.poe_file.param_number);
         return false;
     }
 }
@@ -4468,7 +4478,7 @@ mesa_rc print_indv_masks_bt(const meba_poe_ctrl_inst_t *const inst, meba_poe_ind
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
           __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
 
-    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
         // Turn off lowest priority port, when a higher priority has a PD connected.
         MESA_RC(meba_poe_pd_get_individual_mask(inst, INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_0x00,
                                                 &im_BT->bt_ignore_high_priority,
@@ -4507,7 +4517,7 @@ mesa_rc print_indv_masks_bt(const meba_poe_ctrl_inst_t *const inst, meba_poe_ind
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
           __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
 
-    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
         // Layer2 Power Allocation Limit.
         MESA_RC(meba_poe_pd_get_individual_mask(inst,
                                                 INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_0x2C,
@@ -4535,7 +4545,7 @@ mesa_rc print_indv_masks_bt(const meba_poe_ctrl_inst_t *const inst, meba_poe_ind
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
           __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
 
-    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
         // HOCPP - high_over Current Pulse Protection
         MESA_RC(meba_poe_pd_get_individual_mask(inst, INDV_MASK_BT_HOCPP_0x50, &im_BT->bt_hocpp,
                                                 "BT- hocpp"));
@@ -4635,7 +4645,7 @@ static mesa_rc meba_poe_ctrl_pd_globals_status_get(const meba_poe_ctrl_inst_t *c
     current_status->sw_version_H_detected = private_data->status.global.sw_version_H_detected;
     current_status->sw_version_L_detected = private_data->status.global.sw_version_L_detected;
 
-    current_status->file = private_data->status.global.file;
+    current_status->poe_file = private_data->status.global.poe_file;
 
     current_status->param_number_detected = private_data->status.global.param_number_detected;
 
@@ -4652,8 +4662,10 @@ static mesa_rc meba_poe_ctrl_pd_globals_status_get(const meba_poe_ctrl_inst_t *c
 
     current_status->max_number_of_poe_ports = inst->port_poe_length;
     // adc value supported only on PoE BT mode in versions above 3.55
-    if ((private_data->status.global.eDetected_poe_firmware_type == POE_FIRMWARE_TYPE_GEN6_BT) ||
-        (private_data->status.global.eDetected_poe_firmware_type == POE_FIRMWARE_TYPE_GEN7_BT)) {
+    if ((private_data->status.global.eDetected_poe_firmware_type ==
+         MEBA_POE_FIRMWARE_TYPE_GEN6_BT) ||
+        (private_data->status.global.eDetected_poe_firmware_type ==
+         MEBA_POE_FIRMWARE_TYPE_GEN7_BT)) {
         DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s ,get BT globals_status info", __FUNCTION__);
 
         MESA_RC(meba_poe_pd_bt_event_cause_get(inst,
@@ -4691,7 +4703,7 @@ static mesa_rc meba_poe_ctrl_pd_globals_status_get(const meba_poe_ctrl_inst_t *c
             MESA_RC(print_indv_masks_bt(inst, &(current_status->tPoe_individual_mask_info.im_BT)));
         }
     } else if (private_data->status.global.eDetected_poe_firmware_type ==
-               POE_FIRMWARE_TYPE_PREBT) { // PREBT
+               MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT) { // PREBT
         DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s ,get PREBT globals_status info", __FUNCTION__);
 
         // lets check in which port
@@ -4901,7 +4913,8 @@ mesa_rc meba_poe_ctrl_pd_gen6_do_detection(const meba_poe_ctrl_inst_t *const ins
         case ePD69210_PREBT:
         case ePD69220_PREBT:
         case ePD69200M_PREBT: {
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_PREBT;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "poe mcu type detected: PREBT firmware=%d",
                   tSoftware_version.product_number);
 
@@ -4914,7 +4927,8 @@ mesa_rc meba_poe_ctrl_pd_gen6_do_detection(const meba_poe_ctrl_inst_t *const ins
         case ePD69210_BT:
         case ePD69220_BT:
         case ePD69200M_BT: {
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_GEN6_BT;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN6_BT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "poe mcu type detected: BT firmware=%d",
                   tSoftware_version.product_number);
 
@@ -4924,7 +4938,8 @@ mesa_rc meba_poe_ctrl_pd_gen6_do_detection(const meba_poe_ctrl_inst_t *const ins
             break;
         }
         case ePD69210_GEN7_BT: {
-            private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_GEN7_BT;
+            private_data->status.global.eDetected_poe_firmware_type =
+                MEBA_POE_FIRMWARE_TYPE_GEN7_BT;
             DEBUG(inst, MEBA_TRACE_LVL_INFO, "poe mcu type detected: GEN7 BT firmware=%d",
                   tSoftware_version.product_number);
 
@@ -4943,26 +4958,26 @@ mesa_rc meba_poe_ctrl_pd_gen6_do_detection(const meba_poe_ctrl_inst_t *const ins
         switch (tSoftware_version.product_number) {
         case ePD69200_PREBT:
         case ePD69200_BT:    {
-            private_data->status.global.ePoE_controller_type = POE_PD69200_CONTROLLER_TYPE;
+            private_data->status.global.ePoE_controller_type = MEBA_POE_PD69200_CONTROLLER_TYPE;
             break;
         }
         case ePD69210_PREBT:
         case ePD69210_BT:    {
-            private_data->status.global.ePoE_controller_type = POE_PD69210_CONTROLLER_TYPE;
+            private_data->status.global.ePoE_controller_type = MEBA_POE_PD69210_CONTROLLER_TYPE;
             break;
         }
         case ePD69220_PREBT:
         case ePD69220_BT:    {
-            private_data->status.global.ePoE_controller_type = POE_PD69220_CONTROLLER_TYPE;
+            private_data->status.global.ePoE_controller_type = MEBA_POE_PD69220_CONTROLLER_TYPE;
             break;
         }
         case ePD69200M_PREBT:
         case ePD69200M_BT:    {
-            private_data->status.global.ePoE_controller_type = POE_PD69200M_CONTROLLER_TYPE;
+            private_data->status.global.ePoE_controller_type = MEBA_POE_PD69200M_CONTROLLER_TYPE;
             break;
         }
         case ePD69210_GEN7_BT: {
-            private_data->status.global.ePoE_controller_type = POE_PD7777_CONTROLLER_TYPE;
+            private_data->status.global.ePoE_controller_type = MEBA_POE_PD7777_CONTROLLER_TYPE;
             break;
         }
         default: {
@@ -5084,7 +5099,7 @@ mesa_rc meba_poe_ctrl_pd_gen7_do_detection(const meba_poe_ctrl_inst_t *const ins
 
     switch (tSoftware_version.product_number) {
     case ePD69210_GEN7_BT: {
-        private_data->status.global.eDetected_poe_firmware_type = POE_FIRMWARE_TYPE_GEN7_BT;
+        private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_GEN7_BT;
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "poe mcu type detected: GEN7 BT firmware=0x%X",
               tSoftware_version.product_number);
         break;
@@ -5098,7 +5113,7 @@ mesa_rc meba_poe_ctrl_pd_gen7_do_detection(const meba_poe_ctrl_inst_t *const ins
 
     switch (tSoftware_version.product_number) {
     case ePD69210_GEN7_BT: {
-        private_data->status.global.ePoE_controller_type = POE_PD7777_CONTROLLER_TYPE;
+        private_data->status.global.ePoE_controller_type = MEBA_POE_PD7777_CONTROLLER_TYPE;
         break;
     }
     default: {
@@ -6823,28 +6838,28 @@ void Set_BT_ParamsByOperationMode(meba_poe_ctrl_inst_t *inst)
         tPoE_parameters.bt_operation_mode_legacy_90W_ignore_pd_class_default;
 
     switch (tPoE_parameters.ePoE_port_max_power_default) {
-    case POE_PORT_MAX_POWER_15W: {
+    case MEBA_POE_PORT_MAX_POWER_15W: {
         prod.poe_port_mode_max_power_index = 0;
         prod.class_error_selection[0] = 0x1; // legacy
         prod.class_error_selection[1] = 0;   // BT
         break;
     }
 
-    case POE_PORT_MAX_POWER_30W: {
+    case MEBA_POE_PORT_MAX_POWER_30W: {
         prod.poe_port_mode_max_power_index = 1;
         prod.class_error_selection[0] = 0x2; // legacy
         prod.class_error_selection[1] = 0;   // BT
         break;
     }
 
-    case POE_PORT_MAX_POWER_60W: {
+    case MEBA_POE_PORT_MAX_POWER_60W: {
         prod.poe_port_mode_max_power_index = 2;
         prod.class_error_selection[0] = 0x3; // legacy
         prod.class_error_selection[1] = 0;   // BT
         break;
     }
 
-    case POE_PORT_MAX_POWER_90W: {
+    case MEBA_POE_PORT_MAX_POWER_90W: {
         prod.poe_port_mode_max_power_index = 3;
         prod.class_error_selection[0] = 0x4; // legacy
         prod.class_error_selection[1] = 0;   // BT
@@ -8602,7 +8617,7 @@ mesa_rc meba_poe_ctrl_pd_bt_chip_initialization(const meba_poe_ctrl_inst_t *cons
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): syncing BT individual masks parameters", __FUNCTION__,
           inst->adapter_name);
 
-    if (tPoE_parameters.tMeba_poe_firmware_type == POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
 
         // Turn off lowest priority port, when a higher priority has a PD connected.
         uint8_t ignore_high_priority;
@@ -8668,7 +8683,7 @@ mesa_rc meba_poe_ctrl_pd_bt_chip_initialization(const meba_poe_ctrl_inst_t *cons
         bChangedFlag = true;
     }
 
-    if (tPoE_parameters.tMeba_poe_firmware_type == POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
         // Layer2 Power Allocation Limit.
         uint8_t layer2_power_allocation_limit;
         MESA_RC(meba_poe_pd_get_individual_mask(inst,
@@ -8715,7 +8730,7 @@ mesa_rc meba_poe_ctrl_pd_bt_chip_initialization(const meba_poe_ctrl_inst_t *cons
         bChangedFlag = true;
     }
 
-    if (tPoE_parameters.tMeba_poe_firmware_type == POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
 
         // HOCPP - high_over Current Pulse Protection
         uint8_t hocpp;
@@ -8746,7 +8761,7 @@ mesa_rc meba_poe_ctrl_pd_bt_chip_initialization(const meba_poe_ctrl_inst_t *cons
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): syncing poe matrix parameters", __FUNCTION__,
           inst->adapter_name);
 
-    if (private_data->status.global.eDetected_poe_firmware_type == POE_FIRMWARE_TYPE_GEN7_BT) {
+    if (private_data->status.global.eDetected_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
 
         // bt_system_status_t tBT_System_Status;
         // MESA_RC(meba_poe_pd77010_gen7_bt_get_bt_system_status(inst, &tBT_System_Status));
@@ -8851,7 +8866,7 @@ void meba_pd_bt_driver_init(meba_poe_ctrl_inst_t       *inst,
     };
 
     if (tMeba_poe_parameters.tMeba_poe_firmware_type ==
-        POE_FIRMWARE_TYPE_GEN7_BT) { // Assign Gen7 version
+        MEBA_POE_FIRMWARE_TYPE_GEN7_BT) { // Assign Gen7 version
         meba_pd_bt_api.meba_poe_ctrl_do_detection = meba_poe_ctrl_pd_gen7_do_detection;
         is_firmware_version_identical = is_gen7_firmware_version_identical;
     } else { // Assign Gen6 version
