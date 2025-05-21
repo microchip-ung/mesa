@@ -27,10 +27,11 @@ if [ $last == "short" ]; then
     ((cnt--))
 fi
 
+ts2=0
 if [ $cnt == 2 ]; then
   file=$2
 else
-  ts=$2
+  ts2=$2
   file=$3
 fi
 
@@ -148,6 +149,9 @@ for platform in $platform_list; do
     if [ -f $HOME/.mscc-libeasy-topology.yaml ]; then
         et release
         rel=0
+    fi
+    if [ $ts2 != 0 ]; then
+        ts=$ts2
     fi
     echo "=== Reserve: $ts"
     if [ $last == "brief" ]; then
