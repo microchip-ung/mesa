@@ -20,6 +20,7 @@
 #include "trace.h"
 #include "cli.h"
 #include "ipc.h"
+#include "vtss_os.h"
 
 #define ARRSZ(_x_) (sizeof(_x_) / sizeof((_x_)[0]))
 
@@ -43,6 +44,26 @@ static mscc_appl_trace_group_t trace_groups[TRACE_GROUP_CNT] = {
 
 static mscc_appl_init_t appl_init;
 static void             init_modules(mscc_appl_init_t *init);
+
+void *vtss_os_malloc(size_t size, vtss_mem_flags_t flags)
+{
+    if (flags == VTSS_MEM_FLAGS_DMA) {
+        return udmabuf_malloc(size);
+    } else {
+        return malloc(size);
+    }
+}
+
+void vtss_os_free(void *ptr, vtss_mem_flags_t flags)
+{
+    if (flags == VTSS_MEM_FLAGS_DMA) {
+        return udmabuf_free(ptr);
+    } else {
+        free(ptr);
+    }
+}
+
+uintptr_t vtss_os_cpu_to_dma_addr(void *ptr) { return udmabuf_cpu_to_dma_addr(ptr); }
 
 /**
  * Open i2c adapter from user space, return the file descriptor for further i2c
@@ -884,6 +905,7 @@ static void init_modules(mscc_appl_init_t *init)
     mscc_appl_uio_init(init);
     mscc_appl_spi_init(init);
     mscc_appl_intr_init(init);
+    mscc_appl_udmabuf_init(init);
 }
 
 typedef struct {
@@ -1026,6 +1048,10 @@ int main(int argc, char **argv)
     if (rc != MESA_RC_OK) {
         return 1;
     }
+
+    // Initialize u-dma-buf. Ignore error codes as some platforms will not have
+    // support for u-dma-buf.
+    udmabuf_init();
 
     // Initialize SPI slave before doing anything else in the API
     if (SPI_REG_IO) {

@@ -54,6 +54,7 @@ void mscc_appl_example_init(mscc_appl_init_t *init);
 void mscc_appl_uio_init(mscc_appl_init_t *init);
 void mscc_appl_spi_init(mscc_appl_init_t *init);
 void mscc_appl_intr_init(mscc_appl_init_t *init);
+void mscc_appl_udmabuf_init(mscc_appl_init_t *init);
 
 typedef enum {
     SPI_USER_REG,  // Switch register access
@@ -71,6 +72,7 @@ mesa_rc spi_write(spi_user_t user, const uint32_t addr, const uint32_t value);
 mesa_rc uio_reg_read(const mesa_chip_no_t chip_no, const uint32_t addr, uint32_t *const value);
 mesa_rc uio_reg_write(const mesa_chip_no_t chip_no, const uint32_t addr, const uint32_t value);
 mesa_rc uio_reg_io_init(void);
+mesa_rc udmabuf_init(void);
 
 typedef mesa_rc (*reg_read_t)(const mesa_chip_no_t chip_no,
                               const uint32_t       addr,
@@ -79,6 +81,11 @@ typedef mesa_rc (*reg_read_t)(const mesa_chip_no_t chip_no,
 typedef mesa_rc (*reg_write_t)(const mesa_chip_no_t chip_no,
                                const uint32_t       addr,
                                const uint32_t       value);
+
+// udmabuf functions
+void     *udmabuf_malloc(size_t size);
+void      udmabuf_free(void *ptr);
+uintptr_t udmabuf_cpu_to_dma_addr(void *ptr);
 
 // Management port (0-based) owned by IP module
 extern mesa_port_no_t ip_port;
