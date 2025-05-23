@@ -112,3 +112,16 @@ void vtss_u8_to_bool8(u8 value, BOOL *array)
         }
     }
 }
+
+#if defined(VTSS_OPSYS_LINUX)
+
+__attribute__((weak)) void *vtss_os_malloc(size_t size, vtss_mem_flags_t flags)
+{
+    return malloc(size);
+}
+
+__attribute__((weak)) void vtss_os_free(void *ptr, vtss_mem_flags_t flags) { free(ptr); }
+
+__attribute__((weak)) uintptr_t vtss_os_cpu_to_dma_addr(void *ptr) { return 0; }
+
+#endif

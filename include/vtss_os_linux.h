@@ -352,7 +352,8 @@ static inline int __builtin_ctzl(unsigned long val32)
 #define VTSS_OS_MALLOC(size, flags) vmalloc(size)
 
 #else
-#define VTSS_OS_MALLOC(size, flags) malloc(size)
+#define VTSS_OS_MALLOC(size, flags) vtss_os_malloc(size, flags)
+extern void *vtss_os_malloc(size_t size, vtss_mem_flags_t flags);
 #endif
 
 /**
@@ -370,7 +371,8 @@ static inline int __builtin_ctzl(unsigned long val32)
 #ifdef __KERNEL__
 #define VTSS_OS_FREE(ptr, flags) vfree(ptr)
 #else
-#define VTSS_OS_FREE(ptr, flags) free(ptr)
+#define VTSS_OS_FREE(ptr, flags) vtss_os_free(ptr, flags)
+extern void vtss_os_free(void *ptr, vtss_mem_flags_t flags);
 #endif
 
 /**
@@ -385,7 +387,8 @@ static inline int __builtin_ctzl(unsigned long val32)
 #ifdef __KERNEL__
 #define VTSS_OS_CPU_TO_DMA_ADDR(a) (0)
 #else
-#define VTSS_OS_CPU_TO_DMA_ADDR(a) (0)
+#define VTSS_OS_CPU_TO_DMA_ADDR(a) vtss_os_cpu_to_dma_addr(a)
+extern uintptr_t vtss_os_cpu_to_dma_addr(void *ptr);
 #endif
 
 /**
