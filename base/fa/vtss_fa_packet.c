@@ -1306,7 +1306,9 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
     }
     pr("\n");
 
-#if !defined(VTSS_ARCH_LAIKA)
+#if defined(VTSS_ARCH_LAIKA)
+    lk_debug_pkt(vtss_state, ss, info);
+#else
     vtss_fa_debug_reg_header(ss, "DEVCPU_QS");
     vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_CFG), "XTR_CFG");
     vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_VTSS_DBG), "INJ_FRM_CNT");

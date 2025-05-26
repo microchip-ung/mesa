@@ -282,32 +282,30 @@ static inline vtss_rc lk_pe_desc_cfg(vtss_state_t *vtss_state, u64 start, u64 en
     return VTSS_RC_OK;
 }
 
-vtss_rc lk_debug_print(vtss_state_t *vtss_state)
+vtss_rc lk_debug_pkt(vtss_state_t *vtss_state, lmu_ss_t *ss, const vtss_debug_info_t *const info)
 {
-    u64 wptr;
-    u64 rptr;
-    u32 p;
+    u64 wptr, rptr;
+
+    pr("PIE CHANNEL %u\n", PIE_CHANNEL);
     lk_idesc_write_ptr_read(vtss_state, &wptr);
     lk_idesc_read_ptr_read(vtss_state, &rptr);
-    VTSS_D("PI      : SW_WR=%llx HW_RD=%llx", wptr, rptr);
+    pr("%-33s SW_WR=0x%llx HW_RD=0x%llx\n", "PI DESC", wptr, rptr);
     lk_rdesc_write_ptr_read(vtss_state, &wptr);
     lk_rdesc_read_ptr_read(vtss_state, &rptr);
-    VTSS_D("PE RDESC: SW_WR=%llx HW_RD=%llx", wptr, rptr);
+    pr("%-33s SW_WR=0x%llx HW_RD=0x%llx\n", "PE RDESC", wptr, rptr);
     lk_edesc_write_ptr_read(vtss_state, &wptr);
     lk_edesc_read_ptr_read(vtss_state, &rptr);
-    VTSS_D("PE EDESC: HW_WR=%llx SW_RD=%llx", wptr, rptr);
-    REG_RD(PIE_REG(SRX_PIE_CTRL), &p);
-    VTSS_D("SRX PIE CTRL : 0x%08x", p);
-    REG_RD(PIE_REG(STX_PIE_CTRL), &p);
-    VTSS_D("STX PIE CTRL : 0x%08x", p);
-    REG_RD(PIE_REG(STX_AXIS_ERR_CTRL_PIE), &p);
-    VTSS_D("STX_AXIS_ERR_CTRL_PIE : 0x%08x", p);
-    REG_RD(PIE_REG(PIE_0_INT), &p);
-    VTSS_D("PIE_0_INT    : 0x%08x", p);
-    REG_RD(PIE_REG(PIE_1_INT), &p);
-    VTSS_D("PIE_1_INT    : 0x%08x", p);
-    REG_RD(PIE_REG(PIE_2_INT), &p);
-    VTSS_D("PIE_2_INT    : 0x%08x", p);
+    pr("%-33s HW_WR=0x%llx SW_RD=0x%llx\n", "PE EDESC", wptr, rptr);
+
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(PIE_REG(SRX_PIE_CTRL)), "SRX_PIE_CTRL");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(PIE_REG(STX_PIE_CTRL)), "STX_PIE_CTRL");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(PIE_REG(STX_AXIS_ERR_CTRL_PIE)),
+                      "STX_AXIS_ERR_CTRL_PIE");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(PIE_REG(PIE_0_INT)), "PIE_0_INT");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(PIE_REG(PIE_1_INT)), "PIE_1_INT");
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(PIE_REG(PIE_2_INT)), "PIE_2_INT");
+    pr("\n");
+
     return VTSS_RC_OK;
 }
 
