@@ -1666,6 +1666,11 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     case VTSS_CORE_CLOCK_625MHZ:
         nominal_tod_increment = ((u64)(1) << 59) + (u64)0x04C6666666666666;
         break;
+    /* 733MHz gives a period of 1.364256ns
+       0x0800000000000000 * 0.364256 gives 0x02E9FF4D2F261176 */
+    case VTSS_CORE_CLOCK_733MHZ:
+        nominal_tod_increment = ((u64)(1) << 59) + (u64)0x02E9FF4D2F261176;
+        break;
     /* This is according to values given in Jira UNG_LAGUNA-585 */
     case VTSS_CORE_CLOCK_328MHZ:
         if (vtss_state->init_conf.core_clock.ref_freq == VTSS_CORE_REF_CLK_25MHZ) {
