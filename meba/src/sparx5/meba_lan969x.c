@@ -30,6 +30,8 @@ typedef struct {
     uint8_t                sgpio_port;
     uint8_t                i2c_port;
     mesa_bool_t            ts_phy;
+    mesa_bool_t            poe_support;
+    uint8_t                poe_port;
 } port_map_t;
 
 static const meba_ptp_rs422_conf_t pcb8398_rs422_conf = {
@@ -76,7 +78,7 @@ typedef enum { SFP_DETECT, SFP_FAULT, SFP_LOS } sfp_signal_t;
 static port_map_t *meba_port_map = NULL;
 //---------------------------------------------------------------------------------------------------------------------------
 // Chip | MII-Controller     | MII |   Default MAC IF      |   Port capabilities
-// |   Max core | SGPIO | I2C   | ts Port |                    | Addr| | | BW |
+// |   Max core | SGPIO | I2C   | ts Port |                    | Addr| | | BW | PoE | PoE port
 // port  | index | phy
 //---------------------------------------------------------------------------------------------------------------------------
 static port_map_t port_table_sunrise[] = {
@@ -94,63 +96,63 @@ static port_map_t port_table_sunrise[] = {
 
 static port_map_t port_table_pcb8398[] = {
     {0,  MESA_MIIM_CONTROLLER_0,    4,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 0 },
     {1,  MESA_MIIM_CONTROLLER_0,    5,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 1 },
     {2,  MESA_MIIM_CONTROLLER_0,    6,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 2 },
     {3,  MESA_MIIM_CONTROLLER_0,    7,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 3 },
     {4,  MESA_MIIM_CONTROLLER_0,    8,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 4 },
     {5,  MESA_MIIM_CONTROLLER_0,    9,  MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 5 },
     {6,  MESA_MIIM_CONTROLLER_0,    10, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 6 },
     {7,  MESA_MIIM_CONTROLLER_0,    11, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 7 },
     {8,  MESA_MIIM_CONTROLLER_0,    12, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 8 },
     {9,  MESA_MIIM_CONTROLLER_0,    13, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 9 },
     {10, MESA_MIIM_CONTROLLER_0,    14, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 10},
     {11, MESA_MIIM_CONTROLLER_0,    15, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 11},
     {12, MESA_MIIM_CONTROLLER_0,    16, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 12},
     {13, MESA_MIIM_CONTROLLER_0,    17, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 13},
     {14, MESA_MIIM_CONTROLLER_0,    18, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 14},
     {15, MESA_MIIM_CONTROLLER_0,    19, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 15},
     {16, MESA_MIIM_CONTROLLER_0,    20, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 16},
     {17, MESA_MIIM_CONTROLLER_0,    21, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 17},
     {18, MESA_MIIM_CONTROLLER_0,    22, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 18},
     {19, MESA_MIIM_CONTROLLER_0,    23, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 19},
     {20, MESA_MIIM_CONTROLLER_0,    24, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 20},
     {21, MESA_MIIM_CONTROLLER_0,    25, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 21},
     {22, MESA_MIIM_CONTROLLER_0,    26, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 22},
     {23, MESA_MIIM_CONTROLLER_0,    27, MESA_PORT_INTERFACE_QSGMII,     MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 1},
+     MESA_BW_1G,                                                                                                     0,  0, 1, 1, 23},
     {24, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 24,
-     0,                                                                                                                     0},
+     0,                                                                                                                     0, 0, 0 },
     {25, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 25,
-     1,                                                                                                                     0},
+     1,                                                                                                                     0, 0, 0 },
     {26, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 26,
-     2,                                                                                                                     0},
+     2,                                                                                                                     0, 0, 0 },
     {27, MESA_MIIM_CONTROLLER_NONE, 0,  MESA_PORT_INTERFACE_SFI,        LAGUNA_CAP_10G_FDX,             MESA_BW_10G, 27,
-     3,                                                                                                                     0},
+     3,                                                                                                                     0, 0, 0 },
     {29, MESA_MIIM_CONTROLLER_0,    3,  MESA_PORT_INTERFACE_RGMII_TXID, MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     MESA_BW_1G,                                                                                                     0,  0, 0},
+     MESA_BW_1G,                                                                                                     0,  0, 0, 0, 0 },
 };
 
 static port_map_t port_table_pcb8422[] = {
@@ -206,6 +208,8 @@ static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
     entry->mac_if = map->mac_if;
     entry->cap = map->cap;
     entry->map.max_bw = map->max_bw;
+    entry->poe_support = map->poe_support;
+    entry->poe_port = map->poe_port;
 }
 
 static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map)

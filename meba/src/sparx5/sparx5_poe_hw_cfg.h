@@ -64,7 +64,7 @@
 
 #define SPARX5_POE_GEN7_CONTROLLER_I2C_ADDRESS 0x2C
 
-#define LAN969_POE_GEN6_CONTROLLER_I2C_ADDRESS 0x20
+#define LAN969_POE_GEN6_CONTROLLER_I2C_ADDRESS 0x2C
 
 // poe gpio reset pin number
 // 0xFF   - no gpio use for reset poe ports.
