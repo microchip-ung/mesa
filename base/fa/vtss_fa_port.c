@@ -3656,6 +3656,11 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         return VTSS_RC_OK;
     }
 
+    // Masquerading port means redirected to CPU port, nothing to do here.
+    if (conf->if_type == VTSS_PORT_INTERFACE_MASQUERADING) {
+        return VTSS_RC_OK;
+    }
+
     VTSS_I("port_no:%d (port:%d, dev%s) if:%s, spd:%s/%s, shutdown:%d, media_type:%d", port_no,
            port,
            VTSS_PORT_IS_25G(port)   ? "25G"
@@ -5338,6 +5343,9 @@ vtss_rc vtss_fa_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         if (!vtss_state->warm_start_cur) {
             VTSS_RC(fa_port_buf_qlim_set(vtss_state));
         }
+#if defined(VTSS_ARCH_LAIKA) && defined(VTSS_FEATURE_PORT_CPU_MASQUERADING)
+        VTSS_RC(lk_port_masquerading_set(vtss_state));
+#endif
         VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 10);
         break;
 

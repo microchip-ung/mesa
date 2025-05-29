@@ -13,7 +13,9 @@
 #define MAX_PORTS 32
 
 typedef struct meba_board_state {
-    int                port_cnt;
+    int                port_cnt; // front ports + masqueraded ports
+    int                front_port_cnt;
+    int                masquerading_port_cnt;
     meba_port_entry_t *port;
     mepa_device_t     *phy_devices[MAX_PORTS];
 } meba_board_state_t;
@@ -85,7 +87,7 @@ static mesa_rc lk_reset(meba_inst_t inst, meba_reset_point_t reset)
     case MEBA_POE_INITIALIZE:        break;
     case MEBA_PHY_INITIALIZE:
         inst->phy_devices = (mepa_device_t **)&board->phy_devices;
-        inst->phy_device_cnt = board->port_cnt;
+        inst->phy_device_cnt = board->front_port_cnt;
         meba_phy_driver_init(inst);
         break;
     }
@@ -97,7 +99,7 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
 {
     meba_inst_t         inst;
     meba_board_state_t *board;
-    int                 i;
+    int                 i, j;
 
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n", sizeof(*callouts),
@@ -119,9 +121,12 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
 
     // The only board supported for now is the emulation platform named "periph1".
     // It provides 2x1G interfaces on chip port 0 and 2.
+    // Chip port 29 and 31 are used for CPU masquerading.
     //
     strncpy(inst->props.name, "periph1", sizeof(inst->props.name));
-    board->port_cnt = 2;
+    board->front_port_cnt = 2;
+    board->masquerading_port_cnt = 1; // Maximum 2
+    board->port_cnt = board->front_port_cnt + board->masquerading_port_cnt;
 
     board->port = (meba_port_entry_t *)calloc(board->port_cnt, sizeof(meba_port_entry_t));
     if (board->port == NULL) {
@@ -129,11 +134,20 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
         goto error_out;
     }
 
-    for (i = 0; i < board->port_cnt; i++) {
+    for (i = 0; i < board->front_port_cnt; i++) {
         board->port[i].map.chip_port = i * 2;
         board->port[i].map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
         board->port[i].mac_if = MESA_PORT_INTERFACE_SGMII;
         board->port[i].cap = MEBA_PORT_CAP_DUMMY_PHY | MEBA_PORT_CAP_TRI_SPEED_COPPER;
+    }
+
+    j = i;
+    for (i = 0; i < board->masquerading_port_cnt; i++, j++) {
+        board->port[j].map.chip_port = 29 + (i * 2);
+        board->port[j].map.miim_controller = MESA_MIIM_CONTROLLER_NONE;
+        board->port[j].mac_if = MESA_PORT_INTERFACE_MASQUERADING;
+        board->port[j].map.cpu_masquerade =
+            (i == 0) ? MESA_CPU_MASQUERADE_CPU0 : MESA_CPU_MASQUERADE_CPU1;
     }
 
     inst->api.meba_capability = lk_capability;

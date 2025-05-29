@@ -463,6 +463,10 @@ extern const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes);
 extern const char *vtss_media_type_if_txt(vtss_sd10g_media_type_t mt);
 #endif
 
+#if defined(VTSS_FEATURE_PORT_CPU_MASQUERADING)
+extern const char *vtss_cpu_masquerade_txt(vtss_cpu_masquerade_t cpu);
+#endif
+
 extern vtss_inst_t vtss_default_inst;
 
 typedef enum {

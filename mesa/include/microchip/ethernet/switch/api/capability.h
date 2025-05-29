@@ -83,6 +83,8 @@ typedef enum {
                                                within a serdes  */
     MESA_CAP_PORT_CONF_BULK,                /**< Configuration of multiple ports applied to
                                                hardware for speed-up */
+    MESA_CAP_PORT_CPU_MASQUERADING,         /**< Masquerade a front port into a CPU port to enable \
+                                                 asymmetric multiprocessor usages */
 
     // Packet
     MESA_CAP_PACKET_RX_QUEUE_CNT = 200, /**< Number of Rx packet queues */

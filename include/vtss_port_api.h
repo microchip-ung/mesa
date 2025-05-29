@@ -90,6 +90,14 @@ typedef struct {
     u8   sfp_sd; /**< SFP_SD<id> id, see GPIO ALT modes for chip */
 } vtss_gpio_sd_map_t;
 
+typedef enum {
+    VTSS_CPU_MASQUERADE_NONE, /**< Not a CPU masquerading port */
+    VTSS_CPU_MASQUERADE_CPU0, /**< Is a masquerading port for CPU0 */
+    VTSS_CPU_MASQUERADE_CPU1, /**< Is a masquerading port for CPU1 */
+} vtss_cpu_masquerade_t;
+
+u32 vtss_cpu_masquerade_to_chip_port(vtss_cpu_masquerade_t val);
+
 /** Signifies an unused chip port */
 #define CHIP_PORT_UNUSED -1
 
@@ -107,6 +115,9 @@ typedef struct {
     vtss_port_sgpio_map_t sd_map;      /**< PCS signal detect to SGPIO bit map */
     vtss_gpio_sd_map_t    sd_gpio_map; /**< PCS signal detect to GPIO SD map */
 #endif                                 /* VTSS_ARCH_FA || VTSS_ARCH_LAN966X */
+#if defined(VTSS_FEATURE_PORT_CPU_MASQUERADING)
+    vtss_cpu_masquerade_t cpu_masquerade;
+#endif
 } vtss_port_map_t;
 
 /**

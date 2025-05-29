@@ -441,6 +441,10 @@ vtss_rc vtss_port_status_get(const vtss_inst_t         inst,
         case VTSS_PORT_INTERFACE_USGMII:
             rc = vtss_port_usxgmii_status_get(vtss_state, port_no, status);
             break;
+        case VTSS_PORT_INTERFACE_MASQUERADING:
+            // Masqueraded port means a CPU port, report link up.
+            status->link = TRUE;
+            break;
         default: rc = vtss_cil_port_status_get(vtss_state, port_no, status); break;
         }
     }
@@ -2189,6 +2193,9 @@ static void vtss_port_debug_print_conf(vtss_state_t                  *vtss_state
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
             pr("Max BW  ");
 #endif
+#if defined(VTSS_FEATURE_PORT_CPU_MASQUERADING)
+            pr("Masquerade  ");
+#endif
             pr("MIIM Bus  MIIM Addr  MIIM Chip\n");
         }
         map = &vtss_state->port.map[port_no];
@@ -2202,6 +2209,9 @@ static void vtss_port_debug_print_conf(vtss_state_t                  *vtss_state
                    : map->max_bw == VTSS_BW_40G  ? "40G"
                    : map->max_bw == VTSS_BW_NONE ? "None"
                                                  : "N/A");
+#endif
+#if defined(VTSS_FEATURE_PORT_CPU_MASQUERADING)
+        pr("%-12s", vtss_cpu_masquerade_txt(map->cpu_masquerade));
 #endif
         pr("%-10d%-11u%u\n", map->miim_controller, map->miim_addr, map->miim_chip_no);
     }

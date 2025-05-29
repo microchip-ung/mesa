@@ -525,6 +525,9 @@ vtss_rc vtss_fa_port_debug_print(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
 vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss, BOOL res_stat_cur);
+#if defined(VTSS_ARCH_LAIKA) && defined(VTSS_FEATURE_PORT_CPU_MASQUERADING)
+vtss_rc lk_port_masquerading_set(vtss_state_t *vtss_state);
+#endif
 
 /* Port functions for index to address target */
 u32     vtss_port_dev_index(vtss_state_t *vtss_state, u32 port);

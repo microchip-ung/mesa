@@ -383,6 +383,12 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #endif
         break;
 
+    case MESA_CAP_PORT_CPU_MASQUERADING:
+#if defined(VTSS_FEATURE_PORT_CPU_MASQUERADING)
+        c = 1;
+#endif
+        break;
+
     // Miscellaneous
     case MESA_CAP_MISC_GPIO_CNT:
 #if defined(VTSS_GPIOS)

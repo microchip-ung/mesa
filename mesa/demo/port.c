@@ -73,6 +73,7 @@ const char *mesa_port_if2txt(mesa_port_interface_t if_type)
     case MESA_PORT_INTERFACE_DXGMII_5G:     return "DXGMII_5G";
     case MESA_PORT_INTERFACE_DXGMII_10G:    return "DXGMII_10G";
     case MESA_PORT_INTERFACE_CPU:           return "CPU";
+    case MESA_PORT_INTERFACE_MASQUERADING:  return "MASQUERADING";
     }
     return "?   ";
 }
@@ -331,7 +332,8 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     conf.xaui_tx_lane_flip = (cap & MEBA_PORT_CAP_XAUI_LANE_FLIP ? 1 : 0);
     conf.serdes.rx_invert = (cap & MEBA_PORT_CAP_SERDES_RX_INVERT ? 1 : 0);
     conf.serdes.tx_invert = (cap & MEBA_PORT_CAP_SERDES_TX_INVERT ? 1 : 0);
-    if (entry->media_type == MSCC_PORT_TYPE_CU) {
+    if (entry->media_type == MSCC_PORT_TYPE_CU ||
+        entry->meba.mac_if == MESA_PORT_INTERFACE_MASQUERADING) {
         conf.if_type = entry->meba.mac_if;
     }
     if (entry->sfp_device != NULL) {
@@ -1660,6 +1662,7 @@ static void port_init(meba_inst_t inst)
             pc->speed = MESA_SPEED_1G;
             break;
         case MESA_PORT_INTERFACE_NO_CONNECTION:
+        case MESA_PORT_INTERFACE_MASQUERADING:
             entry->media_type = MSCC_PORT_TYPE_NONE;
             pc->speed = MESA_SPEED_1G;
             break;
@@ -1746,7 +1749,12 @@ static void port_init(meba_inst_t inst)
                 }
             }
         }
-    } // Port loop
+
+        if (entry->meba.mac_if == MESA_PORT_INTERFACE_MASQUERADING) {
+            /* Force operational state up */
+            mesa_port_state_set(NULL, port_no, 1);
+        }
+    }
 
     if (mesa_capability(NULL, MESA_CAP_PORT_CONF_BULK) && port_bulk_setup) {
         // Apply config to HW

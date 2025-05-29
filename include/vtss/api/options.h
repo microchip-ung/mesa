@@ -382,6 +382,8 @@
 
 // VTSS_ARCH_LAIKA specific features
 #if defined(VTSS_ARCH_LAIKA)
+#define VTSS_FEATURE_PORT_CPU_MASQUERADING  /**< Masquerade a front port into a CPU port to enable \
+                                            asymmetric multiprocessor usages */
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED    /**< QoS: Time Aware Scheduling list                   \
                                                elements are linked */
 #define VTSS_FEATURE_ACL_EXT_ETYPE          /**< ACL Ethernet Type extended rules with             \

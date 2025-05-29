@@ -602,6 +602,7 @@ const char *vtss_port_if_txt(vtss_port_interface_t if_type)
     case VTSS_PORT_INTERFACE_DXGMII_10G:    return "DXGMII_10G";
     case VTSS_PORT_INTERFACE_DXGMII_5G:     return "DXGMII_5G";
     case VTSS_PORT_INTERFACE_CPU:           return "CPU";
+    case VTSS_PORT_INTERFACE_MASQUERADING:  return "MASQUERADING";
     }
     return "?   ";
 }
@@ -672,6 +673,20 @@ const char *vtss_media_type_if_txt(vtss_sd10g_media_type_t mt)
     case VTSS_SD10G_MEDIA_B2B:     return "B2B";
     case VTSS_SD10G_MEDIA_10G_KR:  return "KR";
     case VTSS_SD10G_MEDIA_PR_NONE: return "None";
+    }
+    return "?   ";
+}
+
+#endif
+
+#if defined(VTSS_FEATURE_PORT_CPU_MASQUERADING)
+
+const char *vtss_cpu_masquerade_txt(vtss_cpu_masquerade_t cpu)
+{
+    switch (cpu) {
+    case VTSS_CPU_MASQUERADE_NONE: return "-";
+    case VTSS_CPU_MASQUERADE_CPU0: return "CPU0";
+    case VTSS_CPU_MASQUERADE_CPU1: return "CPU1";
     }
     return "?   ";
 }

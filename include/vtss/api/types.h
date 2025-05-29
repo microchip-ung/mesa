@@ -419,6 +419,7 @@ typedef enum {
     VTSS_PORT_INTERFACE_DXGMII_10G,    /**< 2x5G devices.  Mode 'U'. Uses primary
                                           device. Experimental unsupported mode! */
     VTSS_PORT_INTERFACE_CPU,           /**< Exposed CPU port. Not connected to switch */
+    VTSS_PORT_INTERFACE_MASQUERADING,  /**< Physical port used for masquerading by a CPU port */
 } vtss_port_interface_t;
 
 /** \brief Auto negotiation struct */

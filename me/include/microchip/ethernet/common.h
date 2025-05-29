@@ -197,6 +197,7 @@ typedef enum {
     MESA_PORT_INTERFACE_DXGMII_10G,    // 2x5G devices.  Mode 'U'. Uses primary
                                        // device. */
     MESA_PORT_INTERFACE_CPU,           // Exposed CPU port. */
+    MESA_PORT_INTERFACE_MASQUERADING,  // Physical port used for masquerading by a CPU port
 } mesa_port_interface_t;
 
 /** \brief PHY reset structure */

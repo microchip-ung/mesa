@@ -42,6 +42,12 @@ typedef struct {
     uint8_t     sfp_sd; // SFP_SD<id> id, see GPIO ALT modes for chip
 } mesa_gpio_sd_map_t;
 
+typedef enum {
+    MESA_CPU_MASQUERADE_NONE, /**< Not a CPU masquerading port */
+    MESA_CPU_MASQUERADE_CPU0, /**< Is a masquerading port for CPU0 */
+    MESA_CPU_MASQUERADE_CPU1, /**< Is a masquerading port for CPU1 */
+} mesa_cpu_masquerade_t;
+
 // Signifies an unused chip port
 #define CHIP_PORT_UNUSED -1
 
@@ -55,6 +61,7 @@ typedef struct {
     mesa_chip_no_t                 miim_chip_no;   // MII management chip number, multi-chip targets
     mesa_port_sgpio_map_t sd_map   CAP(SGPIO_MAP); // PCS signal detect to SGPIO bit map
     mesa_gpio_sd_map_t sd_gpio_map CAP(GPIO_MAP);  // PCS signal detect to GPIO SD map
+    mesa_cpu_masquerade_t cpu_masquerade CAP(PORT_CPU_MASQUERADING);
 } mesa_port_map_t;
 
 // Set port map.
