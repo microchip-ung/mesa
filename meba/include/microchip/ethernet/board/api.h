@@ -18,7 +18,6 @@
 #include <microchip/ethernet/board/api/phy_macsec.h>
 #include <microchip/ethernet/board/api/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
 
-
 /** \brief Board instance struct */
 struct meba_inst {
     int    api_version;                     /**< The MEBA version of the board implementation */

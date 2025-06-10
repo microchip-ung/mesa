@@ -128,7 +128,8 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
     jr2_pd69200_system.controller_count = 1;
 #endif // JR2_POE_CONTROLLERS_COUNT
 
-    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, "controllers count=%d", jr2_pd69200_system.controller_count);
+    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, "controllers count=%d",
+                      jr2_pd69200_system.controller_count);
 
     jr2_pd69200_system.controllers =
         malloc(sizeof(meba_poe_ctrl_inst_t) * jr2_pd69200_system.controller_count);

@@ -9,7 +9,6 @@
 #include "meba_poe_generic.h"
 #include "poe_driver.h"
 
-
 //----------------------------------------------------------//
 //---------------        SPARX5             ----------------//
 //----------------------------------------------------------//
@@ -40,7 +39,6 @@
 // MEBA_POE_TWO_CONTROLLERS
 #define SPARX5_POE_CONTROLLERS_COUNT MEBA_POE_TWO_CONTROLLERS
 
-
 //--- poe card gen6 mcu i2c address ---//
 
 // poe boards version 1 controllers i2c address
@@ -52,8 +50,10 @@
 #define SPARX5_POE_BOARD_GEN6_PD69210_CONTROLLER_2_I2C_ADDRESS 0x3C
 
 // set the Gen6 PoE MCU controller I2C address (0x1 - 0xFE)
-#define SPARX5_POE_GEN6_CONTROLLER_1_I2C_ADDRESS SPARX5_POE_BOARD_GEN6_PD69210_CONTROLLER_1_I2C_ADDRESS
-#define SPARX5_POE_GEN6_CONTROLLER_2_I2C_ADDRESS SPARX5_POE_BOARD_GEN6_PD69210_CONTROLLER_2_I2C_ADDRESS
+#define SPARX5_POE_GEN6_CONTROLLER_1_I2C_ADDRESS                                                   \
+    SPARX5_POE_BOARD_GEN6_PD69210_CONTROLLER_1_I2C_ADDRESS
+#define SPARX5_POE_GEN6_CONTROLLER_2_I2C_ADDRESS                                                   \
+    SPARX5_POE_BOARD_GEN6_PD69210_CONTROLLER_2_I2C_ADDRESS
 
 //--- poe card gen7 mcu i2c address ---//
 
@@ -64,7 +64,6 @@
 // 0xFF   - no gpio use for reset poe ports.
 // 0-0xFE - GPIO number used for reset poe ports.
 #define SPARX5_RESET_POE_GPIO_NUMBER 0xFF
-
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
@@ -78,7 +77,6 @@
 
 // the max power that can be consumed by system itself (W)
 #define SPARX5_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT 0
-
 
 //-----  SPARX5 GEN6 BT parameters  -----//
 
@@ -216,7 +214,6 @@
 //     at the end of this time duration.
 #define SPARX5_INDV_MASK_GEN6_BT_HOCPP_DEFAULT 2
 
-
 //----- SPARX5 GEN7 BT parameters ------//
 
 // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
@@ -273,7 +270,6 @@
 // 1 = Port at LLDP has additional half priority compared to non LLDP port at
 //     the same priority settings.
 #define SPARX5_INDV_MASK_GEN7_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT 1
-
 
 //----- PREBT parameters ------//
 
@@ -526,7 +522,6 @@ meba_poe_port_properties_t sparx5_pd69777_4pairs_port_map[] = {
 };
 //----- cap and port map Customizations ends here -----//
 
-
 //----------------------------------------------------------//
 //---------------        LAGUNA             ----------------//
 //----------------------------------------------------------//
@@ -557,7 +552,6 @@ meba_poe_port_properties_t sparx5_pd69777_4pairs_port_map[] = {
 // MEBA_POE_TWO_CONTROLLERS
 #define LAGUNA_POE_CONTROLLERS_COUNT MEBA_POE_ONE_CONTROLLER
 
-
 //--- poe card gen6 mcu i2c address (0x1 - 0xFE) ---//
 
 // poe boards version 1 controllers i2c address
@@ -572,12 +566,10 @@ meba_poe_port_properties_t sparx5_pd69777_4pairs_port_map[] = {
 //--- poe card gen7 mcu i2c address (0x1 - 0xFE) ---//
 #define LAGUNA_POE_GEN7_CONTROLLER_I2C_ADDRESS 0x2C
 
-
 // poe gpio reset pin number
 // 0xFF   - no gpio use for reset poe ports.
 // 0-0xFE - GPIO number used for reset poe ports.
 #define LAGUNA_RESET_POE_GPIO_NUMBER 0xFF
-
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
@@ -913,7 +905,6 @@ meba_poe_port_properties_t sparx5_pd69777_4pairs_port_map[] = {
     ((LAGUNA_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT) ? LAGUNA_PD_PREBT_CAP \
                                                                              : LAGUNA_PD_BT_CAP)
 
-
 // Note: 'PREBT- Max PWR' column is not applicable for PoE BT.
 // set PoE BT max power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
 // this parameters is the port power limit when using poe PREBT mode.
@@ -922,32 +913,31 @@ meba_poe_port_properties_t laguna_pd69777_4pairs_port_map[] = {
     // PoE-      |PREBT- |App port|PoE port|Physical|Physical
     // Capability|MAX PWR|Logical |Logical |Pair-A  |Pair-B
     // ------------------------------------------------------
-    {LAGUNA_PD_CAP, 24000, 0,  0,  0,   1  },
-    {LAGUNA_PD_CAP, 24000, 1,  1,  2,   3  },
-    {LAGUNA_PD_CAP, 24000, 2,  2,  4,   5  },
-    {LAGUNA_PD_CAP, 24000, 3,  3,  6,   7  },
-    {LAGUNA_PD_CAP, 24000, 4,  4,  24,  25 },
-    {LAGUNA_PD_CAP, 24000, 5,  5,  26,  27 },
-    {LAGUNA_PD_CAP, 24000, 6,  6,  28,  29 },
-    {LAGUNA_PD_CAP, 24000, 7,  7,  30,  31 },
-    {LAGUNA_PD_CAP, 24000, 8,  8,  8,   9  },
-    {LAGUNA_PD_CAP, 24000, 9,  9,  10,  11 },
-    {LAGUNA_PD_CAP, 24000, 10, 10, 32,  33 },
-    {LAGUNA_PD_CAP, 24000, 11, 11, 34,  35 },
-    {LAGUNA_PD_CAP, 24000, 12, 12, 12,  13 },
-    {LAGUNA_PD_CAP, 24000, 13, 13, 14,  15 },
-    {LAGUNA_PD_CAP, 24000, 14, 14, 36,  37 },
-    {LAGUNA_PD_CAP, 24000, 15, 15, 38,  39 },
-    {LAGUNA_PD_CAP, 24000, 16, 16, 16,  17 },
-    {LAGUNA_PD_CAP, 24000, 17, 17, 18,  19 },
-    {LAGUNA_PD_CAP, 24000, 18, 18, 20,  21 },
-    {LAGUNA_PD_CAP, 24000, 19, 19, 22,  23 },
-    {LAGUNA_PD_CAP, 24000, 20, 20, 40,  41 },
-    {LAGUNA_PD_CAP, 24000, 21, 21, 42,  43 },
-    {LAGUNA_PD_CAP, 24000, 22, 22, 44,  45 },
-    {LAGUNA_PD_CAP, 24000, 23, 23, 46,  47 }
+    {LAGUNA_PD_CAP, 24000, 0,  0,  0,  1 },
+    {LAGUNA_PD_CAP, 24000, 1,  1,  2,  3 },
+    {LAGUNA_PD_CAP, 24000, 2,  2,  4,  5 },
+    {LAGUNA_PD_CAP, 24000, 3,  3,  6,  7 },
+    {LAGUNA_PD_CAP, 24000, 4,  4,  24, 25},
+    {LAGUNA_PD_CAP, 24000, 5,  5,  26, 27},
+    {LAGUNA_PD_CAP, 24000, 6,  6,  28, 29},
+    {LAGUNA_PD_CAP, 24000, 7,  7,  30, 31},
+    {LAGUNA_PD_CAP, 24000, 8,  8,  8,  9 },
+    {LAGUNA_PD_CAP, 24000, 9,  9,  10, 11},
+    {LAGUNA_PD_CAP, 24000, 10, 10, 32, 33},
+    {LAGUNA_PD_CAP, 24000, 11, 11, 34, 35},
+    {LAGUNA_PD_CAP, 24000, 12, 12, 12, 13},
+    {LAGUNA_PD_CAP, 24000, 13, 13, 14, 15},
+    {LAGUNA_PD_CAP, 24000, 14, 14, 36, 37},
+    {LAGUNA_PD_CAP, 24000, 15, 15, 38, 39},
+    {LAGUNA_PD_CAP, 24000, 16, 16, 16, 17},
+    {LAGUNA_PD_CAP, 24000, 17, 17, 18, 19},
+    {LAGUNA_PD_CAP, 24000, 18, 18, 20, 21},
+    {LAGUNA_PD_CAP, 24000, 19, 19, 22, 23},
+    {LAGUNA_PD_CAP, 24000, 20, 20, 40, 41},
+    {LAGUNA_PD_CAP, 24000, 21, 21, 42, 43},
+    {LAGUNA_PD_CAP, 24000, 22, 22, 44, 45},
+    {LAGUNA_PD_CAP, 24000, 23, 23, 46, 47}
 };
-
 
 // Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max
 // power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.
@@ -983,8 +973,6 @@ meba_poe_port_properties_t laguna_pd69200_4pairs_port_map[] = {
     {LAGUNA_PD_CAP, 24000, 23, 23, 23, 47},
 };
 
-
 //----- cap and port map Customizations ends here -----//
-
 
 #endif // _SPARX5_POE_HW_CFG_H_

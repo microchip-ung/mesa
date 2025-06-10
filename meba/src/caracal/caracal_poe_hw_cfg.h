@@ -44,7 +44,6 @@
 // set the PoE MCU controller I2C address (0x1 - 0xFE)
 #define PDS408G_POE_I2C_ADDRESS 0x20
 
-
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
 #define PDS408G_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT 0

@@ -39,7 +39,6 @@
 // 0-0xFE - GPIO number used for reset poe ports.
 #define OCELOT_RESET_POE_GPIO_NUMBER 0xFF
 
-
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
 #define OCELOT_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT 1

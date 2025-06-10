@@ -143,7 +143,8 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
 
         caracal_pd69200_system.controllers =
             malloc(sizeof(meba_poe_ctrl_inst_t) * caracal_pd69200_system.controller_count);
-        tPoE_parameters.ePoE_Controller_Type_default = PDS408G_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT;
+        tPoE_parameters.ePoE_Controller_Type_default =
+            PDS408G_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT;
 
         // overide tMeba_poe_init_params params if using H file parameters
         if (tPoe_init_params->use_poe_static_parameters) {
@@ -228,7 +229,8 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
     {
         caracal_pd69200_system.controllers =
             malloc(sizeof(meba_poe_ctrl_inst_t) * caracal_pd69200_system.controller_count);
-        tPoE_parameters.ePoE_Controller_Type_default = CARACAL_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT;
+        tPoE_parameters.ePoE_Controller_Type_default =
+            CARACAL_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT;
 
         // overide tMeba_poe_init_params params if using H file parameters
         if (tPoe_init_params->use_poe_static_parameters) {

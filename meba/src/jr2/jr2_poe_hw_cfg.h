@@ -23,7 +23,8 @@
 // MEBA_POE_GEN6_PD69200_CONTROLLER_TYPE
 // MEBA_POE_GEN6_PD69210_CONTROLLER_TYPE
 // MEBA_POE_GEN6_PD69220_CONTROLLER_TYPE
-#define JR2_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+#define JR2_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT                                               \
+    MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 // Set system mode BT or AT firmware:
 // MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT
@@ -43,7 +44,6 @@
 // 0xFF   - no gpio use for reset poe ports.
 // 0-0xFE - GPIO number used for reset poe ports.
 #define JR2_RESET_POE_GPIO_NUMBER 0xFF
-
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No

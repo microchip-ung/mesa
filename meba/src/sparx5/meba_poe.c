@@ -131,7 +131,6 @@ meba_poe_psu_input_prob_t sparx5_power_supplies[] = {
      .user_configurable = SPARX5_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT}
 };
 
-
 meba_poe_parameters_t tLaguna_poe_parameters = {
     // poe firmware type - TYPE_PREBT , GEN6_BT
     .tMeba_poe_firmware_type = LAGUNA_POE_FIRMWARE_TYPE_DEFAULT,
@@ -257,7 +256,6 @@ meba_poe_psu_input_prob_t laguna_power_supplies[] = {
      .user_configurable = LAGUNA_POE_POWER_SUPPLY_MAX_POWER_USER_CONFIG_DEFAULT}
 };
 
-
 meba_poe_system_t pd_system;
 
 static i2c_config_t sparx5_gen6_i2c_config[] = {
@@ -299,10 +297,10 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(meba_inst_t             inst,
     pd_system.controller_count = 1;
 #endif // SPARX5_POE_CONTROLLERS_COUNT
 
-    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, "controllers count=%d", pd_system.controller_count);
+    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, "controllers count=%d",
+                      pd_system.controller_count);
 
-    pd_system.controllers =
-        malloc(sizeof(meba_poe_ctrl_inst_t) * pd_system.controller_count);
+    pd_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * pd_system.controller_count);
     // overide tMeba_poe_init_params params if using H file parameters
     if (tPoe_init_params->use_poe_static_parameters) {
         tPoe_init_params->power_supply_max_power_w = SPARX5_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
@@ -472,7 +470,7 @@ mesa_rc meba_poe_sparx5_pcb135_system_initialize(meba_inst_t             inst,
 };
 
 mesa_rc meba_poe_laguna_pcb8398_system_initialize(meba_inst_t             inst,
-                                                   meba_poe_init_params_t *tPoe_init_params)
+                                                  meba_poe_init_params_t *tPoe_init_params)
 {
     // Do poe chip detection and fill
     // lan969x_ctrl.api = ....;
@@ -480,8 +478,7 @@ mesa_rc meba_poe_laguna_pcb8398_system_initialize(meba_inst_t             inst,
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");
 
     pd_system.controller_count = 1;
-    pd_system.controllers =
-        malloc(sizeof(meba_poe_ctrl_inst_t) * pd_system.controller_count);
+    pd_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * pd_system.controller_count);
 
     // overide tMeba_poe_init_params params if using H file parameters
     if (tPoe_init_params->use_poe_static_parameters) {
@@ -490,7 +487,8 @@ mesa_rc meba_poe_laguna_pcb8398_system_initialize(meba_inst_t             inst,
     } else { // overide meba power supply by appl init_params
         laguna_power_supplies->def_w = tPoe_init_params->power_supply_default_power_limit;
         laguna_power_supplies->max_w = tPoe_init_params->power_supply_max_power_w;
-        laguna_power_supplies->system_pwr_usage_w = tPoe_init_params->power_supply_internal_pwr_usage;
+        laguna_power_supplies->system_pwr_usage_w =
+            tPoe_init_params->power_supply_internal_pwr_usage;
     }
 
     if (tPoe_init_params->eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
@@ -501,11 +499,11 @@ mesa_rc meba_poe_laguna_pcb8398_system_initialize(meba_inst_t             inst,
                 sizeof(laguna_pd69200_4pairs_port_map) / sizeof(meba_poe_port_properties_t);
         }
 
-        inst->iface
-            .debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                   "gen6 BT: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                   tPoe_init_params->max_poe_ports, tPoe_init_params->power_supply_max_power_w,
-                   tPoe_init_params->eMeba_poe_firmware_type);
+        inst->iface.debug(
+            MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+            "gen6 BT: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
+            tPoe_init_params->max_poe_ports, tPoe_init_params->power_supply_max_power_w,
+            tPoe_init_params->eMeba_poe_firmware_type);
 
         tLaguna_poe_parameters.poe_init_params = *tPoe_init_params;
 
@@ -532,11 +530,11 @@ mesa_rc meba_poe_laguna_pcb8398_system_initialize(meba_inst_t             inst,
                 sizeof(laguna_pd69777_4pairs_port_map) / sizeof(meba_poe_port_properties_t);
         }
 
-        inst->iface
-            .debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                   "gen7 BT: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                   tPoe_init_params->max_poe_ports, tPoe_init_params->power_supply_max_power_w,
-                   tPoe_init_params->eMeba_poe_firmware_type);
+        inst->iface.debug(
+            MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+            "gen7 BT: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
+            tPoe_init_params->max_poe_ports, tPoe_init_params->power_supply_max_power_w,
+            tPoe_init_params->eMeba_poe_firmware_type);
 
         tLaguna_poe_parameters.poe_init_params = *tPoe_init_params;
 
@@ -561,11 +559,11 @@ mesa_rc meba_poe_laguna_pcb8398_system_initialize(meba_inst_t             inst,
                 sizeof(laguna_pd69200_4pairs_port_map) / sizeof(meba_poe_port_properties_t);
         }
 
-        inst->iface
-            .debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                   "gen6 PREBT: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                   tPoe_init_params->max_poe_ports, tPoe_init_params->power_supply_max_power_w,
-                   tPoe_init_params->eMeba_poe_firmware_type);
+        inst->iface.debug(
+            MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+            "gen6 PREBT: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
+            tPoe_init_params->max_poe_ports, tPoe_init_params->power_supply_max_power_w,
+            tPoe_init_params->eMeba_poe_firmware_type);
 
         tLaguna_poe_parameters.poe_init_params = *tPoe_init_params;
 
@@ -634,8 +632,7 @@ mesa_rc meba_poe_sparx5_do_detection(meba_inst_t inst)
                       pd_system.controller_count);
 
     for (int i = 0; i < pd_system.controller_count; ++i) {
-        if (pd_system.controllers[i]
-                .api->meba_poe_ctrl_do_detection(&pd_system.controllers[i]) ==
+        if (pd_system.controllers[i].api->meba_poe_ctrl_do_detection(&pd_system.controllers[i]) ==
             MESA_RC_ERROR) {
             inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
                               "Detection Failed for controller: %d", i);

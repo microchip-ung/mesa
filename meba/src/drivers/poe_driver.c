@@ -745,7 +745,7 @@ static mesa_rc pd_rd(const meba_poe_ctrl_inst_t *const inst, uint8_t *data, uint
     DEBUG(inst, MEBA_TRACE_LVL_NOISE, "%s: Read(%d/%d)  %s ", inst->adapter_name, size, cnt,
           print_as_hex_string(data, size, buf, sizeof(buf)));
 
-    if(cnt == size) {
+    if (cnt == size) {
         return MESA_RC_OK;
     } else {
         DEBUG(inst, MEBA_TRACE_LVL_WARNING, "RX error, reuested=%d , actual =%d", size, cnt);
@@ -2125,27 +2125,25 @@ mesa_rc get_15_bytes_comm_protocol_reply(const meba_poe_ctrl_inst_t *const inst,
                 if (pePOE_BOOL_Is_system_status)
                     *pePOE_BOOL_Is_system_status = true;
 
-                poe_driver_private_t *private_data =
-                    (poe_driver_private_t *)(inst->private_data);
+                poe_driver_private_t *private_data = (poe_driver_private_t *)(inst->private_data);
 
                 DEBUG(inst, MEBA_TRACE_LVL_INFO,
-                      "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
-                      __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
+                      "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d", __FUNCTION__,
+                      private_data->tPoE_parameters.tMeba_poe_firmware_type);
 
                 if (private_data->tPoE_parameters.tMeba_poe_firmware_type ==
                     MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
-                    return check_for_poe_BT_Gen7_firmware_errors(inst, rx_data,
-                                                                 ptBT_System_Status);
+                    return check_for_poe_BT_Gen7_firmware_errors(inst, rx_data, ptBT_System_Status);
                 } else {
 
-                    return check_for_poe_BT_gen6_firmware_errors(
-                        inst, rx_data, &(ptBT_System_Status->eGen6_bt_boot_up_error));
+                    return check_for_poe_BT_gen6_firmware_errors(inst, rx_data,
+                                                                 &(ptBT_System_Status
+                                                                       ->eGen6_bt_boot_up_error));
                 }
             }
 
             if ((rx_data[1] == byTxEcho) || // original messsage - ECHO ok
-                ((rx_data[0] == TELEMETRY_KEY) && (bRxMsg[0] == SYSTEM_STATUS_ECHO_KEY)))
-            {
+                ((rx_data[0] == TELEMETRY_KEY) && (bRxMsg[0] == SYSTEM_STATUS_ECHO_KEY))) {
                 return MESA_RC_OK;
             }
         }
@@ -4468,7 +4466,8 @@ mesa_rc print_indv_masks_bt(const meba_poe_ctrl_inst_t *const inst, meba_poe_ind
 {
     // --------------------- // BT individual masks - individual mask configure
     // by user defaults -------------------- //
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "BT individual masks - individual mask configure by user defaults:");
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
+          "BT individual masks - individual mask configure by user defaults:");
     poe_driver_private_t *private_data = (poe_driver_private_t *)(inst->private_data);
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",

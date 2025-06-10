@@ -152,7 +152,7 @@ mesa_rc meba_poe_system_initialize(meba_inst_t inst, meba_poe_init_params_t *tPo
         meba_pd_bt_driver_init(&ocelot_pd69200_system.controllers[0], "pd69x00bt",
                                meba_pd_i2c_adapter_open(&ocelot_pd69200_system.controllers[0],
                                                         ocelot_i2c_config.i2c_device,
-							ocelot_i2c_config.i2c_address),
+                                                        ocelot_i2c_config.i2c_address),
                                MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                    MEBA_POE_CTRL_INTERRUPTIBLE_POWER |
                                    MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
@@ -189,7 +189,7 @@ mesa_rc meba_poe_system_initialize(meba_inst_t inst, meba_poe_init_params_t *tPo
         meba_pd69200_driver_init(&ocelot_pd69200_system.controllers[0], "pd69x00at",
                                  meba_pd_i2c_adapter_open(&ocelot_pd69200_system.controllers[0],
                                                           ocelot_i2c_config.i2c_device,
-							  ocelot_i2c_config.i2c_address),
+                                                          ocelot_i2c_config.i2c_address),
                                  MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                      MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
                                      MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
