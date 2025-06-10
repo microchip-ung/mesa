@@ -6,7 +6,7 @@
 #ifdef VTSS_ARCH_LAIKA
 #ifdef VTSS_OPT_SYMREG
 
-#define VTSS_IO_ORIGIN1_OFFSET 0x06000000 /*! default region*/
+#define VTSS_IO_ORIGIN1_OFFSET  0x06000000 // ENET_SWR_SWITCH offset in APP_NOC
 #define VTSS_IO_OFFSET1(offset) (VTSS_IO_ORIGIN1_OFFSET + offset)
 
 static const vtss_symreg_reg_t regs_within_AFI_MISC[] = {
@@ -3415,7 +3415,7 @@ static const vtss_symreg_target_t vtss_symreg_targets[] = {
 vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data) {
     data->targets = vtss_symreg_targets;
     data->targets_cnt = sizeof(vtss_symreg_targets) / sizeof(vtss_symreg_targets[0]);
-    data->io_origin1_offset = VTSS_IO_ORIGIN1_OFFSET;
+    data->io_origin1_offset = 0;
     data->repl_cnt_max = SYMREG_REPL_CNT_MAX;
     data->name_len_max = SYMREG_NAME_LEN_MAX;
     return VTSS_RC_OK;
