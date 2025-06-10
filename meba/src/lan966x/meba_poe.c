@@ -9,7 +9,7 @@ meba_poe_parameters_t tPoE_parameters = {
     // poe firmware type - TYPE_PREBT , GEN6_BT
     .tMeba_poe_firmware_type = LAN9668_POE_FIRMWARE_TYPE_DEFAULT,
     // PD692x0 family detection method
-    .ePoE_Controller_Type_default = LAN9668_POE_PD692x0_CONTROLLER_TYPE_DEFAULT,
+    .ePoE_Controller_Type_default = LAN9668_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT,
     // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
     .ePoE_port_max_power_default = LAN9668_BT_PORT_MAX_POWER_DEFAULT,
 
@@ -115,12 +115,6 @@ mesa_rc meba_poe_system_initialize(meba_inst_t inst, meba_poe_init_params_t *tPo
 {
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");
 
-    uint8_t poe_12c0 = lan9668_i2c_config.i2c_address;
-    if (inst->poe_i2c_tags.poe_12c0 != 0) {
-        poe_12c0 = inst->poe_i2c_tags.poe_12c0;
-        // T_I("%s=%d", "poe_12c0", poe_12c0);
-    }
-
     // overide tMeba_poe_init_params params if using H file parameters
     if (tPoe_init_params->use_poe_static_parameters) {
         tPoe_init_params->power_supply_max_power_w = LAN9668_POE_POWER_SUPPLY_MAX_POWER_W_DEFAULT;
@@ -161,7 +155,8 @@ mesa_rc meba_poe_system_initialize(meba_inst_t inst, meba_poe_init_params_t *tPo
         lan9668_pd69200_system.controllers[0].index = 0;
         meba_pd_bt_driver_init(&lan9668_pd69200_system.controllers[0], "pd69x00bt",
                                meba_pd_i2c_adapter_open(&lan9668_pd69200_system.controllers[0],
-                                                        lan9668_i2c_config.i2c_device, poe_12c0),
+                                                        lan9668_i2c_config.i2c_device,
+                                                        lan9668_i2c_config.i2c_address),
                                MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                    MEBA_POE_CTRL_INTERRUPTIBLE_POWER |
                                    MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
@@ -197,7 +192,8 @@ mesa_rc meba_poe_system_initialize(meba_inst_t inst, meba_poe_init_params_t *tPo
         lan9668_pd69200_system.controllers[0].index = 0;
         meba_pd69200_driver_init(&lan9668_pd69200_system.controllers[0], "pd69x00at",
                                  meba_pd_i2c_adapter_open(&lan9668_pd69200_system.controllers[0],
-                                                          lan9668_i2c_config.i2c_device, poe_12c0),
+                                                          lan9668_i2c_config.i2c_device,
+                                                          lan9668_i2c_config.i2c_address),
                                  MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                      MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
                                      MEBA_POE_CTRL_INTERRUPTIBLE_POWER,

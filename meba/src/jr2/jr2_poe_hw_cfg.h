@@ -23,7 +23,7 @@
 // MEBA_POE_GEN6_PD69200_CONTROLLER_TYPE
 // MEBA_POE_GEN6_PD69210_CONTROLLER_TYPE
 // MEBA_POE_GEN6_PD69220_CONTROLLER_TYPE
-#define JR2_POE_PD692x0_CONTROLLER_TYPE_DEFAULT MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
+#define JR2_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 // Set system mode BT or AT firmware:
 // MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT
@@ -34,6 +34,16 @@
 // MEBA_POE_ONE_CONTROLLER
 // MEBA_POE_TWO_CONTROLLERS
 #define JR2_POE_CONTROLLERS_COUNT MEBA_POE_ONE_CONTROLLER
+
+// set the PoE MCU controllers I2C address (0x1 - 0xFE)
+#define JR2_POE_CONTROLLER_1_I2C_ADDRESS 0x14
+#define JR2_POE_CONTROLLER_2_I2C_ADDRESS 0x28
+
+// poe gpio reset pin number
+// 0xFF   - no gpio use for reset poe ports.
+// 0-0xFE - GPIO number used for reset poe ports.
+#define JR2_RESET_POE_GPIO_NUMBER 0xFF
+
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
@@ -47,15 +57,6 @@
 
 // the max power that can be consumed by system itself (W)
 #define JR2_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT 0
-
-// set the PoE MCU controllers I2C address (0x1 - 0xFE)
-#define JR2_POE_CONTROLLER_1_I2C_ADDRESS 0x14
-#define JR2_POE_CONTROLLER_2_I2C_ADDRESS 0x28
-
-// poe gpio reset pin number
-// 0xFF   - no gpio use for reset poe ports.
-// 0-0xFE - GPIO number used for reset poe ports.
-#define JR2_RESET_POE_GPIO_NUMBER 0xFF
 
 //------------------------------//
 //-----  JR2 BT parameters -----//

@@ -20,7 +20,10 @@
 
 #define VTSS_MSLEEP(m) usleep((m) * 1000)
 
-#define I2C_OPERATION_DELAY_MS 30
+#define GEN6_I2C_OPERATION_DELAY_MS 50
+#define GEN7_I2C_OPERATION_DELAY_MS 100
+
+static int I2C_OPERATION_DELAY_MS = GEN6_I2C_OPERATION_DELAY_MS;
 
 // for how many ms to turn off all poe ports and turn on only the cfg enabled poe ports
 #define INTERUPTIBLE_POE_OFF_TIME 5000
@@ -726,7 +729,7 @@ int meba_pd_i2c_adapter_open(const meba_poe_ctrl_inst_t *const inst,
                   strerror(errno));
         }
     } else {
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "cannot open %s! [%s]\n", filename, strerror(errno));
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING, "cannot open %s! [%s]\n", filename, strerror(errno));
     }
     return file;
 }
@@ -741,7 +744,13 @@ static mesa_rc pd_rd(const meba_poe_ctrl_inst_t *const inst, uint8_t *data, uint
     int cnt = read(inst->adapter_fd, data, size);
     DEBUG(inst, MEBA_TRACE_LVL_NOISE, "%s: Read(%d/%d)  %s ", inst->adapter_name, size, cnt,
           print_as_hex_string(data, size, buf, sizeof(buf)));
-    return (cnt == size) ? MESA_RC_OK : MESA_RC_ERROR;
+
+    if(cnt == size) {
+        return MESA_RC_OK;
+    } else {
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING, "RX error, reuested=%d , actual =%d", size, cnt);
+        return MESA_RC_ERROR;
+    }
 }
 
 static mesa_rc pd_rd_ex(const meba_poe_ctrl_inst_t *const inst,
@@ -2093,63 +2102,51 @@ mesa_rc get_15_bytes_comm_protocol_reply(const meba_poe_ctrl_inst_t *const inst,
         {
             rx_data[0] = bRxMsg[0]; // store telemetry/response
 
-            // Read the second byte (ECHO) from PoE Device
-            MESA_RC(pd_rd_ex(inst, bRxMsg, 1, I2C_OPERATION_DELAY_MS));
+            // Read the last 13 bytes from PoE Device
+            char size = PD_BUFFER_SIZE - 1;
 
-            check_reading_byte(bRxMsg[0]);
+            MESA_RC(pd_rd_ex(inst, bRxMsg, size, I2C_OPERATION_DELAY_MS));
 
-            // second msg byte - echo
-            if ((bRxMsg[0] == byTxEcho) || /* original messsage */
-                ((rx_data[0] == TELEMETRY_KEY) &&
-                 (bRxMsg[0] == SYSTEM_STATUS_ECHO_KEY))) // system status on startup
+            for (int i = 0; i < PD_BUFFER_SIZE - 1; i++)
+                check_reading_byte(bRxMsg[i]);
+
+            memcpy(rx_data + 1, bRxMsg, PD_BUFFER_SIZE - 1);
+
+            // checksum check
+            if (!pd_check_sum_ok(rx_data)) {
+                DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "RX checksum is not valid");
+                // see if we have other valid data bytes in the buffer
+                continue;
+            }
+
+            if (rx_data[1] == 0xFF) // it's a system status telemetry with echo 255 -
+                                    // system status on startup or firmware damage...
             {
-                rx_data[1] = bRxMsg[0]; // store echo
+                if (pePOE_BOOL_Is_system_status)
+                    *pePOE_BOOL_Is_system_status = true;
 
-                // Read the last 13 bytes from PoE Device
-                char size = PD_BUFFER_SIZE - 2;
+                poe_driver_private_t *private_data =
+                    (poe_driver_private_t *)(inst->private_data);
 
-                MESA_RC(pd_rd_ex(inst, bRxMsg, size, I2C_OPERATION_DELAY_MS));
+                DEBUG(inst, MEBA_TRACE_LVL_INFO,
+                      "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
+                      __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
 
-                for (int i = 0; i < PD_BUFFER_SIZE - 2; i++)
-                    check_reading_byte(bRxMsg[i]);
+                if (private_data->tPoE_parameters.tMeba_poe_firmware_type ==
+                    MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
+                    return check_for_poe_BT_Gen7_firmware_errors(inst, rx_data,
+                                                                 ptBT_System_Status);
+                } else {
 
-                memcpy(rx_data + 2, bRxMsg, PD_BUFFER_SIZE - 2);
-
-                // checksum check
-                if (!pd_check_sum_ok(rx_data)) {
-                    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "RX checksum is not valid");
-                    continue; // see if we have other valid data bytes in the
-                              // buffer
+                    return check_for_poe_BT_gen6_firmware_errors(
+                        inst, rx_data, &(ptBT_System_Status->eGen6_bt_boot_up_error));
                 }
+            }
 
-                if (rx_data[1] == 0xFF) // it's a system status telemetry with echo 255 -
-                                        // system status on startup or firmware damage...
-                {
-                    if (pePOE_BOOL_Is_system_status)
-                        *pePOE_BOOL_Is_system_status = true;
-
-                    poe_driver_private_t *private_data =
-                        (poe_driver_private_t *)(inst->private_data);
-
-                    DEBUG(inst, MEBA_TRACE_LVL_INFO,
-                          "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
-                          __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
-
-                    if (private_data->tPoE_parameters.tMeba_poe_firmware_type ==
-                        MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
-                        return check_for_poe_BT_Gen7_firmware_errors(inst, rx_data,
-                                                                     ptBT_System_Status);
-                    } else {
-
-                        return check_for_poe_BT_gen6_firmware_errors(
-                            inst, rx_data, &(ptBT_System_Status->eGen6_bt_boot_up_error));
-                    }
-                }
-
-                if (rx_data[1] == byTxEcho) // ECHO ok
-                {
-                    return MESA_RC_OK;
-                }
+            if ((rx_data[1] == byTxEcho) || // original messsage - ECHO ok
+                ((rx_data[0] == TELEMETRY_KEY) && (bRxMsg[0] == SYSTEM_STATUS_ECHO_KEY)))
+            {
+                return MESA_RC_OK;
             }
         }
     }
@@ -3523,7 +3520,7 @@ static mesa_bool_t is_gen7_firmware_version_identical(const meba_poe_ctrl_inst_t
     mesa_rc rc = MESA_RC_OK;
 
     poe_driver_private_t      *private_data = (poe_driver_private_t *)(inst->private_data);
-    meba_poe_controller_type_t ePoE_detected_controller_type = MEBA_POE_PD7777_CONTROLLER_TYPE;
+    meba_poe_controller_type_t ePoE_detected_controller_type = MEBA_POE_PD77010_CONTROLLER_TYPE;
 
     int fd = -1;
 
@@ -3607,7 +3604,7 @@ static mesa_bool_t is_gen7_firmware_version_identical(const meba_poe_ctrl_inst_t
 
     switch (tSoftware_version.product_number) {
     case ePD69210_GEN7_BT: {
-        ePoE_detected_controller_type = MEBA_POE_PD7777_CONTROLLER_TYPE;
+        ePoE_detected_controller_type = MEBA_POE_PD77010_CONTROLLER_TYPE;
         private_data->status.global.eDetected_poe_firmware_type = MEBA_POE_FIRMWARE_TYPE_GEN7_BT;
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "detected poe firmware: pd69210 GEN7 BT firmware");
         break;
@@ -3625,7 +3622,7 @@ static mesa_bool_t is_gen7_firmware_version_identical(const meba_poe_ctrl_inst_t
     // set poe firmware file depend on controller type (PD69200, PD69210, PD69220) and software
     // required BT/Legacy
 
-    if (ePoE_detected_controller_type == MEBA_POE_PD7777_CONTROLLER_TYPE) {
+    if (ePoE_detected_controller_type == MEBA_POE_PD77010_CONTROLLER_TYPE) {
         DEBUG(inst, MEBA_TRACE_LVL_INFO, "loaded poe firmware: pd77010 BT firmware");
         private_data->builtin_firmware = "/etc/mscc/poe/firmware/pd77010_bt_firmware.hex";
         private_data->status.global.poe_file.prod_number = ePD69210_GEN7_BT;
@@ -4471,8 +4468,7 @@ mesa_rc print_indv_masks_bt(const meba_poe_ctrl_inst_t *const inst, meba_poe_ind
 {
     // --------------------- // BT individual masks - individual mask configure
     // by user defaults -------------------- //
-    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
-          "BT individual masks - individual mask configure by user defaults:");
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "BT individual masks - individual mask configure by user defaults:");
     poe_driver_private_t *private_data = (poe_driver_private_t *)(inst->private_data);
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
@@ -4977,7 +4973,7 @@ mesa_rc meba_poe_ctrl_pd_gen6_do_detection(const meba_poe_ctrl_inst_t *const ins
             break;
         }
         case ePD69210_GEN7_BT: {
-            private_data->status.global.ePoE_controller_type = MEBA_POE_PD7777_CONTROLLER_TYPE;
+            private_data->status.global.ePoE_controller_type = MEBA_POE_PD77010_CONTROLLER_TYPE;
             break;
         }
         default: {
@@ -5113,7 +5109,7 @@ mesa_rc meba_poe_ctrl_pd_gen7_do_detection(const meba_poe_ctrl_inst_t *const ins
 
     switch (tSoftware_version.product_number) {
     case ePD69210_GEN7_BT: {
-        private_data->status.global.ePoE_controller_type = MEBA_POE_PD7777_CONTROLLER_TYPE;
+        private_data->status.global.ePoE_controller_type = MEBA_POE_PD77010_CONTROLLER_TYPE;
         break;
     }
     default: {
@@ -8869,6 +8865,7 @@ void meba_pd_bt_driver_init(meba_poe_ctrl_inst_t       *inst,
         MEBA_POE_FIRMWARE_TYPE_GEN7_BT) { // Assign Gen7 version
         meba_pd_bt_api.meba_poe_ctrl_do_detection = meba_poe_ctrl_pd_gen7_do_detection;
         is_firmware_version_identical = is_gen7_firmware_version_identical;
+        I2C_OPERATION_DELAY_MS = GEN7_I2C_OPERATION_DELAY_MS;
     } else { // Assign Gen6 version
 
         is_firmware_version_identical = is_gen6_firmware_version_identical;

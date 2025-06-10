@@ -23,13 +23,22 @@
 // MEBA_POE_GEN6_PD69200_CONTROLLER_TYPE
 // MEBA_POE_GEN6_PD69210_CONTROLLER_TYPE
 // MEBA_POE_GEN6_PD69220_CONTROLLER_TYPE
-#define LAN9668_POE_PD692x0_CONTROLLER_TYPE_DEFAULT                                                \
+#define LAN9668_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT                                           \
     MEBA_POE_GEN6_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION
 
 // Set system mode BT or AT firmware:
 // MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT
 // MEBA_POE_FIRMWARE_TYPE_GEN6_BT
 #define LAN9668_POE_FIRMWARE_TYPE_DEFAULT MEBA_POE_FIRMWARE_TYPE_GEN6_BT
+
+// set the PoE MCU controller I2C address (0x1 - 0xFE)
+#define LAN9668_POE_I2C_ADDRESS 0x2C
+
+// poe gpio reset pin number
+// 0xFF   - no gpio use for reset poe ports.
+// 0-0xFE - GPIO number used for reset poe ports.
+#define LAN9668_RESET_POE_GPIO_NUMBER 0xFF
+
 
 // Set unit max power as fixed or variable through Web & CLI
 // User Conig 1=Yes,0=No
@@ -43,14 +52,6 @@
 
 // the max power that can be consumed by system itself (W)
 #define LAN9668_POE_POWER_SUPPLY_SYSTEM_POWER_USAGE_DEFAULT 20
-
-// set the PoE MCU controller I2C address (0x1 - 0xFE)
-#define LAN9668_POE_I2C_ADDRESS 0x20
-
-// poe gpio reset pin number
-// 0xFF   - no gpio use for reset poe ports.
-// 0-0xFE - GPIO number used for reset poe ports.
-#define LAN9668_RESET_POE_GPIO_NUMBER 0xFF
 
 //--- port map Customizations starts here ---//
 

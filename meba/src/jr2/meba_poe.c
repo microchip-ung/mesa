@@ -9,7 +9,7 @@ meba_poe_parameters_t tPoE_parameters = {
     // poe firmware type - TYPE_PREBT, GEN6_BT
     .tMeba_poe_firmware_type = JR2_POE_FIRMWARE_TYPE_DEFAULT,
     // PD692x0 family detection method
-    .ePoE_Controller_Type_default = JR2_POE_PD692x0_CONTROLLER_TYPE_DEFAULT,
+    .ePoE_Controller_Type_default = JR2_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT,
     // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
     .ePoE_port_max_power_default = JR2_BT_PORT_MAX_POWER_DEFAULT,
 
@@ -122,22 +122,13 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
     // jr2_ctrl.private_data = ....;
     inst->iface.debug(MEBA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, "Called");
 
-    uint8_t poe_12c0 = jr2_i2c_config[0].i2c_address;
-    if (inst->poe_i2c_tags.poe_12c0 != 0) {
-        poe_12c0 = inst->poe_i2c_tags.poe_12c0;
-        // T_I("%s=%d", "poe_12c0", poe_12c0);
-    }
 #if JR2_POE_CONTROLLERS_COUNT == MEBA_POE_TWO_CONTROLLERS
-    uint8_t poe_12c1 = jr2_i2c_config[1].i2c_address;
-    if (inst->poe_i2c_tags.poe_12c1 != 0) {
-        poe_12c1 = inst->poe_i2c_tags.poe_12c1;
-        // T_I("%s=%d", "poe_12c1", poe_12c1);
-    }
-
     jr2_pd69200_system.controller_count = 2;
 #else
     jr2_pd69200_system.controller_count = 1;
 #endif // JR2_POE_CONTROLLERS_COUNT
+
+    inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, "controllers count=%d", jr2_pd69200_system.controller_count);
 
     jr2_pd69200_system.controllers =
         malloc(sizeof(meba_poe_ctrl_inst_t) * jr2_pd69200_system.controller_count);
@@ -171,7 +162,8 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
         jr2_pd69200_system.controllers[0].index = 0;
         meba_pd_bt_driver_init(&jr2_pd69200_system.controllers[0], "pd69x00bt",
                                meba_pd_i2c_adapter_open(&jr2_pd69200_system.controllers[0],
-                                                        jr2_i2c_config[0].i2c_device, poe_12c0),
+                                                        jr2_i2c_config[0].i2c_device,
+                                                        jr2_i2c_config[0].i2c_address),
                                MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                    MEBA_POE_CTRL_INTERRUPTIBLE_POWER |
                                    MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
@@ -200,7 +192,8 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
         jr2_pd69200_system.controllers[1].index = 1;
         meba_pd_bt_driver_init(&jr2_pd69200_system.controllers[1], "pd69x00bt-2",
                                meba_pd_i2c_adapter_open(&jr2_pd69200_system.controllers[1],
-                                                        jr2_i2c_config[1].i2c_device, poe_12c1),
+                                                        jr2_i2c_config[1].i2c_device,
+                                                        jr2_i2c_config[1].i2c_address),
                                MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                    MEBA_POE_CTRL_INTERRUPTIBLE_POWER |
                                    MEBA_POE_CTRL_PD_AUTO_CLASS_REQUEST |
@@ -229,7 +222,8 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
         jr2_pd69200_system.controllers[0].index = 0;
         meba_pd69200_driver_init(&jr2_pd69200_system.controllers[0], "pd69x00at",
                                  meba_pd_i2c_adapter_open(&jr2_pd69200_system.controllers[0],
-                                                          jr2_i2c_config[0].i2c_device, poe_12c0),
+                                                          jr2_i2c_config[0].i2c_device,
+                                                          jr2_i2c_config[0].i2c_address),
                                  MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                      MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
                                      MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
@@ -256,7 +250,8 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
         jr2_pd69200_system.controllers[1].index = 1;
         meba_pd69200_driver_init(&jr2_pd69200_system.controllers[1], "pd69x00at-2",
                                  meba_pd_i2c_adapter_open(&jr2_pd69200_system.controllers[1],
-                                                          jr2_i2c_config[1].i2c_device, poe_12c1),
+                                                          jr2_i2c_config[1].i2c_device,
+                                                          jr2_i2c_config[1].i2c_address),
                                  MEBA_POE_CTRL_CAP_POWER_MANAGEMENT |
                                      MEBA_POE_CTRL_CAP_PD_LEGACY_DETECTION |
                                      MEBA_POE_CTRL_INTERRUPTIBLE_POWER,
