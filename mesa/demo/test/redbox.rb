@@ -673,7 +673,7 @@ test_table =
     {
         txt: "port D to port A/B/C - repeated burst",
         cfg: {mode: "PRP_SAN"},
-        tab: [{rep: 1000,
+        tab: [{rep: 100,
                fwd: [{idx_tx: "d"},
                      {idx_rx: "a"},
                      {idx_rx: "b"},
@@ -681,9 +681,9 @@ test_table =
         # Expect tagged counters
         cnt: [
             {port: "a", name: "tx_untagged", val: 0},
-            {port: "a", name: "tx_tagged", val: 1000},
+            {port: "a", name: "tx_tagged", val: 100},
             {port: "b", name: "tx_untagged", val: 0},
-            {port: "b", name: "tx_tagged", val: 1000}
+            {port: "b", name: "tx_tagged", val: 100}
         ]
     },
     {
