@@ -92,13 +92,13 @@ WORKDIR /tmp
 
 # When updating Coverity, remember to update ".deps" as well
 RUN curl -s -X GET -O https://artifacts-aws.devops.microchip.com:443/artifactory/ung-generic-dev-local/coverity/cov-analysis-linux64-2024.12.0.sh
-RUN curl -s -X GET -O https://artifacts-aws.devops.microchip.com:443/artifactory/ung-generic-dev-local/coverity/license-coverity-2025-06-tmp.dat
+RUN curl -s -X GET -O https://artifacts-aws.devops.microchip.com:443/artifactory/ung-generic-dev-local/coverity/license-coverity-2028-05.dat
 RUN sh /tmp/cov-analysis-linux64-2024.12.0.sh -q \
         --installation.dir=/opt/coverity/analysis/ \
         --license.agreement=agree \
         --license.region=0 \
         --license.type.choice=0 \
-        --license.cov.path=/tmp/license-coverity-2025-06-tmp.dat \
+        --license.cov.path=/tmp/license-coverity-2028-05.dat \
         --component.sdk=false \
         --component.skip.documentation=true
 
