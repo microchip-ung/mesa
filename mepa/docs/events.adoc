@@ -15,6 +15,9 @@ enabled events of a given PHY, provided event mask.
 The API `mepa_event_poll()` helps polling for all the supported
 interrupts on a given PHY.
 
+NOTE: LAN80XX PHYs doesn't support above mentioned MEPA APIs for Events, Reffer link:#mepa/docs/lan80xx-events-config[LAN80XX-Events-Config] Page
+for LAN80XX PHY Event APIs
+
 === API References
 
 `mepa_event_enable_set()` +

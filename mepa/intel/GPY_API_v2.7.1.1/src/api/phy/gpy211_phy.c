@@ -1183,10 +1183,8 @@ static int __gpy211_setup_forced(struct gpy211_device *phy)
 			return ret;
 		}
 	} else {
-		// Mesa-913
-		LOG_WARN("WARN: Speed forced not supported\n");
-		return -EINVAL;
-
+        // Mesa-913
+        LOG_WARN("WARN: Speed forced not supported\n");
 		/* Full duplex only */
 		ctrl1 &= STD_CTRL_SSM_MASK | STD_CTRL_SSL_MASK
 			 | STD_CTRL_LB_MASK | STD_CTRL_ISOL_MASK
@@ -1248,6 +1246,9 @@ static int __gpy211_setup_forced(struct gpy211_device *phy)
 			LOG_CRIT("ERROR: PMA_CTRL2 write fails\n");
 			return ret;
 		}
+        // Mesa-913
+        LOG_WARN("WARN: Speed forced not supported\n");
+        return -EINVAL;
 	}
 
 	ret = PHY_READ(phy, STD_STD_GCTRL);
@@ -2357,12 +2358,6 @@ int gpy2xx_ads_cfg(struct gpy211_device *phy, struct gpy211_ads_ctrl *ads)
 	/* Validate ADS force reset enable */
 	if (ads->force_rst < ADS_FORCE_RST_DIS || ads->force_rst > ADS_FORCE_RST_EN) {
 		LOG_WARN("WARN: Invalid input of FORCE_RST (boolean) enable.\n");
-		return -EINVAL;
-	}
-
-	/* Validate ADS Timer (to Reset the Downshift process) */
-	if (ads->nrg_rst_cnt > ADS_NRG_RST_CNT_MAX) {
-		LOG_WARN("WARN: Invalid input of TIMER value (0-255) to reset downshift process.\n");
 		return -EINVAL;
 	}
 
@@ -3859,8 +3854,7 @@ static int __gpy211_sgmii_opmode(struct gpy211_device *phy,
 		if (ctrl) {
 			LOG_CRIT("ERROR: VSPEC1_SGMII_CTRL Reset is still in RST state\n");
 			return -EIO;
-		} else
-			return 0;
+        }
 
 	default:
 		return -EINVAL;
@@ -4925,10 +4919,11 @@ int gpy2xx_macsec_enable(struct gpy211_device *phy,
 
 	/* ret = gpy2xx_msec_init_egr_dev(phy); */
 
-	if (ret < 0) {
+	/* if (ret < 0) {
 		LOG_CRIT("ERROR: MACsec egress dev init fails\n");
 		goto END;
 	}
+    */
 
 END:
 	phy->unlock(phy->lock_data);
@@ -5120,9 +5115,9 @@ int gpy2xx_gmacx_pm_pdi_get(struct gpy211_device *phy,
 
 	pm_pdi_cfg = _data;
 
-	pm_cfg->bypass_gmac = FIELD_GET(pm_pdi_cfg, PM_PDI_CFG_GMAC_BYP);
+    //pm_cfg->bypass_gmac = FIELD_GET(pm_pdi_cfg, PM_PDI_CFG_GMAC_BYP);
 	pm_cfg->bypass_gmac = FIELD_GET(pm_pdi_cfg, PM_PDI_CFG_GMACL_BYP);
-	pm_cfg->bypass_macsec = FIELD_GET(pm_pdi_cfg, PM_PDI_CFG_MACSECE_BYP);
+	//pm_cfg->bypass_macsec = FIELD_GET(pm_pdi_cfg, PM_PDI_CFG_MACSECE_BYP);
 	pm_cfg->bypass_macsec = FIELD_GET(pm_pdi_cfg, PM_PDI_CFG_MACSECI_BYP);
 	pm_cfg->drop_on_crc_err = FIELD_GET(pm_pdi_cfg, PM_PDI_CFG_CRC_ERR);
 	pm_cfg->drop_on_pkt_err = FIELD_GET(pm_pdi_cfg, PM_PDI_CFG_PKT_ERR);
@@ -5935,8 +5930,7 @@ int gpy2xx_usxgmii_reach_cfg(struct gpy211_device *phy,
 	/* 	return -EINVAL; */
 	/* } */
 
-	if (reach_cfg->trace_len < CONST_VSPEC1_SGMII_CTRL_USXGMII_REACH_SHORT ||
-	    reach_cfg->trace_len > CONST_VSPEC1_SGMII_CTRL_USXGMII_REACH_CUSTOM) {
+	if (reach_cfg->trace_len > CONST_VSPEC1_SGMII_CTRL_USXGMII_REACH_CUSTOM) {
 		LOG_WARN("WARN: Invalid trace_len.\n");
 		return -EINVAL;
 	}
@@ -6666,7 +6660,11 @@ static int __usxgmii_anegsts_get(struct gpy211_device *phy,
 
 		if (status->aneg_complete) {
 			FIELD_REPLACE(_data, 0, XPCS_VR_MII_AN_INTR_STS_CL37_ANCMPLT_INTR);
-			PHY_XPCS_HWWR(phy, aneg_intr_off[idx], _data);
+			ret = PHY_XPCS_HWWR(phy, aneg_intr_off[idx], _data);
+            if (ret < 0) {
+                LOG_CRIT("ERROR: XPCS read fails\n");
+                return ret;
+            }
 		}
 	}
 

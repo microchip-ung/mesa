@@ -381,6 +381,18 @@ typedef int (*vtss_debug_printf_t)(const char *fmt, ...) VTSS_ATTR_PRINTF(1, 2);
 vtss_rc vtss_phy_debug_info_print(const vtss_inst_t         inst,
                                   const vtss_debug_printf_t pr,
                                   const vtss_debug_info_t   *const info);
+
+/**
+ * \brief QSGMII Sync function
+ *
+ * \param inst    [IN] Vitesse API instance.
+ * \param port_no [IN] Port number.
+ *
+ * \return Return code.
+ **/
+vtss_rc vtss_phy_1g_qsgmii_sync(const vtss_inst_t    inst,
+                                const vtss_port_no_t port_no);
+
 /**
  * \brief SPI read/write function
  *

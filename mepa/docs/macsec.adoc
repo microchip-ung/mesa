@@ -435,6 +435,59 @@ If a MACsec Port is having Multiple SecYs (Virtual Ports) where the Number of Ta
 MACsec counters are supported as per the 802.1AE MACsec standards. The three classes of statistics
 counters are as follows:
 
+SecY statistics: The MACsec block maintains statistics of each SecY in the per physical port.
+
+Per-SA statistics: The software on the MACsec block maintains all the per-SA statistics for the ingress
+and egress MACsec operations. It maintains the statistics for all the four SAs that may belong to an
+SC. Thus, it keeps the per-SA statistics, even for the deleted SAs from the SA flow table. Whenever
+an SA flow is deleted, its final SA statistics must be collected and added into the per-SA and per-SC
+statistics.
+
+Per-SC statistics: The MACsec block does not maintain any per-SC statistics. However, the per-SC
+statistics are the sum of per-SA statistics of the SAs belonging to that SC. Whenever the software
+reads per-SA statistics from the hardware, it will add them to SC statistics.
+
+`mepa_macsec_tx_sa_counters_get()` : Gets the statistics of particular Transmit secure assosiation
+
+`mepa_macsec_tx_sc_counters_get()` : Gets the statics of particular transmit secure channel it contains the statistics of all the SA's
+                                     belong to the particular secure channel
+
+`mepa_macsec_rx_sa_counters_get()` : Gets the statistics of particular Receiving secure assosiation.
+
+`mepa_macsec_rx_sc_counters_get()` : Gets the statics of particular receive secure channel.
+
+`mepa_macsec_secy_counters_get()` : Gets the statistics of particular SecY in the physical port.
+
+`mepa_macsec_controlled_counters_get()` : Gets the statistics of the packets passing through the controlled port of the MACsec.
+
+`mepa_macsec_uncontrolled_counters_get()` : Gets the statistics of the packets passing through the uncontrolled port
+
+
+
+== List of APIs for Ecryption/decryption configuration
+
+'mepa_macsec_init_set()'
+'mepa_macsec_default_action_set()'
+'mepa_macsec_secy_conf_add()'
+'mepa_macsec_pattern_set()'
+'mepa_macsec_secy_cotrolled_set()'
+
+== Encryption
+'mepa_macsec_tx_sc_set()'
+'mepa_macsec_tx_sa_set()'
+'mepa_macsec_tx_sa_activate()'
+
+== Decryption
+'mepa_macsec_rx_sc_add()'
+'mepa_macsec_rx_sc_set()'
+'mepa_macsec_rx_sa_activate()'
+
+
+== MACsec Counters
+
+MACsec counters are supported as per the 802.1AE MACsec standards. The three classes of statistics
+counters are as follows:
+
 `SecY statistics` : The MACsec block maintains statistics of each SecY in the per physical port.
 
 `Per-SA statistics` : The software on the MACsec block maintains all the per-SA statistics for the ingress
@@ -492,7 +545,7 @@ MACsec Supports two events Rollover and sequence threshold event.
 
 . `Rollover event` - Event is generated if the Tx SA Packet number rollover from Max value to zero
 
-. `Sequence threshold event` - Event is genrated when the Packet Number of Tx SA reaches the threshold value configured through `mepa_macsec_event_seq_threshold_set()`
+. `Sequence threshold event` - Event is genrated when the Packet Number of Tx SA reaches the threshold value configured through `mepa_macsec_event_seq_threshold_set()` or `mepa_macsec_event_xpn_seq_threshold_set()`
 
 
 `mepa_macsec_event_enable_set()` is Used to Enable/Disable Sequence Threshold Interrupt(`MEPA_MACSEC_SEQ_THRESHOLD_EVENT`) or
@@ -607,6 +660,8 @@ Reffer link:mepa-app-doc.html#mepa_demo/docs/macsec-demo[MACsec-Demo App User Gu
 `mepa_macsec_event_poll()` +
 `mepa_macsec_event_seq_threshold_set()` +
 `mepa_macsec_event_seq_threshold_get()` +
+`mepa_macsec_event_xpn_seq_threshold_set()` +
+`mepa_macsec_event_xpn_seq_threshold_get()` +
 `mepa_macsec_egr_intr_sa_get()` +
 `mepa_macsec_csr_read()` +
 `mepa_macsec_csr_write()` +

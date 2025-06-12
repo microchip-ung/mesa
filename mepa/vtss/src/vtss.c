@@ -596,7 +596,7 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_phy_conf_t phy_config = {};
     vtss_phy_conf_1g_t cfg_neg = {};
-
+    mepa_rc rc = MEPA_RC_OK;
     if (vtss_phy_conf_get(data->vtss_instance, data->port_no, &phy_config) == MESA_RC_OK) {
         if (config->admin.enable) {
             if (config->speed == MESA_SPEED_AUTO ||
@@ -650,7 +650,11 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             phy_config.force_ams_sel = MEPA_PHY_MEDIA_FORCE_AMS_SEL_NORMAL;
         }
 
-        (void)vtss_phy_conf_1g_set(data->vtss_instance, data->port_no, &cfg_neg);
+        rc = vtss_phy_conf_1g_set(data->vtss_instance, data->port_no, &cfg_neg);
+        if (rc != MEPA_RC_OK) {
+            T_E(data, MEPA_TRACE_GRP_GEN, "Failed to confiured speed\n");
+            return MEPA_RC_ERROR;
+        }
         phy_config.forced.speed = config->speed;
         phy_config.forced.fdx = config->fdx;
 
@@ -1050,8 +1054,10 @@ static mepa_rc malibu_10g_reset(mepa_device_t *dev,
         if(vtss_phy_10g_init(data->vtss_instance, data->port_no, NULL) != VTSS_RC_OK) {
             return MEPA_RC_ERROR;
         }
+        break;
     default:
         // No other RESET POINTs needed
+        break;
     }
 
     return MEPA_RC_OK;
@@ -1108,8 +1114,10 @@ static mepa_rc phy_10g_poll(mepa_device_t *dev,
 static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
-    vtss_phy_10g_mode_t mode = {};
-
+    vtss_phy_10g_mode_t mode = {0};
+    if(vtss_phy_10g_init(data->vtss_instance, data->port_no, NULL) != VTSS_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
     mode.oper_mode = config->conf_10g.oper_mode;
     mode.interface  = config->conf_10g.interface_mode;
     mode.channel_id = config->conf_10g.channel_id;
@@ -1125,7 +1133,6 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     mode.lref_for_host = config->conf_10g.lref_for_host;
     mode.h_clk_src.is_high_amp = config->conf_10g.h_clk_src_is_high_amp;
     mode.l_clk_src.is_high_amp = config->conf_10g.l_clk_src_is_high_amp;
-
     if (config->speed == MESA_SPEED_1G || config->speed == MESA_SPEED_AUTO) {
         /* Need to flip the lanes to match JR XAUI-lane-0 and 8487 XAUI-lane-0
          * This only applies to PHY's with a XAUI MAC Interface  */
@@ -1394,15 +1401,15 @@ static mepa_rc phy_eee_mode_conf_get(mepa_device_t *dev, mepa_phy_eee_conf_t *co
     phy_data_t *data = (phy_data_t *)(dev->data);
     mepa_rc rc = MEPA_RC_OK;
     mepa_bool_t capable = FALSE;
-    vtss_phy_eee_conf_t *eee_conf = (vtss_phy_eee_conf_t*)malloc(sizeof(vtss_phy_eee_conf_t));
+    vtss_phy_eee_conf_t eee_conf = {0};
     if ((rc = vtss_phy_port_eee_capable(data->vtss_instance, data->port_no, &capable)) != MEPA_RC_OK) {
         return rc;
     }
-    if ((rc = vtss_phy_eee_conf_get(data->vtss_instance, data->port_no, eee_conf)) != MEPA_RC_OK) {
+    if ((rc = vtss_phy_eee_conf_get(data->vtss_instance, data->port_no, &eee_conf)) != MEPA_RC_OK) {
         return rc;
     }
-    conf->eee_mode = (eee_conf->eee_mode == VTSS_EEE_DISABLE ? MEPA_EEE_DISABLE : eee_conf->eee_mode == VTSS_EEE_ENABLE ? MEPA_EEE_ENABLE : MEPA_EEE_REG_UPDATE);
-    conf->eee_ena_phy = eee_conf->eee_ena_phy;
+    conf->eee_mode = (eee_conf.eee_mode == VTSS_EEE_DISABLE ? MEPA_EEE_DISABLE : eee_conf.eee_mode == VTSS_EEE_ENABLE ? MEPA_EEE_ENABLE : MEPA_EEE_REG_UPDATE);
+    conf->eee_ena_phy = eee_conf.eee_ena_phy;
     return MEPA_RC_OK;
 }
 
@@ -1480,6 +1487,14 @@ mepa_rc phy_debug_info_dump(struct mepa_device *dev,
     return vtss_phy_debug_info_print(data->vtss_instance, pr, &phy_info);
 }
 
+// API for QSGMII synchronization
+mepa_rc phy_1g_qsgmii_sync(struct mepa_device *dev)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+
+    return vtss_phy_1g_qsgmii_sync(data->vtss_instance, data->port_no);
+}
+
 /*
 Address is in this format
 [15:0] -> Register address
@@ -1495,7 +1510,7 @@ static mepa_rc phy_10g_clause45_read(struct mepa_device *dev,
     uint16_t page_add = (address >> 16) & 0xffff;
     uint16_t mmd = (page_add & 0x1f);
     uint16_t addr = address & 0xffff;
-    uint32_t data_val;
+    uint32_t data_val = 0;
 
     if (mmd) {
         rc = vtss_phy_10g_csr_read(data->vtss_instance, data->port_no, mmd, addr, &data_val);
@@ -1787,6 +1802,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_eee_mode_conf_get = phy_eee_mode_conf_get,
             .mepa_driver_eee_status_get = phy_eee_status_get,
             .mepa_debug_info_dump = phy_debug_info_dump,
+            .mepa_driver_phy_qsgmii_sync = phy_1g_qsgmii_sync,
             .mepa_ts = &vtss_ts_drivers,
         },
         {
@@ -1870,6 +1886,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
             .mepa_debug_info_dump = phy_debug_info_dump,
+	    .mepa_driver_phy_qsgmii_sync = phy_1g_qsgmii_sync,
         },
         {
             // Cicada (all models)

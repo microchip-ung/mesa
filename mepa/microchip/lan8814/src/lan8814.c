@@ -10,7 +10,6 @@
 #include "lan8814_ts_registers.h"
 
 #include "lan8814_private.h"
-#include <string.h>
 
 extern mepa_ts_driver_t lan8814_ts_drivers;
 
@@ -52,7 +51,7 @@ mepa_rc lan8814_ext_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr, uin
     MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL, page), " PHY MIIM write error");
     MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, addr), " PHY MIIM write error");
     MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL,
-                LAN8814_F_EXT_PAGE_ACCESS_CTRL_EP_FUNC | page), "PHY MIIM write error");
+                                         LAN8814_F_EXT_PAGE_ACCESS_CTRL_EP_FUNC | page), "PHY MIIM write error");
 
     // Read the value
     MEPA_RC(lan8814_direct_reg_rd(dev, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, value));
@@ -64,7 +63,7 @@ mepa_rc lan8814_ext_reg_wr(mepa_device_t *dev, uint16_t page, uint16_t addr, uin
     MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL, page), " PHY MIIM write error");
     MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, addr), " PHY MIIM write error");
     MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL,
-                LAN8814_F_EXT_PAGE_ACCESS_CTRL_EP_FUNC | page), "PHY MIIM write error");
+                                         LAN8814_F_EXT_PAGE_ACCESS_CTRL_EP_FUNC | page), "PHY MIIM write error");
 
     // write the value
     MEPA_RC(lan8814_direct_reg_wr(dev, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, value, mask));
@@ -80,7 +79,7 @@ mepa_rc lan8814_ext_incr_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr
         MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL, page), " PHY MIIM write error");
         MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, addr), " PHY MIIM write error");
         MEPA_RC_ERR(dev->callout->miim_write(dev->callout_ctx, LAN8814_EXT_PAGE_ACCESS_CTRL,
-                    LAN8814_F_EXT_PAGE_ACCESS_CTRL_INCR_RD_WR | page), " PHY MIIM write error");
+                                             LAN8814_F_EXT_PAGE_ACCESS_CTRL_INCR_RD_WR | page), " PHY MIIM write error");
     }
     // Read the value
     MEPA_RC(lan8814_direct_reg_rd(dev, LAN8814_EXT_PAGE_ACCESS_ADDR_DATA, value));
@@ -95,7 +94,7 @@ mepa_rc lan8814_mmd_reg_rd(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint
     MEPA_RC(lan8814_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL, mmd, LAN8814_DEF_MASK));
     MEPA_RC(lan8814_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, addr, LAN8814_DEF_MASK));
     MEPA_RC(lan8814_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL,
-                               LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
+                                  LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
 
     // Read the value
     MEPA_RC(lan8814_direct_reg_rd(dev, LAN8814_MMD_ACCESS_ADDR_DATA, value));
@@ -108,7 +107,7 @@ mepa_rc lan8814_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint
     MEPA_RC(lan8814_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL, mmd, LAN8814_DEF_MASK));
     MEPA_RC(lan8814_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, addr, LAN8814_DEF_MASK));
     MEPA_RC(lan8814_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL,
-                               LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
+                                  LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
 
     // write the value
     MEPA_RC(lan8814_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, value, mask));
@@ -336,20 +335,23 @@ static mepa_rc lan8814_framepreempt_set_(mepa_device_t *dev, mepa_bool_t const e
     mepa_device_t *base_dev = data->base_dev;
     phy_data_t *base_data = base_dev ? ((phy_data_t *)(base_dev->data)) : NULL;
 
-    if (!data || !base_dev || !base_data)
+    if (!base_data) {
         return MEPA_RC_OK;
+    }
 
     //Update base port with reset_conf::framepreempt_en
-    if (base_dev == dev)
+    if (base_dev == dev) {
         base_data->framepreempt_en = enable;
+    }
 
     //Set Frame Preemption
     val = 0;
     EP_RD(dev, LAN8814_PTP_TSU_GEN_CONF, &val);
-    if (base_data->framepreempt_en)
+    if (base_data->framepreempt_en) {
         val |= LAN8814_PTP_TSU_GEN_CONF_PREEMPTION_EN;
-    else
+    } else {
         val &= ~LAN8814_PTP_TSU_GEN_CONF_PREEMPTION_EN;
+    }
     EP_WRM(dev, LAN8814_PTP_TSU_GEN_CONF, val, LAN8814_DEF_MASK);
 
     return MEPA_RC_OK;
@@ -377,7 +379,9 @@ static mepa_rc lan8814_conf_mdi_mode(mepa_device_t *dev, const mepa_media_mode_t
     mepa_media_mode_t old_mode = data->conf.mdi_mode;
     uint16_t val;
 
-    if (old_mode == mode) return MEPA_RC_OK;
+    if (old_mode == mode) {
+        return MEPA_RC_OK;
+    }
 
     /*
       BIT(7) = mdi_set
@@ -394,15 +398,15 @@ static mepa_rc lan8814_conf_mdi_mode(mepa_device_t *dev, const mepa_media_mode_t
     RD(dev, LAN8814_GPHY_DBG_CTL1, &val);
     val &= ~LAN8814_F_MDI_SET;
     switch (mode) {
-      case MEPA_MEDIA_MODE_MDI:
+    case MEPA_MEDIA_MODE_MDI:
         val |= LAN8814_F_MDI_SET;
-        // Fall through
-      case MEPA_MEDIA_MODE_MDIX:
+    // Fall through
+    case MEPA_MEDIA_MODE_MDIX:
         val |= LAN8814_F_SWAPOFF;
-      break;
-      default:
+        break;
+    default:
         val &= ~LAN8814_F_SWAPOFF;
-      break;
+        break;
     }
     // Set the current MDI
     WRM(dev, LAN8814_GPHY_DBG_CTL1, val, LAN8814_DEF_MASK);
@@ -589,9 +593,9 @@ static mepa_rc lan8814_eee_mode_conf_set_(mepa_device_t *dev, const mepa_phy_eee
         // Enable Or Disable EEE
         if (data->eee_conf.eee_ena_phy) {
             T_I(MEPA_TRACE_GRP_GEN, "EEE Enabled: 100/1000BaseT Advertisements for Port = %d", data->port_no);
-            MMD_WR(dev, LAN8814_EEE_ADVERTISEMENT,(LAN8814_EEE_100_BT | LAN8814_EEE_1000_BT)); // Enable 100BaseT and 1000BaseT advertisement
+            MMD_WR(dev, LAN8814_EEE_ADVERTISEMENT, (LAN8814_EEE_100_BT | LAN8814_EEE_1000_BT)); // Enable 100BaseT and 1000BaseT advertisement
         } else {
-            MMD_WR(dev, LAN8814_EEE_ADVERTISEMENT,0); //Disable EEE Advertisement
+            MMD_WR(dev, LAN8814_EEE_ADVERTISEMENT, 0); //Disable EEE Advertisement
         }
         // Restart Autonegotiation
         T_I(MEPA_TRACE_GRP_GEN, "restart auto neg - Needed for disable/enable EEE advertisement, port", data->port_no);
@@ -605,45 +609,45 @@ static mepa_rc lan8814_reset_(mepa_device_t *dev, const mepa_reset_param_t *rst_
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
-    switch(rst_conf->reset_point) {
-        case MEPA_RESET_POINT_DEFAULT:
-            if (!data->init_done) {
-                lan8814_init_conf(dev);
-                lan8814_rev_workaround(dev);
-                lan8814_qsgmii_aneg(dev, FALSE);
-                data->init_done = TRUE;
-                data->rep_cnt = data->rep_cnt ? data->rep_cnt : 1;
-                if (data->dev.model == 0x26) {
-                    data->crc_workaround = TRUE;
-                    data->aneg_after_link_up = FALSE;
-                }
-            }
-            //Clear self-test if enabled before reset
-            lan8814_selftest_stop(dev);
-            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_RESET, LAN8814_F_BASIC_CTRL_SOFT_RESET);
-            MEPA_MSLEEP(1);
-            // Some of the work-around registers get cleared after reset. So, they are called here
-            // after every reset.
-            lan8814_workaround_after_reset(dev);
-            T_I(MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
-            // Reconfigure the phy after reset
-            lan8814_conf_set_(dev, &data->conf); // Has its own sets of ENTER/EXIT
-            // EEE is Disabled on Power Up
-            data->eee_conf.eee_mode = MEPA_EEE_REG_UPDATE;
-            lan8814_eee_mode_conf_set_(dev, data->eee_conf);
-            if (data->events) {
-                lan8814_event_enable_set_(dev, data->events, TRUE);
-            }
-            // To avoid qsgmii serdes and Gphy blocks settling in different speeds, use qsgmii soft reset and restart aneg.
-            // This must be applied after Mac serdes is configured
+    switch (rst_conf->reset_point) {
+    case MEPA_RESET_POINT_DEFAULT:
+        if (!data->init_done) {
+            lan8814_init_conf(dev);
+            lan8814_rev_workaround(dev);
+            lan8814_qsgmii_aneg(dev, FALSE);
+            data->init_done = TRUE;
+            data->rep_cnt = data->rep_cnt ? data->rep_cnt : 1;
             if (data->dev.model == 0x26) {
-                EP_WR(dev, LAN8814_QSGMII_SOFT_RESET, 0x1);
-                WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
-                data->post_mac_rst = TRUE;
+                data->crc_workaround = TRUE;
+                data->aneg_after_link_up = FALSE;
             }
-            break;
-        default:
-            break;
+        }
+        //Clear self-test if enabled before reset
+        lan8814_selftest_stop(dev);
+        WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_RESET, LAN8814_F_BASIC_CTRL_SOFT_RESET);
+        MEPA_MSLEEP(1);
+        // Some of the work-around registers get cleared after reset. So, they are called here
+        // after every reset.
+        lan8814_workaround_after_reset(dev);
+        T_I(MEPA_TRACE_GRP_GEN, "Reconfiguring the phy after reset");
+        // Reconfigure the phy after reset
+        lan8814_conf_set_(dev, &data->conf); // Has its own sets of ENTER/EXIT
+        // EEE is Disabled on Power Up
+        data->eee_conf.eee_mode = MEPA_EEE_REG_UPDATE;
+        lan8814_eee_mode_conf_set_(dev, data->eee_conf);
+        if (data->events) {
+            lan8814_event_enable_set_(dev, data->events, TRUE);
+        }
+        // To avoid qsgmii serdes and Gphy blocks settling in different speeds, use qsgmii soft reset and restart aneg.
+        // This must be applied after Mac serdes is configured
+        if (data->dev.model == 0x26) {
+            EP_WR(dev, LAN8814_QSGMII_SOFT_RESET, 0x1);
+            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
+            data->post_mac_rst = TRUE;
+        }
+        break;
+    default:
+        break;
     }
 
     /* Recommended to Use MEPA API "mepa_framepreempt_set" to Enable/Disable Frame Preemption */
@@ -679,7 +683,7 @@ static mepa_rc lan8814_downshift(mepa_device_t *dev)
     // Max_Timer is the no of attempts the link status needs to be checked with a time interval of 1 secs.
     // Default value for Max_Timer will be 4 .
     RD(dev, LAN8814_ANEG_MSTR_SLV_CTRL, &val);
-    T_I(MEPA_TRACE_GRP_GEN,"Starting Downshift to 100M on port:%d", data->port_no);
+    T_I(MEPA_TRACE_GRP_GEN, "Starting Downshift to 100M on port:%d", data->port_no);
     val &= ~(LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP);
     T_I(MEPA_TRACE_GRP_GEN, "Speed Changed to 100M");
     WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, val, LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP | LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
@@ -691,7 +695,7 @@ static mepa_rc lan8814_downshift(mepa_device_t *dev)
 }
 
 static mepa_rc mas_if_set(mepa_device_t *dev,
-                           mepa_port_interface_t mac_if)
+                          mepa_port_interface_t mac_if)
 {
     if (mac_if != MESA_PORT_INTERFACE_SGMII) {
         return MEPA_RC_ERROR;
@@ -810,7 +814,7 @@ static mepa_rc lan8814_led_mode_set(mepa_device_t *dev, mepa_gpio_mode_t led_mod
 }
 static mepa_rc lan8814_gpio_mode_private(mepa_device_t *dev, const mepa_gpio_conf_t *data)
 {
-    uint16_t gpio_en = 0, dir, val = 0, gpio_no = data->gpio_no;
+    uint16_t gpio_en = 0, dir = 0, val = 0, gpio_no = data->gpio_no;
     mepa_gpio_mode_t mode = data->mode;
 
     if (mode == MEPA_GPIO_MODE_OUT || mode == MEPA_GPIO_MODE_IN) {
@@ -879,7 +883,7 @@ static mepa_rc lan8814_cab_diag_enter_config(mepa_device_t *dev)
     value = (LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1 | LAN8814_F_BASIC_CTRL_DUP_MODE);
     WR(dev, LAN8814_BASIC_CONTROL, value);
     WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_ENA, LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_ENA);
-    WRM(dev, LAN8814_GPHY_DBG_CTL1, LAN8814_F_SWAPOFF,LAN8814_F_SWAPOFF);
+    WRM(dev, LAN8814_GPHY_DBG_CTL1, LAN8814_F_SWAPOFF, LAN8814_F_SWAPOFF);
     MEPA_MSLEEP(50);
     return MEPA_RC_OK;
 }
@@ -927,7 +931,7 @@ static mepa_rc lan8814_cab_diag_start_(mepa_device_t *dev, int32_t mode)
     res->link = (value & LAN8814_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
 
     /* If link is Up do not perform cable diagnostics operation just return */
-    if(res->link) {
+    if (res->link) {
         return MEPA_RC_OK;
     }
 
@@ -968,16 +972,16 @@ static mepa_rc lan8814_port_flow_mapping_get(uint8_t packet_idx, mepa_bool_t ing
     switch (packet_idx % 4) {
     case 0:
         *map_val = ingress ? 1 : 0;
-    break;
+        break;
     case 1:
         *map_val = ingress ? 3 : 2;
-    break;
+        break;
     case 2:
         *map_val = ingress ? 5 : 4;
-    break;
+        break;
     case 3:
         *map_val = ingress ? 7 : 6;
-    break;
+        break;
     default:
         return MEPA_RC_ERROR;
     }
@@ -993,11 +997,13 @@ static mepa_rc lan8814_selftest_start_(struct mepa_device *dev, const mepa_selft
     uint8_t retry = 0;
     mepa_bool_t link_up = FALSE;
 
-    if (inf == NULL)
-	return MEPA_RC_ERROR;
+    if (inf == NULL) {
+        return MEPA_RC_ERROR;
+    }
 
-    if ((inf->speed != MEPA_SPEED_1G) && (inf->mdi == MEPA_MEDIA_MODE_AUTO))
-	return MEPA_RC_ERROR;
+    if ((inf->speed != MEPA_SPEED_1G) && (inf->mdi == MEPA_MEDIA_MODE_AUTO)) {
+        return MEPA_RC_ERROR;
+    }
 
     EP_RD(dev, LAN8814_SELFTEST_PGEN_EN, &val);
     if (val & LAN8814_F_SELFTEST_PGEN_EN) {
@@ -1013,33 +1019,33 @@ static mepa_rc lan8814_selftest_start_(struct mepa_device *dev, const mepa_selft
     /* 1. Setup basic configuration */
     // Set AN
     val = LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1 |
-	  LAN8814_F_BASIC_CTRL_DUP_MODE |
-	  LAN8814_F_BASIC_CTRL_RESTART_ANEG |
-	  LAN8814_F_BASIC_CTRL_ANEG_ENA;
+          LAN8814_F_BASIC_CTRL_DUP_MODE |
+          LAN8814_F_BASIC_CTRL_RESTART_ANEG |
+          LAN8814_F_BASIC_CTRL_ANEG_ENA;
     WR(dev, LAN8814_BASIC_CONTROL, val);
     MEPA_MSLEEP(10);
 
     if (inf->speed == MEPA_SPEED_1G) {
-      // Enable Ext_lpbk bit in the Reserved Register
-      WR(dev, LAN8814_RESV_CON_LOOP, 0xfc08);
+        // Enable Ext_lpbk bit in the Reserved Register
+        WR(dev, LAN8814_RESV_CON_LOOP, 0xfc08);
 
-      // Set Master-Slave configuration to master
-      val = LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP |
-	    LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL |
-	    LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_ENA;
-      WR(dev, LAN8814_ANEG_MSTR_SLV_CTRL, val);
+        // Set Master-Slave configuration to master
+        val = LAN8814_F_ANEG_MSTR_SLV_CTRL_1000_T_FULL_DUP |
+              LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL |
+              LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_ENA;
+        WR(dev, LAN8814_ANEG_MSTR_SLV_CTRL, val);
 
-    } else /*< 10BASE-T and 100BASE-TX */ {
+    } else { /*< 10BASE-T and 100BASE-TX */
         // Disable Auto-MDIX and set the desired configuration (MDI vs. MDIX)
         RD(dev, LAN8814_GPHY_DBG_CTL1, &val);
         val &= ~LAN8814_F_MDI_SET;
         switch (inf->mdi) {
-          case MEPA_MEDIA_MODE_MDI:
+        case MEPA_MEDIA_MODE_MDI:
             val |= LAN8814_F_MDI_SET;
-            // Fall through
-          default:
+        // Fall through
+        default:
             val |= LAN8814_F_SWAPOFF;
-          break;
+            break;
         }
         // Set the current MDI
         WRM(dev, LAN8814_GPHY_DBG_CTL1, val, LAN8814_DEF_MASK);
@@ -1047,17 +1053,18 @@ static mepa_rc lan8814_selftest_start_(struct mepa_device *dev, const mepa_selft
 
     // Set force speed
     val = LAN8814_F_BASIC_CTRL_DUP_MODE;
-    if (inf->speed == MEPA_SPEED_1G)
+    if (inf->speed == MEPA_SPEED_1G) {
         val |= LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1;
-    else if (inf->speed == MESA_SPEED_100M)
+    } else if (inf->speed == MESA_SPEED_100M) {
         val |= LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0;
+    }
     WR(dev, LAN8814_BASIC_CONTROL, val);
 
     // Wait for link-up
-    while(retry++ < 100) {
+    while (retry++ < 100) {
         RD(dev, LAN8814_BASIC_STATUS, &val);
         if (val & LAN8814_F_BASIC_STATUS_LINK_STATUS) {
-	    link_up = TRUE;
+            link_up = TRUE;
             break;
         }
 
@@ -1066,7 +1073,7 @@ static mepa_rc lan8814_selftest_start_(struct mepa_device *dev, const mepa_selft
 
     if (!link_up) {
         T_W(MEPA_TRACE_GRP_GEN, "Link Down!\n");
-	    goto ret_err;
+        goto ret_err;
     }
 
     // 0.5secs delay before starting self-test
@@ -1081,8 +1088,8 @@ static mepa_rc lan8814_selftest_start_(struct mepa_device *dev, const mepa_selft
     // 3. enable the checking counter
     EP_WR(dev, LAN8814_SELFTEST_EN_REG, 0); //disble checker to clear counter
     val = LAN8814_F_SELFTEST_RX_CRC_CHK_EN |
-	  LAN8814_F_SELFTEST_TX_CRC_CHK_EN |
-	  LAN8814_F_SELFTEST_EN;
+          LAN8814_F_SELFTEST_TX_CRC_CHK_EN |
+          LAN8814_F_SELFTEST_EN;
     EP_WR(dev, LAN8814_SELFTEST_EN_REG, val); //enable checker
 
     // 4. Start self-test
@@ -1136,81 +1143,82 @@ static mepa_rc lan8814_prbs7_init(mepa_device_t *dev)
     mepa_rc rc;
     int i;
 
-        struct serd_set serdes_settings[] = {
-            {0x1018, 0x0aa8, 0},
-            {0x1018, 0x0550, 0},
-            {0x0011, 0x004c, 0}, // Disable rtune req (SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO.SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO_RTUNE_REQ)
-            {0x0011, 0x084c, 0}, // Enable override (SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO.SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO_RTUNE_REQ_OVRD)
-            {0x1001, 0x0040, 0}, // Set Tx Reset high (LANEX_DIG_TX_OVRD_IN_HI.TX_RESET)
-            {0x1001, 0x00c0, 0}, // Enable override (LANEX_DIG_TX_OVRD_IN_HI.TX_RESET_OVRD)
-            {0x1006, 0x1000, 0}, // Set Rx reset high (LANEX_DIG_RX_OVRD_IN_HI.RX_RESET)
-            {0x1006, 0x3000, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_HI.RX_RESET_OVRD)
-            {0x0011, 0x084e, 0}, // Enable override (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_EN_OVRD)
-            {0x1000, 0x0200, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_CM_EN_OVRD)
-            {0x1000, 0x0280, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_EN_OVRD)
-            {0x1005, 0x0008, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_PLL_EN_OVRD)
-            {0x1005, 0x0028, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_LO.RX_DATA_EN_OVRD)
-            {0x1000, 0x02a0, 0}, // Enable override (LANEX_DIG_TX_OVRD_IN_LO.TX_DATA_EN_OVRD)
-            {0x0015, 0x0000, 0}, // Set MPLL Half Rate to 0
-            {0x0015, 0x1000, 0},
-            {0x0012, 0x0000, 0}, // Do not use FSEL override pins for multiplier for ssp (SUP.DIG.MPLL_OVRD_IN_HI.FSEL)
-            {0x0012, 0x0200, 0}, // Enable FSEL override (SUP.DIG.MPLL_OVRD_IN_HI.FSEL_OVRD)
-            {0x0013, 0x0000, 0}, // Write Fraction multipler to: 0x000 (SUP_DIG_SSC_OVRD_IN.SSC_REF_CLK_SEL)
-            {0x0013, 0x0000, 0}, // Disable ssc override (SUP_DIG_SSC_OVRD_IN.SSC_EN)
-            {0x0013, 0x2000, 0}, // Enable override (SUP_DIG_SSC_OVRD_IN.SSC_OVRD_IN_EN)
-            {0x1001, 0x00c0, 0}, // Set TX lane rate (LANEX_DIG_TX_OVRD_IN_HI.TX_RATE) to 00
-            {0x1001, 0x00c4, 0}, // Enable override (LANEX_DIG_TX_OVRD_IN_HI.TX_RATE_OVRD)
-            {0x1006, 0x3000, 0}, // Set RX lane rate (LANEX_DIG_RX_OVRD_IN_HI.RX_RATE) to 00
-            {0x1006, 0x3004, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_HI.RX_RATE_OVRD)
-            {0x0012, 0x8200, 0}, // Set tx_vboost_lvl
-            {0x0015, 0x5000, 0}, // Set los_bias
-            {0x0015, 0x5009, 0}, // Set los_level
-            {0x0015, 0x5029, 0}, // Set acjt_level
-            {0x0015, 0x5429, 0}, // Set enable for tx_vboost_lvl/los_bias/los_level/acjt_level
-            {0x1002, 0x007f, 0}, // Set the TX amplitude (LANEX_DIG_TX_OVRD_DRV_LO.AMPLITUDE)
-            {0x1002, 0x0c7f, 0}, // Set the TX preemphasis (LANEX_DIG_TX_OVRD_DRV_LO.PREEMPH)
-            {0x1002, 0x4c7f, 0}, // Enable override (LANEX_DIG_TX_OVRD_DRV_LO.EN)
-            {0x1003, 0x0000, 0}, // Override tx_term_offset to 0 (LANE0_DIG_TX_OVRD_DRV_HI.TERM_OFFSET)
-            {0x1003, 0x0020, 0}, // Enable override (LANE0_DIG_TX_OVRD_DRV_HI.EN)
-            {0x0003, 0x0010, 0}, // Set Rtune to TX(SUP.DIG.RTUNE_DEBUG.TYPE)
-            {0x0003, 0x0012, 0}, // Force Rtune High(SUP.DIG.RTUNE_DEBUG.MAN_TUNE)
-            {0x0003, 0x0010, 0}, // Force Rtune Low(SUP.DIG.RTUNE_DEBUG.MAN_TUNE)
-            {0x1001, 0x01c4, 0}, // Set tx_vboost_en (LANEX.DIG.TX.OVRD_IN_HI.TX_VBOOST_EN
-            {0x1001, 0x03c4, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_VBOOST_EN_OVRD)
-            {0x1006, 0x3004, 0}, // Set Rx Eq to use a fixed setting (LANEX.DIG.RX.OVRD_IN_HI.RX_EQ_EN)
-            {0x1006, 0x3084, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_HI.RX_EQ_EN_OVRD)
-            {0x1006, 0x3284, 0}, // Set Rx Eq value(LANEX_DIG_RX_OVRD_IN_HI.RX_EQ)
-            {0x1006, 0x3a84, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_HI.RX_EQ_OVRD)
-            {0x1006, 0x3a9c, 0}, // Set Rx Los filter to XAUI mode (LANEX.DIG.RX.OVRD_IN_HI.RX_LOS_FILTER)
-            {0x1006, 0x3abc, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_HI.RX_LOS_FILTER_OVRD)
-            {0x1005, 0x0028, 0}, // Set Rx Bit shift to 0(LANEX.DIG.RX.OVRD_IN_LO.RX_BIT_SHIFT)
-            {0x1005, 0x0228, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_BIT_SHIFT_OVRD)
-            {0x1005, 0x0228, 0}, // Set Rx invert bit to: 0 (LANEX.DIG.RX.OVRD_IN_LO.RX_INVERT)
-            {0x1005, 0x022a, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_INVERT_OVRD)
-            {0x1005, 0x122a, 0}, // Enable rx los(LANEX.DIG.RX.OVRD_IN_LO.RX_LOS_EN)
-            {0x1005, 0x322a, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_LOS_EN_OVRD)
-            {0x1005, 0x326a, 0}, // Set Rx Align(LANEX_DIG_RX_OVRD_IN_LO.RX_ALIGN_EN)
-            {0x1005, 0x32ea, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_LO.RX_ALIGN_EN_OVRD)
-            {0x1005, 0x36ea, 0}, // Set Term enable(LANEX_DIG_RX_OVRD_IN_LO.RX_TERM_EN)
-            {0x1005, 0x3eea, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_LO.RX_TERM_EN_OVRD)
-            {0x0012, 0x8600, 0}, // Reset MPll. Set bit to 1 (SUP_DIG_MPLL_OVRD_IN_HI.MPLL_RST)
-            {0x0012, 0x8200, 0}, // Reset MPll. Set bit to 0 (SUP_DIG_MPLL_OVRD_IN_HI.MPLL_RST)
-            {0x1015, 0x03e0, 0}, // Set pattern generator to send commas, not commas (LANEX_DIG_TX_LBERT_CTL.PAT0)
-            {0x1015, 0x03e6, 0}, // Set pattern generator to correct mode (LANEX_DIG_TX_LBERT_CTL.MODE)
-            {0x1001, 0x0384, 0}, // Set Tx Reset low (LANEX_DIG_TX_OVRD_IN_HI.TX_RESET)
-            {0x1006, 0x2abc, 0}, // Set Rx reset low (LANEX_DIG_RX_OVRD_IN_HI.RX_RESET)
-            {0x1005, 0x3eee, 0}, // Turn on RX PLL Enable (LANEX.DIG.RX.OVRD_IN_LO.RX_PLL_EN)
-            {0x1005, 0x3efe, 0}, // Enable Rx(LANEX_DIG_RX_OVRD_IN_LO.RX_DATA_EN)
-            {0x101c, 0x0000, 1}, // Verify CDR has locked
-            {0x1005, 0x3ebe, 0}, // Turn off data alignment(LANEX_DIG_RX_OVRD_IN_LO.RX_ALIGN_EN)
-            {0x1015, 0x25c6, 0}, // Set patten generator to selected pattern(LANEX_DIG_TX_LBERT_CTL.PAT0)
-        };
-        int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
-        for (i = 0; i < arr_len; i++) {
-            rc = lan8814_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
-            if (rc < 0)
-                return rc;
+    struct serd_set serdes_settings[] = {
+        {0x1018, 0x0aa8, 0},
+        {0x1018, 0x0550, 0},
+        {0x0011, 0x004c, 0}, // Disable rtune req (SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO.SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO_RTUNE_REQ)
+        {0x0011, 0x084c, 0}, // Enable override (SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO.SSP_CR_SUP_DIG_MPLL_OVRD_IN_LO_RTUNE_REQ_OVRD)
+        {0x1001, 0x0040, 0}, // Set Tx Reset high (LANEX_DIG_TX_OVRD_IN_HI.TX_RESET)
+        {0x1001, 0x00c0, 0}, // Enable override (LANEX_DIG_TX_OVRD_IN_HI.TX_RESET_OVRD)
+        {0x1006, 0x1000, 0}, // Set Rx reset high (LANEX_DIG_RX_OVRD_IN_HI.RX_RESET)
+        {0x1006, 0x3000, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_HI.RX_RESET_OVRD)
+        {0x0011, 0x084e, 0}, // Enable override (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_EN_OVRD)
+        {0x1000, 0x0200, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_CM_EN_OVRD)
+        {0x1000, 0x0280, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_EN_OVRD)
+        {0x1005, 0x0008, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_PLL_EN_OVRD)
+        {0x1005, 0x0028, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_LO.RX_DATA_EN_OVRD)
+        {0x1000, 0x02a0, 0}, // Enable override (LANEX_DIG_TX_OVRD_IN_LO.TX_DATA_EN_OVRD)
+        {0x0015, 0x0000, 0}, // Set MPLL Half Rate to 0
+        {0x0015, 0x1000, 0},
+        {0x0012, 0x0000, 0}, // Do not use FSEL override pins for multiplier for ssp (SUP.DIG.MPLL_OVRD_IN_HI.FSEL)
+        {0x0012, 0x0200, 0}, // Enable FSEL override (SUP.DIG.MPLL_OVRD_IN_HI.FSEL_OVRD)
+        {0x0013, 0x0000, 0}, // Write Fraction multipler to: 0x000 (SUP_DIG_SSC_OVRD_IN.SSC_REF_CLK_SEL)
+        {0x0013, 0x0000, 0}, // Disable ssc override (SUP_DIG_SSC_OVRD_IN.SSC_EN)
+        {0x0013, 0x2000, 0}, // Enable override (SUP_DIG_SSC_OVRD_IN.SSC_OVRD_IN_EN)
+        {0x1001, 0x00c0, 0}, // Set TX lane rate (LANEX_DIG_TX_OVRD_IN_HI.TX_RATE) to 00
+        {0x1001, 0x00c4, 0}, // Enable override (LANEX_DIG_TX_OVRD_IN_HI.TX_RATE_OVRD)
+        {0x1006, 0x3000, 0}, // Set RX lane rate (LANEX_DIG_RX_OVRD_IN_HI.RX_RATE) to 00
+        {0x1006, 0x3004, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_HI.RX_RATE_OVRD)
+        {0x0012, 0x8200, 0}, // Set tx_vboost_lvl
+        {0x0015, 0x5000, 0}, // Set los_bias
+        {0x0015, 0x5009, 0}, // Set los_level
+        {0x0015, 0x5029, 0}, // Set acjt_level
+        {0x0015, 0x5429, 0}, // Set enable for tx_vboost_lvl/los_bias/los_level/acjt_level
+        {0x1002, 0x007f, 0}, // Set the TX amplitude (LANEX_DIG_TX_OVRD_DRV_LO.AMPLITUDE)
+        {0x1002, 0x0c7f, 0}, // Set the TX preemphasis (LANEX_DIG_TX_OVRD_DRV_LO.PREEMPH)
+        {0x1002, 0x4c7f, 0}, // Enable override (LANEX_DIG_TX_OVRD_DRV_LO.EN)
+        {0x1003, 0x0000, 0}, // Override tx_term_offset to 0 (LANE0_DIG_TX_OVRD_DRV_HI.TERM_OFFSET)
+        {0x1003, 0x0020, 0}, // Enable override (LANE0_DIG_TX_OVRD_DRV_HI.EN)
+        {0x0003, 0x0010, 0}, // Set Rtune to TX(SUP.DIG.RTUNE_DEBUG.TYPE)
+        {0x0003, 0x0012, 0}, // Force Rtune High(SUP.DIG.RTUNE_DEBUG.MAN_TUNE)
+        {0x0003, 0x0010, 0}, // Force Rtune Low(SUP.DIG.RTUNE_DEBUG.MAN_TUNE)
+        {0x1001, 0x01c4, 0}, // Set tx_vboost_en (LANEX.DIG.TX.OVRD_IN_HI.TX_VBOOST_EN
+        {0x1001, 0x03c4, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_VBOOST_EN_OVRD)
+        {0x1006, 0x3004, 0}, // Set Rx Eq to use a fixed setting (LANEX.DIG.RX.OVRD_IN_HI.RX_EQ_EN)
+        {0x1006, 0x3084, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_HI.RX_EQ_EN_OVRD)
+        {0x1006, 0x3284, 0}, // Set Rx Eq value(LANEX_DIG_RX_OVRD_IN_HI.RX_EQ)
+        {0x1006, 0x3a84, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_HI.RX_EQ_OVRD)
+        {0x1006, 0x3a9c, 0}, // Set Rx Los filter to XAUI mode (LANEX.DIG.RX.OVRD_IN_HI.RX_LOS_FILTER)
+        {0x1006, 0x3abc, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_HI.RX_LOS_FILTER_OVRD)
+        {0x1005, 0x0028, 0}, // Set Rx Bit shift to 0(LANEX.DIG.RX.OVRD_IN_LO.RX_BIT_SHIFT)
+        {0x1005, 0x0228, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_BIT_SHIFT_OVRD)
+        {0x1005, 0x0228, 0}, // Set Rx invert bit to: 0 (LANEX.DIG.RX.OVRD_IN_LO.RX_INVERT)
+        {0x1005, 0x022a, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_INVERT_OVRD)
+        {0x1005, 0x122a, 0}, // Enable rx los(LANEX.DIG.RX.OVRD_IN_LO.RX_LOS_EN)
+        {0x1005, 0x322a, 0}, // Enable override (LANEX.DIG.RX.OVRD_IN_LO.RX_LOS_EN_OVRD)
+        {0x1005, 0x326a, 0}, // Set Rx Align(LANEX_DIG_RX_OVRD_IN_LO.RX_ALIGN_EN)
+        {0x1005, 0x32ea, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_LO.RX_ALIGN_EN_OVRD)
+        {0x1005, 0x36ea, 0}, // Set Term enable(LANEX_DIG_RX_OVRD_IN_LO.RX_TERM_EN)
+        {0x1005, 0x3eea, 0}, // Enable override (LANEX_DIG_RX_OVRD_IN_LO.RX_TERM_EN_OVRD)
+        {0x0012, 0x8600, 0}, // Reset MPll. Set bit to 1 (SUP_DIG_MPLL_OVRD_IN_HI.MPLL_RST)
+        {0x0012, 0x8200, 0}, // Reset MPll. Set bit to 0 (SUP_DIG_MPLL_OVRD_IN_HI.MPLL_RST)
+        {0x1015, 0x03e0, 0}, // Set pattern generator to send commas, not commas (LANEX_DIG_TX_LBERT_CTL.PAT0)
+        {0x1015, 0x03e6, 0}, // Set pattern generator to correct mode (LANEX_DIG_TX_LBERT_CTL.MODE)
+        {0x1001, 0x0384, 0}, // Set Tx Reset low (LANEX_DIG_TX_OVRD_IN_HI.TX_RESET)
+        {0x1006, 0x2abc, 0}, // Set Rx reset low (LANEX_DIG_RX_OVRD_IN_HI.RX_RESET)
+        {0x1005, 0x3eee, 0}, // Turn on RX PLL Enable (LANEX.DIG.RX.OVRD_IN_LO.RX_PLL_EN)
+        {0x1005, 0x3efe, 0}, // Enable Rx(LANEX_DIG_RX_OVRD_IN_LO.RX_DATA_EN)
+        {0x101c, 0x0000, 1}, // Verify CDR has locked
+        {0x1005, 0x3ebe, 0}, // Turn off data alignment(LANEX_DIG_RX_OVRD_IN_LO.RX_ALIGN_EN)
+        {0x1015, 0x25c6, 0}, // Set patten generator to selected pattern(LANEX_DIG_TX_LBERT_CTL.PAT0)
+    };
+    int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
+    for (i = 0; i < arr_len; i++) {
+        rc = lan8814_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
+        if (rc < 0) {
+            return rc;
         }
+    }
 
     return MEPA_RC_OK;
 }
@@ -1224,8 +1232,8 @@ static mepa_rc lan8814_prbs7_clk(mepa_device_t *dev, mepa_prbs_clock_t clk)
     uint16_t val;
 
     EP_RD(dev, LAN8814_SERDES_CLOCK_CONF, &val);
-    if(clk == MEPA_PRBS_CLK125_MHZ && val == 0x0016) {
-         struct serd_set serdes_settings[] = {
+    if (clk == MEPA_PRBS_CLK125_MHZ && val == 0x0016) {
+        struct serd_set serdes_settings[] = {
             {0x0010, 0x0001, 0}, // Set ref_clock divider value to 1 (SUP_DIG_ATEOVRD.ref_clkdiv2)
             {0x0011, 0x08a2, 0}, // Set multiplier value (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_MULTIPLIER)
             {0x0011, 0x0aa2, 0}, // Enable override (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_MULTIPLIER_OVRD)
@@ -1234,29 +1242,30 @@ static mepa_rc lan8814_prbs7_clk(mepa_device_t *dev, mepa_prbs_clock_t clk)
         int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
         for (i = 0; i < arr_len; i++) {
             rc = lan8814_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
-            if (rc < 0)
+            if (rc < 0) {
                 return rc;
+            }
         }
 
-    }
-    else if (clk == MEPA_PRBS_CLK25_MHZ && val == 0x0006) {
+    } else if (clk == MEPA_PRBS_CLK25_MHZ && val == 0x0006) {
         struct serd_set serdes_settings[] = {
             {0x0010, 0x0000, 0}, // Set ref_clock divider value to 0 (SUP_DIG_ATEOVRD.ref_clkdiv2)
             {0x0011, 0x0992, 0}, // Set multiplier value (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_MULTIPLIER)
             {0x0011, 0x0b92, 0}, // Enable override (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_MULTIPLIER_OVRD)
             {0x0011, 0x0b93, 0}, // Enable MPLL (SUP_DIG_MPLL_OVRD_IN_LO.MPLL_EN)
-      };
+        };
         int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
         for (i = 0; i < arr_len; i++) {
             rc = lan8814_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
-            if (rc < 0)
+            if (rc < 0) {
                 return rc;
+            }
         }
+    } else if (clk == MEPA_PRBS_CLK125_MHZ && val == 0x0006) {
+        return MEPA_RC_ERROR;
+    } else {
+        return MEPA_RC_ERROR;
     }
-    else if(clk == MEPA_PRBS_CLK125_MHZ && val == 0x0006)
-        return MEPA_RC_ERROR;
-    else
-        return MEPA_RC_ERROR;
     return MEPA_RC_OK;
 }
 #endif
@@ -1266,7 +1275,7 @@ static mepa_rc lan8814_prbs7_loopback(mepa_device_t *dev, mepa_prbs_loopback_t l
 {
     mepa_rc rc;
     int i;
-    if(loopback == MEPA_PRBS_INTERNAL_LOOPBACK) {
+    if (loopback == MEPA_PRBS_INTERNAL_LOOPBACK) {
         struct serd_set serdes_settings[] = {
             {0x1000, 0x02a1, 0}, // Enable internal loopback (LANEX.DIG.TX.OVRD_IN_LO.LOOPBK_EN)
             {0x1000, 0x02a3, 0}, // Enable override (LANEX.DIG.TX.OVRD_IN_LO.TX_LOOPBK_EN_OVRD)
@@ -1283,12 +1292,13 @@ static mepa_rc lan8814_prbs7_loopback(mepa_device_t *dev, mepa_prbs_loopback_t l
         int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
         for (i = 0; i < arr_len; i++) {
             rc = lan8814_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
-            if (rc < 0)
+            if (rc < 0) {
                 return rc;
+            }
         }
-    }
-    else
+    } else {
         return MEPA_RC_ERROR;
+    }
     return MEPA_RC_OK;
 }
 #endif
@@ -1311,8 +1321,9 @@ static mepa_rc lan8814_prbs7_enable(mepa_device_t *dev)
     int arr_len = (sizeof(serdes_settings) / sizeof(struct serd_set));
     for (i = 0; i < arr_len; i++) {
         rc = lan8814_serdes_set(dev, serdes_settings[i].addr, serdes_settings[i].data, serdes_settings[i].op_rd);
-        if (rc < 0)
+        if (rc < 0) {
             return rc;
+        }
     }
     return MEPA_RC_OK;
 }
@@ -1325,25 +1336,29 @@ static mepa_rc lan8814_prbs7_set(mepa_device_t *dev, mepa_bool_t enable, mepa_pr
 
     if (enable) {
         rc = lan8814_prbs7_init(dev);
-        if (rc < 0 )
+        if (rc < 0 ) {
             return rc;
-        rc = lan8814_prbs7_loopback(dev,loopback);
-        if (rc < 0 )
+        }
+        rc = lan8814_prbs7_loopback(dev, loopback);
+        if (rc < 0 ) {
             return rc;
+        }
         rc = lan8814_prbs7_clk(dev, clk);
-        if (rc < 0 )
+        if (rc < 0 ) {
             return rc;
+        }
         rc = lan8814_prbs7_enable(dev);
-        if (rc < 0 )
+        if (rc < 0 ) {
             return rc;
-    }
-    else {
-        rc = lan8814_serdes_set(dev, 0x1015,0x0000,0);
-        if (rc < 0)
+        }
+    } else {
+        rc = lan8814_serdes_set(dev, 0x1015, 0x0000, 0);
+        if (rc < 0) {
             return rc;
+        }
 
         //QSGMII Hard Reset
-        EP_WR(dev, LAN8814_QSGMII_HARD_RESET,0x1);
+        EP_WR(dev, LAN8814_QSGMII_HARD_RESET, 0x1);
     }
 
     return MEPA_RC_OK;
@@ -1352,9 +1367,9 @@ static mepa_rc lan8814_prbs7_set(mepa_device_t *dev, mepa_bool_t enable, mepa_pr
 
 #if !defined MEPA_LAN8814_LIGHT
 static void lan8814_phy_deb_pr_reg (mepa_device_t *dev,
-                                const mepa_debug_print_t pr,
-                                uint16_t mmd, uint16_t page, uint16_t addr,
-                                const char *str, uint16_t *value)
+                                    const mepa_debug_print_t pr,
+                                    uint16_t mmd, uint16_t page, uint16_t addr,
+                                    const char *str, uint16_t *value)
 {
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -1365,11 +1380,11 @@ static void lan8814_phy_deb_pr_reg (mepa_device_t *dev,
         id = mmd;
         rc = lan8814_mmd_reg_rd(dev, mmd, addr, value);
     } else if (page) {
-        rc = lan8814_ext_reg_rd(dev, (page-1), addr, value);
+        rc = lan8814_ext_reg_rd(dev, (page - 1), addr, value);
     } else {
         rc = lan8814_direct_reg_rd(dev, addr, value);
     }
-    if(pr && (MEPA_RC_OK == rc)) {
+    if (pr && (MEPA_RC_OK == rc)) {
         pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, to_u32(port_no), id, addr, *value);
     }
 }
@@ -1377,7 +1392,7 @@ static void lan8814_phy_deb_pr_reg (mepa_device_t *dev,
 
 #if !defined MEPA_LAN8814_LIGHT
 static mepa_rc lan8814_reg_dump(struct mepa_device *dev,
-                             const mepa_debug_print_t pr)
+                                const mepa_debug_print_t pr)
 {
     uint16_t val = 0;
     uint16_t id = 0;
@@ -1437,27 +1452,27 @@ static mepa_rc lan8814_reg_dump(struct mepa_device *dev,
     lan8814_phy_deb_pr_reg(dev, pr, 0, 1, 16, "Link Partner Force FD Override Register", &val);
 
     pr("Extended Page-1 Registers\n");
-    for(id = 0; id < 239; id++) {
+    for (id = 0; id < 239; id++) {
         lan8814_phy_deb_pr_reg(dev, pr, 0, 2, id, "Extended Page 1 Registers", &val);
     }
 
     pr("Extended Page-2 Registers\n");
-    for(id = 0; id < 111; id++) {
+    for (id = 0; id < 111; id++) {
         lan8814_phy_deb_pr_reg(dev, pr, 0, 3, id, "Extended Page 2 Registers", &val);
     }
 
     pr("Extended Page-3 Registers\n");
-    for(id = 0; id < 28; id++) {
+    for (id = 0; id < 28; id++) {
         lan8814_phy_deb_pr_reg(dev, pr, 0, 4, id, "Extended Page 3 Registers", &val);
     }
 
     pr("Extended Page-4 Registers\n");
-    for(id = 0; id < 772; id++) {
+    for (id = 0; id < 772; id++) {
         lan8814_phy_deb_pr_reg(dev, pr, 0, 5, id, "Extended Page 4 Registers", &val);
     }
 
     pr("Extended Page-5 Registers\n");
-    for(id = 0; id < 708; id++) {
+    for (id = 0; id < 708; id++) {
         lan8814_phy_deb_pr_reg(dev, pr, 0, 6, id, "Extended Page 5 Registers", &val);
     }
 
@@ -1468,12 +1483,12 @@ static mepa_rc lan8814_reg_dump(struct mepa_device *dev,
     lan8814_phy_deb_pr_reg(dev, pr, 0, 8, 63, "EEE Message Code Register", &val);
 
     pr("Extended Page-28 Registers\n");
-    for(id = 0; id < 80; id++) {
+    for (id = 0; id < 80; id++) {
         lan8814_phy_deb_pr_reg(dev, pr, 0, 29, id, "Extended Page 28 Registers", &val);
     }
 
     pr("Extended Page-29 Registers\n");
-    for(id = 0; id < 80; id++) {
+    for (id = 0; id < 80; id++) {
         lan8814_phy_deb_pr_reg(dev, pr, 0, 30, id, "Extended Page 29 Registers", &val);
     }
 
@@ -1495,11 +1510,11 @@ static mepa_rc lan8814_reg_dump(struct mepa_device *dev,
     pr("MMD-3 Registers\n");
     lan8814_phy_deb_pr_reg(dev, pr, 3, 0x0, 0, "PCS Control 1 Register", &val);
     lan8814_phy_deb_pr_reg(dev, pr, 3, 0x0, 1, "PCS Status 1 Register", &val);
-    lan8814_phy_deb_pr_reg(dev, pr, 3, 0x0, 20,"EEE Control and Capability Register", &val);
+    lan8814_phy_deb_pr_reg(dev, pr, 3, 0x0, 20, "EEE Control and Capability Register", &val);
 
     pr("MMD-7 Registers\n");
-    lan8814_phy_deb_pr_reg(dev, pr, 7, 0x0, 60,"EEE Advertisement Register", &val);
-    lan8814_phy_deb_pr_reg(dev, pr, 7, 0x0, 61,"EEE Link Partner Ability Register", &val);
+    lan8814_phy_deb_pr_reg(dev, pr, 7, 0x0, 60, "EEE Advertisement Register", &val);
+    lan8814_phy_deb_pr_reg(dev, pr, 7, 0x0, 61, "EEE Link Partner Ability Register", &val);
 
     return MEPA_RC_OK;
 }
@@ -1530,17 +1545,17 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
 
     // MEPA-835: Downshift happens when port is put into power down. Return the link status as slow
     if (!data->conf.admin.enable) {
-         T_D(MEPA_TRACE_GRP_GEN,"Polling cannot be done as Port %d is powered Down", data->port_no);
-         memset(status, 0, sizeof(mepa_status_t));
-         data->link_status = status->link;
-         data->speed_status = status->speed;
-         data->fdx_status   = status->fdx;
-         data->loop_cnt = 0;
-         data->aneg_flag = 0;
-         data->dsh_complete = 0;
-         MEPA_EXIT(dev);
-         return MESA_RC_OK;
-     }
+        T_D(MEPA_TRACE_GRP_GEN, "Polling cannot be done as Port %d is powered Down", data->port_no);
+        memset(status, 0, sizeof(mepa_status_t));
+        data->link_status = status->link;
+        data->speed_status = status->speed;
+        data->fdx_status   = status->fdx;
+        data->loop_cnt = 0;
+        data->aneg_flag = 0;
+        data->dsh_complete = 0;
+        MEPA_EXIT(dev);
+        return MESA_RC_OK;
+    }
     RD(dev, LAN8814_BASIC_STATUS, &val);
     status->link = (val & LAN8814_F_BASIC_STATUS_LINK_STATUS) ? 1 : 0;
 
@@ -1567,22 +1582,22 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
         // establish the link then perform downshift to 100M.
         RD(dev, LAN8814_DIGITAL_AX_AN_STATUS, &val3);
         RD(dev, LAN8814_CONTROL, &val2);
-        if (data->dsh_conf.dsh_enable && !status->link && ((val2 && LAN8814_F_1000T_SPEED_STATUS) && (val3 && LAN8814_F_LINK_DET) && (data->aneg_flag)) && !data->dsh_complete) {
+        if (data->dsh_conf.dsh_enable && !status->link && ((val2 & LAN8814_F_1000T_SPEED_STATUS) && (val3 & LAN8814_F_LINK_DET) && (data->aneg_flag)) && !data->dsh_complete) {
             data->loop_cnt++;
             if (data->loop_cnt > data->dsh_conf.dsh_thr_cnt * data->rep_cnt) {
-               lan8814_downshift(dev);
-               data->loop_cnt = 0;
-               data->aneg_flag = FALSE;
-               T_I(MEPA_TRACE_GRP_GEN, "Downshift on port %d", data->port_no);
+                lan8814_downshift(dev);
+                data->loop_cnt = 0;
+                data->aneg_flag = FALSE;
+                T_I(MEPA_TRACE_GRP_GEN, "Downshift on port %d", data->port_no);
             }
-            T_I(MEPA_TRACE_GRP_GEN, "Downshift capable on port %d dsh_loop_cnt%d rep_cnt %d",data->port_no, data->loop_cnt, data->rep_cnt);
+            T_I(MEPA_TRACE_GRP_GEN, "Downshift capable on port %d dsh_loop_cnt%d rep_cnt %d", data->port_no, data->loop_cnt, data->rep_cnt);
         }
 
         // MEPA 555: This is a SW workaround for the ANEG state machine hung.
         // Check link up and aneg status complete when a valid signal is detected from link partner wait for 2 secs, couldn't establish link restart ANEG state Machine.
         if (!status->link && !(val & (LAN8814_F_BASIC_STATUS_ANEG_COMPLETE)) && (val3 & LAN8814_F_SIG_DET) && !data->aneg_flag) {
             data->loop_cnt++;
-            T_I(MEPA_TRACE_GRP_GEN, "Aneg not complete on port %d loop_cnt%d rep_cnt %d",data->port_no, data->loop_cnt, data->rep_cnt);
+            T_I(MEPA_TRACE_GRP_GEN, "Aneg not complete on port %d loop_cnt%d rep_cnt %d", data->port_no, data->loop_cnt, data->rep_cnt);
             if (data->loop_cnt > 2 * data->rep_cnt) { // default value for rep cnt to be 1sec
                 T_I(MEPA_TRACE_GRP_GEN, "Aneg state machine stuck!! restarting ANEG on port %d", data->port_no);
                 data->loop_cnt = 0;
@@ -1601,14 +1616,14 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
         RD(dev, LAN8814_ANEG_MSTR_SLV_STATUS, &val2);
         // 1G half duplex is not supported. Refer direct register - 9
         if (((val2 & LAN8814_F_ANEG_MSTR_SLV_STATUS_1000_T_FULL_DUP) &&
-            data->conf.aneg.speed_1g_fdx) && !data->dsh_complete) {
+             data->conf.aneg.speed_1g_fdx) && !data->dsh_complete) {
             // Work-around for CRC errors begin.
             if (data->crc_workaround) {
                 if (!((val2 & LAN8814_F_ANEG_MSTR_SLV_LOCAL_RCVR_STATUS) &&
-                    (val2 & LAN8814_F_ANEG_MSTR_SLV_REMOTE_RCVR_STATUS)) ||
+                      (val2 & LAN8814_F_ANEG_MSTR_SLV_REMOTE_RCVR_STATUS)) ||
                     !data->post_mac_rst) {
-                        //link not completely up
-                        status->link = 0;
+                    //link not completely up
+                    status->link = 0;
                 } else if (!data->aneg_after_link_up) {// poll the status for 1 iteration assuming the polling interval is 1 second apart.
                     T_I(MEPA_TRACE_GRP_GEN, "Aneg restarted on port %d", data->port_no);
                     WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
@@ -1624,7 +1639,7 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
                     T_I(MEPA_TRACE_GRP_GEN, "no link");
                     status->link = 0;
                 }
-            // Work-around for CRC errors end.
+                // Work-around for CRC errors end.
             } else {
                 status->speed = MEPA_SPEED_1G;
                 status->fdx = 1;
@@ -1671,7 +1686,7 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
         RD(dev, LAN8814_DIGITAL_AX_AN_STATUS, &val2);
         RD(dev, LAN8814_CONTROL, &val);
         if (status->speed == MEPA_SPEED_100M && ((val2 & LAN8814_F_LINK_DET) && !status->link)) {
-            if((data->loop_cnt++ > 2 * data->rep_cnt)) {
+            if ((data->loop_cnt++ > 2 * data->rep_cnt)) {
                 val |= LAN8814_F_CONTROL_SOFT_RESET;
                 WRM(dev, LAN8814_CONTROL, val, LAN8814_F_CONTROL_SOFT_RESET);
                 T_I(MEPA_TRACE_GRP_GEN, "DSP soft reset for link up on Port %d", data->port_no);
@@ -1707,7 +1722,7 @@ end:
             }
             data->loop_cnt = 0;
             data->aneg_flag = 0;
-            T_I(MEPA_TRACE_GRP_GEN,"After restart workaround on port->no:%d and data->dsh_loop_cnt:%d", data->port_no, data->loop_cnt);
+            T_I(MEPA_TRACE_GRP_GEN, "After restart workaround on port->no:%d and data->dsh_loop_cnt:%d", data->port_no, data->loop_cnt);
         }
     }
     data->link_status = status->link;
@@ -1741,7 +1756,7 @@ static mepa_rc lan8814_conf_get(mepa_device_t *dev, mepa_conf_t *const config)
 }
 
 static mepa_rc lan8814_if_set(mepa_device_t *dev,
-                           mepa_port_interface_t mac_if)
+                              mepa_port_interface_t mac_if)
 {
     if (mac_if != MESA_PORT_INTERFACE_QSGMII) {
         return MEPA_RC_ERROR;
@@ -1751,7 +1766,7 @@ static mepa_rc lan8814_if_set(mepa_device_t *dev,
 }
 
 static mepa_rc lan8814_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
-                           mepa_port_interface_t *mac_if)
+                              mepa_port_interface_t *mac_if)
 {
 
     *mac_if = MESA_PORT_INTERFACE_QSGMII;
@@ -1759,9 +1774,9 @@ static mepa_rc lan8814_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
 }
 
 static mepa_device_t *lan8814_probe(mepa_driver_t *drv,
-                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
-                                 struct mepa_board_conf              *board_conf)
+                                    const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                    struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
+                                    struct mepa_board_conf              *board_conf)
 {
     mepa_device_t *dev;
     phy_data_t *data;
@@ -2009,7 +2024,7 @@ static mepa_rc lan8814_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
     // Read SKU ID and assign Part no
     if (dev->drv->id == LAN8814_DEF_DRV_ID || dev->drv->id == LAN8814_INT_PHY_DRV_ID) {
         // For LAN8814 inside lan9668 the driver id is different and the SKU No is 0 upon read.
-	// Assigning part No based on Driver
+        // Assigning part No based on Driver
         phy_info->part_number = 8814;
     } else if (dev->drv->id == LAN8804_SKU) {
         phy_info->part_number = 8804;
@@ -2063,11 +2078,11 @@ static mepa_rc lan8814_eee_status_get(mepa_device_t *dev, u8 *const advertisemen
     MMD_RD(dev, LAN8814_EEE_PCS_STATUS, &reg_value);
 
     //Bit 8 is Rx LPI Indication. See Datasheet
-    if (reg_value & 0x0100){
+    if (reg_value & 0x0100) {
         *rx_in_power_save_state = TRUE;
     }
     //Bit 9 is tx LPI Indication. See Datsheet.
-    if (reg_value & 0x0200){
+    if (reg_value & 0x0200) {
         *tx_in_power_save_state = TRUE;
     }
 
@@ -2202,6 +2217,7 @@ static mepa_rc lan8814_recovered_clk_set(mepa_device_t *dev, const mepa_synce_cl
     MEPA_ENTER(dev);
     // Enable recovered clock outputs in gpio
     gpio_conf.mode = (conf->dst == MEPA_SYNCE_CLOCK_DST_1) ? MEPA_GPIO_MODE_RCVRD_CLK_OUT1 : MEPA_GPIO_MODE_RCVRD_CLK_OUT2;
+    gpio_conf.gpio_no = (conf->dst == MEPA_SYNCE_CLOCK_DST_1) ? 9 : 10;
     rc = lan8814_gpio_mode_private(dev, &gpio_conf);
 
     switch (conf->freq) {
@@ -2268,8 +2284,8 @@ static mepa_rc lan8814_isolate_mode_conf(mepa_device_t *dev, const mepa_bool_t i
 
 #if !defined(MEPA_LAN8814_LIGHT)
 static mepa_rc lan8814_debug_info_dump(struct mepa_device *dev,
-                                    const mepa_debug_print_t pr,
-                                    const mepa_debug_info_t   *const info)
+                                       const mepa_debug_print_t pr,
+                                       const mepa_debug_info_t   *const info)
 {
     mepa_rc rc = MEPA_RC_OK;
     mepa_phy_info_t phy_info = {};
@@ -2398,7 +2414,7 @@ static mepa_rc lan8814_start_of_frame_conf_set(mepa_device_t *dev, const mepa_st
     gpio_conf.mode = MEPA_GPIO_MODE_OUT;
     rc = lan8814_gpio_mode_private(dev, &gpio_conf);
     if (rc != MEPA_RC_OK) {
-       goto do_exit;
+        goto do_exit;
     }
 
     data->sof_conf = *sof_conf;
@@ -2470,8 +2486,9 @@ static mepa_rc lan8814_selftest_read(struct mepa_device *dev, mepa_selftest_info
     uint16_t lo, hi;
     mepa_rc  rc;
 
-    if (inf == NULL)
-	return MEPA_RC_ERROR;
+    if (inf == NULL) {
+        return MEPA_RC_ERROR;
+    }
 
     inf->frames = 0;
     inf->good_cnt = 0;
@@ -2488,21 +2505,23 @@ static mepa_rc lan8814_selftest_read(struct mepa_device *dev, mepa_selftest_info
 
     inf->mdi = MEPA_MEDIA_MODE_AUTO;
     RD(dev, LAN8814_GPHY_DBG_CTL1, &val);
-    if (val & LAN8814_F_MDI_SET)
+    if (val & LAN8814_F_MDI_SET) {
         inf->mdi = MEPA_MEDIA_MODE_MDI;
-    else if (val & LAN8814_F_SWAPOFF)
+    } else if (val & LAN8814_F_SWAPOFF) {
         inf->mdi = MEPA_MEDIA_MODE_MDIX;
+    }
 
     inf->speed = MESA_SPEED_10M;
     RD(dev, LAN8814_BASIC_CONTROL, &val);
-    if (val & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0)
+    if (val & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0) {
         inf->speed = MESA_SPEED_100M;
-    else if (val & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1)
+    } else if (val & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1) {
         inf->speed = MESA_SPEED_1G;
+    }
 
     EP_RD(dev, LAN8814_SELFTEST_PKT_CNT_HI, &val);
     inf->frames = val;
-    inf->frames = (inf->frames)<< 16;
+    inf->frames = (inf->frames) << 16;
     EP_RD(dev, LAN8814_SELFTEST_PKT_CNT_LO, &val);
     inf->frames |= val;
 
@@ -2522,10 +2541,10 @@ static mepa_rc lan8814_selftest_read(struct mepa_device *dev, mepa_selftest_info
     inf->err_cnt = ((inf->err_cnt) << 16) | lo;
 
     T_D(MEPA_TRACE_GRP_GEN, "speed=%d mdi=%d frames=0x%x good=0x%x err=0x%x\n",
-	inf->speed, inf->mdi, inf->frames, inf->good_cnt, inf->err_cnt);
+        inf->speed, inf->mdi, inf->frames, inf->good_cnt, inf->err_cnt);
 
     if (inf->frames && (inf->frames == (inf->good_cnt + inf->err_cnt))) {
-	lan8814_selftest_stop(dev);
+        lan8814_selftest_stop(dev);
     }
 
     rc = MEPA_RC_OK;
@@ -2537,7 +2556,8 @@ do_exit:
 #endif
 
 #if !defined(MEPA_LAN8814_LIGHT)
-static mepa_rc lan8814_prbs_set(mepa_device_t *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
+static mepa_rc lan8814_prbs_set(mepa_device_t *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction,
+                                const mepa_phy_prbs_generator_conf_t *const prbs_conf)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
@@ -2552,7 +2572,7 @@ static mepa_rc lan8814_prbs_set(mepa_device_t *dev, mepa_phy_prbs_type_t type, m
     if (direction == MEPA_PHY_DIRECTION_HOST && type == MEPA_PHY_PRBS_TYPE_SERDES) {
         mepa_rc rc = MEPA_RC_OK;
 
-        if (prbs_conf->prbsn_sel == MEPA_PRBS7){
+        if (prbs_conf->prbsn_sel == MEPA_PRBS7) {
 
             MEPA_ENTER(dev);
             rc = lan8814_prbs7_set(dev, prbs_conf->enable, prbs_conf->clk, prbs_conf->loopback);
@@ -2581,7 +2601,7 @@ static mepa_rc lan8814_prbs_get(mepa_device_t *dev, mepa_phy_prbs_type_t type, m
 #endif
 
 #if !defined(MEPA_LAN8814_LIGHT)
-static mepa_rc lan8814_prbs_monitor_set(mepa_device_t *dev, mepa_phy_prbs_monitor_conf_t *const value)
+static mepa_rc lan8814_prbs_monitor_set(mepa_device_t *dev, const mepa_phy_prbs_monitor_conf_t *const value)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -2640,7 +2660,7 @@ static mepa_rc lan8814_serdes_tx_conf_set(mepa_device_t *dev, const mepa_serdes_
     // Since QSGMII soft reset and serdes configuration registers are global,
     // this needs to be only configured via base port.
     if (base_dev != dev) {
-        T_E(MEPA_TRACE_GRP_GEN,"Base port:%d needs to be passed", base_data->port_no);
+        T_E(MEPA_TRACE_GRP_GEN, "Base port:%d needs to be passed", base_data->port_no);
         return MEPA_RC_ERROR;
     }
 
@@ -2658,7 +2678,7 @@ static mepa_rc lan8814_serdes_tx_conf_set(mepa_device_t *dev, const mepa_serdes_
     }
 
     value = ((LAN8814_QSGMII_SERDES_TX_LEVEL(tx_conf->level)) | LAN8814_QSGMII_SERDES_TX_BOOST(tx_conf->boost));
-    T_I(MEPA_TRACE_GRP_GEN,"level: %u = 0x%x and boost: %u = 0x%x => value = 0x%x", tx_conf->level, tx_conf->level, tx_conf->boost, tx_conf->boost, value);
+    T_I(MEPA_TRACE_GRP_GEN, "level: %u = 0x%x and boost: %u = 0x%x => value = 0x%x", tx_conf->level, tx_conf->level, tx_conf->boost, tx_conf->boost, value);
 
     EP_WRM(base_dev, LAN8814_QSGMII_SERDES_TX_CTRL, value, 0x3fff);
     EP_WRM(base_dev, LAN8814_QSGMII_SOFT_RESET, LAN8814_QSGMII_SOFT_RESET_BIT, LAN8814_QSGMII_SOFT_RESET_BIT);

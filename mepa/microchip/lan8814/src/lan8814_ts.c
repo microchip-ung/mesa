@@ -14,7 +14,7 @@
 #define CLK_PERIOD_200_MHZ  5 // 5 nano seconds clock period.
 
 static  uint16_t lan8814_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
-                                 // 1000,  100,    10 speeds
+    // 1000,  100,    10 speeds
     [MEPA_TS_CLOCK_FREQ_25M] =    {  415, 1447, 8377 }, // Internal clock is 250 MHz
     [MEPA_TS_CLOCK_FREQ_125M] =   {  000, 0000, 00000 },
     [MEPA_TS_CLOCK_FREQ_15625M] = {  000, 0000, 00000 },
@@ -23,7 +23,7 @@ static  uint16_t lan8814_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
 };
 
 static  uint16_t lan8814_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
-                                 // 1000,  100,    10 speeds
+    // 1000,  100,    10 speeds
     [MEPA_TS_CLOCK_FREQ_25M] =    {  186,  296, 11353 }, // Internal clock is 250 MHz
     [MEPA_TS_CLOCK_FREQ_125M] =   {  000, 0000, 00000 },
     [MEPA_TS_CLOCK_FREQ_15625M] = {  000, 0000, 00000 },
@@ -32,7 +32,7 @@ static  uint16_t lan8814_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
 };
 
 static uint16_t lan8814_twostep_egr_lat_adj[MEPA_TS_CLOCK_FREQ_MAX][4] = {
-  //     10M,100M, 1G
+    //     10M,100M, 1G
     [MEPA_TS_CLOCK_FREQ_25M] =    {0, 11198, 1120, 115}, // Internal clock is 250 MHz
     [MEPA_TS_CLOCK_FREQ_125M] =   {0,     0,    0,   0},
     [MEPA_TS_CLOCK_FREQ_15625M] = {0,     0,    0,   0},
@@ -169,7 +169,7 @@ static mepa_rc lan8814_tsu_block_init(mepa_device_t *dev, const mepa_ts_init_con
     EP_WRM(dev, LAN8814_PTP_REF_CLK_CFG, clock_cfg, LAN8814_DEF_MASK);
     if (ts_init_conf->mch_pch_conf.mch_en) {
         val = val | LAN8814_PTP_OPERATING_MODE_VAL_F(3); // 3 for PTP in MCH operating mode
-    } else if(ts_init_conf->mch_pch_conf.pch_en) {
+    } else if (ts_init_conf->mch_pch_conf.pch_en) {
         val = val | LAN8814_PTP_OPERATING_MODE_VAL_F(2); // 2 for PTP in PCH operating mode
     } else {
         val = val | LAN8814_PTP_OPERATING_MODE_VAL_F(1); // 1 for PTP in normal operating mode
@@ -218,10 +218,10 @@ static mepa_rc lan8814_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_
     }
 
     if (ts_init_conf->rx_ts_pos == MEPA_TS_RX_TIMESTAMP_POS_AT_END) {
-		val = val | LAN8814_PTP_RX_TAIL_TAG_EN; // Append the rx timestamp at the end of the packet
-		val = val | LAN8814_PTP_RX_TAIL_TAG_INSERT_IFG_F(1);
-		val = val | LAN8814_PTP_RX_TAIL_TAG_ER_FORWARD;
-		EP_WRM(dev, LAN8814_PTP_RX_TAIL_TAG, val, LAN8814_DEF_MASK);
+        val = val | LAN8814_PTP_RX_TAIL_TAG_EN; // Append the rx timestamp at the end of the packet
+        val = val | LAN8814_PTP_RX_TAIL_TAG_INSERT_IFG_F(1);
+        val = val | LAN8814_PTP_RX_TAIL_TAG_ER_FORWARD;
+        EP_WRM(dev, LAN8814_PTP_RX_TAIL_TAG, val, LAN8814_DEF_MASK);
     }
 
     // initialise classifier config state with default values.
@@ -235,24 +235,24 @@ static mepa_rc lan8814_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_
     // Ingress latencies
     val = lan8814_ing_latencies[ts_init_conf->clk_freq][2];
     EP_WRM(dev, LAN8814_PTP_RX_LATENCY_10, val, LAN8814_DEF_MASK);
-    data->ts_state.default_latencies.rx10mbps = val << 16;
+    data->ts_state.default_latencies.rx10mbps = ((int64_t)val) << 16;
     val = lan8814_ing_latencies[ts_init_conf->clk_freq][1];
     EP_WRM(dev, LAN8814_PTP_RX_LATENCY_100, val, LAN8814_DEF_MASK);
-    data->ts_state.default_latencies.rx100mbps =  val << 16;
+    data->ts_state.default_latencies.rx100mbps =  ((int64_t)val) << 16;
     val = lan8814_ing_latencies[ts_init_conf->clk_freq][0];
     EP_WRM(dev, LAN8814_PTP_RX_LATENCY_1000, val, LAN8814_DEF_MASK);
-    data->ts_state.default_latencies.rx1000mbps =  val << 16;
+    data->ts_state.default_latencies.rx1000mbps =  ((int64_t)val) << 16;
 
     // Egress latencies
     val = lan8814_egr_latencies[ts_init_conf->clk_freq][2];
     EP_WRM(dev, LAN8814_PTP_TX_LATENCY_10, val, LAN8814_DEF_MASK);
-    data->ts_state.default_latencies.tx10mbps =  val << 16;
+    data->ts_state.default_latencies.tx10mbps =  ((int64_t)val) << 16;
     val = lan8814_egr_latencies[ts_init_conf->clk_freq][1];
     EP_WRM(dev, LAN8814_PTP_TX_LATENCY_100, val, LAN8814_DEF_MASK);
-    data->ts_state.default_latencies.tx100mbps =  val << 16;
+    data->ts_state.default_latencies.tx100mbps =  ((int64_t)val) << 16;
     val = lan8814_egr_latencies[ts_init_conf->clk_freq][0];
     EP_WRM(dev, LAN8814_PTP_TX_LATENCY_1000, val, LAN8814_DEF_MASK);
-    data->ts_state.default_latencies.tx1000mbps =  val << 16;
+    data->ts_state.default_latencies.tx1000mbps = ((int64_t)val) << 16;
 
 #else
 
@@ -277,13 +277,13 @@ static mepa_rc lan8814_ts_port_init(mepa_device_t *dev, const mepa_ts_init_conf_
     data->ts_state.default_latencies.tx1000mbps =  val << 16;
 
 #endif
-    EP_RD(dev,LAN8814_PTP_TSU_GEN_CONF,&val);
+    EP_RD(dev, LAN8814_PTP_TSU_GEN_CONF, &val);
     if (ts_init_conf->mch_pch_conf.save_ts_with_crc_err) {
         val |= LAN8814_PTP_TSU_GEN_CONF_TS_CRC_PKT;
     } else {
         val &= ~LAN8814_PTP_TSU_GEN_CONF_TS_CRC_PKT;
     }
-    EP_WRM(dev,LAN8814_PTP_TSU_GEN_CONF, val,LAN8814_PTP_TSU_GEN_CONF_TS_CRC_PKT);
+    EP_WRM(dev, LAN8814_PTP_TSU_GEN_CONF, val, LAN8814_PTP_TSU_GEN_CONF_TS_CRC_PKT);
     data->ts_state.ts_init_done = TRUE;
     return MEPA_RC_OK;
 }
@@ -798,58 +798,58 @@ static mepa_rc lan8814_ts_clock_egress_latency_set_priv(mepa_device_t *dev, cons
     mepa_timeinterval_t latency;
 
     switch (data->conf.speed) {
-        case MEPA_SPEED_10M:
-            latency = base_data->ts_state.default_latencies.tx10mbps;
-            if (two_step) {
-                latency -= lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_10M] << 16; //two_step adjustment
-            }
-            latency += *input_latency;
-            if (latency >= 0) {
-                val = (uint16_t)(latency >> 16); //timeinterval to nano-sec conversion.
-            } else {
-                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *input_latency);
-                break;
-            }
-            EP_WR(dev, LAN8814_PTP_TX_LATENCY_10, val);
-            data->ts_state.ts_port_conf.port_latencies.tx10mbps = *input_latency;
+    case MEPA_SPEED_10M:
+        latency = base_data->ts_state.default_latencies.tx10mbps;
+        if (two_step) {
+            latency -= ((int64_t)lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_10M]) << 16; //two_step adjustment
+        }
+        latency += *input_latency;
+        if (latency >= 0) {
+            val = (uint16_t)(latency >> 16); //timeinterval to nano-sec conversion.
+        } else {
+            T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *input_latency);
             break;
+        }
+        EP_WR(dev, LAN8814_PTP_TX_LATENCY_10, val);
+        data->ts_state.ts_port_conf.port_latencies.tx10mbps = *input_latency;
+        break;
 
-        case MEPA_SPEED_100M:
-            latency = base_data->ts_state.default_latencies.tx100mbps;
-            if (two_step) {
-                latency -= lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_100M] << 16; //two_step adjustment
-            }
-            latency += *input_latency;
-            if (latency >= 0) {
-                val = (uint16_t)(latency >> 16); //timeinterval to nano-sec conversion.
-            } else {
-                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *input_latency);
-                break;
-            }
-            EP_WR(dev, LAN8814_PTP_TX_LATENCY_100, val);
-            data->ts_state.ts_port_conf.port_latencies.tx100mbps = *input_latency;
+    case MEPA_SPEED_100M:
+        latency = base_data->ts_state.default_latencies.tx100mbps;
+        if (two_step) {
+            latency -= ((int64_t)lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_100M]) << 16; //two_step adjustment
+        }
+        latency += *input_latency;
+        if (latency >= 0) {
+            val = (uint16_t)(latency >> 16); //timeinterval to nano-sec conversion.
+        } else {
+            T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *input_latency);
             break;
+        }
+        EP_WR(dev, LAN8814_PTP_TX_LATENCY_100, val);
+        data->ts_state.ts_port_conf.port_latencies.tx100mbps = *input_latency;
+        break;
 
-        case MEPA_SPEED_1G:
-        case MEPA_SPEED_AUTO:
-            latency = base_data->ts_state.default_latencies.tx1000mbps;
-            if (two_step) {
-                latency -= lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_1G] << 16; //two_step adjustment
-            }
-            latency += *input_latency;
-            if (latency >= 0) {
-                val = (uint16_t)(latency >> 16); //timeinterval to nano-sec conversion.
-            } else {
-                T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *input_latency);
-                break;
-            }
-            EP_WRM(dev, LAN8814_PTP_TX_LATENCY_1000, val, LAN8814_DEF_MASK);
-            data->ts_state.ts_port_conf.port_latencies.tx1000mbps = *input_latency;
+    case MEPA_SPEED_1G:
+    case MEPA_SPEED_AUTO:
+        latency = base_data->ts_state.default_latencies.tx1000mbps;
+        if (two_step) {
+            latency -= ((int64_t)lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_1G]) << 16; //two_step adjustment
+        }
+        latency += *input_latency;
+        if (latency >= 0) {
+            val = (uint16_t)(latency >> 16); //timeinterval to nano-sec conversion.
+        } else {
+            T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Egress Latency Values :: %lld \n", data->port_no, *input_latency);
             break;
+        }
+        EP_WRM(dev, LAN8814_PTP_TX_LATENCY_1000, val, LAN8814_DEF_MASK);
+        data->ts_state.ts_port_conf.port_latencies.tx1000mbps = *input_latency;
+        break;
 
-        default:
-            T_I(MEPA_TRACE_GRP_TS, "Lan8814 phy allows latency configuration for 10/100/1000Mbps only");
-            break;
+    default:
+        T_I(MEPA_TRACE_GRP_TS, "Lan8814 phy allows latency configuration for 10/100/1000Mbps only");
+        break;
     }
 
     return MEPA_RC_OK;
@@ -866,7 +866,7 @@ static mepa_rc lan8814_ts_clock_egress_latency_set(mepa_device_t *dev, const mep
     MEPA_ENTER(dev);
     ptpclock_conf = &data->ts_state.ts_port_conf.tx_clock_conf;
     if (ptpclock_conf->enable && (ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC2STEP ||
-                ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP)) {
+                                  ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP)) {
         two_step_lat = TRUE;
     }
     rc = lan8814_ts_clock_egress_latency_set_priv(dev, latency, two_step_lat);
@@ -889,7 +889,7 @@ mepa_rc lan8814_ts_reload_egress_latency(mepa_device_t *dev, mepa_bool_t two_ste
     // 10m speed
     latency = base_data->ts_state.default_latencies.tx10mbps;
     if (two_step) {
-        latency -= lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_10M] << 16; //two_step adjustment
+        latency -= ((int64_t)lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_10M]) << 16; //two_step adjustment
     }
     latency += data->ts_state.ts_port_conf.port_latencies.tx10mbps; // user configured latency.
     val = (uint16_t)(latency > 0 ? latency >> 16 : 0); // latencies cannot be -ve.
@@ -898,7 +898,7 @@ mepa_rc lan8814_ts_reload_egress_latency(mepa_device_t *dev, mepa_bool_t two_ste
     // 100m speed
     latency = base_data->ts_state.default_latencies.tx100mbps;
     if (two_step) {
-        latency -= lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_100M] << 16; //two_step adjustment
+        latency -= ((int64_t)lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_100M]) << 16; //two_step adjustment
     }
     latency += data->ts_state.ts_port_conf.port_latencies.tx100mbps; // user configured latency.
     val = (uint16_t)(latency > 0 ? latency >> 16 : 0); // latencies cannot be -ve.
@@ -907,7 +907,7 @@ mepa_rc lan8814_ts_reload_egress_latency(mepa_device_t *dev, mepa_bool_t two_ste
     // 1000m speed
     latency = base_data->ts_state.default_latencies.tx1000mbps;
     if (two_step) {
-        latency -= lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_1G] << 16; //two_step adjustment
+        latency -= ((int64_t)lan8814_twostep_egr_lat_adj[base_data->ts_state.clk_freq][MEPA_SPEED_1G]) << 16; //two_step adjustment
     }
     latency += data->ts_state.ts_port_conf.port_latencies.tx1000mbps; // user configured latency.
     val = (uint16_t)(latency > 0 ? latency >> 16 : 0); // latencies cannot be -ve.
@@ -958,7 +958,7 @@ static mepa_rc lan8814_ts_clock_ingress_latency_set(mepa_device_t *dev, const me
         if (*latency >= 0) {
             val = (uint16_t)((base_phy->ts_state.default_latencies.rx10mbps >> 16) & 0xFFFF) + val;
         } else {
-            if ((base_phy->ts_state.default_latencies.rx100mbps >> 16) <= val) {
+            if ((base_phy->ts_state.default_latencies.rx10mbps >> 16) <= val) {
                 T_I(MEPA_TRACE_GRP_TS, "Port No : %d   Bad Ingress Latency Values :: %lld \n", data->port_no, *latency);
                 break;
             }
@@ -1017,20 +1017,20 @@ static mepa_rc lan8814_ts_rx_classifier_conf_get (mepa_device_t *dev, uint16_t f
 }
 
 static void lan8814_ts_deb_pr_reg (mepa_device_t *dev,
-                                const mepa_debug_print_t pr,
-                                const char *str, uint16_t page, uint16_t addr, uint16_t *value)
+                                   const mepa_debug_print_t pr,
+                                   const char *str, uint16_t page, uint16_t addr, uint16_t *value)
 {
-    if(pr != NULL) {
+    if (pr != NULL) {
         phy_data_t *data = (phy_data_t *)dev->data;
         mepa_port_no_t port_no = data->port_no;
-        if(MEPA_RC_OK == lan8814_ext_reg_rd(dev, page, addr, value)) {
+        if (MEPA_RC_OK == lan8814_ext_reg_rd(dev, page, addr, value)) {
             pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, to_u32(port_no), page, addr, *value);
         }
     }
 }
 
 static mepa_rc lan8814_ts_classifier_conf_reg_dump(mepa_device_t *dev,
-                                                const mepa_debug_print_t pr)
+                                                   const mepa_debug_print_t pr)
 {
     uint16_t val = 0;
 
@@ -1142,7 +1142,7 @@ static mepa_rc lan8814_ts_classifier_conf_reg_dump(mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 static mepa_rc lan8814_ts_clock_conf_reg_dump(mepa_device_t *dev,
-                                           const mepa_debug_print_t pr)
+                                              const mepa_debug_print_t pr)
 {
     uint16_t val = 0;
 
@@ -1424,7 +1424,7 @@ static mepa_rc lan8814_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa
         switch (vlan_conf->num_tag) {
         case 2:
             vlan_parse = vlan_parse | LAN8814_PTP_RX_PARSE_VLAN_VLAN2_CHECK_EN;
-            /* fall-through */
+        /* fall-through */
         case 1:
             vlan_parse = vlan_parse | LAN8814_PTP_RX_PARSE_VLAN_VLAN1_CHECK_EN;
             vlan_parse = vlan_parse | LAN8814_PTP_RX_PARSE_VLAN_TAG_COUNT_F(vlan_conf->num_tag);
@@ -1439,7 +1439,7 @@ static mepa_rc lan8814_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa
         switch (vlan_conf->num_tag) {
         case 2:
             vlan_parse = vlan_parse | LAN8814_PTP_TX_PARSE_VLAN_VLAN2_CHECK_EN;
-            /* fall-through */
+        /* fall-through */
         case 1:
             vlan_parse = vlan_parse | LAN8814_PTP_TX_PARSE_VLAN_VLAN1_CHECK_EN;
             vlan_parse = vlan_parse | LAN8814_PTP_TX_PARSE_VLAN_TAG_COUNT_F(vlan_conf->num_tag);
@@ -1468,7 +1468,7 @@ static mepa_rc lan8814_ts_classifier_vlan_conf_set_priv(mepa_device_t *dev, mepa
             EP_WRM(dev, LAN8814_VLAN2_TYPE_ID, vid, LAN8814_DEF_MASK);
             EP_WRM(dev, LAN8814_VLAN2_ID_MASK, mask, LAN8814_DEF_MASK);
         }
-        /* fall-through */
+    /* fall-through */
     case 1:
         if (vlan_conf->inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE) {
             range_up = 0, range_lo = 0;
@@ -1510,7 +1510,7 @@ static mepa_rc lan8814_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16
     if ((pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_OR_DEST) &&
         (pkt_conf->eth_class_conf.mac_match_mode   != MEPA_TS_ETH_ADDR_MATCH_48BIT)) {
         T_E(MEPA_TRACE_GRP_TS, "When both source or destination mac address need to be matched,"
-                               "match mode must be set to full 48-bit address");
+            "match mode must be set to full 48-bit address");
         return MEPA_RC_ERROR;
     }
     switch (pkt_conf->pkt_encap_type) {
@@ -1621,7 +1621,7 @@ static mepa_rc lan8814_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16
     if ((pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_OR_DEST) &&
         (pkt_conf->eth_class_conf.mac_match_mode   != MEPA_TS_ETH_ADDR_MATCH_48BIT)) {
         T_E(MEPA_TRACE_GRP_TS, "When both source or destination mac address need to be matched,"
-                               "match mode must be set to full 48-bit address");
+            "match mode must be set to full 48-bit address");
         return MEPA_RC_ERROR;
     }
 
@@ -1764,7 +1764,7 @@ static mepa_rc lan8814_ts_tx_classifier_conf_set(mepa_device_t *dev, uint16_t fl
 }
 
 static mepa_rc lan8814_ts_rx_ptp_clock_conf_get (mepa_device_t *dev, uint16_t clock_id,
-                                              mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
+                                                 mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
@@ -1781,7 +1781,7 @@ static mepa_rc lan8814_ts_rx_ptp_clock_conf_get (mepa_device_t *dev, uint16_t cl
 }
 
 static mepa_rc lan8814_ts_tx_ptp_clock_conf_get(mepa_device_t *dev, uint16_t clock_id,
-                                             mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
+                                                mepa_ts_ptp_clock_conf_t *const ptpclock_conf)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
@@ -1886,7 +1886,7 @@ static mepa_rc lan8814_ts_rx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clo
         val = 0x0405;
         EP_WRM(dev, LAN8814_PTP_RX_RSVD_BYTE_CFG, val, LAN8814_DEF_MASK);
         rx_mod = rx_mod | LAN8814_PTP_RX_MOD_PTP_INSERT_TS_EN;
-        if(data->ts_state.rx_ts_len == MEPA_TS_RX_TIMESTAMP_LEN_32BIT) {
+        if (data->ts_state.rx_ts_len == MEPA_TS_RX_TIMESTAMP_LEN_32BIT) {
             rx_mod = rx_mod | LAN8814_PTP_RX_MOD_PTP_INSERT_TS_32BIT;
         }
         EP_WRM(dev, LAN8814_PTP_RX_MOD, rx_mod, rx_mod);
@@ -1908,7 +1908,7 @@ static mepa_rc lan8814_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clo
 
     MEPA_ENTER(dev);
     if (ptpclock_conf->enable && (ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC2STEP ||
-                ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP)) {
+                                  ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP)) {
         two_step_lat = TRUE;
     }
     // Reload egress latencies based on clock type i.e. 1-step or 2-step
@@ -1992,10 +1992,10 @@ static mepa_rc lan8814_ts_tx_ptp_clock_conf_set(mepa_device_t *dev, uint16_t clo
     data->ts_state.ts_port_conf.tx_clock_conf.clk_mode = ptpclock_conf->clk_mode;
     data->ts_state.ts_port_conf.tx_clock_conf.delaym_type = ptpclock_conf->delaym_type;
 
-    #if 0
+#if 0
     lan8814_ts_classifier_conf_reg_dump(dev, NULL);
     lan8814_ts_clock_conf_reg_dump(dev, NULL);
-    #endif
+#endif
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
@@ -2031,8 +2031,8 @@ static mepa_rc lan8814_ltc_target_seconds(mepa_device_t *dev, uint32_t sec)
 static mepa_rc lan8814_ts_pps_conf_set (mepa_device_t *dev, const mepa_ts_pps_conf_t *const phy_pps_conf)
 {
     uint16_t val = 0;
-    uint32_t pps[] = {100,500,1000,5000,10000,50000,100000,500000,1000000,5000000,10000000,50000000,100000000,200000000};
-    uint16_t pps_num = sizeof(pps)/sizeof(pps[0]);
+    uint32_t pps[] = {100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000, 50000000, 100000000, 200000000};
+    uint16_t pps_num = sizeof(pps) / sizeof(pps[0]);
     mepa_timestamp_t ts = {};
     uint16_t i;
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -2176,7 +2176,7 @@ static mepa_rc lan8814_ts_tx_ts_get (mepa_device_t *dev)
     } while (valid_ts);
     MEPA_EXIT(dev);
     T_I(MEPA_TRACE_GRP_TS, "msg_type:%d seq_id:%d crc_src_port:0x%x", sig.msg_type,
-                            sig.sequence_id, sig.crc_src_port);
+        sig.sequence_id, sig.crc_src_port);
 
     return MEPA_RC_OK;
 }
@@ -2215,7 +2215,7 @@ mepa_rc lan8814_ts_stats_get(mepa_device_t *dev, mepa_ts_stats_t   *const statis
 }
 
 static mepa_rc lan8814_ts_event_get (mepa_device_t *dev,
-                                  mepa_ts_event_t *const ev_mask)
+                                     mepa_ts_event_t *const ev_mask)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
@@ -2475,7 +2475,7 @@ mepa_rc lan8814_ts_test_config(mepa_device_t *dev, uint16_t test_id, mepa_bool_t
 }
 
 mepa_rc lan8814_ts_pch_mch_error_get(struct mepa_device *dev,
-                                      mepa_pch_mch_mismatch_info_t *const info)
+                                     mepa_pch_mch_mismatch_info_t *const info)
 {
     mepa_rc rc = MEPA_RC_OK;
     uint16_t val = 0;
@@ -2490,24 +2490,22 @@ mepa_rc lan8814_ts_pch_mch_error_get(struct mepa_device *dev,
 }
 
 mepa_rc lan8814_ts_debug_info_dump(struct mepa_device *dev,
-                                    const mepa_debug_print_t pr,
-                                    const mepa_debug_info_t   *const info)
+                                   const mepa_debug_print_t pr,
+                                   const mepa_debug_info_t   *const info)
 {
     mepa_rc rc = MEPA_RC_OK;
 
-    switch(info->group)
-    {
-        case MEPA_DEBUG_GROUP_ALL:
-        case MEPA_DEBUG_GROUP_PHY_TS:
-        {
-            MEPA_ENTER(dev);
-            lan8814_ts_classifier_conf_reg_dump(dev, pr);
-            lan8814_ts_clock_conf_reg_dump(dev, pr);
-            MEPA_EXIT(dev);
-        }
-        break;
-        default:
-            rc = MEPA_RC_OK;
+    switch (info->group) {
+    case MEPA_DEBUG_GROUP_ALL:
+    case MEPA_DEBUG_GROUP_PHY_TS: {
+        MEPA_ENTER(dev);
+        lan8814_ts_classifier_conf_reg_dump(dev, pr);
+        lan8814_ts_clock_conf_reg_dump(dev, pr);
+        MEPA_EXIT(dev);
+    }
+    break;
+    default:
+        rc = MEPA_RC_OK;
     }
     return rc;
 }

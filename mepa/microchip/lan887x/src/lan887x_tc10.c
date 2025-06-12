@@ -10,7 +10,7 @@
  *********************************/
 // LAN887X Driver MEPA TC10 APIs
 static mepa_rc lan887x_phy_tc10_set_sleep_support(struct mepa_device        *dev,
-        const mepa_bool_t         enable)
+                                                  const mepa_bool_t         enable)
 {
     uint16_t reg_data = 0;
     mepa_rc rc = MEPA_RC_OK;
@@ -35,7 +35,7 @@ error:
 }
 
 static mepa_rc lan887x_phy_tc10_get_sleep_support(struct mepa_device    *dev,
-        mepa_bool_t           *const enable)
+                                                  mepa_bool_t           *const enable)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
@@ -45,7 +45,7 @@ static mepa_rc lan887x_phy_tc10_get_sleep_support(struct mepa_device    *dev,
 }
 
 static mepa_rc lan887x_phy_tc10_set_wakeup_support(struct mepa_device               *dev,
-        const mepa_tc10_wakeup_mode_t    mode)
+                                                   const mepa_tc10_wakeup_mode_t    mode)
 {
     mepa_rc rc = MEPA_RC_OK;
     uint16_t reg_data1 = 0, reg_data2 = 0;
@@ -90,7 +90,7 @@ error:
 }
 
 static mepa_rc lan887x_phy_tc10_get_wakeup_support(struct mepa_device           *dev,
-        mepa_tc10_wakeup_mode_t      *const mode)
+                                                   mepa_tc10_wakeup_mode_t      *const mode)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
@@ -100,7 +100,7 @@ static mepa_rc lan887x_phy_tc10_get_wakeup_support(struct mepa_device           
 }
 
 static mepa_rc lan887x_phy_tc10_set_wakeup_fwd_support(struct mepa_device                       *dev,
-        const mepa_tc10_wakeup_fwd_mode_t        mode)
+                                                       const mepa_tc10_wakeup_fwd_mode_t        mode)
 {
     mepa_rc rc = MEPA_RC_OK;
     uint16_t reg_data1 = 0, reg_data2 = 0;
@@ -145,7 +145,7 @@ error:
 }
 
 static mepa_rc lan887x_phy_tc10_get_wakeup_fwd_support(struct mepa_device              *dev,
-        mepa_tc10_wakeup_fwd_mode_t     *const mode)
+                                                       mepa_tc10_wakeup_fwd_mode_t     *const mode)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
@@ -155,8 +155,8 @@ static mepa_rc lan887x_phy_tc10_get_wakeup_fwd_support(struct mepa_device       
 }
 
 static mepa_rc lan887x_phy_tc10_set_wake_pin_polarity(struct mepa_device           *dev,
-        const mepa_tc10_pin_t        pin,
-        const mepa_gpio_mode_t       polarity)
+                                                      const mepa_tc10_pin_t        pin,
+                                                      const mepa_gpio_mode_t       polarity)
 {
     uint16_t reg_data = 0;
     mepa_rc rc = MEPA_RC_OK;
@@ -211,8 +211,8 @@ error:
 }
 
 static mepa_rc lan887x_phy_tc10_get_wake_pin_polarity(struct mepa_device            *dev,
-        const mepa_tc10_pin_t         pin,
-        mepa_gpio_mode_t              *const polarity)
+                                                      const mepa_tc10_pin_t         pin,
+                                                      mepa_gpio_mode_t              *const polarity)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
@@ -228,8 +228,8 @@ static mepa_rc lan887x_phy_tc10_get_wake_pin_polarity(struct mepa_device        
 }
 
 static mepa_rc lan887x_phy_tc10_set_pin_mode(struct mepa_device          *dev,
-        const mepa_tc10_pin_t       pin,
-        const mepa_gpio_mode_t      mode)
+                                             const mepa_tc10_pin_t       pin,
+                                             const mepa_gpio_mode_t      mode)
 {
     uint16_t reg_data = 0;
     mepa_rc rc = MEPA_RC_OK;
@@ -288,8 +288,8 @@ error:
 }
 
 static mepa_rc lan887x_phy_tc10_get_pin_mode(struct mepa_device          *dev,
-        const mepa_tc10_pin_t       pin,
-        mepa_gpio_mode_t            *const mode)
+                                             const mepa_tc10_pin_t       pin,
+                                             mepa_gpio_mode_t            *const mode)
 {
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *data = (phy_data_t *) dev->data;
@@ -313,14 +313,14 @@ static mepa_rc lan887x_phy_tc10_get_pin_mode(struct mepa_device          *dev,
 }
 
 static mepa_rc lan887x_phy_tc10_send_sleep_request(struct mepa_device                *dev,
-        const mepa_tc10_sleep_request_t   req)
+                                                   const mepa_tc10_sleep_request_t   req)
 {
     uint16_t reg_data = 0;
     mepa_rc rc = MEPA_RC_ERR_KR_CONF_NOT_SUPPORTED;
     phy_data_t *data = (phy_data_t *) dev->data;
 
     if (data->tc10_cfg.sleep_enable == PHY_TRUE &&
-            data->conf.admin.enable == PHY_TRUE) {
+        data->conf.admin.enable == PHY_TRUE) {
         rc = MEPA_RC_ERR_PARM;
         if (req == MEPA_TC10_LPS ) {
             MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
@@ -328,6 +328,27 @@ static mepa_rc lan887x_phy_tc10_send_sleep_request(struct mepa_device           
             reg_data |= LAN887X_DEV30_COMMON_TC10_REG_REG16_RW_SEND_LPS;
             MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
                                             LAN887X_DEV30_COMMON_TC10_REG_REG16, reg_data));
+        } else if (req == MEPA_TC10_SLEEP_REJECT) {
+            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, &reg_data));
+            reg_data |= LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_ABORT;
+            MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, reg_data));
+        } else if (req == MEPA_TC10_SLEEP_ABORT) {
+            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, &reg_data));
+            reg_data |= LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_RJCT;
+            MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, reg_data));
+        } else if (req == MEPA_TC10_ABORT_CLEAR) {
+            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, &reg_data));
+            reg_data &= ~(LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_RJCT |
+                          LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_ABORT);
+            MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, reg_data));
+        } else {
+            return MEPA_RC_ERR_PARM;
         }
     }
 
@@ -336,7 +357,7 @@ error:
 }
 
 static mepa_rc lan887x_phy_tc10_get_state(struct mepa_device     *dev,
-        mepa_tc10_state_t      *const state)
+                                          mepa_tc10_state_t      *const state)
 {
     uint16_t reg_data = 0, sts = 0;
     mepa_rc rc = MEPA_RC_OK;
@@ -391,8 +412,8 @@ static mepa_rc lan887x_phy_tc10_send_wake_request(struct mepa_device *dev)
 
     //WUP feature enabled & admin is enabled
     if (data->conf.admin.enable == PHY_TRUE &&
-            (data->tc10_cfg.wakeup_mode == MEPA_TC10_WAKEUP_WUP_ENABLE ||
-             data->tc10_cfg.wakeup_mode == MEPA_TC10_WAKEUP_WUP_WAKEIN_ENABLE)) {
+        (data->tc10_cfg.wakeup_mode == MEPA_TC10_WAKEUP_WUP_ENABLE ||
+         data->tc10_cfg.wakeup_mode == MEPA_TC10_WAKEUP_WUP_WAKEIN_ENABLE)) {
         MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
                                         LAN887X_DEV30_COMMON_TC10_REG_REG16,
                                         &reg_data));
@@ -440,6 +461,19 @@ mepa_rc lan887x_phy_tc10_set_config(struct mepa_device *dev, lan887x_tc10_data_t
 error:
     return rc;
 }
+
+static mepa_rc lan887x_phy_tc10_get_indication(struct mepa_device     *dev,
+                                               uint16_t     *const indication)
+{
+    mepa_rc rc = MEPA_RC_OK;
+
+    MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
+                                    LAN887X_DEV30_COMMON_TC10_REG_REG24, indication));
+
+error:
+    return rc;
+}
+
 /**********************************
  * Internal APIs must be above this
  *********************************/
@@ -449,7 +483,7 @@ error:
  *********************************/
 // LAN887X Driver MEPA TC10 APIs
 static mepa_rc lan887x_tc10_set_sleep_support(struct mepa_device        *dev,
-        const mepa_bool_t         enable)
+                                              const mepa_bool_t         enable)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -463,7 +497,7 @@ static mepa_rc lan887x_tc10_set_sleep_support(struct mepa_device        *dev,
 }
 
 static mepa_rc lan887x_tc10_get_sleep_support(struct mepa_device    *dev,
-        mepa_bool_t           *const enable)
+                                              mepa_bool_t           *const enable)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -477,7 +511,7 @@ static mepa_rc lan887x_tc10_get_sleep_support(struct mepa_device    *dev,
 }
 
 static mepa_rc lan887x_tc10_set_wakeup_support(struct mepa_device               *dev,
-        const mepa_tc10_wakeup_mode_t    mode)
+                                               const mepa_tc10_wakeup_mode_t    mode)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -491,7 +525,7 @@ static mepa_rc lan887x_tc10_set_wakeup_support(struct mepa_device               
 }
 
 static mepa_rc lan887x_tc10_get_wakeup_support(struct mepa_device           *dev,
-        mepa_tc10_wakeup_mode_t      *const mode)
+                                               mepa_tc10_wakeup_mode_t      *const mode)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -505,7 +539,7 @@ static mepa_rc lan887x_tc10_get_wakeup_support(struct mepa_device           *dev
 }
 
 static mepa_rc lan887x_tc10_set_wakeup_fwd_support(struct mepa_device                       *dev,
-        const mepa_tc10_wakeup_fwd_mode_t        mode)
+                                                   const mepa_tc10_wakeup_fwd_mode_t        mode)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -519,7 +553,7 @@ static mepa_rc lan887x_tc10_set_wakeup_fwd_support(struct mepa_device           
 }
 
 static mepa_rc lan887x_tc10_get_wakeup_fwd_support(struct mepa_device              *dev,
-        mepa_tc10_wakeup_fwd_mode_t     *const mode)
+                                                   mepa_tc10_wakeup_fwd_mode_t     *const mode)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -533,8 +567,8 @@ static mepa_rc lan887x_tc10_get_wakeup_fwd_support(struct mepa_device           
 }
 
 static mepa_rc lan887x_tc10_set_wake_pin_polarity(struct mepa_device            *dev,
-        const mepa_tc10_pin_t         pin,
-        const mepa_gpio_mode_t        polarity)
+                                                  const mepa_tc10_pin_t         pin,
+                                                  const mepa_gpio_mode_t        polarity)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -548,8 +582,8 @@ static mepa_rc lan887x_tc10_set_wake_pin_polarity(struct mepa_device            
 }
 
 static mepa_rc lan887x_tc10_get_wake_pin_polarity(struct mepa_device            *dev,
-        const mepa_tc10_pin_t         pin,
-        mepa_gpio_mode_t              *const polarity)
+                                                  const mepa_tc10_pin_t         pin,
+                                                  mepa_gpio_mode_t              *const polarity)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -563,8 +597,8 @@ static mepa_rc lan887x_tc10_get_wake_pin_polarity(struct mepa_device            
 }
 
 static mepa_rc lan887x_tc10_set_pin_mode(struct mepa_device         *dev,
-        const mepa_tc10_pin_t      pin,
-        const mepa_gpio_mode_t     mode)
+                                         const mepa_tc10_pin_t      pin,
+                                         const mepa_gpio_mode_t     mode)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -578,8 +612,8 @@ static mepa_rc lan887x_tc10_set_pin_mode(struct mepa_device         *dev,
 }
 
 static mepa_rc lan887x_tc10_get_pin_mode(struct mepa_device         *dev,
-        const mepa_tc10_pin_t      pin,
-        mepa_gpio_mode_t           *const mode)
+                                         const mepa_tc10_pin_t      pin,
+                                         mepa_gpio_mode_t           *const mode)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -593,7 +627,7 @@ static mepa_rc lan887x_tc10_get_pin_mode(struct mepa_device         *dev,
 }
 
 static mepa_rc lan887x_tc10_send_sleep_request(struct mepa_device                       *dev,
-        const mepa_tc10_sleep_request_t          req)
+                                               const mepa_tc10_sleep_request_t          req)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
@@ -633,6 +667,19 @@ static mepa_rc lan887x_tc10_send_wake_request(struct mepa_device *dev)
     return rc;
 }
 
+static mepa_rc lan887x_tc10_get_indication(struct mepa_device *dev, uint16_t *const indication)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    if (dev != NULL && indication != NULL) {
+        MEPA_ENTER(dev);
+        rc = lan887x_phy_tc10_get_indication(dev, indication);
+        MEPA_EXIT(dev);
+    }
+
+    return rc;
+}
+
 mepa_tc10_driver_t lan887x_tc10_drivers = {
     .mepa_tc10_set_sleep_support           = lan887x_tc10_set_sleep_support,
     .mepa_tc10_get_sleep_support           = lan887x_tc10_get_sleep_support,
@@ -647,4 +694,5 @@ mepa_tc10_driver_t lan887x_tc10_drivers = {
     .mepa_tc10_send_sleep_request          = lan887x_tc10_send_sleep_request,
     .mepa_tc10_get_state                   = lan887x_tc10_get_state,
     .mepa_tc10_send_wake_request           = lan887x_tc10_send_wake_request,
+    .mepa_tc10_get_indication              = lan887x_tc10_get_indication,
 };

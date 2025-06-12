@@ -11,7 +11,7 @@ macro(MEPA_DRV)
     mark_as_advanced(BUILD_${A_LIB_NAME})
 
     add_library(${A_LIB_NAME} STATIC ${A_SRCS})
-    target_include_directories(${A_LIB_NAME} PUBLIC ${A_INCL_PUB} PRIVATE ${A_INCL_PRI})
+    target_include_directories(${A_LIB_NAME} PUBLIC ${A_INCL_PUB} ${MEPA_SOURCE_DIR}/microchip/lan80xx/include PRIVATE ${A_INCL_PRI})
 
     if (${MEPA_OPSYS_VELOCITYSP})
         list(APPEND A_DEFS -DMEPA_OPSYS_VELOCITYSP=1)
@@ -74,7 +74,6 @@ macro(MEPA_LIB)
     set(oneValueArgs   LIB_NAME)
     set(multiValueArgs DEFS DRVS)
     cmake_parse_arguments(A "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
     if (A_ADVANCED)
         option(BUILD_${A_LIB_NAME} "Build ${A_LIB_NAME} with ${A_DRVS}" OFF)
         mark_as_advanced(BUILD_${A_LIB_NAME})
@@ -84,18 +83,29 @@ macro(MEPA_LIB)
 
     set(lib_common ${A_LIB_NAME}_common)
     add_library(${lib_common} STATIC EXCLUDE_FROM_ALL ${MEPA_SOURCE_DIR}/common/src/phy.c)
+    set(lib_stub ${A_LIB_NAME}_stub)
+    add_library(${lib_stub} STATIC ${MEPA_SOURCE_DIR}/microchip/lan_stubs.c)
     if (${MEPA_OPSYS_VELOCITYSP})
         list(APPEND A_DEFS -DMEPA_OPSYS_VELOCITYSP=1)
     endif()
+    target_compile_definitions(${lib_stub} PRIVATE ${A_DEFS})
+    target_include_directories(${lib_stub}
+                               PUBLIC  ${MEPA_SOURCE_DIR}/../sw-mesa/me/include
+                                       ${MEPA_SOURCE_DIR}/../me/include
+                                       ${MEPA_SOURCE_DIR}/include
+                                       ${MEPA_SOURCE_DIR}/microchip/lan80xx/include
+                               PRIVATE ${MEPA_SOURCE_DIR}/common/src)
+
     target_compile_definitions(${lib_common} PRIVATE ${A_DEFS})
     target_include_directories(${lib_common}
                                PUBLIC  ${MEPA_SOURCE_DIR}/../me/include
                                        ${MEPA_SOURCE_DIR}/include
+				       ${MEPA_SOURCE_DIR}/microchip/lan80xx/include
                                PRIVATE ${MEPA_SOURCE_DIR}/common/src)
 
     mepa_merge_static_libs(TARGET    ${A_LIB_NAME}
                            FILENAME  lib${A_LIB_NAME}.a
-                           LIBRARIES ${lib_common} ${A_DRVS})
+                           LIBRARIES ${lib_common} ${A_DRVS} ${lib_stub})
 
     if (${BUILD_ALL})
         set(BUILD_${A_LIB_NAME} ON CACHE BOOL "" FORCE)

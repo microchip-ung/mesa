@@ -20,6 +20,7 @@ typedef struct {
         uint32_t low;   /**< bits 0-31 of 48-bit second */
     } seconds;          /**< 6 bytes second part of Timestamp */
     uint32_t nanoseconds; /**< 4 bytes nano-sec part of Timestamp */
+    uint8_t  picoseconds; /**< 1 bytes sub-nano-sec part of Timestamp */
 } mepa_timestamp_t;
 
 /** \brief PPS Configuration */
@@ -115,6 +116,9 @@ typedef enum {
     MEPA_TS_CMD_LOAD,
     MEPA_TS_CMD_SAVE,
     MEPA_TS_ADJ_CMD_CLEAR,
+    MEPA_TS_CMD_DELTA,
+    MEPA_TS_CMD_WAVEFORM,
+    MEPA_TS_CMD_TOD,
 } mepa_ts_ls_type_t;
 
 /** \brief Clock input source */
@@ -143,11 +147,21 @@ typedef enum {
     MEPA_TS_TC_OP_MODE_C = 2, /**< Sub local time at ingress and add at egress from CF and use 48 bits in CF */
 }mepa_ts_tc_op_mode_t;
 
+/* timestamp length in the MCH header*/
+typedef enum {
+    MEPA_MCH_TS_32NS_ONS,   /* ts in the header is 32ns */
+    MEPA_MCH_TS_28NS_4SNS,  /* ts in the header is 28bit ns and 4bit sub-ns */
+    MEPA_MCH_TS_24NS_8SNS,  /* ts in the header is 24bit ns and 8bit sub-ns */
+    MEPA_MCH_TS_16NS_16SNS, /* ts in the header is 16bit ns and 16bit sub-ns */
+} ing_egr_ts_len_t;
+
 /** \structure for MCH/PCH configs */
 typedef struct {
     mepa_bool_t pch_en; /* Enable/Diable PCH */
     mepa_bool_t save_ts_with_crc_err; /* Enable to save TS for PCH/MCH even though Packet has CRC errors*/
     mepa_bool_t mch_en; /* Enable/Disable the MCH */
+    ing_egr_ts_len_t ts_len_ing;
+    ing_egr_ts_len_t ts_len_egr;
 } mepa_mch_pch_t;
 
 /** \brief PHY timestamp unit initialization parameters */
@@ -163,7 +177,7 @@ typedef struct {
     mepa_ts_tc_op_mode_t          tc_op_mode;       /**< TC operating mode */
     mepa_bool_t                   dly_req_recv_10byte_ts; /**< Store 10-byte ingress timestamp for delay request message. Used for auto delay req/response. */
     mepa_bool_t                   tx_auto_followup_ts; /**< If true, PHY will insert timestamp in follow-up message instead of generating interrupt to application. */
-    mepa_mch_pch_t                mch_pch_conf; /**< Configuration for PCH and MCH. */
+    mepa_mch_pch_t                mch_pch_conf;
 } mepa_ts_init_conf_t;
 
 /** \brief PHY timestamp unit reset */
@@ -180,6 +194,12 @@ typedef enum {
     MEPA_TS_ENCAP_ETH_PTP,
     MEPA_TS_ENCAP_ETH_IP_PTP,
     MEPA_TS_ENCAP_ETH_HSR_PTP,
+    MEPA_TS_ENCAP_ETH_IP_IP_PTP,
+    MEPA_TS_ENCAP_ETH_ETH_PTP,
+    MEPA_TS_ENCAP_ETH_ETH_IP_PTP,
+    MEPA_TS_ENCAP_ETH_MPLS_IP_PTP,
+    MEPA_TS_ENCAP_ETH_MPLS_ETH_PTP,
+    MEPA_TS_ENCAP_ETH_MPLS_ETH_IP_PTP,
 } mepa_ts_pkt_encap_t;
 
 /** \brief Match PTP Packet MAC types */
@@ -322,6 +342,8 @@ typedef struct {
     uint16_t                        clock_id;           /**< clock id to be used by this flow. This is for validation purpose only in vsc phys. Refer VSC_phy note above. */
     mepa_ts_classifier_eth_t        eth_class_conf;
     mepa_ts_classifier_ip_t         ip_class_conf;
+    mepa_ts_classifier_eth_t        eth2_class_conf;
+    mepa_ts_classifier_ip_t         ip2_class_conf;
 } mepa_ts_classifier_t;
 
 typedef enum {

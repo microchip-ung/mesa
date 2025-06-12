@@ -496,7 +496,7 @@ static mepa_rc lan887x_config_mac(struct mepa_device *dev)
     phy_data_t *data = (phy_data_t *)dev->data;
 
     if (data->mac_if >= MESA_PORT_INTERFACE_RGMII &&
-            data->mac_if <= MESA_PORT_INTERFACE_RGMII_TXID) {
+        data->mac_if <= MESA_PORT_INTERFACE_RGMII_TXID) {
         MEPA_RC_GOTO(rc, lan887x_rgmii_setup(dev, data->mac_if));
     } else if (data->mac_if == MESA_PORT_INTERFACE_SGMII) {
         MEPA_RC_GOTO(rc, lan887x_sgmii_setup(dev));
@@ -550,7 +550,7 @@ static mepa_rc lan887x_config_leds(mepa_device_t *const dev, mepa_bool_t isolate
 
     for (i = 0; i < 4; i ++) {
         if (data->led_conf[i].mode >= MEPA_GPIO_MODE_LED_LINK_ACTIVITY &&
-                data->led_conf[i].mode <= MEPA_GPIO_MODE_LED_DISABLE_EXTENDED) {
+            data->led_conf[i].mode <= MEPA_GPIO_MODE_LED_DISABLE_EXTENDED) {
             conf[i].led_num = data->led_conf[i].led_num;
             if (isolate) {
                 conf[i].mode = MEPA_GPIO_MODE_LED_FORCE_LED_OFF;
@@ -705,12 +705,12 @@ static mepa_bool_t lan887x_is_1g(struct mepa_device *dev)
 
     if (data->conf.speed == MESA_SPEED_AUTO) {
         if (data->media_intf != MESA_PHY_MEDIA_IF_T1_100FX &&
-                data->conf.aneg.speed_1g_fdx == PHY_TRUE) {
+            data->conf.aneg.speed_1g_fdx == PHY_TRUE) {
             gig_en = PHY_TRUE;
         }
     } else {
         if (data->media_intf != MESA_PHY_MEDIA_IF_T1_100FX &&
-                data->conf.speed == MESA_SPEED_1G) {
+            data->conf.speed == MESA_SPEED_1G) {
             gig_en = PHY_TRUE;
         }
     }
@@ -897,9 +897,9 @@ static mepa_rc lan887x_check_media(struct mepa_device *dev, mepa_media_interface
         // speed selection based on media type
         if (media_if == MESA_PHY_MEDIA_IF_T1_100FX) {
             if ((speed == MESA_SPEED_AUTO &&
-                    data->conf.aneg.speed_100m_fdx != PHY_TRUE) ||
-                    (speed != MESA_SPEED_AUTO &&
-                     speed != MESA_SPEED_100M)) {
+                 data->conf.aneg.speed_100m_fdx != PHY_TRUE) ||
+                (speed != MESA_SPEED_AUTO &&
+                 speed != MESA_SPEED_100M)) {
                 rc = MEPA_RC_ERR_PARM;
                 goto error;
             }
@@ -919,11 +919,11 @@ static mepa_rc lan887x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
     lan887x_reset_typ type = LAN887X_RST_SOFT;
 
     if ((config->man_neg != MEPA_MANUAL_NEG_CLIENT &&
-            config->man_neg != MEPA_MANUAL_NEG_REF) ||
-            (config->fdx != PHY_TRUE) ||
-            (config->speed != MESA_SPEED_100M &&
-             config->speed != MESA_SPEED_1G &&
-             config->speed != MESA_SPEED_AUTO)) {
+         config->man_neg != MEPA_MANUAL_NEG_REF) ||
+        (config->fdx != PHY_TRUE) ||
+        (config->speed != MESA_SPEED_100M &&
+         config->speed != MESA_SPEED_1G &&
+         config->speed != MESA_SPEED_AUTO)) {
         rc = MEPA_RC_ERR_PARM;
     } else {
         //AUTO is always 1G
@@ -1087,8 +1087,8 @@ static uint32_t lan887x_get_sqi(mepa_device_t *const dev)
 
     //verify speed
     if (speed != MESA_SPEED_100M &&
-            speed != MESA_SPEED_1G &&
-            speed != MESA_SPEED_AUTO) {
+        speed != MESA_SPEED_1G &&
+        speed != MESA_SPEED_AUTO) {
         T_I( MEPA_TRACE_GRP_GEN, "invalid speed!!\n");
         goto done;
     }
@@ -1178,13 +1178,13 @@ static mepa_rc lan887x_int_reset(mepa_device_t *dev, const lan887x_reset_typ typ
     }
 
     if (typ == LAN887X_RST_SOFT_EXT ||
-            typ == LAN887X_RST_HARD) {
+        typ == LAN887X_RST_HARD) {
         MEPA_RC_GOTO(rc, lan887x_phy_setup(dev));
     }
 
     //configure after reset
     if (typ == LAN887X_RST_SOFT_MAC ||
-            typ == LAN887X_RST_SKIP_TO_CONF) {
+        typ == LAN887X_RST_SKIP_TO_CONF) {
         MEPA_RC_GOTO(rc, lan887x_config_mac(dev));
     }
 
@@ -1244,9 +1244,9 @@ static mepa_rc lan887x_cable_test_report(mepa_device_t *const dev, mepa_bool_t m
     /* Deriving the status of cable */
     if (pos_peak > noise_margin && neg_peak > noise_margin && gain_idx > 0U) {
         if (pos_peak_in_phases > 0U &&
-                pos_peak_in_phases > neg_peak_in_phases &&
-                ((pos_peak_in_phases - neg_peak_in_phases) >= min_time_diff) &&
-                ((pos_peak_in_phases - neg_peak_in_phases) < max_time_diff)) {
+            pos_peak_in_phases > neg_peak_in_phases &&
+            ((pos_peak_in_phases - neg_peak_in_phases) >= min_time_diff) &&
+            ((pos_peak_in_phases - neg_peak_in_phases) < max_time_diff)) {
             detect = LAN87XX_CABLE_TEST_SHORT;
         } else if (neg_peak_in_phases > 0U &&
                    neg_peak_in_phases > pos_peak_in_phases &&
@@ -1461,7 +1461,7 @@ static mepa_rc lan887x_aneg_resolve_master_slave(mepa_device_t *dev, uint8_t *mo
     } else {
         if (forced_ms_lp > ZERO) {
             if (((forced_master > ZERO) && (forced_master_lp > ZERO)) ||
-                    (forced_master == ZERO && forced_master_lp == ZERO)) {
+                (forced_master == ZERO && forced_master_lp == ZERO)) {
                 master_slave_state = MASTER_SLAVE_STATE_ERR;
             } else  {
                 master_slave_state = MASTER_SLAVE_STATE_MASTER;
@@ -1555,8 +1555,8 @@ static mepa_rc lan887x_delete(struct mepa_device *dev)
         for (pidx = 0; pidx < LAN887X_PHY_MAX; pidx++) {
 
             if (lan887x_data[pidx].ctx_status &&
-                    lan887x_data[pidx].port_no == dev->numeric_handle &&
-                    lan887x_device[pidx].numeric_handle  == dev->numeric_handle) {
+                lan887x_data[pidx].port_no == dev->numeric_handle &&
+                lan887x_device[pidx].numeric_handle  == dev->numeric_handle) {
                 T_D( MEPA_TRACE_GRP_GEN, "LAN887X port-%d driver delete @ idx=%d!!\n", lan887x_device[pidx].numeric_handle, pidx);
                 (void) memset(&lan887x_data[pidx], 0, sizeof(phy_data_t));
                 (void) memset(&lan887x_device[pidx], 0, sizeof(mepa_device_t));
@@ -1707,17 +1707,17 @@ static mepa_rc lan887x_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_c
         if (rst_conf != NULL) {
             // reset points are not supported
             if (rst_conf->reset_point != MEPA_RESET_POINT_DEFAULT &&
-                    rst_conf->reset_point != MEPA_RESET_POINT_PRE) {
+                rst_conf->reset_point != MEPA_RESET_POINT_PRE) {
                 rc = MEPA_RC_OK;
                 goto error;
             }
 
             if ((rst_conf->media_intf == MESA_PHY_MEDIA_IF_T1_100FX) ||
-                    (rst_conf->media_intf == MESA_PHY_MEDIA_IF_T1_1000FX)) {
+                (rst_conf->media_intf == MESA_PHY_MEDIA_IF_T1_1000FX)) {
                 //re-configure media interface
                 data->media_intf = rst_conf->media_intf;
                 if (rst_conf->media_intf == MESA_PHY_MEDIA_IF_T1_100FX &&
-                        data->conf.speed != MESA_SPEED_AUTO) {
+                    data->conf.speed != MESA_SPEED_AUTO) {
                     data->conf.speed = MESA_SPEED_100M;
                 }
             }
@@ -1814,7 +1814,7 @@ static mepa_rc lan887x_if_set( struct mepa_device *dev, mepa_port_interface_t ma
         rc = MEPA_RC_ERR_KR_CONF_NOT_SUPPORTED;
 
         if ((mac_if >= MESA_PORT_INTERFACE_RGMII && mac_if <= MESA_PORT_INTERFACE_RGMII_TXID) ||
-                mac_if == MESA_PORT_INTERFACE_SGMII) {
+            mac_if == MESA_PORT_INTERFACE_SGMII) {
             phy_data_t *data = (phy_data_t *)dev->data;
 
             rc = MEPA_RC_OK;
@@ -1877,7 +1877,7 @@ static mepa_rc lan887x_media_set(struct mepa_device *dev, mepa_media_interface_t
                    1000_t1         100_t1         100       100    ===> No reset
                    100t1           1000t1         100       100   ===> No reset */
                 if (data->conf.speed != MESA_SPEED_100M ||
-                        data->conf.speed == MESA_SPEED_AUTO) {
+                    data->conf.speed == MESA_SPEED_AUTO) {
                     MEPA_RC_GOTO(rc, lan887x_int_reset(dev, LAN887X_RST_SOFT));
                 }
                 //T_D( MEPA_TRACE_GRP_GEN, "Set media type %d! rc=%d.\r\n", media_if, rc);

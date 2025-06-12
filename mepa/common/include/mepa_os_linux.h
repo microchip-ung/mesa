@@ -64,10 +64,19 @@ static inline time_t MEPA_UPTIME_SECONDS(void)
     struct timespec time;
     if (clock_gettime(CLOCK_MONOTONIC, &time) == 0) {
         return time.tv_sec;
-    } else {
-        return 0;
     }
+    return 0;
 }
+
+static inline time_t MEPA_UPTIME_MSECONDS(void)
+{
+    struct timespec time;
+    if (clock_gettime(CLOCK_MONOTONIC, &time) == 0) {
+        return (time.tv_sec*1000)+(time.tv_nsec/1000000);
+    }
+    return 0;
+}
+
 
 #define MEPA_LLABS(arg)               llabs(arg)
 #define MEPA_ABS(arg)                 abs(arg)

@@ -2269,7 +2269,7 @@ AQ_Retcode AQ_API_HardReset
   }
 
   /* Avoid set-but-not-used variable warnings (intentionally does nothing) */
-  if (junk);
+  (void)junk;
 
   return AQ_RET_OK;
 }
@@ -2295,7 +2295,7 @@ AQ_Retcode AQ_API_SoftReset
   AQ_API_Set(port->PHY_ID, AQ_GlobalStandardControl_1, softReset, 0x1);
 
   /* Avoid set-but-not-used variable warnings (intentionally does nothing) */
-  if (junk);
+  (void)junk;
 
   return AQ_RET_OK;
 }
@@ -11855,8 +11855,6 @@ AQ_Retcode AQ_API_GetTDRCableDiagsResults
       pairResult = &(results->pairDResult);
       results->pairDResultsCollected = True;
       break;
-    default:
-      return AQ_RET_CABLEDIAG_REPORTEDPAIR_OOR;
   }
 
   /* Read the samples recorded for pair A from memory and convert to signed integers. */
@@ -11887,21 +11885,15 @@ AQ_Retcode AQ_API_GetTDRCableDiagsResults
     /* We've collected data for all pairs, so we're done with the entire sequence. */
     return AQ_RET_OK;
   }
-  else
-  {
-    /* Start the extended diags process for the next pair. */
-    /* REGDOC: Read-Modify-Write bitfield (HHD/APPIA/EUR: 1E.C470.F) */
-    AQ_API_Set(port->PHY_ID, AQ_GlobalReservedProvisioning, diagnosticsSelect, 1);
-    /* Wait at least 3ms. */
-    AQ_API_Wait(3, port);
+  /* Start the extended diags process for the next pair. */
+  /* REGDOC: Read-Modify-Write bitfield (HHD/APPIA/EUR: 1E.C470.F) */
+  AQ_API_Set(port->PHY_ID, AQ_GlobalReservedProvisioning, diagnosticsSelect, 1);
+  /* Wait at least 3ms. */
+  AQ_API_Wait(3, port);
 
-    if (txPair == 0) return AQ_RET_CABLEDIAG_STARTED_PAIR_B;
-    if (txPair == 1) return AQ_RET_CABLEDIAG_STARTED_PAIR_C;
-    if (txPair == 2) return AQ_RET_CABLEDIAG_STARTED_PAIR_D;
-  }
-
-  /* This shouldn't be reachable, since we constrained txPair earlier. */
-  return AQ_RET_ERROR;
+  if (txPair == 0) return AQ_RET_CABLEDIAG_STARTED_PAIR_B;
+  if (txPair == 1) return AQ_RET_CABLEDIAG_STARTED_PAIR_C;
+  return AQ_RET_CABLEDIAG_STARTED_PAIR_D;
 }
 
 /*@}*/
@@ -12056,8 +12048,6 @@ AQ_Retcode AQ_API_GetNoisePSDCableDiagsResults
       pairNumSamples = &(results->pairD_numSamples);
       results->pairDResultsCollected = True;
       break;
-    default:
-      return AQ_RET_CABLEDIAG_REPORTEDPAIR_OOR;
   }
 
   /* Read the samples recorded for the current pair from memory and convert to signed integers. */
@@ -12070,43 +12060,37 @@ AQ_Retcode AQ_API_GetNoisePSDCableDiagsResults
     /* We've collected data for all pairs, so we're done with the entire sequence. */
     return AQ_RET_OK;
   }
+  /* Start the extended diags process for the next pair.  Note that we need to set
+   * all these setting with a single register write, since setting either of these
+   * bitfields to a non-zero value will cause the diags process to start up again. */
+  if (txEnable)
+  {
+    /* REGDOC: Assign to local representation of bitfield (HHD/APPIA/EUR: 1E.C470.E:D) */
+    AQ_API_AssignBitfieldOfLocalStruct(AQ_GlobalReservedProvisioning,
+        diagsControlReg, extendedMdiDiagnosticsSelect, 0x3);
+  }
   else
   {
-    /* Start the extended diags process for the next pair.  Note that we need to set
-     * all these setting with a single register write, since setting either of these
-     * bitfields to a non-zero value will cause the diags process to start up again. */
-    if (txEnable)
-    {
-      /* REGDOC: Assign to local representation of bitfield (HHD/APPIA/EUR: 1E.C470.E:D) */
-      AQ_API_AssignBitfieldOfLocalStruct(AQ_GlobalReservedProvisioning,
-          diagsControlReg, extendedMdiDiagnosticsSelect, 0x3);
-    }
-    else
-    {
-      /* REGDOC: Assign to local representation of bitfield (HHD/APPIA/EUR: 1E.C470.E:D) */
-      AQ_API_AssignBitfieldOfLocalStruct(AQ_GlobalReservedProvisioning,
-          diagsControlReg, extendedMdiDiagnosticsSelect, 0x2);
-    }
-
-    /* REGDOC: Assign to local representation of bitfield (HHD/APPIA/EUR: 1E.C470.F) */
+    /* REGDOC: Assign to local representation of bitfield (HHD/APPIA/EUR: 1E.C470.E:D) */
     AQ_API_AssignBitfieldOfLocalStruct(AQ_GlobalReservedProvisioning,
-        diagsControlReg, diagnosticsSelect, 1);
-
-    /* REGDOC: Write register (HHD/APPIA/EUR: 1E.C470) */
-    AQ_API_WriteRegister(port->PHY_ID, AQ_GlobalReservedProvisioning, 0,
-        AQ_API_WordOfLocalStruct(diagsControlReg, 0));
-    /* We need to wait a bit here.  If we don't, then occasionally the first subsequent read
-     * of the diagnostics select bit will be 0, even though the data for the next pair
-     * has not actually been collected yet. */
-    AQ_API_Wait(100, port);
-
-    if (txPair == 0) return AQ_RET_CABLEDIAG_STARTED_PAIR_B;
-    if (txPair == 1) return AQ_RET_CABLEDIAG_STARTED_PAIR_C;
-    if (txPair == 2) return AQ_RET_CABLEDIAG_STARTED_PAIR_D;
+        diagsControlReg, extendedMdiDiagnosticsSelect, 0x2);
   }
 
-  /* This shouldn't be reachable, since we constrained txPair earlier. */
-  return AQ_RET_ERROR;
+  /* REGDOC: Assign to local representation of bitfield (HHD/APPIA/EUR: 1E.C470.F) */
+  AQ_API_AssignBitfieldOfLocalStruct(AQ_GlobalReservedProvisioning,
+      diagsControlReg, diagnosticsSelect, 1);
+
+  /* REGDOC: Write register (HHD/APPIA/EUR: 1E.C470) */
+  AQ_API_WriteRegister(port->PHY_ID, AQ_GlobalReservedProvisioning, 0,
+      AQ_API_WordOfLocalStruct(diagsControlReg, 0));
+  /* We need to wait a bit here.  If we don't, then occasionally the first subsequent read
+   * of the diagnostics select bit will be 0, even though the data for the next pair
+   * has not actually been collected yet. */
+  AQ_API_Wait(100, port);
+
+  if (txPair == 0) return AQ_RET_CABLEDIAG_STARTED_PAIR_B;
+  if (txPair == 1) return AQ_RET_CABLEDIAG_STARTED_PAIR_C;
+  return AQ_RET_CABLEDIAG_STARTED_PAIR_D;
 }
 
 /*@}*/

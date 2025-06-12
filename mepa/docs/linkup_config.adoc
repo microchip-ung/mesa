@@ -67,19 +67,22 @@ User is Expected to follow this table and do the necessary configuration for the
 | All PHYs
 
 | fdx
-.2+| VSC 1G PHYs,  LAN88XX
+| VSC 1G PHYs,  LAN88XX, LAN80XX
 
 | flow_control
+| VSC 1G PHYs,  LAN88XX
 
 | adv_dis
-|  -
+| Not Used by MEPA, used by MEBA
 
 | admin
-.5+| VSC 1G PHYs,  LAN88XX
+| VSC 1G PHYs,  LAN88XX
 
 | aneg
+| VSC 1G PHYs,  LAN88XX, LAN80XX
 
 | mac_if_aneg_ena
+.3+| VSC 1G PHYs,  LAN88XX,
 
 | man_neg
 
@@ -90,6 +93,9 @@ User is Expected to follow this table and do the necessary configuration for the
 
 | conf_10g
 | VSC 10G PHYs
+
+| conf_25g
+| LAN80XX PHYs
 |===
 
 
@@ -101,14 +107,15 @@ Following table will provide the short Description about different arguments ava
 | speed              | Port Speed to be Configured, select `MESA_SPEED_AUTO` if Aneg
 | fdx                | Full Duplex or Half Duplex
 | flow_control       | Enable or Disable Flow Control
-| adv_dis            | Disable Aneg Advertisements
-| admin              | Admin access to change all the Aneg abilities
+| adv_dis            | Disable Aneg Advertisements used by MEBA layer
+| admin              | Admin access to change all the Aneg abilities in MEBA Layer
 | aneg               | Auto Negotiation Advertise Abilities
 | mac_if_aneg_ena    | Enable auto-negotiation on host mac interface
 | man_neg            | To chose the current PHY port needs to be in master or slave in ANEG mode for 1G
 | mdi_mode           | MDI/MDIX/Auto Mode to select crossover and polarity detection
 | force_ams_mode_sel | Serdes Media or Copper Media or Auto - Based on AMS the media mode will be selected
 | conf_10g           | Mode and Media Configuration of VSC 10G PHYs
+| conf_25g           | Channel ID, Media ,Aneg Abilites and FEC Config of LAN80XX 25G PHY
 |===
 
 To configure the VSC 10G PHYs the argument `conf_10g` of `mepa_conf_t` needs to be configured following table provides the
@@ -120,8 +127,8 @@ breakdown the argument `phy10g_conf_t` with Short Description of each argument.
 | oper_mode - `phy10g_oper_mode_t`            | Phy Operating Mode based on Speed
 | interface_mode  - `phy10g_interface_mode_t` | Phy Interface, this will vary for different SKUs of various VSC 10G PHYs
 | channel_id                                  | Channel Number of the PHY Port
-| h_media  - `phy10g_media_t`                 | Host side Media Connected
-| l_media  - `phy10g_media_t`                 | Line side Media Connected
+| h_media  - `phy_media_t`                    | Host side Media Connected
+| l_media  - `phy_media_t`                    | Line side Media Connected
 | channel_high_to_low                         | If Channel id decreasing order w.r.t port number increasing then set this to `1`
 | xfi_pol_invert                              | Selects polarity to the TX XFI data. 1:Invert 0:Normal
 | xaui_lane_flip                              | Swaps XAUI Lane 0 <--> 3 and 1 <--> 2 for both RX/TX for Venice PHY family
@@ -143,6 +150,36 @@ following Media.
 . MEPA_MEDIA_TYPE_ZR2_SC
 . MEPA_MEDIA_TYPE_KR_SC
 
+To configure the LAN 25G PHYs the argument `conf_25g` of `mepa_conf_t` needs to be configured following table provides the
+breakdown the argument `conf_25g` with Short Description of each argument.
+
+[cols="1,1", options="header"]
+|===
+| Arguments of `conf_25g`                     | Description
+| channel_id                                  | Channel ID of the PHY Port
+| line_media                                  | Line side Media Connected
+| host_media                                  | Host side Media Connected
+| polarity                                    | Tx and Rx Polarity Inverse Config
+| kr_train_enable                             | Enable KR Training
+| base_r_10gfec                               | Advertise Base-R FEC at 10G Speed
+| base_r_25gfec                               | Advertise Base-R FEC at 25G Speed
+| rs_fec_25g                                  | Advertise RS-FEC
+| np_base_r_fec                               | Advertise Next Page Base-R FEC
+| np_rs_fec                                   | Advertise Next Page RS-FEC
+|===
+
+MEPA Supports different Host Side and Line Side Media Connections provided in `phy_media_t`, but LAN 25G PHYs will only support
+following Media.
+
+. MEPA_MEDIA_TYPE_SR               -- SFP+ SR +
+. MEPA_MEDIA_TYPE_LR               -- SFP+ LR +
+. MEPA_MEDIA_TYPE_ER               -- SFP+ ER +
+. MEPA_MEDIA_TYPE_DAC              -- SFP+ DAC +
+. MEPA_MEDIA_TYPE_SFP28_25G_SR     -- SFP28 SR +
+. MEPA_MEDIA_TYPE_SFP28_25G_LR     -- SFP28 LR +
+. MEPA_MEDIA_TYPE_SFP28_25G_ER     -- SFP28 ER +
+. MEPA_MEDIA_TYPE_SFP28_25G_DAC1M  -- SFP28 DAC 1M +
+. MEPA_MEDIA_TYPE_SFP28_25G_DAC2M  -- SFP28 DAC 2M +
 
 == PHY Status Poll
 Once the Forced Configuration oe Auto_negotiation is completed the Link Status of the Port can be retrieved by Polling MEPA API

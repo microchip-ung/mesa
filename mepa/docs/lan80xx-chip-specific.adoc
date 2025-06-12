@@ -1,0 +1,825 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+== Introduction
+
+The LAN80XX Ethernet PHY, offers flexible dual or quad-port configurations, capable of 1G,
+ 10G, and 25G serial optical connectivity. It facilitates data transmission and reception
+across a diverse range of optical module serial interfaces.
+
+MEPA offers a set of standard APIs for the features that are common across MCHP PHYs,
+but for features that are specific to a particular chip, we have chip specific APIs and
+for LAN80XX, they are listed down here
+
+	* link:#mepa/docs/lan80xx-chip-specific@_synce[SyncE]
+        * link:#mepa/docs/lan80xx-chip-specific@_operating_mode_of_phy[Phy Operating Mode Select]
+        * link:#mepa/docs/lan80xx-chip-specific@_flow_control_configuration[Flow Control Configuration]
+	* link:#mepa/docs/lan80xx-chip-specific@_phy_diagnostics[Diagnostics]
+        * link:#mepa/docs/lan80xx-chip-specific@_gpio_aggregate_interrupt_configuration[GPIO Interrupt]
+        * link:#mepa/docs/lan80xx-chip-specific@_loopback_configuration_set_and_get[Loopbacks]
+        * link:#mepa/docs/lan80xx-chip-specific@_two_wire_interfacetwi[TWI Host]
+        * link:#mepa/docs/lan80xx-chip-specific@_temeprature_sensor_configuration[Temperature Sensor]
+        * link:#mepa/docs/lan80xx-chip-specific@_macsec_commoncontrolleduncontrolled_counters[MACsec Statistcs Counters]
+        * link:#mepa/docs/lan80xx-chip-specific@_macsec_cleartags[MACsec Cleartags]
+        * link:#mepa/docs/lan80xx-chip-specific@_ptp_apis[PTP]
+        * link:#mepa/docs/lan80xx-chip-specific@_frame_preemption_pmac_counters[Frame Preemption Counters]
+        * link:#mepa/docs/lan80xx-chip-specific@_mcu_specific_apis[MCU]
+
+== Directory layout
+
+* link:#mepa/microchip/lan80xx/include/microchip/lan80xx.h[./mepa/microchip/lan80xx/include/microchip/lan80xx.h] - GPIO, Loopback and Diagnostics feature Chip Specific APIs.
+
+* link:#mepa/microchip/lan80xx/include/microchip/lan80xx_macsec.h[./mepa/microchip/lan80xx/include/microchip/lan80xx_macsec.h] - Chip Specific APIs for MACsec Feature (Cleartags)
+
+* link:#mepa/microchip/lan80xx/include/microchip/lan80xx_ts.h[./mepa/microchip/lan80xx/include/microchip/lan80xx_ts.h] - Chip Specific APIs for PTP Feature
+
+* link:#mepa/microchip/lan80xx/include/microchip/lan80xx_mcu.h[./mepa/microchip/lan80xx/include/microchip/lan80xx_mcu.h] - MCU related APIs
+
+== SyncE
+
+Synchronous Ethernet (SyncE) is an ITU-T standard for computer networking that facilitates the
+transference of clock signals over the Ethernet physical layer. This signal can then be made
+traceable to an external clock.
+
+This API provides a configuration for SyncE, described on
+ITU-T Rec. G.8262 that specifies Synchronous Ethernet clocks for SyncE
+
+
+[cols="1,9"]
+|===
+|Term | Description
+
+|Recovered clock
+|The recovered clock REC_CLK[0:7] i.e.., Lineport 0,1,2,3 and Hostport 0,1,2,3 which
+operates at 25G, 10G, 1G are given as input clock source to Sync-E block.
+
+|System clock
+|The internal system clock which uses fixed clock frequency and operates at 300MHZ can be
+given as input clock source to sync-E block.
+
+|LTC clock
+|PTP1588_LSC input clock which operates at 318MHZ can be given as input clock source
+to Sync-E block.
+
+|RCKOUT
+|The two recovered clock outputs RCKOUTA and RCKOUTB, each can be selectable from various
+clock sources such as system clock, PTP LTC clock, Line port, and Host port recovered clocks
+
+|Squelch
+|The clock output will get blocked when clock is considered unreliable, such as in instances
+of a link failure or an unstable connection.
+
+|===
+
+=== SYNCE APIs
+
+The input clock selection, recovered clock output selection A/B, squelch settings, frequency
+selection can be configured using `lan80xx_rckout_conf_set()` for the particular port number.
+ The `phy_25g_rckout_conf_t` is a structure utilized for SYNCE RCKOUT CONFIGURATION. This
+must be assigned with proper values before Sync-E API calls.
+
+[cols="1,9"]
+|===
+|Variable | Arguments and Description
+
+|`phy_25g_clk_sel_t`
+a|
+
+Valid arguments for clock sources are +
+ * LAN80XX_LINE0_RECVRD_CLOCK  -- LinePort0 Recovered clock +
+ * LAN80XX_LINE1_RECVRD_CLOCK  -- LinePort1 Recovered clock +
+ * LAN80XX_LINE2_RECVRD_CLOCK  -- LinePort2 Recovered clock +
+ * LAN80XX_LINE3_RECVRD_CLOCK  -- LinePort3 Recovered clock +
+ * LAN80XX_HOST0_RECVRD_CLOCK  -- HostPort0 Recovered clock +
+ * LAN80XX_HOST1_RECVRD_CLOCK  -- HostPort1 Recovered clock +
+ * LAN80XX_HOST2_RECVRD_CLOCK  -- HostPort2 Recovered clock +
+ * LAN80XX_HOST3_RECVRD_CLOCK  -- HostPort3 Recovered clock +
+ * LAN80XX_PTP_LTC             -- PTP LTC clock +
+ * LAN80XX_SREFCLK             -- System reference clock +
+ * LAN80XX_RESERVED            -- Reserved +
+ * LAN80XX_NONE                -- No clock source +
+
+|`phy_25g_rckout_freq_t`
+a|
+
+Valid arguments for expected recovered clock frequency are +
+ * LAN80XX_RCKOUT_75_00        -- 75 MHz frequency +
+ * LAN80XX_RCKOUT_37_50        -- 37.50 MHz frequency +
+ * LAN80XX_RCKOUT_79_58        -- 79.58 MHz frequency +
+ * LAN80XX_RCKOUT_39_79        -- 39.79 MHz frequency +
+ * LAN80XX_RCKOUT_125_00       -- 125 MHz frequency +
+ * LAN80XX_RCKOUT_62_50        -- 62.50 MHz frequency +
+ * LAN80XX_RCKOUT_31_25        -- 31.25 MHz frequency +
+ * LAN80XX_RCKOUT_15_625       -- 15.625 MHz frequency +
+ * LAN80XX_RCKOUT_128_90625    -- 128.90625 MHz frequency +
+ * LAN80XX_RCKOUT_64_453125    -- 64.453125 MHz frequency +
+ * LAN80XX_RCKOUT_32_2265625   -- 32.2265625 MHz frequency +
+ * LAN80XX_RCKOUT_80_56640625  -- 80.56640625 MHz frequency +
+ * LAN80XX_RCKOUT_INVALID      -- Other values are not allowed +
+
+|rcvd_clk_enable
+|Enable/Disable RCVRD_CLK
+
+|los_squelch_enable
+|Enable/Disable LOS Squelch
+
+|link_sts_enable
+|Enable/Disable Link down squelch
+
+|auto_squelch_enable
+|Enable/Disable Squelch
+
+|`phy_25g_rckout_sel_t`
+|RCKOUT selection '0' for RCKOUT-A, '1' for RCKOUT-B
+
+|===
+
+
+	* `lan80xx_rckout_conf_set()`	- Enable/Disable the Sync-E and does the Sync-E clock source,
+			     recovered clock outputA/B, frequency, squelch configurations for the
+			     particular port number.
+
+
+	* `lan80xx_rckout_conf_get()`	- Get the configurations of Sync-E from particular port number.
+
+
+== Operating Mode of PHY
+
+LAN80XX Phy supports two basic datapath modes, which are selected by operating mode selectors.
+
+ * `PCS Retimer Mode` : This is a traditional PHY(PCS + Serdes) on both Host and Line, with 1588 TSU,
+    The MACsec Block are disabled via an internal bypass path inside PHY.
+
+ * `MAC Retimer Mode` : This is fully featured PHY with MACsec and 1588 support and data passes through
+    all blocks of the PHY in this Mode. MAC retimer mode has MAC on both Host and Line ports which is required
+    for MACsec Operation.
+
+When the PHY datapath is configured through *mepa_conf_set* after application reset, by default Port will be configured
+in PCS Retimer Mode, *lan80xx_operating_mode_set* API can be used to configure PHY to MAC Retimer Mode.
+
+Note:: When enabling the MACsec Block on the port using API *mepa_macsec_init_set* the PHY will be configured to MAC Retimer
+Mode as MACsec is supported only in MAC Retimer Mode.
+
+    * `lan80xx_operating_mode_set()` - Configure PHY either in PCS Retimer mode or MAC Retimer Mode
+
+The operating mode of the PHY can be selected with `phy25g_oper_mode_t` argument of the API which supports *PCS_RETIMER* or *MAC RETIMER*.
+
+== Flow Control Configuration
+
+LAN80XX PHY has Flow Control Buffer in MAC Retimer Data path which can control the flow by sending Pause Frames,
+following chip-specific API is used to Enable or Disable Flow Control in the Port.
+
+    * `lan80xx_flow_control_set()` - Enable or Diable Flow Control when PHY in MAC Retimer Mode
+
+User can use `mepa_conf_get()` API to check the state of Flow Control in the Port(Enabled/Disabled).
+
+NOTE: Flow Control is Supported only in MAC Retimer Mode, not supported in PCS Retimer Mode
+
+== PHY Diagnostics
+=== PCS and PMA Status
+
+The API is used to get the current state of the PCS, PMA and PLL blocks of each port.
+
+    * `lan80xx_status_get()` - Provides the current link status of PCS and PMA blocks also the PLL Lock status of both
+       HOST and LINE side,along with the Operating Mode of the PHY.
+
+The list of statuses that the *lan80xx_status_get* API offers is as follows:
+
+[%autowidth.stretch]
+|===
+|*Structure*      | *Arguments with description*
+|`phy25g_status_t`
+a|
+
+* pma                -- link status and tx/rx fault status of PMA
+* line_pcs25g        -- link status,Hi-BER and tx/rx fault status of LINE PCS 25G
+* host_pcs25g        -- link status,HI-BER and tx/rx fault status of HOST PCS 25G
+* line_pcs1g         -- link status and sync status of LINE PCS 1G
+* host_pcs1g         -- link status and sync status of HOST PCS 1G
+* hpcs25g_block_lock -- HOST PCS25G Block lock status
+* lpcs25g_block_lock -- LINE PCS25G Block lock status
+* host_neg_speed     -- HOST Negotiated Speed in case of ANEG
+* host_neg_speed     -- LINE Negotiated Speed in case of ANEG
+* phy_status         -- Link Status (PCS + PMA of both Host and Line)
+* oper_mode          -- Operating Mode of Port (PCS/MAC Retimer)
+|===
+
+=== Packet BIST
+
+LAN80XX phy has internal Packet bist which can generate configurable ethernet frames.
+The Packet BIST consists of Packet Generator, Packet Checker, and data path selectors.
+
+==== Packet Generator Configuration
+This Packet Generator configuration will Configure the PHY to genrate the standard ethernet
+packet or PTP packet with configurable fields and it also helps to select the direction of packet
+flow from the packet generator.
+
+    * `lan80xx_pkt_gen_conf()` - Configures the Packet BIST block with configurable packet fields and selects
+       the direction of packet flow in the PHY.
+
+The API configuration settings are listed in the following table:
+
+[%autowidth.stretch, options="header"]
+|===
+|Structure            | Arguments with description
+|`phy25g_pkt_gen_conf_t`
+a|
+
+* enable             -- Enable/Disable the Packet Generator
+* ptp                -- PTP frame or Standard Enternet Frame (1 - PTP/0 - Ethernet)
+* ingress            -- Ingress or Egress Direction
+* frames             -- Generate Frames or Idles
+* frame_single       -- Single Frame or Continous packet Generation
+* is_v2_1            -- If PTP frame is generating, then PTP Version (1 - PTPv2.1 / 0 - PTPv2)
+* etype              -- Ethertype of Packet (If PTP then by default etype = 0x88f7)
+* trans_spec_majorSid-- PTP field for v2.1
+* minorSid           -- PTP field for v2.1
+* message_type_spec  -- PTP field for v2.1
+* pkt_len            -- Payload lenght (pkt_len * 64), Minimum 64 bytes
+* ipg_len            -- Inter Packet Gap Length
+* smac               -- Souce MAC Address
+* dmac               -- Destination MAC Address
+* ptp_ts_sec         -- PTP field
+* ptp_ts_ns          -- PTP field
+* srate              -- Number of standard frames between PTP frames.
+|===
+
+
+Note:: The PTP Fields are applicable only if the selected Frame type is PTP.
+
+==== Packet Monitor Enable/Disable
+The Packet Monitor in Packet BIST block can monitor the packets and updates the packet monitor counters.
+
+    * `lan80xx_pkt_mon_conf()` - Enable/Disable the Packet Monitor and option to reset the Packet Monitor Counters.
+
+The API configuration settings are listed in the following table:
+
+[%autowidth, options="header"]
+|===
+|Structure | Arguments with description
+
+|mon_enable
+|Enable or Disable the packet Monitor Block
+
+|`phy25g_pkt_mon_rst_t`
+a|
+
+Select any one of the Below Option +
+ * `LAN80XX_PKT_MON_RST_GOOD`   -- Reset Good CRC Packet Counters +
+ * `LAN80XX_PKT_MON_RST_BAD`    -- Reset Bad CRC Packet Counters +
+ * `LAN80XX_PKT_MON_RST_FRAG`   -- Reset Fragmented Packet Counters +
+ * `LAN80XX_PKT_MON_RST_LFAULT` -- Reset the Local Fault Packet counters +
+ * `LAN80XX_PKT_MON_RST_BER`    -- Reset High Bit Error Rate Packet Counters +
+ * `LAN80XX_PKT_MON_RST_ALL`    -- Reset all the above counters +
+ * `LAN80XX_PKT_MON_RST_NONE`   -- None of Counters to be reseted +
+
+|===
+
+==== Packet Monitor Counters Get
+The API is used to get the Counters value of packet monitor block.
+
+    * `lan80xx_pkt_mon_counters_get()` - Get the Packet Monitor Counters value.
+
+[cols="1,1,1", options="header"]
+|===
+| Argument         | Input/output     | Description
+| ts_rd            | Input            | Read Timestamp values of packet
+| pkt_counters     | Output           | Returns the packet Counter values
+| ts_packet        | Output           | If `ts_rd` is enabled then it returns last 10 packets timestamp values
+|===
+
+=== Rx Eye Scan
+LAN80XX Phy serdes has the capability to capture the Rx Eye following are the APIs to configure and get
+the Rx Eye Disagram of the Serdes data path.
+
+==== Rx Eye Scan Configuration
+LAN80XX supports two types EYE scan `Normal Scan` and `Fast Scan`, where Normal Scan will provide the full eye
+diagram whereas Fast Scan will provide only the Eye Height not the Eye diagram.
+
+    * `lan80xx_rx_eye_scan_conf_set()` - Enable/Disable Eye Scan and selects the type of Eye Scan.
+
+The API configuration settings are listed in the following table:
+
+[cols="1,1", options="header"]
+|===
+|Argument               | Description
+|is_line                | Line Side or Host (0 - Host Side/ Non Zero - Line Side)
+|`phy25g_rx_eye_scan_t` | Scan Type (Normal Scan or Fast Scan)
+|===
+
+==== Rx Eye Scan Status
+This API will provide the results of the Rx Eye scan, if the configured Eye Scan is Normal Scan, then the entire
+eye diagram will stored in the register and these register values are returned by the API as an array, if the scan
+configured is Fast Scan, then this API will return the Eye height only.
+
+[cols="1,1,2", options="header"]
+|===
+|Structure                  | Input/Output |Arguments with description
+|`phy25g_rx_eye_scan_t`
+| Input
+|Scan type -- Normal/Fast Scan
+
+
+|`phy25g_rx_eye_scan_status_t`
+| Output
+a|
+
+* eye_res and eye_res_msb    -- Result of Normal Eye Scan
+* eye_height                 -- Result of Fast Eye Scan
+|===
+
+=== Serdes Tx and Rx Equalizers
+The following APIs are used to manually configure the Tx and Rx equalizer coefficients as well as to obtain the
+current values of the Tx and Rx equalizer coefficients.
+
+==== Tx and Rx Equalizers Set
+This API is used to configure the Serdes Tx and Rx Equalizers or configure the DFE to adapative Mode.
+
+    * `lan80xx_phy_tx_rx_equalization_set()` - Configure the Tx and Rx Equalizer Coefficients of Serdes.
+
+The API configuration settings are listed in the following table:
+
+[%autowidth.stretch, options="header"]
+|===
+|Structure                | Arguments with description
+| is_line
+a| Configure Line or Host
+
+|`phy25g_tx_rx_equa_conf_t`
+a|
+
+* equalizer_conf -- Configure Tx or Rx or both Equalizers
+* dfe_adp_ena    -- Enable/Disable DFE Adaptive Mode
+* dfe_man_ena    -- Enable/Disable DFE Manual Mode
+* amp_code       -- Tx Amplitude value
+* rx_vga         -- Rx Gain Value
+* rx_ctle_c      -- Rx CTLE C Value
+* rx_ctle_r      -- Rx CTLE R Value
+* tx_tap_dly     -- Tx Coefficient C(-1)
+* tx_tap_adv     -- Tx Coefficient C(1)
+|===
+
+==== Tx and Rx Equalizers Get
+This API is used to get the Current values of Tx and Rx Equalizers coefficients.
+
+    * `lan80xx_phy_tx_rx_equalization_status_get()` - Current Configuration of Equaliziers and the Coefficient Values.
+
+[%autowidth.stretch, options="header"]
+|===
+|Structure                | Arguments with description
+| is_line
+a| Configure Line or Host
+
+|`phy25g_tx_rx_equ_status_t`
+a|
+
+* dfe_enable         -- DFE Enable Status
+* dfe_adaptive_mode  -- DFE in Adaptive mode or Manual Mode
+* dfe_coefficients   -- DFE Coefficients
+* vga_value          -- Rx VGA value
+* ctle_r_value       -- Rx CTLE R Value
+* ctle_c_value       -- Rx CTLE C Value
+* tx_tap_dly         -- Tx Coefficient C(-1)
+* tx_tap_adv         -- Tx Coefficient C(1)
+* amp_code           -- Tx Amplitude Code
+|===
+
+Note:: The arguments *dfe_adaptive_mode* and *dfe_coefficients* are applicable only in *dfe_enable* is 1.
+
+=== CSR Read/Write
+The Following APIs are used to Perform Read and Write of CSR Registers through Clause45 or SPI based on the callout assigned by the application.
+This API is capable of reading 8-bit, 16-bit and 32-bit CSR Registers.
+
+    * `lan80xx_phy_csr_write()` - Performs CSR Register Write
+
+    * `lan80xx_phy_csr_read()`  - Performs CSR Register Read
+
+Following are the Arguments of the CSR Read/Write APIs
+
+[cols="1,1,1", options="header"]
+|===
+| Argument   | Input/output      | Description
+| port_no    | Input             | Port number of the PHY
+| mmd        | Input             | MMD Device ID of Register
+| addr       | Input             | Register Address
+| value      | CSR Read - output | Value to Read/Write
+               CSR Write - Input
+|===
+
+== GPIO Aggregate Interrupt Configuration
+
+LAN80xx provides 40 GPIO Pins, each pin can be configured to `Output Mode` or `Input Mode` or `Alternate Functionality`.
+MEPA API `mepa_gpio_mode_set()` will be used to configure the GPIO Pin in any of the Mode(Input/Output/Alternate).
+
+`mepa_gpio_mode_set()` API has provision to select the Mode of the GPIO pin, configure GPIO Pin as Push-Pull Mode or Open-Drain Mode
+and have the support to select the interrupt sources (GPIO_INTR0/1) for aggregate interrupt A/B.
+
+Following are the Arguments of `mepa_gpio_conf_t`
+
+[%autowidth.stretch, options="header"]
+|===
+|Structure                | Arguments with description
+|gpio_no
+|GPIO number
+
+| `mepa_led_num_t`
+| LED ID
+
+| `mepa_gpio_mode_t`
+| Configure GPIO Alternate /Input/ Output mode
+
+| pp_enable
+| Configure Push-pull or Open drain mode
+
+| `mepa_gpio_intrpt_t`
+| GPIO INTR0/1 interrupt source
+|===
+
+
+Example
+
+GPIO 10 configured in input mode with push pull enabled and generates interrupt when any state change occurs. Following example will
+Route interrupt (GPIO_INTR_0) to Aggregate GPIO (GPIO_INTRA) pin 34 Pin when state change occurs in GPIO 10
+
+----
+/* Now Call MEPA GPIO API */
+
+/* GPIO 34 (GPIO_INTR_A) in Alternate mode */
+mepa_gpio_conf_t gpio_conf;
+gpio_conf.gpio_no = 34;
+gpio_conf.mode = MEPA_GPIO_MODE_ALT;
+gpio_conf.pp_enable = 1;
+gpio_conf.gpio_intrpt = MEPA_GPIO_INTR_NONE;
+
+mepa_gpio_mode_set(dev, &gpio_conf);
+
+/* GPIO 10 in Input mode */
+mepa_gpio_conf_t gpio_conf;
+gpio_conf.gpio_no = 10;
+gpio_conf.mode = MEPA_GPIO_MODE_INPUT;
+gpio_conf.pp_enable = 1;
+gpio_conf.gpio_intrpt = MEPA_GPIO_INTR_0;
+
+mepa_gpio_mode_set(dev, &gpio_conf);
+----
+
+== Loopback Configuration Set and Get
+
+LAN80XX provides several options for the users to route traffic between the Host and Line Side which can be used for
+testing and debug purpose.
+
+Following are the list of Loopbacks which LAN80XX PHY Supports :
+
+    * *H1/L1* -- Host and Line Side Serdes Loopbacks
+    * *H2/L2* -- Host and Line Side Loopbacks After PCS Block
+    * *H3P/L3P* -- Host and Line Side Loopbbacks Before PCS Block
+    * *H3M/L3M* -- Loopbacks in Host MAC and Line MAC
+    * *H5/L5*   -- Host and Line Serdes RxIn to TxOut Loopbacked (Post CDR Loopback)
+    * *H6/L6*   -- Host and Line SerDes RXIN to TXOUT loopbacked
+    * *H7*      -- Packet BIST Core-Side LB toward Host
+
+=== Loopback Configuration Set
+
+The MEPA API `mepa_loopback_set()` Supports configuring H1, L1, H2, L2, H5, L5, H6 and L6 loopbacks. MEPA doesn't support
+configuring H3M, L3M, H3P, L3P and H7 loopbacks, so to support these loopback Chip Specific API is provided.
+
+    * `lan80xx_phy_loopback_conf_set()` -- Chip Specific API used to Configure H3M,L3M,H3P,L3P and H7 Loopbacks.
+
+The API configuration settings are listed in the following table:
+[%autowidth.stretch, options="header"]
+|===
+|Structure                | Arguments with description
+|`phy25g_lp_types_t`
+a|
+
+* h3p_lp_ena -- Enable/Disable H3P Loopback
+* l3p_lp_ena -- Enable/Disable L3P Loopback
+* h3m_lp_ena -- Enable/Disable H3M Loopback
+* l3m_lp_ena -- Enable/Disable L3M Loopback
+* h7_lp_ena  -- Enable/Disable H7  Loopback
+|===
+
+API Configuration of other Loopbacks through *mepa_loopback_set*
+[%autowidth.stretch, options="header"]
+|===
+|Structure                | Arguments with description
+|`mepa_loopback_t`
+a|
+
+* far_end_ena             	-- Enable/Disable L2 Loopback
+* near_end_ena            	-- Enable/Disable H2 Loopback
+* mac_serdes_equip_ena  	-- Enable/Disable H1 Loopback
+* media_serdes_equip_ena    	-- Enable/Disable L1 Loopback
+* media_serdes_facility_ena  	-- Enable/Disable L5 Loopback
+* mac_serdes_facility_ena    	-- Enable/Disable H5 Loopback
+* media_serdes_input_ena  	-- Enable/Disable L6 Loopback
+* mac_serdes_input_ena    	-- Enable/Disable H6 Loopback
+|===
+
+=== Loopback Configuration Get
+
+The Chip Specific API Used to get the Current Loopback Configuration on the PHY.
+
+    * `lan80xx_phy_loopback_conf_get()` -- Gives the Current Loopback Configuration on the Port.
+
+== Two Wire Interface(TWI)
+
+LAN80XX supports TWI Interface Host Module, which allows management of Connected SFP+/XFP Modules.
+A serial TWI Host, enabled as GPIO Alternate Function is available for Optical Module Management per Line Port.
+
+A SFP Module address can be read or write through I2C using `mepa_i2c_read()` and `mepa_i2c_write()` MEPA APIs.
+
+The Client Id needs to be transmitted in first byte of every I2C instruction is configurable by default the Client Id is `0x50`.
+The I2C Interface Data rate is determined by the `PRESCALAR` value where the default value of Prescalar is *0x0095* which will
+give I2C frequency of `400 kHz`.
+
+     TWI SCL frequency = (300 MHz) / [5 * (PRESCALE+1)]
+
+Note::
+The TWI Host can operate from 916 Hz to 1 MHz
+
+If User wants to change the default Prescalar value or default Client ID then using the following Chip Specific API is used to Configure
+the ClientID and I2C Prescalar Values.
+
+    * `lan80xx_phy_i2c_init()` -- Chip Specific API to Configure the ClientID and Prescalar Value of TWI Host
+
+[%autowidth.stretch, options="header"]
+|===
+|Argument                | Description
+|client_id
+|Client ID of I2C
+
+|prescalar
+|Prescalar Value for Clock in Decimal
+|===
+
+== Temeprature Sensor Configuration
+
+LAN80xx has internal Temeprature Sensor to get the Temperature Level of the Chip in Celsius.
+Also it has a support to Configure the Threshold Temeperature Value, Once the Chip Temperature crosses the configured threshold
+value MCU will provide an Interrupt to HOST.
+
+    * `lan80xx_temp_sensor_init()` -- Enable/Disable Temperature Sensor and Configure the Threshold Temperature Value to get interrupt.
+
+[%autowidth.stretch, options="header"]
+|===
+|Argument                | Description
+| threshold
+| Temperature Sensor Threshold value in Celsius
+
+| enable
+| Enable/Disable Temperature Sensor
+|===
+
+The MEPA API `mepa_chip_temp_get()` is used to Get the Current Temperature of the Chip in Celsius.
+
+NOTE: Application needs to wait 16ms after Enabling the Temeperature Sensor to read the Valid Temperature.
+
+Note:: The Temperature Sensor needs to be Enabled using `lan80xx_temp_sensor_init()` before reading the current temperature value using
+`mepa_chip_temp_get()`
+
+== MACsec Common/Controlled/Uncontrolled Counters
+Each Virtual Port(SecY) has following three Virtual Ports.
+
+. *Controlled Port* - The access point used to provide the secure MAC Service to a client of a SecY,in other words the en/decrypting port.
+. *Uncontrolled Port* - The access point used to provide the insecure MAC Service to a client of a SecY typically used for EAPOL frames.
+. *Common port*  - An instance of the MAC Internal Sublayer Service used by the SecY to provide transmission and reception of frames for
+                   both the controlled and uncontrolled ports.
+
+Following Chip Specific MACsec APIs are Used to get or Clear the Statistics of Common/Controlled/Uncontrolled Ports of each SecY.
+
+    * `lan80xx_macsec_controlled_counters_get()` -- Gets Controlled Port Statistics of a SecY
+    * `lan80xx_macsec_uncontrolled_counters_get()` -- Gets Uncontrolled Port Statistics of a SecY
+    * `lan80xx_macsec_common_counters_get()`  -- Gets Common Port Statistics of a SecY
+    * `lan80xx_macsec_controlled_counters_clear()` -- Clears Controlled Port Statistics of a SecY
+    * `lan80xx_macsec_uncontrolled_counters_clear()` -- Clears uncontrolled Port Statistics of a SecY
+    * `lan80xx_macsec_common_counters_clear()` -- Clears Common Port Statistics of a SecY
+
+== MACsec Cleartags
+
+Cleartags is a Cisco-proprietary specification for MACsec-based packet flows where certain headers are sent as UnEncrypted
+to keep the tunneling information which allows them to be modified in the intermediate stations.
+
+Following are the Claertags Header Parser supported:
+
+    * PBB Parsing
+    * VLAN after PBB parsing
+    * MPLS Parsing
+    * EoMPLS Parsing
+    * Cleartags Egress Header Parsing
+
+Note:: This Cleartags APIs needs to be called before creating Tx Secure Association or Rx Secure Association to reflect the configuration
+in Hardware.
+
+=== MPLS/EoMPLS and PBB Parsing
+
+The MACsec engine can Parse the PBB, MPLS and VLAN Header and Send these header UnEncrypted and also the Pattern Matching rules for
+the PBB and MPLS Headers an be enabled then, MACsec Engine will drop the packet if the Header parameters are not matched with Configured Header.
+
+    * `lan80xx_macsec_cleartags_conf_set()` -- Configuration Of MPLS/PBB Header Match and Bypass (UnEncrypted)
+
+    * `lan80xx_macsec_cleartags_conf_get()` -- Gets the Current Cleartags Configuration on MACsec Engine
+
+[%autowidth.stretch, options="header"]
+|===
+|Structure                | Arguments with description
+|`phy25g_macsec_cleartags_conf_t`
+a|
+
+* `phy25g_packet_type`      -- Type of Packet PBB/MPLS
+* `phy25g_pbb_conf_t`       -- PBB Header Parameters (if packet type is PBB)
+* `phy25g_mpls_conf_t`      -- MPLS Header Parameters (if packet type is MPLS)
+* `phy25g_clrtag_vlan_t`    -- Number of VLAN Tags after MPLS or PBB Header
+* `is_eo_mpls`              -- EoMPLS or Bulk MPLS(if packet type is MPLS)
+* `phy25g_pbbmpls_sectag_t` -- Sectag Position
+* `num_mpls_label`          -- Number Of MPLS Labels to be Bypassed
+* `is_pw_ctrl_word`         -- PW Control Word Present or Not in MPLS Packet
+* `match`                   -- Pattern Matching of the headers
+|===
+
+Following are the different Cleartags Pattern Matching supports available
+
+----
+LAN80XX_MACSEC_MATCH_DISABLE            -- Disable the TCAM Matching
+LAN80XX_MACSEC_MATCH_BVLAN_TAG          -- Match the B-Tag in PBB packet
+LAN80XX_MACSEC_MATCH_IVLAN_TAG          -- Match the I-Tag in PBB Packet
+LAN80XX_MACSEC_MATCH_CVLAN              -- Match the Outer customer VLAN ID
+LAN80XX_MACSEC_MATCH_MPLS_1             -- Match the MPLS label 1
+LAN80XX_MACSEC_MATCH_MPLS_2             -- match the MPLS Label 2
+----
+
+==== MPLS Bypass
+MACsec Engine of LAN80xx PHY can able to bypass upto 9 MPLS Headers in Egress Direction and 5 MPLS Headers in Ingress Direction
+and it can able to match maximum of two MPLS Header parameters.
+
+The Argument `num_mpls_label` in Structure *phy25g_macsec_cleartags_conf_t* determines the Number of MPLS Headers available and it determines
+the Sectag Position of MACsec Packet.
+
+The Argument `is_eo_mpls` determines whether the MPLS packet is Bulk MPLS or EoMPLS, if the Packet is EoMPLS then the Authentication of packet
+starts from the Ethernet Packet over the MPLS Headers.
+
+MACsec Engine can able to match upto 2 MPLS Headers, the structure `phy25g_mpls_conf_t` is used to configure the MPLS Header Parameters it has support
+to  provide two MPLS Header Paramters.
+The `phy25g_mpls_conf_t` has argument `mpls1_num` and `mpls2_num` which determines out of series of MPLS Headers which two MPLS Header parameters
+needs to be Matched with the configured MPLS Header.
+
+If the Packet has VLAN Tag after the MPLS Headers those VLAN tags can be bypassed by choosing the Sectag Position in `phy25g_pbbmpls_sectag_t`.
+
+==== PBB Parsing and Bypass
+MACsec Engine of LAN80XX PHY can able to Parse PBB Header, the structure `phy25g_pbb_conf_t` is used to configure the PBB Header Paramters.
+The Sectag Position can be selected from `phy25g_pbbmpls_sectag_t` structure depending on number of VLAN Tags after PBB Headers.
+
+
+=== Egress Policy Header Mode
+
+MACsec Engine can run in one of the Following two Modes:
+
+    * Egress TCAM Mode
+    * Header Mode
+
+The Egress TCAM Mode relies on Classification rules that is configured in the PHY Egress Path to identify the path of Packet (Controlled port or
+Un Controlled Port).
+
+In Header Mode the Egress path (Controlled or Uncontrolled Port) relies on HOST by adding a Header to the Packet. The Header Provides the Sub-Port
+Number and whether to pass the Packet over Controlled or uncontrolled Port of ther SecY.
+
+The Header is inserted into the packet payload immediately after MAC DA/SA. The Header Consits of 2 byte Ethertype and 8 Byte data to instruct
+the PHY how to process the Packet.
+
+    * `lan80xx_macsec_egr_policy_mode_set()` -- Set the Egress Policy Mode of MACsec Engine and Configure the Header Ethertype
+
+    * `lan80xx_macsec_egr_policy_mode_get()` -- Get the Current Policy Mode of MACsec Engine
+
+NOTE: By default MACsec Engine Will be in TCAM Mode.
+
+== PTP APIs
+
+    * `lan80xx_ts_egress_engine_conf_set()` is used to configure the following encapsulations specified in `phy25g_ts_encap_t`
+in the egress direction for a port. Each engine supports 8 flows, so the max `flow_index` supported is 8.For the
+for the encapsulation the flow needs to be configured properly in `phy25g_ts_engine_flow_conf_t`
+
+----
+eg: for encap_type `LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP` the pseudo code looks like
+        {
+            phy25g_ts_engine_t eng_id = LAN80XX_PHY_TS_PTP_ENGINE_ID_0;
+            const u16 flow_index = 0;
+            uint8_t dest_addr[6] = {0,0,0,0,0,1};
+            phy25g_ts_encap_t encap = LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP;
+            phy25g_ts_engine_flow_conf_t flow_conf;
+            flow_conf.eng_mode = true;
+            /*Configuring the eth1 comparator */
+            flow_conf.flow_conf.ptp.eth1_opt.comm_opt.etype = 0x8847;
+            flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].flow_en = true;
+            flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].addr_match_mode = LAN80XX_PHY_TS_ETH_ADDR_MATCH_ANY_UNICAST;
+            flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].addr_match_select = LAN80XX_PHY_TS_ETH_MATCH_DEST_ADDR;
+            memcpy(flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].mac_addr, dest_addr, sizeof(dest_addr));
+            flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].vlan_check = false; //disabling vlan.
+            /*configuring the mpls comparator */
+            flow_conf.flow_conf.ptp.mpls_opt.comm_opt.cw_en = false; //No control word in the packet
+            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].flow_en = true;
+            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].stack_ref_point = LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP;
+            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].stack_depth = LAN80XX_PHY_TS_MPLS_STACK_DEPTH_1;
+            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].top_down.top.lower = 0;
+            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].top_down.top.upper = 0x5;
+            /*Configuring the Eth2 comparator*/
+            flow_conf.flow_conf.ptp.eth2_opt.comm_opt.etype = 0x88f7;
+            flow_conf.flow_conf.ptp.eth2_opt.flow_opt[0].flow_en = true;
+            flow_conf.flow_conf.ptp.eth2_opt.flow_opt[0].addr_match_mode = LAN80XX_PHY_TS_ETH_ADDR_MATCH_ANY_UNICAST;
+            flow_conf.flow_conf.ptp.eth2_opt.flow_opt[0].addr_match_select = LAN80XX_PHY_TS_ETH_MATCH_DEST_ADDR;
+            memcpy(flow_conf.flow_conf.ptp.eth2_opt.flow_opt[0].mac_addr, dest_addr, sizeof(dest_addr));
+            if (lan80xx_ts_egress_engine_conf_set(dev, 0, 0, encap, &flow_conf) != MEPA_RC_OK){
+                return MEPA_RC_ERROR;
+            }
+        }
+----
+
+Similarly the ingress engine can be configured with the desired encapsulation specified in `phy25g_ts_encap_t` with
+the API `lan80xx_ts_ingress_engine_conf_set()`.
+
+The Above parameters configured for ingress/egress engine can be get with the APIs `lan80xx_ts_ingress_engine_conf_get()`
+and `lan80xx_ts_egress_engine_conf_get()`.
+
+When FIFO opeation is involved i.e 2 Step PTP operation the fifo entry can be get directly without filling the callout by
+the API `lan80xx_phy_ts_fifo_empty()`  fifo entry will be present in the `phy25g_ts_fifo_entry_t` , the max number of
+entries stored in `phy25g_ts_fifo_entry_t` is given as `num`.
+
+== Frame Preemption PMAC Counters
+LAN80XX PHYs Support Frame Preemption in `MAC_RETIMER` mode of the PHY where the premptable Frames are handled by
+Premptable MAC (PMAC) and Express Frames are Handled by Express MAC. Frame Preemption Feature can be Enabled/Disabled
+using the MEPA API `mepa_framepreempt_set()` and a MEPA API `mepa_framepreempt_get()` will indicate whether Frame Preemption
+is Enabled or not.
+
+Following two Chip Specific APIs are used to get the PMAC Statistics and Clear the PMAC Statistics
+
+=== Get PMAC Statistics
+
+    * `lan80xx_pmac_counters_get()`   -- Get the PMAC Statistics
+
+The API configuration settings are listed in the following table:
+[cols="1,1,1", options="header"]
+|===
+| Argument                | Input/output     | Description
+| port_no                 | Input            | Port Number of the PHY
+| is_host                 | Input            | Need Host PMAC Statistics on Line PMAC (0 - Line Side / Non zero - Host side)
+| phy25g_pmac_counters_t  | Output           | Returns the Host/Line PMAC Statistics
+|===
+
+== Clear PMAC Statistics
+
+    * `lan80xx_pmac_counters_clear()` -- Clear PMAC Statistics
+
+The API configuration settings are listed in the following table:
+[cols="1,1,1", options="header"]
+|===
+| Argument                | Input/output     | Description
+| port_no                 | Input            | Port Number of the PHY
+| is_host                 | Input            | Clear Host PMAC Statistics on Line PMAC (0 - Line Side / Non zero - Host side)
+|===
+
+== MCU specific APIs
+=== Pre-requisites
+
+The MCU specific APIs uses communication protocol over SPI/MDIO to Mailbox area, which is request-response based.
+Here is the basic flow
+
+* Host creates requst packet and send to M25G over SPI/MDIO
+* Wait for HOST interrupt
+* Host reads response
+
+Note:: HOST interrupt is mandatory for all other MCU specific APIs
+
+=== HOST Interrupt
+The MCU in M25G uses HOST interrupt to intimate Host about specific interrupts. One of the interrupts is Mailbox response ready interrupt.
+
+    * `lan80xx_MB_INTR_register_callback()` - Register callback function for the interrupt.
+
+[cols="1,1,1", options="header"]
+|===
+| Argument        	| Input/output     | Description
+| dev	          	| Input            | device instance of `mepa_device_t`
+| gpio_cb               | Input	           | callback function of type gpio_callback_t
+|===
+
+Prototype for gpio_callback_t:
+	`typedef uint8_t (*gpio_callback_t) (void)`
+
+=== Firmware Update
+LAN80XX Phy MCU provides the facility to update the application image of the BootROM (Running in MCU).
+following are the APIs to do firmware update for MCU. The firmware update gets success only after authenticating the DFU(Device Firmware Update) image signature.
+
+    * `lan80xx_fw_update()` - Updates the MCU application image.
+
+The API configuration settings are listed in the following table:
+
+[cols="1,1,1", options="header"]
+|===
+| Argument        	| Input/output     | Description
+| dev	          	| Input            | device instance of `mepa_device_t`
+| pu8FwData		| Input	           | u8 pointer, points to the fw image buffer
+| u32Size       	| Input	           | total length of the fw image buffer
+|===
+
+== Interrupt Configuration and Polling
+
+Refer link:#mepa/docs/lan80xx-events-config[Event-Configuration] Page to get the List of Event APIs and its supported Interrupt
+Sources.

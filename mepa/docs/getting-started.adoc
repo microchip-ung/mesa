@@ -23,7 +23,7 @@ manager and the name of the specific packages differ from one Linux distribution
 to another. Here are the instructions on how to do this on Ubuntu 18:
 
 ----
-sudo apt-get install cmake cmake-curses-gui build-essential ruby
+sudo apt-get install cmake cmake-curses-gui build-essential ruby ruby-parslet libjson-c-dev
 ----
 
 Next we need a folder called `mscc` in `/opt` where the toolchains

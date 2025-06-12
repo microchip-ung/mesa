@@ -642,6 +642,7 @@ typedef struct {
     uint64_t out_pkts_too_long;                               /**< Number of transmitted packets discarded because the packet length is larger than the interface MTU. */
     uint64_t out_octets_protected;                            /**< The number of octets integrity protected but not encrypted. */
     uint64_t out_octets_encrypted;                            /**< The number of octets integrity protected and encrypted. */
+    uint64_t in_pkts_no_sa_error;
 } mepa_macsec_secy_counters_t;
 
 /* Possible values for the mepa_macsec_secy_cap_t:ciphersuite_cap */
@@ -1166,6 +1167,20 @@ mepa_rc mepa_macsec_event_seq_threshold_set(struct mepa_device *dev,
 mepa_rc mepa_macsec_event_seq_threshold_get(struct mepa_device *dev,
                                             const mepa_port_no_t port_no,
                                             uint32_t *const threshold);
+
+/**
+ * Configure the SEQ threshold for 64-bit Numbering
+ **/
+mepa_rc mepa_macsec_event_xpn_seq_threshold_set(struct mepa_device *dev,
+                                                const mepa_port_no_t port_no,
+                                                const uint64_t threshold);
+
+/**
+ * Get the SEQ threshold for 64-bit Numbering
+ **/
+mepa_rc mepa_macsec_event_xpn_seq_threshold_get(struct mepa_device *dev,
+                                                const mepa_port_no_t port_no,
+                                                uint64_t *const threshold);
 
 /**
  * Get the Egress Interrupt SA Active AN

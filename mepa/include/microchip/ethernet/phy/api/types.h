@@ -11,6 +11,7 @@ struct mepa_callout_ctx;
 
 struct mepa_ts_driver;
 struct mepa_tc10_driver;
+struct mepa_t1s_driver;
 
 /** \brief Contains methods that are specific to each phy. */
 struct mepa_driver;
@@ -69,7 +70,7 @@ typedef enum {
     MEPA_ADV_DIS_DUPLEX =
         (MEPA_ADV_DIS_HDX | MEPA_ADV_DIS_FDX), /**< All duplex bits */
     MEPA_ADV_DIS_ALL = (MEPA_ADV_DIS_SPEED | MEPA_ADV_DIS_DUPLEX |
-                            MEPA_ADV_UP_MEP_LOOP) /**< All valid bits */
+                        MEPA_ADV_UP_MEP_LOOP) /**< All valid bits */
 } mepa_adv_dis_t;
 
 
@@ -110,24 +111,34 @@ typedef mesa_port_admin_state_t mepa_port_admin_state_t;
 #define MEPA_LINK_LOS MESA_PHY_LINK_LOS_EV
 #define MEPA_FAST_LINK_FAIL MESA_PHY_LINK_FFAIL_EV
 
+typedef enum {
+    MEPA_ADV_SIDE_NONE,
+    MEPA_ADV_SIDE_HOST,
+    MEPA_ADV_SIDE_LINE,
+    MEPA_ADV_SIDE_HOST_LINE,
+} mepa_adv_side_t;
+
 /** \brief PHY auto negotiation advertisement */
 typedef struct {
-    mepa_bool_t speed_10m_hdx;    /**< 10Mbps, half duplex */
-    mepa_bool_t speed_10m_fdx;    /**< 10Mbps, full duplex */
-    mepa_bool_t speed_100m_hdx;   /**< 100Mbps, half duplex */
-    mepa_bool_t speed_100m_fdx;   /**< 100Mbps, full duplex */
-    mepa_bool_t speed_1g_fdx;     /**< 1000Mpbs, full duplex */
-    mepa_bool_t speed_1g_hdx;     /**< 1000Mpbs, full duplex */
-    mepa_bool_t tx_remote_fault;  /**< Local Application fault indication for Link Partner */
-    mepa_bool_t speed_2g5_fdx;    /**< 2500Mpbs, full duplex */
-    mepa_bool_t speed_5g_fdx;     /**< 5GE, full duplex */
-    mepa_bool_t speed_10g_fdx;    /**< 10GE, full duplex */
-    mepa_bool_t no_restart_aneg;  /**< Do not restart aneg */
+    mepa_bool_t      speed_10m_hdx;    /**< 10Mbps, half duplex */
+    mepa_bool_t      speed_10m_fdx;    /**< 10Mbps, full duplex */
+    mepa_bool_t      speed_100m_hdx;   /**< 100Mbps, half duplex */
+    mepa_bool_t      speed_100m_fdx;   /**< 100Mbps, full duplex */
+    mepa_bool_t      speed_1g_fdx;     /**< 1000Mpbs, full duplex */
+    mepa_bool_t      speed_1g_hdx;     /**< 1000Mpbs, full duplex */
+    mepa_bool_t      tx_remote_fault;  /**< Local Application fault indication for Link Partner */
+    mepa_bool_t      speed_2g5_fdx;    /**< 2500Mpbs, full duplex */
+    mepa_bool_t      speed_5g_fdx;     /**< 5GE, full duplex */
+    mepa_bool_t      speed_10g_fdx;    /**< 10GE, full duplex */
+    mepa_bool_t      speed_25g_fdx;     /**< 25G-R Full Duplex */
+    mepa_bool_t      speed_25g_kr_s_fdx; /**< 25G-KR-S Full Duplex */
+    mepa_bool_t      next_page_enable;   /**< Next page Ability*/
+    mepa_bool_t      no_restart_aneg;  /**< Do not restart aneg */
+    mepa_adv_side_t  advertise_dir;    /**< Abilities Advertise Direction */
 } mepa_aneg_adv_t;
 
 /** \brief MAC Address */
-typedef struct
-{
+typedef struct {
     uint8_t addr[6];   /**< Network byte order */
 } mepa_mac_t;
 
@@ -156,7 +167,7 @@ typedef struct {
 typedef struct {
     mepa_bool_t link;        /**< Link is up */
     mepa_port_speed_t speed; /**< Speed */
-	mepa_bool_t master;      /**< Master/Slave Mode */
+    mepa_bool_t master;      /**< Master/Slave Mode */
     mepa_bool_t fdx;         /**< Full duplex */
     mepa_aneg_t aneg;        /**< Auto-negotiation */
     mepa_bool_t copper;      /**< For dual-media ports */
@@ -196,28 +207,28 @@ typedef enum {
 typedef enum {
     MEPA_PHY_LAN_MODE,          /**< LAN mode: Single clock (XREFCK=156,25 MHz), no recovered clock output  */
     MEPA_PHY_WAN_MODE,          /**< WAN mode:\n */
-                                /**< 848X:   Dual clock (XREFCK=156,25 MHz, WREFCK=155,52 MHz), no recovered clock output\n */
-                                /**< Venice: Single clock (XREFCK), no recovered clock output\n */
+    /**< 848X:   Dual clock (XREFCK=156,25 MHz, WREFCK=155,52 MHz), no recovered clock output\n */
+    /**< Venice: Single clock (XREFCK), no recovered clock output\n */
     MEPA_PHY_1G_MODE,           /**< 8488:   1G pass-through mode\n */
-                                /**< Venice: 1G mode, Single clock (XREFCK=156,25 MHz), no recovered clock output */
+    /**< Venice: 1G mode, Single clock (XREFCK=156,25 MHz), no recovered clock output */
     MEPA_PHY_LAN_SYNCE_MODE,    /**< LAN SyncE:\n */
-                                /**< if hl_clk_synth == 1:\n */
-                                /**< 8488:   Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
-                                /**< Venice: Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
-                                /**< if hl_clk_synth == 0:\n */
-                                /**< 8488:   Dual clock (XREFCK=156,25 MHz, SREFCK=156,25 MHz), recovered clock output enabled\n */
-                                /**< Venice: Dual clock (XREFCK=156,25 MHz, SREFCK=156,25 MHz), recovered clock output enabled\n */
+    /**< if hl_clk_synth == 1:\n */
+    /**< 8488:   Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
+    /**< Venice: Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
+    /**< if hl_clk_synth == 0:\n */
+    /**< 8488:   Dual clock (XREFCK=156,25 MHz, SREFCK=156,25 MHz), recovered clock output enabled\n */
+    /**< Venice: Dual clock (XREFCK=156,25 MHz, SREFCK=156,25 MHz), recovered clock output enabled\n */
     MEPA_PHY_WAN_SYNCE_MODE,    /**< WAN SyncE:\n */
-                                /**< if hl_clk_synth == 1:\n */
-                                /**< 8488:   Single clock (WREFCK=155,52 MHz or 622,08 MHz), recovered clock output enabled\n */
-                                /**< Venice: Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
-                                /**< if hl_clk_synth == 0:\n */
-                                /**< 8488:   Dual clock (WREFCK=155,52 MHz or 622,08 MHz, SREFCK=155,52 MHz), recovered clock output enabled\n */
-                                /**< Venice: Dual clock (XREFCK=156,25 MHz, SREFCK=155,52 MHz), recovered clock output enabled\n */
+    /**< if hl_clk_synth == 1:\n */
+    /**< 8488:   Single clock (WREFCK=155,52 MHz or 622,08 MHz), recovered clock output enabled\n */
+    /**< Venice: Single clock (XREFCK=156,25 MHz), recovered clock output enabled\n */
+    /**< if hl_clk_synth == 0:\n */
+    /**< 8488:   Dual clock (WREFCK=155,52 MHz or 622,08 MHz, SREFCK=155,52 MHz), recovered clock output enabled\n */
+    /**< Venice: Dual clock (XREFCK=156,25 MHz, SREFCK=155,52 MHz), recovered clock output enabled\n */
     MEPA_PHY_LAN_MIXED_SYNCE_MODE, /**< 8488:   Channels are in different modes, channel being configured is in LAN\n */
-                                   /**< Venice: Same as VTSS_PHY_LAN_SYNCE_MODE */
+    /**< Venice: Same as VTSS_PHY_LAN_SYNCE_MODE */
     MEPA_PHY_WAN_MIXED_SYNCE_MODE, /**< 8488:   Channels are in different modes, channel being configured is in WAN\n */
-                                   /**< Venice: Same as VTSS_PHY_WAN_SYNCE_MODE */
+    /**< Venice: Same as VTSS_PHY_WAN_SYNCE_MODE */
     MEPA_PHY_REPEATER_MODE,    /**< Malibu: Repeater mode,better jitter performance  */
 } phy10g_oper_mode_t;
 
@@ -231,29 +242,36 @@ typedef enum {
     MEPA_PHY_SFI_XFI,           /**< SFI   <-> XFI - Interface mode. Only for Malibu*/
 } phy10g_interface_mode_t;
 
-/** \brief 10G Phy Media type */
+/** \brief 10G and 25G Phy Media type */
 typedef enum {
-    MEPA_MEDIA_TYPE_SR,         /**< SR,10GBASE-SR */
-    MEPA_MEDIA_TYPE_SR2,        /**< SR,10GBASE-SR */
-    MEPA_MEDIA_TYPE_DAC,        /**< DAC,Direct attach cable */
-    MEPA_MEDIA_TYPE_ZR,         /**< ZR,10GBASE-ZR */
-    MEPA_MEDIA_TYPE_KR,         /**< KR,10GBASE-KR */
-    MEPA_MEDIA_TYPE_SR_SC,      /**< SR,10GBASE-SR with software control*/
-    MEPA_MEDIA_TYPE_SR2_SC,     /**< SR,10GBASE-SR with software control*/
-    MEPA_MEDIA_TYPE_DAC_SC,     /**< DAC,Direct attach cable with software control*/
-    MEPA_MEDIA_TYPE_ZR_SC,      /**< ZR,10GBASE-ZR with software control*/
-    MEPA_MEDIA_TYPE_ZR2_SC,     /**< ZR,10GBASE-ZR with software control with ld_lev_ini:40*/
-    MEPA_MEDIA_TYPE_KR_SC,      /**< KR,10GBASE-KR with software control*/
-    MEPA_MEDIA_TYPE_NONE,       /**< None          */
-} phy10g_media_t;
+    MEPA_MEDIA_TYPE_SR,               /**< SR,10GBASE-SR Optical*/
+    MEPA_MEDIA_TYPE_SR2,              /**< SR,10GBASE-SR */
+    MEPA_MEDIA_TYPE_DAC,              /**< DAC,Direct attach cable 10GBASE-SR 1M*/
+    MEPA_MEDIA_TYPE_ZR,               /**< ZR,10GBASE-ZR */
+    MEPA_MEDIA_TYPE_KR,               /**< KR,10GBASE-KR */
+    MEPA_MEDIA_TYPE_LR,               /**< LR,10GBASE-LR */
+    MEPA_MEDIA_TYPE_ER,               /**< LR,10GBASE-ER */
+    MEPA_MEDIA_TYPE_SR_SC,            /**< SR,10GBASE-SR with software control*/
+    MEPA_MEDIA_TYPE_SR2_SC,           /**< SR,10GBASE-SR with software control*/
+    MEPA_MEDIA_TYPE_DAC_SC,           /**< DAC,Direct attach cable with software control*/
+    MEPA_MEDIA_TYPE_ZR_SC,            /**< ZR,10GBASE-ZR with software control*/
+    MEPA_MEDIA_TYPE_ZR2_SC,           /**< ZR,10GBASE-ZR with software control with ld_lev_ini:40*/
+    MEPA_MEDIA_TYPE_KR_SC,            /**< KR,10GBASE-KR with software control*/
+    MEPA_MEDIA_TYPE_SFP28_25G_SR,     /**< SR 25GBASE-SR, SFP28 Optical */
+    MEPA_MEDIA_TYPE_SFP28_25G_LR,     /**< SR 25GBASE-LR, SFP28 Optical */
+    MEPA_MEDIA_TYPE_SFP28_25G_ER,     /**< SR 25GBASE-ER, SFP28 Optical */
+    MEPA_MEDIA_TYPE_SFP28_25G_DAC1M,  /**< SFP28 DAC 1M */
+    MEPA_MEDIA_TYPE_SFP28_25G_DAC2M,  /**< SFP28 DAC 2M */
+    MEPA_MEDIA_TYPE_NONE,             /**< None          */
+} phy_media_t;
 
 /** \brief PHY Channel ID */
 typedef enum {
-    MEPA_CHANNELID_NONE,	/**< None */
-    MEPA_CHANNELID_0,		/**<Channel 0 */
-    MEPA_CHANNELID_1,		/**<Channel 1 */
-    MEPA_CHANNELID_2, 		/**<Channel 2 */
-    MEPA_CHANNELID_3,		/**<Channel 3 */
+    MEPA_CHANNELID_NONE,    /**< None */
+    MEPA_CHANNELID_0,       /**<Channel 0 */
+    MEPA_CHANNELID_1,       /**<Channel 1 */
+    MEPA_CHANNELID_2,       /**<Channel 2 */
+    MEPA_CHANNELID_3,       /**<Channel 3 */
 } mepa_phy_channel_id_t;
 
 /** \brief 10G Phy Polarity inversion */
@@ -262,24 +280,41 @@ typedef struct {
     mepa_bool_t line_tx; /**< Line side Transmit path*/
     mepa_bool_t host_rx; /**< Host side Receive path*/
     mepa_bool_t host_tx; /**< Host side Transmit path*/
-} phy_10g_polarity_inv_t;
+} phy_polarity_inv_t;
 
 typedef struct {
     phy10g_oper_mode_t oper_mode;
     phy10g_interface_mode_t interface_mode;
     mepa_phy_channel_id_t channel_id;
-    phy10g_media_t h_media;
-    phy10g_media_t l_media;
+    phy_media_t    h_media;
+    phy_media_t    l_media;
     mepa_bool_t    channel_high_to_low; /* If Channel id decreasing order w.r.t port number increasing set this to one */
     mepa_bool_t    xfi_pol_invert;      /* Selects polarity to the TX XFI data. 1:Invert 0:Normal */
     mepa_bool_t    xaui_lane_flip;      /* Swaps XAUI Lane 0 <--> 3 and 1 <--> 2 for both RX/TX for Venice PHY family */
-    phy_10g_polarity_inv_t polarity;    /* polarity inversion configuration */
+    phy_polarity_inv_t polarity;    /* polarity inversion configuration */
     mepa_bool_t    hl_clk_synth;        /* 0: Free running clock  1: Hitless clock   */
     mepa_bool_t    is_host_wan;         /* HOST WAN/LAN Selection for SerDes config */
     mepa_bool_t    lref_for_host;          /* Clock source selection HREF or LREF on HOST side*/
     mepa_bool_t    h_clk_src_is_high_amp;  /* Host H_PLL5G Amplitude selection HIGH or LOW     */
     mepa_bool_t    l_clk_src_is_high_amp;  /* Line L_PLL5G Amplitude selection HIGH or LOW     */
 } phy10g_conf_t;
+
+/** \brief Represent the configs for 25g PHY */
+
+typedef struct {
+    mepa_phy_channel_id_t           channel_id;     /* PHY Channel Number */
+    phy_media_t                     line_media;     /* Media Type connected to LINE side */
+    phy_media_t                     host_media;     /* Media Type connected to HOST side */
+    phy_polarity_inv_t              polarity;       /* Serdes Polarity Inversion configuration */
+    mepa_bool_t                     kr_train_enable;/* Enable KR Training */
+    mepa_bool_t                     base_r_10gfec;  /* Enable Base-R FEC at 10G Speed */
+    mepa_bool_t                     base_r_25gfec;  /* Enabled Base-R FEC at 25G Speed */
+    mepa_bool_t                     rs_fec_25g;     /* Enable RSFEC */
+    mepa_bool_t                     np_base_r_fec;  /* Advertise Next-Page R FEC */
+    mepa_bool_t                     np_rs_fec;      /* Advertise Next-Page RS FEC */
+    mepa_bool_t                     fw_resolve;      /* Enable firmware resolve */
+} phy25g_conf_t;
+
 
 /** \brief Represents the configuration that is applied to PHY. */
 typedef struct {
@@ -294,6 +329,7 @@ typedef struct {
     mepa_media_mode_t mdi_mode;    /**< Preferred media mode */
     mepa_phy_media_force_ams_sel_t force_ams_mode_sel; /**< Force AMS Media Select */
     phy10g_conf_t conf_10g;
+    phy25g_conf_t conf_25g;        /*25G config structure */
 } mepa_conf_t;
 
 /** \brief  MEPA event mask */
@@ -301,15 +337,65 @@ typedef uint32_t mepa_event_t;
 
 
 /* mepa_rc error codes */
-#define MEPA_RC_OK                              MESA_RC_OK
-#define MEPA_RC_ERROR                           MESA_RC_ERROR
-#define MEPA_RC_INV_STATE                       MESA_RC_INV_STATE
-#define MEPA_RC_INCOMPLETE                      MESA_RC_INCOMPLETE
-#define MEPA_RC_NOT_IMPLEMENTED                 MESA_RC_NOT_IMPLEMENTED
-#define MEPA_RC_ERR_PARM                        MESA_RC_ERR_PARM
-#define MEPA_RC_ERR_NO_RES                      MESA_RC_ERR_NO_RES
-#define MEPA_RC_ERR_KR_CONF_NOT_SUPPORTED       MESA_RC_ERR_KR_CONF_NOT_SUPPORTED
-#define MEPA_RC_ERR_KR_CONF_INVALID_PARAMETER   MESA_RC_ERR_KR_CONF_INVALID_PARAMETER
+#define MEPA_RC_OK                                 MESA_RC_OK
+#define MEPA_RC_ERROR                              MESA_RC_ERROR
+#define MEPA_RC_INV_STATE                          MESA_RC_INV_STATE
+#define MEPA_RC_INCOMPLETE                         MESA_RC_INCOMPLETE
+#define MEPA_RC_NOT_IMPLEMENTED                    MESA_RC_NOT_IMPLEMENTED
+#define MEPA_RC_ERR_PARM                           MESA_RC_ERR_PARM
+#define MEPA_RC_ERR_NO_RES                         MESA_RC_ERR_NO_RES
+#define MEPA_RC_ERR_KR_CONF_NOT_SUPPORTED          MESA_RC_ERR_KR_CONF_NOT_SUPPORTED
+#define MEPA_RC_ERR_KR_CONF_INVALID_PARAMETER      MESA_RC_ERR_KR_CONF_INVALID_PARAMETER
+
+#define MEPA_RC_ERR_MACSEC_INVALID_SCI_MACADDR     MESA_RC_ERR_MACSEC_INVALID_SCI_MACADDR
+#define MEPA_RC_ERR_MACSEC_NOT_ENABLED             MESA_RC_ERR_MACSEC_NOT_ENABLED
+#define MEPA_RC_ERR_MACSEC_SECY_ALREADY_IN_USE     MESA_RC_ERR_MACSEC_SECY_ALREADY_IN_USE
+#define MEPA_RC_ERR_MACSEC_NO_SECY_FOUND           MESA_RC_ERR_MACSEC_NO_SECY_FOUND
+#define MEPA_RC_ERR_MACSEC_NO_SECY_VACANCY         MESA_RC_ERR_MACSEC_NO_SECY_VACANCY
+#define MEPA_RC_ERR_MACSEC_INVALID_VALIDATE_FRM    MESA_RC_ERR_MACSEC_INVALID_VALIDATE_FRM
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH  MESA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW   MESA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA        MESA_RC_ERR_MACSEC_COULD_NOT_ENA_SA
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA        MESA_RC_ERR_MACSEC_COULD_NOT_SET_SA
+#define MEPA_RC_ERR_MACSEC_INVALID_BYPASS_HDR_LEN  MESA_RC_ERR_MACSEC_INVALID_BYPASS_HDR_LEN
+#define MEPA_RC_ERR_MACSEC_SC_NOT_FOUND            MESA_RC_ERR_MACSEC_SC_NOT_FOUND
+#define MEPA_RC_ERR_MACSEC_NO_CTRL_FRM_MATCH       MESA_RC_ERR_MACSEC_NO_CTRL_FRM_MATCH
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_SET_PATTERN   MESA_RC_ERR_MACSEC_COULD_NOT_SET_PATTERN
+#define MEPA_RC_ERR_MACSEC_TIMEOUT_ISSUE           MESA_RC_ERR_MACSEC_TIMEOUT_ISSUE
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS  MESA_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS
+#define MEPA_RC_ERR_MACSEC_AN_NOT_CREATED          MESA_RC_ERR_MACSEC_AN_NOT_CREATED
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS MESA_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS
+#define MEPA_RC_ERR_MACSEC_TX_SC_NOT_EXIST         MESA_RC_ERR_MACSEC_TX_SC_NOT_EXIST
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA    MESA_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_DEL_RX_SA     MESA_RC_ERR_MACSEC_COULD_NOT_DEL_RX_SA
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_DEL_TX_SA     MESA_RC_ERR_MACSEC_COULD_NOT_DEL_TX_SA
+#define MEPA_RC_ERR_MACSEC_PATTERN_NOT_SET         MESA_RC_ERR_MACSEC_PATTERN_NOT_SET
+#define MEPA_RC_ERR_MACSEC_HW_RESOURCE_EXHUSTED    MESA_RC_ERR_MACSEC_HW_RESOURCE_EXHUSTED
+#define MEPA_RC_ERR_MACSEC_SCI_ALREADY_EXISTS      MESA_RC_ERR_MACSEC_SCI_ALREADY_EXISTS
+#define MEPA_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND   MESA_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND
+#define MEPA_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE    MESA_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE
+#define MEPA_RC_ERR_MACSEC_EMPTY_RECORD            MESA_RC_ERR_MACSEC_EMPTY_RECORD
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM     MESA_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA     MESA_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA
+#define MEPA_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE    MESA_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE
+#define MEPA_RC_ERR_MACSEC_ALL_AVAILABLE_SA_IN_USE MESA_RC_ERR_MACSEC_ALL_AVAILABLE_SA_IN_USE
+#define MEPA_RC_ERR_MACSEC_MATCH_DISABLE           MESA_RC_ERR_MACSEC_MATCH_DISABLE
+#define MEPA_RC_ERR_MACSEC_ALL_CP_RULES_IN_USE     MESA_RC_ERR_MACSEC_ALL_CP_RULES_IN_USE
+#define MEPA_RC_ERR_MACSEC_PATTERN_PRIO_NOT_VALID  MESA_RC_ERR_MACSEC_PATTERN_PRIO_NOT_VALID
+#define MEPA_RC_ERR_MACSEC_BUFFER_TOO_SMALL        MESA_RC_ERR_MACSEC_BUFFER_TOO_SMALL
+#define MEPA_RC_ERR_MACSEC_FRAME_TOO_LONG          MESA_RC_ERR_MACSEC_FRAME_TOO_LONG
+#define MEPA_RC_ERR_MACSEC_FRAME_TRUNCATED         MESA_RC_ERR_MACSEC_FRAME_TRUNCATED
+#define MEPA_RC_ERR_MACSEC_PHY_POWERED_DOWN        MESA_RC_ERR_MACSEC_PHY_POWERED_DOWN
+#define MEPA_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE  MESA_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE
+#define MEPA_RC_ERR_MACSEC_AN_NOT_EXIST            MESA_RC_ERR_MACSEC_AN_NOT_EXIST
+#define MEPA_RC_ERR_MACSEC_NO_PATTERN_CFG          MESA_RC_ERR_MACSEC_NO_PATTERN_CFG
+#define MEPA_RC_ERR_MACSEC_MAX_MTU                 MESA_RC_ERR_MACSEC_MAX_MTU
+#define MEPA_RC_ERR_MACSEC_UNEXPECT_CP_MODE        MESA_RC_ERR_MACSEC_UNEXPECT_CP_MODE
+#define MEPA_RC_ERR_MACSEC_COULD_NOT_DISABLE_AN    MESA_RC_ERR_MACSEC_COULD_NOT_DISABLE_AN
+#define MEPA_RC_ERR_MACSEC_RULE_OUT_OF_RANGE       MESA_RC_ERR_MACSEC_RULE_OUT_OF_RANGE
+#define MEPA_RC_ERR_MACSEC_RULE_NOT_EXIST          MESA_RC_ERR_MACSEC_RULE_NOT_EXIST
+#define MEPA_RC_ERR_MACSEC_CSR_READ                MESA_RC_ERR_MACSEC_CSR_READ
+#define MEPA_RC_ERR_MACSEC_CSR_WRITE               MESA_RC_ERR_MACSEC_CSR_WRITE
 
 #define MEPA_RC_ERR_TS_ENG_MAP                  -201 /**< Input flow index could not be converted to appropriate Engine id */
 #define MEPA_RC_ERR_TS_ENG_INIT                 -202 /**< Engine init configuration error */
@@ -322,6 +408,12 @@ typedef uint32_t mepa_event_t;
 #define MEPA_RC_ERR_TS_ACTION_GET_FAIL          -209 /**< Failed to get the action information */
 #define MEPA_RC_ERR_TS_FLOW_GET_FAIL            -210 /**< Error in obtaining underlying engine's flow configuration */
 #define MEPA_RC_ERR_TS_ENG_CLR                  -211 /**< Error in clearing the engine configuration */
+
+/* Host Communication*/
+#define MEPA_RC_ERR_MB_SEND_CMD                 -301
+#define MEPA_RC_ERR_MB_READ_RESPONSE            -302
+#define MEPA_RC_ERR_MB_INVALID_PKT              -303
+#define MEPA_RC_ERR_MB_FW_UPDATE_FAIL           -304
 
 
 typedef enum {
@@ -413,11 +505,21 @@ typedef struct {
     mepa_bool_t     eee_ena_phy;
 } mepa_phy_eee_conf_t;
 
+/** Brief GPIO interrupt source */
+
+typedef enum {
+    MEPA_GPIO_INTR_NONE = 0,
+    MEPA_GPIO_INTR_0,
+    MEPA_GPIO_INTR_1,
+} mepa_gpio_intrpt_t;
+
 /** \brief Additional GPIO data used while setting gpio mode */
 typedef struct {
     uint8_t gpio_no;
     mepa_led_num_t led_num;
     mepa_gpio_mode_t mode;
+    mepa_bool_t pp_enable;   /* Push Pull enable */
+    mepa_gpio_intrpt_t gpio_intrpt; /* GPIO AGGR interrupt source */
 } mepa_gpio_conf_t;
 
 /** \brief SOF Preemption mode */
@@ -493,6 +595,7 @@ typedef struct {
     mepa_trace_level_t  level;
     const char         *location;
     uint32_t            line;
+    const char         *file;
     const char         *format;
 } mepa_trace_data_t;
 
@@ -506,12 +609,13 @@ typedef struct {
 /** \brief PHY type */
 typedef enum {
     MEPA_CAP_SPEED_MASK_1G = 0x1,  /**< PHY supports maximum speed of 1G. */
-    MEPA_CAP_SPEED_MASK_2G5 = 0x40,/**< PHY supports maximum speed of 2G5. */
-    MEPA_CAP_SPEED_MASK_10G = 0x2, /**< PHY supports maximum speed of 10G. */
-    MEPA_CAP_TS_MASK_GEN_1 = 0x4,  /**< PHY supports timestamping capability of GEN-1 devices such as vsc8574. */
-    MEPA_CAP_TS_MASK_GEN_2 = 0x8,  /**< PHY supports timestamping capability of GEN-2 devices such as vsc8584, vsc8490. */
-    MEPA_CAP_TS_MASK_GEN_3 = 0x10, /**< PHY supports timestamping capability of GEN-3 devices such as Lan8814. */
-    MEPA_CAP_TS_MASK_NONE  = 0x20, /**< PHY does not support timestamping capability. */
+    MEPA_CAP_SPEED_MASK_2G5 = 0x2,/**< PHY supports maximum speed of 2G5. */
+    MEPA_CAP_SPEED_MASK_10G = 0x4, /**< PHY supports maximum speed of 10G. */
+    MEPA_CAP_SPEED_MASK_25G = 0x8, /**< PHY supports maximum speed of 25G. */
+    MEPA_CAP_TS_MASK_GEN_1 = 0x10,  /**< PHY supports timestamping capability of GEN-1 devices such as vsc8574. */
+    MEPA_CAP_TS_MASK_GEN_2 = 0x20,  /**< PHY supports timestamping capability of GEN-2 devices such as vsc8584, vsc8490. */
+    MEPA_CAP_TS_MASK_GEN_3 = 0x40, /**< PHY supports timestamping capability of GEN-3 devices such as Lan8814. */
+    MEPA_CAP_TS_MASK_NONE  = 0x80, /**< PHY does not support timestamping capability. */
 } mepa_phy_cap_t;
 
 /** \brief phy info
@@ -532,12 +636,12 @@ typedef enum {
     MEPA_DEBUG_LAYER_CIL  /**< Chip Interface Layer */
 } mepa_debug_layer_t;
 
- /** \brief Debug function group */
+/** \brief Debug function group */
 typedef enum {
-    MEPA_DEBUG_GROUP_ALL    ,    /**< All groups */
-    MEPA_DEBUG_GROUP_PHY    ,    /**< PHY */
-    MEPA_DEBUG_GROUP_PHY_TS ,    /**< PHY_TS: PHY TimeStamping */
-    MEPA_DEBUG_GROUP_MACSEC ,    /**< 802.1AE MacSec */
+    MEPA_DEBUG_GROUP_ALL,        /**< All groups */
+    MEPA_DEBUG_GROUP_PHY,        /**< PHY */
+    MEPA_DEBUG_GROUP_PHY_TS,     /**< PHY_TS: PHY TimeStamping */
+    MEPA_DEBUG_GROUP_MACSEC,     /**< 802.1AE MacSec */
 
     /* New groups are added above this line */
     MEPA_DEBUG_GROUP_COUNT      /**< Number of groups */
@@ -554,11 +658,11 @@ typedef struct {
 
 /** \brief self-test information structure */
 typedef struct {
-    mepa_port_speed_t	speed;
-    mepa_media_mode_t	mdi;
-    uint32_t		frames;
-    uint32_t		good_cnt;
-    uint32_t		err_cnt;
+    mepa_port_speed_t   speed;
+    mepa_media_mode_t   mdi;
+    uint32_t        frames;
+    uint32_t        good_cnt;
+    uint32_t        err_cnt;
 } mepa_selftest_info_t;
 
 /** \brief PRBS information */
@@ -577,10 +681,20 @@ typedef enum {
 
 /** \brief PRBS mode */
 typedef enum {
-    MEPA_PRBS7, /**< PRBS mode 7 */
-    MEPA_PRBS15,/**< PRBS mode 15 */
-    MEPA_PRBS31,/**< PRBS mode 31 */
+    MEPA_PRBS7,                       /**< PRBS mode 7 */
+    MEPA_PRBS9,                       /**< PRBS mode 9 */
+    MEPA_PRBS11,                      /**< PRBS mode 9 */
+    MEPA_PRBS15,                      /**< PRBS mode 15 */
+    MEPA_PRBS23,                      /**< PRBS mode 15 */
+    MEPA_PRBS31,                      /**< PRBS mode 31 */
+    MEPA_CLOCK_PATTERN,               /**< PRBS Clock pattern */
+    MEPA_USER_DEFINED_PATTERN,        /**< PRBS User Defined pattern */
+    MEPA_PCS_SQAURE_PATTERN,          /**< PCS PRBS Square pattern */
+    MEPA_PCS_LOCAL_FAULT_SEQ,         /**< PCS Local Fault Sequence */
+    MEPA_PCS_ZERO_SEQ,                /**< PCS ZERO Sequence */
+    MEPA_PCS_SCRAMBLED_TEST_PATTERN,  /**< PCS Scarmbled Test Pattaern */
 } mepa_prbs_pattern_t;
+
 
 /** \brief PRBS clock */
 typedef enum {
@@ -596,16 +710,60 @@ typedef enum {
 
 /** \brief PRBS Information */
 typedef struct {
-    mepa_bool_t enable;            /**< Enabling PRBS */
-    mepa_prbs_pattern_t prbsn_sel; /**< PRBS mode selection */
-    mepa_prbs_clock_t clk;         /**< Clock selection */
-    mepa_prbs_loopback_t loopback; /**< Loopback selection */
+    mepa_bool_t            enable;            /**< Enabling PRBS */
+    mepa_prbs_pattern_t    prbsn_sel;         /**< PRBS mode selection */
+    mepa_prbs_clock_t      clk;               /**< Clock selection */
+    mepa_prbs_loopback_t   loopback;          /**< Loopback selection */
+    uint8_t                user_pattern[8];
 } mepa_phy_prbs_generator_conf_t;
 
-/** \brief PRBS Error Information */
+/** \brief PRBS analyzer/monitor configuration and status */
 typedef struct {
-    mepa_prbs_pattern_t  prbsn_sel; /**< PRBS mode selection */
+    mepa_prbs_pattern_t         prbsn_sel; /**< PRBS mode selection */
+    mepa_phy_prbs_type_t        prbs_type;      /**< PRBS Type Serdes or PCS */
+    mepa_phy_prbs_direction_t   prbs_direction; /**< PRBS Direction HOST or LINE */
+
     uint32_t no_of_errors;          /**< Error Generation */
+
+    /**
+     * Enable or disable the prbs monitor
+     */
+    mepa_bool_t enable;
+    /**
+     *  1: bist_err will assert if rx all zero data in PRBS mode.0: Treat all zero data input as correct data Note: r_bist_chk_zero must be set after r_bist_ok is *  asserted.
+     */
+    mepa_bool_t bist_check_zero;
+
+    /**
+     * 1: bist_err counter will stop when reaching 0xffff_ffff 0: bist_err counter will run continuously, will not saturate.
+     */
+    mepa_bool_t bist_error_stop;
+
+    /**
+    * TRUE if BIST is active
+    */
+    mepa_bool_t active;
+
+    /**
+     *  TRUE if BIST is ok
+     */
+    mepa_bool_t bist_status;
+
+    /**
+     * Error stautus of BIST
+     */
+    mepa_bool_t error_status;
+
+    /**
+     * TRUE if BIST not complete yet, bist time is time out
+     */
+    mepa_bool_t incomplete;
+
+    /**
+     *  BIST Error counter
+     */
+    uint32_t bist_error_count;
+
 } mepa_phy_prbs_monitor_conf_t;
 
 /** \brief API version */

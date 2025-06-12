@@ -4,19 +4,20 @@
 #include <mepa_driver.h>
 #include <microchip/ethernet/phy/api.h>
 
-#define T_D(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_I(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_W(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_E(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_D(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+#define T_I(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+#define T_W(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+#define T_E(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 
 #define PHY_FAMILIES 16
 
-#define MEPA_GLOBAL_REG_DEV_ID 0x1E /* MMD ID of GLOBAL Registers */
-#define MEPA_REG_DEV_ID_1      0x1  /* MMD ID 1 */
-#define MEPA_REG_ADDR_0        0    /* Register Address 0x0 */
-#define MEPA_REG_ADDR_5        5    /* Register Address 0x5 */
-#define MEPA_REG_ADDR_2        2    /* Register Address 0x2 */
-#define MEPA_REG_ADDR_3        3    /* Register Address 0x3 */
+#define MEPA_GLOBAL_REG_DEV_ID      0x1E /* MMD ID of GLOBAL Registers */
+#define MEPA_SILICON_REVISION_REG   0x2  /* Silicon Revision register */
+#define MEPA_REG_DEV_ID_1           0x1  /* MMD ID 1 */
+#define MEPA_REG_ADDR_0             0    /* Register Address 0x0 */
+#define MEPA_REG_ADDR_5             5    /* Register Address 0x5 */
+#define MEPA_REG_ADDR_2             2    /* Register Address 0x2 */
+#define MEPA_REG_ADDR_3             3    /* Register Address 0x3 */
 
 static mepa_drivers_t MEPA_phy_lib[PHY_FAMILIES] = {};
 static int MEPA_init_done = 0;
@@ -26,6 +27,7 @@ void MEPA_trace(mepa_trace_group_t  group,
                 mepa_trace_level_t  level,
                 const char         *location,
                 uint32_t            line,
+                const char         *file,
                 const char         *format,
                 ...)
 {
@@ -35,6 +37,7 @@ void MEPA_trace(mepa_trace_group_t  group,
         .level    = level,
         .location = location,
         .line     = line,
+        .file     = file,
         .format   = format,
     };
 
@@ -51,46 +54,60 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
 {
     uint32_t i;
     uint32_t phy_id = 0;
-    uint16_t reg2 = 0;
-    uint16_t reg3 = 0;
-
+    uint32_t reg2 = 0;
+    uint32_t reg3 = 0;
     // 8488, Venice and Malibu are special and does not report the PHY on the
     // normal addresses.
-    uint16_t special[] = { 0x8484, 0x8487, 0x8488, 0x8489, 0x8490, 0x8491,
-                           0x8254, 0x8256, 0x8257, 0x8258
-                         };
+    const uint16_t special[] = { 0x8484, 0x8487, 0x8488, 0x8489, 0x8490, 0x8491,
+                                 0x8254, 0x8256, 0x8257, 0x8258, 0x8044, 0x8043,
+                                 0x8042, 0x8024, 0x8023, 0x8022, 0x8268, 0x8267,
+                                 0x8264
+                               };
 
 
     // TODO, this check would be more robust if we combine it with the values of
     // mmd=1 reg 2 and reg3 (on venice this is 0x0007 0x0400)
-
     if (callout->spi_read) {
-        callout->spi_read(callout_ctx,  port_no, MEPA_GLOBAL_REG_DEV_ID, MEPA_REG_ADDR_0, (uint32_t*)&reg3);
+        callout->spi_read(callout_ctx,  port_no, MEPA_GLOBAL_REG_DEV_ID, MEPA_REG_ADDR_0, &reg3);
     } else if (callout->mmd_read) {
-        callout->mmd_read(callout_ctx, MEPA_GLOBAL_REG_DEV_ID, MEPA_REG_ADDR_0, &reg3);
+        callout->mmd_read(callout_ctx, MEPA_GLOBAL_REG_DEV_ID, MEPA_REG_ADDR_0, (uint16_t*)&reg3);
     }
-
+    reg3 = (uint32_t)(reg3 & 0xFFFF);
     for (i = 0; i < sizeof(special) / sizeof(special[0]); i++) {
         if (reg3 == special[i]) {
             return reg3;
         }
+    }
+    /* LAN80XX PHY A0 silicon SW Workarround
+     * A0 silicon of LAN80XX PHYs have DEVICE_ID = 0, so read Revision ID register and check whether it is A0
+     * If A0 then considering it as LAN8044 PHY.
+     */
+    if (callout->spi_read) {
+        callout->spi_read(callout_ctx,  port_no, MEPA_GLOBAL_REG_DEV_ID, MEPA_SILICON_REVISION_REG, &reg2);
+    } else if (callout->mmd_read) {
+        callout->mmd_read(callout_ctx, MEPA_GLOBAL_REG_DEV_ID, MEPA_SILICON_REVISION_REG, (uint16_t*)&reg2);
+    }
+    reg2 = (uint32_t)(reg2 & 0xFFFF);
+    if ((reg3 == 0) && (reg2 == 0xA0)) {
+        return 0x8044;
     }
 
     reg2 = 0;
     reg3 = 0;
 
     if (callout->miim_read) {
-        callout->miim_read(callout_ctx, MEPA_REG_ADDR_2, &reg2);
-        callout->miim_read(callout_ctx, MEPA_REG_ADDR_3, &reg3);
+        callout->miim_read(callout_ctx, MEPA_REG_ADDR_2, (uint16_t*)&reg2);
+        callout->miim_read(callout_ctx, MEPA_REG_ADDR_3, (uint16_t*)&reg3);
     }
 
     // Maybe it is a PHY responding to MMD and not MIIM
     if (callout->mmd_read && reg2 == 0 && reg3 == 0) {
-        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_2, &reg2);
-        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_3, &reg3);
+        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_2, (uint16_t*)&reg2);
+        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_3, (uint16_t*)&reg3);
     }
-    phy_id = ((uint32_t)reg2) << 16 | reg3;
-
+    reg2 = (uint32_t)(reg2 & 0xFFFF);
+    reg3 = (uint32_t)(reg3 & 0xFFFF);
+    phy_id = (reg2 << 16) | reg3;
     return phy_id;
 }
 
@@ -231,13 +248,21 @@ struct mepa_device *mepa_create(const mepa_callout_t    MEPA_SHARED_PTR *callout
 #if defined(MEPA_HAS_LAN887X)
         MEPA_phy_lib[9] = mepa_lan887x_driver_init();
 #endif
+#if defined(MEPA_HAS_LAN867X)
+        MEPA_phy_lib[10] = mepa_lan867x_driver_init();
+#endif
+#if defined(MEPA_HAS_LAN80XX)
+        MEPA_phy_lib[11] = mepa_lan80xx_driver_init();
+#endif
 #if defined(MEPA_HAS_DUMMY_PHY)
-        MEPA_phy_lib[10] = mepa_dummy_driver_init();
+        MEPA_phy_lib[12] = mepa_dummy_driver_init();
 #endif
         // Shall be last
 #if defined(MEPA_HAS_VTSS)
-        MEPA_phy_lib[11] = mepa_default_phy_driver_init();
+        MEPA_phy_lib[13] = mepa_default_phy_driver_init();
 #endif
+
+
     }
     if (conf->dummy_phy_cap > 0) {
         phy_id = 0xdeadbeef;
@@ -2405,6 +2430,36 @@ mepa_rc mepa_macsec_event_seq_threshold_get(struct mepa_device *dev,
     return dev->drv->mepa_macsec->mepa_macsec_event_seq_threshold_get(dev, port_no, threshold);
 }
 
+mepa_rc mepa_macsec_event_xpn_seq_threshold_set(struct mepa_device *dev,
+                                                const mepa_port_no_t port_no,
+                                                const uint64_t threshold)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_event_xpn_seq_threshold_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_event_xpn_seq_threshold_set(dev, port_no, threshold);
+}
+
+mepa_rc mepa_macsec_event_xpn_seq_threshold_get(struct mepa_device *dev,
+                                                const mepa_port_no_t port_no,
+                                                uint64_t *const threshold)
+{
+    if (!dev->drv->mepa_macsec) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_macsec->mepa_macsec_event_xpn_seq_threshold_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_macsec->mepa_macsec_event_xpn_seq_threshold_get(dev, port_no, threshold);
+}
+
 mepa_rc mepa_macsec_egr_intr_sa_get(struct mepa_device *dev,
                                     const mepa_port_no_t port_no,
                                     mepa_macsec_port_t *const port,
@@ -2851,7 +2906,7 @@ mepa_rc mepa_macsec_dbg_update_seq_set(struct mepa_device *dev,
     return dev->drv->mepa_macsec->mepa_macsec_dbg_update_seq_set(dev, port, sci, an, egr, disable);
 }
 
-mepa_rc mepa_prbs_set(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf)
+mepa_rc mepa_prbs_set(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, const mepa_phy_prbs_generator_conf_t *const prbs_conf)
 {
     if (!dev->drv->mepa_driver_prbs_set) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -2869,7 +2924,7 @@ mepa_rc mepa_prbs_get(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_p
     return dev->drv->mepa_driver_prbs_get(dev, type, direction, prbs_conf);
 }
 
-mepa_rc mepa_prbs_monitor_set(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value)
+mepa_rc mepa_prbs_monitor_set(struct mepa_device *dev, const mepa_phy_prbs_monitor_conf_t *const value)
 {
     if (!dev->drv->mepa_driver_prbs_monitor_set) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -3091,6 +3146,20 @@ mepa_rc mepa_tc10_send_wake_request(struct mepa_device *dev)
     return dev->drv->mepa_tc10->mepa_tc10_send_wake_request(dev);
 }
 
+mepa_rc mepa_tc10_get_indication(struct mepa_device      *dev,
+        uint16_t                *const indication)
+{
+    if (!dev->drv->mepa_tc10) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_tc10->mepa_tc10_get_indication) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_tc10->mepa_tc10_get_indication(dev, indication);
+}
+
 mepa_rc mepa_warmstart_conf_end(struct mepa_device *dev)
 {
     if (!dev->drv->mepa_driver_warmrestart_conf_end) {
@@ -3119,4 +3188,42 @@ mepa_rc mepa_warmstart_conf_set(struct mepa_device *dev, const mepa_restart_t re
 
     return dev->drv->mepa_driver_warmrestart_conf_set(dev, restart);
 
+}
+
+mepa_rc mepa_phy_qsgmii_sync(struct mepa_device *dev)
+{
+    if (!dev->drv->mepa_driver_phy_qsgmii_sync) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_driver_phy_qsgmii_sync(dev);
+
+}
+
+mepa_rc mepa_t1s_set_plca_config (struct mepa_device *dev,
+                                                 const mepa_t1s_plca_cfg_t cfg)
+{
+    if (!dev->drv->mepa_t1s) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_t1s->mepa_t1s_set_plca_config) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_t1s->mepa_t1s_set_plca_config(dev, cfg);
+}
+
+mepa_rc mepa_t1s_get_plca_config (struct mepa_device *dev,
+                                                 mepa_t1s_plca_cfg_t *const cfg)
+{
+    if (!dev->drv->mepa_t1s) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_t1s->mepa_t1s_get_plca_config) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_t1s->mepa_t1s_get_plca_config(dev, cfg);
 }

@@ -1,0 +1,235 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+== Introduction
+
+     * `Anyline to anyhost` Cross-Connect enables any-to-any mapping of all the four Line Ports to four Host Ports. It must be possible to configure
+the mapping at any time, not just at startup, and also to reconfigure the mapping.
+
+     * `1:1-protected connection pair` A protection scheme where only one bi-directional connection carries data.The other bi-directional
+ connection carries no data (*Standby*) but is prepared to take over if the active connection fails.
+
+     * `1+1-protected connection pair` A protection scheme where both bi-directional connections carry data (assuming
+no Connection Fault) and the receiver selects which connection is Active and which is Standby. If a Connection
+Fault is detected, that connection becomes Failed and no longer carries data in either direction.
+
+This Document provides the list of Chip Specific APIs that LAN80XX PHY Provides and the procedure to configure
+cross connect for the PHY.
+
+== Directory layout
+
+* link:#mepa/microchip/lan80xx/include/microchip/lan80xx.h[./mepa/microchip/lan80xx/include/microchip/lan80xx.h] - Header File for crossconnect APIs.
+* link:#mepa/microchip/lan80xx/src/lan80xx_private.c[./mepa/microchip/lan80xx/src/lan80xx_private.c] - Source File for Crossconnect APIs.
+
+== List of Crossconnect APIs
+
+Following are the list of the Crossconnect related APIs that LAN80XX PHY Supports:
+
+  * `lan80xx_xconnect_anylinetoanyhost()` - Configure any hostports to any line ports
+  * `lan80xx_xconnect_hostfailover_Protection()` - Configure Host Protection for the ports.
+  * `lan80xx_xconnect_failover()` - Re-establish the PCP after failover gets cleared
+  * `lan80xx_xconnect_force_failover()` - Enables crossconnect force failover in active PCP
+  * `lan80xx_xconnect_conf_get()` - Get the Crossconnect failover and anyline to anyhost configuration
+
+=== Any Line to Any Host
+
+    * `lan80xx_xconnect_anylinetoanyhost()` - Enable Cross connect and configure Cross connect for any hostports to any line ports.
+
+The API configuration settings are listed in the following table:
+
+[cols="1,1", options="header"]
+|===
+|Variable            | Arguments with description
+|  LineDefaultCh
+|  Default Host Port channels 0,1,2,3 mapped to user defined line port channel numbers
+|===
+
+=== Host Protection
+
+    * `lan80xx_xconnect_hostfailover_Protection()` - Enable Host Protection and configure Host Protection connection pairs either
+1:1 or 1+1 protection mode for the ports.
+
+
+The API configuration settings are listed in the following table:
+
+[%autowidth, options="header"]
+|===
+|Structure | Arguments with description
+
+|enable
+|Enable or Disable the Host Protection
+
+|src_event
+|Source of the Failure event ID
+
+|`phy25g_host_protect_mode_t`
+a|
+
+Select any one of the Below Option +
+ * LAN80XX_AUTO_FAILOVER_1_ISTO_1_PROTECTION   -- Select 1:1 Host Protection +
+ * LAN80XX_AUTO_FAILOVER_1_PLUS_1_PROTECTION   -- Select 1+1 Host Protection +
+
+|`phy25g_wps_test_role_t`
+a|
+
+Select any one of the Below Option +
+ * LAN80XX_WPS_PHY_ROLE      -- Select PHY Role +
+ * LAN80XX_WPS_SYSTEM_ROLE   -- Select SYSTEM Role +
+
+|is_mac_change
+|Enable MAC change
+
+|filter_ena
+|Enable Filter
+
+|assert_filter_val
+|Select Filter validation
+
+|deassert_filter_val
+|Deselect Filter validation
+
+|`phy25g_wps_def_active_host_t`
+a|
+
+Select any one of the Below Option +
+ * LAN80XX_WPS_0_1_DEFAULT_ACTIVE_H0_H3   -- Select Host0 and Host3 as Active +
+ * LAN80XX_WPS_0_1_DEFAULT_ACTIVE_H1_H2   -- Select Host1 and Host2 as Active +
+
+|fc_signal_enable
+|Enable FC Signal
+
+|ack_timer
+|Set the ACK timer Timeout value
+|===
+
+==== Roles
+The working protected switch acts as either PHY or SYSTEM role.
+
+    * In PHY role, the working protected switch supports only one Lineport.
+
+    * In System role, the working protected switch supports either single Lineport or in "With MAC changes" case it supports
+two Line ports.
+
+==== Modes
+LAN80XX PHY can operate in either PCS retimer mode or MAC retimer mode.
+
+    * In PCS retimer mode the Host MAC, Line MAC, MACSEC block and 1588 TSU (may or maynot) blocks are bypassed.
+      No MACs are enabled in LAN80XX PHY in both PHY and SYSTEM role functions.
+
+    * In MAC retimer mode Host MAC, Line MAC, MACSEC block and 1588 TSU (may or maynot) block are used. Both
+      PHY role and SYSTEM role functions have Host MACs and Line MACs.
+
+==== Connection Pairs
+
+  * In 1:1 connection pair, each working protect switch receives one copy of each frame default active connection.
+
+  * In 1+1 connection pair, each working protect switch receives two copies of each frame from both default active
+and standby connection.
+
+==== Without MAC change
+In System role without MAC change, same HOST MAC will be used in both default active and standby connection even after
+working protected switch failover.
+
+==== With MAC change
+System role with MAC change, different HOST MAC will be used by default active and standby connection
+after working protected switch failover.
+
+==== Host protection Failover
+Host protection SW Failover can be injected by setting corresponding failover bits.
+
+1. Set the CROSS_CONNECT.WPSX_FAILOVER_CTRL.WPS_FORCE_FAILOVER register field
+2. Wait for the io_FAILOVEROUT0 PIN for WPS0 and io_FAILOVEROUT1 PIN for WPS1 to assert.
+3. Then Drive 1 in the io_FAILOVERIN0 PIN WPS0 and io_FAILOVERIN1 PIN for WPS1.
+
+After failover, the active connection moved to failure state and standby connection moves to active state.
+
+==== Connection Fault condition
+Connection fault condition is an HW-detected fault on a PCP connection. If Host protection is enabled on the PCP,
+a Connection Fault will put that connection into the Failed state, and may trigger a W/P Switch failover.
+
+Each of the following may be considered a Connection Fault Condition
+
+* SD25G PLL Loss of lock
+* SD25G Loss of signal
+* PCS25G Link Down (created external to PCS25G IP)
+* PCS1G Link Down
+
+Following interrupts for considered for conditional fault.
+
+----
+#define LAN80XX_PHY_HOST_PCS1G_INTR_EN          LAN80XX_BIT(1)    /* Route HOST PCS1G Interrupts to GPIO */
+#define LAN80XX_PHY_HOST_PCS25G_INTR_EN         LAN80XX_BIT(0)    /* Route HOST PCS25G Interrupts to GPIO */
+----
+
+Given example source code for Host protection enable, configuration, Line Side and Host Side PCS1G Link
+ Down Interrupt enable and routing Interrupt to Aggregate Interrupt 0 (GPIO34).
+
+----
+phy25g_autofailover_t conf;
+
+conf.enable = 1;
+conf.src_event = 32;
+conf.mode = 'LAN80XX_AUTO_FAILOVER_1_ISTO_1_PROTECTION';
+conf.role ='LAN80XX_WPS_PHY_ROLE';
+conf.is_mac_change = 0;
+conf.reversion = 0;
+conf.filter_ena = 0;
+conf.assert_filter_val = 0;
+conf.deassert_filter_val = 0;
+conf.active_host = 'LAN80XX_WPS_0_1_DEFAULT_ACTIVE_H1_H2';
+conf.fc_signal_enable = 1;
+conf.ack_timer = 0;
+
+/* Call host failover protection configuration cross connect API */
+lan80xx_xconnect_hostfailover_Protection(dev, port_no, &conf);
+
+phy25g_gpio_conf_t gpio_aggr;
+
+gpio_aggr.pp_enable = 1;
+gpio_aggr.aggr_intrpt = LAN80XX_PHY_HOST_PCS1G_INTR_EN | LAN80XX_PHY_LINE_PCS1G_INTR_EN;
+
+/* Call Chip Specific GPIO Api *
+lan80xx_gpio_conf_set(dev, port_no, &gpio_aggr);
+
+/* Now Call MEPA GPIO API */
+
+mepa_gpio_conf_t gpio_conf;
+gpio_conf.gpio_no = 34;
+gpio_no.mode = MEPA_GPIO_MODE_ALT;
+
+mepa_gpio_mode_set(dev, &gpio_conf);
+
+/* Event Configuration */
+phy25g_events_t        evt;
+evt = LAN80XX_LINE_PCS1G_LINK_DOWN_INTR | LAN80XX_HOST_PCS1G_LINK_DOWN_INTR;
+
+lan80xx_event_conf_set(dev, port_no, evt, TRUE);
+
+----
+Once the Host port link is down, Host protection switch failover gets trigerred and standby connection moves to active state.
+
+=== Host Failover recovery
+
+    * `lan80xx_xconnect_failover()` - Recover the PCP from failover and re-establish the connection using either reversion or non-reversion case
+
+If the default active connection fault is cleared, re-establishment of protected PCP occurs by calling `lan80xx_xconnect_failover()` API.
+
+* Reversion case:
+	With Reversion, protection is re-established with the original-Default Active connection in the Active state,
+ and the original-Default Standby connection in the Standby state.
+
+* Non-Reversion case:
+	Non-reversion protection is re-established with the original-default Active connection in the Standby state,
+and the original-default Standby connection in the Active state.
+
+=== Host Force Failover
+
+    * `lan80xx_xconnect_force_failover()` - Configures force failover and triggers failover in the active PCP.
+
+If the user want to trigger failover forcefully, by calling `lan80xx_xconnect_force_failover()` API will triggers the failover in active PCP.
+
+=== Get Cross-connect configuration
+
+    * `lan80xx_xconnect_conf_get()` - Get the configuration of crossconnect failover and anyline to anyhost.
+
+If the user want to read the configured values, by calling `lan80xx_xconnect_conf_get()` API will get the crossconnect failover and anyline to anyhost configuration.

@@ -415,7 +415,7 @@ static uint8_t get_vs_mac_type(mepa_ts_mac_match_select_t mac_type)
 }
 void get_eng_flow_info(uint16_t in_flow, vtss_phy_ts_engine_t *eng_id, uint16_t *eng_flow, uint8_t *flow_st, uint8_t *flow_end)
 {
-    if (in_flow >= 0 && in_flow < TS_FLOWS_PER_ENG * (VTSS_PHY_TS_PTP_ENGINE_ID_0 + 1)) {
+    if (in_flow < TS_FLOWS_PER_ENG * (VTSS_PHY_TS_PTP_ENGINE_ID_0 + 1)) {
         *eng_id = VTSS_PHY_TS_PTP_ENGINE_ID_0;
     } else if (in_flow >= (TS_FLOWS_PER_ENG * VTSS_PHY_TS_PTP_ENGINE_ID_1) &&
                in_flow <  (TS_FLOWS_PER_ENG * VTSS_PHY_TS_OAM_ENGINE_ID_2A)) {
@@ -641,8 +641,8 @@ static mepa_rc vtss_ts_init_conf_set(struct mepa_device *dev, const mepa_ts_init
         init_conf.xaui_sel_8487 = VTSS_PHY_TS_8487_XAUI_SEL_0; /**< 8487 XAUI lane selection*/
     }
     if (data->cap == PHY_CAP_10G) {
-        vtss_phy_10g_id_t phy_id;
-        vtss_phy_10g_id_get(data->vtss_instance, data->port_no, &phy_id);
+        vtss_phy_10g_id_t phy_id = {0};
+        MEPA_RC(vtss_phy_10g_id_get(data->vtss_instance, data->port_no, &phy_id));
         if (phy_id.part_number == 0x8489 || phy_id.part_number == 0x8490 || phy_id.part_number == 0x8491 ||
             phy_id.family == VTSS_PHY_FAMILY_MALIBU) {
             init_conf.auto_clear_ls = ts_init_conf->auto_clear_ls;
@@ -651,7 +651,7 @@ static mepa_rc vtss_ts_init_conf_set(struct mepa_device *dev, const mepa_ts_init
         }
     } else {
         vtss_phy_type_t phy_id;
-        vtss_phy_id_get(data->vtss_instance, data->port_no, &phy_id);
+        MEPA_RC(vtss_phy_id_get(data->vtss_instance, data->port_no, &phy_id));
         if (phy_id.part_number == VTSS_PHY_TYPE_8582 || phy_id.part_number == VTSS_PHY_TYPE_8584 ||
             phy_id.part_number == VTSS_PHY_TYPE_8575) {
             init_conf.auto_clear_ls = ts_init_conf->auto_clear_ls;

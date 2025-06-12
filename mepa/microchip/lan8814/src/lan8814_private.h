@@ -36,8 +36,8 @@ mepa_rc lan8814_ext_incr_reg_rd(mepa_device_t *dev, uint16_t page, uint16_t addr
 mepa_rc lan8814_mmd_reg_rd(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t *value);
 mepa_rc lan8814_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t value, uint16_t mask);
 mepa_rc lan8814_ts_debug_info_dump(struct mepa_device *dev,
-                                const mepa_debug_print_t pr,
-                                const mepa_debug_info_t   *const info);
+                                   const mepa_debug_print_t pr,
+                                   const mepa_debug_info_t   *const info);
 
 //Direct register access macros
 #define RD(dev, addr, value) lan8814_direct_reg_rd(dev, addr, value)
@@ -55,10 +55,10 @@ mepa_rc lan8814_ts_debug_info_dump(struct mepa_device *dev,
 #define MMD_WR(dev, mmd_addr, value) lan8814_mmd_reg_wr(dev, mmd_addr, value, 0xffff)
 #define MMD_WRM(dev, mmd_addr, val, mask) lan8814_mmd_reg_wr(dev, mmd_addr, val, mask)
 
-#define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+#define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+#define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+#define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__,format, ##__VA_ARGS__);
 
 
 // Locking Macros

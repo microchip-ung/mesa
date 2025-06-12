@@ -45,7 +45,7 @@ mepa_rc pfe_mmd_reg_rd(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t
     MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL, mmd, LAN8814_DEF_MASK));
     MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, addr, LAN8814_DEF_MASK));
     MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL,
-                               LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
+                              LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
 
     // Read the value
     MEPA_RC(pfe_direct_reg_rd(dev, LAN8814_MMD_ACCESS_ADDR_DATA, value));
@@ -58,7 +58,7 @@ mepa_rc pfe_mmd_reg_wr(mepa_device_t *dev, uint16_t mmd, uint16_t addr, uint16_t
     MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL, mmd, LAN8814_DEF_MASK));
     MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, addr, LAN8814_DEF_MASK));
     MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_CTRL,
-                               LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
+                              LAN8814_F_MMD_ACCESS_CTRL_MMD_FUNC | mmd, LAN8814_DEF_MASK));
 
     // write the value
     MEPA_RC(pfe_direct_reg_wr(dev, LAN8814_MMD_ACCESS_ADDR_DATA, value, mask));
@@ -87,19 +87,25 @@ static mepa_rc pfe_get_device_info(mepa_device_t *dev)
 const char *if2txt(mesa_port_interface_t if_type)
 {
     switch (if_type) {
-    case MESA_PORT_INTERFACE_GMII:          return "GMII";
-    case MESA_PORT_INTERFACE_RGMII:         return "RGMII";
-    case MESA_PORT_INTERFACE_RGMII_ID:      return "RGMII_ID";
-    case MESA_PORT_INTERFACE_RGMII_RXID:    return "RGMII_RXID";
-    case MESA_PORT_INTERFACE_RGMII_TXID:    return "RGMII_TXID";
-    default: return "?   ";
+    case MESA_PORT_INTERFACE_GMII:
+        return "GMII";
+    case MESA_PORT_INTERFACE_RGMII:
+        return "RGMII";
+    case MESA_PORT_INTERFACE_RGMII_ID:
+        return "RGMII_ID";
+    case MESA_PORT_INTERFACE_RGMII_RXID:
+        return "RGMII_RXID";
+    case MESA_PORT_INTERFACE_RGMII_TXID:
+        return "RGMII_TXID";
+    default:
+        return "?   ";
     }
 }
 
 static mepa_device_t *pfe_probe(mepa_driver_t *drv,
-                                 const mepa_callout_t    MEPA_SHARED_PTR *callout,
-                                 struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
-                                 struct mepa_board_conf              *board_conf)
+                                const mepa_callout_t    MEPA_SHARED_PTR *callout,
+                                struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
+                                struct mepa_board_conf              *board_conf)
 {
     mepa_device_t *dev;
     phy_data_t *data;
@@ -119,19 +125,12 @@ static mepa_device_t *pfe_probe(mepa_driver_t *drv,
 
 static mepa_rc pfe_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_conf)
 {
-    mepa_rc rc = MEPA_RC_OK;
     if (rst_conf->reset_point == MEPA_RESET_POINT_DEFAULT) {
         pfe_direct_reg_wr(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_RESET, LAN8814_F_BASIC_CTRL_SOFT_RESET);
     }
     MEPA_MSLEEP(1);
-
-    /* LDO Adjustment errata */
-    rc = pfe_mmd_reg_wr(dev, LAN8841_MMD_ANALOG_REG,
-                        LAN8841_ANALOG_CONTROL_11,
-                        LAN8841_ANALOG_CONTROL_11_LDO_REF(1), 0x7000);
-
     pfe_get_device_info(dev);
-    return rc;
+    return MEPA_RC_OK;
 }
 
 static mepa_rc pfe_conf_get(mepa_device_t *dev, mepa_conf_t *const config)
@@ -163,14 +162,14 @@ static mesa_rc pfe_conf_set(mepa_device_t      *dev,
 }
 
 static mesa_rc pfe_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
-                             mesa_port_interface_t *mac_if)
+                          mesa_port_interface_t *mac_if)
 {
-    uint16_t val=0, rxcdll_val, txcdll_val;
+    uint16_t val = 0, rxcdll_val, txcdll_val;
     mesa_rc rc;
     phy_data_t *data = (phy_data_t *)dev->data;
 
     rc = pfe_mmd_reg_rd(dev, 2, LAN8840_OPERATION_MODE_STRAP_LOW_REGISTER, &val);
-    if(MEPA_RC_OK != rc) {
+    if (MEPA_RC_OK != rc) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not read from port %d", data->port_no);
     }
 
@@ -200,35 +199,35 @@ static mesa_rc pfe_if_get(mepa_device_t *dev, mesa_port_speed_t speed,
 
 static mepa_rc pfe_config_rgmii_delay(mepa_device_t *dev, mepa_port_interface_t interface)
 {
-	u16 rxcdll_val, txcdll_val;
+    u16 rxcdll_val, txcdll_val;
     mepa_rc rc;
 
     // Note:
     // Extra phy delay in CONTROL_PAD_SKEW, RX_DATA_PAD_SKEW, TX_DATA_PAD_SKEW, CLK_PAD_SKEW
     // currently not supported
 
-	switch (interface) {
-	case MESA_PORT_INTERFACE_RGMII:
-		rxcdll_val = DISABLE_DLL_RX_BIT;
-		txcdll_val = DISABLE_DLL_TX_BIT;
-		break;
-	case MESA_PORT_INTERFACE_RGMII_ID:
-		rxcdll_val = PFE_DLL_ENABLE_DELAY;
-		txcdll_val = PFE_DLL_ENABLE_DELAY;
-		break;
-	case MESA_PORT_INTERFACE_RGMII_RXID:
-		rxcdll_val = PFE_DLL_ENABLE_DELAY;
-		txcdll_val = DISABLE_DLL_TX_BIT;
-		break;
-	case MESA_PORT_INTERFACE_RGMII_TXID:
-		rxcdll_val = DISABLE_DLL_RX_BIT;
-		txcdll_val = PFE_DLL_ENABLE_DELAY;
-		break;
-	default:
-		return 0;
-	}
+    switch (interface) {
+    case MESA_PORT_INTERFACE_RGMII:
+        rxcdll_val = DISABLE_DLL_RX_BIT;
+        txcdll_val = DISABLE_DLL_TX_BIT;
+        break;
+    case MESA_PORT_INTERFACE_RGMII_ID:
+        rxcdll_val = PFE_DLL_ENABLE_DELAY;
+        txcdll_val = PFE_DLL_ENABLE_DELAY;
+        break;
+    case MESA_PORT_INTERFACE_RGMII_RXID:
+        rxcdll_val = PFE_DLL_ENABLE_DELAY;
+        txcdll_val = DISABLE_DLL_TX_BIT;
+        break;
+    case MESA_PORT_INTERFACE_RGMII_TXID:
+        rxcdll_val = DISABLE_DLL_RX_BIT;
+        txcdll_val = PFE_DLL_ENABLE_DELAY;
+        break;
+    default:
+        return 0;
+    }
 
-	rc = pfe_mmd_reg_wr(dev, PFE_MMD_COMMON_CTRL_REG,
+    rc = pfe_mmd_reg_wr(dev, PFE_MMD_COMMON_CTRL_REG,
                         PFE_RXC_DLL_CTRL,
                         rxcdll_val, DISABLE_DLL_MASK);
 
@@ -236,7 +235,7 @@ static mepa_rc pfe_config_rgmii_delay(mepa_device_t *dev, mepa_port_interface_t 
         return rc;
     }
 
-	return pfe_mmd_reg_wr(dev, PFE_MMD_COMMON_CTRL_REG,
+    return pfe_mmd_reg_wr(dev, PFE_MMD_COMMON_CTRL_REG,
                           PFE_TXC_DLL_CTRL,
                           txcdll_val, DISABLE_DLL_MASK);
 }
@@ -433,13 +432,13 @@ static void pfe_phy_deb_pr_reg(mepa_device_t *dev,
     } else {
         rc = pfe_direct_reg_rd(dev, addr, value);
     }
-    if(pr && (MEPA_RC_OK == rc)) {
+    if (pr && (MEPA_RC_OK == rc)) {
         pr("%-45s:  0x%02x  0x%02x   0x%04x     0x%08x\n", str, to_u32(port_no), id, addr, *value);
     }
 }
 
 static mepa_rc reg_dump(struct mepa_device *dev,
-                            const mepa_debug_print_t pr)
+                        const mepa_debug_print_t pr)
 {
     uint16_t val = 0;
 
@@ -481,8 +480,8 @@ static mepa_rc reg_dump(struct mepa_device *dev,
 
 
 static mepa_rc pfe_debug_info_dump(struct mepa_device *dev,
-                                    const mepa_debug_print_t pr,
-                                    const mepa_debug_info_t   *const info)
+                                   const mepa_debug_print_t pr,
+                                   const mepa_debug_info_t   *const info)
 {
     mepa_rc rc = MEPA_RC_OK;
     mepa_phy_info_t phy_info;
@@ -493,18 +492,16 @@ static mepa_rc pfe_debug_info_dump(struct mepa_device *dev,
 
     if (info->layer == MEPA_DEBUG_LAYER_AIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
         MEPA_ENTER(dev);
-        pr("Port:%d   Family:Pfeiffer   Type:%d   Rev:%d   MacIf:%s\n",dev->numeric_handle,
+        pr("Port:%d   Family:Pfeiffer   Type:%d   Rev:%d   MacIf:%s\n", dev->numeric_handle,
            phy_info.part_number, phy_info.revision, if2txt(mac_if));
         MEPA_EXIT(dev);
     }
 
     if (info->layer == MEPA_DEBUG_LAYER_CIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
 
-        switch(info->group)
-        {
+        switch (info->group) {
         case MEPA_DEBUG_GROUP_ALL:
-        case MEPA_DEBUG_GROUP_PHY:
-        {
+        case MEPA_DEBUG_GROUP_PHY: {
             MEPA_ENTER(dev);
             rc = reg_dump(dev, pr);
             MEPA_EXIT(dev);

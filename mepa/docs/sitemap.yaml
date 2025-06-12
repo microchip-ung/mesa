@@ -51,6 +51,13 @@ pages:
         - name: "LAN8814"
           src:  "mepa/docs/lan8814-chip-specific.adoc"
 
+        - name: "LAN80XX"
+          pages:
+              - src:  "mepa/docs/lan80xx-chip-specific.adoc"
+              - src:  "mepa/docs/lan80xx-events-config.adoc"
+              - src:  "mepa/docs/lan80xx-crossconnect-config.adoc"
+
+
     - name: "MEPA API Reference"
       pages:
         - src:  "me/include/microchip/ethernet/common.h"
@@ -60,9 +67,14 @@ pages:
         - src:  "mepa/include/microchip/ethernet/phy/api/phy.h"
         - src:  "mepa/include/microchip/ethernet/phy/api.h"
 
+
     - name: "PHY-Specific API Reference"
       pages:
         - src:  "mepa/microchip/lan8814/include/microchip/lan8814_cs.h"
+        - src:  "mepa/microchip/lan80xx/include/microchip/lan80xx.h"
+        - src:  "mepa/microchip/lan80xx/include/microchip/lan80xx_macsec.h"
+        - src:  "mepa/microchip/lan80xx/include/microchip/lan80xx_ts.h"
+        - src:  "mepa/microchip/lan80xx/include/microchip/lan80xx_mcu.h"
 
     - name: "Licenses"
       src:  "mepa/docs/licenses.adoc"

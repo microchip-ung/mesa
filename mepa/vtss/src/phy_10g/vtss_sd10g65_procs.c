@@ -1973,6 +1973,11 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
                 /*        0xff                     0xff              */
                 toggle = 0;
                 incr   = 0;
+
+                if (num_words >= 16) {
+                    VTSS_E("Out of Bound Memory access for variable pattern");
+                    return VTSS_RC_ERROR;
+                }
                 for (i=0 ; i < num_words ; i++) {
                     switch ((8*(i+1)) % (num_bits / 2)) {
                     case 0: {
@@ -2014,6 +2019,11 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
                             if (f_out_khz_plain * num_bits >= 9000000) {
                                 break;
                             }
+                        }
+
+                        if (num_words >= 16) {
+                            VTSS_E("Out of Bound Memory access for variable pattern");
+                            return VTSS_RC_ERROR;
                         }
 
                         cfg_f_sam.f_pll_khz = cfg_f_out.f_pll_khz * num_bits;
@@ -2075,6 +2085,10 @@ vtss_rc vtss_calc_sd10g65_setup_df2f(const vtss_sd10g65_setup_df2f_args_t config
                                 break;
                             }
                         }
+                    }
+                    if (num_words >= 16) {
+                        VTSS_E("Out of Bound Memory access for variable pattern");
+                        return VTSS_RC_ERROR;
                     }
                     f_sam_khz_plain = f_out_khz_plain * num_bits * (1 + synth_half_rate_mode);
                     cfg_f_sam.f_pll_khz = cfg_f_out.f_pll_khz * num_bits * (1 + synth_half_rate_mode);

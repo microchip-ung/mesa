@@ -436,7 +436,7 @@ static mepa_rc phy_cable_diag_get(mepa_device_t *const dev, mepa_cable_diag_resu
                 distance = (posPeakInPhases - posPeakInPhasesHybrid) * 156.2499 * 0.0001 * wavePropagationVelocity * 0.5;
             }
 
-            if ((posPeak > noiseMargin) && (negPeak > noiseMargin) && (distance < maxDistance) && (gainIdx >= 0)) {
+            if ((posPeak > noiseMargin) && (negPeak > noiseMargin) && (distance < maxDistance)) {
                 if ((detect == 1) || (detect == 2)) {
                     bFault = TRUE;
                 }

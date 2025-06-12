@@ -322,7 +322,7 @@ def record_symbols symbols
         has_semi  = block_has(block_sequence, :sym_single_char, ";")
         has_args  = block_has(block_sequence, :sym_single_char, "(")
 
-
+        puts " match txt is : #{x[:match_txt]}"
         if is_sue and not has_args
             #puts "SUE: #{x[:line]} #{x[:match_txt]}"
             name = nil

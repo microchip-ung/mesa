@@ -8,6 +8,7 @@
 #include <mepa_ts_driver.h>
 #include <mepa_macsec_driver.h>
 #include <mepa_tc10_driver.h>
+#include <mepa_t1s_driver.h>
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 
@@ -29,6 +30,7 @@ void MEPA_trace(mepa_trace_group_t  group,
                 mepa_trace_level_t  level,
                 const char         *location,
                 uint32_t            line,
+                const char         *file,
                 const char         *format,
                 ...);
 
@@ -697,7 +699,7 @@ typedef mepa_rc (*mepa_driver_selftest_read_t)(struct mepa_device *dev, mepa_sel
  *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
  *   MEPA_RC_OK on success.
  **/
-typedef mepa_rc (*mepa_driver_prbs_set_t)(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const prbs_conf);
+typedef mepa_rc (*mepa_driver_prbs_set_t)(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, const mepa_phy_prbs_generator_conf_t *const prbs_conf);
 
 /**
  * \brief To Get PRBS
@@ -721,7 +723,7 @@ typedef mepa_rc (*mepa_driver_prbs_get_t)(struct mepa_device *dev, mepa_phy_prbs
  *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
  *   MEPA_RC_OK on success.
  **/
-typedef mepa_rc (*mepa_driver_prbs_monitor_set_t)(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value);
+typedef mepa_rc (*mepa_driver_prbs_monitor_set_t)(struct mepa_device *dev, const mepa_phy_prbs_monitor_conf_t *const value);
 
 /**
  * \brief To Get  an error status
@@ -809,6 +811,16 @@ typedef mepa_rc (*mepa_driver_serdes_tx_conf_set_t)(struct mepa_device *dev, con
  **/
 typedef uint32_t (*mepa_capability_t)(struct mepa_device *dev, uint32_t capability);
 
+/**
+ * \brief To sync QSGMII configuration
+ *
+ * \param dev      [IN]  Driver instance.
+ *
+ * \return Return code.
+ *   MEPA_RC_OK on Success
+ **/
+typedef mepa_rc (*mepa_driver_phy_qsgmii_sync_t)(struct mepa_device *dev);
+
 typedef struct mepa_driver {
     mepa_driver_delete_t               mepa_driver_delete;
     mepa_driver_reset_t                mepa_driver_reset;
@@ -867,9 +879,11 @@ typedef struct mepa_driver {
     mepa_driver_warmrestart_conf_end_t mepa_driver_warmrestart_conf_end;
     mepa_driver_warmrestart_conf_set_t mepa_driver_warmrestart_conf_set;
     mepa_driver_serdes_tx_conf_set_t   mepa_driver_serdes_tx_conf_set;
+    mepa_driver_phy_qsgmii_sync_t      mepa_driver_phy_qsgmii_sync;
     mepa_ts_driver_t                   *mepa_ts;
     mepa_macsec_driver_t               *mepa_macsec;
     mepa_tc10_driver_t                 *mepa_tc10;
+    mepa_t1s_driver_t                  *mepa_t1s;
     uint32_t id;                  /**< Id of the driver */
     uint32_t mask;                /**< Mask of the driver */
     struct mepa_driver *next; /**< Pointer to the next driver */
@@ -946,6 +960,12 @@ mepa_drivers_t mepa_lan884x_driver_init();
 
 /** \brief Returns drivers for lan887x PHY */
 mepa_drivers_t mepa_lan887x_driver_init(void);
+
+/** \brief Returns drivers for lan867x PHY */
+mepa_drivers_t mepa_lan867x_driver_init(void);
+
+/** \brief Returns drivers for lan80xx PHY */
+mepa_drivers_t mepa_lan80xx_driver_init();
 
 /** \brief Dummy SW driver */
 mepa_drivers_t mepa_dummy_driver_init();

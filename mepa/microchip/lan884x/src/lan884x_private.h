@@ -16,33 +16,29 @@
 #define EXT_PAGE 1 // extended page access
 #define MMD_DEV  2 // MMD device access
 
-#define PFE_MMD_COMMON_CTRL_REG	2
-#define PFE_RXC_DLL_CTRL		76
-#define PFE_TXC_DLL_CTRL		77
-#define PFE_DLL_ENABLE_DELAY	0
-
-#define LAN8841_MMD_ANALOG_REG    28
-#define LAN8841_ANALOG_CONTROL_11 14
-#define LAN8841_ANALOG_CONTROL_11_LDO_REF(x) (((x) & 0x7) << 12)
+#define PFE_MMD_COMMON_CTRL_REG 2
+#define PFE_RXC_DLL_CTRL        76
+#define PFE_TXC_DLL_CTRL        77
+#define PFE_DLL_ENABLE_DELAY    0
 
 typedef enum {
-	PHY_INTERFACE_MODE_RGMII,      // Reduced gigabit media-independent interface
-	PHY_INTERFACE_MODE_RGMII_ID,   // RGMII with Internal RX+TX delay
-	PHY_INTERFACE_MODE_RGMII_RXID, // RGMII with Internal RX delay
-	PHY_INTERFACE_MODE_RGMII_TXID, // RGMII with Internal RX delay
+    PHY_INTERFACE_MODE_RGMII,      // Reduced gigabit media-independent interface
+    PHY_INTERFACE_MODE_RGMII_ID,   // RGMII with Internal RX+TX delay
+    PHY_INTERFACE_MODE_RGMII_RXID, // RGMII with Internal RX delay
+    PHY_INTERFACE_MODE_RGMII_TXID, // RGMII with Internal RX delay
 } phy_interface_t;
 
 #define DISABLE_DLL_TX_BIT LAN8814_BIT(14)
-#define	DISABLE_DLL_RX_BIT LAN8814_BIT(14)
-#define	DISABLE_DLL_MASK LAN8814_BIT(14)
+#define DISABLE_DLL_RX_BIT LAN8814_BIT(14)
+#define DISABLE_DLL_MASK LAN8814_BIT(14)
 
 #define LAN8840_OPERATION_MODE_STRAP_LOW_REGISTER 3
 #define LAN8840_OPERATION_MODE_STRAP_LOW_REGISTER_STRAP_RGMII_EN 1
 
-#define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
-#define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, format, ##__VA_ARGS__);
+#define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+#define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+#define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+#define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 
 // Locking Macros
 // The variable 'dev' is passed as macro argument to obtain callback pointers and call actual lock functions. It does not indicate locks per port.

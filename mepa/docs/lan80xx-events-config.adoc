@@ -1,0 +1,319 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+== Introduction
+
+The LAN80XX Ethernet PHY provides multiple Interrupt Sources for each module in the PHY and these Interrupts
+can be routed to any of the Two Aggregate GPIO interrupt Pins
+
+This Document provides the list of Chip Specific APIs that LAN80XX PHY Provides and the procedure to configure
+various Interrupts of the PHY.
+
+== Directory layout
+
+* link:#mepa/microchip/lan80xx/include/microchip/lan80xx.h[./mepa/microchip/lan80xx/include/microchip/lan80xx.h] - Header File for Event APIs.
+* link:#mepa/microchip/lan80xx/src/lan80xx_events.c[./mepa/microchip/lan80xx/src/lan80xx_events.c] - Source File for Event APIs.
+
+== List of Event APIs
+
+Following are the list of the Event related APIs that LAN80XX PHY Supports:
+
+  * `lan80xx_event_conf_set()` - Enable or Disable Interrupt Sources of Various Modules
+  * `lan80xx_event_conf_get()` - Gets the list of Interrupt Sources Enabled
+  * `lan80xx_event_poll()`     - Polls the Interrupt Status of Enabled Interrupt Sources
+
+  * `lan80xx_ext_event_conf_set()` - Enable or Disable Interrupt Sources of PMAC and PMA(Extended Interrupt Support)
+  * `lan80xx_ext_event_conf_get()` - Gets the List of Extended Interrupts Enabled
+  * `lan80xx_ext_event_poll()`     - Polls the Interrupt Status of Enabled Extended Interrupt Sources
+
+== Event Conf Set
+
+  * `lan80xx_event_conf_set()` API is used to enable or Disable the Interrupt Sources of various blocks of the PHY.
+
+[cols="1,1,1", options="header"]
+|===
+| Argument         		 | Input/output     | Description
+| port_no          		 | Input            | Port Number of PHY
+| `phy25g_event_conf_t`          | Input            | Interrupt Sources to be Configured
+|===
+
+Following are the Arguments of `phy25g_event_conf_t`
+
+[%autowidth.stretch, options="header"]
+|===
+|Structure                | Arguments with description
+|`phy25g_events_t`
+| Event source to be configured
+
+| enable
+| Enable or Disable selected Event sources
+
+| `phy25g_evt_src_sel_t`
+| Interrupt to be routed to INTRA or INTRB
+|===
+
+Following are the list of Interrupt Sources that `lan80xx_event_conf_set()` API Provides:
+----
+/* GPIO Aggregate interrupts */
+#define LAN80XX_GPIO_INTR_1                          LAN80XX_EVENT_BIT(63)
+#define LAN80XX_GPIO_INTR_0                          LAN80XX_EVENT_BIT(62)
+/* LINE MAC Tx Montitor Interrupts */
+#define LAN80XX_LINE_MAC_LOCAL_ERR_STATE_INTR        LAN80XX_EVENT_BIT(61)
+#define LAN80XX_LINE_MAC_REMOTE_ERR_STATE_INTR       LAN80XX_EVENT_BIT(60)
+#define LAN80XX_LINE_MAC_IDLE_STATE_INTR             LAN80XX_EVENT_BIT(59)
+#define LAN80XX_LINE_MAC_DIS_STATE_INTR              LAN80XX_EVENT_BIT(58)
+
+/* HOST MAC Tx Monistor Interrupts */
+#define LAN80XX_HOST_MAC_LOCAL_ERR_STATE_INTR        LAN80XX_EVENT_BIT(57)
+#define LAN80XX_HOST_MAC_REMOTE_ERR_STATE_INTR       LAN80XX_EVENT_BIT(56)
+#define LAN80XX_HOST_MAC_IDLE_STATE_INTR             LAN80XX_EVENT_BIT(55)
+#define LAN80XX_HOST_MAC_DIS_STATE_INTR              LAN80XX_EVENT_BIT(54)
+
+/* LINE MAC Interrupts */
+#define LAN80XX_LINE_MAC_RX_IPG_SHRINK_INTR          LAN80XX_EVENT_BIT(53)
+#define LAN80XX_LINE_MAC_RX_PREAMBLE_SHRINK_INTR     LAN80XX_EVENT_BIT(52)
+#define LAN80XX_LINE_MAC_RX_PREAMBLE_MISMATCH_INTR   LAN80XX_EVENT_BIT(51)
+#define LAN80XX_LINE_MAC_RX_PREAM_ERR_INTR           LAN80XX_EVENT_BIT(50)
+#define LAN80XX_LINE_MAC_RX_NON_STD_PREAMBLE_INTR    LAN80XX_EVENT_BIT(49)
+#define LAN80XX_LINE_MAC_RX_MPLS_MC_INTR             LAN80XX_EVENT_BIT(48)
+#define LAN80XX_LINE_MAC_RX_MPLS_UC_INTR             LAN80XX_EVENT_BIT(47)
+#define LAN80XX_LINE_MAC_RX_TAG_INTR                 LAN80XX_EVENT_BIT(46)
+#define LAN80XX_LINE_MAC_TX_UNDERFLOW_INTR           LAN80XX_EVENT_BIT(45)
+#define LAN80XX_LINE_MAC_TX_ABORT_INTR               LAN80XX_EVENT_BIT(44)
+
+/* HOST MAC Interrupts */
+#define LAN80XX_HOST_MAC_RX_IPG_SHRINK_INTR          LAN80XX_EVENT_BIT(43)
+#define LAN80XX_HOST_MAC_RX_PREAMBLE_SHRINK_INTR     LAN80XX_EVENT_BIT(42)
+#define LAN80XX_HOST_MAC_RX_PREAMBLE_MISMATCH_INTR   LAN80XX_EVENT_BIT(41)
+#define LAN80XX_HOST_MAC_RX_PREAM_ERR_INTR           LAN80XX_EVENT_BIT(40)
+#define LAN80XX_HOST_MAC_RX_NON_STD_PREAMBLE_INTR    LAN80XX_EVENT_BIT(39)
+#define LAN80XX_HOST_MAC_RX_MPLS_MC_INTR             LAN80XX_EVENT_BIT(38)
+#define LAN80XX_HOST_MAC_RX_MPLS_UC_INTR             LAN80XX_EVENT_BIT(37)
+#define LAN80XX_HOST_MAC_RX_TAG_INTR                 LAN80XX_EVENT_BIT(36)
+#define LAN80XX_HOST_MAC_TX_UNDERFLOW_INTR           LAN80XX_EVENT_BIT(35)
+#define LAN80XX_HOST_MAC_TX_ABORT_INTR               LAN80XX_EVENT_BIT(34)
+
+/* FC Buffer Interrupts */
+#define LAN80XX_EGR_FC_BUFFER_FAULT_READ             LAN80XX_EVENT_BIT(33)
+#define LAN80XX_EGR_FC_BUFFER_DED_INTR               LAN80XX_EVENT_BIT(32)
+#define LAN80XX_EGR_FC_BUFFER_SEC_INTR               LAN80XX_EVENT_BIT(31)
+#define LAN80XX_INGR_FC_BUFFER_FAULT_READ_INTR       LAN80XX_EVENT_BIT(30)
+#define LAN80XX_INGR_FC_BUFFER_DED_INTR              LAN80XX_EVENT_BIT(29)
+#define LAN80XX_INGR_FC_BUFFER_SEC_INTR              LAN80XX_EVENT_BIT(28)
+#define LAN80XX_EGR_FC_BUFFER_INIT_DONE_INTR         LAN80XX_EVENT_BIT(27)
+#define LAN80XX_INGR_FC_BUFFER_INIT_DONE_INTR        LAN80XX_EVENT_BIT(26)
+#define LAN80XX_EGR_ECC_INTERRUPT_STATUS_INTR        LAN80XX_EVENT_BIT(25)
+#define LAN80XX_INGR_ECC_INTERRUPT_STATUS_INTR       LAN80XX_EVENT_BIT(24)
+#define LAN80XX_RX_UNDERFLOW_DROP_INTR               LAN80XX_EVENT_BIT(23)
+#define LAN80XX_RX_OVERFLOW_DROP_INTR                LAN80XX_EVENT_BIT(22)
+#define LAN80XX_TX_DATA_QUEUE_UNDERFLOW_DROP_INTR    LAN80XX_EVENT_BIT(21)
+#define LAN80XX_TX_DATA_QUEUE_OVERFLOW_DROP_INTR     LAN80XX_EVENT_BIT(20)
+#define LAN80XX_TX_CTRL_QUEUE_UNDERFLOW_DROP_INTR    LAN80XX_EVENT_BIT(19)
+#define LAN80XX_TX_CTRL_QUEUE_OVERFLOW_DROP_INTR     LAN80XX_EVENT_BIT(18)
+#define LAN80XX_RX_UNCORRECTED_FRM_DROP_INTR         LAN80XX_EVENT_BIT(17)
+#define LAN80XX_TX_UNCORRECTED_FRM_DROP_INTR         LAN80XX_EVENT_BIT(16)
+#define LAN80XX_XON_PAUSE_GEN_INTR                   LAN80XX_EVENT_BIT(15)
+#define LAN80XX_XOFF_PAUSE_GEN_INTR                  LAN80XX_EVENT_BIT(14)
+
+/* Rate Adaption FIFO Interrupts */
+#define LAN80XX_L2H_RA_FIFO_OVERFLOW_INTR            LAN80XX_EVENT_BIT(13)
+#define LAN80XX_L2H_RA_FIFO_UNDERFLOW_INTR           LAN80XX_EVENT_BIT(12)
+#define LAN80XX_H2L_RA_FIFO_OVERFLOW_INTR            LAN80XX_EVENT_BIT(11)
+#define LAN80XX_H2L_RA_FIFO_UNDERFLOW_INTR           LAN80XX_EVENT_BIT(10)
+
+/* 25G PCS Interrupts */
+#define LAN80XX_HOST_PCS25G_HI_BER_INTR              LAN80XX_EVENT_BIT(9)
+#define LAN80XX_HOST_PCS25G_BLOCK_LOCK_INTR          LAN80XX_EVENT_BIT(8)
+#define LAN80XX_HOST_PCS25G_ALIGN_DONE_INTR          LAN80XX_EVENT_BIT(7)
+#define LAN80XX_LINE_PCS25G_HI_BER_INTR              LAN80XX_EVENT_BIT(6)
+#define LAN80XX_LINE_PCS25G_BLOCK_LOCK_INTR          LAN80XX_EVENT_BIT(5)
+#define LAN80XX_LINE_PCS25G_ALIGN_DONE_INTR          LAN80XX_EVENT_BIT(4)
+
+/* 1G PCS Interrupts */
+#define LAN80XX_HOST_PCS1G_OUT_OF_SYNC_INTR          LAN80XX_EVENT_BIT(3)
+#define LAN80XX_HOST_PCS1G_LINK_DOWN_INTR            LAN80XX_EVENT_BIT(2)
+#define LAN80XX_LINE_PCS1G_OUT_OF_SYNC_INTR          LAN80XX_EVENT_BIT(1)
+#define LAN80XX_LINE_PCS1G_LINK_DOWN_INTR            LAN80XX_EVENT_BIT(0)
+----
+
+This API Provides Support to Configure the Interrupt Sources of *PCS1G*, *PCS25G*, *RA FIFO*, *FC BUFFER* and *HOST/LINE MAC*.
+User can Enable or Disable the above listed Interrupt Sources with help of `enable` argument of `lan80xx_event_conf_set()` API.
+
+== Event Conf Get
+
+  * `lan80xx_event_conf_get()` -- Gets the List of Interrupt Sources that are Enabled through `lan80xx_event_conf_set()` API
+
+[cols="1,1,1", options="header"]
+|===
+| Argument         | Input/output     | Description
+| port_no          | Input            | Port Number of PHY
+| evt              | Output           | Lists Enabled Interrupt Sources
+|===
+
+== Event Poll
+The `lan80xx_event_poll()` API checks the status of all interrupt sources enabled through `lan80xx_event_conf_set()`.
+If an interrupt is triggered, the API clears it once recognized. This API will finally return a list of Interrupts Triggered and
+Cleared by the API.
+
+[cols="1,1,1", options="header"]
+|===
+| Argument         | Input/output     | Description
+| port_no          | Input            | Port Number of PHY
+| evt              | Output           | Lists Enabled Interrupt Triggered
+|===
+
+NOTE: User Application is expected to call `lan80xx_event_poll()` in background to know whether Interrupt gets Triggered or not.
+
+Following Example Source Code Enables Line Side and Host Side PCS1G Link Down Interrupt and route this Interrupt to Aggregate Interrupt 0 which is GPIO34
+
+----
+/* Now Call MEPA GPIO API */
+
+mepa_gpio_conf_t gpio_conf;
+gpio_conf.gpio_no = 34;
+gpio_conf.mode = MEPA_GPIO_MODE_ALT;
+gpio_conf.pp_enable = 1;
+gpio_conf.gpio_intrpt = MEPA_GPIO_INTR_A;
+
+mepa_gpio_mode_set(dev, &gpio_conf);
+
+/* Event Configuration */
+phy25g_event_conf_t    evt_conf;
+
+evt_conf.evt = LAN80XX_LINE_PCS1G_LINK_DOWN_INTR | LAN80XX_HOST_PCS1G_LINK_DOWN_INTR;
+evt_conf.enable = 1;
+evt_conf.intr_sel = LAN80XX_EVT_INTR_A;
+
+lan80xx_event_conf_set(dev, port_no, &evt_conf);
+
+/* Poll the Interrupt Status */
+phy25g_events_t        evt_poll;
+
+While(1) {
+    lan80xx_event_poll(dev, port_no, &evt_poll);
+}
+----
+
+== Extended Event Conf Set
+
+  * `lan80xx_ext_event_conf_set()` API is used to enable or Disable the Extended Interrupt Sources which Covers Interrupt Sources of PMAC and PMA
+
+[cols="1,1,1", options="header"]
+|===
+| Argument         		| Input/output     | Description
+| port_no			| Input            | Port Number of PHY
+| `phy25g_ext_event_conf_t`     | Input            | Interrupt Sources to be Configured
+|===
+
+Following are the Arguments of `phy25g_ext_event_conf_t`
+
+[%autowidth.stretch, options="header"]
+|===
+|Structure                | Arguments with description
+|`phy25g_ext_events_t`
+| Extented event source to be configured
+
+| enable
+| Enable or Disable selected extented Event sources
+
+| `phy25g_evt_src_sel_t`
+| Interrupt to be routed to INTRA or INTRB
+|===
+
+
+Following are the list of Interrupt Sources that `lan80xx_ext_event_conf_set()` API Provides:
+
+----
+#define LAN80XX_L3_FIFO_ERROR_INTR                     LAN80XX_EVENT_BIT(63)
+#define LAN80XX_L2_FIFO_ERROR_INTR                     LAN80XX_EVENT_BIT(62)
+#define LAN80XX_L1_FIFO_ERROR_INTR                     LAN80XX_EVENT_BIT(61)
+#define LAN80XX_L0_FIFO_ERROR_INTR                     LAN80XX_EVENT_BIT(60)
+#define LAN80XX_H3_FIFO_ERROR_INTR                     LAN80XX_EVENT_BIT(59)
+#define LAN80XX_H2_FIFO_ERROR_INTR                     LAN80XX_EVENT_BIT(58)
+#define LAN80XX_H1_FIFO_ERROR_INTR                     LAN80XX_EVENT_BIT(57)
+#define LAN80XX_H0_FIFO_ERROR_INTR                     LAN80XX_EVENT_BIT(56)
+#define LAN80XX_L3_COND_ALT_UNF_DET_INTR               LAN80XX_EVENT_BIT(55)
+#define LAN80XX_L2_COND_ALT_UNF_DET_INTR               LAN80XX_EVENT_BIT(54)
+#define LAN80XX_L1_COND_ALT_UNF_DET_INTR               LAN80XX_EVENT_BIT(53)
+#define LAN80XX_L0_COND_ALT_UNF_DET_INTR               LAN80XX_EVENT_BIT(52)
+#define LAN80XX_H3_COND_ALT_UNF_DET_INTR               LAN80XX_EVENT_BIT(51)
+#define LAN80XX_H2_COND_ALT_UNF_DET_INTR               LAN80XX_EVENT_BIT(50)
+#define LAN80XX_H1_COND_ALT_UNF_DET_INTR               LAN80XX_EVENT_BIT(49)
+#define LAN80XX_H0_COND_ALT_UNF_DET_INTR               LAN80XX_EVENT_BIT(48)
+#define LAN80XX_L3_COND_ALT_DET_INTR                   LAN80XX_EVENT_BIT(47)
+#define LAN80XX_L2_COND_ALT_DET_INTR                   LAN80XX_EVENT_BIT(46)
+#define LAN80XX_L1_COND_ALT_DET_INTR                   LAN80XX_EVENT_BIT(45)
+#define LAN80XX_L0_COND_ALT_DET_INTR                   LAN80XX_EVENT_BIT(44)
+#define LAN80XX_H3_COND_ALT_DET_INTR                   LAN80XX_EVENT_BIT(43)
+#define LAN80XX_H2_COND_ALT_DET_INTR                   LAN80XX_EVENT_BIT(42)
+#define LAN80XX_H1_COND_ALT_DET_INTR                   LAN80XX_EVENT_BIT(41)
+#define LAN80XX_H0_COND_ALT_DET_INTR                   LAN80XX_EVENT_BIT(40)
+#define LAN80XX_L3_SWITCH_INTR                         LAN80XX_EVENT_BIT(39)
+#define LAN80XX_L2_SWITCH_INTR                         LAN80XX_EVENT_BIT(38)
+#define LAN80XX_L1_SWITCH_INTR                         LAN80XX_EVENT_BIT(37)
+#define LAN80XX_L0_SWITCH_INTR                         LAN80XX_EVENT_BIT(36)
+#define LAN80XX_H3_SWITCH_INTR                         LAN80XX_EVENT_BIT(35)
+#define LAN80XX_H2_SWITCH_INTR                         LAN80XX_EVENT_BIT(34)
+#define LAN80XX_H1_SWITCH_INTR                         LAN80XX_EVENT_BIT(33)
+#define LAN80XX_H0_SWITCH_INTR                         LAN80XX_EVENT_BIT(32)
+#define LAN80XX_WPS0_FAILOVER_INTR                     LAN80XX_EVENT_BIT(31)
+#define LAN80XX_WPS1_FAILOVER_INTR                     LAN80XX_EVENT_BIT(30)
+#define LAN80XX_WPS0_CONN_FAULT_INTR                   LAN80XX_EVENT_BIT(29)
+#define LAN80XX_WPS1_CONN_FAULT_INTR                   LAN80XX_EVENT_BIT(28)
+#define LAN80XX_WPS0_FC_ACK_TIMER_INTR                 LAN80XX_EVENT_BIT(27)
+#define LAN80XX_WPS1_FC_ACK_TIMER_INTR                 LAN80XX_EVENT_BIT(26)
+#define LAN80XX_LINE_PMA_RXEI_FILTERED_INTR            LAN80XX_EVENT_BIT(25)
+#define LAN80XX_LINE_PMA_RESET_DONE_INTR               LAN80XX_EVENT_BIT(24)
+#define LAN80XX_HOST_PMA_RXEI_FILTERED_INTR            LAN80XX_EVENT_BIT(23)
+#define LAN80XX_HOST_PMA_RESET_DONE_INTR               LAN80XX_EVENT_BIT(22)
+#define LAN80XX_LINE_MAC_MM_PRMPT_UNEXP_TX_PFRM_INTR   LAN80XX_EVENT_BIT(21)
+#define LAN80XX_LINE_MAC_MM_PRMPT_UNEXP_RX_PFRM_INTR   LAN80XX_EVENT_BIT(20)
+#define LAN80XX_LINE_MAC_MM_PRMPT_ACTIVE_INTR          LAN80XX_EVENT_BIT(19)
+#define LAN80XX_HOST_MAC_MM_PRMPT_UNEXP_TX_PFRM_INTR   LAN80XX_EVENT_BIT(18)
+#define LAN80XX_HOST_MAC_MM_PRMPT_UNEXP_RX_PFRM_INTR   LAN80XX_EVENT_BIT(17)
+#define LAN80XX_HOST_MAC_MM_PRMPT_ACTIVE_INTR          LAN80XX_EVENT_BIT(16)
+#define LAN80XX_LINE_PMAC_RX_PREAMBLE_SHRINK           LAN80XX_EVENT_BIT(15)
+#define LAN80XX_LINE_PMAC_RX_PREAMBLE_MISMATCH         LAN80XX_EVENT_BIT(14)
+#define LAN80XX_LINE_PMAC_RX_PREAMBLE_ERR              LAN80XX_EVENT_BIT(13)
+#define LAN80XX_LINE_PMAC_RX_NON_STD_PREAMBLE_INTR     LAN80XX_EVENT_BIT(12)
+#define LAN80XX_LINE_PMAC_RX_MPLS_MC_INTR              LAN80XX_EVENT_BIT(11)
+#define LAN80XX_LINE_PMAC_RX_MPLS_UC_INTR              LAN80XX_EVENT_BIT(10)
+#define LAN80XX_LINE_PMAC_TX_UNDERFLOW_INTR            LAN80XX_EVENT_BIT(9)
+#define LAN80XX_LINE_PMAC_TX_ABORT_INTR                LAN80XX_EVENT_BIT(8)
+#define LAN80XX_HOST_PMAC_RX_PREAMBLE_SHRINK           LAN80XX_EVENT_BIT(7)
+#define LAN80XX_HOST_PMAC_RX_PREAMBLE_MISMATCH         LAN80XX_EVENT_BIT(6)
+#define LAN80XX_HOST_PMAC_RX_PREAMBLE_ERR              LAN80XX_EVENT_BIT(5)
+#define LAN80XX_HOST_PMAC_RX_NON_STD_PREAMBLE_INTR     LAN80XX_EVENT_BIT(4)
+#define LAN80XX_HOST_PMAC_RX_MPLS_MC_INTR              LAN80XX_EVENT_BIT(3)
+#define LAN80XX_HOST_PMAC_RX_MPLS_UC_INTR              LAN80XX_EVENT_BIT(2)
+#define LAN80XX_HOST_PMAC_TX_UNDERFLOW_INTR            LAN80XX_EVENT_BIT(1)
+#define LAN80XX_HOST_PMAC_TX_ABORT_INTR                LAN80XX_EVENT_BIT(0)
+----
+
+This API Provides Support to Configure the Interrupt Sources of *PMAC* and *PMA* blocks of the PHY.
+User can Enable or Disable the above listed Interrupt Sources by configuring `enable` field in `phy25g_ext_event_conf_t`.
+
+== Extended Event Conf Get
+
+  * `lan80xx_ext_event_conf_get()` -- Gets the List of Interrupt Sources that are Enabled through `lan80xx_ext_event_conf_set()` API
+
+[cols="1,1,1", options="header"]
+|===
+| Argument         | Input/output     | Description
+| port_no          | Input            | Port Number of PHY
+| ext_evt          | Output           | Lists Enabled Extended Interrupt Sources
+|===
+
+== Extended Event Poll
+The `lan80xx_ext_event_poll()` API checks the status of all interrupt sources enabled through `lan80xx_ext_event_conf_set()`.
+If an interrupt is triggered, the API clears it once recognized. This API will finally return a list of Interrupts Triggered and
+Cleared by the API.
+
+[cols="1,1,1", options="header"]
+|===
+| Argument         | Input/output     | Description
+| port_no          | Input            | Port Number of PHY
+| ext_evt          | Output           | Lists Enabled Extended Interrupts Triggered
+|===
+
+NOTE: User Application is expected to call `lan80xx_ext_event_poll()` in background of application to know whether Interrupt gets Triggered or not.

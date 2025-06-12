@@ -10,5 +10,6 @@
 #include <microchip/ethernet/phy/api/phy_ts.h>
 #include <microchip/ethernet/phy/api/phy_macsec.h>
 #include <microchip/ethernet/phy/api/phy_tc10.h>
+#include <microchip/ethernet/phy/api/phy_t1s.h>
 
 #endif // _MICROCHIP_ETHERNET_PHY_API_H_

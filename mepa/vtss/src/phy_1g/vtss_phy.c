@@ -4343,9 +4343,7 @@ static BOOL vtss_phy_chk_serdes_init_mac_mode_private(vtss_state_t              
             // Reg19G    1      0
             // Check to see if it's enabled
             if ((sys_rst == 0x1) && (ena_lane == 0x1) && (pll_fsm_ena == 0x1)) {
-                if ((if_mode == 0x3) && (qrate == 0) && (hrate == 0)) {
-                    micro_patch_mac_mode = VTSS_PORT_INTERFACE_QSGMII;
-                } else if ((if_mode == 0x1) && (qrate == 1) && (hrate == 0)) {
+                if ((if_mode == 0x1) && (qrate == 1) && (hrate == 0)) {
                     micro_patch_mac_mode = VTSS_PORT_INTERFACE_SGMII;
                 }
             }
@@ -4563,15 +4561,13 @@ static vtss_rc patch_array_set_value(vtss_state_t *vtss_state, vtss_port_no_t po
     if (lsb > 0) {
         arr_bit_lsb = lsb;
         arr_idx_lsb = arr_bit_lsb >> 3;
-        arr_bit_msb = msb;
-        arr_idx_msb = arr_bit_msb >> 3;
     } else {
         arr_bit_lsb = msb;
         arr_idx_lsb = arr_bit_lsb >> 3;
-        arr_bit_msb = msb;
-        arr_idx_msb = arr_bit_msb >> 3;
     }
 
+    arr_bit_msb = msb;
+    arr_idx_msb = arr_bit_msb >> 3;
     sz = (arr_bit_msb - arr_bit_lsb) + 1;
     if (sz > 8) {
         return (-101);
@@ -4750,7 +4746,10 @@ static vtss_rc vtss_phy_tesla_serdes_sd6g_1g_prbs_conf_private(vtss_state_t *vts
             // Modify bits 286-284  TEST_MODE=OFF
             VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES6G_DIG_CFG_TEST_MODE_6G + 2, VTSS_TESLA_SERDES6G_DIG_CFG_TEST_MODE_6G, VTSS_TESLA_SERDES_TEST_MODE_OFF));
         }
-    } else if (mcb_bus == 0 && slave_num > 0) {  // VTSS_PORT_INTERFACE_SGMII MACRO
+    }
+
+#if 0
+    if (mcb_bus == 0 && slave_num > 0) {  // VTSS_PORT_INTERFACE_SGMII MACRO
         // Modify bits 193-192  PRBS_SEL=PRBS7
         VTSS_RC(patch_array_set_value(vtss_state, port_no, VTSS_TESLA_SERDES1G_DIG_CFG_PRBS_SEL_1G + 1, VTSS_TESLA_SERDES1G_DIG_CFG_PRBS_SEL_1G, VTSS_TESLA_SERDES_PRBS_7));
 
@@ -4777,6 +4776,7 @@ static vtss_rc vtss_phy_tesla_serdes_sd6g_1g_prbs_conf_private(vtss_state_t *vts
             VTSS_I("port_no: %d, MAC = SGMII: Setting 1G MAC SerDes, mcb_bus: %d, slave: %d,  Cmd: 0x%x", port_no, mcb_bus, slave_num, micro_cmd);
         }
     }
+#endif
 
     // Step 3: Write the MCB Array back out to take effect
     VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));       // Switch back to micro/GPIO register-page
@@ -7879,6 +7879,41 @@ static vtss_rc vtss_phy_detect_base_ports_private(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
+//Function added for QSGMII Sync in Tesla PHY.
+// In - port_no - Phy port number.
+
+static vtss_rc vtss_phy_1g_qsgmii_sync_private(vtss_state_t *vtss_state,
+                                               const vtss_port_no_t port_no)
+{
+    u16 reg_val;
+
+    /* Get the current MAC Interface mode */
+    VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));
+    VTSS_RC(PHY_RD_PAGE(vtss_state, port_no, VTSS_PHY_MAC_MODE_AND_FAST_LINK, &reg_val));
+    reg_val = (reg_val >> 14) & 0x3;
+
+    /* Checks if the MAC Interface is QSGMII */
+    if(reg_val == VTSS_MAC_CONFIGURATION_QSGMII)
+    {
+        /* SGMII mode configs */
+        VTSS_I("port_no %u, Configuring SerDes for VTSS_PORT_INTERFACE_SGMII - 0x80F0 - force_reset = TRUE", port_no);
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));
+        VTSS_RC(VTSS_PHY_WARM_WR_MASKED_CHK_MASK(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x80F0, 0xFFFF, 0));
+        /* Check to ensure that 0x80E0 or 0x80F0 Microcommand has been applied */
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+
+        /* QSGMII mode configs */
+        VTSS_I("port_no %u, Configuring SerDes for VTSS_PORT_INTERFACE_QSGMII - 0x80E0 - force_reset = TRUE", port_no);
+        VTSS_RC(vtss_phy_page_gpio(vtss_state, port_no));
+        VTSS_RC(VTSS_PHY_WARM_WR_MASKED_CHK_MASK(vtss_state, port_no, VTSS_PHY_MICRO_PAGE, 0x80E0, 0xFFFF, 0));
+        /* Check to ensure that 0x80E0 or 0x80F0 Microcommand has been applied */
+        VTSS_RC(vtss_phy_wait_for_micro_complete(vtss_state, port_no));
+    }
+
+    VTSS_RC(vtss_phy_page_std(vtss_state, port_no));   // Go back to standard page.
+
+    return VTSS_RC_OK;
+}
 
 // Function that is called at boot, after port reset.
 // The function is calling the post initialization script (setting coma).
@@ -9062,6 +9097,9 @@ static vtss_rc vtss_phy_conf_set_private(vtss_state_t *vtss_state,
                 /* If clearing bit is desired, Clear the bit in the Register either before or after this Write */
                 if (!vtss_state->sync_calling_private) {
                     VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MAC_SERDES_PCS_CONTROL, 0xFFFF, new_reg_value));
+
+                    /* MEPA:984: Handling this to clear the ANEG Control bit (Bit 7) in register 16E3 */
+                    VTSS_RC(VTSS_PHY_WARM_WR_MASKED(vtss_state, port_no, VTSS_PHY_MAC_SERDES_PCS_CONTROL, new_reg_value, 0x0080));
                 }
                 // Setup Reg23E3
                 new_reg_value = 0;
@@ -9575,6 +9613,11 @@ vtss_rc vtss_phy_macsec_csr_wr_private(vtss_state_t         *vtss_state,
     u32 target_tmp = 0;
     //    u16 val;
 
+    if (port_no >= VTSS_PORT_ARRAY_SIZE) {
+        VTSS_N("port_no:%d out of range, higher that port_state arrary range", port_no);
+        return VTSS_RC_ERROR;
+    }
+
     // The only ones not accessible in non-MACsec devices are the MACsec ingress and egress blocks at 0x38 and 0x3C (for each port).
     // Everything else is accessible using the so-called macsec_csr_wr/rd functions using registers 17-20 in extended page 4 (as described in PS1046).
     if (!vtss_phy_can(vtss_state, port_no, VTSS_CAP_MACSEC) && (target == 0x38 || target == 0x3C)) {
@@ -9627,6 +9670,11 @@ vtss_rc vtss_phy_macsec_csr_rd_private(vtss_state_t         *vtss_state,
     u16 reg_value_lower;
     u16 reg_value_upper;
     u32 target_tmp = 0;
+
+    if (port_no >= VTSS_PORT_ARRAY_SIZE) {
+        VTSS_N("port_no:%d out of range, higher that port_state arrary range", port_no);
+        return VTSS_RC_ERROR;
+    }
 
     if (!vtss_phy_can(vtss_state, port_no, VTSS_CAP_MACSEC) && (target == 0x38 || target == 0x3C)) {
         VTSS_E("Port:%d, MACSEC to phy without MACSEC support, target:0x%X", port_no, target);
@@ -9683,6 +9731,12 @@ vtss_rc vtss_phy_macsec_csr_rd_64_private(vtss_state_t         *vtss_state,
     u64 value_64 = 0;
 
     *value = 0;
+
+    if (port_no >= VTSS_PORT_ARRAY_SIZE) {
+        VTSS_N("port_no:%d out of range, higher that port_state arrary range", port_no);
+        return VTSS_RC_ERROR;
+    }
+
     if (!vtss_phy_can(vtss_state, port_no, VTSS_CAP_MACSEC) && (target == 0x38 || target == 0x3C)) {
         VTSS_E("Port:%d, MACSEC to phy without MACSEC support, target:0x%X", port_no, target);
         return VTSS_RC_ERR_MACSEC_PHY_NOT_MACSEC_CAPABLE;
@@ -9857,10 +9911,13 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
         vtss_phy_decode_status_reg(port_no, reg, status);
 
         if((ps->family == VTSS_PHY_FAMILY_VIPER) || (ps->family == VTSS_PHY_FAMILY_TESLA)) {
+        /*Check for the Mac IF QSGMII/SGMII and update Status->link_down*/
             if((conf->mac_if == VTSS_PORT_INTERFACE_QSGMII) || (conf->mac_if == VTSS_PORT_INTERFACE_SGMII)) {
-        /* Set Link Down Indication based on latched in link_status in Reg01, Reg17 and Reg24*/
-                status->link_down = (((reg & (1 << 2)) | (reg24 & (1 << 2))) & (reg17 & (1 << 2)) ? 0 : 1);
-	    }
+            /* Set Link Down Indication based on latched in link_status in Reg01, Reg17 and Reg24*/
+                status->link_down = (((reg & (1 << 2)) || (reg24 & (1 << 2))) && (reg17 & (1 << 2)) ? 0 : 1);
+            }
+        } else {
+            status->link_down = ((reg & (1 << 2)) ? 0 : 1);
         }
 
         VTSS_RC(vtss_phy_page_std(vtss_state, port_no));
@@ -9880,11 +9937,12 @@ vtss_rc vtss_phy_status_get_private(vtss_state_t *vtss_state,
                 case VTSS_PHY_FAMILY_VIPER:
                 case VTSS_PHY_FAMILY_TESLA:
                     if((conf->mac_if == VTSS_PORT_INTERFACE_QSGMII) || (conf->mac_if == VTSS_PORT_INTERFACE_SGMII)) {
-                        status->link = (((reg & (1 << 2)) | (reg24 & (1<<2))) & (reg17 & (1<<2)) ? 1 : 0);
+                        status->link = (((reg & (1 << 2)) || (reg24 & (1<<2))) && (reg17 & (1<<2)) ? 1 : 0);
                     }
                     break;
                 default:
                     status->link = ((reg & (1 << 2)) ? 1 : 0);
+                    break;
             }
             VTSS_N("status->link = %d, port = %d, reg = 0x%X", status->link, port_no, reg);
 
@@ -12245,6 +12303,20 @@ vtss_rc vtss_phy_firmware_update(const vtss_inst_t    inst,
                                  u32 *const len)
 {
     vtss_rc      rc = VTSS_RC_ERROR;
+    return rc;
+}
+
+vtss_rc vtss_phy_1g_qsgmii_sync(const vtss_inst_t     inst,
+                                const vtss_port_no_t  port_no)
+{
+    vtss_state_t *vtss_state;
+    vtss_rc      rc;
+
+    VTSS_ENTER();
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+        rc = VTSS_RC_COLD(vtss_phy_1g_qsgmii_sync_private(vtss_state, port_no));
+    }
+    VTSS_EXIT();
     return rc;
 }
 
@@ -16010,6 +16082,18 @@ static vtss_rc vtss_phy_epg_gen_kat_frame_private(vtss_state_t *vtss_state, cons
     /*  0xC040 = EPG Enable, Run, 125 Byte Frames, IPG=96nsec, Dst=0001, Src=0000, Fixed Payload Pattern, Good FCS */
     /*  0x8040 = EPG Enable, Stop, 125 Byte Frames, IPG=96nsec, Dst=0001, Src=0000, Fixed Payload Pattern, Good FCS */
     /*  0xE840 = EPG Enable, Run, 64 Byte Frames, IPG=96nsec, Dst=0001, Src=0000, Fixed Payload Pattern, Good FCS */
+    if (pkt_sz == 64) {
+        VTSS_I("Configure EPG to send 300 x 64-byte packets, IPG=96ns (UDP) - Pattern = 0x013F - Not Using 8051 \n");
+        reg29e = 0x8840;  // Configure, but don't Run 64 byte
+    } else if (pkt_sz == 125) {
+        VTSS_I("Configure EPG to send 125-byte packets, IPG=96ns (UDP) - Pattern = 0x013F  \n");
+        reg29e = 0x8040;  // Configure, but don't Run 125 byte
+    } else {
+        VTSS_I("Configure EPG to send 300 x 125-byte packets, IPG=96ns (UDP) - Pattern = 0x013F - Not Using 8051 \n");
+        reg29e = 0x8040;  // Configure, but don't Run 125 byte
+    }
+
+#if 0
    if (pkt_sz == 64) {
         VTSS_I("Configure EPG to send 300 x 64-byte packets, IPG=96ns (UDP) - Pattern = 0x013F - Not Using 8051 \n");
         reg29e = 0x8840;  // Configure, but don't Run 64 byte
@@ -16026,6 +16110,7 @@ static vtss_rc vtss_phy_epg_gen_kat_frame_private(vtss_state_t *vtss_state, cons
         VTSS_I("Configure EPG to send 300 x 125-byte packets, IPG=96ns (UDP) - Pattern = 0x013F - Not Using 8051 \n");
         reg29e = 0x8040;  // Configure, but don't Run 125 byte
     }
+#endif
 
     /*  Set the DA and SA based upon the Match Mode for the EPG */
     reg29e |= (VTSS_PHY_EPG_DST_ADDR << 6) | (VTSS_PHY_EPG_SRC_ADDR << 2);
@@ -16107,7 +16192,7 @@ vtss_rc vtss_phy_epg_gen_kat_frame( const vtss_inst_t        inst,
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         if ((rc = vtss_phy_epg_gen_kat_frame_private (vtss_state, port_no, match)) != VTSS_RC_OK) {
             /* Ensure we return to the Std Page if Error */
-            vtss_phy_page_std(vtss_state, port_no);
+            rc = vtss_phy_page_std(vtss_state, port_no);
         }
     }
     VTSS_EXIT();

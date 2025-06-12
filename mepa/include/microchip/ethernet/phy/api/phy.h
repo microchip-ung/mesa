@@ -764,6 +764,17 @@ mepa_rc mepa_sqi_read(struct mepa_device *dev, uint32_t *const value);
 /**
  * \brief Set FEFI configuration
  *
+ *  \param dev     [IN]    Driver instance.
+ *  \temp          [OUT]   Stored chip temperature value.
+ *
+ *  \return
+ *    MEPA_RC_NOT_IMPLEMENTED when not supported.\n
+ *    MEPA_RC_OK on success.
+ **/
+mepa_rc mepa_chip_temp_get(struct mepa_device *dev, int16_t *const temp);
+
+/**
+ * \brief PHY write SOF value
  * \param dev   [IN]   Driver instance.
  * \param fefi_conf   [IN]   FEFI mode as input.
  *
@@ -938,7 +949,7 @@ mepa_rc mepa_selftest_read(struct mepa_device *dev, mepa_selftest_info_t *const 
  *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
  *   MEPA_RC_OK on success.
  **/
-mepa_rc mepa_prbs_set(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const mepa_conf);
+mepa_rc mepa_prbs_set(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, const mepa_phy_prbs_generator_conf_t *const mepa_conf);
 
 /**
  * \brief To Get the PRBS7 sequence configuration
@@ -962,7 +973,7 @@ mepa_rc mepa_prbs_get(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_p
  *   MEPA_RC_NOT_IMPLEMENTED when not supported. \n
  *   MEPA_RC_OK on success.
  **/
-mepa_rc mepa_prbs_monitor_set(struct mepa_device *dev, mepa_phy_prbs_monitor_conf_t *const value);
+mepa_rc mepa_prbs_monitor_set(struct mepa_device *dev, const mepa_phy_prbs_monitor_conf_t *const value);
 
 /**
  * \brief To Verify the PRBS7
@@ -1042,6 +1053,17 @@ mepa_rc mepa_warmstart_conf_get(struct mepa_device *dev, mepa_restart_t *const r
  **/
 
 mepa_rc mepa_warmstart_conf_set(struct mepa_device *dev, const mepa_restart_t restart);
+
+/**
+ * \brief To Set QSGMII Interface Synchronization
+ *
+ * \param dev        [IN]  Driver instance.
+ *
+ * \return
+ *   MEPA_RC_OK on success.
+ **/
+
+mepa_rc mepa_phy_qsgmii_sync(struct mepa_device *dev);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif
