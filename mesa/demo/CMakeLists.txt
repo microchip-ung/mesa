@@ -61,6 +61,7 @@ list (APPEND API_MESA_CACHE_AG_IN mesa/include/microchip/ethernet/switch/api/mrp
 list (APPEND API_MESA_CACHE_AG_IN mesa/include/microchip/ethernet/switch/api/packet.h)
 list (APPEND API_MESA_CACHE_AG_IN mesa/include/microchip/ethernet/switch/api/port.h)
 list (APPEND API_MESA_CACHE_AG_IN mesa/include/microchip/ethernet/switch/api/qos.h)
+list (APPEND API_MESA_CACHE_AG_IN mesa/include/microchip/ethernet/switch/api/hqos.h)
 list (APPEND API_MESA_CACHE_AG_IN mesa/include/microchip/ethernet/switch/api/security.h)
 list (APPEND API_MESA_CACHE_AG_IN mesa/include/microchip/ethernet/switch/api/synce.h)
 list (APPEND API_MESA_CACHE_AG_IN mesa/include/microchip/ethernet/switch/api/ts.h)

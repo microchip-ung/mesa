@@ -97,45 +97,52 @@
 #define RT_ALT_PPS_PIN                4
 #define RT_TOD_ACC_PIN                7 // The last PTP pin is not connected to GPIO but can be used for TOD access
 #elif defined(VTSS_ARCH_SPARX5)
-#define RT_CHIP_PORTS                 65
-#define RT_SERDES_10G_START           13
-#define RT_SERDES_25G_START           25
-#define RT_SERDES_CNT                 33
-#define RT_CMU_CNT                    14
-#define RT_BUFFER_MEMORY              4194280
-#define RT_BUFFER_REFERENCE           22795
-#define RT_RES_CFG_MAX_PORT_IDX       560
-#define RT_RES_CFG_MAX_PRIO_IDX       630
-#define RT_RES_CFG_MAX_COLOUR_IDX     638
-#define RT_CORE_QUEUE_CNT             40460
-#define RT_TAS_NUMBER_OF_LISTS        (0x7F + 1)
-#define RT_TAS_NUMBER_OF_PROFILES     100
-#define RT_TAS_NUMBER_OF_ENTRIES      (0x3FFF + 1)
-#define RT_HSCH_LAYERS                4
-#define RT_HSCH_L0_SES                5040
-#define RT_HSCH_L1_SES                64
-#define RT_HSCH_L2_SES                70
-#define RT_HSCH_L3_QSHPS              (5040 * 2)
-#define RT_HSCH_MAX_RATE_GROUP_0      1048568
-#define RT_HSCH_MAX_RATE_GROUP_1      2621420
-#define RT_HSCH_MAX_RATE_GROUP_2      10485680
-#define RT_HSCH_MAX_RATE_GROUP_3      26214200
+#define RT_CHIP_PORTS             65
+#define RT_SERDES_10G_START       13
+#define RT_SERDES_25G_START       25
+#define RT_SERDES_CNT             33
+#define RT_CMU_CNT                14
+#define RT_BUFFER_MEMORY          4194280
+#define RT_BUFFER_REFERENCE       22795
+#define RT_RES_CFG_MAX_PORT_IDX   560
+#define RT_RES_CFG_MAX_PRIO_IDX   630
+#define RT_RES_CFG_MAX_COLOUR_IDX 638
+#define RT_CORE_QUEUE_CNT         40460
+#define RT_TAS_NUMBER_OF_LISTS    (0x7F + 1)
+#define RT_TAS_NUMBER_OF_PROFILES 100
+#define RT_TAS_NUMBER_OF_ENTRIES  (0x3FFF + 1)
+#define RT_HSCH_LAYERS            4
+#define RT_HSCH_L0_SES            5040
+#define RT_HSCH_L1_SES            64
+#define RT_HSCH_L2_SES            70
+#define RT_HSCH_L3_QSHPS          (5040 * 2)
+#define RT_HSCH_MAX_RATE_GROUP_0  1048568
+#define RT_HSCH_MAX_RATE_GROUP_1  2621420
+#define RT_HSCH_MAX_RATE_GROUP_2  10485680
+#define RT_HSCH_MAX_RATE_GROUP_3  26214200
+#if !defined(VTSS_FEATURE_HQOS)
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_0 0
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_1 0
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_2 0
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_3 0
-#define RT_LB_GROUP_CNT               10
-#define RT_LB_SET_CNT                 4615
-#define RT_ACL_CNT_SIZE               4096
-#define RT_ES2_CNT_SIZE               2048
-#define RT_IP6PFX_CNT                 512
-#define RT_PGID_FA                    (2048 + 65)
-#define RT_DSM_CAL_MAX_DEVS_PER_TAXI  13
-#define RT_DSM_CAL_TAXIS              8
-#define RT_EXT_CLK_PIN                1 // PIN configuration for external clock
-#define RT_ALT_LDST_PIN               2
-#define RT_ALT_PPS_PIN                3
-#define RT_TOD_ACC_PIN                4 // The last PTP pin is not connected to GPIO but can be used for TOD access
+#else
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_0 1048568
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_1 2621420
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_2 6553550
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_3 10485680
+#endif
+#define RT_LB_GROUP_CNT              10
+#define RT_LB_SET_CNT                4615
+#define RT_ACL_CNT_SIZE              4096
+#define RT_ES2_CNT_SIZE              2048
+#define RT_IP6PFX_CNT                512
+#define RT_PGID_FA                   (2048 + 65)
+#define RT_DSM_CAL_MAX_DEVS_PER_TAXI 13
+#define RT_DSM_CAL_TAXIS             8
+#define RT_EXT_CLK_PIN               1 // PIN configuration for external clock
+#define RT_ALT_LDST_PIN              2
+#define RT_ALT_PPS_PIN               3
+#define RT_TOD_ACC_PIN               4 // The last PTP pin is not connected to GPIO but can be used for TOD access
 #else
 #define RT_CHIP_PORTS                 30
 #define RT_SERDES_10G_START           0
@@ -631,6 +638,22 @@ BOOL fa_is_high_speed_device(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent);
 #if defined(VTSS_FEATURE_QOS)
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+vtss_rc vtss_fa_qos_se_queue_shaper_conf_set(vtss_state_t        *vtss_state,
+                                             const vtss_port_no_t port_no,
+                                             u32                  se,
+                                             const vtss_shaper_t *shapers);
+vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t        *vtss_state,
+                                    const vtss_shaper_t *shaper,
+                                    u32                  layer,
+                                    u32                  se,
+                                    u32                  dlb_sense_port,
+                                    u32                  dlb_sense_qos);
+vtss_rc fa_qos_dwrr_conf_set(vtss_state_t     *vtss_state,
+                             u32               se,
+                             u32               layer,
+                             BOOL              dwrr_enable,
+                             u32               dwrr_cnt,
+                             const vtss_pct_t *dwrr_pct);
 vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 #if defined(VTSS_FEATURE_QOS_POLICER_DLB)
 vtss_rc vtss_fa_policer_conf_set(vtss_state_t            *vtss_state,
@@ -645,6 +668,13 @@ vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no
 vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s *vtss_state,
                                          const vtss_port_no_t port_no);
 #endif /* VTSS_FEATURE_QOS */
+
+#if defined(VTSS_FEATURE_HQOS)
+vtss_rc vtss_fa_hqos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+vtss_rc vtss_fa_hqos_debug_print(vtss_state_t                  *vtss_state,
+                                 lmu_ss_t                      *ss,
+                                 const vtss_debug_info_t *const info);
+#endif /* VTSS_FEATURE_HQOS */
 
 /* L2 functions */
 vtss_rc vtss_fa_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);

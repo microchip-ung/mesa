@@ -15,5 +15,6 @@ run %w{./suite_packet.rb}
 run %w{./suite_port.rb}
 run %w{./suite_protection.rb}
 run %w{./suite_qos.rb}
+run %w{./suite_hqos.rb}
 run %w{./suite_ts.rb}
 run %w{./suite_vop.rb}

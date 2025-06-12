@@ -583,13 +583,13 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
             end
             expected_tolerance << "#{tolerance},"
         end
-        $ts.pc.run("pcap_analyze.rb --frame-count pcp --pre-tx-sec #{pre_tx} --count-sec #{sec} --pcp_values #{expected_pcp} --exp-count #{expected_count} --exp-tolerance #{expected_tolerance} #{expected_cycle} /tmp/dump.pcap")
+        $ts.pc.try("pcap_analyze.rb --frame-count pcp --pre-tx-sec #{pre_tx} --count-sec #{sec} --pcp_values #{expected_pcp} --exp-count #{expected_count} --exp-tolerance #{expected_tolerance} #{expected_cycle} /tmp/dump.pcap")
     else
         sec_count = (sec_count_out*erate[0])/1000000000   # Number of outgoing frames per sec as a fraction of the full rate count
         sec_count = (sec_count < sec_count_in) ? sec_count : sec_count_in   # Number of outgoing frames cannot be larger than the number of incomming. In case of data rate and line speed shaping this could be calculated
         expected_count = frame_rate ? sec*erate[0] : sec*sec_count
         expected_tolerance = ((expected_count * etolerance[0]) / 100) + ((((expected_count * etolerance[0]) % 100) != 0) ? 1 : 0)
-        $ts.pc.run("pcap_analyze.rb --frame-count all --pre-tx-sec #{pre_tx} --count-sec #{sec} --exp-count #{expected_count} --exp-tolerance #{expected_tolerance} /tmp/dump.pcap")
+        $ts.pc.try("pcap_analyze.rb --frame-count all --pre-tx-sec #{pre_tx} --count-sec #{sec} --exp-count #{expected_count} --exp-tolerance #{expected_tolerance} /tmp/dump.pcap")
     end
 
     end # test

@@ -1190,6 +1190,28 @@ typedef struct {
 typedef u8 vtss_mpls_tc_t;
 
 /****************************************************************************
+ * HQoS types
+ ****************************************************************************/
+
+#ifdef VTSS_FEATURE_HQOS
+/** \brief HQoS entry identifier (HQoS ID) */
+typedef u16 vtss_hqos_id_t;
+
+#define VTSS_HQOS_ID_NONE   0xffff /**< Special HQoS ID value */
+#define VTSS_HQOS_QGRP_NONE 0xffff
+
+/** \brief HQoS port scheduling mode
+ *
+ * The scheduling mode for the port affects which egress QoS options are available.
+ * */
+typedef enum {
+    VTSS_HQOS_SCH_MODE_NORMAL, /**< Normal QoS configuration available for non-service traffic only
+                                  (default) */
+    VTSS_HQOS_SCH_MODE_HIERARCHICAL /**< Basic QoS configuration available per HQoS entry (HQoS) */
+} vtss_hqos_sch_mode_t;
+#endif
+
+/****************************************************************************
  * 1588 types
  ****************************************************************************/
 

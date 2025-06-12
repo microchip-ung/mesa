@@ -35,6 +35,7 @@ vtss_trace_conf_t vtss_trace_conf[VTSS_TRACE_GROUP_COUNT] = {
     [VTSS_TRACE_GROUP_PHY] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_PACKET] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_QOS] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
+    [VTSS_TRACE_GROUP_HQOS] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_L2] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_L3] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_SECURITY] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
@@ -44,7 +45,6 @@ vtss_trace_conf_t vtss_trace_conf[VTSS_TRACE_GROUP_COUNT] = {
     [VTSS_TRACE_GROUP_REG_CHECK] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_MPLS] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_HW_PROT] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
-    [VTSS_TRACE_GROUP_HQOS] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_VCAP] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_OAM] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
     [VTSS_TRACE_GROUP_MRP] = {.level = {VTSS_TRACE_LEVEL_ERROR, VTSS_TRACE_LEVEL_ERROR}},
@@ -187,6 +187,10 @@ static vtss_rc vtss_ail_create(vtss_state_t *vtss_state, BOOL create_pre)
 #if defined(VTSS_FEATURE_QOS)
     VTSS_RC(vtss_qos_inst_create(vtss_state));
 #endif /* VTSS_FEATURE_QOS */
+
+#if defined(VTSS_FEATURE_HQOS)
+    VTSS_RC(vtss_hqos_inst_create(vtss_state));
+#endif /* VTSS_FEATURE_HQOS */
 
 #if defined(VTSS_FEATURE_LAYER2)
     VTSS_RC(vtss_l2_inst_create(vtss_state));
@@ -843,6 +847,10 @@ static vtss_rc vtss_restart_sync(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_QOS)
     VTSS_RC(vtss_qos_restart_sync(vtss_state));
 #endif /* VTSS_FEATURE_QOS */
+
+#if defined(VTSS_FEATURE_HQOS)
+    VTSS_RC(vtss_hqos_restart_sync(vtss_state));
+#endif /* VTSS_FEATURE_HQOS */
 
 #if defined(VTSS_FEATURE_LAYER2)
     VTSS_RC(vtss_l2_restart_sync(vtss_state));

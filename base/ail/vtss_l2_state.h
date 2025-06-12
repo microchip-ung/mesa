@@ -202,6 +202,9 @@ typedef struct {
 #if defined(VTSS_FEATURE_VLAN_SVL)
     vtss_vid_t fid;
 #endif
+#if defined(VTSS_FEATURE_HQOS)
+    vtss_hqos_id_t hqos_id;
+#endif
 } vtss_vlan_entry_t;
 
 /* MSTP entry */

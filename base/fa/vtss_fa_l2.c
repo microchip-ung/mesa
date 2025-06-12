@@ -653,6 +653,12 @@ vtss_rc vtss_fa_vlan_update(vtss_state_t *vtss_state, vtss_vid_t vid)
            VTSS_F_ANA_L3_QGRP_CFG_QGRP_IDX(e->flags & VLAN_FLAGS_OT ? 1 : 0) |
                VTSS_F_ANA_L3_QGRP_CFG_QGRP_OAM_TYPE(0));
 #endif
+#if defined(VTSS_FEATURE_HQOS)
+    REG_WR(VTSS_ANA_L3_QGRP_CFG(vid),
+           VTSS_F_ANA_L3_QGRP_CFG_QGRP_IDX((e->hqos_id == VTSS_HQOS_ID_NONE) ? 0
+                                                                             : (e->hqos_id + 1)) |
+               VTSS_F_ANA_L3_QGRP_CFG_QGRP_OAM_TYPE(0));
+#endif
 
     return VTSS_RC_OK;
 }
@@ -923,6 +929,14 @@ vtss_rc vtss_cil_l2_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id
     REG_WR(VTSS_ANA_L2_QGRP_CFG(isdx), VTSS_F_ANA_L2_QGRP_CFG_QGRP_ENA(conf->ot ? 1 : 0) |
                                            VTSS_F_ANA_L2_QGRP_CFG_QGRP_IDX(1) |
                                            VTSS_F_ANA_L2_QGRP_CFG_QGRP_OAM_TYPE(0));
+#endif
+#if defined(VTSS_FEATURE_HQOS)
+    REG_WR(VTSS_ANA_L2_QGRP_CFG(isdx),
+           VTSS_F_ANA_L2_QGRP_CFG_QGRP_ENA((conf->hqos_id == VTSS_HQOS_ID_NONE) ? 0 : 1) |
+               VTSS_F_ANA_L2_QGRP_CFG_QGRP_IDX((conf->hqos_id == VTSS_HQOS_ID_NONE)
+                                                   ? 0
+                                                   : (conf->hqos_id + 1)) |
+               VTSS_F_ANA_L2_QGRP_CFG_QGRP_OAM_TYPE(0));
 #endif
 
     /* DLB/ISDX mappings */
@@ -3907,7 +3921,22 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_l2_init(vtss_state_t *vtss_state) { return VTSS_RC_OK; }
+static vtss_rc fa_l2_init(vtss_state_t *vtss_state)
+{
+    u32 isdx;
+
+    // Disable ISDX based QGRP classification
+    for (isdx = 0; isdx < 4096; isdx++) {
+        REG_WRM(VTSS_ANA_L2_QGRP_CFG(isdx), VTSS_F_ANA_L2_QGRP_CFG_QGRP_ENA(0),
+                VTSS_M_ANA_L2_QGRP_CFG_QGRP_ENA);
+    }
+#if defined(VTSS_FEATURE_HQOS)
+    for (u32 vid = 0; vid < 4096; vid++) {
+        vtss_state->l2.vlan_table[vid].hqos_id = VTSS_HQOS_ID_NONE;
+    }
+#endif
+    return VTSS_RC_OK;
+}
 
 static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
 {

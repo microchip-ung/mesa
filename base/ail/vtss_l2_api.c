@@ -1959,6 +1959,9 @@ vtss_rc vtss_vlan_vid_conf_set(const vtss_inst_t                 inst,
 #if defined(VTSS_FEATURE_VLAN_SVL)
         e->fid = conf->fid;
 #endif /* VTSS_FEATURE_VLAN_SVL */
+#if defined(VTSS_FEATURE_HQOS)
+        e->hqos_id = conf->hqos_id;
+#endif /* VTSS_FEATURE_HQOS */
         rc = vtss_cmn_vlan_members_set(vtss_state, vid);
     }
     VTSS_EXIT();

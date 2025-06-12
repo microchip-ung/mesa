@@ -395,6 +395,9 @@ vtss_rc vtss_cil_debug_info_print(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_QOS)
     VTSS_RC(vtss_fa_qos_debug_print(vtss_state, ss, info));
 #endif /* VTSS_FEATURE_QOS */
+#if defined(VTSS_FEATURE_HQOS)
+    VTSS_RC(vtss_fa_hqos_debug_print(vtss_state, ss, info));
+#endif /* VTSS_FEATURE_HQOS */
     VTSS_RC(vtss_fa_packet_debug_print(vtss_state, ss, info));
 #if defined(VTSS_FEATURE_AFI_SWC)
     VTSS_RC(vtss_fa_afi_debug_print(vtss_state, ss, info));
@@ -440,6 +443,10 @@ vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 #if defined(VTSS_FEATURE_QOS)
     VTSS_RC(vtss_fa_qos_init(vtss_state, cmd));
 #endif /* VTSS_FEATURE_QOS */
+
+#if defined(VTSS_FEATURE_HQOS)
+    VTSS_RC(vtss_fa_hqos_init(vtss_state, cmd));
+#endif /* VTSS_FEATURE_HQOS */
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
     VTSS_RC(vtss_fa_ts_init(vtss_state, cmd));

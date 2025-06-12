@@ -554,6 +554,25 @@ typedef struct {
 typedef uint8_t mesa_mpls_tc_t;
 
 /****************************************************************************
+ * HQoS types
+ ****************************************************************************/
+
+/** \brief HQoS entry identifier (HQoS ID) */
+typedef uint16_t mesa_hqos_id_t;
+
+#define MESA_HQOS_ID_NONE 0xffff /**< Special HQoS ID value */
+
+/** \brief HQoS port scheduling mode
+ *
+ * The scheduling mode for the port affects which egress QoS options are available.
+ * */
+typedef enum {
+    MESA_HQOS_SCH_MODE_NORMAL, /**< Normal QoS configuration available for non-service traffic only
+                                  (default) */
+    MESA_HQOS_SCH_MODE_HIERARCHICAL /**< Basic QoS configuration available per HQoS entry (HQoS) */
+} mesa_hqos_sch_mode_t;
+
+/****************************************************************************
  * 1588 types
  ****************************************************************************/
 

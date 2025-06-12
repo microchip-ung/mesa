@@ -14,6 +14,7 @@
 #include <microchip/ethernet/switch/api/port.h>
 #include <microchip/ethernet/switch/api/tsn.h>
 #include <microchip/ethernet/switch/api/qos.h>
+#include <microchip/ethernet/switch/api/hqos.h>
 #include <microchip/ethernet/switch/api/vop.h>
 #include <microchip/ethernet/switch/api/mrp.h>
 #include <microchip/ethernet/switch/api/l2.h>

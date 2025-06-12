@@ -1106,14 +1106,14 @@ static vtss_rc fa_qos_ingress_map_port_update(vtss_state_t        *vtss_state,
 }
 #endif
 
-static vtss_rc fa_qos_dwrr_conf_set(vtss_state_t *vtss_state,
-                                    u32           se,
-                                    u32           layer,
-                                    BOOL          dwrr_enable,
-                                    u32           dwrr_cnt,
-                                    vtss_pct_t   *dwrr_pct)
+vtss_rc fa_qos_dwrr_conf_set(vtss_state_t     *vtss_state,
+                             u32               se,
+                             u32               layer,
+                             BOOL              dwrr_enable,
+                             u32               dwrr_cnt,
+                             const vtss_pct_t *dwrr_pct)
 {
-    u8  dwrr_cost[8] = {0};
+    u8  dwrr_cost[64] = {0};
     u32 dwrr_num;
     u32 queue;
 
@@ -1129,8 +1129,8 @@ static vtss_rc fa_qos_dwrr_conf_set(vtss_state_t *vtss_state,
 #if defined(VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT)
         if (dwrr_cnt <= 1) {
             dwrr_cnt = 0;
-        } else if (dwrr_cnt > 8) {
-            dwrr_cnt = 8;
+        } else if (dwrr_cnt > 64) {
+            dwrr_cnt = 64;
         }
 #else
         // Default DWRR configuration is to use strict mode for the top two
@@ -1160,7 +1160,7 @@ static vtss_rc fa_qos_dwrr_conf_set(vtss_state_t *vtss_state,
             VTSS_M_HSCH_SE_CFG_SE_DWRR_CNT);
     // b. Cost for each input
     VTSS_RC(vtss_cmn_qos_weight2cost(dwrr_pct, dwrr_cost, dwrr_num, VTSS_QOS_DWRR_COST_BIT_WIDTH));
-    for (queue = 0; queue < 8; queue++) {
+    for (queue = 0; queue < 64; queue++) {
         REG_WRM(VTSS_HSCH_DWRR_ENTRY(queue), VTSS_F_HSCH_DWRR_ENTRY_DWRR_COST(dwrr_cost[queue]),
                 VTSS_M_HSCH_DWRR_ENTRY_DWRR_COST);
     }
@@ -1243,9 +1243,13 @@ static vtss_rc fa_qos_leak_list_init(vtss_state_t *vtss_state)
         }
     }
 
-#if defined(VTSS_FEATURE_QOS_OT)
-    if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
-        /* In the IT/OT scheduler hierarchy the queue (input) shaper layer is
+#if defined(VTSS_FEATURE_QOS_OT) && !defined(VTSS_FEATURE_HQOS)
+    // Run time check of OT feature if HQOS featuer is not defined
+    if (vtss_state->vtss_features[FEATURE_QOS_OT])
+#endif
+    {
+#if defined(VTSS_FEATURE_QOS_OT) || defined(VTSS_FEATURE_HQOS)
+        /* In the IT/OT scheduler hierarchy or HQOS the queue (input) shaper layer is
          * used */
         ll = &vtss_state->qos.leak_conf.layer[3];
         /* The QSHP Leak List groups are divided after maximum port speed. */
@@ -1257,8 +1261,8 @@ static vtss_rc fa_qos_leak_list_init(vtss_state_t *vtss_state)
         ll->group[3].max_rate = RT_HSCH_MAX_RATE_QSHP_GROUP_3;
 
         ll_group_init(ll, sys_clk_per_100ps);
-    }
 #endif
+    }
 
     VTSS_D("Exit");
     return VTSS_RC_OK;
@@ -1475,22 +1479,19 @@ static vtss_rc fa_qos_leak_list_link(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_FEATURE_QOS_OT)
-static vtss_rc fa_qos_ot_queue_shaper_conf_set(vtss_state_t        *vtss_state,
-                                               const vtss_port_no_t port_no)
+#if defined(VTSS_FEATURE_QOS_OT) || defined(VTSS_FEATURE_HQOS)
+vtss_rc vtss_fa_qos_se_queue_shaper_conf_set(vtss_state_t        *vtss_state,
+                                             const vtss_port_no_t port_no,
+                                             u32                  se,
+                                             const vtss_shaper_t *shapers)
 {
-    vtss_shaper_t *shaper;
-    u32 cir, cbs, queue, chip_port = VTSS_CHIP_PORT(port_no), layer = 3, port_max_rate = 0;
-    u32 se = FA_HSCH_L0_OT_SE(chip_port); /* On a port there is one scheduler
-                                             element and eight queue shapers */
+    const vtss_shaper_t *shaper;
+    // Note that layer 3 is a queue shaper layer only
+    u32            cir, cbs, queue, layer = 3, port_max_rate = 0;
     vtss_bitrate_t resolution;
     BOOL           unlink = TRUE;
 
-    if (!vtss_state->vtss_features[FEATURE_QOS_OT]) {
-        VTSS_E("Not supported");
-    }
-
-    VTSS_D("Enter - port_no: %u", port_no);
+    VTSS_D("Enter - port_no: %u  se %u", port_no, se);
 
     /* Find the port max speed */
     switch (vtss_state->port.map[port_no].max_bw) {
@@ -1514,7 +1515,7 @@ static vtss_rc fa_qos_ot_queue_shaper_conf_set(vtss_state_t        *vtss_state,
 
     /* Configure all queue shapers on the SE */
     for (queue = 0; queue < 8; queue++) {
-        shaper = &vtss_state->qos.port_conf[port_no].ot_shaper_queue[queue];
+        shaper = &shapers[queue];
 
         if (shaper->rate != VTSS_BITRATE_DISABLED) {
             unlink = FALSE;
@@ -1541,12 +1542,31 @@ static vtss_rc fa_qos_ot_queue_shaper_conf_set(vtss_state_t        *vtss_state,
 }
 #endif
 
-vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t  *vtss_state,
-                                    vtss_shaper_t *shaper,
-                                    u32            layer,
-                                    u32            se,
-                                    u32            dlb_sense_port,
-                                    u32            dlb_sense_qos)
+#if defined(VTSS_FEATURE_QOS_OT)
+static vtss_rc fa_qos_ot_queue_shaper_conf_set(vtss_state_t        *vtss_state,
+                                               const vtss_port_no_t port_no)
+{
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
+    u32 se = FA_HSCH_L0_OT_SE(chip_port); /* On a port there is one scheduler
+                                             element and eight queue shapers */
+
+    if (!vtss_state->vtss_features[FEATURE_QOS_OT]) {
+        VTSS_E("Not supported");
+    }
+
+    VTSS_D("Enter - port_no: %u", port_no);
+
+    return vtss_fa_qos_se_queue_shaper_conf_set(vtss_state, port_no, se,
+                                                vtss_state->qos.port_conf[port_no].ot_shaper_queue);
+}
+#endif
+
+vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t        *vtss_state,
+                                    const vtss_shaper_t *shaper,
+                                    u32                  layer,
+                                    u32                  se,
+                                    u32                  dlb_sense_port,
+                                    u32                  dlb_sense_qos)
 {
     u32                    cir, cbs;
     vtss_bitrate_t         resolution, frame_kbps;
@@ -1730,6 +1750,12 @@ vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_
 #if defined(VTSS_FEATURE_QOS_OT)
     vtss_pct_t ot_it_pct[2];
 #endif
+#if defined(VTSS_FEATURE_HQOS)
+    vtss_hqos_port_conf_t *hqos_conf = &vtss_state->hqos.port_conf[port_no];
+    BOOL hqos = (hqos_conf->sch_mode == VTSS_HQOS_SCH_MODE_HIERARCHICAL) ? TRUE : FALSE;
+#else
+    BOOL hqos = FALSE;
+#endif
 
     VTSS_D("Enter - port_no: %u", port_no);
 
@@ -1784,14 +1810,16 @@ vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_
                                     &conf->policer_ext_port[policer]));
     }
 
-    /* Queue policer configuration */
-    for (queue = 0; queue < 8; queue++) {
-        if ((conf->policer_queue[queue].level != old_conf->policer_queue[queue].level) ||
-            (conf->policer_queue[queue].rate !=
-             old_conf->policer_queue[queue].rate)) { /* Do not configure unchanged policer as it
-                                                        will be temporary disabled then */
-            VTSS_RC(fa_queue_policer_set(vtss_state, chip_port, queue,
-                                         &conf->policer_queue[queue]));
+    if (!hqos) {
+        /* Queue policer configuration */
+        for (queue = 0; queue < 8; queue++) {
+            if ((conf->policer_queue[queue].level != old_conf->policer_queue[queue].level) ||
+                (conf->policer_queue[queue].rate !=
+                 old_conf->policer_queue[queue].rate)) { /* Do not configure unchanged policer as it
+                                                             will be temporary disabled then */
+                VTSS_RC(fa_queue_policer_set(vtss_state, chip_port, queue,
+                                             &conf->policer_queue[queue]));
+            }
         }
     }
 
@@ -1802,8 +1830,10 @@ vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_
     // Fireant and Laguna has two different default scheduler hierarchy.
     // Laguna a OT/IT capable hierarchy wiht boyh layer 1 and layer 2
 #if defined(VTSS_ARCH_SPARX5)
-    VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 2, conf->dwrr_enable, conf->dwrr_cnt,
-                                 conf->queue_pct));
+    if (!hqos) {
+        VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 2, conf->dwrr_enable, conf->dwrr_cnt,
+                                     conf->queue_pct));
+    }
 #else
     VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 1, conf->dwrr_enable, conf->dwrr_cnt,
                                  conf->queue_pct));
@@ -1814,8 +1844,10 @@ vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_
     VTSS_RC(vtss_fa_qos_shaper_conf_set(vtss_state, &conf->shaper_port, 2, chip_port, chip_port,
                                         0));
 
-    // Queue shaper configuration.
-    VTSS_RC(fa_qos_queue_shaper_conf_set(vtss_state, port_no));
+    if (!hqos) {
+        // Queue shaper configuration.
+        VTSS_RC(fa_qos_queue_shaper_conf_set(vtss_state, port_no));
+    }
 
 #if defined(VTSS_FEATURE_QOS_OT)
     if (vtss_state->vtss_features[FEATURE_QOS_OT]) {

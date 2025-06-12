@@ -331,9 +331,14 @@ typedef enum {
                                    not global */
 
     // HQoS
-    MESA_CAP_HQOS_CNT = 1100,       /**< Number of HQoS entries */
-    MESA_CAP_HQOS_STAT_CNT_SERVICE, /**< Status for number of services */
-    MESA_CAP_HQOS_SHAPER_RT,        /**< HQoS shaper rate type */
+    MESA_CAP_HQOS = 1100,            /**< HQoS support */
+    MESA_CAP_HQOS_PORT_MAX,          /**< Maximum number of non-priority HQoS entries on a port*/
+    MESA_CAP_HQOS_PORT_PRIORITY_MAX, /**< Maximum number of priority HQoS entries on a port*/
+    MESA_CAP_HQOS_ID_MAX,            /**< Maximum number of HQOS-ID */
+
+    MESA_CAP_HQOS_CNT,              /**< Not in use */
+    MESA_CAP_HQOS_STAT_CNT_SERVICE, /**< Not in use*/
+    MESA_CAP_HQOS_SHAPER_RT,        /**< Not in use */
 
     // OAM
     MESA_CAP_VOP = 1200,               /**< OAM/VOE support */

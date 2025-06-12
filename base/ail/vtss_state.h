@@ -48,6 +48,10 @@
 #include "vtss_lk_packet_state.h"
 #endif
 
+#if defined(VTSS_FEATURE_HQOS)
+#include "vtss_hqos_state.h"
+#endif
+
 #if defined(VTSS_FEATURE_PACKET)
 #include "vtss_packet_state.h"
 #endif
@@ -309,6 +313,10 @@ typedef struct vtss_state_s {
 #if defined(VTSS_FEATURE_QOS)
     vtss_qos_state_t qos;
 #endif /* VTSS_FEATURE_QOS */
+
+#if defined(VTSS_FEATURE_HQOS)
+    vtss_hqos_state_t hqos;
+#endif /* VTSS_FEATURE_HQOS */
 
 #if defined(VTSS_FEATURE_PACKET)
     vtss_packet_state_t packet;

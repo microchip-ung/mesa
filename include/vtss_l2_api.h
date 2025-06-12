@@ -619,6 +619,9 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS_OT)
     BOOL ot; /**< Operational Traffic classification */
 #endif
+#if defined(VTSS_FEATURE_HQOS)
+    vtss_hqos_id_t hqos_id; /**< HQOS classification. VTSS_HQOS_ID_NONE means no classification  */
+#endif
 #if defined(VTSS_FEATURE_VLAN_SVL)
     vtss_vid_t fid; /**< Forwarding ID for SVL/IVL control */
 #endif              /* VTSS_FEATURE_VLAN_SVL */
@@ -1184,6 +1187,9 @@ typedef struct {
 #endif
 #if defined(VTSS_FEATURE_QOS_OT)
     BOOL ot; /**< Operational Traffic classification */
+#endif
+#if defined(VTSS_FEATURE_HQOS)
+    vtss_hqos_id_t hqos_id; /**< HQOS classification. VTSS_HQOS_ID_NONE means no classification */
 #endif
 } vtss_iflow_conf_t;
 

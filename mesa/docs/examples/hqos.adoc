@@ -1,0 +1,14 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+== Hierarchical Quality Of Service (HQOS) example
+
+Command 'example init hqos port_eg port_ig1 port_ig2 port_ig3' will configure three ports as ingress and one port as egress. +
+The egress port is configured in `MESA_HQOS_SCH_MODE_HIERARCHICAL` mode. +
+Use command 'example help hqos' to print details on the full configuration done by the init command.
+
+Frames can be injected on the three ingress port and based on the TAG VID be mapped to one of the four HQOS entries
+on egress port. +
+Frames can be injected on the three ingress port and based on the TAG PCP be mapped to different priorities
+for testing of the priority DWRR configuration. +

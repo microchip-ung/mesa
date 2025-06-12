@@ -1392,6 +1392,30 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_MPLS_LOCAL_TC_MAP: break;
 
     // HQoS
+    case MESA_CAP_HQOS:
+#if defined(VTSS_FEATURE_HQOS)
+        c = 1;
+#endif
+        break;
+
+    case MESA_CAP_HQOS_PORT_MAX:
+#if defined(VTSS_FEATURE_HQOS)
+        c = VTSS_HQOS_PORT_ENTRY_MAX;
+#endif
+        break;
+
+    case MESA_CAP_HQOS_PORT_PRIORITY_MAX:
+#if defined(VTSS_FEATURE_HQOS)
+        c = VTSS_HQOS_PORT_PRIORITY_ENTRY_MAX;
+#endif
+        break;
+
+    case MESA_CAP_HQOS_ID_MAX:
+#if defined(VTSS_FEATURE_HQOS)
+        c = VTSS_HQOS_ID_MAX;
+#endif
+        break;
+
     case MESA_CAP_HQOS_CNT: break;
 
     case MESA_CAP_HQOS_STAT_CNT_SERVICE: break;

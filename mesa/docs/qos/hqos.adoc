@@ -1,0 +1,74 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+:sectnums:
+
+== HQOS Functional Description.
+
+HQOS is short for Hierarchical Quality Of Service and covers a range of functionality that
+determines the handling of a frame at ingress and at egress direction.
+
+.The handling has impact on the frame on ingress:
+
+* Gives frame classified HQOS-ID.
+
+.The handling has impact on the frame on egress:
+
+* Scheduling the frame
+* Shaping the frame
+
+=== HQOS Ingress Detailed.
+The ingress frame process includes a classification of the HQOS-ID based on the classified VLAN
+or the VCE matching and IFLOW action.
+
+==== Ingress VLAN classification
+Per VLAN it can be configured (`mesa_vlan_vid_conf_t`) if a HQOS-ID is classified.
+This HQOS-ID is used to map to the HQOS Entry, when frame reach the egress port in `MESA_HQOS_SCH_MODE_HIERARCHICAL` mode.
+
+==== Ingress VCE classification
+Per VCE it can be configured (`mesa_vce_t`) in the action (`mesa_vce_action_t`) an ingress flow (`mesa_iflow_id_t`).
+The ingress flow is allocated and configured with a HQOS-ID (`mesa_iflow_conf_t`).
+This HQOS-ID is used to map to the HQOS Entry, when frame reach the egress port in `MESA_HQOS_SCH_MODE_HIERARCHICAL` mode.
+
+=== HQOS Egress Detailed.
+On a port in `MESA_HQOS_SCH_MODE_HIERARCHICAL` mode, the egress frame process includes mapping of the classified HQOS-ID
+to a HQOS entry.
+In order to add HQOS entries the port must be in `MESA_HQOS_SCH_MODE_HIERARCHICAL` mode.
+
+==== Egress Port Mode
+The port mode can be configured (`mesa_hqos_sch_mode_t`) to either `MESA_HQOS_SCH_MODE_NORMAL` or
+`MESA_HQOS_SCH_MODE_HIERARCHICAL` mode. HQOS entries can be added in `MESA_HQOS_SCH_MODE_HIERARCHICAL` mode.
+
+==== Egress HQOS entries
+When the port is in `MESA_HQOS_SCH_MODE_HIERARCHICAL` mode, HQOS entries (`mesa_hqos_conf_t`) can be added and deleted. +
+An entry is added with the port number and the HQOS-ID as the key. This implies that entries with the same HQOS-ID can
+be added to multiple ports. A frame with a classified HQOS-ID, will be mapped to the HQOS entry on egress with
+that HQOS-ID.
+
+==== Egress HQOS minimum rate
+When adding a HQOS entry a minimum rate is configured (`mesa_hqos_conf_t`). The minimum rates of all HQOS entries are used
+to calculate the internal DWRR configuration of the scheduler hierarchy. Due to the DWRR cost resolution in the chip, the
+actual minimum rate is not what is configured. The status (`mesa_hqos_status_t`) of the HQOS entry is containing the
+actual minimum rate.
+
+==== Egress HQOS Priority service
+When adding a HQOS entry it can be configured (`mesa_hqos_conf_t`) as a priority service. Multiple Priority HQOS entries
+will share the bandwidth according to there configured minimum rate, but will be scheduled strict on highest priority on the port.
+This means that Priority service frames are transmitted without sharing bandwidth with normal (non Priority service) frames.
+
+==== Egress HQOS Output shaper
+When adding a HQOS entry it can be configured (`mesa_hqos_conf_t`) with a output shaper. This shaper assures that the related
+service does not transmit with more than the configured rate.
+
+==== Egress HQOS Priority DWRR
+When adding a HQOS entry it can be configured (`mesa_hqos_conf_t`) with a Priority DWRR. Per priority a percentage of the
+bandwidth can be configured.
+
+=== MESA functions.
+
+- `mesa_hqos_port_conf_set(port)`
+- `mesa_hqos_port_conf_get(port)`
+- `mesa_hqos_add()`
+- `mesa_hqos_del()`
+- `mesa_hqos_get()`
+- `mesa_hqos_status_get()`

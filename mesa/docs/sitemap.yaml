@@ -111,6 +111,7 @@ pages:
         - src: "mesa/docs/tsn/tsn.adoc"
         - src: "mesa/docs/l3/l3.adoc"
         - src: "mesa/docs/qos/qos.adoc"
+        - src: "mesa/docs/qos/hqos.adoc"
         - src: "mesa/docs/acl/acl.adoc"
         - src: "mesa/docs/vop/vop.adoc"
         - src: "mesa/docs/mrp/mrp.adoc"
@@ -167,6 +168,12 @@ pages:
           - src: "mesa/docs/examples/qos-ct.adoc"
             name: "Description"
           - src: "mesa/demo/examples/qos-ct.c"
+
+        - name: "Hierarchical QoS"
+          pages:
+          - src: "mesa/docs/examples/hqos.adoc"
+            name: "Description"
+          - src: "mesa/demo/examples/hqos.c"
 
         - name: "TSN TAS"
           pages:
@@ -245,6 +252,7 @@ pages:
         - src:  "mesa/include/microchip/ethernet/switch/api/port.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/port_list.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/qos.h"
+        - src:  "mesa/include/microchip/ethernet/switch/api/hqos.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/security.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/synce.h"
         - src:  "mesa/include/microchip/ethernet/switch/api/ts.h"

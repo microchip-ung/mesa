@@ -313,6 +313,7 @@ static const char *const vtss_debug_group_name[VTSS_DEBUG_GROUP_COUNT] = {
     [VTSS_DEBUG_GROUP_MAC_TABLE] = "MAC Table",
     [VTSS_DEBUG_GROUP_ACL] = "ACL",
     [VTSS_DEBUG_GROUP_QOS] = "QoS",
+    [VTSS_DEBUG_GROUP_HQOS] = "HQoS",
     [VTSS_DEBUG_GROUP_AGGR] = "Aggregation",
     [VTSS_DEBUG_GROUP_GLAG] = "Global aggregation",
     [VTSS_DEBUG_GROUP_STP] = "Spanning Tree",
@@ -613,6 +614,10 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t                  *vtss_state,
 #if defined(VTSS_FEATURE_QOS)
     vtss_qos_debug_print(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_QOS */
+
+#if defined(VTSS_FEATURE_HQOS)
+    vtss_hqos_debug_print(vtss_state, ss, info);
+#endif /* VTSS_FEATURE_HQOS */
 
 #if defined(VTSS_FEATURE_EVC_POLICERS)
     if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_EVC)) {

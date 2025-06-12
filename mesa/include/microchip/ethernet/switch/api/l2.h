@@ -281,12 +281,13 @@ mesa_rc mesa_vlan_port_members_set(const mesa_inst_t       inst,
 
 // VLAN ID configuration
 typedef struct {
-    mesa_bool_t    learning;       // Enable/disable learning
-    mesa_bool_t    flooding;       // Enable/disable flooding
-    mesa_bool_t    mirror;         // Enable/disable mirroring
-    mesa_bool_t    ingress_filter; // Ingress filtering
-    mesa_bool_t ot CAP(QOS_OT);    // Operational Traffic classification
-    mesa_vid_t fid CAP(L2_SVL);    // Forwarding ID for SVL/IVL control
+    mesa_bool_t            learning;       // Enable/disable learning
+    mesa_bool_t            flooding;       // Enable/disable flooding
+    mesa_bool_t            mirror;         // Enable/disable mirroring
+    mesa_bool_t            ingress_filter; // Ingress filtering
+    mesa_bool_t ot         CAP(QOS_OT);    // Operational Traffic classification
+    mesa_vid_t fid         CAP(L2_SVL);    // Forwarding ID for SVL/IVL control
+    mesa_hqos_id_t hqos_id CAP(HQOS);      // HQOS classification. MESA_HQOS_ID_NONE to disable.
 } mesa_vlan_vid_conf_t;
 
 // Get VLAN ID configuration
@@ -680,6 +681,7 @@ typedef struct {
     mesa_psfp_iflow_conf_t psfp     CAP(L2_PSFP); // PSFP ingress flow configuration
     mesa_bool_t cut_through_disable CAP(QOS_EGRESS_QUEUE_CUT_THROUGH); // Force store-and-forward
     mesa_bool_t ot                  CAP(QOS_OT); // Operational Traffic classification
+    mesa_hqos_id_t hqos_id          CAP(HQOS); // HQOS classification MESA_HQOS_ID_NONE to disable.
 } mesa_iflow_conf_t;
 
 // Get ingress flow configuration.

@@ -353,12 +353,16 @@
 #if !defined(VTSS_ARCH_LAIKA)
 #define VTSS_FEATURE_SYNCE /**< SYNCE - L1 syncronization feature */
 #endif
+
 #endif // !VTSS_OPT_LIGHT
 #endif // VTSS_ARCH_FA
 
 // VTSS_ARCH_SPARX5 specific features
 #if defined(VTSS_ARCH_SPARX5)
 #define VTSS_FEATURE_SD_25G /**< SerDes 25G */
+#if !VTSS_OPT_LIGHT
+#define VTSS_FEATURE_HQOS /**< Hierarchical Quality of Service */
+#endif
 #endif
 
 // VTSS_ARCH_LAN969X specific features

@@ -19,6 +19,7 @@ run %w{./example_packet_rx_tx.rb}
 run %w{./example_port_conf_bulk.rb}
 run %w{./example_port_dynamic.rb}
 run %w{./example_qos-time-aware-scheduler.rb}
+run %w{./example_hqos.rb}
 run %w{./example_redbox.rb}
 run %w{./example_ts_transparent_clock.rb}
 run %w{./example_tsn_fp.rb}

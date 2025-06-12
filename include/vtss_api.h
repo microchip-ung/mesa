@@ -35,6 +35,10 @@
 #include <vtss_qos_api.h>
 #endif
 
+#ifdef VTSS_FEATURE_HQOS
+#include <vtss_hqos_api.h>
+#endif
+
 #ifdef VTSS_FEATURE_AFI_SWC
 #include <vtss_afi_api.h>
 #endif
