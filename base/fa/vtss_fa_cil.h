@@ -73,6 +73,7 @@
 #define RT_TAS_NUMBER_OF_ENTRIES      (0x1FFF + 1)
 #define RT_HSCH_LAYERS                4
 #define RT_HSCH_L0_SES                1480
+#define RT_HSCH_SE_HIGH               1184
 #define RT_HSCH_L1_SES                37
 #define RT_HSCH_L2_SES                37
 #define RT_HSCH_L3_QSHPS              (1480 * 2)
@@ -113,6 +114,7 @@
 #define RT_TAS_NUMBER_OF_ENTRIES  (0x3FFF + 1)
 #define RT_HSCH_LAYERS            4
 #define RT_HSCH_L0_SES            5040
+#define RT_HSCH_SE_HIGH           4480
 #define RT_HSCH_L1_SES            64
 #define RT_HSCH_L2_SES            70
 #define RT_HSCH_L3_QSHPS          (5040 * 2)
@@ -160,6 +162,7 @@
 #define RT_TAS_NUMBER_OF_ENTRIES      (0x1FFF + 1)
 #define RT_HSCH_LAYERS                4
 #define RT_HSCH_L0_SES                1120
+#define RT_HSCH_SE_HIGH               1120
 #define RT_HSCH_L1_SES                32
 #define RT_HSCH_L2_SES                35
 #define RT_HSCH_L3_QSHPS              1120
