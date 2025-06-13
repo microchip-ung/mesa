@@ -3926,12 +3926,12 @@ static vtss_rc fa_l2_init(vtss_state_t *vtss_state)
     u32 isdx;
 
     // Disable ISDX based QGRP classification
-    for (isdx = 0; isdx < 4096; isdx++) {
+    for (isdx = 0; isdx < (VTSS_SDX_CNT + 1); isdx++) {
         REG_WRM(VTSS_ANA_L2_QGRP_CFG(isdx), VTSS_F_ANA_L2_QGRP_CFG_QGRP_ENA(0),
                 VTSS_M_ANA_L2_QGRP_CFG_QGRP_ENA);
     }
 #if defined(VTSS_FEATURE_HQOS)
-    for (u32 vid = 0; vid < 4096; vid++) {
+    for (u32 vid = 0; vid < VTSS_VIDS; vid++) {
         vtss_state->l2.vlan_table[vid].hqos_id = VTSS_HQOS_ID_NONE;
     }
 #endif

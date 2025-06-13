@@ -1116,6 +1116,7 @@ vtss_rc fa_qos_dwrr_conf_set(vtss_state_t     *vtss_state,
     u8  dwrr_cost[64] = {0};
     u32 dwrr_num;
     u32 queue;
+    u32 dwrr_cnt_max = 8;
 
     VTSS_D("Enter  se %u  layer %u  dwrr_enable %u  dwrr_cnt %u  dwrr_pct %u-%u-%u", se, layer,
            dwrr_enable, dwrr_cnt, dwrr_pct[0], dwrr_pct[1], dwrr_pct[2]);
@@ -1125,12 +1126,17 @@ vtss_rc fa_qos_dwrr_conf_set(vtss_state_t     *vtss_state,
     // 1) Determine the number of queues in DWRR mode.
     // Note: We can only have between 2 and 8 queues in DWRR mode,
     // otherwise DWRR does not make sense and we run in strict mode.
+
+#if defined(VTSS_FEATURE_HQOS)
+    dwrr_cnt_max = 64;
+#endif
+
     if (dwrr_enable) {
 #if defined(VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT)
         if (dwrr_cnt <= 1) {
             dwrr_cnt = 0;
-        } else if (dwrr_cnt > 64) {
-            dwrr_cnt = 64;
+        } else if (dwrr_cnt > dwrr_cnt_max) {
+            dwrr_cnt = dwrr_cnt_max;
         }
 #else
         // Default DWRR configuration is to use strict mode for the top two
@@ -1160,7 +1166,7 @@ vtss_rc fa_qos_dwrr_conf_set(vtss_state_t     *vtss_state,
             VTSS_M_HSCH_SE_CFG_SE_DWRR_CNT);
     // b. Cost for each input
     VTSS_RC(vtss_cmn_qos_weight2cost(dwrr_pct, dwrr_cost, dwrr_num, VTSS_QOS_DWRR_COST_BIT_WIDTH));
-    for (queue = 0; queue < 64; queue++) {
+    for (queue = 0; queue < dwrr_cnt_max; queue++) {
         REG_WRM(VTSS_HSCH_DWRR_ENTRY(queue), VTSS_F_HSCH_DWRR_ENTRY_DWRR_COST(dwrr_cost[queue]),
                 VTSS_M_HSCH_DWRR_ENTRY_DWRR_COST);
     }
