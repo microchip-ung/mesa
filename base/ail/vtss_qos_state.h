@@ -108,6 +108,10 @@ typedef struct {
 #define VTSS_JR_SDX_CNT  1023
 #define VTSS_JR_POL_CNT  256  /* EVC policers */
 #define VTSS_JR_STAT_CNT 1024 /* EVC statistics */
+#elif defined(VTSS_ARCH_LAIKA)
+#define VTSS_JR_SDX_CNT  2047
+#define VTSS_JR_POL_CNT  256  /* EVC policers */
+#define VTSS_JR_STAT_CNT 2048 /* EVC statistics */
 #else
 #define VTSS_JR_SDX_CNT  4095
 #define VTSS_JR_POL_CNT  4096 /* EVC policers */
