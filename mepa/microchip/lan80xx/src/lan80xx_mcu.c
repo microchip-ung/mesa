@@ -875,21 +875,20 @@ mepa_rc lan80xx_mcu_reset(const mepa_device_t *dev)
 static mepa_rc authenticate_fw_image()
 {
     mepa_rc rc = MEPA_RC_OK;
+    struct sha256_buff sha256_ctx;
     unsigned char sha256_out[32] = {0};
 
-    rc = mbedtls_sha256_ret(gau8FwImageData, gu32FwImageLen, sha256_out, FALSE);
-    if (rc != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "sha generation failed");
+    sha256_init(&sha256_ctx);
+    sha256_update(&sha256_ctx, gau8FwImageData, gu32FwImageLen);
+    sha256_finalize(&sha256_ctx);
+    sha256_read(&sha256_ctx, sha256_out);
+    /*
+     * Compare the calculated sha256 checksum
+     * with one that come along with firmware image
+     */
+    if (memcmp(sha256_out, gau8Sha256Sum, 32) != 0) {
+        T_E(MEPA_TRACE_GRP_GEN, "SHA checksum failed!");
         rc = MEPA_RC_ERROR;
-    } else {
-        /*
-        * Compare the calculated sha256 checksum
-        * with one that come along with firmware image
-        */
-        if (memcmp(sha256_out, gau8Sha256Sum, 32) != 0) {
-            T_E(MEPA_TRACE_GRP_GEN, "SHA checksum failed!");
-            rc = MEPA_RC_ERROR;
-        }
     }
 
     return rc;

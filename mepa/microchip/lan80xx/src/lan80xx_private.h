@@ -17,95 +17,88 @@
 #define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 
-#define LAN80XX_UINT_8_MAX_VALUE 255
+#define LAN80XX_UINT_8_MAX_VALUE                (255U)
 
-#define LAN80XX_EYE_SCAN_POLL_DELAY_10MS 10    /* Polling to eye scan status bit for 500 ms */
-#define LAN80XX_EYE_SCAN_MAX_VREF_AMPLITUDE 127  /* Eye san reference voltage amplitude */
-#define LAN80XX_EYE_SCAN_RESULT_REG_COUNT 8  /* Eye scan results are stored in registers LANE_D0 to D8 */
-#define LAN80XX_PHY_TS_FIFO_MAX_ENTRIES (16)
-#define LAN80XX_DFE_NUM_OF_TAP 5
-#define LAN80XX_DFE_ADAPTIVE_MODE_ENA 1
-#define LAN80XX_DFE_MANUAL_MODE_ENABLE 0x3F
-#define LAN80XX_DFE_ADAP_TAP_ENABLE 0x1F
-#define LAN80XX_GPIO_PINS_SLOT_0 32
-#define LAN80XX_PHY_TS_FIFO_MAX_ENTRIES (16)
-#define LAN80XX_I2C_SCL_PRESCALAR_INVALID 0x003B
+/* Polling to eye scan status bit for 500 ms */
+#define LAN80XX_EYE_SCAN_POLL_DELAY_10MS        (10U)
+/* Eye scan reference voltage amplitude */
+#define LAN80XX_EYE_SCAN_MAX_VREF_AMPLITUDE     (127U)
+/* Eye scan results are stored in registers LANE_D0 to D8 */
+#define LAN80XX_EYE_SCAN_RESULT_REG_COUNT       (8U)
+#define LAN80XX_PHY_TS_FIFO_MAX_ENTRIES         (16U)
+#define LAN80XX_DFE_NUM_OF_TAP                  (5U)
+#define LAN80XX_DFE_ADAPTIVE_MODE_ENA           (1U)
+#define LAN80XX_DFE_MANUAL_MODE_ENABLE          (0x3FU)
+#define LAN80XX_DFE_ADAP_TAP_ENABLE             (0x1FU)
+#define LAN80XX_GPIO_PINS_SLOT_0                (32U)
+#define LAN80XX_I2C_SCL_PRESCALAR_INVALID       (0x003BU)
 
+#define MCU_TEMP_THRESHOLD_REG_ADDR             (0x00080056U)
+#define MCU_TEMP_THRESHOLD_BYTE_LEN             (4U)
+/* Default Temperature threshold Value when User not configures the Threshold: 105 degree Celsius */
+#define MCU_DEFAULT_TEMP_THRESHOLD              (105U)
 
-#define MCU_TEMP_THRESHOLD_REG_ADDR 0x00080056
-#define MCU_TEMP_THRESHOLD_BYTE_LEN 4
-#define MCU_DEFAULT_TEMP_THRESHOLD  105 /* Default Temeperature threshold Value when User not configures the Threshold 105 degree Celcius*/
-/* PVT temperature sensor constants from Silicon DOS B.6*/
-#define LAN80XX_PVT_CONST_Y  352.3
-#define LAN80XX_PVT_CONST_K  109.4
-#define LAN80XX_PVT_RESOL    4096
+/* PVT temperature sensor constants from Silicon DOS B.6 */
+#define LAN80XX_PVT_CONST_Y                     (352.3)
+/* If you want to enforce float/double, use (352.3F) or (352.3) as needed */
+#define LAN80XX_PVT_CONST_K                     (109.4)
+#define LAN80XX_PVT_RESOL                       (4096U)
 
 /* GPIO Numbers */
-#define LAN80XX_GPIO_6   6
-#define LAN80XX_GPIO_7   7
-#define LAN80XX_GPIO_14  14
-#define LAN80XX_GPIO_15  15
-#define LAN80XX_GPIO_22  22
-#define LAN80XX_GPIO_23  23
-#define LAN80XX_GPIO_30  30
-#define LAN80XX_GPIO_31  31
-#define LAN80XX_GPIO_34  34
-#define LAN80XX_GPIO_35  35
-#define LAN80XX_GPIO_36  36
-#define LAN80XX_GPIO_37  37
-#define LAN80XX_GPIO_38  38
-#define LAN80XX_GPIO_39  39
+#define LAN80XX_GPIO_6                          (6U)
+#define LAN80XX_GPIO_7                          (7U)
+#define LAN80XX_GPIO_14                         (14U)
+#define LAN80XX_GPIO_15                         (15U)
+#define LAN80XX_GPIO_22                         (22U)
+#define LAN80XX_GPIO_23                         (23U)
+#define LAN80XX_GPIO_30                         (30U)
+#define LAN80XX_GPIO_31                         (31U)
+#define LAN80XX_GPIO_34                         (34U)
+#define LAN80XX_GPIO_35                         (35U)
+#define LAN80XX_GPIO_36                         (36U)
+#define LAN80XX_GPIO_37                         (37U)
+#define LAN80XX_GPIO_38                         (38U)
+#define LAN80XX_GPIO_39                         (39U)
+
 
 /* MAC block Config values */
-#define LAN80XX_MAC_FC_BUFF_STICY_MASK 0xffffff
-#define LAN80XX_LINE_MAC_ADDRESS_LSB   0x31fd42cc
-#define LAN80XX_LINE_MAC_ADDRESS_MSB   0x3e67
-#define LAN80XX_HOST_MAC_ADDRESS_LSB   0xeaab6628
-#define LAN80XX_HOST_MAC_ADDRESS_MSB   0xa6c4
-#define LAN80XX_MAC_MAXLEN             65280
-#define LAN80XX_LINE_MAC_TAGS_CFG_0    0x10
-#define LAN80XX_LINE_MAC_TAGS_CFG_1    0x91999919
-#define LAN80XX_LINE_MAC_TAGS_CFG_2    0x92000010
-#define LAN80XX_HOST_MAC_TAGS_CFG_0    0x88180010
-#define LAN80XX_HOST_MAC_TAGS_CFG_1    0x91000010
-#define LAN80XX_HOST_MAC_TAGS_CFG_2    0x92000010
-#define LAN80XX_LINE_MAC_TX_FRM_CTRL   0x24290000
-#define LAN80XX_LINE_MAC_TX_FRM_CTRL_2 0xffff
-#define LAN80XX_HOST_MAC_TX_FRM_CTRL   0x34c60000
-#define LAN80XX_HOST_MAC_TX_FRM_CTRL_2 0xffff
+#define LAN80XX_MAC_FC_BUFF_STICY_MASK         (0xFFFFFFU)
+#define LAN80XX_LINE_MAC_ADDRESS_LSB           (0x31FD42CCUL)
+#define LAN80XX_LINE_MAC_ADDRESS_MSB           (0x3E67U)
+#define LAN80XX_HOST_MAC_ADDRESS_LSB           (0xEAAB6628UL)
+#define LAN80XX_HOST_MAC_ADDRESS_MSB           (0xA6C4U)
+#define LAN80XX_MAC_MAXLEN                     (65280U)
+#define LAN80XX_LINE_MAC_TAGS_CFG_0            (0x10U)
+#define LAN80XX_LINE_MAC_TAGS_CFG_1            (0x91999919UL)
+#define LAN80XX_LINE_MAC_TAGS_CFG_2            (0x92000010UL)
+#define LAN80XX_HOST_MAC_TAGS_CFG_0            (0x88180010UL)
+#define LAN80XX_HOST_MAC_TAGS_CFG_1            (0x91000010UL)
+#define LAN80XX_HOST_MAC_TAGS_CFG_2            (0x92000010UL)
+#define LAN80XX_LINE_MAC_TX_FRM_CTRL           (0x24290000UL)
+#define LAN80XX_LINE_MAC_TX_FRM_CTRL_2         (0xFFFFU)
+#define LAN80XX_HOST_MAC_TX_FRM_CTRL           (0x34C60000UL)
+#define LAN80XX_HOST_MAC_TX_FRM_CTRL_2         (0xFFFFU)
 
-#define LAN80XX_PMA_DATA_WIDTH_10BIT            0
-#define LAN80XX_PMA_DATA_WIDTH_40BIT            4
-/* Clause 37 Formate */
-
-/**
- * Advertisement Word (Refer to IEEE 802.3 Clause 37):
- *  MSB                                                                         LSB
- *  D15  D14  D13  D12  D11  D10   D9   D8   D7   D6   D5   D4   D3   D2   D1   D0
- * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
- * | NP | Ack| RF2| RF1|rsvd|rsvd|rsvd| PS2| PS1| HD | FD |rsvd|rsvd|rsvd|rsvd|rsvd|
- * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
- **/
-#define LAN80XX_CALUSE37_ACK_BIT_POS     14
-#define LAN80XX_CALUSE37_REMOTE_FAUL_POS 12
-#define LAN80XX_CLAUSE37_ASYM_PAUSE_POS  8
-#define LAN80XX_CLAUSE37_SYM_PAUSE_POS   7
-#define LAN80XX_CLAUSE37_FULL_DUPLEX_POS 5
-#define LAN80XX_CLAUSE37_HALF_DUPLEX_POS 6
-
+#define LAN80XX_PMA_DATA_WIDTH_10BIT           (0U)
+#define LAN80XX_PMA_DATA_WIDTH_40BIT           (4U)
 
 /* Selecting the INTR 0 or INTR 1 for Channel Level Interrupts */
-#define LAN80XX_LINE_INTRUPT_INTR0     0x3FC00   /* Line Interrupts Routing through INTR 0 */
-#define LAN80XX_LINE_INTRUPT_INTR1     0xC03C0   /* Line Interrupts Routing through INTR 1 */
-#define LAN80XX_HOST_INTRUPT_INTR0     0x3C      /* Host Interrupt  Routing through INTR 0 */
-#define LAN80XX_HOST_INTRUPT_INTR1     0x3       /* Host Interrupts Routing through INTR 1 */
+/* Line Interrupts Routing through INTR 0 */
+#define LAN80XX_LINE_INTRUPT_INTR0             (0x3FC00U)
+/* Line Interrupts Routing through INTR 1 */
+#define LAN80XX_LINE_INTRUPT_INTR1             (0xC03C0U)
+/* Host Interrupt Routing through INTR 0 */
+#define LAN80XX_HOST_INTRUPT_INTR0             (0x3CU)
+/* Host Interrupts Routing through INTR 1 */
+#define LAN80XX_HOST_INTRUPT_INTR1             (0x3U)
 
-#define LAN80XX_BIST_BYPASS_STRAP      (1 << 3)
-#define LAN80XX_POST1_SLICE0_INIT_STATUS_ADDR   0x89
-#define LAN80XX_POST1_TRIGGER                   0x7FF
-#define LAN80XX_POST1_SLICE0_BIST_STATUS_ADDR     0x81
-#define LAN80XX_POST1_SLICE0_BIST_RESULT_ADDR     0x85
-#define LAN80XX_POST1_STATUS_P1_POST_DONE         0x1
+#define LAN80XX_BIST_BYPASS_STRAP              ((1U) << 3)
+#define LAN80XX_POST1_SLICE0_INIT_STATUS_ADDR  (0x89U)
+#define LAN80XX_POST1_TRIGGER                  (0x7FFU)
+#define LAN80XX_POST1_SLICE0_BIST_STATUS_ADDR  (0x81U)
+#define LAN80XX_POST1_SLICE0_BIST_RESULT_ADDR  (0x85U)
+#define LAN80XX_POST1_STATUS_P1_POST_DONE      (0x1U)
+
 
 typedef struct {
     u8     r_dwidthctrl_from_hwt;
@@ -347,8 +340,8 @@ mepa_rc _lan80xx_csr_warm_wr(const mepa_device_t *dev,
     lock.function = __FUNCTION__;                    \
     lock.file = __FILE__;                            \
     lock.line = __LINE__;                            \
-    if (dev->callout->lock_enter) {                  \
-        dev->callout->lock_enter(&lock);             \
+    if ((dev)->callout->lock_enter != NULL) {          \
+        (dev)->callout->lock_enter(&lock);             \
     }                                                \
 }
 
@@ -357,15 +350,11 @@ mepa_rc _lan80xx_csr_warm_wr(const mepa_device_t *dev,
     lock.function = __FUNCTION__;                    \
     lock.file = __FILE__;                            \
     lock.line = __LINE__;                            \
-    if (dev->callout->lock_exit) {                   \
-        dev->callout->lock_exit(&lock);              \
+    if ((dev)->callout->lock_exit != NULL) {           \
+        (dev)->callout->lock_exit(&lock);              \
     }                                                \
 }
 
-
-
-#define TRUE  1
-#define FALSE 0
 
 mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_no, mepa_bool_t enable);
 

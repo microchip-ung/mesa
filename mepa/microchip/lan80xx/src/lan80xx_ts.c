@@ -166,9 +166,38 @@ static mepa_rc lan80xx_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     rc =  lan80xx_phy_ts_init_conf_get(dev, data->port_no, &ts_init_done, &init_conf);
     if (rc != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "ts init conf get failed\n");
         return rc;
     }
-    ts_init_conf->clk_src           = init_conf.clk_src;
+    /*
+     * MEPA-1147
+     * The mepa_ts_demo and lan80xx clk src mappings are different
+     * So, need to assign appropriate mepa_ts_demo clk src
+     */
+    switch (init_conf.clk_src) {
+    case LAN80XX_PHY_TS_CLOCK_SRC_INTERNAL:
+        ts_init_conf->clk_src = MEPA_TS_CLOCK_SRC_INTERNAL;
+        break;
+    case LAN80XX_PHY_TS_CLOCK_SRC_LINE0:
+        ts_init_conf->clk_src = MEPA_TS_CLOCK_SRC_FROM_RX_PORT0;
+        break;
+    case LAN80XX_PHY_TS_CLOCK_SRC_LINE1:
+        ts_init_conf->clk_src = MEPA_TS_CLOCK_SRC_FROM_RX_PORT1;
+        break;
+    case LAN80XX_PHY_TS_CLOCK_SRC_LINE2:
+        ts_init_conf->clk_src = MEPA_TS_CLOCK_SRC_FROM_RX_PORT2;
+        break;
+    case LAN80XX_PHY_TS_CLOCK_SRC_LINE3:
+        ts_init_conf->clk_src = MEPA_TS_CLOCK_SRC_FROM_RX_PORT3;
+        break;
+    case LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_25MHZ:
+        ts_init_conf->clk_src = MEPA_TS_CLOCK_SRC_EXTERNAL;
+        break;
+
+    default:
+        T_E(MEPA_TRACE_GRP_GEN, "Not a valide clock src %s:  %d\n", __FUNCTION__, ts_init_conf->clk_src);
+        /* We don't return error here, as get function just fetch existing config */
+    }
     ts_init_conf->clk_freq          = init_conf.clk_freq;
     ts_init_conf->rx_ts_len         = init_conf.rx_ts_len == LAN80XX_PHY_TS_RX_TIMESTAMP_LEN_30BIT ? MEPA_TS_RX_TIMESTAMP_LEN_30BIT : MEPA_TS_RX_TIMESTAMP_LEN_32BIT;
     ts_init_conf->rx_ts_pos         = init_conf.rx_ts_pos == LAN80XX_PHY_TS_RX_TIMESTAMP_POS_AT_END ? MEPA_TS_RX_TIMESTAMP_POS_AT_END : MEPA_TS_RX_TIMESTAMP_POS_IN_PTP;
@@ -188,11 +217,6 @@ static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_c
     data->ts.dly_req_recv_10byte_ts = ts_init_conf->dly_req_recv_10byte_ts;
     init_conf.clk_freq = ts_init_conf->clk_freq;
     T_I(MEPA_TRACE_GRP_GEN, "clock frequency %d\n", ts_init_conf->clk_freq);
-    if (ts_init_conf->clk_src >= MEPA_TS_CLOCK_SRC_INTERNAL) {
-        init_conf.clk_src =  LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_25MHZ;
-    } else {
-        init_conf.clk_src = ts_init_conf->clk_src;
-    }
     switch (ts_init_conf->clk_src) {
     case MEPA_TS_CLOCK_SRC_INTERNAL:
         init_conf.clk_src =  LAN80XX_PHY_TS_CLOCK_SRC_INTERNAL;
@@ -216,14 +240,14 @@ static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_c
 
     default:
         T_E(MEPA_TRACE_GRP_GEN, "Not a valide clock src %s:  %d\n", __FUNCTION__, ts_init_conf->clk_src);
-        break;
+        return MEPA_RC_ERROR;
     }
     init_conf.rx_ts_len  = ts_init_conf->rx_ts_len == MEPA_TS_RX_TIMESTAMP_LEN_30BIT ? LAN80XX_PHY_TS_RX_TIMESTAMP_LEN_30BIT : LAN80XX_PHY_TS_RX_TIMESTAMP_LEN_32BIT;
     init_conf.rx_ts_pos  = ts_init_conf->rx_ts_pos == MEPA_TS_RX_TIMESTAMP_POS_AT_END ? LAN80XX_PHY_TS_RX_TIMESTAMP_POS_AT_END : LAN80XX_PHY_TS_RX_TIMESTAMP_POS_IN_PTP;
     init_conf.tx_fifo_mode = ts_init_conf->tx_fifo_mode;
     init_conf.tx_ts_len = ts_init_conf->tx_ts_len == MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE ? LAN80XX_PHY_TS_FIFO_TIMESTAMP_LEN_10BYTE : LAN80XX_PHY_TS_FIFO_TIMESTAMP_LEN_4BYTE;
     init_conf.tx_fifo_spi_conf = ts_init_conf->tx_fifo_spi_conf;
-    init_conf.auto_clear_ls = TRUE;
+    init_conf.auto_clear_ls = ts_init_conf->auto_clear_ls;
     //init_conf.tc_op_mode = mepa_to_mesa_tc_opmode(ts_init_conf->tc_op_mode);
 
     init_conf.macsec_ena = FALSE;

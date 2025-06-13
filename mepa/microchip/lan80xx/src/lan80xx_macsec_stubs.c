@@ -730,6 +730,6 @@ mepa_rc lan80xx_macsec_dbg_counter_get_priv(mepa_device_t *dev, const mepa_port_
 
 mepa_bool_t lan80xx_phy_is_macsec_capable(mepa_device_t *dev)
 {
-    return MEPA_RC_NOT_IMPLEMENTED;
+    return 0U;
 }
 #endif

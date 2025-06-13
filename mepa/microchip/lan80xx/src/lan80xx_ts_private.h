@@ -10,63 +10,68 @@
 #include "lan80xx_regs_util.h"
 #include "lan80xx_ts.h"
 
-#define TS_FLOWS_PER_ENG 8
-#define LAN80XX_MAX_CLK_PER_ENGINE (3)
-#define LAN80XX_PTP_FLOW_INDEX_0 (0)
-#define LAN80XX_PTP_FLOW_INDEX_1 (1)
-#define LAN80XX_PTP_FLOW_INDEX_2 (2)
-#define LAN80XX_PTP_FLOW_INDEX_3 (3)
-#define LAN80XX_PTP_MAX_FLOW (6)
-#define LAN80XX_PTP_LS_CTRL_0 0
-#define LAN80XX_PTP_LS_CTRL_1 1
-#define LAN80XX_PTP_LS_CTRL_2 2
-#define LAN80XX_PTP_LS_CTRL_3 3
+#define LAN80XX_TS_FLOWS_PER_ENG        (8U)
+#define LAN80XX_MAX_CLK_PER_ENGINE      (3U)
+#define LAN80XX_PTP_FLOW_INDEX_0        (0U)
+#define LAN80XX_PTP_FLOW_INDEX_1        (1U)
+#define LAN80XX_PTP_FLOW_INDEX_2        (2U)
+#define LAN80XX_PTP_FLOW_INDEX_3        (3U)
+#define LAN80XX_PTP_MAX_FLOW            (6U)
+#define LAN80XX_PTP_LS_CTRL_0           (0U)
+#define LAN80XX_PTP_LS_CTRL_1           (1U)
+#define LAN80XX_PTP_LS_CTRL_2           (2U)
+#define LAN80XX_PTP_LS_CTRL_3           (3U)
 
-#define LAN80XX_PPS_LOW_PERIOD(ti) (1000000000 - ti) /* For computing the low period for the pps user will provide only the width */
+#define LAN80XX_PPS_LOW_PERIOD(ti) ((1000000000) - (ti)) /* For computing the low period for the pps user will provide only the width */
 
-#define LAN80XX_PHY_TS_EXTRACT_BYTE(value,pos) ((value & ((u32)0xff << pos)) >> pos)
+/* Extracts a byte from value at position pos */
+#define LAN80XX_PHY_TS_EXTRACT_BYTE(value, pos) \
+    ( ((uint32_t)(value) & ((uint32_t)0xFFU << (pos))) >> (pos) )
 
-#define LAN80XX_PHY_TS_WRITE_CSR(p, b, a, v) lan80xx_phy_ts_write_csr(dev, p , b, a, v)
-#define LAN80XX_PHY_TS_READ_CSR(p, b, a, v) lan80xx_phy_ts_read_csr(dev, p , b, a, v)
+#define LAN80XX_PHY_TS_WRITE_CSR(p, b, a, v) \
+    lan80xx_phy_ts_write_csr(dev, (p), (b), (a), (v))
+
+#define LAN80XX_PHY_TS_READ_CSR(p, b, a, v) \
+    lan80xx_phy_ts_read_csr(dev, (p), (b), (a), (v))
 
 #define LAN80XX_PHY_TS_ANA_BLK_ID_ING(x) LAN80XX_PHY_TS_ANA_BLK_ID_ING_##x
 #define LAN80XX_PHY_TS_ANA_BLK_ID_EGR(x) LAN80XX_PHY_TS_ANA_BLK_ID_EGR_##x
 #define LAN80XX_PHY_TS_PROC_BLK_ID(x)    LAN80XX_PHY_TS_PROC_BLK_ID_##x
 
-
 #if !defined(LAN80XX_PHY_TS_CLR_BITS)
-#define  LAN80XX_PHY_TS_CLR_BITS(value, mask)   (value & ~mask)
+#define LAN80XX_PHY_TS_CLR_BITS(value, mask)   ((value) & (~(mask)))
 #endif
 
-
 #define LAN80XX_PHY_TS_TIME_INTERVAL_ADJUST_32(ti) \
-                      (ti & 0xffffffffLL)
+    ((ti) & 0xFFFFFFFFULL)
+
+#define LAN80XX_PHY_TS_EVENT_MASK                (0xFFFFU)
 
 
-#define LAN80XX_PHY_TS_EVENT_MASK   0xFFFF
 /**
  * \brief Timestamp interrupt events
  **/
-#define LAN80XX_PHY_TS_INGR_ENGINE_ERR         0x01 /**< More than one engine find match */
-#define LAN80XX_PHY_TS_INGR_RW_PREAM_ERR       0x02  /**< Preamble too short to append timestamp */
-#define LAN80XX_PHY_TS_INGR_RW_FCS_ERR         0x04 /**< FCS error in ingress */
+/* Timestamp interrupt events */
+#define LAN80XX_PHY_TS_INGR_ENGINE_ERR           (0x01U)   /* More than one engine find match */
+#define LAN80XX_PHY_TS_INGR_RW_PREAM_ERR         (0x02U)   /* Preamble too short to append timestamp */
+#define LAN80XX_PHY_TS_INGR_RW_FCS_ERR           (0x04U)   /* FCS error in ingress */
+#define LAN80XX_PHY_TS_EGR_ENGINE_ERR            (0x08U)   /* More than one engine find match */
+#define LAN80XX_PHY_TS_EGR_RW_PREAMBLE_ERR       (0x10U)
+#define LAN80XX_PHY_TS_EGR_RW_FCS_ERR            (0x20U)   /* FCS error in egress */
+#define LAN80XX_PHY_TS_EGR_TS_LEVEL              (0x40U)   /* FIFO reached threshold level */
+#define LAN80XX_PHY_TS_EGR_TS_LOADED             (0x80U)   /* Timestamp captured in Tx TSFIFO */
+#define LAN80XX_PHY_TS_EGR_TS_OVERFLOW           (0x100U)  /* Tx TSFIFO overflow */
+/* #define LAN80XX_PHY_TS_DATA_IN_RSRVD_FIELD    (0x80U)   Data in reserved Field */
 
-#define LAN80XX_PHY_TS_EGR_ENGINE_ERR          0x08  /**< More than one engine find match */
-#define LAN80XX_PHY_TS_EGR_RW_PREAMBLE_ERR     0x10
-#define LAN80XX_PHY_TS_EGR_RW_FCS_ERR          0x20  /**< FCS error in egress */
-#define LAN80XX_PHY_TS_EGR_TS_LEVEL            0x40 /** FIFO reached threashold level*/
-#define LAN80XX_PHY_TS_EGR_TS_LOADED           0x80  /**< Timestamp captured in Tx TSFIFO */
-#define LAN80XX_PHY_TS_EGR_TS_OVERFLOW         0x100  /**< Tx TSFIFO overflow */
-//#define LAN80XX_PHY_TS_DATA_IN_RSRVD_FIELD             0x80  /**< Data in reserved Field */
+#define LAN80XX_PHY_TS_PTP_LTC_INTR_PTP_LSC0     (0x200U)   /* New PPS pushed onto external PPS pin */
+#define LAN80XX_PHY_TS_PTP_LTC_INTR_PTP_LSC1     (0x400U)
+#define LAN80XX_PHY_TS_PTP_LTC_INTR_PTP_LSC2     (0x800U)
+#define LAN80XX_PHY_TS_PTP_LTC_INTR_PTP_LSC3     (0x1000U)
+#define LAN80XX_PHY_TS_PTP_LTC_MEAS_INTR         (0x2000U)
+#define LAN80XX_PHY_TS_PTP_SER_TOD_LOAD_INTR_ENA (0x4000U)
+#define LAN80XX_PHY_TS_PTP_SER_TOD_STORE_INTR_ENA (0x8000U)
+#define LAN80XX_PHY_TS_PTP_STI_INTR_EN           (0x10000U)
 
-#define LAN80XX_PHY_TS_PTP_LTC_INTR_PTP_LSC0        0x200 /**< New PPS pushed onto external PPS pin*/
-#define LAN80XX_PHY_TS_PTP_LTC_INTR_PTP_LSC1        0x400
-#define LAN80XX_PHY_TS_PTP_LTC_INTR_PTP_LSC2        0x800
-#define LAN80XX_PHY_TS_PTP_LTC_INTR_PTP_LSC3        0x1000
-#define LAN80XX_PHY_TS_PTP_LTC_MEAS_INTR            0x2000
-#define LAN80XX_PHY_TS_PTP_SER_TOD_LOAD_INTR_ENA    0x4000
-#define LAN80XX_PHY_TS_PTP_SER_TOD_STORE_INTR_ENA   0x8000
-#define LAN80XX_PHY_TS_PTP_STI_INTR_EN              0x10000
 
 
 typedef uint32_t phy25g_ts_event_t; /**< Int events: Single event or 'OR' multiple events above */

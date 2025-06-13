@@ -12,22 +12,24 @@
 #include "lan80xx_macsec_private.h"
 #include "lan80xx_ts.h"
 
-#define LAN80XX_MAX_PORTS_PER_PHY   4
-#define LAN80XX_GPIO_COUNT          40
+#define LAN80XX_MAX_PORTS_PER_PHY   (4U)
+#define LAN80XX_GPIO_COUNT          (40U)
 
 #define TRUE  1
 #define FALSE 0
 
+
 /* Host Communication*/
-#define MEPA_RC_ERR_MB_INVALID_CRC              -301
-#define MEPA_RC_ERR_MB_RESP_TIMEOUT             -302
-#define MEPA_RC_ERR_MB_INVALID_PKT_LEN          -303
-#define MEPA_RC_ERR_MB_FW_UPDATE_FAIL           -304
-#define MEPA_RC_ERR_MB_FAIL_RESPONSE            -305
-#define MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC        -306
-#define MEPA_RC_ERR_OTP_ALL_KEY_COMPROMISED     -307
-#define MEPA_RC_ERR_OTP_ALL_KEY_PROGRAMMED      -308
-#define MEPA_RC_ERR_OTP_MAX_RECORD_REACHED      -309
+#define MEPA_RC_ERR_MB_INVALID_CRC              (-301)
+#define MEPA_RC_ERR_MB_RESP_TIMEOUT             (-302)
+#define MEPA_RC_ERR_MB_INVALID_PKT_LEN          (-303)
+#define MEPA_RC_ERR_MB_FW_UPDATE_FAIL           (-304)
+#define MEPA_RC_ERR_MB_FAIL_RESPONSE            (-305)
+#define MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC        (-306)
+#define MEPA_RC_ERR_OTP_ALL_KEY_COMPROMISED     (-307)
+#define MEPA_RC_ERR_OTP_ALL_KEY_PROGRAMMED      (-308)
+#define MEPA_RC_ERR_OTP_MAX_RECORD_REACHED      (-309)
+
 
 /* MDIO Register Access */
 typedef struct {

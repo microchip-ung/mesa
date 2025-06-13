@@ -42,7 +42,7 @@ static mepa_device_t *lan80xx_probe(mepa_driver_t *drv,
     mepa_device_t *dev;
     phy25g_phy_state_t *data;
     dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(phy25g_phy_state_t));
-    if (!dev) {
+    if (dev == NULL) {
         return 0;
     }
     data = dev->data;
@@ -110,7 +110,7 @@ static mepa_rc lan80xx_conf_set(struct mepa_device *dev, const mepa_conf_t *conf
 static mepa_rc lan80xx_poll(mepa_device_t *dev, mepa_status_t *status)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
-    phy25g_status_t status_25g;
+    phy25g_status_t status_25g = {0};
     MEPA_ENTER(dev);
     if (lan80xx_status_get_priv(dev, data->port_no, &status_25g) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Error in Getting PHY status");
@@ -248,13 +248,13 @@ static mepa_rc lan80xx_clause45_read(struct mepa_device *dev,
     mepa_rc rc = MEPA_RC_OK;
     MEPA_ENTER(dev);
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    uint16_t page_add = (address >> 16) & 0xffff;
+    uint16_t page_add = (address >> 16U) & 0xffff;
     uint16_t mmd = (page_add & 0x1f);
     uint16_t addr = address & 0xffff;
     uint32_t data_val;
 
     if (mmd) {
-        rc = lan80xx_csr_rd(dev, data->port_no, mmd, 0, addr, &data_val);
+        rc = lan80xx_csr_rd(dev, data->port_no, mmd, 0U, addr, &data_val);
         *value = (uint16_t)data_val;
     }
     MEPA_EXIT(dev);
@@ -275,12 +275,12 @@ static mepa_rc lan80xx_clause45_write(struct mepa_device *dev,
     mepa_rc rc = MEPA_RC_OK;
     MEPA_ENTER(dev);
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    uint16_t page_add = (address >> 16) & 0xffff;
+    uint16_t page_add = (address >> 16U) & 0xffff;
     uint16_t mmd = (page_add & 0x1f);
     uint16_t addr = address & 0xffff;
 
     if (mmd) {
-        rc = lan80xx_csr_wr(dev, data->port_no, mmd, 0, addr, value);
+        rc = lan80xx_csr_wr(dev, data->port_no, mmd, 0U, addr, value);
     }
     MEPA_EXIT(dev);
     return rc;

@@ -10,62 +10,89 @@
 #include <microchip/ethernet/phy/api.h>
 #include "lan80xx_macsec.h"
 
-#define LAN80XX_CLEARTAGS_DISABLE   (1 << 4)               /**< Cleartags Disable Bit position */
+/* Cleartags Disable Bit position */
+#define LAN80XX_CLEARTAGS_DISABLE   (1U << 4)
 
-#define LAN80XX_MACSEC_ACTION_MAX 3                        /** Number of actions supported drop/forward to control/uncontrol port*/
-#define LAN80XX_MACSEC_DIRECTION_MAX 3                     /** Number of Directions support egress/ingress/none */
-#define LAN80XX_MACSEC_MTU_MAX    32761                    /**<Maximum supported MTU for MACSEC*/
-#define LAN80XX_MACSEC_CP_RULES   (8 + 8 + 2)             /**< DMAC + ETYPE + DMAC/ETYPE */
-#define LAN80XX_MAC_ADDR_BROADCAST {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}   /** Broacast MAC Address */
-#define LAN80XX_MACSEC_MAX_SA 128                                         /** No of Secure Assosiations that M25G supports */
-#define LAN80XX_MACSEC_MAX_SECY LAN80XX_MACSEC_MAX_SA/2
-#define LAN80XX_MACSEC_MAX_RX_SC LAN80XX_MACSEC_MAX_SECY
-#define LAN80XX_MAC_ADDR_ZERO {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}        /** Zero MAC Address */
-#define LAN80XX_MACSEC_REPLAY_WINDOW_SIZE 0x40000000                      /** Maximum replay window size supported */
+/* Number of actions supported: drop/forward to control/uncontrol port */
+#define LAN80XX_MACSEC_ACTION_MAX   (3U)
 
-#define LAN80XX_MACSEC_THRESHOLD_EVENT_ENABLE_BIT 20
-#define LAN80XX_MACSEC_ROLLOVER_EVENT_ENABLE_BIT 21
+/* Number of Directions supported: egress/ingress/none */
+#define LAN80XX_MACSEC_DIRECTION_MAX (3U)
 
-#define LAN80XX_MACSEC_THRESHOLD_EVENT_STATUS_BIT 4
-#define LAN80XX_MACSEC_ROLLOVER_EVENT_STATUS_BIT 5
-#define LAN80XX_MACSEC_SA_TRIGGER_MASK 0xFFFFFFFF
-#define LAN80XX_MACSEC_FIFO_TRUNCATED_MASK 0x00000200
-#define LAN80XX_MACSEC_FIFO_PKT_SIZE_MASK 0x000001FF
+/* Maximum supported MTU for MACSEC */
+#define LAN80XX_MACSEC_MTU_MAX      (32761U)
 
-#define LAN80XX_MACSEC_STANDARD_SECTAG_OFFSET  12 /* Standard MACsec Sectag location in bytes */
-#define LAN80XX_MAC_ADDRESS_LEN_BYTES  12         /* MAC Address length (DA + SA) in bytes */
-#define LAN80XX_ETHER_TYPE_LEN_BYTES  2           /* Ether Type length in bytes */
-#define LAN80XX_MACSEC_PBB_AUTH_START 22          /* PBB Packet Authetication start in bytes */
-#define LAN80XX_MACSEC_PBB_HEADER_BYTES 34        /* Length of PBB Packet header in bytes including outer MAC Addr */
-#define LAN80XX_MPLS_LABEL_LEN_BYTE 4             /* Length of MPLS Header in bytes */
-#define LAN80XX_MPLS_PW_CTRL_WORD_LEN  4          /* PW Control word length in bytes */
-#define LAN80XX_VLAN_TAG_LEN_BYTE  4              /* VLAN Tag length in bytes */
-#define LAN80XX_MACSEC_NUM_MPLS_LABEL_0 6
-#define LAN80XX_MACSEC_EGR_MPLS_SUPPORT 9         /* Number of MPLS Label EIP-161 supports in Egress */
-#define LAN80XX_MACSEC_INGR_MPLS_SUPPORT 5        /* Number of MPLS Label EIP-161 supports in Ingres */
+/* DMAC + ETYPE + DMAC/ETYPE */
+#define LAN80XX_MACSEC_CP_RULES     ((8U) + (8U) + (2U))
+
+/* Broadcast MAC Address */
+#define LAN80XX_MAC_ADDR_BROADCAST  {0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU, 0xFFU}
+
+/* Number of Secure Associations that M25G supports */
+#define LAN80XX_MACSEC_MAX_SA       (128U)
+#define LAN80XX_MACSEC_MAX_SECY     (LAN80XX_MACSEC_MAX_SA / 2U)
+#define LAN80XX_MACSEC_MAX_RX_SC    (LAN80XX_MACSEC_MAX_SECY)
+
+/* Zero MAC Address */
+#define LAN80XX_MAC_ADDR_ZERO       {0x00U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U}
+
+/* Maximum replay window size supported */
+#define LAN80XX_MACSEC_REPLAY_WINDOW_SIZE (0x40000000UL)
+
+#define LAN80XX_MACSEC_THRESHOLD_EVENT_ENABLE_BIT (20U)
+#define LAN80XX_MACSEC_ROLLOVER_EVENT_ENABLE_BIT  (21U)
+
+#define LAN80XX_MACSEC_THRESHOLD_EVENT_STATUS_BIT (4U)
+#define LAN80XX_MACSEC_ROLLOVER_EVENT_STATUS_BIT  (5U)
+#define LAN80XX_MACSEC_SA_TRIGGER_MASK            (0xFFFFFFFFUL)
+#define LAN80XX_MACSEC_FIFO_TRUNCATED_MASK        (0x00000200UL)
+#define LAN80XX_MACSEC_FIFO_PKT_SIZE_MASK         (0x000001FFUL)
+
+/* Standard MACsec Sectag location in bytes */
+#define LAN80XX_MACSEC_STANDARD_SECTAG_OFFSET     (12U)
+/* MAC Address length (DA + SA) in bytes */
+#define LAN80XX_MAC_ADDRESS_LEN_BYTES             (12U)
+/* Ether Type length in bytes */
+#define LAN80XX_ETHER_TYPE_LEN_BYTES              (2U)
+/* PBB Packet Authentication start in bytes */
+#define LAN80XX_MACSEC_PBB_AUTH_START             (22U)
+/* Length of PBB Packet header in bytes including outer MAC Addr */
+#define LAN80XX_MACSEC_PBB_HEADER_BYTES           (34U)
+/* Length of MPLS Header in bytes */
+#define LAN80XX_MPLS_LABEL_LEN_BYTE               (4U)
+/* PW Control word length in bytes */
+#define LAN80XX_MPLS_PW_CTRL_WORD_LEN             (4U)
+/* VLAN Tag length in bytes */
+#define LAN80XX_VLAN_TAG_LEN_BYTE                 (4U)
+#define LAN80XX_MACSEC_NUM_MPLS_LABEL_0           (6U)
+/* Number of MPLS Label EIP-161 supports in Egress */
+#define LAN80XX_MACSEC_EGR_MPLS_SUPPORT           (9U)
+/* Number of MPLS Label EIP-161 supports in Ingress */
+#define LAN80XX_MACSEC_INGR_MPLS_SUPPORT          (5U)
 
 /* MACsec block latency */
-#define LAN80XX_MACSEC_1G_INGR_LATENCY 88
-#define LAN80XX_MACSEC_1G_EGR_LATENCY  80
-#define LAN80XX_MACSEC_10G_INGR_LATENCY 70
-#define LAN80XX_MACSEC_10G_EGR_LATENCY 62
-#define LAN80XX_MACSEC_25G_INGR_LATENCY 70
-#define LAN80XX_MACSEC_25G_EGR_LATENCY 62
+#define LAN80XX_MACSEC_1G_INGR_LATENCY            (88U)
+#define LAN80XX_MACSEC_1G_EGR_LATENCY             (80U)
+#define LAN80XX_MACSEC_10G_INGR_LATENCY           (70U)
+#define LAN80XX_MACSEC_10G_EGR_LATENCY            (62U)
+#define LAN80XX_MACSEC_25G_INGR_LATENCY           (70U)
+#define LAN80XX_MACSEC_25G_EGR_LATENCY            (62U)
 
+#define LAN80XX_MACSEC_CONTEX_CTRL                (0xE5880200UL)
+#define LAN80XX_MACSEC_CONTEXT_UPD_CTRL           (3U)
+#define LAN80XX_MACSEC_DYN_LATENCY                (5U)
 
-#define LAN80XX_MACSEC_CONTEX_CTRL 0xE5880200
-#define LAN80XX_MACSEC_CONTEXT_UPD_CTRL 0x3
-#define LAN80XX_MACSEC_DYN_LATENCY 5
-
-#define LAN80XX_MACSEC_SEQ_NUM_THR_MASK 1 << 20
-#define LAN80XX_MACSEC_SEQ_NUM_ROLL_MASK 1 << 21
+#define LAN80XX_MACSEC_SEQ_NUM_THR_MASK           (1UL << 20)
+#define LAN80XX_MACSEC_SEQ_NUM_ROLL_MASK          (1UL << 21)
 
 /* Control Frame Matching */
-#define LAN80XX_MACSEC_DMAC_AND_ETHTYPE_RULE_ID_END  2
-#define LAN80XX_MACSEC_MAX_ETHTYPE_RULE_ID_END       10
-#define LAN80XX_MACSEC_MAX_DMAC_RULE_ID_END          18
+#define LAN80XX_MACSEC_DMAC_AND_ETHTYPE_RULE_ID_END  (2U)
+#define LAN80XX_MACSEC_MAX_ETHTYPE_RULE_ID_END       (10U)
+#define LAN80XX_MACSEC_MAX_DMAC_RULE_ID_END          (18U)
 
-#define LAN80XX_MACSEC_RECORD_PAGE0_CNT 64
+#define LAN80XX_MACSEC_RECORD_PAGE0_CNT             (64U)
+
+
 
 // Structure to configure Rx Secure Assosiation
 typedef struct {

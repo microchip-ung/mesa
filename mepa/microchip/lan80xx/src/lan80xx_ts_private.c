@@ -1471,6 +1471,7 @@ mepa_rc lan80xx_phy_ts_init_conf_get(mepa_device_t *dev, mepa_port_no_t port_no,
     conf->tx_ts_len = data->phy_ts_port_conf.tx_ts_len;
     conf->tc_op_mode = data->phy_ts_port_conf.tc_op_mode;
     conf->one_step_txfifo = data->phy_ts_port_conf.one_step_txfifo;
+    conf->auto_clear_ls = data->phy_ts_port_conf.auto_clear_ls;
 
     return rc;
 }
@@ -1571,15 +1572,13 @@ mepa_rc lan80xx_phy_ts_init(const mepa_device_t *dev,
         data->phy_ts_port_conf.chk_ing_modified  = conf->chk_ing_modified;
         data->phy_ts_port_conf.one_step_txfifo = conf->one_step_txfifo;
         data->phy_ts_port_conf.mch_conf        = conf->mch_conf;
-        if (data->phy_ts_port_conf.is_gen2 == TRUE) {
 #if defined(LAN80XX_FEATURE_MACSEC)
-            if (data->macsec_conf[port_no].glb.init.enable == TRUE) {
-                data->phy_ts_port_conf.macsec_ena = TRUE;
-            }
-#endif
-            data->phy_ts_port_conf.auto_clear_ls = conf->auto_clear_ls;
-            data->phy_ts_port_conf.pps_conf.pps_pulse_width = 0x1DCD6500;
+        if (data->macsec_conf[port_no].glb.init.enable == TRUE) {
+            data->phy_ts_port_conf.macsec_ena = TRUE;
         }
+#endif
+        data->phy_ts_port_conf.auto_clear_ls = conf->auto_clear_ls;
+        data->phy_ts_port_conf.pps_conf.pps_pulse_width = 0x1DCD6500;
         switch (conf->tc_op_mode) {
         case LAN80XX_PHY_TS_TC_OP_MODE_A:
             data->phy_ts_port_conf.tc_op_mode = LAN80XX_PHY_TS_TC_OP_MODE_A;
@@ -1636,19 +1635,19 @@ mepa_rc lan80xx_phy_ts_init(const mepa_device_t *dev,
 
 mepa_rc lan80xx_get_eng_flow_info(u16 in_flow, phy25g_ts_engine_t *eng_id, u16 *eng_flow)
 {
-    if (in_flow < TS_FLOWS_PER_ENG * (LAN80XX_PHY_TS_PTP_ENGINE_ID_0 + 1)) {
+    if (in_flow < LAN80XX_TS_FLOWS_PER_ENG * (LAN80XX_PHY_TS_PTP_ENGINE_ID_0 + 1)) {
         *eng_id = LAN80XX_PHY_TS_PTP_ENGINE_ID_0;
-    } else if (in_flow >= (TS_FLOWS_PER_ENG * LAN80XX_PHY_TS_PTP_ENGINE_ID_1) &&
-               in_flow <  (TS_FLOWS_PER_ENG * LAN80XX_PHY_TS_OAM_ENGINE_ID_2A)) {
+    } else if (in_flow >= (LAN80XX_TS_FLOWS_PER_ENG * LAN80XX_PHY_TS_PTP_ENGINE_ID_1) &&
+               in_flow <  (LAN80XX_TS_FLOWS_PER_ENG * LAN80XX_PHY_TS_OAM_ENGINE_ID_2A)) {
         *eng_id = LAN80XX_PHY_TS_PTP_ENGINE_ID_1;
-    } else if (in_flow >= (TS_FLOWS_PER_ENG * LAN80XX_PHY_TS_OAM_ENGINE_ID_2A) &&
-               in_flow <  (TS_FLOWS_PER_ENG * (LAN80XX_PHY_TS_OAM_ENGINE_ID_2A + 1))) {
+    } else if (in_flow >= (LAN80XX_TS_FLOWS_PER_ENG * LAN80XX_PHY_TS_OAM_ENGINE_ID_2A) &&
+               in_flow <  (LAN80XX_TS_FLOWS_PER_ENG * (LAN80XX_PHY_TS_OAM_ENGINE_ID_2A + 1))) {
         *eng_id = LAN80XX_PHY_TS_OAM_ENGINE_ID_2A;
     } else {
         *eng_id = LAN80XX_PHY_TS_ENGINE_ID_INVALID;
         return MEPA_RC_ERROR;
     }
-    *eng_flow = in_flow % TS_FLOWS_PER_ENG;
+    *eng_flow = in_flow % LAN80XX_TS_FLOWS_PER_ENG;
     return MEPA_RC_OK;
 }
 

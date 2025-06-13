@@ -3647,9 +3647,9 @@ mepa_rc lan80xx_rx_eye_scan_conf_set_priv (const mepa_device_t          *dev,
             MEPA_RC(lan80xx_csr_rd(dev, port_no, io->mmd, io->is32, address, &value));
             value = value & 0xFF;
             if (i == LAN80XX_EYE_SCAN_RESULT_REG_COUNT) {
-                status.eye_res_msb[vref] = (value & 1);
+                status.eye_res_msb[vref] = (value & 1U);
             } else {
-                status.eye_res[vref] |= (uint64_t)value << (i * 8);
+                status.eye_res[vref] |= (uint64_t)value << (i * 8U);
             }
             address++;
         }
