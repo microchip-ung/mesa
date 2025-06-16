@@ -5755,6 +5755,27 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_IS2)
         VTSS_RC(vtss_cil_vcap_acl_port_conf_set(vtss_state, port_no));
 #endif
+#if defined(VTSS_FEATURE_PORT_CPU_MASQUERADING)
+        /* Packets injected with a TOFH have their TOFH translated to an IFH when
+         * entering the ASM. This IFH use ANA_CLM as its pipeline injection point
+         * which means that basic classification is bypassed. This IFH is created
+         * with a classified VID of 0 which doesn't get fixed by VLAN
+         * classification since it is bypassed.
+         * Fix this using the default CLM-A[0] action if the port is a masqueraded
+         * port.
+         */
+        if (vtss_state->port.map[port_no].cpu_masquerade != VTSS_CPU_MASQUERADE_NONE) {
+            VTSS_MEMSET(data, 0, sizeof(*data));
+            data->type = FA_VCAP_TG_X3;
+            data->vcap_type = VTSS_VCAP_TYPE_CLM_A;
+            FA_ACT_SET(CLM, FULL_XVID_ADD_REPLACE_SEL, 2);
+            FA_ACT_SET(CLM, FULL_VID_VAL, VTSS_VID_DEFAULT);
+            addr = fa_vcap_action_addr(vtss_state, data->vcap_type, port, 0);
+            VTSS_RC(fa_vcap_entry_cmd(vtss_state, data, addr, data->type, FA_VCAP_CMD_WRITE,
+                                      FA_VCAP_SEL_ACTION));
+        }
+#endif
+
         /* Enable IS2 lookup 1-3 */
         REG_WRM_CTL(VTSS_ANA_ACL_VCAP_S2_CFG(port), 1, VTSS_F_ANA_ACL_VCAP_S2_CFG_SEC_ENA(0xe));
 
