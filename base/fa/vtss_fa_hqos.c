@@ -258,6 +258,7 @@ static vtss_rc vport_used_set(vtss_state_t *vtss_state, u32 chip_port)
 static u32     l0_used[(VTSS_HQOS_CHIP_L0_SE_CNT / 32) + 1] = {};
 static vtss_rc l0_unused_find(u32 *se)
 {
+
     // Find unused L0 SE among unused chip ports
     for (*se = 0; *se < VTSS_HQOS_CHIP_L0_SE_CNT; (*se)++) {
         if (L0_USED_BF_GET(l0_used, *se) == 0) {
@@ -288,6 +289,7 @@ static vtss_rc l0_used_set(vtss_state_t *vtss_state, u32 chip_port)
 static u32 find_l1_index(vtss_hqos_hier_port_t *hier, u32 se)
 {
     u32 index;
+
     // Find the L1 index
     for (index = 0; index < VTSS_HQOS_PORT_L1_MAX; ++index) {
         if (hier->l1_ses[index].se == se) {
@@ -1652,41 +1654,49 @@ static vtss_rc fa_debug_hqos(vtss_state_t                  *vtss_state,
     if (!info->has_action || hq_act) { /* HQOS information must be printed */
         pr("HQOS information:\n");
         pr("--------------------------\n");
-        hier = &hqos->hier_conf[port_no];
-        conf = &hqos->port_conf[port_no];
-
-        if (conf->sch_mode != VTSS_HQOS_SCH_MODE_HIERARCHICAL) {
-            return VTSS_RC_OK;
+        if (port_no != VTSS_PORT_NO_NONE) {
+            port_start = port_no;
+            port_end = port_start;
         }
 
-        u32 l2_se = cport;
-        u32 l1_rate[5];
-        for (i = 0; i < 5; ++i) {
-            l1_rate[i] = min_rate_calc(vtss_state, 2, l2_se, i, 1000000);
-        }
-        for (l0 = 0; l0 < VTSS_HQOS_PORT_L0_MAX; ++l0) {
-            if ((hier->l0_ses[l0].se == VTSS_HQOS_SE_NONE) ||
-                (hier->l0_ses[l0].l1_se == VTSS_HQOS_SE_NONE)) {
+        for (port = port_start; port <= port_end; port++) {
+            hier = &hqos->hier_conf[port];
+            conf = &hqos->port_conf[port];
+
+            if (conf->sch_mode != VTSS_HQOS_SCH_MODE_HIERARCHICAL) {
                 continue;
             }
-            u32 l1_se = hier->l0_ses[l0].l1_se;
-            u32 l0_se = hier->l0_ses[l0].se;
-            u32 l1_index = find_l1_index(hier, l1_se);
-            u32 l2_input = hier->l1_ses[l1_index].l2_input;
-            u32 l1_input = hier->l0_ses[l0].l1_input;
-            u32 l0_rate;
 
-            if (hier->l0_ses[l0].conf.priority_service) {
-                l0_rate = min_rate_calc(vtss_state, 1, l1_se, l1_input, 1000000);
-            } else {
-                l0_rate = min_rate_calc(vtss_state, 1, l1_se, l1_input, l1_rate[l2_input]);
+            u32 l2_se = cport;
+            u32 l1_rate[5];
+            for (i = 0; i < 5; ++i) {
+                l1_rate[i] = min_rate_calc(vtss_state, 2, l2_se, i, 1000000);
             }
-            u32 off = (l0_rate > hier->l0_ses[l0].conf.min_rate)
-                          ? l0_rate - hier->l0_ses[l0].conf.min_rate
-                          : hier->l0_ses[l0].conf.min_rate - l0_rate;
-            pr("HQOS-ID: %3u  L1-SE: %4u  L0-SE: %4u  MIN-RATE: %7u  ACT-RATE: %7u  OFF: %7u  PCT: %u\n",
-               hier->l0_ses[l0].hqos_id, l1_se, l0_se, hier->l0_ses[l0].conf.min_rate, l0_rate, off,
-               (l0_rate * 100) / hier->l0_ses[l0].conf.min_rate);
+            for (l0 = 0; l0 < VTSS_HQOS_PORT_L0_MAX; ++l0) {
+                if ((hier->l0_ses[l0].se == VTSS_HQOS_SE_NONE) ||
+                    (hier->l0_ses[l0].l1_se == VTSS_HQOS_SE_NONE)) {
+                    continue;
+                }
+                u32 l1_se = hier->l0_ses[l0].l1_se;
+                u32 l0_se = hier->l0_ses[l0].se;
+                u32 l1_index = find_l1_index(hier, l1_se);
+                u32 l2_input = hier->l1_ses[l1_index].l2_input;
+                u32 l1_input = hier->l0_ses[l0].l1_input;
+                u32 l0_rate;
+
+                if (hier->l0_ses[l0].conf.priority_service) {
+                    l0_rate = min_rate_calc(vtss_state, 1, l1_se, l1_input, 1000000);
+                } else {
+                    l0_rate = min_rate_calc(vtss_state, 1, l1_se, l1_input, l1_rate[l2_input]);
+                }
+                u32 off = (l0_rate > hier->l0_ses[l0].conf.min_rate)
+                              ? l0_rate - hier->l0_ses[l0].conf.min_rate
+                              : hier->l0_ses[l0].conf.min_rate - l0_rate;
+                pr("HQOS-ID: %3u  L1-SE: %4u  L0-SE: %4u  MIN-RATE: %7u  ACT-RATE: %7u  "
+                   "OFF: %7u  PCT: %u\n",
+                   hier->l0_ses[l0].hqos_id, l1_se, l0_se, hier->l0_ses[l0].conf.min_rate,
+                   l0_rate, off, (l0_rate * 100) / hier->l0_ses[l0].conf.min_rate);
+            }
         }
     }
 
@@ -1734,7 +1744,10 @@ static vtss_rc fa_hqos_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_fa_hqos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    u32  port_no, chip_port, large_mask;
+    u32  port_no, chip_port;
+#if defined(HENRIKTBD)
+    u32 large_mask;
+#endif
     BOOL chip_port_used[VTSS_PORT_CNT] = {};
 
     switch (cmd) {
@@ -1768,8 +1781,10 @@ vtss_rc vtss_fa_hqos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             // A Normal hierarchy port uses 8 large L0 SEs
             // In every replication there are large SE configuration bits for 4 ports (8 * 4 = 32)
             // The 8 large SEs give a mask = 0xFF
+#if defined(HENRIKTBD)
             large_mask = 0x0FF << ((chip_port % 4) * 8);
             REG_WRM(VTSS_HSCH_HSCH_LARGE_ENA(chip_port / 4), 0, large_mask);
+#endif
         }
         break;
     default: break;

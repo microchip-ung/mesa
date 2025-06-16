@@ -1912,6 +1912,9 @@ vtss_rc vtss_vlan_vid_conf_get(const vtss_inst_t           inst,
 #if defined(VTSS_FEATURE_VLAN_SVL)
         conf->fid = e->fid;
 #endif /* VTSS_FEATURE_VLAN_SVL */
+#if defined(VTSS_FEATURE_HQOS)
+        conf->hqos_id = e->hqos_id;
+#endif
     }
     VTSS_EXIT();
     return rc;
@@ -5398,6 +5401,9 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_VLAN_SVL)
         vlan_entry->fid = vid;
 #endif /* VTSS_FEATURE_VLAN_SVL */
+#if defined(VTSS_FEATURE_HQOS)
+        vlan_entry->hqos_id = VTSS_HQOS_ID_NONE;
+#endif
         if (vid != VTSS_VID_DEFAULT) {
             continue;
         }
