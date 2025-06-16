@@ -5757,6 +5757,18 @@ static vtss_rc fa_vcap_port_map(vtss_state_t *vtss_state)
 #endif
         /* Enable IS2 lookup 1-3 */
         REG_WRM_CTL(VTSS_ANA_ACL_VCAP_S2_CFG(port), 1, VTSS_F_ANA_ACL_VCAP_S2_CFG_SEC_ENA(0xe));
+
+        if (0) {
+            // Default action for CLM-B[0]
+            VTSS_MEMSET(data, 0, sizeof(*data));
+            data->type = FA_VCAP_TG_X3;
+            data->vcap_type = VTSS_VCAP_TYPE_CLM_B;
+            FA_ACT_SET(CLM, FULL_XVID_ADD_REPLACE_SEL, 2);
+            FA_ACT_SET(CLM, FULL_VID_VAL, 1);
+            addr = fa_vcap_action_addr(vtss_state, data->vcap_type, port, 0);
+            VTSS_RC(fa_vcap_entry_cmd(vtss_state, data, addr, data->type, FA_VCAP_CMD_WRITE,
+                                      FA_VCAP_SEL_ACTION));
+        }
     }
 
     /* IS2 key base at index 70:
