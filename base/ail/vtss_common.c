@@ -338,7 +338,6 @@ static const char *const vtss_debug_group_name[VTSS_DEBUG_GROUP_COUNT] = {
 #if defined(VTSS_FEATURE_HW_PROT)
     [VTSS_DEBUG_GROUP_HW_PROT] = "HW Protection",
 #endif
-    [VTSS_DEBUG_GROUP_HQOS] = "HQoS",
     [VTSS_DEBUG_GROUP_VXLAT] = "VLAN Translation",
     [VTSS_DEBUG_GROUP_SER_GPIO] = "Serial GPIO",
 #if defined(VTSS_FEATURE_VOP)
