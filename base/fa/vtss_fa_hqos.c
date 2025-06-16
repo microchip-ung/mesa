@@ -1694,8 +1694,8 @@ static vtss_rc fa_debug_hqos(vtss_state_t                  *vtss_state,
                               : hier->l0_ses[l0].conf.min_rate - l0_rate;
                 pr("HQOS-ID: %3u  L1-SE: %4u  L0-SE: %4u  MIN-RATE: %7u  ACT-RATE: %7u  "
                    "OFF: %7u  PCT: %u\n",
-                   hier->l0_ses[l0].hqos_id, l1_se, l0_se, hier->l0_ses[l0].conf.min_rate,
-                   l0_rate, off, (l0_rate * 100) / hier->l0_ses[l0].conf.min_rate);
+                   hier->l0_ses[l0].hqos_id, l1_se, l0_se, hier->l0_ses[l0].conf.min_rate, l0_rate,
+                   off, (l0_rate * 100) / hier->l0_ses[l0].conf.min_rate);
             }
         }
     }
@@ -1744,7 +1744,7 @@ static vtss_rc fa_hqos_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_fa_hqos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    u32  port_no, chip_port;
+    u32 port_no, chip_port;
 #if defined(HENRIKTBD)
     u32 large_mask;
 #endif
