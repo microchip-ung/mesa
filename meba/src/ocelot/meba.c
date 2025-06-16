@@ -255,7 +255,6 @@ static mesa_rc ocelot_poll(meba_inst_t inst)
                 T_I(inst, "Reset QSGMII - status = %x\n", v);
                 meba_phy_qsgmii_sync(inst, port_no);
             }
-
         }
     }
 
