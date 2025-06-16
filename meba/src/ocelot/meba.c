@@ -237,6 +237,31 @@ static mesa_rc pcb120_init_board(meba_inst_t inst)
     return rc;
 }
 
+static mesa_rc ocelot_poll(meba_inst_t inst)
+{
+    meba_board_state_t *board = INST2BOARD(inst);
+    mesa_port_no_t      port_no;
+
+    // It has been found that on Ocelot boards with Tesla PHY connected through QSGMII,
+    // it can take long time for the switch to lock on the QSGMII signal received from
+    // PHY. In those cases it can help to reset the QSGMII on the PHY side.
+    for (port_no = 0; port_no < board->port_cnt; port_no++) {
+        if (MESA_PORT_INTERFACE_QSGMII == board->port[port_no].map.mac_if) {
+            uint32_t hsio_hw_cfgstat_hw_qsgmii_stat =  0x434045;
+
+            uint32_t v;
+            mesa_reg_read(NULL, 0, hsio_hw_cfgstat_hw_qsgmii_stat, &v);
+            if ((v & 0x1) == 0) {
+                T_I(inst, "Reset QSGMII - status = %x\n", v);
+                meba_phy_qsgmii_sync(inst, port_no);
+            }
+
+        }
+    }
+
+    return MESA_RC_OK;
+}
+
 static mesa_rc pcb123_init_board(meba_inst_t inst)
 {
     mesa_rc           rc;
@@ -1961,6 +1986,7 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
     inst->api.meba_deinitialize = meba_deinitialize;
     inst->api.meba_ptp_rs422_conf_get = ocelot_ptp_rs422_conf_get;
     inst->api.meba_ptp_external_io_conf_get = ocelot_ptp_external_io_conf_get;
+    inst->api.meba_poll = ocelot_poll;
 
     inst->api_synce = meba_synce_get();
     inst->api_tod = meba_tod_get();

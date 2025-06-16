@@ -201,6 +201,9 @@ typedef mesa_rc (*meba_ptp_external_io_conf_get_t)(meba_inst_t              inst
                                                    meba_ptp_io_cap_t *const board_assignment,
                                                    meba_event_t *const      source_id);
 
+// Poll function to allow meba to do internal monitoring of status. To be called once a second.
+typedef mesa_rc (*meba_poll_t)(struct meba_inst *inst);
+
 typedef struct {
     meba_deinitialize_t             meba_deinitialize;
     meba_capability_t               meba_capability;
@@ -225,6 +228,7 @@ typedef struct {
     meba_gpio_func_info_get_t       meba_gpio_func_info_get;
     meba_serdes_tap_get_t           meba_serdes_tap_get;
     meba_ptp_external_io_conf_get_t meba_ptp_external_io_conf_get;
+    meba_poll_t                     meba_poll;
 } meba_api_t;
 
 // Full list of MEBA entrypoints. This allows users of this API to apply the
@@ -251,7 +255,8 @@ typedef struct {
     X(meba_irq_requested)                                                                          \
     X(meba_event_enable)                                                                           \
     X(meba_ptp_rs422_conf_get)                                                                     \
-    X(meba_ptp_external_io_conf_get)
+    X(meba_ptp_external_io_conf_get)                                                               \
+    X(meba_poll)
 
 #include <microchip/ethernet/board/api/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_BOARD_BASE_H_
