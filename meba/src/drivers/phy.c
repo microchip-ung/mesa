@@ -832,7 +832,7 @@ mepa_rc meba_warmrestart_conf_set(meba_inst_t          inst,
 mepa_rc meba_phy_qsgmii_sync(meba_inst_t inst, const mepa_port_no_t port_no)
 {
     T_I(inst, "Called port %d", port_no);
-    if((port_no < 0) || (port_no >= inst->phy_device_cnt))  {
+    if ((port_no < 0) || (port_no >= inst->phy_device_cnt)) {
         return MESA_RC_ERR_INV_PORT_BOARD;
     }
 
