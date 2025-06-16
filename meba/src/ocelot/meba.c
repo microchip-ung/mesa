@@ -247,7 +247,7 @@ static mesa_rc ocelot_poll(meba_inst_t inst)
     // PHY. In those cases it can help to reset the QSGMII on the PHY side.
     for (port_no = 0; port_no < board->port_cnt; port_no++) {
         if (MESA_PORT_INTERFACE_QSGMII == board->port[port_no].map.mac_if) {
-            uint32_t hsio_hw_cfgstat_hw_qsgmii_stat =  0x434045;
+            uint32_t hsio_hw_cfgstat_hw_qsgmii_stat = 0x434045;
 
             uint32_t v;
             mesa_reg_read(NULL, 0, hsio_hw_cfgstat_hw_qsgmii_stat, &v);
