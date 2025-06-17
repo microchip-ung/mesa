@@ -1,0 +1,10 @@
+# Copyright (c) 2004-2023 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+---
+directory: ./lan80xx/src/sha256
+license: MIT
+name: SHA-256
+version: c6cf8e509a713ef28c0b1b2f12578735b6402323
+source: https://github.com/LekKit/sha256.git
+description: SHA-256 algorithm implementation (C/C++)
+attribution_file: mepa/microchip/lan80xx/src/sha256/LICENSE

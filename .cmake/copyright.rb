@@ -69,6 +69,7 @@ end
   next if /mepa.docs.resources.font/ =~ f
   next if /mepa.docs.resources.jquery/ =~ f
   next if /mepa.docs.resources.bootstrap/ =~ f
+  next if /mepa.microchip.lan80xx.src.sha256/ =~ f
   next if /.cmake\/docker\/SimpleGridClient/ =~ f
 
   next if ".cmake/pod-base.yaml" == f
