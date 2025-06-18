@@ -1366,6 +1366,10 @@ static vtss_rc fa_debug_hqos(vtss_state_t                  *vtss_state,
         hier_act = (info->action == 4) ? TRUE : FALSE;
         se_act = (info->action == 5) ? TRUE : FALSE;
         hq_act = (info->action == 6) ? TRUE : FALSE;
+    } else {
+        pr("HQOS CIL Debug only support the action command.\n");
+        pr("Do 'mesa-cmd deb api cil hqos action 0' to see supported commands\n");
+        return VTSS_RC_OK;
     }
 
     if (info->action > 6) { /* There potentially a encoded port and/or QGRP */
@@ -1744,10 +1748,8 @@ static vtss_rc fa_hqos_init(vtss_state_t *vtss_state)
 
 vtss_rc vtss_fa_hqos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 {
-    u32 port_no, chip_port;
-#if defined(HENRIKTBD)
-    u32 large_mask;
-#endif
+    u32  port_no, chip_port;
+    u32  large_mask;
     BOOL chip_port_used[VTSS_PORT_CNT] = {};
 
     switch (cmd) {
@@ -1769,6 +1771,7 @@ vtss_rc vtss_fa_hqos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         }
         // Chip Port 65 - 69 are CPU and Device (internal) ports. These SEs cannot be used for HQOS.
         for (chip_port = 65; chip_port < VTSS_PORT_CNT; chip_port++) {
+            chip_port_used[chip_port] = TRUE;
             (void)l0_used_set(vtss_state, chip_port);
             (void)vport_used_set(vtss_state, chip_port);
         }
@@ -1781,10 +1784,8 @@ vtss_rc vtss_fa_hqos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             // A Normal hierarchy port uses 8 large L0 SEs
             // In every replication there are large SE configuration bits for 4 ports (8 * 4 = 32)
             // The 8 large SEs give a mask = 0xFF
-#if defined(HENRIKTBD)
             large_mask = 0x0FF << ((chip_port % 4) * 8);
             REG_WRM(VTSS_HSCH_HSCH_LARGE_ENA(chip_port / 4), 0, large_mask);
-#endif
         }
         break;
     default: break;
