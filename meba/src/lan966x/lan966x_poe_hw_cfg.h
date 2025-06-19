@@ -62,13 +62,11 @@
 // BT capability
 #define PD69200_BT_CAP                                                                             \
     MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2 |                  \
-        MEBA_POE_PORT_CAP_TYPE_3 | MEBA_POE_PORT_CAP_TYPE_4 | MEBA_POE_PORT_CAP_4PAIR |            \
-        MEBA_POE_PORT_CAP_FORCE_ON
+        MEBA_POE_PORT_CAP_TYPE_3 | MEBA_POE_PORT_CAP_TYPE_4
 
 // PREBT capability
 #define PD69200_PREBT_CAP                                                                          \
-    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2 |                  \
-        MEBA_POE_PORT_CAP_FORCE_ON
+    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2
 
 #define PD69200_CAP                                                                                \
     ((LAN9668_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) ? PD69200_BT_CAP        \
@@ -98,13 +96,6 @@ meba_poe_port_properties_t lan9668_pd69200_4pairs_port_map[] = {
 //-------------------------//
 //----- BT parameters -----//
 //-------------------------//
-
-// BT System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-// MEBA_POE_PORT_MAX_POWER_15W
-// MEBA_POE_PORT_MAX_POWER_30W
-// MEBA_POE_PORT_MAX_POWER_60W
-// MEBA_POE_PORT_MAX_POWER_90W
-#define LAN9668_BT_PORT_MAX_POWER_DEFAULT MEBA_POE_PORT_MAX_POWER_60W
 
 // Port Operation Mode for legacy
 // This parameter sets a combination of various port behaviors: Legacy

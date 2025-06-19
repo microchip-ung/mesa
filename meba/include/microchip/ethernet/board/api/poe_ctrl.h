@@ -83,20 +83,8 @@ typedef enum {
     MEBA_POE_PORT_CAP_TYPE_3 = 0x8,
 
     // 802.3bt - Class 0-8+, 2 or 4-pair
-    MEBA_POE_PORT_CAP_TYPE_4 = 0x10,
+    MEBA_POE_PORT_CAP_TYPE_4 = 0x10
 
-    // Port can be forced to emit power.
-    MEBA_POE_PORT_CAP_FORCE_ON = 0x20,
-
-    // The pair used for PoE is configurable
-    MEBA_POE_PORT_CAP_2PAIR_CONTROL = 0x40,
-
-    // Port supports PoE over 4-pairs.
-    MEBA_POE_PORT_CAP_4PAIR = 0x80,
-
-    // Allow to set power budget based on current consumption (triggered by
-    // lldp).
-    MEBA_POE_PORT_CAP_AUTOCLASS = 0x100,
 } meba_poe_port_cap_t;
 
 // State of the PoE chip identification.
@@ -460,8 +448,8 @@ typedef struct {
     // PoE Port configured priority.
     meba_poe_pd_power_priority_t priority;
 
-    // PoE port type3 15W 30W 60W or type4 90W
-    meba_poe_port_type_t bt_pse_port_power_index;
+    // PoE port type3 15W 30W 60W or type4 90W (meba_poe_port_type_t)
+    uint8_t bt_pse_port_power_index;
 
     // PoE port is in lldp mode
     mesa_bool_t lldp_mode;
@@ -583,25 +571,27 @@ typedef struct {
 
 } meba_poe_pd_data_t;
 
-//---------------------------------------------------
-//        PoE init parameters
-//---------------------------------------------------
+//---------------------------------------------------//
+//        PoE init parameters                        //
+//---------------------------------------------------//
 
 #define MAX_PORD_NAME_STR_LEN 100 // max string size of product name
 
-typedef struct // parameters taken from DB according to PN read from PoEMCU
-               // serial number
-{
+// parameters taken from DB according to PN read from PoEMCU serial number
+typedef struct {
     mesa_bool_t use_poe_static_parameters;
-    uint8_t     max_poe_ports; // Max number of POE channels ( 6/12/24/48) based on
-                               // product det (serial number)
+
+    uint8_t max_poe_ports; // Max number of POE channels (6/12/24/48)
+
     meba_power_supply_int_ext_t ePower_supply_internal_external;
 
     // Power Supply Max-Power(Watt): after decrementing internal power consumption (450 -> 430,etc)
     uint16_t power_supply_default_power_limit;
 
-    // Maximum Power Supply power (Watt)
+    // maximum Power Supply power (Watt)
     uint16_t power_supply_max_power_w;
+
+    // internal power consumed by the hardware
     uint16_t power_supply_internal_pwr_usage;
 
     // Product name - retrieved from DB according to product being detected
@@ -626,7 +616,6 @@ typedef struct {
 
 // PoE port pse data.
 typedef struct {
-
     // IEEE Std 802.3bt Section 30.9.1.1.2 aPSEPowerPairsControlAbility
     mesa_bool_t power_pairs_control_ability;
 
@@ -704,7 +693,7 @@ typedef struct {
 // and is exposed to the application through this interface.
 typedef struct {
     // Port capabilities.
-    meba_poe_port_cap_t capabilities;
+    meba_poe_port_cap_t poe_capabilities;
 
     // Max power the port can emit.
     mesa_poe_milliwatt_t max;

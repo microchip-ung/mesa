@@ -10,8 +10,6 @@ meba_poe_parameters_t tPoE_parameters = {
     .tMeba_poe_firmware_type = JR2_POE_FIRMWARE_TYPE_DEFAULT,
     // PD692x0 family detection method
     .ePoE_Controller_Type_default = JR2_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT,
-    // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-    .ePoE_port_max_power_default = JR2_BT_PORT_MAX_POWER_DEFAULT,
 
     // BT complient port operation Mode
     .bt_operation_mode_compliant_15w_default = JR2_BT_COMPLIANT_15W_DEFAULT,

@@ -62,13 +62,6 @@
 //-----  JR2 BT parameters -----//
 //------------------------------//
 
-// BT System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-// MEBA_POE_PORT_MAX_POWER_15W
-// MEBA_POE_PORT_MAX_POWER_30W
-// MEBA_POE_PORT_MAX_POWER_60W
-// MEBA_POE_PORT_MAX_POWER_90W
-#define JR2_BT_PORT_MAX_POWER_DEFAULT MEBA_POE_PORT_MAX_POWER_60W
-
 // Port Operation Mode for legacy
 // This parameter sets a combination of various port behaviors: Legacy
 // detection, port power, classification fingers, and 4-pair operation. see
@@ -299,8 +292,7 @@
 
 // PREBT AT capability
 #define PD69200_PREBT_CAP                                                                          \
-    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2 |                  \
-        MEBA_POE_PORT_CAP_FORCE_ON
+    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2
 
 // Note: 'PREBT- Max PWR' column is not applicable for PoE BT. set PoE BT max
 // power by modifying the 'PORT_MAX_POWER_DEFAULT' parameter.

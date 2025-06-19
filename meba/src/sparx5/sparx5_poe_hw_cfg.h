@@ -80,13 +80,6 @@
 
 //-----  SPARX5 GEN6 BT parameters  -----//
 
-// System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-// MEBA_POE_PORT_MAX_POWER_15W
-// MEBA_POE_PORT_MAX_POWER_30W
-// MEBA_POE_PORT_MAX_POWER_60W
-// MEBA_POE_PORT_MAX_POWER_90W
-#define SPARX5_GEN6_BT_PORT_MAX_POWER_DEFAULT MEBA_POE_PORT_MAX_POWER_90W
-
 // Port Operation Mode for legacy
 // This parameter sets a combination of various port behaviors: Legacy
 // detection, port power, classification fingers, and 4-pair operation. see
@@ -215,13 +208,6 @@
 #define SPARX5_INDV_MASK_GEN6_BT_HOCPP_DEFAULT 2
 
 //----- SPARX5 GEN7 BT parameters ------//
-
-// System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-// MEBA_POE_PORT_MAX_POWER_15W
-// MEBA_POE_PORT_MAX_POWER_30W
-// MEBA_POE_PORT_MAX_POWER_60W
-// MEBA_POE_PORT_MAX_POWER_90W
-#define SPARX5_GEN7_BT_PORT_MAX_POWER_DEFAULT MEBA_POE_PORT_MAX_POWER_90W
 
 // Port Operation Mode for legacy
 // This parameter sets a combination of various port behaviors: Legacy
@@ -384,16 +370,14 @@
 // Type 3(IEEE 802.3bt) 4P 60W
 // Type 4(IEEE 802.3bt) 4P 90W
 
-// PDS408G BT capability
+// SPARX BT capability
 #define SPARX_PD_BT_CAP                                                                            \
     MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2 |                  \
-        MEBA_POE_PORT_CAP_TYPE_3 | MEBA_POE_PORT_CAP_TYPE_4 | MEBA_POE_PORT_CAP_4PAIR |            \
-        MEBA_POE_PORT_CAP_FORCE_ON
+        MEBA_POE_PORT_CAP_TYPE_3 | MEBA_POE_PORT_CAP_TYPE_4
 
-// PDS408G PREBT capability
+// SPARX PREBT capability
 #define SPARX_PD_PREBT_CAP                                                                         \
-    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2 |                  \
-        MEBA_POE_PORT_CAP_4PAIR | MEBA_POE_PORT_CAP_FORCE_ON
+    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2
 
 #define SPARX_PD_CAP                                                                               \
     ((SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT) ? SPARX_PD_PREBT_CAP  \
@@ -586,13 +570,6 @@ meba_poe_port_properties_t sparx5_pd69777_4pairs_port_map[] = {
 
 //-----  LAGUNA GEN6 BT parameters  -----//
 
-// System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-// MEBA_POE_PORT_MAX_POWER_15W
-// MEBA_POE_PORT_MAX_POWER_30W
-// MEBA_POE_PORT_MAX_POWER_60W
-// MEBA_POE_PORT_MAX_POWER_90W
-#define LAGUNA_GEN6_BT_PORT_MAX_POWER_DEFAULT MEBA_POE_PORT_MAX_POWER_60W
-
 // Port Operation Mode for legacy
 // This parameter sets a combination of various port behaviors: Legacy
 // detection, port power, classification fingers, and 4-pair operation. see
@@ -721,13 +698,6 @@ meba_poe_port_properties_t sparx5_pd69777_4pairs_port_map[] = {
 #define LAGUNA_INDV_MASK_GEN6_BT_HOCPP_DEFAULT 2
 
 //----- LAGUNA GEN7 BT parameters ------//
-
-// System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-// MEBA_POE_PORT_MAX_POWER_15W
-// MEBA_POE_PORT_MAX_POWER_30W
-// MEBA_POE_PORT_MAX_POWER_60W
-// MEBA_POE_PORT_MAX_POWER_90W
-#define LAGUNA_GEN7_BT_PORT_MAX_POWER_DEFAULT MEBA_POE_PORT_MAX_POWER_90W
 
 // Port Operation Mode for legacy
 // This parameter sets a combination of various port behaviors: Legacy
@@ -890,16 +860,14 @@ meba_poe_port_properties_t sparx5_pd69777_4pairs_port_map[] = {
 // Type 3(IEEE 802.3bt) 4P 60W
 // Type 4(IEEE 802.3bt) 4P 90W
 
-// PDS408G BT capability
+// LAGUNA BT capability
 #define LAGUNA_PD_BT_CAP                                                                           \
     MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2 |                  \
-        MEBA_POE_PORT_CAP_TYPE_3 | MEBA_POE_PORT_CAP_TYPE_4 | MEBA_POE_PORT_CAP_4PAIR |            \
-        MEBA_POE_PORT_CAP_FORCE_ON
+        MEBA_POE_PORT_CAP_TYPE_3 | MEBA_POE_PORT_CAP_TYPE_4
 
-// PDS408G PREBT capability
+// LAGUNA PREBT capability
 #define LAGUNA_PD_PREBT_CAP                                                                        \
-    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2 |                  \
-        MEBA_POE_PORT_CAP_4PAIR | MEBA_POE_PORT_CAP_FORCE_ON
+    MEBA_POE_PORT_CAP_POE | MEBA_POE_PORT_CAP_TYPE_1 | MEBA_POE_PORT_CAP_TYPE_2
 
 #define LAGUNA_PD_CAP                                                                              \
     ((LAGUNA_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT) ? LAGUNA_PD_PREBT_CAP \

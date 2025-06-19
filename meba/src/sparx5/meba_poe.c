@@ -13,8 +13,6 @@ meba_poe_parameters_t tSparx_poe_parameters = {
     .ePoE_Controller_Type_default = SPARX5_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT,
 
 #if SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN6_BT
-    // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-    .ePoE_port_max_power_default = SPARX5_GEN6_BT_PORT_MAX_POWER_DEFAULT,
 
     // BT complient port operation Mode
     .bt_operation_mode_compliant_15w_default = SPARX5_GEN6_BT_COMPLIANT_15W_DEFAULT,
@@ -62,9 +60,6 @@ meba_poe_parameters_t tSparx_poe_parameters = {
         SPARX5_INDV_MASK_GEN6_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT,
 
 #elif SPARX5_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN7_BT
-
-    // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-    .ePoE_port_max_power_default = SPARX5_GEN7_BT_PORT_MAX_POWER_DEFAULT,
 
     // BT complient port operation Mode
     .bt_operation_mode_compliant_15w_default = SPARX5_GEN7_BT_COMPLIANT_15W_DEFAULT,
@@ -138,8 +133,6 @@ meba_poe_parameters_t tLaguna_poe_parameters = {
     .ePoE_Controller_Type_default = LAGUNA_POE_GEN6_PD692x0_CONTROLLER_TYPE_DEFAULT,
 
 #if LAGUNA_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN6_BT
-    // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-    .ePoE_port_max_power_default = LAGUNA_GEN6_BT_PORT_MAX_POWER_DEFAULT,
 
     // BT complient port operation Mode
     .bt_operation_mode_compliant_15w_default = LAGUNA_GEN6_BT_COMPLIANT_15W_DEFAULT,
@@ -187,9 +180,6 @@ meba_poe_parameters_t tLaguna_poe_parameters = {
         LAGUNA_INDV_MASK_GEN6_BT_SUPPORT_ADDING_LLDP_HALF_PRIORITY_DEFAULT,
 
 #elif LAGUNA_POE_FIRMWARE_TYPE_DEFAULT == MEBA_POE_FIRMWARE_TYPE_GEN7_BT
-
-    // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-    .ePoE_port_max_power_default = LAGUNA_GEN7_BT_PORT_MAX_POWER_DEFAULT,
 
     // BT complient port operation Mode
     .bt_operation_mode_compliant_15w_default = LAGUNA_GEN7_BT_COMPLIANT_15W_DEFAULT,

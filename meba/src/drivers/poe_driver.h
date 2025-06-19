@@ -21,9 +21,6 @@ typedef struct {
     // PD692x0 family detection method
     uint8_t ePoE_Controller_Type_default; // meba_poe_controller_type_t
 
-    // System has 4 modes = 15/30/60/90 (applicable for all poe ports)
-    uint8_t ePoE_port_max_power_default; // meba_poe_port_max_power_t
-
     // BT complient port operation Mode
     uint8_t bt_operation_mode_compliant_15w_default;
     uint8_t bt_operation_mode_compliant_30w_default;

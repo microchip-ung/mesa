@@ -607,23 +607,18 @@ typedef struct {
     telemetry_bt_gen7_boot_up_error_e eTelemetry_bt_gen7_boot_up_error;
 } poe_driver_private_t;
 
-// parameters taken from DB according to PN read from POEMCU serial number
-typedef struct {
-    int      poe_port_mode_max_power_index;              // 0=15w, 1=30w, 2=60w, 3=90w
-    uint8_t  class_error_selection[2];                   // 0=Legacy , 1=BT
-    uint32_t port_max_pwr_per_type_mW;                   // Max single POE port power in mWatt
-    uint8_t  port_type_operation_mode[MAX_POE_TYPES][4]; // columne0: pse_type and 0=Legacy,1=BT
-                                                         // columne1: 0-BT ,1-legacy org ,2-poh
-                                                         // ,3-Ignore-PD-Class
-} Prod;
+uint8_t prod_class_error_selection[4][2] = {
+    {0x1, 0}, // index 0: legacy = 0x1, BT = 0
+    {0x2, 0}, // index 1: legacy = 0x2, BT = 0
+    {0x3, 0}, // index 2: legacy = 0x3, BT = 0
+    {0x4, 0}  // index 3: legacy = 0x4, BT = 0
+};
 
-// System has 4 modes = 15/30/60/90
-static const uint16_t poe_port_mode_max_power_w[] = {15, 30, 60, 90};
-static uint8_t        MAX_ADDED_CLASS_POWER_dW = 0; // Extra power per class in DeciWatt (25=2.5W)
+// columne0: pse_type and 0=Legacy,1=BT columne1:
+// 0-BT ,1-legacy org ,2-poh ,3-Ignore-PD-Class
+uint8_t prod_port_type_operation_mode[MAX_POE_TYPES][4];
 
-// allow poe to obtain init parameters from application (dynamically)
-// or from configuration file (statically)
-Prod prod;
+static uint8_t MAX_ADDED_CLASS_POWER_dW = 0; // Extra power per class in DeciWatt (25=2.5W)
 
 typedef struct {
     BT_Event_Cause_t tBT_event_cause;
@@ -673,6 +668,19 @@ poe_controller_t poe_controller[2];
 //------------------------//
 //  Local Functions       //
 //------------------------//
+
+uint8_t get_class_error_selection(const meba_poe_ctrl_inst_t *const inst,
+                                  uint8_t     bt_pse_port_power_index, // 0=15W ...3=90W
+                                  mesa_bool_t bt_en                    // 0 -prebt 1-Bt gen6/7
+)
+{
+    if ((bt_pse_port_power_index < 0) || (bt_pse_port_power_index > 3)) {
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING, "port_power_index value out of range= %d",
+              bt_pse_port_power_index);
+        return 0;
+    }
+    return prod_class_error_selection[bt_pse_port_power_index][bt_en];
+}
 
 //----------------------------------------------------------------------
 // description: read legal 15 bytes prtocol message from PoE device buffer.
@@ -4178,7 +4186,7 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_port_cfg_set(const meba_poe_ctrl_inst_t *con
     }
 
     // not a poe port
-    if (!(inst->port_map[handle].capabilities & MEBA_POE_PORT_CAP_POE)) {
+    if (!(inst->port_map[handle].poe_capabilities & MEBA_POE_PORT_CAP_POE)) {
         DEBUG(inst, MEBA_TRACE_LVL_NOISE, "%s Not PoE port=%d", __FUNCTION__, handle);
         return MESA_RC_ERR_PARM;
     }
@@ -4768,7 +4776,7 @@ static mesa_rc pd_active_matrix_verify(const meba_poe_ctrl_inst_t *const inst,
         // check if actual ports matrix configure matches the ports map table -
         // if not return error
         if (i < prod_max_poe_ports) {
-            if (inst->port_map[i].capabilities & MEBA_POE_PORT_CAP_POE) {
+            if (inst->port_map[i].poe_capabilities & MEBA_POE_PORT_CAP_POE) {
                 // if any of them are not matching - print it's index and return
                 // error
                 if ((port_a != inst->port_map[i].phys_port_a) ||
@@ -5504,7 +5512,7 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_port_status_get(const meba_poe_ctrl_inst_t *
     }
 
     // not a poe port
-    if (!(inst->port_map[handle].capabilities & MEBA_POE_PORT_CAP_POE)) {
+    if (!(inst->port_map[handle].poe_capabilities & MEBA_POE_PORT_CAP_POE)) {
         DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "%s Not PoE port=%d", __FUNCTION__, handle);
         return MESA_RC_ERR_PARM;
     }
@@ -6392,7 +6400,7 @@ mesa_rc meba_poe_ctrl_pd_port_capabilities_get(const meba_poe_ctrl_inst_t *const
         return MESA_RC_ERR_PARM;
     }
 
-    *capabilities = inst->port_map[handle].capabilities;
+    *capabilities = inst->port_map[handle].poe_capabilities;
     return MESA_RC_OK;
 }
 
@@ -6760,24 +6768,55 @@ static mesa_rc meba_poe_pd_bt_get_BT_port_parameters(const meba_poe_ctrl_inst_t 
     return MESA_RC_OK;
 }
 
-uint8_t get_port_type_operation_mode(uint8_t bt_pse_port_power_index, // 0=15W ... 3=90W
-                                     uint8_t bt_en,                   // o -prebt 1-Bt gen6/7
-                                     uint8_t legacy_pd_class_mode)
+uint8_t get_port_cap_max_power_index(const meba_poe_ctrl_inst_t *const inst,
+                                     meba_poe_port_handle_t            handle)
+{
+    if (inst->port_map[handle].poe_capabilities & MEBA_POE_PORT_CAP_TYPE_4) {
+        return MEBA_POE_PSE_PORT_TYPE4_90W; // 3
+    } else if (inst->port_map[handle].poe_capabilities & MEBA_POE_PORT_CAP_TYPE_3) {
+        return MEBA_POE_PSE_PORT_TYPE3_60W; // 2
+    } else if (inst->port_map[handle].poe_capabilities & MEBA_POE_PORT_CAP_TYPE_2) {
+        return MEBA_POE_PSE_PORT_TYPE3_30W; // 1
+    } else if (inst->port_map[handle].poe_capabilities & MEBA_POE_PORT_CAP_TYPE_1) {
+        return MEBA_POE_PSE_PORT_TYPE3_15W; // 0
+    } else {
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING, "port type capability is missing");
+        return MEBA_POE_PSE_PORT_TYPE3_15W; // 0
+    }
+}
+
+uint8_t get_port_type_operation_mode(const meba_poe_ctrl_inst_t *const inst,
+                                     meba_poe_port_handle_t            handle,
+                                     uint8_t    *bt_pse_port_power_index, // 0=15W ... 3=90W
+                                     mesa_bool_t bt_en,                   // o -prebt 1-Bt gen6/7
+                                     uint8_t     legacy_pd_class_mode)
 {
     uint8_t col_ind = 0; // colume 0 - bt
     if (!bt_en) {        // mode is legacy (col 1,2,3)
         col_ind = legacy_pd_class_mode + 1;
     }
 
-    return prod.port_type_operation_mode[bt_pse_port_power_index][col_ind]; // pse_type , bt/legacy
+    uint8_t port_cap_max_power_index = get_port_cap_max_power_index(inst, handle);
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
+          "port=%d, port_cap_max_power_index=%d, req bt_pse_port_power_index=%d", handle,
+          port_cap_max_power_index, *bt_pse_port_power_index);
+
+    if (*bt_pse_port_power_index > port_cap_max_power_index) {
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING, "cannot set port=%d to max power=%d, setting to=%d",
+              handle, *bt_pse_port_power_index, port_cap_max_power_index);
+
+        *bt_pse_port_power_index = port_cap_max_power_index;
+    }
+
+    return prod_port_type_operation_mode[*bt_pse_port_power_index][col_ind]; // pse_type , bt/legacy
 }
 
 //-----------------------------------------------------------------------
 // Set_BT_ParamsByOperationMode()
 //
 // This function fill the local product database for each port depend on it's
-// classification (which result in port maximum power). BT_PORT_MAX_POWER_DEFAULT
-// is the enum for PoE port max power 15/30/60/90
+// classification (which result in port maximum power).
 //
 // Return: void
 //-----------------------------------------------------------------------
@@ -6788,87 +6827,49 @@ void Set_BT_ParamsByOperationMode(meba_poe_ctrl_inst_t *inst)
 
     //--- 15W ---//
     // BT compliant 15w
-    prod.port_type_operation_mode[0][0] = tPoE_parameters.bt_operation_mode_compliant_15w_default;
+    prod_port_type_operation_mode[0][0] = tPoE_parameters.bt_operation_mode_compliant_15w_default;
     // BT non compliant 15w legacy
-    prod.port_type_operation_mode[0][1] =
+    prod_port_type_operation_mode[0][1] =
         tPoE_parameters.bt_operation_mode_none_compliant_15w_default;
     // poh - BT 15W legacy
-    prod.port_type_operation_mode[0][2] = BT_Non_Compliant_4P_15w_2P_15w_Legacy;
+    prod_port_type_operation_mode[0][2] = BT_Non_Compliant_4P_15w_2P_15w_Legacy;
     // ignore-pd-class - BT 15W legacy
-    prod.port_type_operation_mode[0][3] = BT_Non_Compliant_4P_15w_2P_15w_Legacy;
+    prod_port_type_operation_mode[0][3] = BT_Non_Compliant_4P_15w_2P_15w_Legacy;
 
     //--- 30W ---//
     // BT compliant 30w
-    prod.port_type_operation_mode[1][0] = tPoE_parameters.bt_operation_mode_compliant_30w_default;
+    prod_port_type_operation_mode[1][0] = tPoE_parameters.bt_operation_mode_compliant_30w_default;
     // BT non compliant 30w legacy
-    prod.port_type_operation_mode[1][1] =
+    prod_port_type_operation_mode[1][1] =
         tPoE_parameters.bt_operation_mode_none_compliant_30w_default;
     // poh - BT 30W legacy
-    prod.port_type_operation_mode[1][2] = BT_Non_Compliant_4P_30w_2P_30w_Legacy;
+    prod_port_type_operation_mode[1][2] = BT_Non_Compliant_4P_30w_2P_30w_Legacy;
     // ignore-pd-class - BT 30W legacy 60W
-    prod.port_type_operation_mode[1][3] = BT_Non_Compliant_4P_30w_2P_30w_Legacy;
+    prod_port_type_operation_mode[1][3] = BT_Non_Compliant_4P_30w_2P_30w_Legacy;
 
     //--- 60W ---//
     // BT compliant 60w
-    prod.port_type_operation_mode[2][0] = tPoE_parameters.bt_operation_mode_compliant_60w_default;
+    prod_port_type_operation_mode[2][0] = tPoE_parameters.bt_operation_mode_compliant_60w_default;
     // BT non compliant 60w legacy
-    prod.port_type_operation_mode[2][1] =
+    prod_port_type_operation_mode[2][1] =
         tPoE_parameters.bt_operation_mode_none_compliant_60w_default;
     // poh - BT 60W legacy
-    prod.port_type_operation_mode[2][2] = BT_Non_Compliant_4P_60w_2P_30w_Legacy;
+    prod_port_type_operation_mode[2][2] = BT_Non_Compliant_4P_60w_2P_30w_Legacy;
     // ignore-pd-class 90W
-    prod.port_type_operation_mode[2][3] =
+    prod_port_type_operation_mode[2][3] =
         tPoE_parameters.bt_operation_mode_legacy_60W_ignore_pd_class_default;
 
     //--- 90W ---//
     // BT compliant 90w
-    prod.port_type_operation_mode[3][0] = tPoE_parameters.bt_operation_mode_compliant_90w_default;
+    prod_port_type_operation_mode[3][0] = tPoE_parameters.bt_operation_mode_compliant_90w_default;
     // BT non compliant 90w legacy
-    prod.port_type_operation_mode[3][1] =
+    prod_port_type_operation_mode[3][1] =
         tPoE_parameters.bt_operation_mode_none_compliant_90w_default;
     // poh
-    prod.port_type_operation_mode[3][2] = tPoE_parameters.bt_operation_mode_legacy_90W_poh_default;
+    prod_port_type_operation_mode[3][2] = tPoE_parameters.bt_operation_mode_legacy_90W_poh_default;
     // ignore-pd-class
-    prod.port_type_operation_mode[3][3] =
+    prod_port_type_operation_mode[3][3] =
         tPoE_parameters.bt_operation_mode_legacy_90W_ignore_pd_class_default;
-
-    switch (tPoE_parameters.ePoE_port_max_power_default) {
-    case MEBA_POE_PORT_MAX_POWER_15W: {
-        prod.poe_port_mode_max_power_index = 0;
-        prod.class_error_selection[0] = 0x1; // legacy
-        prod.class_error_selection[1] = 0;   // BT
-        break;
-    }
-
-    case MEBA_POE_PORT_MAX_POWER_30W: {
-        prod.poe_port_mode_max_power_index = 1;
-        prod.class_error_selection[0] = 0x2; // legacy
-        prod.class_error_selection[1] = 0;   // BT
-        break;
-    }
-
-    case MEBA_POE_PORT_MAX_POWER_60W: {
-        prod.poe_port_mode_max_power_index = 2;
-        prod.class_error_selection[0] = 0x3; // legacy
-        prod.class_error_selection[1] = 0;   // BT
-        break;
-    }
-
-    case MEBA_POE_PORT_MAX_POWER_90W: {
-        prod.poe_port_mode_max_power_index = 3;
-        prod.class_error_selection[0] = 0x4; // legacy
-        prod.class_error_selection[1] = 0;   // BT
-        break;
-    }
-
-    default: {
-        prod.poe_port_mode_max_power_index = 2;
-        break;
-    }
-    }
-
-    prod.port_max_pwr_per_type_mW =
-        poe_port_mode_max_power_w[prod.poe_port_mode_max_power_index] * 1000;
 }
 
 // 'Get BT Port Status' driver
@@ -7061,10 +7062,13 @@ mesa_rc meba_poe_ctrl_pd_bt_port_cfg_set(const meba_poe_ctrl_inst_t *const inst,
 
     // port is enabled so operation mode will be calculated and set
     if (req_port_cfg->enable) {
-        req_bt_port_operation_mode = get_port_type_operation_mode(
-            req_port_cfg->bt_pse_port_power_index, !(req_port_cfg->bPoe_legacy_mode),
-            global_cfg->global_legacy_pd_class_mode); // pse_type , bt/legacy ,
-                                                      // legacy_pd_class_mode
+        req_bt_port_operation_mode =
+            get_port_type_operation_mode(inst, handle, &(req_port_cfg->bt_pse_port_power_index),
+                                         !(req_port_cfg->bPoe_legacy_mode),
+                                         global_cfg
+                                             ->global_legacy_pd_class_mode); // pse_type , bt/legacy
+                                                                             // ,
+                                                                             // legacy_pd_class_mode
 
         // check if port_operation_mode was changed
         if (port_cfg_POEMCU->bt_port_operation_mode != req_bt_port_operation_mode) {
@@ -7077,6 +7081,10 @@ mesa_rc meba_poe_ctrl_pd_bt_port_cfg_set(const meba_poe_ctrl_inst_t *const inst,
         // keep the bPoe_plus_mode setting
         req_port_cfg->bPoe_legacy_mode = port_cfg->bPoe_legacy_mode;
     }
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
+          "port_cfg->bt_pse_port_power_index=%d, req_port_cfg->bt_pse_port_power_index=%d",
+          port_cfg->bt_pse_port_power_index, req_port_cfg->bt_pse_port_power_index);
 
     // in case port is disabled: req_bt_port_operation_mode will be
     // port_cfg_POEMCU->bt_port_operation_mode in case port is enabled :
@@ -7171,6 +7179,9 @@ mesa_rc meba_poe_ctrl_pd_bt_port_cfg_set(const meba_poe_ctrl_inst_t *const inst,
     port_cfg->bt_port_pm_mode = BT_port_PM_mode_Do_not_change_settings;
     port_cfg->bt_pse_port_power_index = req_port_cfg->bt_pse_port_power_index;
 
+    uint8_t cfg_class_error_selection =
+        get_class_error_selection(inst, req_port_cfg->bt_pse_port_power_index, port_cfg->bt_en);
+
     // update parameters which affected when port is enabled
     if (req_port_cfg->enable) {
         port_cfg->bPoe_legacy_mode = req_port_cfg->bPoe_legacy_mode;
@@ -7180,7 +7191,10 @@ mesa_rc meba_poe_ctrl_pd_bt_port_cfg_set(const meba_poe_ctrl_inst_t *const inst,
         // composed from: pse_type, bt/legacy, legacy_pd_class_mode
         port_cfg->bt_port_operation_mode = req_bt_port_operation_mode;
 
-        port_cfg->class_error_selection = prod.class_error_selection[port_cfg->bt_en];
+        cfg_class_error_selection =
+            get_class_error_selection(inst, req_port_cfg->bt_pse_port_power_index, port_cfg->bt_en);
+
+        port_cfg->class_error_selection = cfg_class_error_selection;
     }
 
     port_cfg->bt_port_pm_mode = req_port_cfg->bt_port_pm_mode;
@@ -7248,28 +7262,24 @@ mesa_rc meba_poe_ctrl_pd_bt_port_cfg_set(const meba_poe_ctrl_inst_t *const inst,
         bParamChanged = true;
     }
 
-    if (port_cfg->enable) // update only if port is active - otherwise - set "no
-                          // change"
-    {
-        if ((port_cfg_POEMCU->class_error_selection !=
-             prod.class_error_selection[port_cfg->bt_en]) ||
-            (port_cfg->class_error_selection != prod.class_error_selection[port_cfg->bt_en])) {
-            if (port_cfg_POEMCU->class_error_selection !=
-                prod.class_error_selection[port_cfg->bt_en]) {
+    // update only if port is active - otherwise - set "no change"
+    if (port_cfg->enable) {
+        if ((port_cfg_POEMCU->class_error_selection != cfg_class_error_selection) ||
+            (port_cfg->class_error_selection != cfg_class_error_selection)) {
+            if (port_cfg_POEMCU->class_error_selection != cfg_class_error_selection) {
                 DEBUG(inst, MEBA_TRACE_LVL_INFO,
                       "* Change POEMCU CH-%02d class_error_selection from %d to %d", handle,
-                      port_cfg_POEMCU->class_error_selection,
-                      prod.class_error_selection[port_cfg->bt_en]);
+                      port_cfg_POEMCU->class_error_selection, cfg_class_error_selection);
             }
 
-            if (port_cfg->class_error_selection != prod.class_error_selection[port_cfg->bt_en]) {
+            if (port_cfg->class_error_selection != cfg_class_error_selection) {
                 DEBUG(inst, MEBA_TRACE_LVL_INFO,
                       "* Set Config CH-%02d class_error_selection from %d to %d", handle,
-                      port_cfg->class_error_selection, prod.class_error_selection[port_cfg->bt_en]);
+                      port_cfg->class_error_selection, cfg_class_error_selection);
             }
 
-            port_cfg->class_error_selection = prod.class_error_selection[port_cfg->bt_en];
-            Class_error_selection = prod.class_error_selection[port_cfg->bt_en];
+            port_cfg->class_error_selection = cfg_class_error_selection;
+            Class_error_selection = cfg_class_error_selection;
 
             bParamChanged = true;
         }
@@ -7687,7 +7697,7 @@ mesa_rc meba_poe_ctrl_pd_bt_port_status_get(const meba_poe_ctrl_inst_t *const in
     }
 
     // not a poe port
-    if (!(inst->port_map[handle].capabilities & MEBA_POE_PORT_CAP_POE)) {
+    if (!(inst->port_map[handle].poe_capabilities & MEBA_POE_PORT_CAP_POE)) {
         DEBUG(inst, MEBA_TRACE_LVL_NOISE, "%s Not PoE port= %d", __FUNCTION__, handle);
         return MESA_RC_ERR_PARM;
     }
@@ -7752,6 +7762,15 @@ mesa_rc meba_poe_ctrl_pd_bt_port_status_get(const meba_poe_ctrl_inst_t *const in
     mesa_bool_t bRead_port_status_and_port_class = has_event;
     mesa_bool_t bRead_port_measurements =
         has_event || poe_controller[inst->index].poe_delivering_pwr[handle];
+
+    // adding
+    current_port_status->port_status.bt_port_operation_mode =
+        port_cfg_POEMCU->bt_port_operation_mode;
+    current_port_status->port_status.bt_port_pm_mode = port_cfg_POEMCU->bt_port_pm_mode;
+    current_port_status->port_status.bt_pse_port_power_index = port_cfg->bt_pse_port_power_index;
+
+    DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "CH=%d ,bt_pse_port_power_index: %d", handle,
+          current_port_status->port_status.bt_pse_port_power_index);
 
     if (bRead_port_status_and_port_class) {
         uint8_t  port_state;
@@ -8015,16 +8034,6 @@ mesa_rc meba_poe_ctrl_pd_bt_port_status_get(const meba_poe_ctrl_inst_t *const in
         current_port_status->port_status.power_requested_mw = 0;
         // current_port_status->port_status.auto_class = 1 << 2; // We do
         // support auto class analyze
-
-        // adding
-        current_port_status->port_status.bt_port_operation_mode =
-            port_cfg_POEMCU->bt_port_operation_mode;
-        current_port_status->port_status.bt_port_pm_mode = port_cfg_POEMCU->bt_port_pm_mode;
-        current_port_status->port_status.bt_pse_port_power_index =
-            port_cfg->bt_pse_port_power_index;
-
-        DEBUG(inst, MEBA_TRACE_LVL_NOISE, "CH=%d ,bt_pse_port_power_index: 0x%X", handle,
-              current_port_status->port_status.bt_pse_port_power_index);
 
         uint8_t  port_phy_info;
         uint8_t  measured_class;
@@ -8383,7 +8392,7 @@ static mesa_rc pd77010_gen7_set_all_matrix_ports(const meba_poe_ctrl_inst_t *con
         // not PoE port - should be 255
         uint8_t port_a = 255;
         uint8_t port_b = 255;
-        if (inst->port_map[i].capabilities & MEBA_POE_PORT_CAP_POE) {
+        if (inst->port_map[i].poe_capabilities & MEBA_POE_PORT_CAP_POE) {
             // if any of them are not matching - print it's index and return
             // error
             DEBUG(inst, MEBA_TRACE_LVL_INFO,
@@ -8422,7 +8431,7 @@ static mesa_rc pd77010_check_gen7_for_active_update(const meba_poe_ctrl_inst_t *
         // check if actual ports matrix configure matches the ports map table -
         // if not return error
         if (i < prod_max_poe_ports) {
-            if (inst->port_map[i].capabilities & MEBA_POE_PORT_CAP_POE) {
+            if (inst->port_map[i].poe_capabilities & MEBA_POE_PORT_CAP_POE) {
                 // if any of them are not matching - print it's index and return
                 // error
                 if ((port_a != inst->port_map[i].phys_port_a) ||
