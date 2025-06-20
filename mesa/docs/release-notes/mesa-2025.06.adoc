@@ -1,0 +1,26 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2025.06
+
+== MESA-2025.06
+
+|===
+|Version:          |MESA-2025.06
+|Previous Version: |MESA-2025.03
+|Date:             |2025-06-27
+|Description:      |Roadmap release
+|===
+
+=== Sparx5: Added Support for Hierarchical Quality of Service (HQoS)
+
+The MESA API has been extended with a new interface
+(`mesa/include/microchip/ethernet/switch/api/hqos.h`) to enable HQoS. Currently,
+this API is only implemented by Sparx5.
+
+With HQoS, an ingress TCAM is used to classify traffic (typically a service) to
+a `mesa_hqos_id_t`. Then, after the forwarding process, on the egress side, it
+is possible to configure a scheduling element per port per HQoS ID (see
+`mesa_hqos_add()`). Each service-layer scheduling element can perform traffic
+shaping and Deficit Weighted Round Robin scheduling (DWRR) before traffic is
+forwarded to the port's scheduling element.
