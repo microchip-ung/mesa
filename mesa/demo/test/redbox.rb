@@ -1903,6 +1903,14 @@ def redbox_test(t)
         end
     end
 
+    # Restore PTP configuration
+    ptp = fld_get(cfg, :ptp, nil)
+    if (ptp != nil)
+        conf = $ts.dut.call("mesa_rb_ptp_conf_get", $rb_id)
+        conf["mode"] = "MESA_RB_PTP_MODE_DISABLED"
+        $ts.dut.call("mesa_rb_ptp_conf_set", $rb_id, conf)
+    end
+
     # Restore VLAN port configuration
     vlan_idx_list.each do |idx|
         vlan_port_conf_set(idx, {})
