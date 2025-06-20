@@ -244,7 +244,7 @@ if c[:brsdk_arch]
   if not File.exist? brsdk_base
     if is_internal?
       bsp_link = url_concat($bsp_deps["build-artifact-url"], "#{brsdk_name}.tar.gz")
-      sys "wget --quiet -O- #{bsp_link} | tar -xz -C /opt/mchp/"
+      sys "wget -O- #{bsp_link} | tar -xz -C /opt/mchp/"
     else
       bsp_link = url_concat($bsp_deps["build-artifact-url-ext"], "#{brsdk_name}.tar.gz")
       puts "Please install the BSP: #{brsdk_base}"
@@ -271,7 +271,7 @@ end
 if not File.exist? $tc_path
   if is_internal?
     tc_link = url_concat($tc["build-artifact-url"], "#{$tc_name}.tar.gz")
-    sys "wget --quiet -O- #{tc_link} | tar -xz -C /opt/mchp/"
+    sys "wget -O- #{tc_link} | tar -xz -C /opt/mchp/"
   else
     tc_link = url_concat($tc["build-artifact-url-ext"], "#{$tc_name}.tar.gz")
     puts "Please install the toolchain: #{$tc_name} into /opt/mchp/"
