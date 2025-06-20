@@ -45,12 +45,16 @@ distribution. Here are the instructions on how to do this on Ubuntu 18:
 sudo apt-get install cmake cmake-curses-gui build-essential ruby ruby-parslet libjson-c-dev
 ----
 
-Next we need a folder called `mscc` in `/opt` where the toolchains
-and BSP will be installed as explained later in the guide.
+Beside from this, the folder `/opt/mchp` must be created, and the user(s)
+building MESA, but have the needed credentials to access this folder. This
+folder is used to store dependent projects such as the BSP and toolchain.
 
-----
-sudo mkdir -p /opt/mscc
-----
+The user which will download and install these dependent proejcts in `/opt/mchp`
+must have write access to this folder.
+
+The user installing and the user building may be the same or different
+user/group.
+
 
 ==== Install and setup tftp server
 
@@ -94,6 +98,18 @@ To build the sources a CMake project is needed. The easiest way to create a
 CMake project is to use the `./.cmake/create_cmake_project.rb` script:
 
 ----
+$ ./.cmake/create_cmake_project.rb --help
+Usage: ./.cmake/create_cmake_project.rb [options] <PRESET> [<OUTPUT-FOLDER>]
+    -a, --all                        Set the build all flag
+    -b, --build                      Build after configuring
+    -p, --pack NAME                  Wrap up the binaries in a TAR archive
+        --external                   Assumed running out-side Microchip network (default is auto-detect)
+    -f, --force                      Delete the output folder if it exist already
+    -i, --incremental                Do not clean before building
+        --internal                   Assumed running in-side Microchip network (default is auto-detect)
+    -n, --ninja                      Use ninja generator
+    -v, --verbose                    Enable verbose printing
+
 $ ./.cmake/create_cmake_project.rb
 Usage: create_cmake_project <preset name> [output-folder]
 
@@ -108,6 +124,19 @@ Valid presets:
     x86
 ----
 
+IMPORTANT: This script has been updated in the 2025.03 release, and will now
+assume BSP and Toolchains are installed in /opt/mchp (earlier versions was using
+/opt/mscc).
+
+By default this script will try to auto-detect if it is running internally in
+Microchip, or on some external network. The script needs this information to
+adjust where dependencies (such as BSP and toolchain) can be downloaded from.
+It is possible to override the auto-detect by using the '--external' or
+'--internal' command line arguments.
+
+When running externally, the script will provide instructions to the user on how
+to download and install BSP and toolchain from the public artifact server.
+
 Lets prepare a project for MIPS little endian based targets:
 
 ----
@@ -121,63 +150,67 @@ expected to be the case the first time running this command on a new release.
 Here the scripts complains about the BSP is missing:
 
 ----
-$ ./.cmake/create_cmake_project.rb mipsel
-Please install the BSP: /opt/mscc/mscc-brsdk-mipsel-2020.02.3-310
+$ ./.cmake/create_cmake_project.rb --external mipsel
+BSP: mchp-brsdk-mipsel-2025.03
+Please install the BSP: /opt/mchp/mchp-brsdk-mipsel-2025.03
 
-This may be done by using the following command:
-sudo sh -c "mkdir -p /opt/mscc && wget -O- <URL> | tar -xz -C /opt/mscc/"
+This may be done by using the following command (ensure you have the needed permissions):
+sh -c "mkdir -p /opt/mchp && wget -O- http://mscc-ent-open-source.s3-eu-west-1.amazonaws.com/public_root/bsp/mchp-brsdk-mipsel-2025.03.tar.gz | tar -xz -C /opt/mchp/"
 ----
 
-Paste in the command printed at the screen (with the expanded URL), and complete
+Paste in the command printed at the screen (using correct URL and version - the
+above command is just an example), and complete
 the BSP installation.
 
 Run the script again, this time it detects that the toolchain is missing:
 
 ----
-$ ./.cmake/create_cmake_project.rb mipsel
-Please install the toolchain: mscc-toolchain-bin-2020.02.3-085 into /opt/mscc/
+$ ./.cmake/create_cmake_project.rb --external mipsel
+BSP: mchp-brsdk-mipsel-2025.03
+TC: /opt/mchp/mchp-toolchain-bin-2024.02.6-001
+Please install the toolchain: mchp-toolchain-bin-2024.02.6-001 into /opt/mchp/
 
-This may be done by using the following command:
-sudo sh -c "mkdir -p /opt/mscc && wget -O- <URL> | tar -xz -C /opt/mscc/"
+This may be done by using the following command (ensure you have the needed permissions):
+sh -c "mkdir -p /opt/mchp && wget -O- http://mscc-ent-open-source.s3-eu-west-1.amazonaws.com/public_root/toolchain/mchp-toolchain-bin-2024.02.6-001.tar.gz | tar -xz -C /opt/mchp/"
 ----
 
-Paste in the command printed at the screen (with the expanded URL), and complete
-the toolchain installation.
+Paste in the command printed at the screen (with correct URL and Version - the
+above command is just an example), and complete the toolchain installation.
 
 Run the command again:
 
 ----
-$ ./.cmake/create_cmake_project.rb mipsel
-mkdir -p build-mipsel
-ln -s /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/bin/cmake cmake
-./cmake -DCMAKE_TOOLCHAIN_FILE=/opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release ..
--- The C compiler identification is GNU 8.3.0
--- The CXX compiler identification is GNU 8.3.0
--- Check for working C compiler: /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/bin/mipsel-linux-gcc
--- Check for working C compiler: /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/bin/mipsel-linux-gcc -- works
+$ ./.cmake/create_cmake_project.rb --external mipsel
+BSP: mchp-brsdk-mipsel-2025.03
+TC: /opt/mchp/mchp-toolchain-bin-2024.02.6-001
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
 -- Detecting C compiler ABI info
 -- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/mchp/mchp-brsdk-mipsel-2025.03/mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/bin/mipsel-linux-gcc - skipped
 -- Detecting C compile features
 -- Detecting C compile features - done
--- Check for working CXX compiler: /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/bin/mipsel-linux-g++
--- Check for working CXX compiler: /opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/bin/mipsel-linux-g++ -- works
 -- Detecting CXX compiler ABI info
 -- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/mchp/mchp-brsdk-mipsel-2025.03/mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/bin/mipsel-linux-g++ - skipped
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
 -- Project name          = vtss_api
 --   Type                = Release
---   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -DNDEBUG
+--   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64 -O2 -g0 -Wall -Wno-unknown-pragmas -Wno-array-bounds -Wno-stringop-overflow -Wno-nonnull -fasynchronous-unwind-tables -std=c11 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -ldl -O3 -DNDEBUG
 --   EXE_LINKER_FLAGS    =
 --   shared_linker_flags =
+-- The ASM compiler identification is GNU
+-- Found assembler: /opt/mchp/mchp-brsdk-mipsel-2025.03/mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/bin/mipsel-linux-gcc
+-- Build mepa including
 -- Looking for include file endian.h
 -- Looking for include file endian.h - found
 -- Looking for include file asm/byteorder.h
 -- Looking for include file asm/byteorder.h - found
--- CMAKE_TOOLCHAIN_FILE='/opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake'
--- Configuring done
--- Generating done
--- Build files have been written to: ./build-mipsel
+-- CMAKE_TOOLCHAIN_FILE='/opt/mchp/mchp-brsdk-mipsel-2025.03/mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake'
+-- Configuring done (0.7s)
+-- Generating done (0.8s)
+-- Build files have been written to: /home/m31684/work/mesa2/build-mipsel
 ----
 
 This time all the dependencies was found, and the CMake project has not been
@@ -187,24 +220,24 @@ created in the `./build-mipsel` folder. Enter the folder and continue from here:
 cd ./build-mipsel
 ----
 
-NOTE: The BSP also provides UBoot for the various targets. UBoot for the MIPS
-based boards can be found in
-`/opt/mscc/mscc-brsdk-mipsel-<version>/mipsel-mips32r2-linux-uclibc/<board>/`.
-
 
 == Select the image(s) to build
 
 We now have CMake project configured to use the BSP and cross-tool chain to
-build binaries for the MIPS, but no targets has been enabled.
+build binaries for mipsel, but no targets has been enabled.
 
 Make sure to `cd` to the newly created build folder.
+
+IMPORTANT: The build folder include a symlink called `cmake` which points to the
+CMake executable included in the BSP. Users should use this to avoid
+incompatibility with different CMake versions.
 
 The CMake project allow you to select what targets to build. By default nothing
 is selected. The various projects includes many targets, and some naming
 conventions are used to make it easier to navigate.
 
-Generally the `vscXXXX` number is included in all targets to indicate what
-device a given target supports.
+Generally the `vscXXXX` / `lanXXXX` number is included in all targets to
+indicate what device a given target supports.
 
 In the various CMake projects, the following categories of targets can be
 found:
@@ -218,10 +251,7 @@ found:
 . Bootable demo images. These targets will generate a complete firmware image
   including kernel, root file system, and the MESA Demo application. These are
   the images used in this getting started article.
-.. `mipsel_vscXXXX` This is a MFI image which is the default image type on
-   MIPS based targets.
-.. `fit_vscXXXX` This is the standard UBoot FIT (extension name is
-   `.itb`) image which is used on the ARM/ARM64 based targets.
+.. `IMG_<arch>_<chip>`
 
 . Pure application
 .. `app_vscXXXX` This is the MESA application build along with the needed
@@ -243,31 +273,26 @@ In this example we will build the complete demo project for the Ocelot vsc7514.
 To do this, we will grep for 7514 in the available options:
 
 ----
-$ ./cmake .. -LAH | grep 7514
-app_vsc7514:BOOL=OFF
-mfi_vsc7514_pcb120:BOOL=on
-mfi_vsc7514_pcb123:BOOL=OFF
-// Build the API for 7514 (vsc7514)
-vsc7514:BOOL=OFF
-// Build the static API for 7514 (vsc7514)
-vsc7514_static:BOOL=OFF
+$ ./cmake .. -LAH | grep IMG | grep 7514
+IMG_mipsel_vsc7514_pcb120_mfi:BOOL=OFF
+IMG_mipsel_vsc7514_pcb123_mfi:BOOL=OFF
 ----
 
-As we are interested in a bootable firmware we need either a `fit`/`itb` or
-`mfi` image. In this case we want the `mfi_vsc7514_pcb120` target. To enable this use
-the following command:
+As we are interested in a bootable firmware we will select the
+`` target
 
 ----
-$ ./cmake .. -Dmfi_vsc7514_pcb120=on
+$ ./cmake .. -DIMG_mipsel_vsc7514_pcb123_mfi=on
 -- Project name          = vtss_api
 --   Type                = Release
---   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -Wall -Wno-array-bounds -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -O3 -DNDEBUG
+--   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -D_TIME_BITS=64 -O2 -g0 -Wall -Wno-unknown-pragmas -Wno-array-bounds -Wno-stringop-overflow -Wno-nonnull -fasynchronous-unwind-tables -std=c11 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -ldl -O3 -Wall -Wno-unknown-pragmas -Wno-array-bounds -Wno-stringop-overflow -Wno-nonnull -fasynchronous-unwind-tables -std=c11 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -ldl -O3 -DNDEBUG
 --   EXE_LINKER_FLAGS    =
 --   shared_linker_flags =
--- CMAKE_TOOLCHAIN_FILE='/opt/mscc/mscc-brsdk-mipsel-2002.02.3-310/mipsel-mips32r2-linux-gnu/smb/x86_64-linux/usr/share/buildroot/toolchainfile.cmake'
--- Configuring done
--- Generating done
--- Build files have been written to: /tmp/mesa-v2019.06-217-g9c57e1c@master/build-mipsel
+-- Build mepa including
+-- CMAKE_TOOLCHAIN_FILE='/opt/mchp/mchp-brsdk-mipsel-2025.03/mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake'
+-- Configuring done (0.1s)
+-- Generating done (0.7s)
+-- Build files have been written to: /home/m31684/work/mesa2/build-mipsel
 ----
 
 == Building the SW
@@ -281,21 +306,17 @@ to use).
 ----
 $ make -j12
 ....
-Scanning dependencies of target app_vsc7514
-[100%] Building C object mesa/demo/CMakeFiles/app_vsc7514.dir/main.c.o
 [100%] Linking C executable mesa-demo-vsc7514
 [100%] Built target app_vsc7514
-Scanning dependencies of target mipsel_vsc7514_mfi
-[100%] Generating app_vsc7514.tar
-[100%] Generating mipsel_vsc7514.mfi
-[100%] Built target mipsel_vsc7514_mfi
+[100%] Generating mipsel_vsc7514_pcb123.mfi
+[100%] Built target mipsel_vsc7514_pcb123_mfi
 ----
 
 After a while, the build will be done, and the resulting image can be found in
 `./mesa/demo`. Lets copy this to the tftp server folder.
 
 ----
-$ cp mesa/demo/mipsel_vsc7514.mfi /var/lib/tftpboot/.
+$ cp mesa/demo/mipsel_vsc7514_pcb123.mfi /var/lib/tftpboot/.
 ----
 
 
