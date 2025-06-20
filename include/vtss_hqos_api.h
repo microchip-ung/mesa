@@ -75,24 +75,6 @@ vtss_rc vtss_hqos_port_conf_set(const vtss_inst_t                  inst,
                                 const vtss_port_no_t               port_no,
                                 const vtss_hqos_port_conf_t *const conf);
 
-/**
- * \brief HQOS Queue Shaper
- **/
-typedef struct {
-    /**< CBS (Committed Burst Size). Unit: bytes. frames if frame-rate */
-    vtss_burst_level_t level;
-
-    /**< CIR (Committed Information Rate). Unit: kbps. frame/s if frame-rate.
-         Use VTSS_BITRATE_DISABLED to disable shaper */
-    vtss_bitrate_t rate;
-
-#if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT)
-    /**< RT (Rate type). Shaper rate type configuration: 0 = Line-rate,
-                                                         1 = Data-rate */
-    vtss_shaper_mode_t mode;
-#endif
-} vtss_hqos_queue_shaper_t;
-
 /** \brief Egress QoS setup per HQoS ID **/
 typedef struct {
     /**< This HQOS-ID is a priority service.

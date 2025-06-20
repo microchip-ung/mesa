@@ -130,23 +130,6 @@ mesa_rc mesa_hqos_port_conf_set(const mesa_inst_t                  inst,
                                 const mesa_port_no_t               port_no,
                                 const mesa_hqos_port_conf_t *const conf) CAP(HQOS);
 
-// HQOS Queue Shaper
-typedef struct {
-    // CBS (Committed Burst Size).
-    // Unit: bytes
-    //
-    // If mode is set to MESA_SHAPER_MODE_FRAME, then unit is number-of-frames
-    mesa_burst_level_t level;
-
-    // CIR (Committed Information Rate).
-    // Unit: kbps. Use MESA_BITRATE_DISABLED to disable shaper
-    //
-    // If mode is set to MESA_SHAPER_MODE_FRAME, then unit is frames/s
-    mesa_bitrate_t rate;
-    // disable DLB
-    mesa_shaper_mode_t mode CAP(QOS_EGRESS_SHAPERS_RT); // RT (Rate type)
-} mesa_hqos_queue_shaper_t;
-
 // Egress HQoS setup per HQOS-ID
 typedef struct {
     // This HQOS-ID is a priority service.
