@@ -44,6 +44,25 @@
 #define T_W(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_E(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 
+#define MEPA_ENTER(dev) {                            \
+    mepa_lock_t lock;                                \
+    lock.function = __FUNCTION__;                    \
+    lock.file = __FILE__;                            \
+    lock.line = __LINE__;                            \
+    if ((dev)->callout->lock_enter != NULL) {        \
+        (dev)->callout->lock_enter(&lock);           \
+    }                                                \
+}
+
+#define MEPA_EXIT(dev) {                             \
+    mepa_lock_t lock;                                \
+    lock.function = __FUNCTION__;                    \
+    lock.file = __FILE__;                            \
+    lock.line = __LINE__;                            \
+    if ((dev)->callout->lock_exit != NULL) {         \
+        (dev)->callout->lock_exit(&lock);            \
+    }                                                \
+}
 
 #define TRUE 1
 #define FALSE 0
@@ -432,6 +451,48 @@ static mesa_rc intl_if_set(mepa_device_t *dev,
 }
 
 
+static mepa_rc intl_debug_info_dump(struct mepa_device *dev,
+                                    const mepa_debug_print_t pr,
+                                    const mepa_debug_info_t   *const info)
+
+{
+    struct gpy211_device *phy = GPY211_DEVICE(dev);
+    struct gpy211_usxgmii_reach r;
+    mesa_port_interface_t int_if;
+    mepa_phy_info_t  phy_info;
+
+    (void)intl_info_get(dev, &phy_info);
+    (void)intl_if_get(dev, 1, &int_if);
+
+    if (gpy2xx_usxgmii_reach_get(phy, &r) != MEPA_RC_OK) {
+        pr("Could not get usxgmii_reach info\n");
+        return MEPA_RC_ERROR;
+    }
+
+    MEPA_ENTER(dev);
+
+    pr("Port:%d   Family:Maxlinear   Type:%d   Rev:%d   MacIf:%s\n", (int)dev->numeric_handle,
+       phy_info.part_number, phy_info.revision, (int_if == MESA_PORT_INTERFACE_SGMII_2G5) ? "SGMII_2G5" : "QXGMII");
+    pr("Trace Length setting    :%d\n",r.trace_len);
+    pr("Tx EQ Main              :%d\n",r.tx_eq_main);
+    pr("Tx Pre-emphasis level   :%d\n",r.tx_eq_pre);
+    pr("Tx Post-emphasis level  :%d\n",r.tx_eq_post);
+    pr("Tx Voltage Boost Enable :%d\n",r.tx_vboost_en);
+    pr("Tx Voltage Boost level  :%d\n",r.tx_vboost_lvl);
+    pr("Tx Current Boost level  :%d\n",r.tx_iboost_lvl);
+    pr("Rx EQ Attenuation level :%d\n",r.rx_eq_att_lvl);
+    pr("Rx EQ VGA1 Gain         :%d\n",r.rx_eq_vga1_gain);
+    pr("Rx EQ VGA2 Gain         :%d\n",r.rx_eq_vga2_gain);
+    pr("Rx EQ CTLE Boost        :%d\n",r.rx_eq_ctle_boost);
+    pr("Rx EQ CTLE Pole         :%d\n",r.rx_eq_ctle_pole);
+    pr("Rx EQ DFE Tap1          :%d\n",r.rx_eq_dfe_tap1);
+    pr("Rx AFE Enable           :%d\n",r.rx_afe_adapt_en);
+    pr("Rx DFE Enable           :%d\n",r.rx_dfe_adapt_en);
+
+    MEPA_EXIT(dev);
+    return MEPA_RC_OK;
+}
+
 
 mepa_drivers_t mepa_intel_driver_init()
 {
@@ -461,7 +522,7 @@ mepa_drivers_t mepa_intel_driver_init()
     intl_drivers[0].mepa_driver_event_enable_set = intl_event_enable_set,
     intl_drivers[0].mepa_driver_event_poll = intl_event_poll,
     intl_drivers[0].mepa_driver_if_set = intl_if_set,
-
+    intl_drivers[0].mepa_debug_info_dump = intl_debug_info_dump,
     res.phy_drv = intl_drivers;
     res.count = NR_INTL_PHY;
 
