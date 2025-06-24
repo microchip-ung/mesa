@@ -196,21 +196,7 @@ const char *vtss_serdes_preset_txt(vtss_sd10g28_preset_t pr)
 
 static vtss_sd25g28_preset_t serdes2preset_25g(vtss_sd10g_media_type_t m, vtss_port_speed_t speed)
 {
-    if (speed == VTSS_SPEED_10G) {
-        switch (m) {
-        case VTSS_SD10G_MEDIA_SR:
-        case VTSS_SD10G_MEDIA_ZR:     return (VTSS_SD25G28_10GSR);
-        case VTSS_SD10G_MEDIA_DAC:    return (VTSS_SD25G28_10GDAC3M); // Default to 3m
-        case VTSS_SD10G_MEDIA_DAC_1M: return (VTSS_SD25G28_10GDAC1M);
-        case VTSS_SD10G_MEDIA_DAC_2M: return (VTSS_SD25G28_10GDAC3M);
-        case VTSS_SD10G_MEDIA_DAC_3M: return (VTSS_SD25G28_10GDAC3M);
-        case VTSS_SD10G_MEDIA_DAC_5M: return (VTSS_SD25G28_10GDAC5M);
-        case VTSS_SD10G_MEDIA_BP:
-        case VTSS_SD10G_MEDIA_B2B:
-        case VTSS_SD10G_MEDIA_10G_KR: return (VTSS_SD25G28_10GDAC3M);
-        default:                      return (VTSS_SD25G28_PRESET_NONE);
-        }
-    } else {
+    if (speed == VTSS_SPEED_25G) {
         switch (m) {
         case VTSS_SD10G_MEDIA_SR:
         case VTSS_SD10G_MEDIA_ZR:     return (VTSS_SD25G28_25GSR);
@@ -222,6 +208,20 @@ static vtss_sd25g28_preset_t serdes2preset_25g(vtss_sd10g_media_type_t m, vtss_p
         case VTSS_SD10G_MEDIA_BP:
         case VTSS_SD10G_MEDIA_B2B:
         case VTSS_SD10G_MEDIA_10G_KR: return (VTSS_SD25G28_25GDAC2M);
+        default:                      return (VTSS_SD25G28_PRESET_NONE);
+        }
+    } else {
+        switch (m) {
+        case VTSS_SD10G_MEDIA_SR:
+        case VTSS_SD10G_MEDIA_ZR:     return (VTSS_SD25G28_10GSR);
+        case VTSS_SD10G_MEDIA_DAC:    return (VTSS_SD25G28_10GDAC3M); // Default to 3m
+        case VTSS_SD10G_MEDIA_DAC_1M: return (VTSS_SD25G28_10GDAC1M);
+        case VTSS_SD10G_MEDIA_DAC_2M: return (VTSS_SD25G28_10GDAC3M);
+        case VTSS_SD10G_MEDIA_DAC_3M: return (VTSS_SD25G28_10GDAC3M);
+        case VTSS_SD10G_MEDIA_DAC_5M: return (VTSS_SD25G28_10GDAC5M);
+        case VTSS_SD10G_MEDIA_BP:
+        case VTSS_SD10G_MEDIA_B2B:
+        case VTSS_SD10G_MEDIA_10G_KR: return (VTSS_SD25G28_10GDAC3M);
         default:                      return (VTSS_SD25G28_PRESET_NONE);
         }
     }
@@ -564,9 +564,9 @@ vtss_rc fa_port_kr_tap_set(vtss_state_t        *vtss_state,
                            u16                  tap_adv,
                            u16                  ampl)
 {
-    u32 port = VTSS_CHIP_PORT(port_no);
-
-    if (VTSS_PORT_IS_25G(port)) {
+    u32 sd_indx = 0, sd_type;
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    if (sd_type == FA_SERDES_TYPE_25G) {
 #if defined(VTSS_FEATURE_SD_25G)
         VTSS_RC(fa_port_25g_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl));
 #endif
@@ -583,10 +583,10 @@ vtss_rc fa_port_kr_tap_get(vtss_state_t        *vtss_state,
                            u16                 *tap_adv,
                            u16                 *ampl)
 {
-    u32 port = VTSS_CHIP_PORT(port_no);
-
+    u32 sd_indx = 0, sd_type;
     // CM = tap_adv, CP = tap_dly, C0 = ampl
-    if (VTSS_PORT_IS_25G(port)) {
+    VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
+    if (sd_type == FA_SERDES_TYPE_25G) {
 #if defined(VTSS_FEATURE_SD_25G)
         VTSS_RC(fa_port_25g_kr_tap_get(vtss_state, port_no, tap_dly, tap_adv, ampl));
 #endif
@@ -3832,6 +3832,7 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t      *vtss_state,
         break;
     }
     case VTSS_SERDES_MODE_USXGMII: {
+        sd_cfg.preset = serdes2preset(vtss_state->port.conf[port_no].serdes.media_type);
         sd_cfg.mode = VTSS_SD10G28_MODE_10G_LAN;
         break;
     }
@@ -3853,6 +3854,7 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t      *vtss_state,
         break;
     }
     case VTSS_SERDES_MODE_QXGMII: { // 4x2G5, mode 'R'
+        sd_cfg.preset = serdes2preset(vtss_state->port.conf[port_no].serdes.media_type);
         sd_cfg.mode = VTSS_SD10G28_MODE_10G_QSXGMII;
         break;
     }
@@ -3881,6 +3883,7 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t      *vtss_state,
 
     return VTSS_RC_OK;
 }
+
 // Apply board specific TX equalizer settings
 static vtss_rc vtss_fa_sd_board_settings(vtss_state_t  *vtss_state,
                                          vtss_port_no_t port_no,
@@ -3891,34 +3894,41 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t  *vtss_state,
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
     u32               value;
     u16               tap_dly = 0, tap_adv = 0, ampl = 0;
+    BOOL              changed = FALSE;
 
     if (vtss_state->init_conf.serdes_tap_get == NULL) {
         return VTSS_RC_OK; // Not available
-    }
-
-    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QXGMII ||
-        vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) {
-        return VTSS_RC_OK;
     }
 
     rc = fa_port_kr_tap_get(vtss_state, port_no, &tap_dly, &tap_adv, &ampl);
 
     if (vtss_state->init_conf.serdes_tap_get(NULL, port_no, speed, VTSS_SERDES_POST_CURSOR,
                                              &value) == VTSS_RC_OK) {
-        tap_dly = value;
+        if (tap_dly != value) {
+            changed = TRUE;
+            tap_dly = value;
+        }
     }
 
     if (vtss_state->init_conf.serdes_tap_get(NULL, port_no, speed, VTSS_SERDES_PRE_CURSOR,
                                              &value) == VTSS_RC_OK) {
-        tap_adv = value;
+        if (tap_adv != value) {
+            changed = TRUE;
+            tap_adv = value;
+        }
     }
 
     if (vtss_state->init_conf.serdes_tap_get(NULL, port_no, speed, VTSS_SERDES_MAIN_CURSOR,
                                              &value) == VTSS_RC_OK) {
-        ampl = value;
+        if (ampl != value) {
+            changed = TRUE;
+            ampl = value;
+        }
     }
 
-    rc |= fa_port_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl);
+    if (changed) {
+        rc |= fa_port_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl);
+    }
 
     return rc;
 }
@@ -3928,7 +3938,6 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_se
     u32 sd_indx, sd_type;
     /* Map API port to Serdes instance */
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &sd_indx, &sd_type));
-
     if (sd_type == FA_SERDES_TYPE_25G) {
 #if defined(VTSS_FEATURE_SD_25G)
         VTSS_RC(fa_sd25g_cfg(vtss_state, port_no, mode));
