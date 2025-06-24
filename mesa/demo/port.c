@@ -1332,6 +1332,29 @@ static void cli_cmd_deb_port_dynamic(cli_req_t *req)
     }
 }
 
+static void cli_cmd_phy_dump(cli_req_t *req)
+{
+    uint32_t                port_cnt = mesa_port_cnt(NULL);
+    mesa_port_no_t          iport, uport;
+    const mepa_debug_info_t info = {};
+
+    for (iport = 0; iport < port_cnt; iport++) {
+        uport = iport2uport(iport);
+        if (req->port_list[uport] == 0) {
+            continue;
+        }
+
+        if (meba_global_inst->phy_devices[iport] == NULL) {
+            continue;
+        }
+
+        if (mepa_debug_info_dump(meba_global_inst->phy_devices[iport], cli_printf, &info) ==
+            MESA_RC_NOT_IMPLEMENTED) {
+            printf("Phy:%d not implemented\n", iport);
+        }
+    }
+}
+
 static cli_cmd_t cli_cmd_table[] = {
     {"Port State [<port_list>] [enable|disable]", "Set or show the port administrative state",
      cli_cmd_port_state},
@@ -1361,6 +1384,7 @@ static cli_cmd_t cli_cmd_table[] = {
     {"Debug phy scan [ctrl0|ctrl1|ctrl2|ctrl3]", "Shows all detected phys (over all controllers)",
      cli_cmd_phy_scan},
     {"Debug phy id", "Shows all probed phys", cli_cmd_phy_id},
+    {"Debug phy dump [<port_list>]", "Dumps debug info for phy", cli_cmd_phy_dump},
 };
 
 static int cli_parm_max_frame(cli_req_t *req)
