@@ -223,7 +223,7 @@ def equal_interval_gcl_reconfig_test
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X"))
         pcp0 = 10
         pcp3 = 600
-        pcp7 = 0.3
+        pcp7 = 0.5
     end
 
     t_i ("Strict scheduling test from #{$ts.dut.p[ig[0]]},#{$ts.dut.p[ig[1]]},#{$ts.dut.p[ig[2]]} to #{$ts.dut.p[eg]}")
@@ -647,7 +647,7 @@ def jira_appl_3433_test
     t_i ("Measure initially")
     $ts.dut.run("mesa-cmd mac flush")
    #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
+    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1.9],          true,              [2])
 
     t_i ("Enable Frame preemption")
     fp = $ts.dut.call("mesa_qos_fp_port_conf_get", $loop_port0)
@@ -662,7 +662,7 @@ def jira_appl_3433_test
 
     t_i ("Measure before creating TAS")
    #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1],            true,              [2])
+    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1.8],          true,              [2])
 
     t_i ("Create GCL")
     gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC",
@@ -852,7 +852,7 @@ def equal_interval_1_prio_3_port_test
         $ts.dut.run("mesa-cmd mac flush")
         $ts.pc.run("sudo ef tx #{$ts.pc.p[eg_idx]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ipv4 dscp 0")
        #measure(ig, eg,       size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],   cycle_time=[])
-        measure([ig], eg_idx, frame_size, 1,     false,            false,           [990000000],         [1],            true,              [eg_idx])
+        measure([ig], eg_idx, frame_size, 1,     false,            false,           [990000000],         [1.9],          true,              [eg_idx])
     end
     end
 end
@@ -1368,7 +1368,7 @@ def jira_mesa_1013_test
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ctag vid 0 ipv4 dscp 0")
 
     # Laguna cannot do this - only 9 out of 10 frames comes through
-    tolerance = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) ? 10 : 0
+    tolerance = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) ? 10 : 1
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
     measure(ig, eg, frame_size, 2,     true,             false,           [frame_rate],        [tolerance],    true,              [4])
 

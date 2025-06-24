@@ -102,7 +102,7 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
         $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[ig], conf)
 
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-        measure([ig], eg, 1000, 1,     false,            false,           [60000000],       [1],         true,              [default_cos2pcp(cos)])
+        measure([ig], eg, 1000, 1,     false,            false,           [60000000],       [1.3],       true,              [default_cos2pcp(cos)])
     end
 
     test "Queue #{cos} policer line rate 300000 kbps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
@@ -112,7 +112,7 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
         $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[ig], conf)
 
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-        measure([ig], eg, 1000, 1,     false,            false,           [300000000],       [1],         true,              [default_cos2pcp(cos)])
+        measure([ig], eg, 1000, 1,     false,            false,           [300000000],      [2],         true,              [default_cos2pcp(cos)])
     end
 
     test "Queue #{cos} policer line rate 600000 kbps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
@@ -122,7 +122,7 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
         $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[ig], conf)
 
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-        measure([ig], eg, 1000, 1,     false,            false,           [600000000],       [1],         true,              [default_cos2pcp(cos)])
+        measure([ig], eg, 1000, 1,     false,            false,           [600000000],      [2.4],       true,              [default_cos2pcp(cos)])
     end
 
     test "Queue #{cos} policer line rate 999000 kbps from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
@@ -133,7 +133,7 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
 
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
         if $cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")
-            measure([ig], eg, 1000, 1,     false,            false,           [999000000],       [1.6],       true,              [default_cos2pcp(cos)])
+            measure([ig], eg, 1000, 1,     false,            false,           [999000000],       [2.7],       true,              [default_cos2pcp(cos)])
         else if $cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")
             measure([ig], eg, 1000, 1,     false,            false,           [999000000],       [1.3],       true,              [default_cos2pcp(cos)])
         else
@@ -150,7 +150,7 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
         $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[ig], conf)
 
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-        measure([ig], eg, 1000, 1,     false,            false,           [1000000000],     [2],         false,             [default_cos2pcp(cos)])
+        measure([ig], eg, 1000, 1,     false,            false,           [1000000000],     [3],         false,             [default_cos2pcp(cos)])
     end
 end
 

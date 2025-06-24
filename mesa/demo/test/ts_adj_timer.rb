@@ -54,7 +54,8 @@ def get_saved_ts_diff
         if ($tod1[0]["seconds"] == ($tod0[0]["seconds"] + 1))
             break;
         end
-        if ($tod1[0]["seconds"] > ($tod0[0]["seconds"] + 1))
+        if (($tod1[0]["seconds"] > ($tod0[0]["seconds"] + 1)) ||
+            ($tod1[0]["seconds"] < ($tod0[0]["seconds"])))
             # When seconds has incremented more than once we take a new sample
             $tod0 = $tod1.dup
         end

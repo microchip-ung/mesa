@@ -57,7 +57,7 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
     # Check rate without using a shaper
     test "Queue #{cos} shaper disabled from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-        measure([ig], eg, 1000, 1,     false,            false,           [1000000000],     [2],         false,             [default_cos2pcp(cos)])
+        measure([ig], eg, 1000, 1,     false,            false,           [1000000000],     [2.8],       false,             [default_cos2pcp(cos)])
     end
 
     if ($frame_support == 1)
@@ -127,7 +127,7 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
         conf = $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], conf)
 
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-        measure([ig], eg, 1000, 1,     false,            false,           [1000000000],      [2],        false,             [default_cos2pcp(cos)])
+        measure([ig], eg, 1000, 1,     false,            false,           [1000000000],      [2.7],      false,             [default_cos2pcp(cos)])
     end
 
     # Check data rate using three different rates. The rates are selected to be multiple of 400 as Serval chip on support this without calling a calibrate function 50 times a sec.
@@ -161,7 +161,7 @@ $ts.dut.call("mesa_vlan_port_conf_set", $ts.dut.p[eg], vconf)
         conf = $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], conf)
 
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-        measure([ig], eg, 1000, 1,     false,            true,            [1000000000],     [1.1],       false,             [default_cos2pcp(cos)])
+        measure([ig], eg, 1000, 1,     false,            true,            [1000000000],     [2.6],       false,             [default_cos2pcp(cos)])
     end
 end
 

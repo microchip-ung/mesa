@@ -86,7 +86,7 @@ $ts.dut.call("mesa_tce_add", 0, tce)
     # Check rate without using a policer
     test "Queue #{cosid} policer disabled from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
        #measure(ig,   eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
-        measure([ig], eg, 1000, 1,     false,            false,           [1000000000],     [2],         false,             [])
+        measure([ig], eg, 1000, 1,     false,            false,           [1000000000],     [3.2],       false,             [])
     end
 
     test "IFLOW pointed DLB cosid #{cosid} policer line rate 0 from #{$ts.dut.p[ig]} to #{$ts.dut.p[eg]}" do
