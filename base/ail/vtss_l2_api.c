@@ -4229,6 +4229,9 @@ vtss_rc vtss_iflow_alloc(const vtss_inst_t inst, vtss_iflow_id_t *const id)
             }
             conf = &sdx->conf;
             VTSS_MEMSET(conf, 0, sizeof(*conf));
+#if defined(VTSS_FEATURE_HQOS)
+            conf->hqos_id = VTSS_HQOS_ID_NONE;
+#endif
 #if defined(VTSS_FEATURE_VOP)
             conf->voe_idx = VTSS_VOE_IDX_NONE;
 #endif
