@@ -3,7 +3,7 @@
 
 project(MEPA)
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 include(.cmake/mepa-macros.cmake)
 
 include_directories(common/include)
