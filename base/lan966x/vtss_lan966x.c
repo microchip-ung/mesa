@@ -322,7 +322,7 @@ static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
 
 vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 {
-    u32 val, addr;
+    u32 val;
 #if defined(VTSS_OPT_FPGA)
     u32 diff, err;
 
@@ -346,6 +346,8 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         return VTSS_RC_ERROR;
     }
 #else
+    u32 addr;
+
     // Reset switch core if using SPI from external CPU
     if (vtss_state->init_conf.spi_bus) {
         REG_WR(GCB_SOFT_RST, GCB_SOFT_RST_SOFT_SWC_RST(1));

@@ -141,7 +141,7 @@ mesa_rc udmabuf_init(void)
             continue;
         }
 
-        if (sscanf(buf, "%ld", &size) != 1) {
+        if (sscanf(buf, "%lld", &size) != 1) {
             T_E("Failed to read size %s", buf);
             continue;
         }
@@ -150,7 +150,7 @@ mesa_rc udmabuf_init(void)
             continue;
         }
 
-        if (sscanf(buf, "%lx", &phys_addr) != 1) {
+        if (sscanf(buf, "%llx", &phys_addr) != 1) {
             T_E("Failed to read phys_addr %s", buf);
             continue;
         }

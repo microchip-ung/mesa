@@ -196,6 +196,7 @@ static inline vtss_rc lk_pie_rd(vtss_state_t *vtss_state, u64 *addr, u64 reg, bo
     u32  ptr;
     u32  ring_msb;
     bool base_msb;
+    *addr = 0;
     REG_RD(PIE_REG(reg), &ptr);
     base_msb = !VTSS_EXTRACT_BITFIELD(ptr, PIE_BD_PTR_SZ, 1);
     vtss_lk_pie_chnl_t *c = lk_get_chnl(vtss_state);

@@ -281,5 +281,8 @@ mepa_rc meba_warmrestart_conf_set(meba_inst_t          inst,
                                   mepa_port_no_t       port_no,
                                   const mepa_restart_t restart);
 
+// QSGMII sync configuration
+mepa_rc meba_phy_qsgmii_sync(meba_inst_t inst, const mepa_port_no_t port_no);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif //_MICROCHIP_ETHERNET_BOARD_PHY_DRIVER_H
