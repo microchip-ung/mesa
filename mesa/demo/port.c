@@ -822,6 +822,7 @@ static void cli_cmd_port_cap(cli_req_t *req)
             PR_CAP(CPU);
             PR_CAP(SFP_INACCESSIBLE);
             PR_CAP(DYNAMIC);
+            PR_CAP(IN_BAND_STATUS);
             cli_printf("%s\n", cap_all == 0 ? "None" : "");
         }
     }

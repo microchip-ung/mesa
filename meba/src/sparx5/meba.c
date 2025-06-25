@@ -277,7 +277,7 @@ static void update_entry(meba_inst_t           inst,
         entry->map.chip_port = chip_port;
         entry->mac_if = if_type;
         entry->map.miim_controller = MESA_MIIM_CONTROLLER_3; // 4xGPY-241 on PCB-135v4
-        entry->map.miim_addr = chip_port == 8 ? 3 : chip_port == 24 ? 0 : chip_port == 40 ? 2 : 1;
+        entry->map.miim_addr = chip_port == 8 ? 1 : chip_port == 24 ? 2 : chip_port == 40 ? 3 : 0;
         entry->map.max_bw = bw;
         entry->cap =
             (MEBA_PORT_CAP_2_5G_TRI_SPEED_COPPER | MEBA_PORT_CAP_FLOW_CTRL |
@@ -493,7 +493,7 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_36x1G_4x2G5_4x25G_NPI:
         uint32_t map[] = {0,  1,  2,  3,  4,  5,  6,  7,  12, 13, 14, 15, 16, 17, 18,
                           19, 20, 21, 22, 23, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
-                          38, 39, 44, 45, 46, 47, 8,  24, 40, 56, 60, 61, 62, 63, 64};
+                          38, 39, 44, 45, 46, 47, 56, 8,  24, 40, 60, 61, 62, 63, 64};
         chip_port = map[port_no];
         if (port_no < 36) {
             entry->phy_base_port = (port_no / 4) * 4;
