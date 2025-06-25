@@ -20,6 +20,7 @@
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include "main.h"
 #include "trace.h"
@@ -141,7 +142,7 @@ mesa_rc udmabuf_init(void)
             continue;
         }
 
-        if (sscanf(buf, "%lld", &size) != 1) {
+        if (sscanf(buf, "%" PRIu64, &size) != 1) {
             T_E("Failed to read size %s", buf);
             continue;
         }
@@ -150,7 +151,7 @@ mesa_rc udmabuf_init(void)
             continue;
         }
 
-        if (sscanf(buf, "%llx", &phys_addr) != 1) {
+        if (sscanf(buf, "%" PRIx64, &phys_addr) != 1) {
             T_E("Failed to read phys_addr %s", buf);
             continue;
         }
