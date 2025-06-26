@@ -10232,9 +10232,27 @@ vtss_rc vtss_debug_print_macsec(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-#define VTSS_PHY_MS_DISP_CSR(p,d,a,v) \
-                      csr_rd(vtss_state,p, 31, TRUE, a, v); \
-                      pr("%-10u %-40s 0x%-10x 0x%-12x\n",p, d,a,*v) \
+static void pr_dbg(vtss_debug_printf_t pr, const char *reg_name, uint16_t addr, u32 v)
+{
+    int j;
+
+    // The address multiplied by 4 matches the one from the datasheet, which can
+    // be used for easy lookup.
+    pr("%-22s 0x%04x 0x%05x 0x%08x %10u ", reg_name, addr, 4 * addr, v, v);
+    for (j = 31; j >= 0; j--) {
+        pr("%d%s", v & (1 << j) ? 1 : 0, j == 0 ? "\n" : (j % 4) ? "" : ".");
+    }
+}
+
+static void pr_dbg_hdr(vtss_debug_printf_t pr, const char *txt, mepa_port_no_t port_no)
+{
+    pr("\nPort #%u: %s\n", port_no, txt);
+    pr("%-22s WAddr  BAddr   Value      Decimal    31     24 23     16 15      8 7       0\n", "Register");
+}
+
+#define VTSS_PHY_MS_DISP_CSR(p, d, a, v) \
+                      csr_rd(vtss_state, p, 31, TRUE, a, v); \
+                      pr_dbg(pr, d, a, *v);
  
 static vtss_rc vtss_macsec_dbg_ms_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
                                                      const vtss_port_no_t port_no,
@@ -10242,8 +10260,7 @@ static vtss_rc vtss_macsec_dbg_ms_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
 {
     u32             value;
 
-    pr("\n\nMACSEC_CTL_REGS MACsec Ingress Control registers\n\n");
-
+    pr_dbg_hdr(pr, "Ingress Control", port_no);
     VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_ENA_CFG",           (u16)(0x800), &value);
     if (!(value && 1)) {
         csr_wr(vtss_state, port_no, 31, TRUE, (u16)(0x800), (value || 1));
@@ -10253,8 +10270,7 @@ static vtss_rc vtss_macsec_dbg_ms_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
     VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_STICKY_MASK",       (u16)(0x803), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_IGR_LATENCY_CFG",   (u16)(0x804), &value);
 
-    pr("\n\nMACSEC_CTL_REGS MACsec Egress Control registers\n\n");
-
+    pr_dbg_hdr(pr, "Egress Control", port_no);
     VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_ENA_CFG",           (u16)(0x8800), &value);
     if (!(value && 1)) {
         csr_wr(vtss_state, port_no, 31, TRUE, (u16)(0x8800), (value || 1));
@@ -10262,7 +10278,6 @@ static vtss_rc vtss_macsec_dbg_ms_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
     VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_CTL_CFG",           (u16)(0x8801), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_STICKY",            (u16)(0x8802), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_STICKY_MASK",       (u16)(0x8803), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_IGR_LATENCY_CFG",   (u16)(0x8804), &value);
 
     return VTSS_RC_OK;
 }
@@ -10273,8 +10288,7 @@ static vtss_rc vtss_macsec_dbg_sa_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
 {
     u32             value;
 
-    pr("\n\nSA_MATCH_CTL_PARAMS - Ingress SA compare parameters\n\n");
-
+    pr_dbg_hdr(pr, "Ingress SA Match Control", port_no);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE1",    (u16)(0x1800), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE2",    (u16)(0x1801), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_TOGGLE1",    (u16)(0x1804), &value);
@@ -10285,8 +10299,7 @@ static vtss_rc vtss_macsec_dbg_sa_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_CLEAR2",     (u16)(0x180D), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_IN_FLIGHT",        (u16)(0x1810), &value);
 
-    pr("\n\nSA_MATCH_CTL_PARAMS - Egress SA compare parameters\n\n");
-
+    pr_dbg_hdr(pr, "Egress SA Match Control", port_no);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE1",    (u16)(0x9800), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE2",    (u16)(0x9801), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_TOGGLE1",    (u16)(0x9804), &value);
@@ -10300,34 +10313,6 @@ static vtss_rc vtss_macsec_dbg_sa_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-
-static vtss_rc vtss_macsec_dbg_ctrl_pkt_class_reg_dump_priv(vtss_state_t *vtss_state,
-                                                            const vtss_port_no_t port_no,
-                                                            const vtss_debug_printf_t pr)
-{
-    u16             i;
-    u32             value;
-
-    pr("\n\nIngress CTL_PACKET_CLASS_PARAMS - Control packet classification parameters.\n\n");
-    for (i = 0; i < 10; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_MATCH",  (u16)(0x1E00 + (2 * i)), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_ET_MATCH",  (u16)(0x1E01 + (2 * i)), &value);
-    }
-
-    for (i = 0; i < 8; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_ET_MATCH",  (u16)(0x1E14 + i ), &value);
-    }
-    pr("\n\nEgress CTL_PACKET_CLASS_PARAMS - Control packet classification parameters.\n\n");
-    for (i = 0; i < 10; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_MATCH",  (u16)(0x9E00 + (2 * i)), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_ET_MATCH",  (u16)(0x9E01 + (2 * i)), &value);
-    }
-
-    for (i = 0; i < 8; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_ET_MATCH",  (u16)(0x9E14 + i ), &value);
-    }
-    return VTSS_RC_OK;
-}
 static vtss_rc vtss_macsec_dbg_sa_flow_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
                                                           const vtss_port_no_t port_no,
                                                           const vtss_debug_printf_t pr)
@@ -10337,24 +10322,56 @@ static vtss_rc vtss_macsec_dbg_sa_flow_ctrl_reg_dump_priv(vtss_state_t *vtss_sta
     u8   no_entries = 0;
     no_entries = vtss_state->macsec_capability[port_no].max_sa_cnt;
 
-    pr("\n\nIngress SA_MATCH_FLOW_CONTROL_PARAMS_IGR - 16/64 flow control words SA parameter set.\n\n");
+    pr_dbg_hdr(pr, "Ingress SA Flow Control Words", port_no);
     for (i = 0; i < no_entries; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "SA MATCH FLOW CONTROL",  (u16)(0x1C00 + i), &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_FLOW_CTRL",  (u16)(0x1C00 + i), &value);
     }
-    pr("\n\nEgress SA_MATCH_FLOW_CONTROL_PARAMS_IGR - 16/64 flow control words SA parameter set.\n\n");
+
+    pr_dbg_hdr(pr, "Egress SA Flow Control Words", port_no);
     for (i = 0; i < no_entries; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "SA MATCH FLOW CONTROL",  (u16)(0x9C00 + i), &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_FLOW_CTRL",  (u16)(0x9C00 + i), &value);
     }
+
     return VTSS_RC_OK;
 }
+
+static vtss_rc vtss_macsec_dbg_ctrl_pkt_class_reg_dump_priv(vtss_state_t *vtss_state,
+                                                            const vtss_port_no_t port_no,
+                                                            const vtss_debug_printf_t pr)
+{
+    u16             i;
+    u32             value;
+
+    pr_dbg_hdr(pr, "Ingress Control Packet Classifier (Individual)", port_no);
+    for (i = 0; i < 10; i++) {
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_MATCH",  (u16)(0x1E00 + (2 * i)), &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_ET_MATCH",  (u16)(0x1E01 + (2 * i)), &value);
+    }
+
+    for (i = 0; i < 8; i++) {
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_ET_MATCH",  (u16)(0x1E14 + i ), &value);
+    }
+
+    pr_dbg_hdr(pr, "Egress Control Packet Classifier (Individual)", port_no);
+    for (i = 0; i < 10; i++) {
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_MATCH",  (u16)(0x9E00 + (2 * i)), &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_ET_MATCH",  (u16)(0x9E01 + (2 * i)), &value);
+    }
+
+    for (i = 0; i < 8; i++) {
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_ET_MATCH",  (u16)(0x9E14 + i ), &value);
+    }
+
+    return VTSS_RC_OK;
+}
+
 static vtss_rc vtss_macsec_dbg_ctrl_pkt_class2_reg_dump_priv(vtss_state_t *vtss_state,
                                                              const vtss_port_no_t port_no,
                                                              const vtss_debug_printf_t pr)
 {
     u32             value;
 
-    pr("\n\nIngress CTL_PACKET_CLASS_PARAMS2 - Control packet classification parameters\n\n");
-
+    pr_dbg_hdr(pr, "Ingress Control Packet Classifier (Range)", port_no);
     VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_LO",      (u16)(0x1E20), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_HI",      (u16)(0x1E21), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_END_LO",        (u16)(0x1E22), &value);
@@ -10366,8 +10383,7 @@ static vtss_rc vtss_macsec_dbg_ctrl_pkt_class2_reg_dump_priv(vtss_state_t *vtss_
     VTSS_PHY_MS_DISP_CSR(port_no, "CP_MATCH_MODE",           (u16)(0x1E3E), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "CP_MATCH_ENABLE",         (u16)(0x1E3F), &value);
 
-    pr("\n\nEgress CTL_PACKET_CLASS_PARAMS2 - Control packet classification parameters\n\n");
-
+    pr_dbg_hdr(pr, "Egress Control Packet Classifier (Range)", port_no);
     VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_LO",      (u16)(0x9E20), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_HI",      (u16)(0x9E21), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_END_LO",        (u16)(0x9E22), &value);
@@ -10381,14 +10397,14 @@ static vtss_rc vtss_macsec_dbg_ctrl_pkt_class2_reg_dump_priv(vtss_state_t *vtss_
 
     return VTSS_RC_OK;
 }
+
 static vtss_rc vtss_macsec_dbg_ctrl_frm_reg_dump_priv(vtss_state_t *vtss_state,
                                                       const vtss_port_no_t port_no,
                                                       const vtss_debug_printf_t pr)
 {
     u32             value;
 
-    pr("\n\nIngress FRAME_MATCHING_HANDLING_CTRL - Frame matching and handling control registers\n\n");
-
+    pr_dbg_hdr(pr, "Ingress Frame Match Handling", port_no);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_CP_TAG",          (u16)(0x1E40), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS",         (u16)(0x1E41), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS2",        (u16)(0x1E42), &value);
@@ -10400,8 +10416,7 @@ static vtss_rc vtss_macsec_dbg_ctrl_frm_reg_dump_priv(vtss_state_t *vtss_state,
     VTSS_PHY_MS_DISP_CSR(port_no, "HDR_EXT_CTRL",        (u16)(0x1E60), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "CRYPT_AUTH_CTRL",     (u16)(0x1E61), &value);
 
-    pr("\n\nEgress FRAME_MATCHING_HANDLING_CTRL - Frame matching and handling control registers\n\n");
-
+    pr_dbg_hdr(pr, "Egress Frame Match Handling", port_no);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_CP_TAG",          (u16)(0x9E40), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS",         (u16)(0x9E41), &value);
     VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS2",        (u16)(0x9E42), &value);
@@ -10424,8 +10439,8 @@ static vtss_rc vtss_macsec_dbg_sa_reg_dump_priv(vtss_state_t *vtss_state,
     u32  value;
     u8   no_entries = 0;
     no_entries = vtss_state->macsec_capability[port_no].max_sa_cnt;
-    pr("\n\nSA: Ingress SA Match Params\n\n");
 
+    pr_dbg_hdr(pr, "Ingress SA Match Parameter Sets", port_no);
     for (i = 0; i < no_entries; i++) {
         VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_SA_MATCH_LO",  (u16)(0x1000 + (0x10 * i)), &value);
         VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_SA_MATCH_HI",  (u16)(0x1000 + (0x10 * i) + 1), &value);
@@ -10442,8 +10457,7 @@ static vtss_rc vtss_macsec_dbg_sa_reg_dump_priv(vtss_state_t *vtss_state,
         VTSS_PHY_MS_DISP_CSR(port_no, "SAM_HDR_BYPASS_MASK2", (u16)(0x1000 + (0x10 * i) + 0xC), &value);
     }
 
-    pr("\n\nSA: Egress SA Match Params\n\n");
-
+    pr_dbg_hdr(pr, "Egress SA Match Parameter Sets", port_no);
     for (i = 0; i < no_entries; i++) {
         VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_SA_MATCH_LO",  (u16)(0x9000 + (0x10 * i)), &value);
         VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_SA_MATCH_HI",  (u16)(0x9000 + (0x10 * i) + 1), &value);
@@ -10461,6 +10475,7 @@ static vtss_rc vtss_macsec_dbg_sa_reg_dump_priv(vtss_state_t *vtss_state,
     }
     return VTSS_RC_OK;
 }
+
 static vtss_rc vtss_macsec_dbg_xform_reg_dump_priv(vtss_state_t *vtss_state,
                                                    const vtss_port_no_t port_no,
                                                    const vtss_debug_printf_t pr)
