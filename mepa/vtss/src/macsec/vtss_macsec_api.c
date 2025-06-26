@@ -270,6 +270,7 @@ static int vtss_macsec_match_pattern_to_txt(char                              *b
 
     return s;
 }
+
 static int vtss_macsec_frame_match_to_txt(char                                         *buf,
                                           int                                          size,
                                           const vtss_macsec_control_frame_match_conf_t *const p)
@@ -284,6 +285,14 @@ static int vtss_macsec_frame_match_to_txt(char                                  
     if (p->match & VTSS_MACSEC_MATCH_DMAC) {
         PRINTF(" dmac:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
                p->dmac.addr[0], p->dmac.addr[1], p->dmac.addr[2], p->dmac.addr[3], p->dmac.addr[4], p->dmac.addr[5]);
+    }
+
+    if (p->match & VTSS_MACSEC_MATCH_BPDU) {
+        PRINTF(" BPDUs");
+    }
+
+    if (p->match & VTSS_MACSEC_MATCH_CDP_UDLD) {
+        PRINTF(" CDP/UDLD");
     }
 
     PRINTF("}");
@@ -2451,6 +2460,13 @@ static vtss_rc cp_rule_id_get(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
         etype_index = 18; // 16 Etypes for Venice
     }
 
+    // Rule ID allocation and Index used in e.g. individual fields of
+    // CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE:
+    //   ETYPE & DMAC: rule = [0;   1] => indx = [8; 9]
+    //   ETYPE only:   rule = [2;  17] => indx = [0; 7] or [10; 17]
+    //   DMAC only:    rule = [18; 25] => indx = [0; 7]
+    //   BPDU:         rule = [26; 26] => indx = [0; 0]
+    //   CDP_UDLD:     rule = [27; 27] => indx = [0; 0]
     if (!store) { /* find the index to be deleted */
         if (*rule < 2) {
             *indx = 8 + *rule;
@@ -2460,14 +2476,19 @@ static vtss_rc cp_rule_id_get(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
             } else {
                 *indx = *rule;
             }
-        } else {
+        } else if (*rule < 26) {
             *indx =  *rule - 18;
+        } else  {
+            // BPDU or CDP_UDLD
+            *indx = 0;
         }
+
         return VTSS_RC_OK;
     }
 
-    VTSS_N("conf->match:%d", conf->match);
+    VTSS_N("conf->match = 0x%08x", conf->match);
 
+    // Search for a free entry
     if ((conf->match & VTSS_MACSEC_MATCH_ETYPE) && (conf->match & VTSS_MACSEC_MATCH_DMAC)) {
         for (i = 0; i < 2; i++) {
             if (vtss_state->macsec_conf[port_no].glb.control_match[i].match == VTSS_MACSEC_MATCH_DISABLE) {
@@ -2502,10 +2523,26 @@ static vtss_rc cp_rule_id_get(vtss_state_t *vtss_state, vtss_port_no_t port_no, 
                 return VTSS_RC_OK;
             }
         }
+    } else if (conf->match & VTSS_MACSEC_MATCH_BPDU) {
+        // Always available
+        if (rule != NULL) {
+           *rule = 26;
+        }
+
+        *indx = 19;
+        return VTSS_RC_OK;
+    } else if (conf->match & VTSS_MACSEC_MATCH_CDP_UDLD) {
+        // Always available
+        if (rule != NULL) {
+           *rule = 27;
+        }
+
+        *indx = 20;
+        return VTSS_RC_OK;
     } else if (conf->match & VTSS_MACSEC_MATCH_DISABLE) {
         return dbg_counter_incr(vtss_state, port_no, VTSS_RC_ERR_MACSEC_MATCH_DISABLE);
     } else {
-        VTSS_E("Unexpected CP mode %u", conf->match);
+        VTSS_E("Unexpected CP mode 0x%08x", conf->match);
         return dbg_counter_incr(vtss_state, port_no, VTSS_RC_ERR_MACSEC_UNEXPECT_CP_MODE);
     }
 
@@ -3319,7 +3356,7 @@ static vtss_rc vtss_macsec_control_frame_match_conf_set_priv(vtss_state_t       
         } else if (conf->match & VTSS_MACSEC_MATCH_ETYPE) {
             /* Etype ONLY => use index 0-7,10-17 */
             if (indx < 8) {
-                /* /\* Etype *\/ */
+                /* Etype */
                 CSR_WARM_WRM(port_no,
                              PST_DIR(VTSS,   i, CTL_PACKET_CLASS_PARAMS_CP_MAC_DA_ET_MATCH(indx)),
                              PST_DIR(VTSS_F, i, CTL_PACKET_CLASS_PARAMS_CP_MAC_DA_ET_MATCH_ETHER_TYPE_MATCH(MACSEC_BS(conf->etype))),
@@ -3356,6 +3393,20 @@ static vtss_rc vtss_macsec_control_frame_match_conf_set_priv(vtss_state_t       
                          PST_DIR(VTSS, i, CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE),
                          (!store ? 0 : PST_DIR(VTSS_F, i, CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE_MAC_DA_ENABLE_7_TO_0(VTSS_BIT(indx)))),
                          PST_DIR(VTSS_F, i, CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE_MAC_DA_ENABLE_7_TO_0(VTSS_BIT(indx))));
+        } else if (conf->match & VTSS_MACSEC_MATCH_BPDU) {
+            // The default values of the CP_MAC_DA_44_BITS_LO/HI registers are
+            // all BPDU DMACs, so don't write to those two registers.
+            CSR_WARM_WRM(port_no,
+                         PST_DIR(VTSS, i, CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE),
+                         (!store ? 0 : PST_DIR(VTSS_F, i, CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE_CONST_44_ENABLE)),
+                         PST_DIR(VTSS_F, i, CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE_CONST_44_ENABLE));
+        } else if (conf->match & VTSS_MACSEC_MATCH_CDP_UDLD) {
+            // The default value of the CP_MAC_DA_48_BITS_LO/HI registers are
+            // the CDP/UDLD DMAC, so don't write to those two registers.
+            CSR_WARM_WRM(port_no,
+                         PST_DIR(VTSS, i, CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE),
+                         (!store ? 0 : PST_DIR(VTSS_F, i, CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE_CONST_48_ENABLE)),
+                         PST_DIR(VTSS_F, i, CTL_PACKET_CLASS_PARAMS2_CP_MATCH_ENABLE_CONST_48_ENABLE));
         } else if (conf->match & VTSS_MACSEC_MATCH_DISABLE) {
             VTSS_E("Use vtss_macsec_control_frame_match_conf_del() to delete a rule");
             return VTSS_RC_ERROR;
@@ -8654,6 +8705,19 @@ vtss_rc vtss_macsec_control_frame_match_conf_set(const vtss_inst_t              
     vtss_rc rc = VTSS_RC_ERROR;
     vtss_macsec_control_frame_match_conf_t match = *conf;
     u32 local_rule, *rule_id_p = NULL;
+
+    // A couple of sanity checks:
+    // Both VTSS_MACSEC_MATCH_BPDU and VTSS_MACSEC_MATCH_CDP_UDLD must be used
+    // alone. Otherwise we cannot return a unique rule ID.
+    if ((conf->match & VTSS_MACSEC_MATCH_BPDU) != 0 && conf->match != VTSS_MACSEC_MATCH_BPDU) {
+         VTSS_E("When using BPDU in match, it must be used alone (actually 0x%08x)", conf->match);
+         return rc;
+    }
+
+    if ((conf->match & VTSS_MACSEC_MATCH_CDP_UDLD) != 0 && conf->match != VTSS_MACSEC_MATCH_CDP_UDLD) {
+         VTSS_E("When using CDP_UDLD in match, it must be used alone (actually 0x%08x)", conf->match);
+         return rc;
+    }
 
     {
         char buf[256];

@@ -792,6 +792,8 @@ mepa_rc mepa_macsec_rx_sa_counters_get(struct mepa_device *dev,
 #define MEPA_MACSEC_MATCH_HAS_VLAN       0x0080           /**< The frame contains a VLAN tag */
 #define MEPA_MACSEC_MATCH_HAS_VLAN_INNER 0x0100           /**< The frame contains an inner VLAN tag */
 #define MEPA_MACSEC_MATCH_SMAC           0x0200           /**< Source MAC address  */
+#define MEPA_MACSEC_MATCH_BPDU           0x0400           /**< For control frames: Match 01-80-c2-00-00-0x */
+#define MEPA_MACSEC_MATCH_CDP_UDLD       0x0800           /**< For control frames: Match 01-00-0c-cc-cc-cc */
 
 #define MEPA_MACSEC_MATCH_PRIORITY_LOWEST 15              /**< Lowest possible matching priority */
 #define MEPA_MACSEC_MATCH_PRIORITY_LOW    12              /**< Low matching priority */
@@ -801,13 +803,52 @@ mepa_rc mepa_macsec_rx_sa_counters_get(struct mepa_device *dev,
 
 /** \brief MACsec control frame matching */
 typedef struct {
-    uint32_t            match;                            /**< Use combination of (OR): VTSS_MACSEC_MATCH_DMAC,
-                                                             MEPA_MACSEC_MATCH_ETYPE */
-    mepa_mac_t     dmac;                                  /**< DMAC address to match (SMAC not supported) */
-    mepa_etype_t   etype;                                 /**< Ethernet type to match  */
+    /**
+     * Identifies what to match using either of the following match flags:
+     *    MEPA_MACSEC_MATCH_DMAC
+     *    MEPA_MACSEC_MATCH_ETYPE
+     *    MEPA_MACSEC_MATCH_BPDU
+     *    MEPA_MACSEC_MATCH_CDP_UDLD
+     *
+     * The two latter flags must always be used alone, whereas the two former
+     * may be used either alone or bit-wise ORed together. When using the
+     * OR-form, it means that both DMAC and EtherType must match for the frame
+     * to match a control packet.
+     *
+     * When MEPA_MACSEC_MATCH_DMAC is set, use the \p dmac below to specify the
+     * DMAC to match. All bits must match for the frame to get classified as a
+     * control frame.
+     *
+     * When MEPA_MACSEC_MATCH_ETYPE is set, use the \p etype below to specify
+     * the EtherType to match. All bits must match for the frame to be
+     * classified as a control frame.
+     *
+     * When MEPA_MACSEC_MATCH_BPDU is set, all frames that match the following
+     * range of DMACs get classified as control frames:
+     *   01-80-c2-00-00-00 through 01-80-c2-00-00-0f
+     *
+     * When MEPA_MACSEC_MATCH_CDP_UDLD is set, all frames that match the
+     * following DMAC get classified as control frames:
+     *   01-00-0c-cc-cc-cc
+     * This MAC address is a.o. used for CDP (Cisco Discovery Protocol) and
+     * UDLD (Uni-Directional Link Detection).
+     */
+    uint32_t match;
+
+    /**
+     * When MEPA_MACSEC_MATCH_DMAC is set in \p match, this one provides the
+     * DMAC to match. Otherwise, it's unused.
+     */
+    mepa_mac_t dmac;
+
+    /**
+     * When MEPA_MACSEC_MATCH_ETYPE is set in \p match, this one provides the
+     * EtherType to match. Otherwise it's unused.
+     */
+    mepa_etype_t etype;
 } mepa_macsec_control_frame_match_conf_t;
 
-/**Set the control frame matching rules.
+/** Set the control frame matching rules.
  *  16 rules are supported for ETYPE (8 for 1G Phy).
  *   8 rules are supported for DMACs
  *   2 rules are supported for ETYPE & DMAC
