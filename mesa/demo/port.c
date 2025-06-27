@@ -342,11 +342,8 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
                                                                  &conf.serdes.media_type);
         }
     } else {
-        if (entry->media_type == MSCC_PORT_TYPE_CU) {
-            conf.serdes.media_type = MESA_SD10G_MEDIA_SR; // For 10G serdes to Cu
-        } else {
-            conf.serdes.media_type = MESA_SD10G_MEDIA_DAC; // Best guess
-        }
+        // Not SFP, get media type from meba
+        (void)meba_port_media_type_get(meba_global_inst, port_no, &conf.serdes.media_type);
     }
     if (aneg) {
         /* Setup port based on auto negotiation status */
