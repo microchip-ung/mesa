@@ -786,8 +786,8 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             rx_delay = 815;
             tx_delay = 630;
         } else if (port >= 49 && port <= 52) {
-            rx_delay = 1103;
-            tx_delay = 710;
+            rx_delay = 1053;
+            tx_delay = 640;
         } else {
             VTSS_E("unsupported interface %u on port %u", interface, port);
             return VTSS_RC_ERROR;
@@ -851,6 +851,12 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
         if (port >= 49 && port <= 52) {
             rx_delay = 1170;
             tx_delay = 1510;
+#if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
+            if (vtss_state->port.kr_fec[port_no].r_fec != 0) {
+                rx_delay += 1320;
+                tx_delay += 1320;
+            }
+#endif
         } else {
             VTSS_E("unsupported interface %u on port %u", interface, port);
             return VTSS_RC_ERROR;

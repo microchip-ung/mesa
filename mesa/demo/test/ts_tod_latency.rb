@@ -63,7 +63,7 @@ t_i("Core Clock Frequency #{$misc_conf["core_clock_freq"]}")
 t_i("----------------------------------------------------")
 
 
-PTP_LATENCY_MAX = 300
+PTP_LATENCY_MAX = 200
 
 def nano_delay_measure(port0, port1)
     $nano_delay
@@ -388,13 +388,15 @@ test "test_run" do
                     $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} adv-10g rfec train")
                     sleep 2
                     tod_latency_test(port0, port1)
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} disable")
+                    $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} disable")
                 end
             else
                 t_i "Do not Supports 10G"
             end
 
             t_i("------------ Measuring 5G mode -----------------")
-            if $meba_cap[:out].include?("5G_FDX")
+            if $meba_cap[:out].include?(" 5G_FDX")
                 t_i "Supports 5G"
                 $ts.dut.run("mesa-cmd port mode #{port0+1} 5g")
                 $ts.dut.run("mesa-cmd port mode #{port1+1} 5g")
@@ -445,6 +447,9 @@ test "test_run" do
                 $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} adv-25g rfec train")
                 sleep 0.5
                 tod_latency_test(port0, port1)
+
+                $ts.dut.run("mesa-cmd Port KR aneg #{port1+1} disable")
+                $ts.dut.run("mesa-cmd Port KR aneg #{port0+1} disable")
             end
         else
             t_i "Do not Supports 25G"
