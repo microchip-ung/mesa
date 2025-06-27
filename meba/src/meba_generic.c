@@ -205,29 +205,6 @@ mesa_rc meba_generic_phy_event_check(meba_inst_t         inst,
     return rc;
 }
 
-mesa_rc meba_port_media_type_get(meba_inst_t              inst,
-                                 mepa_port_no_t           port_no,
-                                 mesa_sd10g_media_type_t *media)
-{
-    // For ports that do not have SPFs connected might still need specific serdes preset.
-    // Call into meba for board specific media types is TBD
-    // If the meba API is not implemented then the below defaults are used:
-    mesa_port_conf_t conf;
-
-    MEBA_RC(mesa_port_conf_get(NULL, port_no, &conf));
-    switch (conf.if_type) {
-    case MESA_PORT_INTERFACE_XAUI:
-    case MESA_PORT_INTERFACE_SFI:        *media = MESA_SD10G_MEDIA_DAC; break;
-    case MESA_PORT_INTERFACE_USXGMII:
-    case MESA_PORT_INTERFACE_QXGMII:
-    case MESA_PORT_INTERFACE_DXGMII_5G:
-    case MESA_PORT_INTERFACE_DXGMII_10G: *media = MESA_SD10G_MEDIA_SR; break;
-    default:                             *media = MESA_SD10G_MEDIA_PR_NONE; break;
-    }
-
-    return MESA_RC_OK;
-}
-
 mepa_rc meba_mmd_read(struct mepa_callout_ctx *ctx,
                       const uint8_t            mmd,
                       const uint16_t           addr,

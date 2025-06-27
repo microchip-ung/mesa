@@ -68,11 +68,6 @@ mesa_rc meba_generic_phy_event_check(meba_inst_t         inst,
                                      mesa_port_no_t      port_no,
                                      meba_event_signal_t signal_notifier);
 
-// Media type for serdes preset
-mesa_rc meba_port_media_type_get(meba_inst_t              inst,
-                                 mepa_port_no_t           port_no,
-                                 mesa_sd10g_media_type_t *media);
-
 uint32_t meba_get_phy_id(meba_inst_t inst, uint32_t port_no, meba_port_entry_t port_entry);
 void     meba_phy_driver_init(meba_inst_t inst);
 
