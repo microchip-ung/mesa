@@ -3489,8 +3489,12 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
 vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 action, u32 *ret_val)
 {
     vtss_rc rc = VTSS_RC_OK;
+    u32     indx, sd_type;
 
-    if (VTSS_PORT_IS_10G(VTSS_CHIP_PORT(port_no))) {
+    if (vtss_fa_port2sd(vtss_state, port_no, &indx, &sd_type) != VTSS_RC_OK) {
+        return VTSS_RC_ERROR;
+    }
+    if (sd_type == FA_SERDES_TYPE_10G || sd_type == FA_SERDES_TYPE_6G) {
         rc = fa_serdes_10g_eye_setup(vtss_state, NULL, action, port_no, ret_val, 1);
     } else {
 #if defined(VTSS_FEATURE_SD_25G)
