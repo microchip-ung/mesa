@@ -3951,7 +3951,13 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_se
     }
 
     /*  Apply board specific TX equalizer settings */
-    VTSS_RC(vtss_fa_sd_board_settings(vtss_state, port_no, sd_indx, sd_type));
+    for (u32 p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+        if (VTSS_BIT64(p) & vtss_state->port.bulk_port_mask) {
+            VTSS_RC(vtss_fa_port2sd(vtss_state, p, &sd_indx, &sd_type));
+            VTSS_RC(vtss_fa_sd_board_settings(vtss_state, p, sd_indx, sd_type));
+        }
+    }
+
     return VTSS_RC_OK;
 }
 
