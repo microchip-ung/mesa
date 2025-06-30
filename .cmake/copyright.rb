@@ -56,6 +56,7 @@ end
   next if /^utils/ =~ f
   next if /mepa.aqr/ =~ f # TODO, we should actually check that all third-party code is MIT licensed, but we need not to check the copyright
   next if /mepa.intel/ =~ f
+  next if /^.cmake\/ctidy-ext/ =~ f
   next if "mesa/docs/resources/asciidoctor-default.css" == f
   next if "mesa/docs/capdb.yaml" == f
   next if "mesa/docs/resources/pygments.css" == f
