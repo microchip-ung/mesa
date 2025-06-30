@@ -268,7 +268,7 @@ static uint32_t mesa_feature(mesa_inst_t inst, uint32_t f)
 
 uint32_t mesa_capability(mesa_inst_t inst, int cap)
 {
-    uint32_t c = 0;
+    uint32_t c = 0U;
 
     switch (cap) {
     // Port
@@ -276,7 +276,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PORT_PFC:
 #if defined(VTSS_FEATURE_PFC)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -284,13 +284,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #if defined(VTSS_ARCH_LUTON26)
         c = 9600;
 #else
-        c = 10240;
+        c = 10240U;
 #endif
         break;
 
     case MESA_CAP_PORT_CNT_ETHER_LIKE:
 #if defined(VTSS_FEATURE_PORT_CNT_ETHER_LIKE)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -323,7 +323,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PORT_10G:
 #if defined(VTSS_FEATURE_10G)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -367,7 +367,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         c = 1526;
 #else
-        c = 1518;
+        c = 1518U;
 #endif
         break;
 
@@ -379,7 +379,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_PORT_CONF_BULK:
 #if defined(VTSS_FEATURE_PORT_CONF_BULK)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -538,7 +538,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #elif defined(VTSS_ARCH_LAN966X)
         c = 0x0d;
 #elif defined(VTSS_ARCH_LAN969X)
-        c = 0x0e;
+        c = 0x0eU;
 #endif
         break;
 
@@ -551,7 +551,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_PACKET_MASQ_PORT:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_JAGUAR_2) ||      \
     defined(VTSS_ARCH_FA)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -578,13 +578,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_PACKET_AUTO_TAGGING:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_JAGUAR_2) ||      \
     defined(VTSS_ARCH_FA)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_PACKET_INJ_ENCAP:
 #if defined(VTSS_FEATURE_PACKET_INJ_ENCAP)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -654,7 +654,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     // Layer 2
     case MESA_CAP_L2_MAC_ADDR_CNT:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-        c = 32768;
+        c = 32768U;
 #else
         c = 8192;
 #endif
@@ -671,7 +671,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         c = 63;
 #else
-        c = 4095;
+        c = 4095U;
 #endif
 #endif
         break;
@@ -694,7 +694,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_MIRROR_TAG:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -714,19 +714,19 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) ||      \
     defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
         // SFLOW has been tested on architecture
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_L2_MSTP_HW:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_L2_SFLOW_SAMPLE_RATE_MAX:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-        c = 32767;
+        c = 32767U;
 #elif defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         c = 4096;
 #endif
@@ -734,19 +734,19 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_XFLOW:
 #if defined(VTSS_FEATURE_XFLOW)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_L2_XSTAT:
 #if defined(VTSS_FEATURE_XSTAT)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_L2_XDLB:
 #if defined(VTSS_FEATURE_XDLB)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -754,7 +754,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         /* Older devices are not fully VLAN aware */
 #else
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -804,13 +804,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_VCL_KEY_DMAC:
 #if defined(VTSS_FEATURE_VCL_KEY_DMAC)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_L2_VCL_KEY_DIP:
 #if defined(VTSS_FEATURE_VCL_KEY_DIP)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -853,20 +853,20 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_L2_LEARN_LIMIT:
 #if defined(VTSS_FEATURE_MAC_PORT_LEARN_LIMIT)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_L2_TAG_DISCARD:
 #if defined(VTSS_FEATURE_TAG_DISCARD)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     // Layer 3
     case MESA_CAP_L3:
 #if defined(VTSS_FEATURE_LAYER3)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -941,7 +941,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_TAS_HOLD_REL_MAC_RESTRICT:
 #if defined(VTSS_FEATURE_QOS_TAS) && defined(VTSS_ARCH_FA)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -959,19 +959,19 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_COSID_CLASSIFICATION:
 #if defined(VTSS_FEATURE_QOS_COSID_CLASSIFICATION)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_QOS_SCHEDULER_CNT_DWRR:
 #if defined(VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_QOS_CPU_PORT_SHAPER:
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -989,13 +989,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_EGRESS_SHAPERS_RT:
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_QOS_EGRESS_SHAPER_FRAME:
 #if defined(VTSS_FEATURE_QOS_EGRESS_SHAPER_FRAME)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1007,19 +1007,19 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_PORT_POLICER_EXT_DPBL:
 #if defined(VTSS_FEATURE_QOS_PORT_POLICER_EXT_DPBL)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_QOS_PORT_POLICER_EXT_TTM:
 #if defined(VTSS_FEATURE_QOS_PORT_POLICER_EXT_TTM_V2)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_QOS_TAS:
 #if defined(VTSS_FEATURE_QOS_TAS)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1031,13 +1031,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_EGRESS_QUEUE_SHAPERS_CRB:
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_QOS_EGRESS_QUEUE_CUT_THROUGH:
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1073,11 +1073,11 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_QCL_KEY_INNER_TAG:
 #if defined(VTSS_FEATURE_QCL_KEY_INNER_TAG)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
-    case MESA_CAP_QOS_SHAPER_CALIBRATE: c = 0; break;
+    case MESA_CAP_QOS_SHAPER_CALIBRATE: c = 0U; break;
 
     case MESA_CAP_QOS_FRAME_PREEMPTION:
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
@@ -1166,7 +1166,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_QOS_CPU_QUEUE_SHAPER:
 #if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1194,7 +1194,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_ACL_PTP_DELAY:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||       \
     defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1237,7 +1237,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #elif defined(VTSS_ARCH_OCELOT)
         c = 1092000;
 #else
-        c = 5000000;
+        c = 5000000U;
 #endif
         break;
 
@@ -1247,7 +1247,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #elif defined(VTSS_ARCH_OCELOT)
         c = 100;
 #else
-        c = 10;
+        c = 10U;
 #endif
         break;
 
@@ -1261,7 +1261,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
         c = 1000000;
 #else
-        c = 10000000;
+        c = 10000000U;
 #endif
         break;
 
@@ -1269,31 +1269,31 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
         c = 100;
 #else
-        c = 25;
+        c = 25U;
 #endif
         break;
 
     case MESA_CAP_ACL_HACL:
 #if defined(VTSS_FEATURE_HACL)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_ACL_EXT_DIP:
 #if defined(VTSS_FEATURE_ACL_EXT_DIP)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_ACL_EXT_MAC:
 #if defined(VTSS_FEATURE_ACL_EXT_MAC)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_ACL_MAC_IGR:
 #if defined(VTSS_ARCH_LAN969X)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1322,7 +1322,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_EVC_POLICER_BLIND:
 #if !(defined(VTSS_ARCH_CARACAL) || defined(VTSS_ARCH_OCELOT))
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1437,7 +1437,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_VOP_CFM:
 #if defined(VTSS_FEATURE_VOP_CFM)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1535,7 +1535,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_VOP_CCM_DEFECT:
 #if defined(VTSS_ARCH_FA)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1559,7 +1559,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 
     case MESA_CAP_SYNCE_IN_TYPE:
 #if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_FA)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1596,7 +1596,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_SYNCE_SEPARATE_TIMING_DOMAINS:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||      \
     defined(VTSS_ARCH_LAN969X)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1761,19 +1761,19 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         break;
 
     // TOD
-    case MESA_CAP_TOD_SAMPLES_PR_SEC: c = 1; break;
+    case MESA_CAP_TOD_SAMPLES_PR_SEC: c = 1U; break;
 
     // Deprecated PHY capabilities
     case MESA_CAP_PHY_10G:
     case MESA_CAP_PHY_TS:
     case MESA_CAP_PHY_MALIBU_10G_PLUGIN_MOUNTED:
     case MESA_CAP_PHY_TS_NUMBER_OF_ENGINES:
-    case MESA_CAP_PHY_10GBASE_KR:                c = 0; break;
+    case MESA_CAP_PHY_10GBASE_KR:                c = 0U; break;
 
     case MESA_CAP_TS_PPS_VIA_CONFIGURABLE_IO_PINS:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||      \
     defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1792,7 +1792,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_TS_HAS_PTP_IO_PIN:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||      \
     defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1806,7 +1806,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #if defined(VTSS_ARCH_LUTON26)
         c = MESA_EVENT_EXT_SYNC;
 #else
-        c = 0;
+        c = 0U;
 #endif
         break;
     case MESA_CAP_TS_USE_EXTERNAL_INPUT_SERVO:
@@ -1830,27 +1830,27 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_TS_HW_FWD_P2P_1STEP:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||       \
     defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_TS_HW_FWD_E2E_1STEP_INTERNAL:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||       \
     defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_TS_C_DTC_SUPPORTED:
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) /* TBD_henrikb */
-        c = 1;
+        c = 1U;
 #endif
         break;
 
     case MESA_CAP_TS_INTERNAL_MODE_SUPPORTED:
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) ||       \
     defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) /* TBD_henrikb */
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1899,7 +1899,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         c = 9;
 #elif defined(VTSS_ARCH_FA)
         /* Jaguar 3 architectures */
-        c = 10;
+        c = 10U;
 #else
 #error Unsupported platform
 #endif
@@ -1909,7 +1909,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     case MESA_CAP_PHY_MACSEC:
     case MESA_CAP_PHY_MACSEC_SA_CNT:
     case MESA_CAP_PHY_MACSEC_SC_CNT:
-    case MESA_CAP_PHY_MACSEC_SECY_CNT: c = 0; break;
+    case MESA_CAP_PHY_MACSEC_SECY_CNT: c = 0U; break;
 
     case MESA_CAP_MEP_LUTON26:
 #if defined(VTSS_ARCH_LUTON26)
@@ -1960,13 +1960,13 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
 #elif defined(VTSS_ARCH_OCELOT)
         c = 2500;
 #else
-        c = 400;
+        c = 400U;
 #endif
         break;
 
     case MESA_CAP_MEP_PROP_DELAY_MEASUREMENT:
 #if !defined(VTSS_ARCH_JAGUAR_2_CE) && !defined(VTSS_ARCH_OCELOT)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -1987,7 +1987,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
         // Core Clock setup
     case MESA_CAP_INIT_CORE_CLOCK:
 #if defined(VTSS_FEATURE_CORE_CLOCK)
-        c = 1;
+        c = 1U;
 #endif
         break;
 
@@ -2027,7 +2027,7 @@ uint32_t mesa_capability(mesa_inst_t inst, int cap)
     // SGPIO to signal detect mapping
     case MESA_CAP_MISC_SGPIO_MAP:
 #if defined(VTSS_ARCH_FA)
-        c = 1;
+        c = 1U;
 #endif
         break;
 

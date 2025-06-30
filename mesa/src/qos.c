@@ -102,7 +102,7 @@ mesa_rc mesa_conv2_vtss_qos_port_conf_t_to_mesa_qos_port_conf_t(const vtss_qos_p
     out->dscp.translate = in->dscp_translate;
 
     // Queue
-    for (queue = 0; queue < VTSS_QUEUES; queue++) {
+    for (queue = 0U; queue < VTSS_QUEUES; queue++) {
         mesa_conv_vtss_policer_t_to_mesa_policer_t(&in->policer_queue[queue],
                                                    &out->queue[queue].policer);
         mesa_conv_vtss_shaper_t_to_mesa_shaper_t(&in->shaper_queue[queue],
@@ -165,7 +165,7 @@ mesa_rc mesa_conv2_mesa_qos_port_conf_t_to_vtss_qos_port_conf_t(const mesa_qos_p
     out->dscp_translate = in->dscp.translate;
 
     // Queue
-    for (queue = 0; queue < VTSS_QUEUES; queue++) {
+    for (queue = 0U; queue < VTSS_QUEUES; queue++) {
         mesa_conv_mesa_policer_t_to_vtss_policer_t(&in->queue[queue].policer,
                                                    &out->policer_queue[queue]);
         mesa_conv_mesa_shaper_t_to_vtss_shaper_t(&in->queue[queue].shaper,
@@ -326,7 +326,7 @@ mesa_rc mesa_qos_dpl_conf_get(const mesa_inst_t          inst,
         return VTSS_RC_ERROR;
     }
     VTSS_RC(vtss_qos_conf_get((const vtss_inst_t)inst, &vtss_conf));
-    for (prio = 0; prio < VTSS_PRIOS; prio++) {
+    for (prio = 0U; prio < VTSS_PRIOS; prio++) {
         conf[0].dscp[prio] = vtss_conf.dscp_qos_map[prio];
         conf[1].dscp[prio] = vtss_conf.dscp_qos_map_dp1[prio];
 #if (VTSS_DPLS == 4)
@@ -352,7 +352,7 @@ mesa_rc mesa_qos_dpl_conf_set(const mesa_inst_t                inst,
         return VTSS_RC_ERROR;
     }
     VTSS_RC(vtss_qos_conf_get((const vtss_inst_t)inst, &vtss_conf));
-    for (prio = 0; prio < VTSS_PRIOS; prio++) {
+    for (prio = 0U; prio < VTSS_PRIOS; prio++) {
         vtss_conf.dscp_qos_map[prio] = conf[0].dscp[prio];
         vtss_conf.dscp_qos_map_dp1[prio] = conf[1].dscp[prio];
 #if (VTSS_DPLS == 4)
@@ -461,7 +461,7 @@ mesa_rc mesa_qos_port_policer_conf_get(const mesa_inst_t                   inst,
         return VTSS_RC_ERROR;
     }
     VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
-    for (idx = 0; idx < VTSS_PORT_POLICERS; idx++) {
+    for (idx = 0U; idx < VTSS_PORT_POLICERS; idx++) {
         pol = &conf[idx];
         mesa_conv_vtss_policer_t_to_mesa_policer_t(&vtss_conf.policer_port[idx], &pol->policer);
         pol_ext = &vtss_conf.policer_ext_port[idx];
@@ -503,7 +503,7 @@ mesa_rc mesa_qos_port_policer_conf_set(const mesa_inst_t                        
         return VTSS_RC_ERROR;
     }
     VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
-    for (idx = 0; idx < VTSS_PORT_POLICERS; idx++) {
+    for (idx = 0U; idx < VTSS_PORT_POLICERS; idx++) {
         pol = &conf[idx];
         mesa_conv_mesa_policer_t_to_vtss_policer_t(&pol->policer, &vtss_conf.policer_port[idx]);
         pol_ext = &vtss_conf.policer_ext_port[idx];
@@ -545,7 +545,7 @@ mesa_rc mesa_qos_port_dpl_conf_get(const mesa_inst_t               inst,
     }
 
     VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
-    for (prio = 0; prio < VTSS_PRIOS; prio++) {
+    for (prio = 0U; prio < VTSS_PRIOS; prio++) {
         for (dpl = 0; dpl < 2; dpl++) {
             conf[dpl].pcp[prio] = vtss_conf.tag_pcp_map[prio][dpl];
             conf[dpl].dei[prio] = vtss_conf.tag_dei_map[prio][dpl];
@@ -572,7 +572,7 @@ mesa_rc mesa_qos_port_dpl_conf_set(const mesa_inst_t                     inst,
     }
 
     VTSS_RC(vtss_qos_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
-    for (prio = 0; prio < VTSS_PRIOS; prio++) {
+    for (prio = 0U; prio < VTSS_PRIOS; prio++) {
         for (dpl = 0; dpl < 2; dpl++) {
             vtss_conf.tag_pcp_map[prio][dpl] = conf[dpl].pcp[prio];
             vtss_conf.tag_dei_map[prio][dpl] = conf[dpl].dei[prio];
@@ -601,7 +601,7 @@ mesa_rc mesa_qos_tas_port_gcl_conf_get(const mesa_inst_t         inst,
         return VTSS_RC_ERROR;
     }
     VTSS_RC(vtss_qos_tas_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
-    for (idx = 0; (idx < VTSS_QOS_TAS_GCL_LEN_MAX) && (idx < vtss_conf.gcl_length); idx++) {
+    for (idx = 0U; (idx < VTSS_QOS_TAS_GCL_LEN_MAX) && (idx < vtss_conf.gcl_length); idx++) {
         mesa_conv_vtss_qos_tas_gce_t_to_mesa_qos_tas_gce_t(&vtss_conf.gcl[idx], &gcl[idx]);
     }
     *gce_cnt = vtss_conf.gcl_length;
@@ -627,7 +627,7 @@ mesa_rc mesa_qos_tas_port_gcl_conf_set(const mesa_inst_t               inst,
         return VTSS_RC_ERROR;
     }
     VTSS_RC(vtss_qos_tas_port_conf_get((const vtss_inst_t)inst, port_no, &vtss_conf));
-    for (idx = 0; idx < gce_cnt; idx++) {
+    for (idx = 0U; idx < gce_cnt; idx++) {
         mesa_conv_mesa_qos_tas_gce_t_to_vtss_qos_tas_gce_t(&gcl[idx], &vtss_conf.gcl[idx]);
     }
     vtss_conf.gcl_length = gce_cnt;

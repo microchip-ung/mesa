@@ -10,7 +10,7 @@ mesa_rc mesa_conv2_vtss_port_counters_t_to_mesa_port_counters_t(const vtss_port_
     vtss_prio_t                prio;
     mesa_port_prio_counters_t *c;
 
-    for (prio = 0; prio < VTSS_PRIOS; prio++) {
+    for (prio = 0U; prio < VTSS_PRIOS; prio++) {
         c = &out->prio[prio];
         c->rx = in->prop.rx_prio[prio];
         c->tx = in->prop.tx_prio[prio];
@@ -33,7 +33,7 @@ mesa_rc mesa_conv2_mesa_port_counters_t_to_vtss_port_counters_t(const mesa_port_
     vtss_prio_t                      prio;
     const mesa_port_prio_counters_t *c;
 
-    for (prio = 0; prio < VTSS_PRIOS; prio++) {
+    for (prio = 0U; prio < VTSS_PRIOS; prio++) {
         c = &in->prio[prio];
         out->prop.rx_prio[prio] = c->rx;
         out->prop.tx_prio[prio] = c->tx;
@@ -65,7 +65,7 @@ mesa_rc mesa_port_map_get(const mesa_inst_t inst, uint32_t cnt, mesa_port_map_t 
         return rc;
     }
 
-    for (port_no = 0; port_no < cnt; port_no++) {
+    for (port_no = 0U; port_no < cnt; port_no++) {
         mesa_conv_vtss_port_map_t_to_mesa_port_map_t(&vtss_map[port_no], &port_map[port_no]);
     }
     return rc;
@@ -86,7 +86,7 @@ mesa_rc mesa_port_map_set(const mesa_inst_t inst, uint32_t cnt, const mesa_port_
         return rc;
     }
 
-    for (port_no = 0; port_no < cnt; port_no++) {
+    for (port_no = 0U; port_no < cnt; port_no++) {
         mesa_conv_mesa_port_map_t_to_vtss_port_map_t(&port_map[port_no], &vtss_map[port_no]);
     }
     return vtss_port_map_set((const vtss_inst_t)inst, vtss_map);

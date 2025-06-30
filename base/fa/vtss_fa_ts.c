@@ -53,15 +53,16 @@ static vtss_rc fa_ts_io_pin_timeofday_get(vtss_state_t     *vtss_state,
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(io), &ts->seconds);
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(io), &value);
     ts->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(value);
-    if (ts->nanoseconds >= 0x3ffffff0 && ts->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
+    if (ts->nanoseconds >= 0x3ffffff0U &&
+        ts->nanoseconds <= 0x3fffffffU) { /* -1..-16 = 10^9-1..16 */
         VTSS_RC(vtss_timestampSubSec(ts));
-        ts->nanoseconds = 999999984 + (ts->nanoseconds & 0xf);
+        ts->nanoseconds = 999999984U + (ts->nanoseconds & 0xfU);
     }
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(io), &value);
     ts->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(value)
-                          << 8; /* In register it is 8 bit nano second fragments. Must return in
+                          << 8U; /* In register it is 8 bit nano second fragments. Must return in
                                    16 bit nano second fragments */
-    *tc = ((u64)ts->nanoseconds << 16) + (u64)ts->nanosecondsfrac; /* Must return tc in 16 bit nano
+    *tc = ((u64)ts->nanoseconds << 16U) + (u64)ts->nanosecondsfrac; /* Must return tc in 16 bit nano
                                                                       second fragments */
     return VTSS_RC_OK;
 }
@@ -100,7 +101,7 @@ vtss_rc vtss_cil_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
 vtss_rc vtss_cil_ts_timeofday_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts, u64 *tc)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    return vtss_cil_ts_domain_timeofday_get(vtss_state, 0, ts, tc);
+    return vtss_cil_ts_domain_timeofday_get(vtss_state, 0U, ts, tc);
 }
 
 static vtss_rc fa_ts_domain_timeofday_prev_pps_get(vtss_state_t     *vtss_state,
@@ -111,7 +112,7 @@ static vtss_rc fa_ts_domain_timeofday_prev_pps_get(vtss_state_t     *vtss_state,
 
     VTSS_RC(fa_ts_timeofday_read(vtss_state, domain, ts, &tc));
 
-    ts->nanoseconds = 0;
+    ts->nanoseconds = 0U;
     ts->nanosecondsfrac = 0;
 
     VTSS_D("sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", ts->sec_msb,
@@ -135,13 +136,13 @@ vtss_rc vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state_t     *vtss_state,
 vtss_rc vtss_cil_ts_timeofday_next_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    return vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state, 0, ts);
+    return vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state, 0U, ts);
 }
 
 vtss_rc vtss_cil_ts_timeofday_prev_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    return fa_ts_domain_timeofday_prev_pps_get(vtss_state, 0, ts);
+    return fa_ts_domain_timeofday_prev_pps_get(vtss_state, 0U, ts);
 }
 
 vtss_rc vtss_cil_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_state,
@@ -155,21 +156,21 @@ vtss_rc vtss_cil_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_stat
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE(7),
             VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_TOD_FREEZE);
 
-    for (domain = 0; domain < domain_cnt; domain++) {
+    for (domain = 0U; domain < domain_cnt; domain++) {
         t_stamp = &ts[domain];
         REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_MSB(domain), &value);
         t_stamp->sec_msb = VTSS_X_DEVCPU_PTP_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(value);
         REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_LSB(domain), &t_stamp->seconds);
         REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC(domain), &value);
         t_stamp->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_PTP_CUR_NSEC(value);
-        if (t_stamp->nanoseconds >= 0x3ffffff0 &&
-            t_stamp->nanoseconds <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
+        if (t_stamp->nanoseconds >= 0x3ffffff0U &&
+            t_stamp->nanoseconds <= 0x3fffffffU) { /* -1..-16 = 10^9-1..16 */
             VTSS_RC(vtss_timestampSubSec(t_stamp));
-            t_stamp->nanoseconds = 999999984 + (t_stamp->nanoseconds & 0xf);
+            t_stamp->nanoseconds = 999999984U + (t_stamp->nanoseconds & 0xfU);
         }
         REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC_FRAC(domain), &value);
         t_stamp->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(value)
-                                   << 8;
+                                   << 8U;
         VTSS_I("domain %u ts sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u",
                domain, t_stamp->sec_msb, t_stamp->seconds, t_stamp->nanoseconds,
                t_stamp->nanosecondsfrac);
@@ -204,7 +205,7 @@ vtss_rc vtss_cil_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
 vtss_rc vtss_cil_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp_t *ts)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    return vtss_cil_ts_domain_timeofday_set(vtss_state, 0, ts);
+    return vtss_cil_ts_domain_timeofday_set(vtss_state, 0U, ts);
 }
 
 vtss_rc vtss_cil_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 domain, i32 offset)
@@ -223,7 +224,7 @@ vtss_rc vtss_cil_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 do
 vtss_rc vtss_cil_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    return vtss_cil_ts_domain_timeofday_offset_set(vtss_state, 0, offset);
+    return vtss_cil_ts_domain_timeofday_offset_set(vtss_state, 0U, offset);
 }
 
 vtss_rc vtss_cil_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_state,
@@ -232,7 +233,7 @@ vtss_rc vtss_cil_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_stat
                                                BOOL                    negative)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    if (ts->seconds > 0 || ts->sec_msb > 0 || ts->nanoseconds > HW_NS_PR_SEC / 2 ||
+    if (ts->seconds > 0U || ts->sec_msb > 0 || ts->nanoseconds > HW_NS_PR_SEC / 2 ||
         ts->nanosecondsfrac > 0) {
         vtss_timestamp_t ts_prev;
         u64              tc;
@@ -260,13 +261,13 @@ vtss_rc vtss_cil_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
                                         BOOL                    negative)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    return vtss_cil_ts_domain_timeofday_set_delta(vtss_state, 0, ts, negative);
+    return vtss_cil_ts_domain_timeofday_set_delta(vtss_state, 0U, ts, negative);
 }
 
 vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
 {
     i32 adj;
-    u32 adj_abs, dom_mask = 0x01 << domain;
+    u32 adj_abs, dom_mask = 0x01U << domain;
     u64 tod_inc, one_pico, tod_delta, tod_trunk;
 
     VTSS_RC(fa_ts_supported(vtss_state));
@@ -326,7 +327,7 @@ vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
 vtss_rc vtss_cil_ts_adjtimer_set(vtss_state_t *vtss_state)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    return vtss_cil_ts_domain_adjtimer_set(vtss_state, 0);
+    return vtss_cil_ts_domain_adjtimer_set(vtss_state, 0U);
 }
 
 /* Set the clock mode for the external clock */
@@ -341,20 +342,20 @@ vtss_rc vtss_cil_ts_external_clock_mode_set(vtss_state_t *vtss_state)
                       ext_clock_mode->domain);
     if (ext_clock_mode->enable) {
         u32 dividers = HW_NS_PR_SEC / ext_clock_mode->freq;
-        u32 high_div = dividers / 2;
-        u32 low_div = (dividers + 1) / 2;
+        u32 high_div = dividers / 2U;
+        u32 low_div = (dividers + 1U) / 2U;
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(RT_EXT_CLK_PIN),
                VTSS_F_DEVCPU_PTP_PIN_WF_HIGH_PERIOD_PIN_WFH(high_div));
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(RT_EXT_CLK_PIN),
                VTSS_F_DEVCPU_PTP_PIN_WF_LOW_PERIOD_PIN_WFL(low_div));
 
-        (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_EXT_CLK_PIN].gpio_no,
+        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_EXT_CLK_PIN].gpio_no,
                                 ptp_gpio[RT_EXT_CLK_PIN].alt);
         FA_PTP_PIN_ACTION(RT_EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_NOSYNC,
                           ext_clock_mode->domain);
 
     } else if (ext_clock_mode->one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT) {
-        (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_EXT_CLK_PIN].gpio_no,
+        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_EXT_CLK_PIN].gpio_no,
                                 ptp_gpio[RT_EXT_CLK_PIN].alt);
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(RT_EXT_CLK_PIN),
                VTSS_F_DEVCPU_PTP_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
@@ -363,7 +364,7 @@ vtss_rc vtss_cil_ts_external_clock_mode_set(vtss_state_t *vtss_state)
         FA_PTP_PIN_ACTION(RT_EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC,
                           ext_clock_mode->domain);
     } else {
-        (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
+        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_EXT_CLK_PIN].gpio_no, VTSS_GPIO_IN);
     }
 
     return VTSS_RC_OK;
@@ -377,12 +378,12 @@ vtss_rc vtss_cil_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const sav
     VTSS_RC(fa_ts_supported(vtss_state));
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(RT_ALT_LDST_PIN), &nsec);
     nsec = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(nsec);
-    if (nsec >= 0x3ffffff0 && nsec <= 0x3fffffff) { /* -1..-16 = 10^9-1..16 */
-        nsec = 999999984 + (nsec & 0xf);
+    if (nsec >= 0x3ffffff0U && nsec <= 0x3fffffffU) { /* -1..-16 = 10^9-1..16 */
+        nsec = 999999984U + (nsec & 0xfU);
     }
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(RT_ALT_LDST_PIN), &nsec_frac);
     nsec_frac = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(nsec_frac);
-    *saved = ((u64)nsec << 16) + ((u64)nsec_frac << 8);
+    *saved = ((u64)nsec << 16U) + ((u64)nsec_frac << 8U);
     return VTSS_RC_OK;
 }
 
@@ -404,11 +405,11 @@ vtss_rc vtss_cil_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
                VTSS_F_DEVCPU_PTP_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(RT_ALT_PPS_PIN), 0);
 
-        (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_PPS_PIN].gpio_no,
+        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_PPS_PIN].gpio_no,
                                 ptp_gpio[RT_ALT_PPS_PIN].alt);
         FA_PTP_PIN_ACTION(RT_ALT_PPS_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
     } else {
-        (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_PPS_PIN].gpio_no, VTSS_GPIO_IN);
+        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_PPS_PIN].gpio_no, VTSS_GPIO_IN);
     }
 
     FA_PTP_PIN_ACTION(RT_ALT_LDST_PIN, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, 0);
@@ -417,16 +418,16 @@ vtss_rc vtss_cil_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
             VTSS_E("save and load cannot be enabled at the same time");
             return VTSS_RC_ERROR;
         } else if (alt_clock_mode->save) {
-            (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_LDST_PIN].gpio_no,
+            (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_LDST_PIN].gpio_no,
                                     ptp_gpio[RT_ALT_LDST_PIN].alt);
             FA_PTP_PIN_ACTION(RT_ALT_LDST_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_SYNC, 0);
         } else if (alt_clock_mode->load) {
-            (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_LDST_PIN].gpio_no,
+            (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_LDST_PIN].gpio_no,
                                     ptp_gpio[RT_ALT_LDST_PIN].alt);
             FA_PTP_PIN_ACTION(RT_ALT_LDST_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_SYNC, 0);
         }
     } else {
-        (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[RT_ALT_LDST_PIN].gpio_no, VTSS_GPIO_IN);
+        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_LDST_PIN].gpio_no, VTSS_GPIO_IN);
     }
     return VTSS_RC_OK;
 }
@@ -470,7 +471,7 @@ vtss_rc vtss_cil_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t
     conf = &vtss_state->ts.port_conf[port_no];
     ingr_latency = VTSS_LLABS(conf->ingress_latency);
     if (conf->ingress_latency < 0) {
-        if ((ingr_latency >> 16) > (conf->default_igr_latency / 1000)) {
+        if ((ingr_latency >> 16U) > (conf->default_igr_latency / 1000)) {
             VTSS_I(" Negative ingress latency too high to be configured for port %d", port_no);
             return VTSS_RC_ERROR;
         }
@@ -480,8 +481,8 @@ vtss_rc vtss_cil_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t
     /* The default_igr_latency is in picoseconds */
     /* The ingress_latency is in nanoseconds<<16  */
     /* Register is in nanoseconds<<8 */
-    rx_delay = ((VTSS_MOD64(ingr_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8) * sign) +
-               ((conf->default_igr_latency << 8) / 1000);
+    rx_delay = ((VTSS_MOD64(ingr_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8U) * sign) +
+               ((conf->default_igr_latency << 8U) / 1000);
 
     if (rx_delay > 0xFFFFFF) { /* Register max value is 0xFFFFFF */
         rx_delay = 0xFFFFFF;
@@ -526,7 +527,7 @@ vtss_rc vtss_cil_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t 
     conf = &vtss_state->ts.port_conf[port_no];
     egr_latency = VTSS_LLABS(conf->egress_latency);
     if (conf->egress_latency < 0) {
-        if ((egr_latency >> 16) > (conf->default_egr_latency / 1000)) {
+        if ((egr_latency >> 16U) > (conf->default_egr_latency / 1000)) {
             VTSS_I(" Negative latency too high to be configured for port %d", port_no);
             return VTSS_RC_ERROR;
         }
@@ -536,11 +537,11 @@ vtss_rc vtss_cil_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t 
     /* The default_egr_latency is in picoseconds */
     /* The egress_latency is in nanoseconds<<16  */
     /* Register is in nanoseconds<<8 */
-    tx_delay = ((VTSS_MOD64(egr_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8) * sign) +
-               ((conf->default_egr_latency << 8) / 1000);
+    tx_delay = ((VTSS_MOD64(egr_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8U) * sign) +
+               ((conf->default_egr_latency << 8U) / 1000);
 
-    if (tx_delay > 0xFFFFFF) { /* Register max value is 0xFFFFFF */
-        tx_delay = 0xFFFFFF;
+    if (tx_delay > 0xFFFFFFU) { /* Register max value is 0xFFFFFF */
+        tx_delay = 0xFFFFFFU;
     }
     VTSS_I("tx_delay %u  egress_latency %u  default_egr_latency %u", tx_delay,
            VTSS_INTERVAL_NS(conf->egress_latency), conf->default_egr_latency);
@@ -578,7 +579,7 @@ vtss_rc vtss_cil_ts_operation_mode_set(vtss_state_t  *vtss_state,
     vtss_ts_mode_t            mode = o_mode->mode;
     u32                       domain = o_mode->domain;
     vtss_ts_internal_fmt_t    fmt = vtss_state->ts.int_mode.int_fmt;
-    u32                       mode_val = 0;
+    u32                       mode_val = 0U;
     u32                       port = VTSS_CHIP_PORT(port_no);
 
     VTSS_RC(fa_ts_supported(vtss_state));
@@ -655,14 +656,14 @@ vtss_rc vtss_cil_ts_operation_mode_set(vtss_state_t  *vtss_state,
 
     if (mode == TS_MODE_INTERNAL) {
         switch (fmt) {
-        case TS_INTERNAL_FMT_RESERVED_LEN_30BIT: mode_val = 1; break;
+        case TS_INTERNAL_FMT_RESERVED_LEN_30BIT: mode_val = 1U; break;
         case TS_INTERNAL_FMT_RESERVED_LEN_32BIT:
             VTSS_E("unsupported internal timestamp format: %u", fmt);
             return VTSS_RC_ERROR;
         case TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62:
             VTSS_E("unsupported internal timestamp format: %u", fmt);
             return VTSS_RC_ERROR;
-        case TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF: mode_val = 2; break;
+        case TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF: mode_val = 2U; break;
         default:                                    VTSS_E("unsupported internal timestamp format: %u", fmt); return VTSS_RC_ERROR;
         }
     }
@@ -826,8 +827,8 @@ vtss_rc vtss_cil_ts_timestamp_get(vtss_state_t *vtss_state)
         if (mess_id >= VTSS_TS_ID_SIZE) {
             VTSS_D("skip mess_id %u", mess_id);
         } else if (tx_port < VTSS_PORT_ARRAY_SIZE) {
-            vtss_state->ts.status[mess_id].tx_tc[tx_port] = ((u64)delay << 16) | (sub_ns & 0xff)
-                                                                                     << 8;
+            vtss_state->ts.status[mess_id].tx_tc[tx_port] = ((u64)delay << 16U) | (sub_ns & 0xffU)
+                                                                                      << 8U;
             vtss_state->ts.status[mess_id].tx_id[tx_port] = mess_id;
             vtss_state->ts.status[mess_id].valid_mask |= 1LL << tx_port;
         } else {
@@ -870,15 +871,15 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
     vtss_port_speed_t     speed;
     u32                   port, value;
     vtss_rc               rc = VTSS_RC_OK, rc2;
-    u32                   rx_delay = 0, tx_delay = 0, delay_var = 0;
-    u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0, sd_tx_delay_var = 0;
+    u32                   rx_delay = 0U, tx_delay = 0U, delay_var = 0U;
+    u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0U, sd_tx_delay_var = 0U;
     io_delay_t           *dv_factor = NULL;
     io_delay_t            delay_var_factor[5] = {
-        {64000, 128000},
-        {25600, 51200 },
-        {12400, 15500 },
-        {18600, 24800 },
-        {0000,  0000  }
+        {64000U, 128000U},
+        {25600U, 51200U },
+        {12400U, 15500U },
+        {18600U, 24800U },
+        {0000U,  0000U  }
     }; /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
 #if defined(VTSS_FEATURE_SD_25G)
     io_delay_t delay_var_factor_25G[5] = {
@@ -919,10 +920,10 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
     } else if (sd_type == FA_SERDES_TYPE_25G) {
         sd_indx = sd_indx + RT_SERDES_25G_START;
     } else if (sd_type == FA_SERDES_TYPE_6G) {
-        sd_indx = sd_indx + 0;
+        sd_indx = sd_indx + 0U;
     } else if (sd_type == FA_SERDES_TYPE_UNKNOWN) {
         /* Interface without SERDES */
-        sd_indx = 0;
+        sd_indx = 0U;
     } else {
         VTSS_E("Unknown SERDES type %u", sd_type);
         return VTSS_RC_ERROR;
@@ -948,10 +949,10 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
             sd_tx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
             if ((speed == VTSS_SPEED_5G) &&
-                (LA_TGT || (sd_indx > 12))) { /* 5 Gbps and (on FA) lane > 12. The delay
+                (LA_TGT || (sd_indx > 12U))) { /* 5 Gbps and (on FA) lane > 12. The delay
                                                  factor must be corrected */
-                delay_var_factor[2].rx = 37200;
-                delay_var_factor[2].tx = 49600;
+                delay_var_factor[2].rx = 37200U;
+                delay_var_factor[2].tx = 49600U;
             }
 #endif
         }
@@ -973,7 +974,7 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             tx_delay = seriel_1G_delay[port].tx;
             REG_RD(VTSS_DEV1G_PCS1G_LINK_STATUS(VTSS_TO_DEV2G5(port)), &value);
             rx_delay +=
-                800 * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value); /* Add the variable delay in
+                800U * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value); /* Add the variable delay in
                                                                           the device */
             if (sd_type == FA_SERDES_TYPE_25G) {
                 rx_delay += ((i16)sd_rx_delay_var * (i32)dv_factor[0].rx) /
@@ -982,17 +983,17 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
                                            sd_rx_delay_var is signed */
             } else {
                 rx_delay += (sd_rx_delay_var * dv_factor[0].rx) /
-                            65536; /* Add the variable RX delay in the SERDES */
+                            65536U; /* Add the variable RX delay in the SERDES */
             }
             tx_delay += (sd_tx_delay_var * dv_factor[0].tx) /
-                        65536; /* Add the variable TX delay in the SERDES */
+                        65536U; /* Add the variable TX delay in the SERDES */
         }
         if (speed == VTSS_SPEED_2500M) { /* 2.5 Gbps */
             rx_delay = seriel_2dot5G_delay[port].rx;
             tx_delay = seriel_2dot5G_delay[port].tx;
             REG_RD(VTSS_DEV1G_PCS1G_LINK_STATUS(VTSS_TO_DEV2G5(port)), &value);
             rx_delay +=
-                320 * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value); /* Add the variable delay in
+                320U * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value); /* Add the variable delay in
                                                                           the device */
             if (sd_type == FA_SERDES_TYPE_25G) {
                 rx_delay += ((i16)sd_rx_delay_var * (i32)dv_factor[1].rx) /
@@ -1001,10 +1002,10 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
                                            sd_rx_delay_var is signed */
             } else {
                 rx_delay += (sd_rx_delay_var * dv_factor[1].rx) /
-                            65536; /* Add the variable RX delay in the SERDES */
+                            65536U; /* Add the variable RX delay in the SERDES */
             }
             tx_delay += (sd_tx_delay_var * dv_factor[1].tx) /
-                        65536; /* Add the variable TX delay in the SERDES */
+                        65536U; /* Add the variable TX delay in the SERDES */
         }
         break;
     case VTSS_PORT_INTERFACE_RGMII:
@@ -1030,9 +1031,9 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             rx_delay = seriel_5G_delay[port].rx;
             tx_delay = seriel_5G_delay[port].tx;
             rx_delay += (sd_rx_delay_var * dv_factor[2].rx) /
-                        65536; /* Add the variable RX delay in the SERDES */
+                        65536U; /* Add the variable RX delay in the SERDES */
             tx_delay += (sd_tx_delay_var * dv_factor[2].tx) /
-                        65536; /* Add the variable TX delay in the SERDES */
+                        65536U; /* Add the variable TX delay in the SERDES */
         }
         if (speed == VTSS_SPEED_10G) { /* 10 Gbps */
 #if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
@@ -1051,9 +1052,9 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             tx_delay = seriel_10G_delay[port].tx;
 #endif
             rx_delay += (sd_rx_delay_var * dv_factor[3].rx) /
-                        65536; /* Add the variable RX delay in the SERDES */
+                        65536U; /* Add the variable RX delay in the SERDES */
             tx_delay += (sd_tx_delay_var * dv_factor[3].tx) /
-                        65536; /* Add the variable TX delay in the SERDES */
+                        65536U; /* Add the variable TX delay in the SERDES */
         }
         if (speed == VTSS_SPEED_25G) { /* 25 Gbps */
 #if defined(VTSS_FEATURE_PORT_KR) || defined(VTSS_FEATURE_PORT_KR_IRQ)
@@ -1072,9 +1073,9 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             tx_delay = seriel_25G_delay[port].tx;
 #endif
             rx_delay += (sd_rx_delay_var * dv_factor[4].rx) /
-                        65536; /* Add the variable RX delay in the SERDES */
+                        65536U; /* Add the variable RX delay in the SERDES */
             tx_delay += (sd_tx_delay_var * dv_factor[4].tx) /
-                        65536; /* Add the variable TX delay in the SERDES */
+                        65536U; /* Add the variable TX delay in the SERDES */
         }
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
@@ -1095,13 +1096,13 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
         REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 4), &value);
         delay_var = VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value);
 #endif
-        rx_delay += (delay_var * 200) - ((port % 4) * 2000);
-        tx_delay += (port % 4) * 2000;
+        rx_delay += (delay_var * 200U) - ((port % 4U) * 2000U);
+        tx_delay += (port % 4U) * 2000U;
 
         rx_delay += (sd_rx_delay_var * dv_factor[0].rx) /
-                    65536; /* Add the variable RX delay in the SERDES */
+                    65536U; /* Add the variable RX delay in the SERDES */
         tx_delay += (sd_tx_delay_var * dv_factor[0].tx) /
-                    65536; /* Add the variable TX delay in the SERDES */
+                    65536U; /* Add the variable TX delay in the SERDES */
         break;
     case VTSS_PORT_INTERFACE_USGMII:
 #if defined(VTSS_ARCH_SPARX5)
@@ -1123,8 +1124,8 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
         /* In case of this interface types it is the PHY in front that are doing
          * the time stamping */
         /* so in the switch the latency is configured as zero */
-        rx_delay = 0;
-        tx_delay = 0;
+        rx_delay = 0U;
+        tx_delay = 0U;
         break;
     default: VTSS_E("unsupported interface: %u", interface); return VTSS_RC_ERROR;
     }
@@ -1203,39 +1204,39 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
 #if defined(VTSS_ARCH_LAN969X)
     {
         uint32_t i, enable;
-        enable = 1;
-        value = 0;
+        enable = 1U;
+        value = 0U;
         /* Configure TS phase detection */
         if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_328MHZ) {
             switch (speed) {
             case VTSS_SPEED_10M:
             case VTSS_SPEED_100M:
-                enable = 0;
-                value = 3;
+                enable = 0U;
+                value = 3U;
                 break;
-            case VTSS_SPEED_1G:    value = 1; break;
-            case VTSS_SPEED_2500M: value = 3; break;
-            case VTSS_SPEED_5G:    value = 1; break;
-            case VTSS_SPEED_10G:   value = 2; break;
+            case VTSS_SPEED_1G:    value = 1U; break;
+            case VTSS_SPEED_2500M: value = 3U; break;
+            case VTSS_SPEED_5G:    value = 1U; break;
+            case VTSS_SPEED_10G:   value = 2U; break;
             default:               VTSS_D("Unexpected link speed %d", speed); break;
             }
         } else if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_180MHZ) {
             switch (speed) {
             case VTSS_SPEED_10M:
             case VTSS_SPEED_100M:
-                enable = 0;
-                value = 5;
+                enable = 0U;
+                value = 5U;
                 break;
-            case VTSS_SPEED_1G:    value = 2; break;
-            case VTSS_SPEED_2500M: value = 5; break;
-            case VTSS_SPEED_5G:    value = 2; break;
-            case VTSS_SPEED_10G:   value = 2; break;
+            case VTSS_SPEED_1G:    value = 2U; break;
+            case VTSS_SPEED_2500M: value = 5U; break;
+            case VTSS_SPEED_5G:    value = 2U; break;
+            case VTSS_SPEED_10G:   value = 2U; break;
             default:               VTSS_D("Unexpected link speed %d", speed); break;
             }
         } else {
             VTSS_D("Unexpected Core Clock Frequency %d", vtss_state->init_conf.core_clock.freq);
         }
-        for (i = 0; i < 2; ++i) {
+        for (i = 0U; i < 2U; ++i) {
             DEV_WRM_IDX(PHAD_CTRL, i, port, VTSS_F_DEV1G_PHAD_CTRL_DIV_CFG(value),
                         VTSS_M_DEV1G_PHAD_CTRL_DIV_CFG);
             DEV_WRM_IDX(PHAD_CTRL, i, port, VTSS_F_DEV1G_PHAD_CTRL_PHAD_ENA(enable),
@@ -1278,15 +1279,15 @@ vtss_rc vtss_cil_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
     FA_PTP_PIN_ACTION(io, PTP_PIN_ACTION_IDLE, PTP_PIN_ACTION_NOSYNC, ext_io_mode->domain);
     /* Set gpio mode */
     if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_DISABLE) {
-        (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[io].gpio_no, VTSS_GPIO_IN);
+        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[io].gpio_no, VTSS_GPIO_IN);
     } else {
-        (void)vtss_fa_gpio_mode(vtss_state, 0, ptp_gpio[io].gpio_no, ptp_gpio[io].alt);
+        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[io].gpio_no, ptp_gpio[io].alt);
     }
     /* Set pin configuration */
     if (ext_io_mode->pin == TS_EXT_IO_MODE_WAVEFORM_OUTPUT) {
         u32 dividers = HW_NS_PR_SEC / ext_io_mode->freq;
-        u32 high_div = dividers / 2 - 1;
-        u32 low_div = (dividers + 1) / 2 - 1;
+        u32 high_div = dividers / 2U - 1U;
+        u32 low_div = (dividers + 1U) / 2U - 1U;
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(io),
                VTSS_F_DEVCPU_PTP_PIN_WF_HIGH_PERIOD_PIN_WFH(high_div));
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(io),
@@ -1401,7 +1402,7 @@ vtss_rc vtss_cil_ts_seq_cnt_get(vtss_state_t *vtss_state, u32 sec_cntr, u16 *con
     u32     value;
 
     VTSS_RC(fa_ts_supported(vtss_state));
-    if (sec_cntr <= 1023) {
+    if (sec_cntr <= 1023U) {
         // read sec counter REW:PTP_SEQ_NO:PTP_SEQ_NO[0-1023].PTP_SEQ_NO
         REG_RD(VTSS_REW_PTP_SEQ_NO(sec_cntr), &value);
         *cnt_val = VTSS_X_REW_PTP_SEQ_NO_PTP_SEQ_NO(value);
@@ -1420,7 +1421,7 @@ vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state, const vtss_ts_conf
     REG_WR(VTSS_ANA_AC_SG_ACCESS_SG_PTP_DOMAIN_CFG,
            VTSS_F_ANA_AC_SG_ACCESS_SG_PTP_DOMAIN_CFG_PTP_DOMAIN(conf->tsn_domain));
 
-    for (i = 0; i < RT_TAS_NUMBER_OF_LISTS; ++i) {
+    for (i = 0U; i < RT_TAS_NUMBER_OF_LISTS; ++i) {
         REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_LIST_NUM(i),
                 VTSS_M_HSCH_TAS_CFG_CTRL_LIST_NUM);
         REG_WRM(VTSS_HSCH_TAS_LIST_CFG, VTSS_F_HSCH_TAS_LIST_CFG_LIST_TOD_DOM(conf->tsn_domain),
@@ -1430,7 +1431,7 @@ vtss_rc vtss_cil_ts_conf_set(struct vtss_state_s *vtss_state, const vtss_ts_conf
 }
 
 // Unsupported APIs
-u32 vtss_cil_ts_ns_cnt_get(vtss_inst_t inst) { return 0; }
+u32 vtss_cil_ts_ns_cnt_get(vtss_inst_t inst) { return 0U; }
 
 vtss_rc vtss_cil_ts_timeofday_raw(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts, u64 *tc)
 {
@@ -1472,7 +1473,7 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
     int           idx;
 
     /* REW:PORT */
-    for (port = 0; port <= RT_CHIP_PORTS; port++) {
+    for (port = 0U; port <= RT_CHIP_PORTS; port++) {
         VTSS_FMT(buf, "REW:PORT[%u]", port);
         vtss_fa_debug_reg_header(ss, buf.s);
         vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_REW_PTP_MODE_CFG(port, 0)),
@@ -1652,24 +1653,24 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     /* 1 ns is 0x0800000000000000. */
     /* 0x0800000000000000 * 0.99218750 gives 0x07F0000000000000 */
     case VTSS_CORE_CLOCK_250MHZ:
-        nominal_tod_increment = ((u64)(3) << 59) + (u64)0x07F0000000000000;
+        nominal_tod_increment = ((u64)(3) << 59U) + (u64)0x07F0000000000000;
         break;
     /* Due to fractional mode 500 MHz gives 1.99609375 ns - MESA-825 */
     /* 1 ns is 0x0800000000000000. */
     /* 0x0800000000000000 * 0.99609375 gives 0x07F8000000000000 */
     case VTSS_CORE_CLOCK_500MHZ:
-        nominal_tod_increment = ((u64)(1) << 59) + (u64)0x07F8000000000000;
+        nominal_tod_increment = ((u64)(1) << 59U) + (u64)0x07F8000000000000;
         break;
     /* Due to fractional mode 625 MHz gives 1.59687500 ns - MESA-825 */
     /* 1 ns is 0x0800000000000000. */
     /* 0x0800000000000000 * 0.59687500 gives 0x04C6666666666666 */
     case VTSS_CORE_CLOCK_625MHZ:
-        nominal_tod_increment = ((u64)(1) << 59) + (u64)0x04C6666666666666;
+        nominal_tod_increment = ((u64)(1) << 59U) + (u64)0x04C6666666666666;
         break;
     /* 733MHz gives a period of 1.364256ns
        0x0800000000000000 * 0.364256 gives 0x02E9FF4D2F261176 */
     case VTSS_CORE_CLOCK_733MHZ:
-        nominal_tod_increment = ((u64)(1) << 59) + (u64)0x02E9FF4D2F261176;
+        nominal_tod_increment = ((u64)(1) << 59U) + (u64)0x02E9FF4D2F261176;
         break;
     /* This is according to values given in Jira UNG_LAGUNA-585 */
     case VTSS_CORE_CLOCK_328MHZ:
@@ -1696,7 +1697,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     /* Configure the calculated increment */
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(7),
             VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
-    for (domain = 0; domain < VTSS_TS_DOMAIN_ARRAY_SIZE; domain++) {
+    for (domain = 0U; domain < VTSS_TS_DOMAIN_ARRAY_SIZE; domain++) {
         REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 0), (u32)(nominal_tod_increment & 0xFFFFFFFF));
         REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 1), (u32)(nominal_tod_increment >> 32));
     }
@@ -1708,7 +1709,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
 
     /* Configure the PTP pin to GPIO selection */
     if (FA_TGT) {
-        for (i = 0; i < 4; ++i) {
+        for (i = 0U; i < 4U; ++i) {
             REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(i), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(i),
                     VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
         }
@@ -1722,7 +1723,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(5), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(5),
                 VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
 
-        for (i = 0; i < RT_CHIP_PORTS_ALL; i++) {
+        for (i = 0U; i < RT_CHIP_PORTS_ALL; i++) {
             if (VTSS_PORT_IS_5G(i) || VTSS_PORT_IS_10G(i)) {
                 REG_WR(VTSS_DEV10G_PTP_STAMPER_CFG(VTSS_TO_HIGH_DEV(i)), 5);
             }
@@ -1754,8 +1755,8 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         VTSS_E("gpio_func_info_get is NULL");
     }
 
-    for (i = 0; i < GPIO_FUNC_INFO_SIZE; ++i) { // Convert ALT enumerate to vtss_gpio_mode_t. This
-                                                // is not so nice but it works.
+    for (i = 0U; i < GPIO_FUNC_INFO_SIZE; ++i) { // Convert ALT enumerate to vtss_gpio_mode_t. This
+                                                 // is not so nice but it works.
         switch (ptp_gpio[i].alt) {
         case VTSS_GPIO_FUNC_ALT_0: ptp_gpio[i].alt = VTSS_GPIO_ALT_0; break;
         case VTSS_GPIO_FUNC_ALT_1: ptp_gpio[i].alt = VTSS_GPIO_ALT_1; break;
@@ -2722,164 +2723,164 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     if (vtss_state->init_conf.core_clock.freq == VTSS_CORE_CLOCK_328MHZ) {
         /* The below is based on numbers from front end simulation and is only
          * valid for 328 MHZ. (Laguna) */
-        seriel_1G_delay[0].rx = 150666;
-        seriel_1G_delay[0].tx = 162490;
-        seriel_1G_delay[4].rx = 150666;
-        seriel_1G_delay[4].tx = 162490;
-        seriel_1G_delay[8].rx = 150666;
-        seriel_1G_delay[8].tx = 162490;
-        seriel_1G_delay[12].rx = 150666;
-        seriel_1G_delay[12].tx = 162490;
-        seriel_1G_delay[16].rx = 150666;
-        seriel_1G_delay[16].tx = 162490;
-        seriel_1G_delay[20].rx = 150666;
-        seriel_1G_delay[20].tx = 162490;
-        seriel_1G_delay[24].rx = 150666;
-        seriel_1G_delay[24].tx = 162490;
-        seriel_1G_delay[25].rx = 150666;
-        seriel_1G_delay[25].tx = 162490;
-        seriel_1G_delay[26].rx = 150666;
-        seriel_1G_delay[26].tx = 162490;
-        seriel_1G_delay[27].rx = 150666;
-        seriel_1G_delay[27].tx = 162490;
+        seriel_1G_delay[0].rx = 150666U;
+        seriel_1G_delay[0].tx = 162490U;
+        seriel_1G_delay[4].rx = 150666U;
+        seriel_1G_delay[4].tx = 162490U;
+        seriel_1G_delay[8].rx = 150666U;
+        seriel_1G_delay[8].tx = 162490U;
+        seriel_1G_delay[12].rx = 150666U;
+        seriel_1G_delay[12].tx = 162490U;
+        seriel_1G_delay[16].rx = 150666U;
+        seriel_1G_delay[16].tx = 162490U;
+        seriel_1G_delay[20].rx = 150666U;
+        seriel_1G_delay[20].tx = 162490U;
+        seriel_1G_delay[24].rx = 150666U;
+        seriel_1G_delay[24].tx = 162490U;
+        seriel_1G_delay[25].rx = 150666U;
+        seriel_1G_delay[25].tx = 162490U;
+        seriel_1G_delay[26].rx = 150666U;
+        seriel_1G_delay[26].tx = 162490U;
+        seriel_1G_delay[27].rx = 150666U;
+        seriel_1G_delay[27].tx = 162490U;
 
-        seriel_2dot5G_delay[0].rx = 55163;
-        seriel_2dot5G_delay[0].tx = 70010;
-        seriel_2dot5G_delay[4].rx = 55163;
-        seriel_2dot5G_delay[4].tx = 70010;
-        seriel_2dot5G_delay[8].rx = 55163;
-        seriel_2dot5G_delay[8].tx = 70010;
-        seriel_2dot5G_delay[12].rx = 55163;
-        seriel_2dot5G_delay[12].tx = 70010;
-        seriel_2dot5G_delay[16].rx = 55163;
-        seriel_2dot5G_delay[16].tx = 70010;
-        seriel_2dot5G_delay[20].rx = 55163;
-        seriel_2dot5G_delay[20].tx = 70010;
-        seriel_2dot5G_delay[24].rx = 55163;
-        seriel_2dot5G_delay[24].tx = 70010;
-        seriel_2dot5G_delay[25].rx = 55163;
-        seriel_2dot5G_delay[25].tx = 70010;
-        seriel_2dot5G_delay[26].rx = 55163;
-        seriel_2dot5G_delay[26].tx = 70010;
-        seriel_2dot5G_delay[27].rx = 55163;
-        seriel_2dot5G_delay[27].tx = 70010;
+        seriel_2dot5G_delay[0].rx = 55163U;
+        seriel_2dot5G_delay[0].tx = 70010U;
+        seriel_2dot5G_delay[4].rx = 55163U;
+        seriel_2dot5G_delay[4].tx = 70010U;
+        seriel_2dot5G_delay[8].rx = 55163U;
+        seriel_2dot5G_delay[8].tx = 70010U;
+        seriel_2dot5G_delay[12].rx = 55163U;
+        seriel_2dot5G_delay[12].tx = 70010U;
+        seriel_2dot5G_delay[16].rx = 55163U;
+        seriel_2dot5G_delay[16].tx = 70010U;
+        seriel_2dot5G_delay[20].rx = 55163U;
+        seriel_2dot5G_delay[20].tx = 70010U;
+        seriel_2dot5G_delay[24].rx = 55163U;
+        seriel_2dot5G_delay[24].tx = 70010U;
+        seriel_2dot5G_delay[25].rx = 55163U;
+        seriel_2dot5G_delay[25].tx = 70010U;
+        seriel_2dot5G_delay[26].rx = 55163U;
+        seriel_2dot5G_delay[26].tx = 70010U;
+        seriel_2dot5G_delay[27].rx = 55163U;
+        seriel_2dot5G_delay[27].tx = 70010U;
 
-        seriel_5G_delay[0].rx = 221389;
-        seriel_5G_delay[0].tx = 295367;
-        seriel_5G_delay[4].rx = 221389;
-        seriel_5G_delay[4].tx = 295367;
-        seriel_5G_delay[8].rx = 221389;
-        seriel_5G_delay[8].tx = 295367;
-        seriel_5G_delay[12].rx = 221389;
-        seriel_5G_delay[12].tx = 295367;
-        seriel_5G_delay[16].rx = 221389;
-        seriel_5G_delay[16].tx = 295367;
-        seriel_5G_delay[20].rx = 221389;
-        seriel_5G_delay[20].tx = 295367;
-        seriel_5G_delay[24].rx = 221389;
-        seriel_5G_delay[24].tx = 295367;
-        seriel_5G_delay[25].rx = 221389;
-        seriel_5G_delay[25].tx = 295367;
-        seriel_5G_delay[26].rx = 221389;
-        seriel_5G_delay[26].tx = 295367;
-        seriel_5G_delay[27].rx = 221389;
-        seriel_5G_delay[27].tx = 295367;
+        seriel_5G_delay[0].rx = 221389U;
+        seriel_5G_delay[0].tx = 295367U;
+        seriel_5G_delay[4].rx = 221389U;
+        seriel_5G_delay[4].tx = 295367U;
+        seriel_5G_delay[8].rx = 221389U;
+        seriel_5G_delay[8].tx = 295367U;
+        seriel_5G_delay[12].rx = 221389U;
+        seriel_5G_delay[12].tx = 295367U;
+        seriel_5G_delay[16].rx = 221389U;
+        seriel_5G_delay[16].tx = 295367U;
+        seriel_5G_delay[20].rx = 221389U;
+        seriel_5G_delay[20].tx = 295367U;
+        seriel_5G_delay[24].rx = 221389U;
+        seriel_5G_delay[24].tx = 295367U;
+        seriel_5G_delay[25].rx = 221389U;
+        seriel_5G_delay[25].tx = 295367U;
+        seriel_5G_delay[26].rx = 221389U;
+        seriel_5G_delay[26].tx = 295367U;
+        seriel_5G_delay[27].rx = 221389U;
+        seriel_5G_delay[27].tx = 295367U;
 
-        seriel_10G_delay[0].rx = 102946;
-        seriel_10G_delay[0].tx = 155386;
-        seriel_10G_delay[4].rx = 102946;
-        seriel_10G_delay[4].tx = 155386;
-        seriel_10G_delay[8].rx = 102946;
-        seriel_10G_delay[8].tx = 155386;
-        seriel_10G_delay[12].rx = 102946;
-        seriel_10G_delay[12].tx = 155386;
-        seriel_10G_delay[16].rx = 102946;
-        seriel_10G_delay[16].tx = 155386;
-        seriel_10G_delay[20].rx = 102946;
-        seriel_10G_delay[20].tx = 155386;
-        seriel_10G_delay[24].rx = 102958;
-        seriel_10G_delay[24].tx = 155434;
-        seriel_10G_delay[25].rx = 102958;
-        seriel_10G_delay[25].tx = 155434;
-        seriel_10G_delay[26].rx = 102958;
-        seriel_10G_delay[26].tx = 155434;
-        seriel_10G_delay[27].rx = 102958;
-        seriel_10G_delay[27].tx = 155434;
+        seriel_10G_delay[0].rx = 102946U;
+        seriel_10G_delay[0].tx = 155386U;
+        seriel_10G_delay[4].rx = 102946U;
+        seriel_10G_delay[4].tx = 155386U;
+        seriel_10G_delay[8].rx = 102946U;
+        seriel_10G_delay[8].tx = 155386U;
+        seriel_10G_delay[12].rx = 102946U;
+        seriel_10G_delay[12].tx = 155386U;
+        seriel_10G_delay[16].rx = 102946U;
+        seriel_10G_delay[16].tx = 155386U;
+        seriel_10G_delay[20].rx = 102946U;
+        seriel_10G_delay[20].tx = 155386U;
+        seriel_10G_delay[24].rx = 102958U;
+        seriel_10G_delay[24].tx = 155434U;
+        seriel_10G_delay[25].rx = 102958U;
+        seriel_10G_delay[25].tx = 155434U;
+        seriel_10G_delay[26].rx = 102958U;
+        seriel_10G_delay[26].tx = 155434U;
+        seriel_10G_delay[27].rx = 102958U;
+        seriel_10G_delay[27].tx = 155434U;
 
-        qsgmii_1G_delay[0].rx = 195352;
-        qsgmii_1G_delay[0].tx = 176949;
-        qsgmii_1G_delay[1].rx = 203353;
-        qsgmii_1G_delay[1].tx = 184950;
-        qsgmii_1G_delay[2].rx = 203353;
-        qsgmii_1G_delay[2].tx = 184950;
-        qsgmii_1G_delay[3].rx = 203353;
-        qsgmii_1G_delay[3].tx = 184950;
-        qsgmii_1G_delay[4].rx = 195352;
-        qsgmii_1G_delay[4].tx = 176949;
-        qsgmii_1G_delay[5].rx = 203353;
-        qsgmii_1G_delay[5].tx = 184950;
-        qsgmii_1G_delay[6].rx = 203353;
-        qsgmii_1G_delay[6].tx = 184950;
-        qsgmii_1G_delay[7].rx = 203353;
-        qsgmii_1G_delay[7].tx = 184950;
-        qsgmii_1G_delay[8].rx = 195352;
-        qsgmii_1G_delay[8].tx = 176949;
-        qsgmii_1G_delay[9].rx = 195352;
-        qsgmii_1G_delay[9].tx = 176949;
-        qsgmii_1G_delay[10].rx = 203353;
-        qsgmii_1G_delay[10].tx = 184950;
-        qsgmii_1G_delay[11].rx = 203353;
-        qsgmii_1G_delay[11].tx = 184950;
-        qsgmii_1G_delay[12].rx = 195352;
-        qsgmii_1G_delay[12].tx = 176949;
-        qsgmii_1G_delay[13].rx = 195352;
-        qsgmii_1G_delay[13].tx = 176949;
-        qsgmii_1G_delay[14].rx = 203353;
-        qsgmii_1G_delay[14].tx = 184950;
-        qsgmii_1G_delay[15].rx = 203353;
-        qsgmii_1G_delay[15].tx = 184950;
-        qsgmii_1G_delay[16].rx = 195352;
-        qsgmii_1G_delay[16].tx = 176949;
-        qsgmii_1G_delay[17].rx = 195352;
-        qsgmii_1G_delay[17].tx = 176949;
-        qsgmii_1G_delay[18].rx = 203353;
-        qsgmii_1G_delay[18].tx = 184950;
-        qsgmii_1G_delay[19].rx = 203353;
-        qsgmii_1G_delay[19].tx = 184950;
-        qsgmii_1G_delay[20].rx = 195352;
-        qsgmii_1G_delay[20].tx = 176949;
-        qsgmii_1G_delay[21].rx = 195352;
-        qsgmii_1G_delay[21].tx = 176949;
-        qsgmii_1G_delay[22].rx = 203353;
-        qsgmii_1G_delay[22].tx = 184950;
-        qsgmii_1G_delay[23].rx = 203353;
-        qsgmii_1G_delay[23].tx = 184950;
+        qsgmii_1G_delay[0].rx = 195352U;
+        qsgmii_1G_delay[0].tx = 176949U;
+        qsgmii_1G_delay[1].rx = 203353U;
+        qsgmii_1G_delay[1].tx = 184950U;
+        qsgmii_1G_delay[2].rx = 203353U;
+        qsgmii_1G_delay[2].tx = 184950U;
+        qsgmii_1G_delay[3].rx = 203353U;
+        qsgmii_1G_delay[3].tx = 184950U;
+        qsgmii_1G_delay[4].rx = 195352U;
+        qsgmii_1G_delay[4].tx = 176949U;
+        qsgmii_1G_delay[5].rx = 203353U;
+        qsgmii_1G_delay[5].tx = 184950U;
+        qsgmii_1G_delay[6].rx = 203353U;
+        qsgmii_1G_delay[6].tx = 184950U;
+        qsgmii_1G_delay[7].rx = 203353U;
+        qsgmii_1G_delay[7].tx = 184950U;
+        qsgmii_1G_delay[8].rx = 195352U;
+        qsgmii_1G_delay[8].tx = 176949U;
+        qsgmii_1G_delay[9].rx = 195352U;
+        qsgmii_1G_delay[9].tx = 176949U;
+        qsgmii_1G_delay[10].rx = 203353U;
+        qsgmii_1G_delay[10].tx = 184950U;
+        qsgmii_1G_delay[11].rx = 203353U;
+        qsgmii_1G_delay[11].tx = 184950U;
+        qsgmii_1G_delay[12].rx = 195352U;
+        qsgmii_1G_delay[12].tx = 176949U;
+        qsgmii_1G_delay[13].rx = 195352U;
+        qsgmii_1G_delay[13].tx = 176949U;
+        qsgmii_1G_delay[14].rx = 203353U;
+        qsgmii_1G_delay[14].tx = 184950U;
+        qsgmii_1G_delay[15].rx = 203353U;
+        qsgmii_1G_delay[15].tx = 184950U;
+        qsgmii_1G_delay[16].rx = 195352U;
+        qsgmii_1G_delay[16].tx = 176949U;
+        qsgmii_1G_delay[17].rx = 195352U;
+        qsgmii_1G_delay[17].tx = 176949U;
+        qsgmii_1G_delay[18].rx = 203353U;
+        qsgmii_1G_delay[18].tx = 184950U;
+        qsgmii_1G_delay[19].rx = 203353U;
+        qsgmii_1G_delay[19].tx = 184950U;
+        qsgmii_1G_delay[20].rx = 195352U;
+        qsgmii_1G_delay[20].tx = 176949U;
+        qsgmii_1G_delay[21].rx = 195352U;
+        qsgmii_1G_delay[21].tx = 176949U;
+        qsgmii_1G_delay[22].rx = 203353U;
+        qsgmii_1G_delay[22].tx = 184950U;
+        qsgmii_1G_delay[23].rx = 203353U;
+        qsgmii_1G_delay[23].tx = 184950U;
 
-        rgmii_1G_delay[28].rx = 171936;
-        qsgmii_1G_delay[22].tx = 105058;
-        rgmii_1G_delay[29].rx = 171936;
-        qsgmii_1G_delay[23].tx = 105058;
+        rgmii_1G_delay[28].rx = 171936U;
+        qsgmii_1G_delay[22].tx = 105058U;
+        rgmii_1G_delay[29].rx = 171936U;
+        qsgmii_1G_delay[23].tx = 105058U;
 
-        seriel_10G_kr_delay[0].rx = 345538;
-        seriel_10G_kr_delay[0].tx = 180780;
-        seriel_10G_kr_delay[4].rx = 345538;
-        seriel_10G_kr_delay[4].tx = 180780;
-        seriel_10G_kr_delay[8].rx = 345538;
-        seriel_10G_kr_delay[8].tx = 180780;
-        seriel_10G_kr_delay[12].rx = 345538;
-        seriel_10G_kr_delay[12].tx = 180780;
-        seriel_10G_kr_delay[16].rx = 345538;
-        seriel_10G_kr_delay[16].tx = 180780;
-        seriel_10G_kr_delay[20].rx = 345538;
-        seriel_10G_kr_delay[20].tx = 180780;
-        seriel_10G_kr_delay[24].rx = 345538;
-        seriel_10G_kr_delay[24].tx = 180780;
-        seriel_10G_kr_delay[25].rx = 345538;
-        seriel_10G_kr_delay[25].tx = 180780;
-        seriel_10G_kr_delay[26].rx = 345538;
-        seriel_10G_kr_delay[26].tx = 180780;
-        seriel_10G_kr_delay[27].rx = 345538;
-        seriel_10G_kr_delay[27].tx = 180780;
+        seriel_10G_kr_delay[0].rx = 345538U;
+        seriel_10G_kr_delay[0].tx = 180780U;
+        seriel_10G_kr_delay[4].rx = 345538U;
+        seriel_10G_kr_delay[4].tx = 180780U;
+        seriel_10G_kr_delay[8].rx = 345538U;
+        seriel_10G_kr_delay[8].tx = 180780U;
+        seriel_10G_kr_delay[12].rx = 345538U;
+        seriel_10G_kr_delay[12].tx = 180780U;
+        seriel_10G_kr_delay[16].rx = 345538U;
+        seriel_10G_kr_delay[16].tx = 180780U;
+        seriel_10G_kr_delay[20].rx = 345538U;
+        seriel_10G_kr_delay[20].tx = 180780U;
+        seriel_10G_kr_delay[24].rx = 345538U;
+        seriel_10G_kr_delay[24].tx = 180780U;
+        seriel_10G_kr_delay[25].rx = 345538U;
+        seriel_10G_kr_delay[25].tx = 180780U;
+        seriel_10G_kr_delay[26].rx = 345538U;
+        seriel_10G_kr_delay[26].tx = 180780U;
+        seriel_10G_kr_delay[27].rx = 345538U;
+        seriel_10G_kr_delay[27].tx = 180780U;
     }
 #endif
     return VTSS_RC_OK;

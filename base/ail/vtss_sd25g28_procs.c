@@ -79,10 +79,11 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->ck_bitwidth = 3;
         ret_val->subrate = 0;
         ret_val->com_txcal_en = 0;
-        ret_val->com_tx_reserve_msb = (0x26 << 1); // Default is 0x20<<1
-        ret_val->com_tx_reserve_lsb = ((3 << 6) + (3 << 4));
-        ret_val->ln_tx_reserve_msb = ((3 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb = ((3 << 6) + (3 << 4) + (3 << 2) + (2 << 0));
+        ret_val->com_tx_reserve_msb = (0x26U << 1U); // Default is 0x20<<1
+        ret_val->com_tx_reserve_lsb = ((3U << 6U) + (3U << 4U));
+        ret_val->ln_tx_reserve_msb =
+            ((3U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (2U << 1U));
+        ret_val->ln_tx_reserve_lsb = ((3U << 6U) + (3U << 4U) + (3U << 2U) + (2U << 0U));
         ret_val->ln_bw = 3;
         ret_val->ln_rxterm = 0;
         ret_val->dfe_enable = 1;
@@ -112,10 +113,11 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->ck_bitwidth = 0;
         ret_val->subrate = 0;
         ret_val->com_txcal_en = 0;
-        ret_val->com_tx_reserve_msb = (0x26 << 1); // Default is 0x20<<1
-        ret_val->com_tx_reserve_lsb = ((3 << 6) + (3 << 4));
-        ret_val->ln_tx_reserve_msb = ((3 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb = ((3 << 6) + (3 << 4) + (3 << 2) + (2 << 0));
+        ret_val->com_tx_reserve_msb = (0x26U << 1U); // Default is 0x20<<1
+        ret_val->com_tx_reserve_lsb = ((3U << 6U) + (3U << 4U));
+        ret_val->ln_tx_reserve_msb =
+            ((3U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (2U << 1U));
+        ret_val->ln_tx_reserve_lsb = ((3U << 6U) + (3U << 4U) + (3U << 2U) + (2U << 0U));
         ret_val->ln_bw = 3;
         ret_val->ln_rxterm = 0;
         ret_val->dfe_enable = 1;
@@ -146,10 +148,11 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->ck_bitwidth = 0;
         ret_val->subrate = 0;
         ret_val->com_txcal_en = 1;
-        ret_val->com_tx_reserve_msb = (0x20 << 1); //
-        ret_val->com_tx_reserve_lsb = ((1 << 6) + (0 << 4));
-        ret_val->ln_tx_reserve_msb = ((1 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb = ((1 << 6) + (0 << 4) + (1 << 2) + (0 << 0));
+        ret_val->com_tx_reserve_msb = (0x20U << 1U); //
+        ret_val->com_tx_reserve_lsb = ((1U << 6U) + (0U << 4U));
+        ret_val->ln_tx_reserve_msb =
+            ((1U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (2U << 1U));
+        ret_val->ln_tx_reserve_lsb = ((1U << 6U) + (0U << 4U) + (1U << 2U) + (0U << 0U));
         ret_val->ln_cfg_pi_bw_3_0 = 0;
         ret_val->ln_bw = 1;
         ret_val->ln_rxterm = 0;
@@ -180,10 +183,11 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->ck_bitwidth = 0;
         ret_val->subrate = 0;
         ret_val->com_txcal_en = 1;
-        ret_val->com_tx_reserve_msb = (0x20 << 1); //
-        ret_val->com_tx_reserve_lsb = ((1 << 6) + (0 << 4));
-        ret_val->ln_tx_reserve_msb = ((1 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb = ((1 << 6) + (0 << 4) + (1 << 2) + (0 << 0));
+        ret_val->com_tx_reserve_msb = (0x20U << 1U); //
+        ret_val->com_tx_reserve_lsb = ((1U << 6U) + (0U << 4U));
+        ret_val->ln_tx_reserve_msb =
+            ((1U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (2U << 1U));
+        ret_val->ln_tx_reserve_lsb = ((1U << 6U) + (0U << 4U) + (1U << 2U) + (0U << 0U));
         ret_val->ln_bw = 3;
         ret_val->ln_cfg_pi_bw_3_0 = 0;
         ret_val->ln_rxterm = 3; // Changed to 2 CTS 07/06/2019
@@ -213,10 +217,11 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->ck_bitwidth = 0;
         ret_val->subrate = 0;
         ret_val->com_txcal_en = 1;
-        ret_val->com_tx_reserve_msb = (0x20 << 1); //
-        ret_val->com_tx_reserve_lsb = ((0 << 6) + (0 << 4));
-        ret_val->ln_tx_reserve_msb = ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (3 << 1));
-        ret_val->ln_tx_reserve_lsb = ((2 << 6) + (0 << 4) + (0 << 2) + (0 << 0));
+        ret_val->com_tx_reserve_msb = (0x20U << 1U); //
+        ret_val->com_tx_reserve_lsb = ((0U << 6U) + (0U << 4U));
+        ret_val->ln_tx_reserve_msb =
+            ((0U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (3U << 1U));
+        ret_val->ln_tx_reserve_lsb = ((2U << 6U) + (0U << 4U) + (0U << 2U) + (0U << 0U));
         ret_val->ln_bw = 0;
         ret_val->ln_rxterm = 0;
         ret_val->ln_cfg_pi_bw_3_0 = 6;
@@ -244,10 +249,11 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->ck_bitwidth = 0;
         ret_val->subrate = 0;
         ret_val->com_txcal_en = 1;
-        ret_val->com_tx_reserve_msb = (0x20 << 1); //
-        ret_val->com_tx_reserve_lsb = ((0 << 6) + (0 << 4));
-        ret_val->ln_tx_reserve_msb = ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (3 << 1));
-        ret_val->ln_tx_reserve_lsb = ((2 << 6) + (0 << 4) + (0 << 2) + (0 << 0));
+        ret_val->com_tx_reserve_msb = (0x20U << 1U); //
+        ret_val->com_tx_reserve_lsb = ((0U << 6U) + (0U << 4U));
+        ret_val->ln_tx_reserve_msb =
+            ((0U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (3U << 1U));
+        ret_val->ln_tx_reserve_lsb = ((2U << 6U) + (0U << 4U) + (0U << 2U) + (0U << 0U));
         ret_val->ln_bw = 0;
         ret_val->ln_cfg_pi_bw_3_0 = 6;
         ret_val->ln_rxterm = 0;
@@ -275,14 +281,15 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->ck_bitwidth = 3;
         ret_val->subrate = 2;
         ret_val->com_txcal_en = 1;
-        ret_val->com_tx_reserve_msb = (0x26 << 1); // 08Jan mail [11:8] =0xc
-        ret_val->com_tx_reserve_lsb = (0xf << 4);
+        ret_val->com_tx_reserve_msb = (0x26U << 1U); // 08Jan mail [11:8] =0xc
+        ret_val->com_tx_reserve_lsb = (0xfU << 4U);
         ret_val->ln_cfg_itx_ipcml_base = 2; //;
-        ret_val->ln_tx_reserve_msb = ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (0 << 1));
-        ret_val->ln_tx_reserve_lsb = ((2 << 6) + (0 << 4) + (0xa << 0)); // 09Jan Mail
+        ret_val->ln_tx_reserve_msb =
+            ((0U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (0U << 1U));
+        ret_val->ln_tx_reserve_lsb = ((2U << 6U) + (0U << 4U) + (0xaU << 0U)); // 09Jan Mail
         ret_val->ln_bw = 0;
-        ret_val->ln_cfg_pi_bw_3_0 = 0; //_004
-        ret_val->ln_rxterm = (1 << 2); //_004
+        ret_val->ln_cfg_pi_bw_3_0 = 0;   //_004
+        ret_val->ln_rxterm = (1U << 2U); //_004
         ret_val->dfe_enable = 0;
         ret_val->dfe_tap = 0;
 
@@ -304,10 +311,11 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->ck_bitwidth = 3;
         ret_val->subrate = 3;
         ret_val->com_txcal_en = 1;
-        ret_val->com_tx_reserve_msb = (0x26 << 1); //
-        ret_val->com_tx_reserve_lsb = ((3 << 6) + (3 << 4));
-        ret_val->ln_tx_reserve_msb = ((0 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (0 << 1));
-        ret_val->ln_tx_reserve_lsb = ((3 << 6) + (0 << 4) + (3 << 2) + (2 << 0));
+        ret_val->com_tx_reserve_msb = (0x26U << 1U); //
+        ret_val->com_tx_reserve_lsb = ((3U << 6U) + (3U << 4U));
+        ret_val->ln_tx_reserve_msb =
+            ((0U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (0U << 1U));
+        ret_val->ln_tx_reserve_lsb = ((3U << 6U) + (0U << 4U) + (3U << 2U) + (2U << 0U));
         ret_val->ln_bw = 0;
         ret_val->ln_rxterm = 0;
         ret_val->ln_cfg_pi_bw_3_0 = 0; //=0 as per _004; was 6; it works for both
@@ -334,10 +342,11 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             f_mode,
         ret_val->ck_bitwidth = 3;
         ret_val->subrate = 0;
         ret_val->com_txcal_en = 0;
-        ret_val->com_tx_reserve_msb = (0x26 << 1); //
-        ret_val->com_tx_reserve_lsb = ((3 << 6) + (3 << 4));
-        ret_val->ln_tx_reserve_msb = ((3 << 6) + (0 << 5) + (0 << 4) + (1 << 3) + (2 << 1));
-        ret_val->ln_tx_reserve_lsb = ((3 << 6) + (3 << 4) + (3 << 2) + (2 << 0));
+        ret_val->com_tx_reserve_msb = (0x26U << 1U); //
+        ret_val->com_tx_reserve_lsb = ((3U << 6U) + (3U << 4U));
+        ret_val->ln_tx_reserve_msb =
+            ((3U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (2U << 1U));
+        ret_val->ln_tx_reserve_lsb = ((3U << 6U) + (3U << 4U) + (3U << 2U) + (2U << 0U));
         ret_val->ln_bw = 3;
         ret_val->ln_rxterm = 0;
         ret_val->dfe_enable = 1;

@@ -17,8 +17,8 @@
 vtss_rc vtss_cil_l3_common_set(vtss_state_t *vtss_state, const vtss_l3_common_conf_t *const conf)
 {
     const u8        *addr = conf->base_address.addr;
-    u32              msb = ((addr[0] << 16) | (addr[1] << 8) | addr[2]);
-    u32              lsb = ((addr[3] << 16) | (addr[4] << 8) | addr[5]);
+    u32              msb = ((addr[0] << 16U) | (addr[1] << 8U) | addr[2]);
+    u32              lsb = ((addr[3] << 16U) | (addr[4] << 8U) | addr[5]);
     vtss_port_mask_t pmask;
 
     /* Setup router leg MAC address and type */
@@ -101,9 +101,9 @@ vtss_rc vtss_cil_l3_rleg_counters_get(vtss_state_t *vtss_state, vtss_l3_rleg_id_
 
     /* IPv6 counters */
     if (FA_TGT) {
-        rleg += 512;
+        rleg += 512U;
     } else {
-        rleg += 128;
+        rleg += 128U;
     }
 
     VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_PACKETS,
@@ -140,8 +140,8 @@ vtss_rc vtss_cil_l3_rleg_counters_reset(vtss_state_t *vtss_state)
 {
     u32 i, j;
 
-    for (i = 0; i < (2 * VTSS_RLEG_STAT_CNT); i++) {
-        for (j = 0; j < 2; j++) {
+    for (i = 0U; i < (2 * VTSS_RLEG_STAT_CNT); i++) {
+        for (j = 0U; j < 2U; j++) {
             REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_IRLEG_STAT_MSB_CNT(i, j), 0);
             REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_IRLEG_STAT_LSB_CNT(i, j), 0);
             REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_ERLEG_STAT_MSB_CNT(i, j), 0);
@@ -179,9 +179,9 @@ vtss_rc vtss_cil_l3_rleg_set(vtss_state_t                    *vtss_state,
             VTSS_M_ANA_L3_VMID_MC_RLEG_IP6_MC_TTL | VTSS_M_ANA_L3_VMID_MC_RLEG_IP4_MC_TTL);
 
     /* If only one VRID is enabled, both are set to the same value */
-    for (i = 0; i < 2; i++) {
-        vrid = (i == 0 ? (conf->vrid0_enable ? conf->vrid0 : conf->vrid1)
-                       : (conf->vrid1_enable ? conf->vrid1 : conf->vrid0));
+    for (i = 0U; i < 2U; i++) {
+        vrid = (i == 0U ? (conf->vrid0_enable ? conf->vrid0 : conf->vrid1)
+                        : (conf->vrid1_enable ? conf->vrid1 : conf->vrid0));
         REG_WR(VTSS_ANA_L3_VRRP_CFG(rleg, i), VTSS_F_ANA_L3_VRRP_CFG_RLEG_IP6_VRID(vrid) |
                                                   VTSS_F_ANA_L3_VRRP_CFG_RLEG_IP4_VRID(vrid));
     }
@@ -237,7 +237,7 @@ vtss_rc vtss_cil_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
     vtss_lpm_action_t *action = &entry.action;
     vtss_ip_addr_t    *addr = &rt->network;
     vtss_ip_addr_t    *sip = &rt->sip;
-    u32                i, sum = 0;
+    u32                i, sum = 0U;
     u8                 sip_mask;
 
     VTSS_MEMSET(&data, 0, sizeof(data));
@@ -254,16 +254,16 @@ vtss_rc vtss_cil_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
         key->data.dbl_ip4.dip.value = addr->addr.ipv4;
         key->data.dbl_ip4.dip.mask = 0xFFFFFFFF;
         key->data.dbl_ip4.sip.value = sip->addr.ipv4;
-        key->data.dbl_ip4.sip.mask = (sip->addr.ipv4 == 0) ? 0 : 0xFFFFFFFF;
+        key->data.dbl_ip4.sip.mask = (sip->addr.ipv4 == 0U) ? 0U : 0xFFFFFFFF;
     } else {
         /* IPv6 multicast */
         data.key_size = VTSS_VCAP_KEY_SIZE_HALF;
         key->type = VTSS_LPM_KEY_DBL_IP6;
-        for (i = 0; i < 16; i++) {
+        for (i = 0U; i < 16U; i++) {
             sum += sip->addr.ipv6.addr[i];
         }
-        sip_mask = sum == 0 ? 0 : 0xFF;
-        for (i = 0; i < 16; i++) {
+        sip_mask = sum == 0U ? 0 : 0xFF;
+        for (i = 0U; i < 16U; i++) {
             key->data.dbl_ip6.dip.value[i] = addr->addr.ipv6.addr[i];
             key->data.dbl_ip6.dip.mask[i] = 0xFF;
             key->data.dbl_ip6.sip.value[i] = sip->addr.ipv6.addr[i];
@@ -287,7 +287,7 @@ vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state, vtss_l3_net_t *net, vtss_l3
     vtss_lpm_key_t    *key = &entry.key;
     vtss_lpm_action_t *action = &entry.action;
     vtss_ip_addr_t    *addr = &net->network;
-    u32                i, j, n, mask = 0, len = net->prefix_size;
+    u32                i, j, n, mask = 0U, len = net->prefix_size;
 
     VTSS_MEMSET(&data, 0, sizeof(data));
     VTSS_MEMSET(&entry, 0, sizeof(entry));
@@ -298,10 +298,10 @@ vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state, vtss_l3_net_t *net, vtss_l3
         key->type = VTSS_LPM_KEY_SGL_IP4;
         key->data.sgl_ip4.dst_ena = 1;
         key->data.sgl_ip4.xip.value = addr->addr.ipv4;
-        for (i = 0; i < 32; i++) {
+        for (i = 0U; i < 32U; i++) {
             mask <<= 1;
             if (i < len) {
-                mask |= 1;
+                mask |= 1U;
             }
         }
         key->data.sgl_ip4.xip.mask = mask;
@@ -309,14 +309,14 @@ vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state, vtss_l3_net_t *net, vtss_l3
         data.key_size = VTSS_VCAP_KEY_SIZE_QUARTER;
         key->type = VTSS_LPM_KEY_SGL_IP6;
         key->data.sgl_ip6.dst_ena = 1;
-        for (i = 0; i < 16; i++) {
+        for (i = 0U; i < 16U; i++) {
             key->data.sgl_ip6.xip.value[i] = addr->addr.ipv6.addr[i];
-            n = 8 * i;
-            mask = 0;
-            for (j = 0; j < 8; j++) {
+            n = 8U * i;
+            mask = 0U;
+            for (j = 0U; j < 8U; j++) {
                 mask <<= 1;
                 if ((n + j) < len) {
-                    mask |= 1;
+                    mask |= 1U;
                 }
             }
             key->data.sgl_ip6.xip.mask[i] = mask;
@@ -330,7 +330,7 @@ vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state, vtss_l3_net_t *net, vtss_l3
     } else {
         action->type = LPM_X1_TYPE_ARP_PTR;
         action->data.arp_ptr.arp_ptr = net->grp->idx;
-        action->data.arp_ptr.ecmp_cnt = (cnt - 1);
+        action->data.arp_ptr.ecmp_cnt = (cnt - 1U);
     }
     return vtss_vcap_add(vtss_state, obj, VTSS_LPM_USER_L3, net->id,
                          net->next == NULL ? VTSS_VCAP_ID_LAST : net->next->id, &data, 0);
@@ -351,8 +351,8 @@ vtss_rc vtss_cil_l3_rt_del(vtss_state_t *vtss_state, vtss_l3_net_t *net)
 vtss_rc vtss_cil_l3_arp_set(vtss_state_t *vtss_state, u32 idx, vtss_l3_nb_t *nb)
 {
     const u8 *addr = nb->dmac.addr;
-    u32       msb = ((addr[0] << 8) | addr[1]);
-    u32       lsb = ((addr[2] << 24) | (addr[3] << 16) | (addr[4] << 8) | addr[5]);
+    u32       msb = ((addr[0] << 8U) | addr[1]);
+    u32       lsb = ((addr[2] << 24U) | (addr[3] << 16U) | (addr[4] << 8U) | addr[5]);
 
     REG_WR(VTSS_ANA_L3_ARP_CFG_0(idx), VTSS_F_ANA_L3_ARP_CFG_0_MAC_MSB(msb) |
                                            VTSS_F_ANA_L3_ARP_CFG_0_ARP_VMID(nb->rleg) |
@@ -411,7 +411,7 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
        VTSS_X_ANA_L3_RLEG_CFG_0_RLEG_MAC_LSB(cfg0),
        VTSS_X_ANA_L3_RLEG_CFG_1_RLEG_MAC_TYPE_SEL(cfg1));
 
-    for (i = 0; i < VTSS_RLEG_STAT_CNT; i++) {
+    for (i = 0U; i < VTSS_RLEG_STAT_CNT; i++) {
         if (i < VTSS_RLEG_CNT && l3->rleg_conf[i].vlan == 0 && !info->full) {
             continue;
         }
@@ -469,9 +469,9 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
     }
     VTSS_RC(vtss_fa_debug_lpm(vtss_state, ss, info));
 
-    for (i = 0; i < VTSS_ARP_CNT; i++) {
+    for (i = 0U; i < VTSS_ARP_CNT; i++) {
         REG_RD(VTSS_ANA_L3_ARP_CFG_0(i), &cfg0);
-        if (VTSS_X_ANA_L3_ARP_CFG_0_ARP_ENA(cfg0) == 0 && !info->full) {
+        if (VTSS_X_ANA_L3_ARP_CFG_0_ARP_ENA(cfg0) == 0U && !info->full) {
             continue;
         }
 
@@ -487,7 +487,7 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
         pr("\n");
     }
 
-    for (i = 0; i < VTSS_RLEG_STAT_CNT; i++) {
+    for (i = 0U; i < VTSS_RLEG_STAT_CNT; i++) {
         if ((i < VTSS_RLEG_CNT && l3->rleg_conf[i].vlan == 0 && !info->full) ||
             vtss_cil_l3_rleg_counters_get(vtss_state, i) != VTSS_RC_OK) {
             continue;
@@ -536,7 +536,7 @@ static vtss_rc fa_l3_init_counter(vtss_state_t *vtss_state,
                                   u32           event_ir,
                                   u32           event_er)
 {
-    u32 frame_type = 1; /* Events with no FCS errors */
+    u32 frame_type = 1U; /* Events with no FCS errors */
 
     /* IRLEG counters */
     REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG(idx),
@@ -589,7 +589,7 @@ static vtss_rc fa_l3_poll(vtss_state_t *vtss_state)
     VTSS_RC(vtss_cil_l3_rleg_counters_get(vtss_state, vtss_state->l3.statistics.rleg));
     vtss_state->l3.statistics.rleg++;
     if (vtss_state->l3.statistics.rleg >= VTSS_RLEG_CNT) {
-        vtss_state->l3.statistics.rleg = 0;
+        vtss_state->l3.statistics.rleg = 0U;
     }
     return VTSS_RC_OK;
 }

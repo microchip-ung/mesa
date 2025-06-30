@@ -9,9 +9,9 @@
 static u32 tas_op_type_calc(vtss_qos_tas_gco_t gate_operation)
 {
     switch (gate_operation) {
-    case VTSS_QOS_TAS_GCO_SET_GATE_STATES:     return 0;
-    case VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC: return 2;
-    case VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC:    return 3;
+    case VTSS_QOS_TAS_GCO_SET_GATE_STATES:     return 0U;
+    case VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC: return 2U;
+    case VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC:    return 3U;
     }
 
     VTSS_E("Unknown register QSYS:TAS_GCL_CFG:TAS_GCL_CTRL_CFG.OP_TYPE value");
@@ -35,7 +35,7 @@ static void tas_next_unused_entry_get(vtss_state_t *vtss_state, u32 *entry_idx)
     u32                  i;
     vtss_tas_list_entry *entries = vtss_state->qos.tas.tas_entries;
 
-    for (i = *entry_idx + 1; i < RT_TAS_NUMBER_OF_ENTRIES; ++i) {
+    for (i = *entry_idx + 1U; i < RT_TAS_NUMBER_OF_ENTRIES; ++i) {
         if (!entries[i].in_use) {
             *entry_idx = i;
             entries[i].in_use = TRUE;
@@ -46,7 +46,7 @@ static void tas_next_unused_entry_get(vtss_state_t *vtss_state, u32 *entry_idx)
 
 u32 lan969x_tas_list_allocate(vtss_state_t *vtss_state, u32 length)
 {
-    u32                  i, list_idx, found, first_entry = 0;
+    u32                  i, list_idx, found, first_entry = 0U;
     BOOL                 first;
     vtss_tas_list_t     *tas_lists = vtss_state->qos.tas.tas_lists;
     vtss_tas_list_entry *entries = vtss_state->qos.tas.tas_entries;
@@ -54,7 +54,7 @@ u32 lan969x_tas_list_allocate(vtss_state_t *vtss_state, u32 length)
     VTSS_D("Enter length %u", length);
 
     /* Find a unused list */
-    for (list_idx = 0; list_idx < VTSS_TAS_NUMBER_OF_LISTS; ++list_idx) {
+    for (list_idx = 0U; list_idx < VTSS_TAS_NUMBER_OF_LISTS; ++list_idx) {
         if (!tas_lists[list_idx].in_use) { /* Find a unused list */
             break;
         }
@@ -65,14 +65,14 @@ u32 lan969x_tas_list_allocate(vtss_state_t *vtss_state, u32 length)
     }
 
     /* Check that there are unused list entries for the complete list */
-    for (i = 0, found = 0, first = TRUE; ((found < length) && (i < RT_TAS_NUMBER_OF_ENTRIES));
+    for (i = 0U, found = 0U, first = TRUE; ((found < length) && (i < RT_TAS_NUMBER_OF_ENTRIES));
          ++i) {
         if (!entries[i].in_use) {
             if (first) {
                 first = FALSE;
                 first_entry = i;
             }
-            found += 1;
+            found += 1U;
         }
     }
 
@@ -170,7 +170,7 @@ vtss_rc lan969x_tas_current_port_conf_calc(vtss_state_t             *vtss_state,
     }
 #endif
     /* Read the list elements */
-    gcl_idx = 0;
+    gcl_idx = 0U;
     do {
         /* Select the list entry */
         REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM(entry_idx),
@@ -192,7 +192,7 @@ vtss_rc lan969x_tas_current_port_conf_calc(vtss_state_t             *vtss_state,
         REG_RD(VTSS_HSCH_TAS_GCL_CTRL_CFG2, &value);
         entry_idx = VTSS_X_HSCH_TAS_GCL_CTRL_CFG2_NEXT_GCL(value);
 
-        gcl_idx += 1;
+        gcl_idx += 1U;
     } while (entry_idx != entry_first);
 
     /* Save list length */
@@ -215,7 +215,7 @@ static u8 tas_preemptable_calc(vtss_qos_tas_gce_t *gcl, u32 gcl_length)
     u32 i;
     u8  vector = 0;
 
-    for (i = 0; i < gcl_length; ++i) {
+    for (i = 0U; i < gcl_length; ++i) {
         if (gcl[i].gate_operation == VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC) { /* The MAC release
                                                                                 interval priorities
                                                                                 are pre-empt able */
@@ -232,7 +232,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
                                vtss_qos_tas_port_conf_t *port_conf,
                                u32                       startup_time)
 {
-    u32            gcl_idx, value, time_interval_sum = 0;
+    u32            gcl_idx, value, time_interval_sum = 0U;
     u32            maxsdu, i, hold_advance;
     u32            profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
     u32            entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
@@ -310,8 +310,8 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
 #endif
 
     /* Configure the profile */
-    for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
-        maxsdu = (max_sdu[i] / 64);
+    for (i = 0U; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
+        maxsdu = (max_sdu[i] / 64U);
         REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i),
                VTSS_F_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(maxsdu));
         REG_WR(VTSS_HSCH_QMAXSDU_DISC_CFG(profile_idx, i),
@@ -320,7 +320,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
     }
 
     REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &value);
-    hold_advance = (fp_enable_tx != 0) ? (VTSS_X_DSM_PREEMPT_CFG_P_MIN_SIZE(value) + 1) : 0;
+    hold_advance = (fp_enable_tx != 0U) ? (VTSS_X_DSM_PREEMPT_CFG_P_MIN_SIZE(value) + 1U) : 0U;
     /* FP pre-emptable frames must not be guard banded as this is controlled by
      * the MAC HOLD command */
     preemptable = tas_preemptable_calc(gcl, gcl_length);
@@ -337,12 +337,12 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
                 VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED);
 
     /* Configure the list elements */
-    for (gcl_idx = 0; gcl_idx < gcl_length; ++gcl_idx) {
+    for (gcl_idx = 0U; gcl_idx < gcl_length; ++gcl_idx) {
         /* Select the list entry */
         REG_WRM(VTSS_HSCH_TAS_CFG_CTRL, VTSS_F_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM(entry_idx),
                 VTSS_M_HSCH_TAS_CFG_CTRL_GCL_ENTRY_NUM);
 
-        if (gcl_idx < (gcl_length - 1)) { /* If not the last entry get the next entry index */
+        if (gcl_idx < (gcl_length - 1U)) { /* If not the last entry get the next entry index */
             tas_next_unused_entry_get(vtss_state, &entry_idx);
         } else { /* Last entry */
             entry_idx = vtss_state->qos.tas.tas_lists[list_idx]
@@ -363,7 +363,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
 
     /* Check if the sum of intervals are larger that the requeste cycle time */
     if ((time_interval_sum > cycle_time) || (cycle_time > VTSS_QOS_TAS_CT_MAX) ||
-        (cycle_time == 0)) {
+        (cycle_time == 0U)) {
         VTSS_D("The TAS list cycle time is invalid. time_interval_sum %u  cycle_time %u",
                time_interval_sum, cycle_time);
         return VTSS_RC_ERROR;
@@ -406,7 +406,7 @@ vtss_rc lan966x_tas_frag_size_update(struct vtss_state_s *vtss_state, const vtss
          * changing */
         REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &value);
         hold_advance =
-            (fp_enable_tx != 0) ? (VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(value) + 1) : 0;
+            (fp_enable_tx != 0U) ? (VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(value) + 1U) : 0U;
         /* FP pre-emptable frames must not be guard banded as this is controlled
          * by the MAC HOLD command */
         preemptable = tas_preemptable_calc(gcl, gcl_length);

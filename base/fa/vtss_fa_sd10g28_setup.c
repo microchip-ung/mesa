@@ -27,21 +27,21 @@ vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask)
     vtss_rc rc = VTSS_RC_OK;
     u32     value;
     u32     cmu_tgt;
-    u32     spd10g = 1;
-    u32     cmu_num = 0;
+    u32     spd10g = 1U;
+    u32     cmu_num = 0U;
 
     if ((vtss_state->port.cmu_enable_mask | cmu_mask) == vtss_state->port.cmu_enable_mask) {
         return VTSS_RC_OK; // already enabled
     }
 
-    for (cmu_num = 0; cmu_num < RT_CMU_CNT; cmu_num++) {
+    for (cmu_num = 0U; cmu_num < RT_CMU_CNT; cmu_num++) {
         if (!(VTSS_BIT(cmu_num) & cmu_mask)) {
             continue;
         }
         cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
 
-        if (cmu_num == 1 || cmu_num == 4 || cmu_num == 7 || cmu_num == 10 || cmu_num == 13) {
-            spd10g = 0;
+        if (cmu_num == 1U || cmu_num == 4U || cmu_num == 7U || cmu_num == 10U || cmu_num == 13U) {
+            spd10g = 0U;
         }
 
         VTSS_RC(vtss_fa_cmu_cfg_wrm(vtss_state, cmu_num,
@@ -123,7 +123,7 @@ vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask)
 
     VTSS_MSLEEP(1);
 
-    for (cmu_num = 0; cmu_num < RT_CMU_CNT; cmu_num++) {
+    for (cmu_num = 0U; cmu_num < RT_CMU_CNT; cmu_num++) {
         if (!(VTSS_BIT(cmu_num) & cmu_mask)) {
             continue;
         }
@@ -138,7 +138,7 @@ vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask)
 
     VTSS_MSLEEP(15);
 
-    for (cmu_num = 0; cmu_num < RT_CMU_CNT; cmu_num++) {
+    for (cmu_num = 0U; cmu_num < RT_CMU_CNT; cmu_num++) {
         if (!(VTSS_BIT(cmu_num) & cmu_mask)) {
             continue;
         }
@@ -147,8 +147,8 @@ vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask)
 
         REG_RD(VTSS_SD10G_CMU_TARGET_CMU_E0(cmu_tgt), &value);
         value = VTSS_X_SD10G_CMU_TARGET_CMU_E0_PLL_LOL_UDL(value);
-        value = (value > 0) ? 1 : 0;
-        if (value != 0x0) {
+        value = (value > 0U) ? 1 : 0;
+        if (value != 0x0U) {
             VTSS_E("The expected value for CMU_E0 pll_lol_udl was 0x0 but is 0x%x\n", value);
             rc = VTSS_RC_ERROR;
         } else {
@@ -188,7 +188,7 @@ static vtss_rc vtss_ant_sd10g28_reg_cfg(vtss_state_t                      *vtss_
             sd_lane_tgt = VTSS_TO_SD_LANE(indx + RT_SERDES_10G_START);
         }
 
-        if (sd_lane_tgt == 0 || sd_tgt == 0) {
+        if (sd_lane_tgt == 0U || sd_tgt == 0U) {
             return VTSS_RC_ERROR;
         }
         /* Note: SerDes SD10G_LANE_1 is configured in 10G_LAN mode */
@@ -551,8 +551,8 @@ static vtss_rc vtss_ant_sd10g28_reg_cfg(vtss_state_t                      *vtss_
 
         REG_RD(VTSS_SD_LANE_TARGET_SD_LANE_STAT(sd_lane_tgt), &value);
         value = VTSS_X_SD_LANE_TARGET_SD_LANE_STAT_PMA_RST_DONE(value);
-        value = (value > 0) ? 1 : 0;
-        if (value != 0x1) {
+        value = (value > 0U) ? 1 : 0;
+        if (value != 0x1U) {
             VTSS_E("The expected value for sd_lane_stat pma_rst_done was 0x1 but is 0x%x\n", value);
             rc = VTSS_RC_ERROR;
         } else {
@@ -576,7 +576,7 @@ vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t                   *vtss_state,
 {
     vtss_sd10g28_setup_struct_t calc_results = {};
     vtss_rc                     rc = 0;
-    u32                         cmu_mask = 0, p;
+    u32                         cmu_mask = 0U, p;
 
     VTSS_D("This function is generated with UTE based on TAG: temp");
 

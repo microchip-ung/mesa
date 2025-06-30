@@ -54,7 +54,7 @@ vtss_rc vtss_reg_write_masked(const vtss_inst_t    inst,
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
-    u32           val = 0; /* Please Lint */
+    u32           val = 0U; /* Please Lint */
 
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
@@ -360,7 +360,7 @@ vtss_rc vtss_sgpio_event_poll(const vtss_inst_t        inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
         (rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
-        if (bit >= 4) {
+        if (bit >= 4U) {
             VTSS_E("illegal parameter  bit: %u", bit);
             rc = VTSS_RC_ERROR;
         } else {
@@ -384,7 +384,7 @@ vtss_rc vtss_sgpio_event_enable(const vtss_inst_t        inst,
     VTSS_ENTER();
     if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
         (rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
-        if ((port >= VTSS_SGPIO_PORTS) || (bit >= 4)) {
+        if ((port >= VTSS_SGPIO_PORTS) || (bit >= 4U)) {
             VTSS_E("illegal parameter  port: %u  bit: %u", port, bit);
             rc = VTSS_RC_ERROR;
         } else {
@@ -628,7 +628,7 @@ vtss_rc vtss_misc_inst_create(vtss_state_t *vtss_state)
     {
         vtss_sgpio_group_t group;
 
-        for (group = 0; group < VTSS_SGPIO_GROUPS; group++) {
+        for (group = 0U; group < VTSS_SGPIO_GROUPS; group++) {
             state->sgpio_conf[0][group].bit_count = 4;
             state->sgpio_conf[1][group].bit_count = 4;
         }
@@ -674,8 +674,8 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
     }
 
     /* Print CIL information for all devices and groups */
-    for (chip_no = 0; chip_no < vtss_state->chip_count; chip_no++) {
-        for (group = 0; group < VTSS_SGPIO_GROUPS; group++) {
+    for (chip_no = 0U; chip_no < vtss_state->chip_count; chip_no++) {
+        for (group = 0U; group < VTSS_SGPIO_GROUPS; group++) {
             VTSS_FMT(buf, "Device %u, Group %u", chip_no, group);
             vtss_debug_print_header(ss, buf.s);
 
@@ -683,7 +683,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
             pr("Bit Count   : %u\n", conf->bit_count);
 
             // Print out blink mode
-            for (i = 0; i < 2; i++) {
+            for (i = 0U; i < 2U; i++) {
                 vtss_sgpio_bmode_t m = conf->bmode[i];
                 pr("Blink Mode_%u: %s\n", i,
                    m == VTSS_SGPIO_BMODE_TOGGLE  ? "Burst Toggle (mode 1)"
@@ -697,20 +697,20 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
             pr("\n");
             pr("Port  Status    ");
             cnt = (info->full ? 4 : conf->bit_count);
-            for (i = 0; i < cnt; i++) {
+            for (i = 0U; i < cnt; i++) {
                 pr("Mode_%u     ", i);
             }
-            for (i = 0; i < cnt; i++) {
+            for (i = 0U; i < cnt; i++) {
                 pr("Pol_High_%u  ", i);
             }
             pr("\n");
-            for (port = 0; port < VTSS_SGPIO_PORTS; port++) {
+            for (port = 0U; port < VTSS_SGPIO_PORTS; port++) {
                 port_conf = &conf->port_conf[port];
                 if (port_conf->enabled == 0 && info->full == 0) {
                     continue;
                 }
                 pr("%-4u  %-10s", port, vtss_bool_txt(port_conf->enabled));
-                for (i = 0; i < cnt; i++) {
+                for (i = 0U; i < cnt; i++) {
                     vtss_sgpio_mode_t m = port_conf->mode[i];
                     pr("%-11s", m == VTSS_SGPIO_MODE_OFF              ? "Off"
                                 : m == VTSS_SGPIO_MODE_ON             ? "On"
@@ -722,7 +722,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
                                 : m == VTSS_SGPIO_MODE_1_ACTIVITY_INV ? "1_ACT_INV"
                                                                       : "?");
                 }
-                for (i = 0; i < cnt; i++) {
+                for (i = 0U; i < cnt; i++) {
                     pr("%-12s", vtss_bool_txt(port_conf->int_pol_high[i]));
                 }
                 pr("\n");

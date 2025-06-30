@@ -59,7 +59,7 @@ vtss_rc vtss_qos_conf_set(const vtss_inst_t inst, const vtss_qos_conf_t *const c
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         /* Verify that prios is a power of two and not greater than prio_count
          * (which must also be a power of two) */
-        if ((prios != 0) && !(prios & (prios - 1)) && (prios <= vtss_state->qos.prio_count)) {
+        if ((prios != 0U) && !(prios & (prios - 1U)) && (prios <= vtss_state->qos.prio_count)) {
             changed = (vtss_state->qos.conf.prios != prios);
             vtss_state->qos.conf = *conf;
             rc = vtss_cil_qos_conf_set(vtss_state, changed);
@@ -1221,7 +1221,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
 
         qos->prios = vtss_state->qos.prio_count;
 
-        for (i = 0; i < 64; i++) {
+        for (i = 0U; i < 64U; i++) {
             qos->dscp_remark[i] = FALSE;
             qos->dscp_translate_map[i] = i;
             qos->dscp_remap[i] = i;
@@ -1284,7 +1284,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         vtss_qos_port_conf_t *qos = &vtss_state->qos.port_conf[port_no];
         vtss_burst_level_t level = QOS_DEFAULT_BURST_LEVEL; /* Default burst level configuration */
 
-        for (i = 0; i < VTSS_PORT_POLICERS; i++) {
+        for (i = 0U; i < VTSS_PORT_POLICERS; i++) {
             qos->policer_port[i].level = level;
             qos->policer_port[i].rate = VTSS_BITRATE_DISABLED;
 
@@ -1372,7 +1372,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         }
 
         qos->tag_remark_mode = VTSS_TAG_REMARK_MODE_CLASSIFIED;
-        qos->tag_default_pcp = 0;
+        qos->tag_default_pcp = 0U;
         qos->tag_default_dei = 0;
         for (i = VTSS_PRIO_START; i < VTSS_PRIO_END; i++) {
             int dpl;
@@ -1409,7 +1409,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         vtss_qos_tas_port_conf_t *conf = &vtss_state->qos.tas.port_conf[port_no];
 
         // All queues are open by default.
-        for (i = 0; i < VTSS_QUEUE_ARRAY_SIZE; i++) {
+        for (i = 0U; i < VTSS_QUEUE_ARRAY_SIZE; i++) {
             conf->gate_open[i] = TRUE;
         }
     }
@@ -1493,7 +1493,7 @@ u32 vtss_cmn_qos_chip_prio(vtss_state_t *vtss_state, const vtss_prio_t prio)
         return (prio * vtss_state->qos.conf.prios) / vtss_state->qos.prio_count;
     } else {
         VTSS_E("illegal prio: %u  prio_count: %u", prio, vtss_state->qos.prio_count);
-        return 0;
+        return 0U;
     }
 }
 
@@ -1555,19 +1555,19 @@ vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, u32 num, u8
         VTSS_E("illegal bit_width: %u", bit_width);
         return VTSS_RC_ERROR;
     }
-    c_max = 1 << bit_width;
-    for (i = 0; i < num; i++) {
+    c_max = 1U << bit_width;
+    for (i = 0U; i < num; i++) {
         if ((weight[i] < 1) || (weight[i] > 100)) {
             VTSS_E("illegal weight: %u", weight[i]);
             return VTSS_RC_ERROR;
         }
         w_min = MIN(w_min, weight[i]);
     }
-    for (i = 0; i < num; i++) {
+    for (i = 0U; i < num; i++) {
         // Round half up: Multiply with 16 before division, add 8 and divide
         // result with 16 again
-        u32 c = (((c_max << 4) * w_min / weight[i]) + 8) >> 4;
-        cost[i] = MAX(1, c) - 1; // Force range to be 0..(c_max - 1)
+        u32 c = (((c_max << 4U) * w_min / weight[i]) + 8U) >> 4U;
+        cost[i] = MAX(1, c) - 1U; // Force range to be 0..(c_max - 1)
     }
     return VTSS_RC_OK;
 }
@@ -1575,15 +1575,15 @@ vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, u32 num, u8
 u32 vtss_cmn_qos_storm_mode(vtss_packet_rate_t rate, vtss_storm_policer_mode_t mode)
 {
     if (rate == VTSS_PACKET_RATE_DISABLED) {
-        return 0; /* Disabled */
+        return 0U; /* Disabled */
     }
 
     switch (mode) {
     case VTSS_STORM_POLICER_MODE_PORTS_AND_CPU:
-        return 3; /* Police both CPU and front port destinations */
-    case VTSS_STORM_POLICER_MODE_PORTS_ONLY: return 2; /* Police front port destinations only */
-    case VTSS_STORM_POLICER_MODE_CPU_ONLY:   return 1; /* Police CPU destination only */
-    default:                                 return 0;                                 /* Disabled */
+        return 3U; /* Police both CPU and front port destinations */
+    case VTSS_STORM_POLICER_MODE_PORTS_ONLY: return 2U; /* Police front port destinations only */
+    case VTSS_STORM_POLICER_MODE_CPU_ONLY:   return 1U; /* Police CPU destination only */
+    default:                                 return 0U;                                 /* Disabled */
     }
 }
 
@@ -1592,20 +1592,20 @@ u32 vtss_cmn_qos_packet_rate(vtss_packet_rate_t rate, u32 *unit)
     int i;
     u32 new_rate;
 
-    if (rate > 512) {
+    if (rate > 512U) {
         /* Supported rate = 1k, 2k, 4k, 8k, 16k, 32k, 64k, 128k, 256k, 512k and
          * 1024k frames per second*/
         new_rate = VTSS_DIV_ROUND_UP(rate, 1000);
-        *unit = 0; /* Base unit is 1 kiloframes per second */
+        *unit = 0U; /* Base unit is 1 kiloframes per second */
     } else {
         /* Supported rate = 1, 2, 4, 8, 16, 32, 64, 128, 256 and 512 frames per
          * second */
         new_rate = rate;
-        *unit = 1; /* Base unit is 1 frame per second */
+        *unit = 1U; /* Base unit is 1 frame per second */
     }
 
     for (i = 0; i < 10; i++) {
-        if ((u32)(1 << i) >= new_rate) { /* 2^i is equal to or higher than new_rate */
+        if ((u32)(1U << i) >= new_rate) { /* 2^i is equal to or higher than new_rate */
             break;
         }
     }
@@ -2433,12 +2433,12 @@ void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
            tas_port_conf->base_time.nanoseconds);
         pr("  ConfigChange     : %d\n", tas_port_conf->config_change);
         pr("  MaxSDU Q7..0     : ");
-        for (i = 0; i < 8; i++) {
+        for (i = 0U; i < 8U; i++) {
             pr("%u ", tas_port_conf->max_sdu[7 - i]);
         }
         pr("\n");
         pr("  GCL              : ");
-        for (i = 0; i < MIN(tas_port_conf->gcl_length, VTSS_QOS_TAS_GCL_LEN_MAX); i++) {
+        for (i = 0U; i < MIN(tas_port_conf->gcl_length, VTSS_QOS_TAS_GCL_LEN_MAX); i++) {
             pr("%s, 0x%x, %u ", debug_gate_operation_string(tas_port_conf->gcl[i].gate_operation),
                bool8_to_u8(tas_port_conf->gcl[i].gate_open), tas_port_conf->gcl[i].time_interval);
         }

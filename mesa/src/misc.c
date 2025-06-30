@@ -40,7 +40,7 @@ mesa_rc mesa_sgpio_read(const mesa_inst_t        inst,
     uint32_t               port;
 
     if ((rc = vtss_sgpio_read((const vtss_inst_t)inst, chip_no, group, vtss_data)) == VTSS_RC_OK) {
-        for (port = 0; port < VTSS_SGPIO_PORTS; port++) {
+        for (port = 0U; port < VTSS_SGPIO_PORTS; port++) {
             mesa_conv_vtss_sgpio_port_data_t_to_mesa_sgpio_port_data_t(&vtss_data[port],
                                                                        &data[port]);
         }

@@ -139,9 +139,9 @@ vtss_rc vtss_sd10g65_setup_apc_args_init(vtss_sd10g65_setup_apc_args_t *const in
     init_val->chip_name = VTSS_SD10G65_CHIP_ES65XX;
     init_val->is_malibu_f2df_or_df2f = FALSE;
     init_val->f_pll.f_pll_khz = 10e6;
-    init_val->f_pll.ratio_num = 66;
+    init_val->f_pll.ratio_num = 66U;
     ;
-    init_val->f_pll.ratio_den = 64;
+    init_val->f_pll.ratio_den = 64U;
     ;
     init_val->if_width = 32;
     init_val->preset = VTSS_SD10G65_PRESET_NONE;
@@ -417,10 +417,10 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
     ret_val->apc_is_cal_cfg0__skip_offset_cal[0] = 0;
     ret_val->apc_is_cal_cfg0__skip_threshold_cal[0] = 0;
     ret_val->apc_is_cal_cfg0__skip_dfe_buffer_cal[0] = 0;
-    ret_val->apc_is_cal_cfg1__par_data_num_ones_thres[0] = config.if_width / 4;
+    ret_val->apc_is_cal_cfg1__par_data_num_ones_thres[0] = config.if_width / 4U;
     ret_val->apc_is_cal_cfg1__cal_num_iterations[0] = 1;
 
-    if (f_pll_khz_plain == 0) {
+    if (f_pll_khz_plain == 0U) {
         VTSS_E("vtss_calc_sd10g65_setup_apc: f_pll not correctly set!\n");
         rc = VTSS_RC_ERROR;
         return rc;
@@ -497,7 +497,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
         ret_val->apc_eqz_offs_par_cfg__eqz_offs_dir_sel[0] = 0;
     }
 
-    if (f_pll_khz_plain > 2500000) {
+    if (f_pll_khz_plain > 2500000U) {
         ret_val->high_data_rate[0] = 1;
     } else {
         ret_val->high_data_rate[0] = 0;

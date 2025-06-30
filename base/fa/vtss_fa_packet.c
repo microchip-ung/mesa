@@ -37,7 +37,7 @@ static vtss_rc fa_npi_mask_set(vtss_state_t *vtss_state)
     vtss_npi_conf_t       *npi_conf = &vtss_state->packet.npi_conf;
     vtss_packet_rx_queue_t qu;
 
-    for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
+    for (qu = 0U; qu < vtss_state->packet.rx_queue_count; qu++) {
         BOOL npi_redirect = npi_conf->port_no != VTSS_PORT_NO_NONE && rx_conf->queue[qu].npi.enable;
 
         VTSS_RC(fa_npi_redirect_qu_to_port(vtss_state, qu,
@@ -94,13 +94,13 @@ vtss_rc vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_cn
 
     /* The time of day is sampled 2 or more times pr sec, assumed frame stamping
      * belong to domain 0 */
-    _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc);
+    _vtss_ts_domain_timeofday_get(NULL, 0U, &ts, &tc);
     tod_cnt = ts.nanoseconds + (VTSS_ONE_MIA * ts.seconds); /* tod_cnt is now a TOD 32 bit
                                                                wrapping nano second counter */
 
-    diff = tod_cnt - frame_cnt;            /* Calculate the difference between FRAME and
-                                              TOD 32 bit wrapping nano second counter */
-    *ts_cnt = tc - (u64)((u64)diff << 16); /* Difference in 16 bit nano second fragments */
+    diff = tod_cnt - frame_cnt;             /* Calculate the difference between FRAME and
+                                               TOD 32 bit wrapping nano second counter */
+    *ts_cnt = tc - (u64)((u64)diff << 16U); /* Difference in 16 bit nano second fragments */
     VTSS_I("frame_cnt %u  tod_cnt %u  ts_cnt %" PRIu64 "  diff %u  ts.sec %u  ts.ns %u  tc %" PRIu64
            "",
            frame_cnt, tod_cnt, *ts_cnt, diff, ts.seconds, ts.nanoseconds, tc);
@@ -125,18 +125,18 @@ vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_ns, u64
 
     /* The time of day is sampled 2 or more times pr sec, assumed frame stamping
      * belong to domain 0 */
-    _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc);
+    _vtss_ts_domain_timeofday_get(NULL, 0U, &ts, &tc);
     if (ts.nanoseconds < frame_ns) {
         tod_ns = ts.nanoseconds + VTSS_ONE_MIA; /* TOD nanoseconds is smaller than the frame_ns
                                                    from the frame. TOD nanoseconds has wrapped */
-        tc += ((u64)VTSS_ONE_MIA) << 16;
+        tc += ((u64)VTSS_ONE_MIA) << 16U;
     } else {
         tod_ns = ts.nanoseconds;
     }
 
-    diff = tod_ns - frame_ns;              /* Calculate the difference between FRAME and TOD
-                                              30 bit wrapping nano second counter */
-    *ts_cnt = tc - (u64)((u64)diff << 16); /* Difference in 16 bit nano second fragments */
+    diff = tod_ns - frame_ns;               /* Calculate the difference between FRAME and TOD
+                                               30 bit wrapping nano second counter */
+    *ts_cnt = tc - (u64)((u64)diff << 16U); /* Difference in 16 bit nano second fragments */
     VTSS_I("frame_ns %u  tod_ns %u  ts_cnt %" PRIu64 "  diff %u  ts.sec %u  ts.ns %u  tc %" PRIu64
            "",
            frame_ns, tod_ns, *ts_cnt, diff, ts.seconds, ts.nanoseconds, tc);
@@ -146,7 +146,7 @@ vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_ns, u64
 
 static u32 fa_packet_unpack32(const u8 *buf)
 {
-    return (buf[0] << 24) + (buf[1] << 16) + (buf[2] << 8) + buf[3];
+    return (buf[0] << 24U) + (buf[1] << 16U) + (buf[2] << 8U) + buf[3];
 }
 
 vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vtss_state,
@@ -163,7 +163,7 @@ vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vts
             //'ts_cnt' should be similar 'tc' returned from
             // fa_ts_io_pin_timeofday_get. packet contains only nano seconds
             // part in reserved field. Hence, only nano seconds are returned.
-            *ts_cnt = (u64)packet_ns << 16;
+            *ts_cnt = (u64)packet_ns << 16U;
             *timestamp_ok = rx_info->hw_tstamp_decoded;
         } else if (ts_props.phy_ts_mode == VTSS_PACKET_INTERNAL_TC_MODE_32BIT) {
             /* convert to jaguar 32 bit NSF */
@@ -178,7 +178,7 @@ vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vts
             // 'ts_cnt' should be similar 'tc' returned from
             // fa_ts_io_pin_timeofday_get.
             // PHY passes ingress timestamp in reserved field.
-            *ts_cnt = (u64)packet_ns << 16;
+            *ts_cnt = (u64)packet_ns << 16U;
             *timestamp_ok = TRUE;
         } else {
             VTSS_I("PHY timestamp mode %d not supported", ts_props.phy_ts_mode);
@@ -212,11 +212,11 @@ static vtss_rc fa_l2cp_conf_set(vtss_state_t        *vtss_state,
     u32 reg;
 
     switch (conf->reg) {
-    case VTSS_PACKET_REG_DISCARD:  reg = 3; break;
-    case VTSS_PACKET_REG_CPU_COPY: reg = 2; break;
-    case VTSS_PACKET_REG_CPU_ONLY: reg = 1; break;
+    case VTSS_PACKET_REG_DISCARD:  reg = 3U; break;
+    case VTSS_PACKET_REG_CPU_COPY: reg = 2U; break;
+    case VTSS_PACKET_REG_CPU_ONLY: reg = 1U; break;
     case VTSS_PACKET_REG_FORWARD:
-    default:                       reg = 0; break;
+    default:                       reg = 0U; break;
     }
     REG_WR(VTSS_ANA_CL_L2CP_ENTRY_CFG(profile * 32 + l2cp),
            VTSS_F_ANA_CL_L2CP_ENTRY_CFG_COSID_VAL(conf->cosid) |
@@ -239,9 +239,9 @@ vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
 
     // Each CPU queue gets reserved extraction buffer space. No sharing at port
     // or buffer level
-    offs = 2048; // Egress/destination memory
+    offs = 2048U; // Egress/destination memory
     port = (LK_TGT ? RT_CHIP_PORT_CPU_0 : RT_CHIP_PORT_CPU_1);
-    for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
+    for (queue = 0U; queue < vtss_state->packet.rx_queue_count; queue++) {
         i = conf->queue[queue].size / FA_BUFFER_CELL_SZ;
         REG_WR(VTSS_QRES_RES_CFG(offs + port * VTSS_PRIOS + queue), i);
     }
@@ -262,10 +262,10 @@ vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
         port = VTSS_CHIP_PORT(port_no);
         port_conf = &vtss_state->packet.rx_port_conf[port_no];
 
-        for (i = 0; i < 32; i++) {
+        for (i = 0U; i < 32U; i++) {
             l2cp_conf.cosid_enable = 0;
             l2cp_conf.cosid = 0;
-            if (i < 16) {
+            if (i < 16U) {
                 // BPDU
                 j = i;
                 l2cp_conf.reg = port_conf->bpdu_reg[j];
@@ -277,7 +277,7 @@ vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
 #endif
             } else {
                 // GARP
-                j = (i - 16);
+                j = (i - 16U);
                 l2cp_conf.reg = port_conf->garp_reg[j];
                 cpu_only = reg->garp_cpu_only[j];
                 l2cp_conf.queue = map->garp_queue;
@@ -333,7 +333,7 @@ vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
 #if defined(VTSS_FEATURE_REDBOX)
     if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
         // RedBox CPU queues
-        for (i = 0; i < VTSS_REDBOX_CNT; i++) {
+        for (i = 0U; i < VTSS_REDBOX_CNT; i++) {
             j = RB_TGT(i);
             REG_WR(VTSS_RB_CPU_CFG(j), VTSS_F_RB_CPU_CFG_SPV_CPUQ(map->sv_queue) |
                                            VTSS_F_RB_CPU_CFG_BPDU_CPUQ(map->bpdu_queue));
@@ -341,7 +341,7 @@ vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
     }
 #endif
     // Configure Rx Queue #i to map to an Rx group.
-    for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
+    for (i = 0U; i < vtss_state->packet.rx_queue_count; i++) {
         if (conf->grp_map[i]) {
             VTSS_E("Attempt to redirect queue %d - use vtss_dma_conf_set() instead", i);
         }
@@ -354,11 +354,11 @@ vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
 
 static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
 {
-    u32 queue, byte_swap, port = LK_TGT ? RT_CHIP_PORT_CPU_0 : RT_CHIP_PORT_CPU_1, grp = 1;
+    u32 queue, byte_swap, port = LK_TGT ? RT_CHIP_PORT_CPU_0 : RT_CHIP_PORT_CPU_1, grp = 1U;
 #ifdef VTSS_OS_BIG_ENDIAN
     byte_swap = 0;
 #else
-    byte_swap = 1;
+    byte_swap = 1U;
 #endif
 
     (void)byte_swap;
@@ -383,7 +383,7 @@ static vtss_rc fa_packet_mode_update(vtss_state_t *vtss_state)
         REG_WRM(VTSS_DSM_DEV_TX_STOP_WM_CFG(port), VTSS_F_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM(0),
                 VTSS_M_DSM_DEV_TX_STOP_WM_CFG_DEV_TX_STOP_WM);
 
-        for (queue = 0; queue < vtss_state->packet.rx_queue_count; queue++) {
+        for (queue = 0U; queue < vtss_state->packet.rx_queue_count; queue++) {
             REG_WRM(VTSS_QFWD_FRAME_COPY_CFG(QFWD_FRAME_COPY_CFG_CPU_QU(queue)),
                     VTSS_F_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(port),
                     VTSS_M_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL);
@@ -494,11 +494,11 @@ static int fa_rx_frame_word(vtss_state_t        *vtss_state,
         return 1; /* EOF */
     case XTR_ESCAPE:
         REG_RD(VTSS_DEVCPU_QS_XTR_RD(grp), rval);
-        *bytes_valid = 4;
+        *bytes_valid = 4U;
         return 0;
     default:
         *rval = val;
-        *bytes_valid = 4;
+        *bytes_valid = 4U;
         return 0;
     }
 }
@@ -515,10 +515,10 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
     u8  *buf;
     int  result;
 
-    *frm_length = bytes_got = 0;
+    *frm_length = bytes_got = 0U;
 
     /* Read IFH words */
-    for (i = 0; i < FA_IFH_WORDS; i++) {
+    for (i = 0U; i < FA_IFH_WORDS; i++) {
         if (fa_rx_frame_word(vtss_state, grp, TRUE, &val, &bytes_valid) != 0) {
             /* We accept neither EOF nor ERROR when reading the IFH */
             return VTSS_RC_ERROR;
@@ -529,7 +529,7 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
     buf = frame;
 
     /* Read the rest of the frame */
-    while (!done && buf_len >= 4) {
+    while (!done && buf_len >= 4U) {
         result = fa_rx_frame_word(vtss_state, grp, FALSE, &val, &bytes_valid);
         if (result == 2) {
             // Error.
@@ -543,10 +543,10 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
         *buf++ = (u8)(val >> 8);
         *buf++ = (u8)(val >> 0);
 #else
-        *buf++ = (u8)(val >> 0);
-        *buf++ = (u8)(val >> 8);
-        *buf++ = (u8)(val >> 16);
-        *buf++ = (u8)(val >> 24);
+        *buf++ = (u8)(val >> 0U);
+        *buf++ = (u8)(val >> 8U);
+        *buf++ = (u8)(val >> 16U);
+        *buf++ = (u8)(val >> 24U);
 #endif
         buf_len -= bytes_valid;
         done = result == 1;
@@ -561,7 +561,7 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    if (bytes_got < 60) {
+    if (bytes_got < 60U) {
         VTSS_E("short frame, %u bytes read", bytes_got);
         return VTSS_RC_ERROR;
     }
@@ -615,46 +615,46 @@ vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
 #if defined(VTSS_FEATURE_REDBOX)
     if (state->vtss_features[FEATURE_REDBOX] != 0) {
         // RedBox is bit 270-278 (9 bits)
-        rb = ((xtr_hdr[1] & 0x7f) << 2) | ((xtr_hdr[2] & 0xc0) >> 6);
+        rb = ((xtr_hdr[1] & 0x7fU) << 2U) | ((xtr_hdr[2] & 0xc0U) >> 6U);
     }
 #endif
 
     // TS is bit 232-269 (38 bits)
-    xtr_hdr_2 = xtr_hdr[2] & 0x3F; /* For some reason bit6-7 is occasionally
+    xtr_hdr_2 = xtr_hdr[2] & 0x3FU; /* For some reason bit6-7 is occasionally
                                       unexpectedly set. Must be cleared */
-    tstamp = ((u64)xtr_hdr_2 << 32);
-    tstamp |= ((u64)xtr_hdr[3] << 24) | ((u64)xtr_hdr[4] << 16) | ((u64)xtr_hdr[5] << 8) |
-              ((u64)xtr_hdr[6] << 0);
+    tstamp = ((u64)xtr_hdr_2 << 32U);
+    tstamp |= ((u64)xtr_hdr[3] << 24U) | ((u64)xtr_hdr[4] << 16U) | ((u64)xtr_hdr[5] << 8U) |
+              ((u64)xtr_hdr[6] << 0U);
 
     // DST is bit 153-231 (79 bits), but we only read the 63 LSB for now
-    dst = ((u64)xtr_hdr[9] << 56) | ((u64)xtr_hdr[10] << 48) | ((u64)xtr_hdr[11] << 40) |
-          ((u64)xtr_hdr[12] << 32);
-    dst |= ((u64)xtr_hdr[13] << 24) | ((u64)xtr_hdr[14] << 16) | ((u64)xtr_hdr[15] << 8) |
-           ((u64)xtr_hdr[16] << 0);
+    dst = ((u64)xtr_hdr[9] << 56U) | ((u64)xtr_hdr[10] << 48U) | ((u64)xtr_hdr[11] << 40U) |
+          ((u64)xtr_hdr[12] << 32U);
+    dst |= ((u64)xtr_hdr[13] << 24U) | ((u64)xtr_hdr[14] << 16U) | ((u64)xtr_hdr[15] << 8U) |
+           ((u64)xtr_hdr[16] << 0U);
     vstax_one = (dst & 1); // Bit 152 is the MSB of VSTAX, which must be 1
-    dst = (dst >> 1);
+    dst = (dst >> 1U);
 
     // VSTAX is bit 73-152 (80 bits), but we skip bit 63 for now (bit 79 is read
     // above)
-    vstax_hi = ((u16)xtr_hdr[17] << 8) | ((u16)xtr_hdr[18] << 0);
-    vstax_hi = (vstax_hi >> 1);
-    vstax_lo = ((u64)xtr_hdr[19] << 56) | ((u64)xtr_hdr[20] << 48) | ((u64)xtr_hdr[21] << 40) |
-               ((u64)xtr_hdr[22] << 32);
-    vstax_lo |= ((u64)xtr_hdr[23] << 24) | ((u64)xtr_hdr[24] << 16) | ((u64)xtr_hdr[25] << 8) |
-                ((u64)xtr_hdr[26] << 0);
-    vstax_lo = (vstax_lo >> 1);
+    vstax_hi = ((u16)xtr_hdr[17] << 8U) | ((u16)xtr_hdr[18] << 0U);
+    vstax_hi = (vstax_hi >> 1U);
+    vstax_lo = ((u64)xtr_hdr[19] << 56U) | ((u64)xtr_hdr[20] << 48U) | ((u64)xtr_hdr[21] << 40U) |
+               ((u64)xtr_hdr[22] << 32U);
+    vstax_lo |= ((u64)xtr_hdr[23] << 24U) | ((u64)xtr_hdr[24] << 16U) | ((u64)xtr_hdr[25] << 8U) |
+                ((u64)xtr_hdr[26] << 0U);
+    vstax_lo = (vstax_lo >> 1U);
 
     // FWD is bit 45-72 (28 bits), but we only read the 27 LSB for now
-    fwd = ((u32)xtr_hdr[27] << 24) | ((u32)xtr_hdr[28] << 16) | ((u32)xtr_hdr[29] << 8) |
-          ((u32)xtr_hdr[30] << 0);
-    fwd = (fwd >> 5);
+    fwd = ((u32)xtr_hdr[27] << 24U) | ((u32)xtr_hdr[28] << 16U) | ((u32)xtr_hdr[29] << 8U) |
+          ((u32)xtr_hdr[30] << 0U);
+    fwd = (fwd >> 5U);
 
     // MISC is bit 29-44 (16 bits)
-    misc = ((u32)xtr_hdr[30] << 16) | ((u32)xtr_hdr[31] << 8) | ((u32)xtr_hdr[32] << 0);
-    misc = (misc >> 5);
+    misc = ((u32)xtr_hdr[30] << 16U) | ((u32)xtr_hdr[31] << 8U) | ((u32)xtr_hdr[32] << 0U);
+    misc = (misc >> 5U);
 
     // TAGGING is bit 8-28 (21 bits)
-    tagging = ((u32)xtr_hdr[32] << 16) | ((u32)xtr_hdr[33] << 8) | ((u32)xtr_hdr[34] << 0);
+    tagging = ((u32)xtr_hdr[32] << 16U) | ((u32)xtr_hdr[33] << 8U) | ((u32)xtr_hdr[34] << 0U);
 
     // The VStaX header's MSbit must be 1.
     if (vstax_one != 1) {
@@ -664,12 +664,12 @@ vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
 
     VTSS_MEMSET(info, 0, sizeof(*info));
 
-    info->hw_tstamp = tstamp << 8;
+    info->hw_tstamp = tstamp << 8U;
     info->length = meta->length;
     info->hw_tstamp_decoded = TRUE;
 
     chip_port = VTSS_EXTRACT_BITFIELD(fwd, 1, SRC_PORT_WID); // FWD:SRC_PORT
-    info->port_no = vtss_cmn_chip_to_logical_port(state, 0, chip_port);
+    info->port_no = vtss_cmn_chip_to_logical_port(state, 0U, chip_port);
     if (chip_port == RT_CHIP_PORT_CPU_0 || chip_port == RT_CHIP_PORT_CPU_1) {
         VTSS_IG(trc_grp, "This frame is transmitted by the CPU itself and should be discarded.");
     }
@@ -682,8 +682,8 @@ vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
     sflow_id = VTSS_EXTRACT_BITFIELD(fwd, FWD_SFLOW_ID_POS, 7); // FWD:SFLOW_ID
     if (sflow_id < RT_CHIP_PORTS) {
         info->sflow_type = VTSS_SFLOW_TYPE_TX;
-        info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, 0, sflow_id);
-    } else if (sflow_id == 125 || sflow_id == 126) {
+        info->sflow_port_no = vtss_cmn_chip_to_logical_port(state, 0U, sflow_id);
+    } else if (sflow_id == 125U || sflow_id == 126U) {
         info->sflow_type = VTSS_SFLOW_TYPE_RX;
         info->sflow_port_no = info->port_no;
     }
@@ -702,7 +702,7 @@ vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
     info->tag.pcp = VTSS_EXTRACT_BITFIELD64(vstax_lo, 29, 3);
     info->tag.dei = VTSS_EXTRACT_BITFIELD64(vstax_lo, 28, 1);
     info->tag.vid = VTSS_EXTRACT_BITFIELD64(vstax_lo, 16, 12);
-    info->rb_port_a = (VTSS_EXTRACT_BITFIELD(rb, 7, 1) == 0);
+    info->rb_port_a = (VTSS_EXTRACT_BITFIELD(rb, 7, 1) == 0U);
     info->rb_tagged = VTSS_EXTRACT_BITFIELD(rb, 8, 1);
     info->rb_path_id = VTSS_EXTRACT_BITFIELD64(dst, 9, 4);   // DST:MPLS
     info->rb_seq_no = VTSS_EXTRACT_BITFIELD(tagging, 0, 16); // TAGGING:SEQ_NO
@@ -756,8 +756,8 @@ vtss_rc vtss_cil_packet_rx_frame(vtss_state_t                *vtss_state,
         /* IFH is done separately because of alignment needs */
         VTSS_MEMCPY(xtr_hdr, ifh, sizeof(ifh));
         VTSS_MEMSET(&meta, 0, sizeof(meta));
-        meta.length = (length - 4);
-        meta.etype = (data[12] << 8) | data[13];
+        meta.length = (length - 4U);
+        meta.etype = (data[12] << 8U) | data[13];
         rc = vtss_cil_packet_rx_hdr_decode(vtss_state, &meta, xtr_hdr, rx_info);
     }
     return rc;
@@ -840,39 +840,39 @@ static vtss_rc fa_ptp_action_to_ifh(vtss_packet_ptp_action_t ptp_action,
     vtss_rc rc = VTSS_RC_OK;
 
     switch (ptp_action) {
-    case VTSS_PACKET_PTP_ACTION_ONE_STEP: *result = 1; break;
+    case VTSS_PACKET_PTP_ACTION_ONE_STEP: *result = 1U; break;
 
-    case VTSS_PACKET_PTP_ACTION_TWO_STEP: *result = 4; break;
+    case VTSS_PACKET_PTP_ACTION_TWO_STEP: *result = 4U; break;
 
-    case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP: *result = 3; break;
+    case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP: *result = 3U; break;
 
-    case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ: *result = 7; break;
+    case VTSS_PACKET_PTP_ACTION_ORIGIN_TIMESTAMP_SEQ: *result = 7U; break;
 
-    case VTSS_PACKET_PTP_ACTION_AFI_NONE: *result = 12; break;
+    case VTSS_PACKET_PTP_ACTION_AFI_NONE: *result = 12U; break;
 
     default:
         VTSS_E("Invalid PTP action (%d)", ptp_action);
-        *result = 0;
+        *result = 0U;
         rc = VTSS_RC_ERROR;
         break;
     }
 
-    *result = *result | (ptp_domain << 6);
+    *result = *result | (ptp_domain << 6U);
 
     return rc;
 }
 
 static void IFH_ENCODE_BITFIELD(u8 *const bin_hdr, u64 value, u32 pos, u32 width)
 {
-    if (width > 40) {
+    if (width > 40U) {
         /* Max width is 5 bytes - 40 bits.
            In worst case this will spread over 6 bytes - 48 bits*/
         return;
     }
 
-    u32 byte = (35 - (pos / 8)); /* Calculate the Start IFH byte position of
+    u32 byte = (35U - (pos / 8U)); /* Calculate the Start IFH byte position of
                                     this IFH bit position */
-    u32 bit = (pos % 8);         /* Calculate the Start bit position in the Start IFH byte */
+    u32 bit = (pos % 8U);          /* Calculate the Start bit position in the Start IFH byte */
     u64 encode = VTSS_ENCODE_BITFIELD64(value, bit, width); /* Encode the bit field into
                                                                a 32 bit variable. */
 
@@ -880,24 +880,24 @@ static void IFH_ENCODE_BITFIELD(u8 *const bin_hdr, u64 value, u32 pos, u32 width
         bin_hdr[byte] |= (u8)((encode & 0xFF)); /* The b0-b7 goes into the start IFH byte */
     }
     if (encode & 0xFF00) {
-        bin_hdr[byte - 1] |=
-            (u8)((encode & 0xFF00) >> 8); /* The b8-b15 goes into the next IFH byte */
+        bin_hdr[byte - 1U] |=
+            (u8)((encode & 0xFF00) >> 8U); /* The b8-b15 goes into the next IFH byte */
     }
     if (encode & 0xFF0000) {
-        bin_hdr[byte - 2] |=
-            (u8)((encode & 0xFF0000) >> 16); /* The b16-b23 goes into the next IFH byte */
+        bin_hdr[byte - 2U] |=
+            (u8)((encode & 0xFF0000) >> 16U); /* The b16-b23 goes into the next IFH byte */
     }
     if (encode & 0xFF000000) {
-        bin_hdr[byte - 3] |=
-            (u8)((encode & 0xFF000000) >> 24); /* The b24-b31 goes into the next IFH byte */
+        bin_hdr[byte - 3U] |=
+            (u8)((encode & 0xFF000000) >> 24U); /* The b24-b31 goes into the next IFH byte */
     }
     if (encode & 0xFF00000000) {
-        bin_hdr[byte - 4] |=
-            (u8)((encode & 0xFF00000000) >> 32); /* The b32-b39 goes into the next IFH byte */
+        bin_hdr[byte - 4U] |=
+            (u8)((encode & 0xFF00000000) >> 32U); /* The b32-b39 goes into the next IFH byte */
     }
     if (encode & 0xFF0000000000) {
-        bin_hdr[byte - 5] |=
-            (u8)((encode & 0xFF0000000000) >> 40); /* The b40-b47 goes into the next IFH byte */
+        bin_hdr[byte - 5U] |=
+            (u8)((encode & 0xFF0000000000) >> 40U); /* The b40-b47 goes into the next IFH byte */
     }
 }
 
@@ -908,26 +908,26 @@ static u32 pdu_type_calc(const vtss_packet_tx_info_t *const info)
 {
     switch (info->oam_type) {
     case VTSS_PACKET_OAM_TYPE_NONE:      break; // Do nothing
-    case VTSS_PACKET_OAM_TYPE_MRP_TST:   return 10;
-    case VTSS_PACKET_OAM_TYPE_MRP_ITST:  return 10;
-    case VTSS_PACKET_OAM_TYPE_DLR_BCN:   return 11;
-    case VTSS_PACKET_OAM_TYPE_DLR_ADV:   return 11;
-    case VTSS_PACKET_OAM_TYPE_MPLS_TP_1: return 2;
-    case VTSS_PACKET_OAM_TYPE_MPLS_TP_2: return 2;
-    default:                             return 1; // Y1731 OAM
+    case VTSS_PACKET_OAM_TYPE_MRP_TST:   return 10U;
+    case VTSS_PACKET_OAM_TYPE_MRP_ITST:  return 10U;
+    case VTSS_PACKET_OAM_TYPE_DLR_BCN:   return 11U;
+    case VTSS_PACKET_OAM_TYPE_DLR_ADV:   return 11U;
+    case VTSS_PACKET_OAM_TYPE_MPLS_TP_1: return 2U;
+    case VTSS_PACKET_OAM_TYPE_MPLS_TP_2: return 2U;
+    default:                             return 1U; // Y1731 OAM
     }
 
     if (info->ptp_action != VTSS_PACKET_PTP_ACTION_NONE) {
         if (info->inj_encap.type == VTSS_PACKET_ENCAP_TYPE_IP4) {
-            return 6;
+            return 6U;
         }
         if (info->inj_encap.type == VTSS_PACKET_ENCAP_TYPE_IP6) {
-            return 7;
+            return 7U;
         }
-        return 5;
+        return 5U;
     }
 
-    return 0;
+    return 0U;
 }
 
 vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_state,
@@ -938,7 +938,7 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_st
     vtss_prio_t         cos;
     vtss_phys_port_no_t chip_port;
     BOOL                rewrite = TRUE, setup_cl = FALSE, afi = FALSE;
-    u32                 mi_port, pl_pt = 0, pl_act = 0, vid, pdu_type = 0, isdx = info->iflow_id;
+    u32                 mi_port, pl_pt = 0U, pl_act = 0U, vid, pdu_type = 0U, isdx = info->iflow_id;
 
     if (bin_hdr == NULL) {
         // Caller wants us to return the number of bytes required to fill
@@ -955,12 +955,12 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_st
                                               by OR. No bit clear should be required */
 
     IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX + 79,
-                        1); // VSTAX.RSV = 1. MSBit must be 1
+                        1U); // VSTAX.RSV = 1. MSBit must be 1
     IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX + 55,
-                        1); // VSTAX.INGR_DROP_MODE = Enable. Don't make
-                            // head-of-line blocking
+                        1U); // VSTAX.INGR_DROP_MODE = Enable. Don't make
+                             // head-of-line blocking
     IFH_ENCODE_BITFIELD(bin_hdr, 1, FWD_UPDATE_FCS,
-                        1); // FWD.UPDATE_FCS = Enable. Enforce update of FCS.
+                        1U); // FWD.UPDATE_FCS = Enable. Enforce update of FCS.
 
 #if defined(VTSS_FEATURE_AFI_SWC)
     if (info->afi_id != VTSS_AFI_ID_NONE) {
@@ -972,36 +972,36 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_st
 #endif
 
     // FIXME: Super-priority injection
-    cos = (info->cos >= 8 ? 7 : info->cos);
+    cos = (info->cos >= 8U ? 7U : info->cos);
 
     if (info->switch_frm) {
         // This is a switched frame - the frame is injected into the switch */
-        pl_act = 2; // MISC.PIPELINE_ACT = INJ_MASQ
+        pl_act = 2U; // MISC.PIPELINE_ACT = INJ_MASQ
         if (info->masquerade_port != VTSS_PORT_NO_NONE) {
             // OAM Injection in an Up-MEP/MIP - The following will be according
             // to TN1258 (EVC Baseline)
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Masqueraded OAM/Y1564 Injecting");
 
             chip_port = VTSS_CHIP_PORT_FROM_STATE(vtss_state, info->masquerade_port);
-            IFH_ENCODE_BITFIELD(bin_hdr, chip_port % 32, VSTAX + 0,
-                                5); // VSTAX.SRC.SRC_UPSPN = masquerade chip port
-            IFH_ENCODE_BITFIELD(bin_hdr, chip_port / 32, VSTAX + 5,
-                                5); // VSTAX.SRC.SRC_UPSID = masquerade chip port
-            IFH_ENCODE_BITFIELD(bin_hdr, chip_port, 46,
+            IFH_ENCODE_BITFIELD(bin_hdr, chip_port % 32U, VSTAX + 0,
+                                5U); // VSTAX.SRC.SRC_UPSPN = masquerade chip port
+            IFH_ENCODE_BITFIELD(bin_hdr, chip_port / 32U, VSTAX + 5,
+                                5U); // VSTAX.SRC.SRC_UPSID = masquerade chip port
+            IFH_ENCODE_BITFIELD(bin_hdr, chip_port, 46U,
                                 SRC_PORT_WID); // FWD.SRC_PORT = masquerade port
             setup_cl = TRUE;                   // Setup classified fields later
             pl_pt = info->pipeline_pt;
             if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE &&
                 pl_pt != VTSS_PACKET_PIPELINE_PT_NONE && pl_pt != VTSS_PACKET_PIPELINE_PT_ANA_CLM) {
-                pdu_type = 1; // DST.PDU_TYPE = OAM_Y1731
+                pdu_type = 1U; // DST.PDU_TYPE = OAM_Y1731
             }
         } else {
-            IFH_ENCODE_BITFIELD(bin_hdr, RT_CHIP_PORT_CPU_0, 46,
+            IFH_ENCODE_BITFIELD(bin_hdr, RT_CHIP_PORT_CPU_0, 46U,
                                 SRC_PORT_WID); // FWD.SRC_PORT = CPU
         }
     } else {
         // Not a switched frame.
-        IFH_ENCODE_BITFIELD(bin_hdr, RT_CHIP_PORT_CPU_0, 46,
+        IFH_ENCODE_BITFIELD(bin_hdr, RT_CHIP_PORT_CPU_0, 46U,
                             SRC_PORT_WID); // FWD.SRC_PORT = CPU
 
         // Add mirror port if CPU ingress mirroring or egress mirroring on
@@ -1011,7 +1011,7 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_st
             (vtss_state->l2.mirror_cpu_ingress || vtss_state->l2.mirror_egress[info->dst_port]) &&
             vtss_state->l2.port_state[mi_port]) {
             IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1, FWD_MIRROR_PROBE,
-                                2); /* FWD.MIRROR_PROBE = Ingress mirror probe.
+                                2U); /* FWD.MIRROR_PROBE = Ingress mirror probe.
                                        1-based in this field */
         }
 
@@ -1028,14 +1028,14 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_st
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "Injecting rew_cmd: 0x%x, ptp_timestamp %" PRIu64 "",
                     rew_cmd, info->ptp_timestamp);
             IFH_ENCODE_BITFIELD(bin_hdr, rew_cmd, VSTAX + 32,
-                                10); // VSTAX.REW_CMD = PTP rewrite command.
-                                     // (when FWD_MODE == FWD_LLOOKUP).
+                                10U); // VSTAX.REW_CMD = PTP rewrite command.
+                                      // (when FWD_MODE == FWD_LLOOKUP).
             pl_pt = VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE;
         } else if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE) {
             // OAM injection
             VTSS_DG(VTSS_TRACE_GROUP_PACKET, "OAM Injecting");
             IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX + 59,
-                                1); // VSTAX.SP = 1. Super Priority
+                                1U); // VSTAX.SP = 1. Super Priority
             pl_pt = info->pipeline_pt;
 
             if (info->pipeline_pt != VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE ||
@@ -1059,99 +1059,99 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_st
             // Must be 0 for AFI-injected frames, or the REW will see this as a
             // CPU queue mask and not work as expected. The destination port is
             // chosen during mesa_afi_slow_inj_alloc()/mesa_afi_fast_inj_alloc()
-            IFH_ENCODE_BITFIELD(bin_hdr, chip_port, 29,
-                                8); // MISC.CPU_MASK = Destination port. For
-                                    // injected frames this field is Destination
-                                    // port.
+            IFH_ENCODE_BITFIELD(bin_hdr, chip_port, 29U,
+                                8U); // MISC.CPU_MASK = Destination port. For
+                                     // injected frames this field is Destination
+                                     // port.
         }
 
-        pl_act = 1; // MISC.PIPELINE_ACT = INJ
-        IFH_ENCODE_BITFIELD(bin_hdr, !rewrite, 45,
-                            1); // FWD.DO_NOT_REW = 0 => do rewrite, 1 => do not
-                                // rewrite
+        pl_act = 1U; // MISC.PIPELINE_ACT = INJ
+        IFH_ENCODE_BITFIELD(bin_hdr, !rewrite, 45U,
+                            1U); // FWD.DO_NOT_REW = 0 => do rewrite, 1 => do not
+                                 // rewrite
         IFH_ENCODE_BITFIELD(bin_hdr, cos, VSTAX + 56,
-                            3); // VSTAX.CL_COS = cos. qos_class/iprio (internal
-                                // priority)
+                            3U); // VSTAX.CL_COS = cos. qos_class/iprio (internal
+                                 // priority)
 
         if (rewrite) {
             setup_cl = TRUE; // Setup classified fields later
             IFH_ENCODE_BITFIELD(bin_hdr, info->dp, VSTAX + 60,
-                                2); // VSTAX.CL_DP = dp.
+                                2U); // VSTAX.CL_DP = dp.
             if (info->tag.tpid != 0 && info->tag.tpid != 0x8100) {
                 IFH_ENCODE_BITFIELD(bin_hdr, 1, VSTAX + 14,
-                                    1); // VSTAX.TAG.TAG_TYPE = 1. S-TAG
+                                    1U); // VSTAX.TAG.TAG_TYPE = 1. S-TAG
             }
         } else if (info->pipeline_pt == VTSS_PACKET_PIPELINE_PT_REW_PORT_VOE &&
                    info->oam_type != VTSS_PACKET_OAM_TYPE_NONE && isdx == VTSS_ISDX_NONE) {
             // ESO_ISDX_KEY_ENA is configured to the opposite of the requested.
             // Try not to hit ES0 when no rewriting is calculated
             IFH_ENCODE_BITFIELD(bin_hdr, 1, FWD_ESO_ISDX_KEY_ENA,
-                                1); // FWD.ESO_ISDX_KEY_ENA = 1
+                                1U); // FWD.ESO_ISDX_KEY_ENA = 1
             IFH_ENCODE_BITFIELD(bin_hdr, info->cosid, VSTAX + 76,
-                                3); // VSTAX.COSID = cosid.
+                                3U); // VSTAX.COSID = cosid.
         }
     } /* switched frame */
 
     IFH_ENCODE_BITFIELD(bin_hdr, 124, FWD_SFLOW_ID,
-                        7); // FWD.SFLOW_ID (disable SFlow sampling)
-    IFH_ENCODE_BITFIELD(bin_hdr, fa_plpt_to_ifh(vtss_state, pl_pt), 37,
-                        5);                      // MISC.PIPELINE_PT
-    IFH_ENCODE_BITFIELD(bin_hdr, pl_act, 42, 3); // MISC.PIPELINE_ACT
+                        7U); // FWD.SFLOW_ID (disable SFlow sampling)
+    IFH_ENCODE_BITFIELD(bin_hdr, fa_plpt_to_ifh(vtss_state, pl_pt), 37U,
+                        5U);                       // MISC.PIPELINE_PT
+    IFH_ENCODE_BITFIELD(bin_hdr, pl_act, 42U, 3U); // MISC.PIPELINE_ACT
 
     if (pdu_type) {
-        if (info->pdu_offset == 0 || (info->pdu_offset % 2) != 0) {
+        if (info->pdu_offset == 0U || (info->pdu_offset % 2U) != 0U) {
             VTSS_E("Invalid pdu_offset %u. It must be an even number greater than 0",
                    info->pdu_offset);
             return VTSS_RC_ERROR;
         }
-        IFH_ENCODE_BITFIELD(bin_hdr, info->pdu_offset / 2, DST_PDU_W16_OFFSET,
-                            6);                                  // DST.PDU_W16_OFFSET
-        IFH_ENCODE_BITFIELD(bin_hdr, pdu_type, DST_PDU_TYPE, 4); // DST.PDU_TYPE
+        IFH_ENCODE_BITFIELD(bin_hdr, info->pdu_offset / 2U, DST_PDU_W16_OFFSET,
+                            6U);                                  // DST.PDU_W16_OFFSET
+        IFH_ENCODE_BITFIELD(bin_hdr, pdu_type, DST_PDU_TYPE, 4U); // DST.PDU_TYPE
     }
 
     if (setup_cl) {
         IFH_ENCODE_BITFIELD(bin_hdr, info->cosid, VSTAX + 76,
-                            3); // VSTAX.COSID = cosid.
+                            3U); // VSTAX.COSID = cosid.
         IFH_ENCODE_BITFIELD(bin_hdr, cos, VSTAX + 56,
-                            3); // VSTAX.CL_COS = cos. qos_class/iprio (internal
-                                // priority)
+                            3U); // VSTAX.CL_COS = cos. qos_class/iprio (internal
+                                 // priority)
         IFH_ENCODE_BITFIELD(bin_hdr, info->tag.pcp, VSTAX + 29,
-                            3); // VSTAX.TAG.CL_PCP = pcp.
+                            3U); // VSTAX.TAG.CL_PCP = pcp.
         IFH_ENCODE_BITFIELD(bin_hdr, info->tag.dei, VSTAX + 28,
-                            1); // VSTAX.TAG.CL_DEI = dei.
+                            1U); // VSTAX.TAG.CL_DEI = dei.
         vid = info->tag.vid;
         if (vid >= VTSS_VIDS) {
             // Extended VID
             IFH_ENCODE_BITFIELD(bin_hdr, 1, DST_XVID_EXT,
-                                1); // DST.XVID_EXT = Enable.
+                                1U); // DST.XVID_EXT = Enable.
             vid = (VTSS_VIDS - vid);
         }
         IFH_ENCODE_BITFIELD(bin_hdr, vid, VSTAX + 16,
-                            12); // VSTAX.TAG.CL_VID = vid.
+                            12U); // VSTAX.TAG.CL_VID = vid.
         if (isdx != VTSS_ISDX_NONE) {
             IFH_ENCODE_BITFIELD(bin_hdr, 1, FWD_ESO_ISDX_KEY_ENA,
-                                1); // FWD.ESO_ISDX_KEY_ENA = 1
+                                1U); // FWD.ESO_ISDX_KEY_ENA = 1
             IFH_ENCODE_BITFIELD(bin_hdr, isdx, VSTAX + 64,
-                                12); // VSTAX.MISH.ISDX = isdx
+                                12U); // VSTAX.MISH.ISDX = isdx
         }
     }
-    IFH_ENCODE_BITFIELD(bin_hdr, ((info->ptp_timestamp >> 8) & 0xFFFFFFFFFF), 232,
-                        40); // TS = 40 bits PTP time stamp
+    IFH_ENCODE_BITFIELD(bin_hdr, ((info->ptp_timestamp >> 8U) & 0xFFFFFFFFFF), 232U,
+                        40U); // TS = 40 bits PTP time stamp
 
 #if defined(VTSS_FEATURE_REDBOX)
     if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
         if (info->rb_tag_disable) {
-            IFH_ENCODE_BITFIELD(bin_hdr, 1, 272, 1); // Disable RedBox tagging
+            IFH_ENCODE_BITFIELD(bin_hdr, 1, 272U, 1U); // Disable RedBox tagging
         }
-        IFH_ENCODE_BITFIELD(bin_hdr, info->rb_fwd, 273, 2); // RedBox forwarding
+        IFH_ENCODE_BITFIELD(bin_hdr, info->rb_fwd, 273U, 2U); // RedBox forwarding
         if (info->rb_dd_disable) {
-            IFH_ENCODE_BITFIELD(bin_hdr, 1, 275, 1); // Disable RedBox Duplicate
-                                                     // Discard processing
+            IFH_ENCODE_BITFIELD(bin_hdr, 1, 275U, 1U); // Disable RedBox Duplicate
+                                                       // Discard processing
         }
         if (info->rb_ring_netid_enable) {
-            IFH_ENCODE_BITFIELD(bin_hdr, 1, 276,
-                                1); // Enable use of ring_netid rather than
-                                    // netid in HSR tag
+            IFH_ENCODE_BITFIELD(bin_hdr, 1, 276U,
+                                1U); // Enable use of ring_netid rather than
+                                     // netid in HSR tag
         }
     }
 #endif
@@ -1180,7 +1180,7 @@ static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
 {
     u32                  val, w, count, last;
     const u8            *buf = frame;
-    vtss_packet_tx_grp_t grp = 1;
+    vtss_packet_tx_grp_t grp = 1U;
 
     VTSS_N("length: %u, vid: %u, ifhlen: %d", length, vid, ifh->length);
 
@@ -1206,15 +1206,15 @@ static vtss_rc fa_tx_frame_ifh_vid(vtss_state_t                     *vtss_state,
            VTSS_F_DEVCPU_QS_INJ_CTRL_GAP_SIZE(1) | VTSS_M_DEVCPU_QS_INJ_CTRL_SOF);
 
     // Write the IFH to the chip.
-    for (w = 0; w < FA_IFH_WORDS; w++) {
+    for (w = 0U; w < FA_IFH_WORDS; w++) {
         REG_WR(VTSS_DEVCPU_QS_INJ_WR(grp), ifh->ifh[w]);
     }
 
     /* Write words, round up */
-    count = ((length + 3) / 4);
-    last = length % 4;
-    for (w = 0; w < count; w++, buf += 4) {
-        if (w == 3 && vid != VTSS_VID_NULL) {
+    count = ((length + 3U) / 4U);
+    last = length % 4U;
+    for (w = 0U; w < count; w++, buf += 4) {
+        if (w == 3U && vid != VTSS_VID_NULL) {
             /* Insert C-tag */
             REG_WR(VTSS_DEVCPU_QS_INJ_WR(grp), VTSS_OS_NTOHL((0x8100U << 16) | vid));
             w++;
@@ -1268,11 +1268,11 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
     u32 qu, i, j, cfg, cur, max;
 
     vtss_fa_debug_reg_header(ss, "FRAME_COPY_CFG");
-    for (qu = 0; qu < 12; qu++) {
-        if (qu < 8) {
+    for (qu = 0U; qu < 12U; qu++) {
+        if (qu < 8U) {
             vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_CPU_QU");
-        } else if (qu == 8) {
+        } else if (qu == 8U) {
             vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_QFWD_FRAME_COPY_CFG(qu)), qu,
                                    "CFG_LRN_ALL");
         } else {
@@ -1283,7 +1283,7 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
     pr("\n");
 
     vtss_fa_debug_reg_header(ss, "IFH_CTRL");
-    for (qu = 0; qu < 4; qu++) {
+    for (qu = 0U; qu < 4U; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
 
         vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_REW_IFH_CTRL(port)), port,
@@ -1292,14 +1292,14 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
     pr("\n");
 
     vtss_fa_debug_reg_header(ss, "PORT_CFG");
-    for (qu = 0; qu < 4; qu++) {
+    for (qu = 0U; qu < 4U; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
         vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_ASM_PORT_CFG(port)), port, "PORT_CFG");
     }
     pr("\n");
 
     vtss_fa_debug_reg_header(ss, "PORT_STATUS");
-    for (qu = 0; qu < 4; qu++) {
+    for (qu = 0U; qu < 4U; qu++) {
         u32 port = VTSS_CHIP_PORT(qu);
         vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_ASM_PORT_STICKY(port)), port,
                                "PORT_STATUS");
@@ -1315,7 +1315,7 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
     vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_VTSS_DBG), "INJ_FRM_CNT");
     vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_DATA_PRESENT),
                       "XTR_DATA_PRESENT");
-    for (i = 0; i < 2; i++) {
+    for (i = 0U; i < 2U; i++) {
         vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_XTR_GRP_CFG(i)), i,
                                "XTR_GRP_CFG");
         vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_QS_INJ_GRP_CFG(i)), i,
@@ -1333,8 +1333,8 @@ static vtss_rc fa_debug_pkt(vtss_state_t                  *vtss_state,
 
     pr("IDX   Port/Queue    CFG   CUR   MAX\n");
     for (i = RT_CHIP_PORT_CPU_0; i <= RT_CHIP_PORT_CPU_1; i++) {
-        for (qu = 0; qu < VTSS_PRIOS; qu++) {
-            j = (2048 + i * VTSS_PRIOS + qu);
+        for (qu = 0U; qu < VTSS_PRIOS; qu++) {
+            j = (2048U + i * VTSS_PRIOS + qu);
             REG_RD(VTSS_QRES_RES_CFG(j), &cfg);
             REG_RD(VTSS_QRES_RES_STAT_CUR(j), &cur);
             REG_RD(VTSS_QRES_RES_STAT(j), &max);
@@ -1371,7 +1371,7 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     // throttling. The NPI settings take precedence over the FDMA, but we need
     // to keep track of what the FDMA wants to set it to in case the application
     // enables and disables NPI redirection.
-    for (qu = 0; qu < vtss_state->packet.rx_queue_count; qu++) {
+    for (qu = 0U; qu < vtss_state->packet.rx_queue_count; qu++) {
         i = QFWD_FRAME_COPY_CFG_CPU_QU(qu);
         REG_RD(VTSS_QFWD_FRAME_COPY_CFG(i), &val);
         vtss_state->packet.default_qu_redirect[qu] = VTSS_X_QFWD_FRAME_COPY_CFG_FRMC_PORT_VAL(val);
@@ -1433,7 +1433,7 @@ static vtss_rc fa_packet_init(vtss_state_t *vtss_state)
     // Make sure the ports are not VStaX aware, because that will cause the
     // switch to move a possible VStaX header from the frame into the IFH.
     // This is not NPI-port compatible.
-    for (port = 0; port < RT_CHIP_PORTS; port++) {
+    for (port = 0U; port < RT_CHIP_PORTS; port++) {
         REG_WRM(VTSS_ASM_PORT_CFG(port), VTSS_F_ASM_PORT_CFG_VSTAX2_AWR_ENA(0),
                 VTSS_M_ASM_PORT_CFG_VSTAX2_AWR_ENA);
     }

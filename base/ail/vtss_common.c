@@ -12,15 +12,15 @@
 u32 vtss_cmn_pcp2qos(u32 pcp)
 {
     switch (pcp) {
-    case 0:  return 1;
-    case 1:  return 0;
+    case 0:  return 1U;
+    case 1:  return 0U;
     case 2:
     case 3:
     case 4:
     case 5:
     case 6:
     case 7:  return pcp;
-    default: VTSS_E("Invalid PCP (%u)", pcp); return 0;
+    default: VTSS_E("Invalid PCP (%u)", pcp); return 0U;
     }
 }
 
@@ -116,7 +116,7 @@ void vtss_cmn_counter_8_update(u8 value, vtss_chip_counter_t *counter, BOOL clea
     } else {
         /* Accumulate counter */
         if (new < counter->prev) {
-            add = (1ULL << 8); /* Wrapped */
+            add = (1ULL << 8U); /* Wrapped */
         }
         counter->value += (new + add - counter->prev);
     }
@@ -141,7 +141,7 @@ void vtss_cmn_counter_16_update(u16 value, vtss_chip_counter_t *counter, BOOL cl
     } else {
         /* Accumulate counter */
         if (new < counter->prev) {
-            add = (1ULL << 16); /* Wrapped */
+            add = (1ULL << 16U); /* Wrapped */
         }
         counter->value += (new + add - counter->prev);
     }
@@ -174,7 +174,7 @@ void vtss_cmn_counter_32_cmd(u32 value, vtss_chip_counter_t *counter, vtss_count
     case VTSS_COUNTER_CMD_UPDATE:
         /* Accumulate counter */
         if (new < counter->prev) {
-            add = (1ULL << 32); /* Wrapped */
+            add = (1ULL << 32U); /* Wrapped */
         }
         counter->value += (new + add - counter->prev);
         break;
@@ -198,10 +198,10 @@ void vtss_cmn_counter_dual_cmd(u32                  emac,
     case VTSS_COUNTER_CMD_UPDATE:
         /* Accumulate EMAC/PMAC counter */
         add += emac;
-        add += (emac < counter->emac ? (1ULL << 32) : 0);
+        add += (emac < counter->emac ? (1ULL << 32U) : 0);
         add -= counter->emac;
         add += pmac;
-        add += (pmac < counter->pmac ? (1ULL << 32) : 0);
+        add += (pmac < counter->pmac ? (1ULL << 32U) : 0);
         add -= counter->pmac;
         counter->value += add;
         break;
@@ -216,7 +216,7 @@ void vtss_cmn_counter_dual_cmd(u32                  emac,
 void vtss_cmn_counter_40_rebase(u32 new_lsb, u32 new_msb, vtss_chip_counter_t *counter)
 {
     counter->prev = new_msb;
-    counter->prev = ((counter->prev << 32) + new_lsb);
+    counter->prev = ((counter->prev << 32U) + new_lsb);
 }
 
 /* Clear/increment 64-bit counter based on 40 bit chip counter */
@@ -224,14 +224,14 @@ void vtss_cmn_counter_40_update(u32 lsb, u32 msb, vtss_chip_counter_t *counter, 
 {
     u64 add = 0, new = msb;
 
-    new = ((new << 32) + lsb);
+    new = ((new << 32U) + lsb);
     if (clear) {
         /* Clear counter */
         counter->value = 0;
     } else {
         /* Accumulate counter */
         if (new < counter->prev) {
-            add = (1ULL << 40); /* Wrapped */
+            add = (1ULL << 40U); /* Wrapped */
         }
         counter->value += (new + add - counter->prev);
     }
@@ -407,7 +407,7 @@ void vtss_debug_print_reg(lmu_ss_t *ss, const char *name, u32 value)
     u32 i;
 
     pr("%-32s: ", name);
-    for (i = 0; i < 32; i++) {
+    for (i = 0U; i < 32U; i++) {
         pr("%s%u", i == 0 || (i % 8) ? "" : ".", value & (1 << (31 - i)) ? 1 : 0);
     }
     pr(" 0x%08x\n", value);
@@ -490,17 +490,17 @@ void vtss_debug_print_port_header(vtss_state_t *vtss_state,
 {
     u32 i, port;
 
-    if (count == 0) {
+    if (count == 0U) {
         count = vtss_state->port_count;
     }
     if (txt != NULL) {
         pr("%s", txt);
     }
-    for (port = 0; port < count; port++) {
-        i = (port & 7);
-        if (i == 0 || i == 7 || (port == (count - 1) && i > 2)) {
+    for (port = 0U; port < count; port++) {
+        i = (port & 7U);
+        if (i == 0U || i == 7U || (port == (count - 1U) && i > 2U)) {
             pr("%s%u", port != 0 && i == 0 ? "." : "", port);
-        } else if (port < 10 || i > 2) {
+        } else if (port < 10U || i > 2U) {
             pr(" ");
         }
     }
@@ -671,7 +671,7 @@ static vtss_rc vtss_debug_cil_print(vtss_state_t                  *vtss_state,
     }
 
     /* Print CIL information for all devices */
-    for (chip_no = 0; chip_no < vtss_state->chip_count; chip_no++) {
+    for (chip_no = 0U; chip_no < vtss_state->chip_count; chip_no++) {
         if (info->chip_no != VTSS_CHIP_NO_ALL && chip_no != info->chip_no) {
             continue;
         }
@@ -693,15 +693,15 @@ vtss_rc vtss_cmn_debug_info_print(vtss_state_t                  *vtss_state,
 
 vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos)
 {
-    u32 msw = (u32)(mask >> 32), lsw = (u32)mask;
+    u32 msw = (u32)(mask >> 32U), lsw = (u32)mask;
 
     // Exactly one bit must be set in #mask.
-    if ((msw == 0 && lsw == 0) || (msw != 0 && lsw != 0)) {
+    if ((msw == 0U && lsw == 0U) || (msw != 0U && lsw != 0U)) {
         // Either both are 0 or both are non-zero, hence can't be a one-hot.
         goto err;
     }
 
-    if (msw == 0) {
+    if (msw == 0U) {
         *bit_pos = VTSS_OS_CTZ(lsw);
         lsw &= ~VTSS_BIT(*bit_pos);
         if (lsw) {
@@ -715,7 +715,7 @@ vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos)
             // Two or more bits set in msw
             goto err;
         }
-        *bit_pos += 32;
+        *bit_pos += 32U;
     }
     return VTSS_RC_OK;
 

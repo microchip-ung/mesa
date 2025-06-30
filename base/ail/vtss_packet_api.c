@@ -242,7 +242,7 @@ static vtss_rc vtss_packet_filter(vtss_state_t                         *state,
 
     /* Use port filter function */
     VTSS_RC(vtss_packet_port_filter(state, &port_info, port_filter, tx_filter));
-    *filter = port_filter[tx_filter ? info->port_tx : 0].filter;
+    *filter = port_filter[tx_filter ? info->port_tx : 0U].filter;
     return VTSS_RC_OK;
 }
 
@@ -307,7 +307,7 @@ vtss_rc vtss_packet_vlan_filter_get(const vtss_inst_t         inst,
                 for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
                     /* VLAN/MSTP/ERPS/.. filtering */
                     if (!member[port_no]) {
-                        filter[port_no].vlan_discard[vid / 8] |= (1 << (vid % 8));
+                        filter[port_no].vlan_discard[vid / 8U] |= (1U << (vid % 8U));
                     }
                 }
             }
@@ -515,7 +515,7 @@ vtss_rc vtss_packet_inst_create(vtss_state_t *vtss_state)
     rx_conf->shaper_rate = VTSS_BITRATE_DISABLED;
 #endif /* defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER) */
 
-    for (queue = 0; queue < VTSS_PACKET_RX_QUEUE_CNT; queue++) {
+    for (queue = 0U; queue < VTSS_PACKET_RX_QUEUE_CNT; queue++) {
         rx_conf->queue[queue].size = 8 * 1024;
 #if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
         rx_conf->queue[queue].rate = VTSS_PACKET_RATE_DISABLED;
@@ -567,12 +567,12 @@ vtss_rc vtss_cmn_logical_to_chip_port_mask(const vtss_state_t *const state,
     *chip_port_mask = 0;
     *chip_no = 0xFFFFFFFFUL;
     *stack_port_no = VTSS_PORT_NO_NONE;
-    *port_cnt = 0;
+    *port_cnt = 0U;
 
-    for (i = 0; i < 64; i += 32) {
+    for (i = 0U; i < 64U; i += 32U) {
         w = (u32)(logical_port_mask >> i);
 
-        while ((p = VTSS_OS_CTZ(w)) < 32) {
+        while ((p = VTSS_OS_CTZ(w)) < 32U) {
             w &= ~VTSS_BIT(p);
             p += i;
 
@@ -732,7 +732,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
             }
             pr("%-6u", port_no);
             port_conf = &vtss_state->packet.rx_port_conf[port_no];
-            for (i = 0; i < 32; i++) {
+            for (i = 0U; i < 32U; i++) {
                 pr("%s%s",
                    vtss_packet_reg_txt(i < 16 ? port_conf->bpdu_reg[i]
                                               : port_conf->garp_reg[i - 16]),
@@ -750,7 +750,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
     }
 
     vtss_debug_print_value(ss, "BPDU", conf->reg.bpdu_cpu_only);
-    for (i = 0; i < 16; i++) {
+    for (i = 0U; i < 16U; i++) {
         VTSS_FMT(buf, "GARP_%u", i);
         vtss_debug_print_value(ss, buf.s, conf->reg.garp_cpu_only[i]);
     }
@@ -783,7 +783,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
     vtss_debug_print_value(ss, "Enabled", vtss_state->packet.npi_conf.enable);
     if (vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE) {
         vtss_debug_print_value(ss, "NPI_PORT", vtss_state->packet.npi_conf.port_no);
-        for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
+        for (i = 0U; i < vtss_state->packet.rx_queue_count; i++) {
             VTSS_FMT(buf, "REDIR:CPUQ_%u", i);
             vtss_debug_print_value(ss, buf.s, conf->queue[i].npi.enable);
         }
@@ -801,7 +801,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
 
 #if defined(VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER)
     vtss_debug_print_header(ss, "CPU Queue Shaper");
-    for (i = 0; i < vtss_state->packet.rx_queue_count; i++) {
+    for (i = 0U; i < vtss_state->packet.rx_queue_count; i++) {
         VTSS_FMT(buf, "CPU_Queue_%u", i);
         vtss_debug_print_value(ss, buf.s, conf->queue[i].rate);
     }

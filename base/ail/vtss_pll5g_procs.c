@@ -44,7 +44,7 @@ vtss_rc vtss_pll5g_setup_args_init(vtss_pll5g_setup_args_t *const init_val)
     init_val->selbgv820 = 4; /* must be 2 for  init_val->chip_name == VTSS_PLL5G_CHIP_VENICE &&
                                 init_val->side == VTSS_LINE */
     init_val->side = VTSS_LINE;
-    init_val->f_ref_kHz = 125000;
+    init_val->f_ref_kHz = 125000U;
     init_val->unlock = FALSE;
     init_val->lock = FALSE;
 
@@ -65,21 +65,21 @@ vtss_rc vtss_calc_pll5g_setup(const vtss_pll5g_setup_args_t    config,
     u8      refclk_sel;
 
     rslt = VTSS_RC_OK;
-    if (config.f_ref_kHz == 25000) {
+    if (config.f_ref_kHz == 25000U) {
         loop_bw_res = 10;
         refclk_sel = 4;
-    } else if (config.f_ref_kHz == 125000) {
+    } else if (config.f_ref_kHz == 125000U) {
         loop_bw_res = 14;
         refclk_sel = 0;
-    } else if (config.f_ref_kHz == 156250) {
+    } else if (config.f_ref_kHz == 156250U) {
         loop_bw_res = 17;
         refclk_sel = 1;
-    } else if (config.f_ref_kHz == 250000) {
+    } else if (config.f_ref_kHz == 250000U) {
         loop_bw_res = 21;
         refclk_sel = 2;
         // 312.5e6 is possible but not characterized => use 250e6 value which is
         // best apporximation for now
-    } else if (config.f_ref_kHz == 312500) {
+    } else if (config.f_ref_kHz == 312500U) {
         loop_bw_res = 21;
         refclk_sel = 3;
     } else {

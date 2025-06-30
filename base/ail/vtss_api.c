@@ -80,7 +80,7 @@ vtss_rc vtss_inst_check(const vtss_inst_t inst, vtss_state_t **vtss_state)
 
     if ((rc = vtss_inst_check_get(inst, vtss_state)) == VTSS_RC_OK) {
         /* Select first device by default */
-        (*vtss_state)->chip_no = 0;
+        (*vtss_state)->chip_no = 0U;
     }
     return rc;
 }
@@ -232,7 +232,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create, vtss_inst_t *co
     VTSS_MEMSET(vtss_state, 0, sizeof(*vtss_state));
     vtss_state->cookie = VTSS_STATE_COOKIE;
     vtss_state->create = *create;
-    vtss_state->chip_count = 1;
+    vtss_state->chip_count = 1U;
 
     // Create AIL, preprocessing
     VTSS_RC(vtss_ail_create(vtss_state, 1));
@@ -457,12 +457,12 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
         return VTSS_RC_ERROR;
     }
 #else // Not VTSS_ARCH_LUTON26
-    u32 if_ctrl = 0, if_cfgstat, value;
+    u32 if_ctrl = 0U, if_cfgstat, value;
 #ifdef VTSS_ARCH_SPARX5
     u32 base_addr = 0x40406A;
     u32 chip_id;
 #else
-    u32 base_addr = 0;
+    u32 base_addr = 0U;
 #endif
 
     VTSS_D("enter");
@@ -473,14 +473,14 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
 #endif
 
     if (conf->endian == VTSS_SPI_ENDIAN_BIG) {
-        if_ctrl |= 0x01;
+        if_ctrl |= 0x01U;
     }
 
     if (conf->bit_order == VTSS_SPI_BIT_ORDER_LSB_FIRST) {
-        if_ctrl |= 0x02;
+        if_ctrl |= 0x02U;
     }
 
-    if_cfgstat = conf->padding & 0xf;
+    if_cfgstat = conf->padding & 0xfU;
 
     VTSS_RC(conf->reg_write(0, base_addr + 0, if_ctrl));
     VTSS_RC(conf->reg_write(0, base_addr + 1, if_cfgstat));
@@ -492,7 +492,7 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
     }
 
     VTSS_RC(conf->reg_read(0, base_addr + 1, &value));
-    if (if_cfgstat != (value & 0x0000000f)) {
+    if (if_cfgstat != (value & 0x0000000fU)) {
         VTSS_E("Wrong if_cfgstat 0x%08x |= 0x%08x", if_cfgstat, value);
         return VTSS_RC_ERROR;
     }

@@ -14,7 +14,7 @@ vtss_rc vtss_timestampAddSec(vtss_timestamp_t *ts)
 {
     if (ts->seconds == 0xffffffff) {
         ts->sec_msb++;
-        ts->seconds = 0;
+        ts->seconds = 0U;
     } else {
         ts->seconds++;
     }
@@ -23,7 +23,7 @@ vtss_rc vtss_timestampAddSec(vtss_timestamp_t *ts)
 
 vtss_rc vtss_timestampSubSec(vtss_timestamp_t *ts)
 {
-    if (ts->seconds == 0) {
+    if (ts->seconds == 0U) {
         ts->sec_msb--;
         ts->seconds = 0xffffffff;
     } else {
@@ -34,7 +34,7 @@ vtss_rc vtss_timestampSubSec(vtss_timestamp_t *ts)
 
 static vtss_rc timestampSubNanosec(vtss_timestamp_t *ts)
 {
-    if (ts->nanoseconds == 0) {
+    if (ts->nanoseconds == 0U) {
         VTSS_RC(vtss_timestampSubSec(ts));
         ts->nanoseconds = HW_NS_PR_SEC - 1;
     } else {
@@ -93,7 +93,7 @@ vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano)
     u64 seconds = nano / HW_NS_PR_SEC;
     u32 nano_30 = nano % HW_NS_PR_SEC;
     u32 sec_32 = (u32)seconds;
-    u16 sec_msb = seconds >> 32;
+    u16 sec_msb = seconds >> 32U;
 
     ts->nanoseconds += nano_30;
     if (ts->nanoseconds >= HW_NS_PR_SEC) {
@@ -118,7 +118,7 @@ vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano)
     u64 seconds = nano / HW_NS_PR_SEC;
     u32 nano_30 = nano % HW_NS_PR_SEC;
     u32 sec_32 = (u32)seconds;
-    u16 sec_msb = seconds >> 32;
+    u16 sec_msb = seconds >> 32U;
 
     if (ts->nanoseconds < nano_30) {
         VTSS_RC(vtss_timestampSubSec(ts));
@@ -955,7 +955,7 @@ static void vtss_timestamp_flush(vtss_state_t *vtss_state)
         vtss_state->ts.status[id].reserved_mask = 0LL;
         vtss_state->ts.status[id].valid_mask = 0LL;
         vtss_state->ts.status[id].rx_tc_valid = FALSE;
-        vtss_state->ts.status[id].age = 0;
+        vtss_state->ts.status[id].age = 0U;
         (void)vtss_cil_ts_timestamp_id_release(vtss_state, id);
     }
 }
@@ -1045,7 +1045,7 @@ vtss_rc _vtss_rx_timestamp_get(const vtss_inst_t          inst,
             if (ts->ts_valid) {
                 vtss_state->ts.status[ts_id->ts_id].rx_tc_valid = FALSE;
                 if (vtss_state->ts.status[ts_id->ts_id].reserved_mask == 0LL) {
-                    vtss_state->ts.status[ts_id->ts_id].age = 0;
+                    vtss_state->ts.status[ts_id->ts_id].age = 0U;
                     rc = vtss_cil_ts_timestamp_id_release(vtss_state, ts_id->ts_id);
                 }
             }
@@ -1132,7 +1132,7 @@ vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t                      inst,
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         rc = VTSS_RC_ERROR;
         /* Find a free ts_id */
-        for (id = 0; id < TS_IDS_RESERVED_FOR_SW; id++) {
+        for (id = 0U; id < TS_IDS_RESERVED_FOR_SW; id++) {
             if ((vtss_state->ts.status[id].reserved_mask & alloc_parm->port_mask) == 0) {
                 vtss_state->ts.status[id].reserved_mask |= alloc_parm->port_mask;
                 for (port_idx = 0; port_idx < VTSS_PORT_ARRAY_SIZE; port_idx++) {
@@ -1141,7 +1141,7 @@ vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t                      inst,
                         vtss_state->ts.status[id].cb[port_idx] = alloc_parm->cb;
                     }
                 }
-                vtss_state->ts.status[id].age = 0;
+                vtss_state->ts.status[id].age = 0U;
                 ts_id->ts_id = id;
                 VTSS_I("portmask = %" PRIx64 ", reserved_mask = %" PRIx64 " id = %u",
                        alloc_parm->port_mask, vtss_state->ts.status[id].reserved_mask,
@@ -1239,7 +1239,7 @@ vtss_rc vtss_timestamp_age(const vtss_inst_t inst)
         status->reserved_mask = 0LL;
         status->valid_mask = 0LL;
         status->rx_tc_valid = FALSE;
-        status->age = 0;
+        status->age = 0U;
 
         if ((rc = vtss_cil_ts_timestamp_id_release(vtss_state, id)) != VTSS_RC_OK) {
             goto do_exit;
@@ -1413,7 +1413,7 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
     ts_conf = &vtss_state->ts.conf;
 
     pr("One-Second Timer:\n");
-    for (i = 0; i < VTSS_TS_DOMAIN_ARRAY_SIZE; i++) {
+    for (i = 0U; i < VTSS_TS_DOMAIN_ARRAY_SIZE; i++) {
         pr("Adjustment rate[%u]: %i ppb, \nOne_pps mode: %s ExternalClockOut mode: %s freq %d Hz\nClock offset %d sec\n",
            i, ts_conf->adj[i], one_pps_mode_disp(ts_conf->ext_clock_mode.one_pps_mode),
            ts_conf->ext_clock_mode.enable ? "enable" : "disable", ts_conf->ext_clock_mode.freq,
@@ -1421,7 +1421,7 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
     }
     pr("Port timestamp parameters:\n");
     pr("Port  IngressLatency  PeerDelay  EgressLatency  OperationMode\n");
-    for (i = 0; i < VTSS_PORT_ARRAY_SIZE; i++) {
+    for (i = 0U; i < VTSS_PORT_ARRAY_SIZE; i++) {
         ts_port_conf = &vtss_state->ts.port_conf[i];
         pr("%-4d  %-14i  %-9i  %-13i  %-d\n", i, VTSS_INTERVAL_NS(ts_port_conf->ingress_latency),
            VTSS_INTERVAL_NS(ts_port_conf->p2p_delay),
@@ -1431,7 +1431,7 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
     (void)vtss_cil_ts_timestamp_get(vtss_state);
     pr("Timestamp fifo data:\n");
 
-    for (i = 0; i < VTSS_TS_ID_SIZE; i++) {
+    for (i = 0U; i < VTSS_TS_ID_SIZE; i++) {
         status = &vtss_state->ts.status[i];
         if (status->reserved_mask != 0) {
             pr("Timestamp_id : %d  Reserved_mask: %" PRIx64 ", age %d\n", i, status->reserved_mask,
@@ -1441,7 +1441,7 @@ void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
             pr("                    Valid_mask: %" PRIx64 "\n", status->valid_mask);
         }
         first = TRUE;
-        for (j = 0; j < VTSS_PORT_ARRAY_SIZE; j++) {
+        for (j = 0U; j < VTSS_PORT_ARRAY_SIZE; j++) {
             if (status->valid_mask & 1LL << j) {
                 if (first) {
                     pr("Tx Port  time counter  time id\n");

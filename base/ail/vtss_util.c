@@ -54,9 +54,9 @@ static void bs_byte_set(u8 *cptr, u32 offset, u32 len, u8 value)
 void vtss_bs_set(void *vptr, u32 offset, u32 len, u32 value)
 {
     u8 *cptr = vptr;
-    while (len > 0) {
+    while (len > 0U) {
         /* Get Easy case - byte aligned */
-        if (len > 1 && (offset % BPC) == 0) {
+        if (len > 1U && (offset % BPC) == 0U) {
             unsigned int niblen = MIN(BPC, len);
             bs_byte_set(cptr, offset, niblen, (u8)value);
             len -= niblen;
@@ -64,7 +64,7 @@ void vtss_bs_set(void *vptr, u32 offset, u32 len, u32 value)
             value >>= niblen;
         } else {
             /* Work bit by bit */
-            vtss_bs_bit_set(cptr, offset, value & 1);
+            vtss_bs_bit_set(cptr, offset, value & 1U);
             offset++;
             len--;
             value >>= 1;
@@ -75,9 +75,9 @@ void vtss_bs_set(void *vptr, u32 offset, u32 len, u32 value)
 u32 vtss_bs_get(const void *vptr, u32 offset, u32 len)
 {
     const u8 *cptr = vptr;
-    u32       value = 0;
+    u32       value = 0U;
     offset += len; /* We work backwards when extracting */
-    while (len > 0) {
+    while (len > 0U) {
         /* Work bit by bit */
         value <<= 1;
         if (vtss_bs_bit_get(cptr, --offset)) {

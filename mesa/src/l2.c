@@ -9,7 +9,7 @@ mesa_rc mesa_conv_uint8_t_to_mesa_port_list_t(const mesa_bool_t in[VTSS_PORT_ARR
 {
     vtss_port_no_t port_no;
 
-    for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+    for (port_no = 0U; port_no < VTSS_PORTS; port_no++) {
         mesa_port_list_set(out, port_no, in[port_no]);
     }
     return VTSS_RC_OK;
@@ -20,7 +20,7 @@ mesa_rc mesa_conv_mesa_port_list_t_to_uint8_t(const mesa_port_list_t *in,
 {
     vtss_port_no_t port_no;
 
-    for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+    for (port_no = 0U; port_no < VTSS_PORTS; port_no++) {
         out[port_no] = mesa_port_list_get(in, port_no);
     }
     return VTSS_RC_OK;
@@ -44,7 +44,7 @@ mesa_rc mesa_conv2_vtss_vlan_trans_port2grp_conf_t_to_mesa_vlan_trans_port2grp_c
     vtss_port_no_t port_no;
     mesa_bool_t    member[VTSS_PORT_ARRAY_SIZE];
 
-    for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+    for (port_no = 0U; port_no < VTSS_PORTS; port_no++) {
         member[port_no] = VTSS_BF_GET(in->ports, port_no);
     }
 
@@ -60,7 +60,7 @@ mesa_rc mesa_conv2_mesa_vlan_trans_port2grp_conf_t_to_vtss_vlan_trans_port2grp_c
     mesa_bool_t    member[VTSS_PORT_ARRAY_SIZE];
 
     if ((rc = mesa_conv_mesa_port_list_t_to_uint8_t(&in->port_list, member)) == VTSS_RC_OK) {
-        for (port_no = 0; port_no < VTSS_PORTS; port_no++) {
+        for (port_no = 0U; port_no < VTSS_PORTS; port_no++) {
             VTSS_BF_SET(out->ports, port_no, member[port_no]);
         }
     }

@@ -24,7 +24,7 @@ mesa_rc mesa_conv2_vtss_packet_rx_conf_t_to_mesa_packet_rx_conf_t(const vtss_pac
 {
     vtss_packet_rx_queue_t queue;
 
-    for (queue = 0; queue < VTSS_PACKET_RX_QUEUE_CNT; queue++) {
+    for (queue = 0U; queue < VTSS_PACKET_RX_QUEUE_CNT; queue++) {
         out->queue[queue].grp_map = in->grp_map[queue];
     }
     return VTSS_RC_OK;
@@ -35,7 +35,7 @@ mesa_rc mesa_conv2_mesa_packet_rx_conf_t_to_vtss_packet_rx_conf_t(const mesa_pac
 {
     vtss_packet_rx_queue_t queue;
 
-    for (queue = 0; queue < VTSS_PACKET_RX_QUEUE_CNT; queue++) {
+    for (queue = 0U; queue < VTSS_PACKET_RX_QUEUE_CNT; queue++) {
         out->grp_map[queue] = in->queue[queue].grp_map;
     }
     return VTSS_RC_OK;
@@ -73,7 +73,7 @@ mesa_rc mesa_packet_port_filter_get(const mesa_inst_t                    inst,
     mesa_conv_mesa_packet_port_info_t_to_vtss_packet_port_info_t(info, &vtss_info);
     if ((rc = vtss_packet_port_filter_get((const vtss_inst_t)inst, &vtss_info, vtss_filter)) ==
         VTSS_RC_OK) {
-        for (port_no = 0; port_no < cnt; port_no++) {
+        for (port_no = 0U; port_no < cnt; port_no++) {
             mesa_conv_vtss_packet_port_filter_t_to_mesa_packet_port_filter_t(&vtss_filter[port_no],
                                                                              &filter[port_no]);
         }
@@ -97,7 +97,7 @@ mesa_rc mesa_packet_vlan_filter_get(const mesa_inst_t                inst,
         return VTSS_RC_ERROR;
     }
     if ((rc = vtss_packet_vlan_filter_get((const vtss_inst_t)inst, vtss_filter)) == VTSS_RC_OK) {
-        for (port_no = 0; port_no < cnt; port_no++) {
+        for (port_no = 0U; port_no < cnt; port_no++) {
             mesa_conv_vtss_packet_vlan_filter_t_to_mesa_packet_vlan_filter_t(&vtss_filter[port_no],
                                                                              &filter[port_no]);
         }

@@ -46,9 +46,9 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
             *pmap = port_map[port_no];
 
             /* For single chip targets, the chip_no is set to zero */
-            if (vtss_state->chip_count < 2) {
-                pmap->chip_no = 0;
-                pmap->miim_chip_no = 0;
+            if (vtss_state->chip_count < 2U) {
+                pmap->chip_no = 0U;
+                pmap->miim_chip_no = 0U;
             }
 
             /* Port numbers greater than or equal to the first unmapped port are
@@ -66,21 +66,21 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
 
             /* The first entries are reserved for forwarding to single port
              * (unicast) */
-            for (pgid = 0; pgid < vtss_state->port_count; pgid++) {
+            for (pgid = 0U; pgid < vtss_state->port_count; pgid++) {
                 pgid_entry = &vtss_state->l2.pgid_table[pgid];
                 pgid_entry->member[pgid] = 1;
-                pgid_entry->references = 1;
+                pgid_entry->references = 1U;
             }
 
             /* Next entry is reserved for dropping */
             vtss_state->l2.pgid_drop = pgid;
-            vtss_state->l2.pgid_table[pgid].references = 1;
+            vtss_state->l2.pgid_table[pgid].references = 1U;
 
             /* Next entry is reserved for flooding */
             pgid++;
             vtss_state->l2.pgid_flood = pgid;
             pgid_entry = &vtss_state->l2.pgid_table[pgid];
-            pgid_entry->references = 1;
+            pgid_entry->references = 1U;
             for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
                 pgid_entry->member[port_no] = 1;
             }
@@ -1096,7 +1096,7 @@ vtss_rc vtss_cmn_port_clause_37_adv_get(u32 value, vtss_port_clause_37_adv_t *ad
     adv->hdx = VTSS_BOOL(value & (1 << 6));
     adv->symmetric_pause = VTSS_BOOL(value & (1 << 7));
     adv->asymmetric_pause = VTSS_BOOL(value & (1 << 8));
-    switch ((value >> 12) & 3) {
+    switch ((value >> 12U) & 3U) {
     case 0:  adv->remote_fault = VTSS_PORT_CLAUSE_37_RF_LINK_OK; break;
     case 1:  adv->remote_fault = VTSS_PORT_CLAUSE_37_RF_LINK_FAILURE; break;
     case 2:  adv->remote_fault = VTSS_PORT_CLAUSE_37_RF_OFFLINE; break;
@@ -1110,21 +1110,21 @@ vtss_rc vtss_cmn_port_clause_37_adv_get(u32 value, vtss_port_clause_37_adv_t *ad
 
 vtss_rc vtss_cmn_port_sgmii_cisco_aneg_get(u32 value, vtss_port_sgmii_aneg_t *sgmii_adv)
 {
-    sgmii_adv->link = ((value >> 15) == 1) ? 1 : 0;
-    sgmii_adv->fdx = (((value >> 12) & 0x1) == 1) ? 1 : 0;
+    sgmii_adv->link = ((value >> 15U) == 1U) ? 1 : 0;
+    sgmii_adv->fdx = (((value >> 12U) & 0x1U) == 1U) ? 1 : 0;
     sgmii_adv->hdx = !sgmii_adv->fdx;
-    value = ((value >> 10) & 3);
-    sgmii_adv->speed_10M = (value == 0 ? 1 : 0);
-    sgmii_adv->speed_100M = (value == 1 ? 1 : 0);
-    sgmii_adv->speed_1G = (value == 2 ? 1 : 0);
+    value = ((value >> 10U) & 3U);
+    sgmii_adv->speed_10M = (value == 0U ? 1 : 0);
+    sgmii_adv->speed_100M = (value == 1U ? 1 : 0);
+    sgmii_adv->speed_1G = (value == 2U ? 1 : 0);
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_cmn_port_usxgmii_aneg_get(u32 lp_adv, vtss_port_usxgmii_aneg_t *usxgmii)
 {
-    usxgmii->link = ((lp_adv >> 15) == 1) ? 1 : 0;
-    usxgmii->fdx = (((lp_adv >> 12) & 0x1) == 1) ? 1 : 0;
-    switch ((lp_adv >> 9) & 7) {
+    usxgmii->link = ((lp_adv >> 15U) == 1U) ? 1 : 0;
+    usxgmii->fdx = (((lp_adv >> 12U) & 0x1U) == 1U) ? 1 : 0;
+    switch ((lp_adv >> 9U) & 7U) {
     case 0:  usxgmii->speed = VTSS_SPEED_10M; break;
     case 1:  usxgmii->speed = VTSS_SPEED_100M; break;
     case 2:  usxgmii->speed = VTSS_SPEED_1G; break;
@@ -1143,19 +1143,20 @@ vtss_rc vtss_cmn_port_clause_37_adv_set(u32                       *value,
     u32 rf;
 
     if (!aneg_enable) {
-        *value = 0;
+        *value = 0U;
         return VTSS_RC_OK;
     }
     switch (adv->remote_fault) {
-    case VTSS_PORT_CLAUSE_37_RF_LINK_OK:      rf = 0; break;
-    case VTSS_PORT_CLAUSE_37_RF_LINK_FAILURE: rf = 1; break;
-    case VTSS_PORT_CLAUSE_37_RF_OFFLINE:      rf = 2; break;
-    default:                                  rf = 3; break;
+    case VTSS_PORT_CLAUSE_37_RF_LINK_OK:      rf = 0U; break;
+    case VTSS_PORT_CLAUSE_37_RF_LINK_FAILURE: rf = 1U; break;
+    case VTSS_PORT_CLAUSE_37_RF_OFFLINE:      rf = 2U; break;
+    default:                                  rf = 3U; break;
     }
 
-    *value = (((adv->next_page ? 1 : 0) << 15) | ((adv->acknowledge ? 1 : 0) << 14) | (rf << 12) |
-              ((adv->asymmetric_pause ? 1 : 0) << 8) | ((adv->symmetric_pause ? 1 : 0) << 7) |
-              ((adv->hdx ? 1 : 0) << 6) | ((adv->fdx ? 1 : 0) << 5));
+    *value =
+        (((adv->next_page ? 1 : 0) << 15U) | ((adv->acknowledge ? 1 : 0) << 14U) | (rf << 12U) |
+         ((adv->asymmetric_pause ? 1 : 0) << 8U) | ((adv->symmetric_pause ? 1 : 0) << 7U) |
+         ((adv->hdx ? 1 : 0) << 6U) | ((adv->fdx ? 1 : 0) << 5U));
     return VTSS_RC_OK;
 }
 

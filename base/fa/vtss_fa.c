@@ -49,7 +49,7 @@ static inline vtss_rc reg_rd_direct(vtss_state_t *vtss_state, u32 reg, u32 *valu
         return vtss_fa_emul_rd(reg, value);
     }
 #endif
-    return vtss_state->init_conf.reg_read(0, reg, value);
+    return vtss_state->init_conf.reg_read(0U, reg, value);
 }
 
 /* Write target register using current CPU interface */
@@ -60,7 +60,7 @@ static inline vtss_rc reg_wr_direct(vtss_state_t *vtss_state, u32 reg, u32 value
         return vtss_fa_emul_wr(reg, value);
     }
 #endif
-    return vtss_state->init_conf.reg_write(0, reg, value);
+    return vtss_state->init_conf.reg_write(0U, reg, value);
 }
 
 vtss_rc (*vtss_fa_wr)(vtss_state_t *vtss_state, u32 addr, u32 value) = reg_wr_direct;
@@ -88,7 +88,7 @@ void vtss_fa_debug_print_pmask(vtss_state_t *vtss_state, lmu_ss_t *ss, vtss_port
 {
     u32 port;
 
-    for (port = 0; port < RT_CHIP_PORTS; port++) {
+    for (port = 0U; port < RT_CHIP_PORTS; port++) {
         pr("%s%u", port == 0 || (port & 7) ? "" : ".",
            pmask->m[port / 32] & VTSS_BIT(port % 32) ? 1 : 0);
     }
@@ -288,8 +288,8 @@ vtss_rc vtss_fa_sdx_counters_update(vtss_state_t              *vtss_state,
 
     /* Update ingress counters, if active */
     idx = stat_idx->idx;
-    row = &vtss_state->l2.istat_table.row[idx / 8];
-    if (row->size != 0 && row->col[row->size * ((idx % 8) / row->size)].used != 0) {
+    row = &vtss_state->l2.istat_table.row[idx / 8U];
+    if (row->size != 0 && row->col[row->size * ((idx % 8U) / row->size)].used != 0) {
         /* ISDX counters */
         c = &vtss_state->l2.sdx_info.sdx_table[idx];
         VTSS_RC(fa_evc_isdx_counter_update(vtss_state, idx, 0, &c->rx_green,
@@ -309,8 +309,8 @@ vtss_rc vtss_fa_sdx_counters_update(vtss_state_t              *vtss_state,
 
     /* Update egress counters, if active */
     idx = stat_idx->edx;
-    row = &vtss_state->l2.estat_table.row[idx / 8];
-    if (row->size != 0 && row->col[row->size * ((idx % 8) / row->size)].used != 0) {
+    row = &vtss_state->l2.estat_table.row[idx / 8U];
+    if (row->size != 0 && row->col[row->size * ((idx % 8U) / row->size)].used != 0) {
         c = &vtss_state->l2.sdx_info.sdx_table[idx];
         REG_WR(VTSS_XQS_STAT_CFG, VTSS_F_XQS_STAT_CFG_STAT_VIEW(idx));
         VTSS_RC(fa_evc_qsys_counter_update(vtss_state, 768, &c->tx_green,
@@ -330,7 +330,7 @@ vtss_rc vtss_cil_l2_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
     REG_WR(VTSS_ANA_L2_DLB_CFG(isdx), VTSS_F_ANA_L2_DLB_CFG_DLB_IDX(sdx->pol_idx));
     REG_WR(VTSS_ANA_L2_ISDX_BASE_CFG(isdx),
            VTSS_F_ANA_L2_ISDX_BASE_CFG_ISDX_BASE_ADDR(sdx->stat_idx));
-    for (cosid = 0; cosid < 8; cosid++) {
+    for (cosid = 0U; cosid < 8U; cosid++) {
         REG_WR(VTSS_ANA_L2_DLB_COS_CFG(isdx, cosid),
                VTSS_F_ANA_L2_DLB_COS_CFG_DLB_COS_OFFSET(cosid <= pol_max ? cosid : pol_max));
         REG_WR(VTSS_ANA_L2_ISDX_COS_CFG(isdx, cosid),
@@ -346,16 +346,16 @@ vtss_rc vtss_cil_l2_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx)
 u32 vtss_fa_clk_period(vtss_core_clock_freq_t clock)
 {
     switch (clock) {
-    case VTSS_CORE_CLOCK_180MHZ: return 5564;
-    case VTSS_CORE_CLOCK_250MHZ: return 4000;
-    case VTSS_CORE_CLOCK_328MHZ: return 3047;
-    case VTSS_CORE_CLOCK_500MHZ: return 2000;
-    case VTSS_CORE_CLOCK_625MHZ: return 1600;
-    case VTSS_CORE_CLOCK_733MHZ: return 1364;
+    case VTSS_CORE_CLOCK_180MHZ: return 5564U;
+    case VTSS_CORE_CLOCK_250MHZ: return 4000U;
+    case VTSS_CORE_CLOCK_328MHZ: return 3047U;
+    case VTSS_CORE_CLOCK_500MHZ: return 2000U;
+    case VTSS_CORE_CLOCK_625MHZ: return 1600U;
+    case VTSS_CORE_CLOCK_733MHZ: return 1364U;
     default:                     {
     };
     }
-    return 1600; // Default
+    return 1600U; // Default
 }
 
 BOOL fa_is_target(vtss_state_t *vtss_state)
@@ -471,34 +471,34 @@ static u32 fa_target_bw(vtss_state_t *vtss_state)
     switch (vtss_state->create.target) {
     // Fireant:
     case VTSS_TARGET_7546:
-    case VTSS_TARGET_7546TSN: return 65000;
+    case VTSS_TARGET_7546TSN: return 65000U;
     case VTSS_TARGET_7549:
-    case VTSS_TARGET_7549TSN: return 91000;
+    case VTSS_TARGET_7549TSN: return 91000U;
     case VTSS_TARGET_7552:
-    case VTSS_TARGET_7552TSN: return 129000;
+    case VTSS_TARGET_7552TSN: return 129000U;
     case VTSS_TARGET_7556:
-    case VTSS_TARGET_7556TSN: return 161000;
+    case VTSS_TARGET_7556TSN: return 161000U;
     case VTSS_TARGET_7558:
-    case VTSS_TARGET_7558TSN: return 201000;
+    case VTSS_TARGET_7558TSN: return 201000U;
     // Laguna:
-    case VTSS_TARGET_LAN9691VAO: return 46000;
+    case VTSS_TARGET_LAN9691VAO: return 46000U;
     case VTSS_TARGET_LAN9694RED:
     case VTSS_TARGET_LAN9694TSN:
-    case VTSS_TARGET_LAN9694:    return 48000;
+    case VTSS_TARGET_LAN9694:    return 48000U;
     case VTSS_TARGET_LAN9696RED:
     case VTSS_TARGET_LAN9696TSN:
     case VTSS_TARGET_LAN9692VAO:
-    case VTSS_TARGET_LAN9696:    return 66000;
+    case VTSS_TARGET_LAN9696:    return 66000U;
     case VTSS_TARGET_LAN9698RED:
     case VTSS_TARGET_LAN9698TSN:
     case VTSS_TARGET_LAN9693VAO:
-    case VTSS_TARGET_LAN9698:    return 102000;
+    case VTSS_TARGET_LAN9698:    return 102000U;
     // Laika:
-    case VTSS_TARGET_P64H: return 240000;
+    case VTSS_TARGET_P64H: return 240000U;
     default:               {
     }
     }
-    return 0;
+    return 0U;
 }
 
 #if defined(VTSS_ARCH_LAN969X)
@@ -506,32 +506,32 @@ static vtss_rc fa_core_ref_clk_config(vtss_state_t *vtss_state)
 {
     vtss_core_ref_clk_t    r_freq = vtss_state->init_conf.core_clock.ref_freq;
     vtss_core_clock_freq_t c_freq = vtss_state->init_conf.core_clock.freq;
-    u32                    val, poll_cnt = 0, clk_sel = 0, divr = 0, divq = 0, divfi = 0, divff = 0;
+    u32 val, poll_cnt = 0U, clk_sel = 0U, divr = 0U, divq = 0U, divfi = 0U, divff = 0U;
 
     if (r_freq == VTSS_CORE_REF_CLK_25MHZ && c_freq == VTSS_CORE_CLOCK_328MHZ) {
-        divfi = 64;
-        divq = 10;
-        divff = 10707062;
-        clk_sel = 2;
-        divr = 3;
+        divfi = 64U;
+        divq = 10U;
+        divff = 10707062U;
+        clk_sel = 2U;
+        divr = 3U;
     } else if (r_freq == VTSS_CORE_REF_CLK_39MHZ && c_freq == VTSS_CORE_CLOCK_328MHZ) {
-        divfi = 72;
-        divq = 10;
-        divff = 8635233;
-        clk_sel = 1;
-        divr = 6;
+        divfi = 72U;
+        divq = 10U;
+        divff = 8635233U;
+        clk_sel = 1U;
+        divr = 6U;
     } else if (r_freq == VTSS_CORE_REF_CLK_25MHZ && c_freq == VTSS_CORE_CLOCK_180MHZ) {
-        divfi = 70;
-        divq = 20;
-        divff = 14922442;
-        clk_sel = 2;
-        divr = 3;
+        divfi = 70U;
+        divq = 20U;
+        divff = 14922442U;
+        clk_sel = 2U;
+        divr = 3U;
     } else if (r_freq == VTSS_CORE_REF_CLK_39MHZ && c_freq == VTSS_CORE_CLOCK_180MHZ) {
-        divfi = 79;
-        divq = 20;
-        divff = 8660072;
-        clk_sel = 1;
-        divr = 6;
+        divfi = 79U;
+        divq = 20U;
+        divff = 8660072U;
+        clk_sel = 1U;
+        divr = 6U;
     } else {
         VTSS_E("Clock config not supported");
         return VTSS_RC_ERROR;
@@ -557,7 +557,7 @@ static vtss_rc fa_core_ref_clk_config(vtss_state_t *vtss_state)
             VTSS_M_CHIP_TOP_SPARE_PLL_FREQ_CFG_BYPASS_ENA);
 
     // Verify PLL lock
-    poll_cnt = 0;
+    poll_cnt = 0U;
     while (1) {
         VTSS_NSLEEP(10000); // 10usec
         REG_RD(VTSS_CHIP_TOP_SPARE_PLL_CFG, &val);
@@ -565,7 +565,7 @@ static vtss_rc fa_core_ref_clk_config(vtss_state_t *vtss_state)
             break;
         }
         poll_cnt++;
-        if (poll_cnt > 100) {
+        if (poll_cnt > 100U) {
             VTSS_E("Spare PLL could not get into lock");
             break;
         }
@@ -598,7 +598,7 @@ static vtss_rc fa_core_ref_clk_config(vtss_state_t *vtss_state)
             VTSS_M_CHIP_TOP_CORE_PLL_FREQ_CFG_BYPASS_ENA);
 
     // Verify PLL lock
-    poll_cnt = 0;
+    poll_cnt = 0U;
     while (1) {
         VTSS_NSLEEP(10000); // 10usec
         REG_RD(VTSS_CHIP_TOP_CORE_PLL_CFG, &val);
@@ -606,7 +606,7 @@ static vtss_rc fa_core_ref_clk_config(vtss_state_t *vtss_state)
             break;
         }
         poll_cnt++;
-        if (poll_cnt > 100) {
+        if (poll_cnt > 100U) {
             VTSS_E("Core PLL could not get into lock");
             break;
         }
@@ -767,7 +767,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
         // clock with: 0 = 25Mhz, 1 = 39Mh
         if (vtss_state->init_conf.core_clock.ref_freq == VTSS_CORE_REF_CLK_DEFAULT) {
             REG_RD(VTSS_CHIP_TOP_HW_STAT, &val);
-            if (VTSS_X_CHIP_TOP_HW_STAT_REFCLK_SEL(val) == 1) {
+            if (VTSS_X_CHIP_TOP_HW_STAT_REFCLK_SEL(val) == 1U) {
                 vtss_state->init_conf.core_clock.ref_freq = VTSS_CORE_REF_CLK_39MHZ;
             } else {
                 vtss_state->init_conf.core_clock.ref_freq = VTSS_CORE_REF_CLK_25MHZ;
@@ -775,7 +775,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
         }
         VTSS_RC(fa_core_ref_clk_config(vtss_state));
 
-        pol_upd_int = 820; // Laguna default
+        pol_upd_int = 820U; // Laguna default
 
         REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0),
                 VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA);
@@ -789,7 +789,7 @@ static vtss_rc fa_core_clock_config(vtss_state_t *vtss_state)
 #endif
 
     clk_period = vtss_fa_clk_period(freq);
-    val = (clk_period / 100);
+    val = (clk_period / 100U);
 
 #if defined(VTSS_ARCH_SPARX5)
     REG_WRM(VTSS_HSCH_SYS_CLK_PER, VTSS_F_HSCH_SYS_CLK_PER_SYS_CLK_PER_100PS(val),
@@ -842,14 +842,14 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
              {FALSE, REG_ADDR(VTSS_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_RESET),
               VTSS_M_ANA_AC_STAT_GLOBAL_CFG_PORT_STAT_RESET_RESET                                                },
              {FALSE, REG_ADDR(VTSS_ASM_STAT_CFG),                           VTSS_M_ASM_STAT_CFG_STAT_CNT_CLR_SHOT},
-             {TRUE,  REG_ADDR(VTSS_QSYS_RAM_INIT),                          0                                    },
-             {TRUE,  REG_ADDR(VTSS_REW_RAM_INIT),                           0                                    },
-             {TRUE,  REG_ADDR(VTSS_VOP_RAM_INIT),                           0                                    },
-             {TRUE,  REG_ADDR(VTSS_ANA_AC_RAM_CTRL_RAM_INIT),               0                                    },
-             {TRUE,  REG_ADDR(VTSS_ASM_RAM_INIT),                           0                                    },
-             {TRUE,  REG_ADDR(VTSS_EACL_RAM_INIT),                          0                                    },
-             {TRUE,  REG_ADDR(VTSS_VCAP_SUPER_RAM_INIT),                    0                                    },
-             {TRUE,  REG_ADDR(VTSS_DSM_RAM_INIT),                           0                                    }
+             {TRUE,  REG_ADDR(VTSS_QSYS_RAM_INIT),                          0U                                   },
+             {TRUE,  REG_ADDR(VTSS_REW_RAM_INIT),                           0U                                   },
+             {TRUE,  REG_ADDR(VTSS_VOP_RAM_INIT),                           0U                                   },
+             {TRUE,  REG_ADDR(VTSS_ANA_AC_RAM_CTRL_RAM_INIT),               0U                                   },
+             {TRUE,  REG_ADDR(VTSS_ASM_RAM_INIT),                           0U                                   },
+             {TRUE,  REG_ADDR(VTSS_EACL_RAM_INIT),                          0U                                   },
+             {TRUE,  REG_ADDR(VTSS_VCAP_SUPER_RAM_INIT),                    0U                                   },
+             {TRUE,  REG_ADDR(VTSS_DSM_RAM_INIT),                           0U                                   }
     };
 
     u32 init_cnt = (sizeof(ram_init_list) / sizeof(ram_init_list[0]));
@@ -863,15 +863,15 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
     /* Initialize memories, if not done already */
     REG_RD(VTSS_HSCH_RESET_CFG, &value);
     if (!(value & VTSS_M_HSCH_RESET_CFG_CORE_ENA)) {
-        for (i = 0; i < 10; i++) {
+        for (i = 0U; i < 10U; i++) {
             pending = init_cnt;
-            for (j = 0; j < init_cnt; j++) {
+            for (j = 0U; j < init_cnt; j++) {
                 r = ram_init_list[j];
                 if (r.gazwrap) {
                     r.init_val = VTSS_M_QSYS_RAM_INIT_RAM_INIT;
                 }
 
-                if (i == 0) {
+                if (i == 0U) {
                     if (r.gazwrap) {
                         vtss_fa_wr(vtss_state, r.init_reg, r.init_val);
                     } else {
@@ -890,7 +890,7 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
             VTSS_NSLEEP(100000);
         }
 
-        if (pending > 0) {
+        if (pending > 0U) {
             /* Still initializing, should be complete in less than 1ms */
             VTSS_E("Memory initialization error");
             return VTSS_RC_ERROR;
@@ -1005,7 +1005,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     if (vtss_state->init_conf.spi_bus) {
         REG_WR(VTSS_DEVCPU_GCB_SOFT_RST, VTSS_F_DEVCPU_GCB_SOFT_RST_SOFT_SWC_RST(1));
         VTSS_MSLEEP(100);
-        u32 val = 0;
+        u32 val = 0U;
         lag_reg_indirect_access(vtss_state, 0xE00C008C, &val, 1);
     }
 #endif
@@ -1195,19 +1195,19 @@ static vtss_internal_bw_t cal2bw(fa_cal_speed_t cal_spd)
 
 static u32 calspd2int(fa_cal_speed_t spd, vtss_port_no_t port_no)
 {
-    u32 val = 0;
+    u32 val = 0U;
 
     switch (spd) {
-    case FA_CAL_SPEED_1G:  val = 1000; break;
-    case FA_CAL_SPEED_2G5: val = 2500; break;
-    case FA_CAL_SPEED_5G:  val = 5000; break;
-    case FA_CAL_SPEED_10G: val = 10000; break;
+    case FA_CAL_SPEED_1G:  val = 1000U; break;
+    case FA_CAL_SPEED_2G5: val = 2500U; break;
+    case FA_CAL_SPEED_5G:  val = 5000U; break;
+    case FA_CAL_SPEED_10G: val = 10000U; break;
     case FA_CAL_SPEED_MAX: val = (LK_TGT ? 40000 : 25000); break;
     default:               break;
     }
 
     if (port_no >= RT_CHIP_PORTS) {
-        val = val / 2; // Internal ports are granted half the value
+        val = val / 2U; // Internal ports are granted half the value
     }
 
     return val;
@@ -1216,15 +1216,15 @@ static u32 calspd2int(fa_cal_speed_t spd, vtss_port_no_t port_no)
 static u32 bwd2int(vtss_internal_bw_t bw)
 {
     switch (bw) {
-    case VTSS_BW_1G:  return 1000;
-    case VTSS_BW_2G5: return 2500;
-    case VTSS_BW_5G:  return 5000;
-    case VTSS_BW_10G: return 10000;
-    case VTSS_BW_25G: return 25000;
-    case VTSS_BW_40G: return 40000;
+    case VTSS_BW_1G:  return 1000U;
+    case VTSS_BW_2G5: return 2500U;
+    case VTSS_BW_5G:  return 5000U;
+    case VTSS_BW_10G: return 10000U;
+    case VTSS_BW_25G: return 25000U;
+    case VTSS_BW_40G: return 40000U;
     default:          break;
     }
-    return 0;
+    return 0U;
 }
 
 // Auto configure the calendar based on port-map
@@ -1241,7 +1241,7 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
     max_core_bw = clock2bw(vtss_state->init_conf.core_clock.freq);
     // Setup the calendar, i.e. the BW to each device
     VTSS_MEMSET(cal, 0, sizeof(cal));
-    for (port_no = 0; port_no < RT_CHIP_PORTS_ALL; port_no++) {
+    for (port_no = 0U; port_no < RT_CHIP_PORTS_ALL; port_no++) {
         spd = fa_cal_speed_get(vtss_state, port_no, &port, bw, max_core_bw);
         if (port == CHIP_PORT_UNUSED || spd == FA_CAL_SPEED_NONE) {
             continue;
@@ -1254,7 +1254,7 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
 
         bw += this_bw;
         VTSS_D("chip_port = %u, this_bw = %u, summed bw = %u", port, this_bw, bw);
-        cal[port / 10] += (spd << ((port % 10) * 3));
+        cal[port / 10] += (spd << ((port % 10U) * 3U));
 
         if (port_no < VTSS_PORTS) {
             vtss_state->port.map[port_no].max_bw = cal2bw(spd); // Update with the actual given BW.
@@ -1280,7 +1280,7 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
     }
 
     /* Assign device BW to auto calendar */
-    for (i = 0; i < replicator; i++) {
+    for (i = 0U; i < replicator; i++) {
         REG_WR(VTSS_QSYS_CAL_AUTO(i), cal[i]);
     }
 
@@ -1291,7 +1291,7 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
             VTSS_M_QSYS_CAL_CTRL_CAL_AUTO_GRANT_RATE);
 
     /* Grant idle usage to VD0-2 */
-    for (i = 2; i < 5; i++) {
+    for (i = 2U; i < 5U; i++) {
         REG_WR(VTSS_HSCH_OUTB_SHARE_ENA(i), VTSS_F_HSCH_OUTB_SHARE_ENA_OUTB_SHARE_ENA(12));
     }
 
@@ -1317,7 +1317,7 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
 
 static u32 dsm_cal_len(vtss_state_t *vtss_state, u32 *cal)
 {
-    u32 i = 0, len = 0;
+    u32 i = 0U, len = 0U;
     while (i < FA_DSM_CAL_LEN) {
         if (cal[i] != FA_DSM_CAL_EMPTY) {
             len++;
@@ -1330,7 +1330,7 @@ static u32 dsm_cal_len(vtss_state_t *vtss_state, u32 *cal)
 static u32 dsm_exb_gcd(u32 a, u32 b)
 
 {
-    if (b == 0) {
+    if (b == 0U) {
         return a;
     }
     return dsm_exb_gcd(b, a % b);
@@ -1338,7 +1338,7 @@ static u32 dsm_exb_gcd(u32 a, u32 b)
 
 static u32 dsm_cp_cal(vtss_state_t *vtss_state, u32 *sched)
 {
-    u32 i = 0, tmp;
+    u32 i = 0U, tmp;
     while (i < FA_DSM_CAL_LEN) {
         if (sched[i] != FA_DSM_CAL_EMPTY) {
             tmp = sched[i];
@@ -1354,7 +1354,7 @@ static BOOL fa_dsm_cmp_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *calenda
 {
     u32 len = dsm_cal_len(vtss_state, calendar), val;
 
-    for (u32 i = 0; i < len; i++) {
+    for (u32 i = 0U; i < len; i++) {
         REG_WRM(VTSS_DSM_TAXI_CAL_CFG(taxi), VTSS_F_DSM_TAXI_CAL_CFG_CAL_IDX(i),
                 VTSS_M_DSM_TAXI_CAL_CFG_CAL_IDX);
         REG_RD(VTSS_DSM_TAXI_CAL_CFG(taxi), &val);
@@ -1380,7 +1380,7 @@ static vtss_rc fa_dsm_set_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *cale
 
     REG_WRM_SET(VTSS_DSM_TAXI_CAL_CFG(taxi), VTSS_M_DSM_TAXI_CAL_CFG_CAL_PGM_ENA);
 
-    for (u32 i = 0; i < len; i++) {
+    for (u32 i = 0U; i < len; i++) {
         REG_WRM(VTSS_DSM_TAXI_CAL_CFG(taxi), VTSS_F_DSM_TAXI_CAL_CFG_CAL_IDX(i),
                 VTSS_M_DSM_TAXI_CAL_CFG_CAL_IDX);
         REG_WRM(VTSS_DSM_TAXI_CAL_CFG(taxi), VTSS_F_DSM_TAXI_CAL_CFG_CAL_PGM_VAL(calendar[i]),
@@ -1390,7 +1390,7 @@ static vtss_rc fa_dsm_set_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *cale
     REG_WRM_CLR(VTSS_DSM_TAXI_CAL_CFG(taxi), VTSS_M_DSM_TAXI_CAL_CFG_CAL_PGM_ENA);
     REG_RD(VTSS_DSM_TAXI_CAL_CFG(taxi), &val);
     val = VTSS_X_DSM_TAXI_CAL_CFG_CAL_CUR_LEN(val);
-    if (val != len - 1) {
+    if (val != len - 1U) {
         VTSS_E("Calendar length is not correct (%d)", val);
     }
 #if defined(VTSS_ARCH_LAN969X)
@@ -1406,8 +1406,8 @@ static vtss_rc fa_dsm_chk_calendar(vtss_state_t *vtss_state, u32 *calendar, i32 
     int cnt, i, j, max_dist;
     u32 cal_length = dsm_cal_len(vtss_state, calendar);
 
-    for (u32 port = 0; port < RT_DSM_CAL_MAX_DEVS_PER_TAXI; port++) {
-        num_of_slots = 0;
+    for (u32 port = 0U; port < RT_DSM_CAL_MAX_DEVS_PER_TAXI; port++) {
+        num_of_slots = 0U;
         max_dist = avg_dist[port];
         for (i = 0; i < FA_DSM_CAL_LEN; i++) {
             slot_indices[i] = FA_DSM_CAL_EMPTY;
@@ -1424,7 +1424,7 @@ static vtss_rc fa_dsm_chk_calendar(vtss_state_t *vtss_state, u32 *calendar, i32 
         slot_indices[num_of_slots] = slot_indices[0] + cal_length;
 
         for (i = 0; i < num_of_slots; i++) {
-            distances[i] = (slot_indices[i + 1] - slot_indices[i]) * 10;
+            distances[i] = (slot_indices[i + 1] - slot_indices[i]) * 10U;
         }
 
         for (i = 0; i < num_of_slots; i++) {
@@ -1432,7 +1432,7 @@ static vtss_rc fa_dsm_chk_calendar(vtss_state_t *vtss_state, u32 *calendar, i32 
             if (cnt < 0) {
                 cnt *= -1;
             }
-            u32 a = 0;
+            u32 a = 0U;
             for (j = (i + 1) % num_of_slots; j != i; j = (j + 1) % num_of_slots, a++) {
                 cnt = cnt + distances[j] - max_dist;
                 if (cnt < 0) {
@@ -1504,8 +1504,8 @@ u32 vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 #else
     switch (conf->speed) {
     case VTSS_SPEED_100M:
-    case VTSS_SPEED_10M:  return 1;
-    default:              return 0;
+    case VTSS_SPEED_10M:  return 1U;
+    default:              return 0U;
     }
 #endif
 }
@@ -1559,27 +1559,27 @@ static char *cal2txt(vtss_state_t *vtss_state, u32 port, fa_cal_speed_t spd)
 static void taxi2ports(vtss_state_t *vtss_state, u32 taxi, u32 *port_ptr)
 {
     static const u32 fa_taxi_ports[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
-        {57, 12, 0,  1,  2,  16, 17, 18, 19, 20, 21, 22, 23},
-        {58, 13, 3,  4,  5,  24, 25, 26, 27, 28, 29, 30, 31},
-        {59, 14, 6,  7,  8,  32, 33, 34, 35, 36, 37, 38, 39},
-        {60, 15, 9,  10, 11, 40, 41, 42, 43, 44, 45, 46, 47},
-        {61, 48, 49, 50, 99, 99, 99, 99, 99, 99, 99, 99, 99},
-        {62, 51, 52, 53, 99, 99, 99, 99, 99, 99, 99, 99, 99},
-        {56, 63, 54, 55, 99, 99, 99, 99, 99, 99, 99, 99, 99},
-        {64, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}
+        {57U, 12U, 0U,  1U,  2U,  16U, 17U, 18U, 19U, 20U, 21U, 22U, 23U},
+        {58U, 13U, 3U,  4U,  5U,  24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U},
+        {59U, 14U, 6U,  7U,  8U,  32U, 33U, 34U, 35U, 36U, 37U, 38U, 39U},
+        {60U, 15U, 9U,  10U, 11U, 40U, 41U, 42U, 43U, 44U, 45U, 46U, 47U},
+        {61U, 48U, 49U, 50U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U},
+        {62U, 51U, 52U, 53U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U},
+        {56U, 63U, 54U, 55U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U},
+        {64U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U}
     };
     static const u32 la_taxi_ports[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
-        {0,  4,  1,  2,  3,  5,  6,  7,  28, 29},
-        {8,  12, 9,  13, 10, 11, 14, 15, 99, 99},
-        {16, 20, 17, 21, 18, 19, 22, 23, 99, 99},
-        {24, 25, 99, 99, 99, 99, 99, 99, 99, 99},
-        {26, 27, 99, 99, 99, 99, 99, 99, 99, 99}
+        {0U,  4U,  1U,  2U,  3U,  5U,  6U,  7U,  28U, 29U},
+        {8U,  12U, 9U,  13U, 10U, 11U, 14U, 15U, 99U, 99U},
+        {16U, 20U, 17U, 21U, 18U, 19U, 22U, 23U, 99U, 99U},
+        {24U, 25U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U},
+        {26U, 27U, 99U, 99U, 99U, 99U, 99U, 99U, 99U, 99U}
     };
     static const u32 lk_taxi_ports[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
-        {0,  2,  4,  6,  1,  3,  5,  7 },
-        {8,  10, 12, 14, 9,  11, 13, 15},
-        {16, 18, 20, 22, 17, 19, 21, 23},
-        {24, 26, 28, 30, 25, 27, 29, 31}
+        {0U,  2U,  4U,  6U,  1U,  3U,  5U,  7U },
+        {8U,  10U, 12U, 14U, 9U,  11U, 13U, 15U},
+        {16U, 18U, 20U, 22U, 17U, 19U, 21U, 23U},
+        {24U, 26U, 28U, 30U, 25U, 27U, 29U, 31U}
     };
 
     if (LK_TGT) {
@@ -1604,24 +1604,24 @@ static void taxi2ports(vtss_state_t *vtss_state, u32 taxi, u32 *port_ptr)
 // device adds one to the delay through the taxi bus. This is not included in
 // the table here:
 static const u32 la_taxi_bus_delays[FA_DSM_CAL_TAXIS][FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {
-    {2 /* D0  */, 2 /* D4  */, 1 /* D1  */, 1 /* D2  */, 1 /* D3  */, 1 /* D5  */, 1 /* D6  */,
-     1 /* D7  */, 1 /* D28 */, 1 /* D29 */},
-    {2 /* D8  */, 2 /* D12 */, 2 /* D9  */, 2 /* D13 */, 1 /* D10 */, 1 /* D11 */, 1 /* D14 */,
-     1 /* D15 */},
-    {2 /* D16 */, 2 /* D20 */, 2 /* D17 */, 2 /* D21 */, 1 /* D18 */, 1 /* D19 */, 1 /* D22 */,
-     1 /* D23 */},
-    {2 /* D24 */, 2 /* D25 */},
-    {2 /* D26 */, 2 /* D27 */},
+    {2U /* D0  */, 2U /* D4  */, 1U /* D1  */, 1U /* D2  */, 1U /* D3  */, 1U /* D5  */,
+     1U /* D6  */, 1U /* D7  */, 1U /* D28 */, 1U /* D29 */},
+    {2U /* D8  */, 2U /* D12 */, 2U /* D9  */, 2U /* D13 */, 1U /* D10 */, 1U /* D11 */,
+     1U /* D14 */, 1U /* D15 */},
+    {2U /* D16 */, 2U /* D20 */, 2U /* D17 */, 2U /* D21 */, 1U /* D18 */, 1U /* D19 */,
+     1U /* D22 */, 1U /* D23 */},
+    {2U /* D24 */, 2U /* D25 */},
+    {2U /* D26 */, 2U /* D27 */},
 };
 #endif
 
 vtss_rc vtss_fa_port2taxi(vtss_state_t *vtss_state, u32 taxi, vtss_port_no_t port_no, u32 *taxi_port)
 {
-    u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
+    u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0U};
     u32 i, port = VTSS_CHIP_PORT(port_no);
 
     taxi2ports(vtss_state, taxi, taxi_ports);
-    for (i = 0; i < RT_DSM_CAL_MAX_DEVS_PER_TAXI; i++) {
+    for (i = 0U; i < RT_DSM_CAL_MAX_DEVS_PER_TAXI; i++) {
         if (taxi_ports[i] == port) {
             // Found chip port at taxi port
             *taxi_port = i;
@@ -1633,27 +1633,27 @@ vtss_rc vtss_fa_port2taxi(vtss_state_t *vtss_state, u32 taxi, vtss_port_no_t por
 
 static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *schedule, i32 *avg_dist)
 {
-    u32 gcd, k, i, a, sum = 0, min = 25000, factor, adjusted_speed;
+    u32 gcd, k, i, a, sum = 0U, min = 25000U, factor, adjusted_speed;
     u32 num_of_slots, slot_spd, raw_spd, spd, empty_slots;
     u32 indices_len, act, ts, cal_spd, port_spd;
     i32 port = 0, cnt;
     u32 num_of_old_slots, num_of_new_slots, tgt_score;
     u32 taxi_bw, clk_period_ps;
-    u32 port_speeds[FA_CHIP_PORTS_ALL] = {0};
-    u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
-    u32 taxi_speeds[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
-    u32 dev_slots[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
-    u32 new_slots[FA_DSM_CAL_LEN] = {0};
-    u32 indices[FA_DSM_CAL_LEN] = {0};
-    u32 short_list[FA_DSM_CAL_LEN] = {0};
-    u32 long_list[FA_DSM_CAL_LEN] = {0};
-    u32 temp_sched[FA_DSM_CAL_LEN] = {0};
+    u32 port_speeds[FA_CHIP_PORTS_ALL] = {0U};
+    u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0U};
+    u32 taxi_speeds[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0U};
+    u32 dev_slots[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0U};
+    u32 new_slots[FA_DSM_CAL_LEN] = {0U};
+    u32 indices[FA_DSM_CAL_LEN] = {0U};
+    u32 short_list[FA_DSM_CAL_LEN] = {0U};
+    u32 long_list[FA_DSM_CAL_LEN] = {0U};
+    u32 temp_sched[FA_DSM_CAL_LEN] = {0U};
 
     clk_period_ps = vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq);
     taxi_bw = 128 * 1000000 / clk_period_ps;
     taxi2ports(vtss_state, taxi, taxi_ports);
 
-    for (i = 0; i < FA_DSM_CAL_LEN; i++) {
+    for (i = 0U; i < FA_DSM_CAL_LEN; i++) {
         new_slots[i] = FA_DSM_CAL_EMPTY;
         schedule[i] = FA_DSM_CAL_EMPTY;
         temp_sched[i] = FA_DSM_CAL_EMPTY;
@@ -1661,77 +1661,77 @@ static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *sch
     // Default empty calendar
     schedule[0] = FA_DSM_CAL_MAX_DEVS_PER_TAXI;
 
-    for (u32 p = 0; p < vtss_state->port_count; p++) {
+    for (u32 p = 0U; p < vtss_state->port_count; p++) {
         cal_spd = fa_cal_speed_get(vtss_state, p, &port, 0, 0);
         port_spd = calspd2int(cal_spd, p);
         port_speeds[port] = port_spd;
     }
     // Map ports to taxi positions
-    for (u32 i = 0; i < RT_DSM_CAL_MAX_DEVS_PER_TAXI; i++) {
+    for (u32 i = 0U; i < RT_DSM_CAL_MAX_DEVS_PER_TAXI; i++) {
         port = taxi_ports[i];
         if (port < RT_CHIP_PORTS_ALL) {
             taxi_speeds[i] = port_speeds[port];
         } else {
-            taxi_speeds[i] = 0;
+            taxi_speeds[i] = 0U;
         }
     }
 
-    for (i = 0; i < VTSS_ARRSZ(taxi_speeds); i++) {
+    for (i = 0U; i < VTSS_ARRSZ(taxi_speeds); i++) {
         sum += taxi_speeds[i];
-        if ((taxi_speeds[i] < min) && (taxi_speeds[i] != 0)) {
+        if ((taxi_speeds[i] < min) && (taxi_speeds[i] != 0U)) {
             min = taxi_speeds[i];
         }
         gcd = min;
-        for (a = 0; a < VTSS_ARRSZ(taxi_speeds); a++) {
+        for (a = 0U; a < VTSS_ARRSZ(taxi_speeds); a++) {
             gcd = dsm_exb_gcd(gcd, taxi_speeds[a]);
         }
     }
 
-    if (sum == 0) {
+    if (sum == 0U) {
         return VTSS_RC_OK; // Empty calendar
     }
     // Make room for overhead traffic
     factor = 100 * 100 * 1000 / (100 * 100 - FA_DSM_CAL_BW_LOSS);
 
-    if (sum * factor > (taxi_bw * 1000)) {
+    if (sum * factor > (taxi_bw * 1000U)) {
         VTSS_E("Taxi bw %d Gbps, not enough for taxi %d. Req. MBps: %d\n", taxi_bw, taxi, sum);
         return VTSS_RC_ERROR;
     }
-    for (i = 0; i < 4; i++) {
-        if (i == 0) {
-            raw_spd = gcd / 5;
-        } else if (i == 1) {
-            raw_spd = gcd / 2;
-        } else if (i == 2) {
+    for (i = 0U; i < 4U; i++) {
+        if (i == 0U) {
+            raw_spd = gcd / 5U;
+        } else if (i == 1U) {
+            raw_spd = gcd / 2U;
+        } else if (i == 2U) {
             raw_spd = gcd;
         } else {
             raw_spd = min;
         }
         slot_spd = raw_spd * factor;
-        num_of_slots = taxi_bw * 1000 / slot_spd;
-        if (num_of_slots <= 64) {
+        num_of_slots = taxi_bw * 1000U / slot_spd;
+        if (num_of_slots <= 64U) {
             break;
         }
     }
 
-    num_of_slots = num_of_slots > 64 ? 64 : num_of_slots;
+    num_of_slots = num_of_slots > 64U ? 64U : num_of_slots;
     slot_spd = taxi_bw / num_of_slots;
 
-    sum = 0;
-    for (i = 0; i < VTSS_ARRSZ(taxi_speeds); i++) {
+    sum = 0U;
+    for (i = 0U; i < VTSS_ARRSZ(taxi_speeds); i++) {
         spd = taxi_speeds[i];
-        adjusted_speed = taxi_speeds[i] * factor / 1000;
-        if (adjusted_speed > 0) {
+        adjusted_speed = taxi_speeds[i] * factor / 1000U;
+        if (adjusted_speed > 0U) {
             avg_dist[i] = (128 * 1000000 * 10) / (adjusted_speed * clk_period_ps);
         } else {
             avg_dist[i] = -1;
         }
-        dev_slots[i] = ((spd * factor / slot_spd) + 999) / 1000;
+        dev_slots[i] = ((spd * factor / slot_spd) + 999U) / 1000U;
         if (FA_TGT) {
             /* Improved and allowed in Laguna, i.e. this check can be skipped */
-            u32 slow_mode = clk_period_ps > 2000 ? 1 : 0;
-            if (spd != 25000 && (spd != 10000 || !slow_mode)) {
-                if (num_of_slots < (5 * dev_slots[i])) {
+            u32 slow_mode = clk_period_ps > 2000U ? 1 : 0;
+            if (spd != 25000U && (spd != 10000U || !slow_mode)) {
+                if (num_of_slots < (5U * dev_slots[i])) {
                     VTSS_E(
                         "Port spd %d taxi %d cannot not be scheduled with min. separation of 5 slots",
                         spd, taxi);
@@ -1748,29 +1748,29 @@ static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *sch
 
     empty_slots = num_of_slots - sum;
 
-    for (i = 0; i < empty_slots; i++) {
+    for (i = 0U; i < empty_slots; i++) {
         schedule[i] = RT_DSM_CAL_MAX_DEVS_PER_TAXI;
     }
 
-    for (i = 1; i < num_of_slots; i++) {
-        indices_len = 0;
-        for (a = 0; a < VTSS_ARRSZ(dev_slots); a++) {
+    for (i = 1U; i < num_of_slots; i++) {
+        indices_len = 0U;
+        for (a = 0U; a < VTSS_ARRSZ(dev_slots); a++) {
             if (dev_slots[a] == i) {
                 indices[indices_len] = a;
                 indices_len++;
             }
         }
-        if (indices_len == 0) {
+        if (indices_len == 0U) {
             continue;
         }
-        k = 0;
-        for (a = 0; a < i; a++) {
-            for (u32 j = 0; j < indices_len; j++, k++) {
+        k = 0U;
+        for (a = 0U; a < i; a++) {
+            for (u32 j = 0U; j < indices_len; j++, k++) {
                 new_slots[k] = indices[j];
             }
         }
 
-        for (a = 0; a < FA_DSM_CAL_LEN; a++) {
+        for (a = 0U; a < FA_DSM_CAL_LEN; a++) {
             if (schedule[a] == FA_DSM_CAL_EMPTY) {
                 break;
             }
@@ -1779,44 +1779,45 @@ static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *sch
         num_of_old_slots = a;
         num_of_new_slots = k;
         cnt = 0;
-        ts = 0;
+        ts = 0U;
 
         if (num_of_new_slots > num_of_old_slots) {
             VTSS_MEMCPY(short_list, schedule, sizeof(short_list));
             VTSS_MEMCPY(long_list, new_slots, sizeof(long_list));
-            tgt_score = 100000 * num_of_old_slots / num_of_new_slots;
+            tgt_score = 100000U * num_of_old_slots / num_of_new_slots;
         } else {
             VTSS_MEMCPY(short_list, new_slots, sizeof(short_list));
             VTSS_MEMCPY(long_list, schedule, sizeof(long_list));
-            tgt_score = 100000 * num_of_new_slots / num_of_old_slots;
+            tgt_score = 100000U * num_of_new_slots / num_of_old_slots;
         }
 
-        while (dsm_cal_len(vtss_state, short_list) > 0 || dsm_cal_len(vtss_state, long_list) > 0) {
-            act = 0;
-            if (dsm_cal_len(vtss_state, short_list) > 0) {
+        while (dsm_cal_len(vtss_state, short_list) > 0U ||
+               dsm_cal_len(vtss_state, long_list) > 0U) {
+            act = 0U;
+            if (dsm_cal_len(vtss_state, short_list) > 0U) {
                 temp_sched[ts] = dsm_cp_cal(vtss_state, short_list);
                 ts++;
                 cnt += 100000;
-                act = 1;
+                act = 1U;
             }
-            while (dsm_cal_len(vtss_state, long_list) > 0 && cnt > 0) {
+            while (dsm_cal_len(vtss_state, long_list) > 0U && cnt > 0) {
                 temp_sched[ts] = dsm_cp_cal(vtss_state, long_list);
                 ts++;
                 cnt -= tgt_score;
-                act = 1;
+                act = 1U;
             }
-            if (act == 0) {
+            if (act == 0U) {
                 VTSS_E("Error in DSM calculation");
                 return VTSS_RC_ERROR;
             }
         }
 
-        for (a = 0; a < FA_DSM_CAL_LEN; a++) {
+        for (a = 0U; a < FA_DSM_CAL_LEN; a++) {
             if (temp_sched[a] == FA_DSM_CAL_EMPTY) {
                 break;
             }
         }
-        for (a = 0; a < FA_DSM_CAL_LEN; a++) {
+        for (a = 0U; a < FA_DSM_CAL_LEN; a++) {
             schedule[a] = temp_sched[a];
             temp_sched[a] = FA_DSM_CAL_EMPTY;
             new_slots[a] = FA_DSM_CAL_EMPTY;
@@ -1829,14 +1830,14 @@ static vtss_rc fa_dsm_calc_calendar(vtss_state_t *vtss_state, u32 taxi, u32 *sch
 vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
 {
     u32 len, val, port;
-    u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0};
+    u32 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {0U};
 
-    for (u32 taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
+    for (u32 taxi = 0U; taxi < RT_DSM_CAL_TAXIS; taxi++) {
         taxi2ports(vtss_state, taxi, taxi_ports);
         REG_RD(VTSS_DSM_TAXI_CAL_CFG(taxi), &len);
-        len = VTSS_X_DSM_TAXI_CAL_CFG_CAL_CUR_LEN(len) + 1;
+        len = VTSS_X_DSM_TAXI_CAL_CFG_CAL_CUR_LEN(len) + 1U;
         pr("Taxi:%d, Len:%d, Cal:\n", taxi, len);
-        for (u32 i = 0; i < len; i++) {
+        for (u32 i = 0U; i < len; i++) {
             REG_WRM(VTSS_DSM_TAXI_CAL_CFG(taxi), VTSS_F_DSM_TAXI_CAL_CFG_CAL_IDX(i),
                     VTSS_M_DSM_TAXI_CAL_CFG_CAL_IDX);
             REG_RD(VTSS_DSM_TAXI_CAL_CFG(taxi), &val);
@@ -1851,7 +1852,7 @@ vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
                 pr(" %c ", val == TAXI_SLOT_UNUSED_BUT_LOCKED ? 'L' : '-');
             }
 
-            if ((i > 0 && (i % 32 == 0)) || (i == len - 1)) {
+            if ((i > 0U && (i % 32U == 0U)) || (i == len - 1U)) {
                 pr("\n");
             }
         }
@@ -1862,13 +1863,13 @@ vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
 // Dump the auto calendar
 vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
 {
-    u32            cal, bw = 0, this_bw = 0, val, port_bw = 0;
+    u32            cal, bw = 0U, this_bw = 0U, val, port_bw = 0U;
     fa_cal_speed_t spd;
 
-    for (u32 port = 0; port < RT_CHIP_PORTS_ALL; port++) {
+    for (u32 port = 0U; port < RT_CHIP_PORTS_ALL; port++) {
         REG_RD(VTSS_QSYS_CAL_AUTO(port / 10), &cal);
-        spd = (cal >> ((port % 10) * 3)) & 0x7;
-        if (spd == 0) {
+        spd = (cal >> ((port % 10U) * 3U)) & 0x7U;
+        if (spd == 0U) {
             continue;
         }
         pr("port:%d gets reserved spd:%s %s\n", port, cal2txt(vtss_state, port, spd),
@@ -1885,17 +1886,17 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
         bw += this_bw;
     }
 
-    for (u32 i = 0; i < 5; i++) {
+    for (u32 i = 0U; i < 5U; i++) {
         REG_RD(VTSS_HSCH_OUTB_SHARE_ENA(i), &val);
-        if (VTSS_X_HSCH_OUTB_SHARE_ENA_OUTB_SHARE_ENA(val) > 0) {
+        if (VTSS_X_HSCH_OUTB_SHARE_ENA_OUTB_SHARE_ENA(val) > 0U) {
             pr("Internal port:%d gets idle traffic ", RT_CHIP_PORTS + i);
-            if (i == 0) {
+            if (i == 0U) {
                 pr("(CPU1)\n");
-            } else if (i == 1) {
+            } else if (i == 1U) {
                 pr("(CPU2)\n");
-            } else if (i == 2) {
+            } else if (i == 2U) {
                 pr("(IPMC)\n");
-            } else if (i == 3) {
+            } else if (i == 3U) {
                 pr("(AFI/OAM)\n");
             } else {
                 pr("(IpinIP)\n");
@@ -1939,13 +1940,13 @@ static vtss_rc la_dsm_cal_delay_get(vtss_state_t *vtss_state,
     BOOL interlink_dev_used = FALSE;
 
     if (vtss_state->vtss_features[FEATURE_REDBOX] == 0) {
-        *delay = 0;
+        *delay = 0U;
         return VTSS_RC_OK;
     }
 
-    *delay = 2; // Through the RedBox.
+    *delay = 2U; // Through the RedBox.
 
-    for (dev = 0; dev < dev_cnt; dev++) {
+    for (dev = 0U; dev < dev_cnt; dev++) {
         // There is a fixed overhead on the delay through a given taxi bus. This
         // is given by the la_taxi_bus_delays[][] array.
         *delay += la_taxi_bus_delays[taxi_bus][dev];
@@ -1959,9 +1960,9 @@ static vtss_rc la_dsm_cal_delay_get(vtss_state_t *vtss_state,
         // so-called shadow device on the taxi bus.
         // We can distinguish 5G and 10G ports from 2.5G ports by them having a
         // delay of 2 in the delay table.
-        if (la_taxi_bus_delays[taxi_bus][dev] > 1) {
+        if (la_taxi_bus_delays[taxi_bus][dev] > 1U) {
             // This is physically a 5G or 10G port.
-            if (dev_speeds_from_port_map[dev] > 0 && !dev_speeds_5g_or_higher[dev]) {
+            if (dev_speeds_from_port_map[dev] > 0U && !dev_speeds_5g_or_higher[dev]) {
                 // And it is indeed in the port map and is running less than 5G
                 (*delay)++;
             }
@@ -1971,7 +1972,7 @@ static vtss_rc la_dsm_cal_delay_get(vtss_state_t *vtss_state,
     // If the interlink_dev was not used in the above calculations, return a
     // delay of 0, because it doesn't matter.
     if (!interlink_dev_used) {
-        *delay = 0;
+        *delay = 0U;
     }
 
     return VTSS_RC_OK;
@@ -2122,12 +2123,12 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
 
     // Figure out how many device types (10G, 5G, 2.5G, <= 1G) are in the port
     // map for this taxi bus.
-    active_dev_cnt = 0;
-    required_bw = 0;
-    for (dev = 0; dev < dev_cnt; dev++) {
+    active_dev_cnt = 0U;
+    required_bw = 0U;
+    for (dev = 0U; dev < dev_cnt; dev++) {
         speed = dev_speeds_from_port_map[dev];
 
-        if (speed == 0) {
+        if (speed == 0U) {
             // Unused port
             continue;
         }
@@ -2159,9 +2160,9 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
         return VTSS_RC_ERROR;
     }
 
-    if (active_dev_cnt == 0) {
+    if (active_dev_cnt == 0U) {
         // No devices used on this taxi bus.
-        *calendar_len = 1;
+        *calendar_len = 1U;
         calendar[0] = TAXI_SLOT_UNUSED;
         return VTSS_RC_OK;
     }
@@ -2171,7 +2172,7 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
 
     // And it needs to be at least one longer than the delay.
     if (cal_len < delay) {
-        cal_len = delay + 1;
+        cal_len = delay + 1U;
     }
 
     // Search for a calendar length that fits all active devices
@@ -2182,12 +2183,12 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
         // Use truncating division here
         bw_per_slot = taxi_bw / cal_len;
 
-        slots_required = 0;
+        slots_required = 0U;
         works = TRUE;
-        for (idx = 0; idx < DEV_IDX_CNT; idx++) {
+        for (idx = 0U; idx < DEV_IDX_CNT; idx++) {
             d = &dev_per_speed[idx];
 
-            if (d->dev_cnt == 0) {
+            if (d->dev_cnt == 0U) {
                 continue;
             }
 
@@ -2208,7 +2209,7 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
 
                 slots_required += d->dev_cnt * d->slots_required;
             } else {
-                d->slots_between_repeats = 0;
+                d->slots_between_repeats = 0U;
             }
         }
 
@@ -2234,11 +2235,11 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
 
     VTSS_I("Taxi %u: active_dev_cnt = %u, cal_len = %u, bw_per_slot = %u", taxi_bus, active_dev_cnt,
            cal_len, bw_per_slot);
-    for (idx = 0; idx < DEV_IDX_CNT; idx++) {
+    for (idx = 0U; idx < DEV_IDX_CNT; idx++) {
         d = &dev_per_speed[idx];
 
         lmu_fmt_buf_init(&buf);
-        for (dev = 0; dev < d->dev_cnt; dev++) {
+        for (dev = 0U; dev < d->dev_cnt; dev++) {
             LMU_SS_FMT(&buf.ss, " %u ", d->devs[dev]);
         }
 
@@ -2247,7 +2248,7 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
             idx, IDX2SPEED(idx), d->dev_cnt, d->slots_required, d->slots_between_repeats, buf.s);
     }
 
-    for (cal_idx = 0; cal_idx < cal_len; cal_idx++) {
+    for (cal_idx = 0U; cal_idx < cal_len; cal_idx++) {
         calendar[cal_idx] = TAXI_SLOT_UNUSED;
     }
 
@@ -2257,7 +2258,7 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
         idx = SPEED2IDX(dev_speeds_from_port_map[interlink_dev]);
         d = &dev_per_speed[idx];
 
-        for (slots_required = 0; slots_required < d->slots_required; slots_required++) {
+        for (slots_required = 0U; slots_required < d->slots_required; slots_required++) {
             // Space them evenly.
             cal_idx = slots_required * d->slots_between_repeats;
             CAL_IDX_SET(cal_idx, interlink_dev);
@@ -2268,17 +2269,17 @@ static vtss_rc la_dsm_calc_calendar(vtss_state_t *vtss_state,
     }
 
     // Place the remaining devices. Start with the fastest.
-    for (idx = 0; idx < DEV_IDX_CNT; idx++) {
+    for (idx = 0U; idx < DEV_IDX_CNT; idx++) {
         d = &dev_per_speed[idx];
 
-        for (dev = 0; dev < d->dev_cnt; dev++) {
+        for (dev = 0U; dev < d->dev_cnt; dev++) {
             if (d->devs[dev] == interlink_dev || d->devs[dev] == TAXI_SLOT_UNUSED_BUT_LOCKED) {
                 // Already placed
                 continue;
             }
 
-            cal_idx = 0;
-            for (slots_required = 0; slots_required < d->slots_required; slots_required++) {
+            cal_idx = 0U;
+            for (slots_required = 0U; slots_required < d->slots_required; slots_required++) {
                 CAL_IDX_FIND_NEXT_FREE(cal_idx, d->devs[dev]);
                 CAL_IDX_SET(cal_idx, d->devs[dev]);
                 cal_idx += d->slots_between_repeats;
@@ -2300,7 +2301,7 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
     if (FA_TGT || LK_TGT) {
         i32 avg_len[FA_DSM_CAL_LEN];
 
-        for (taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
+        for (taxi = 0U; taxi < RT_DSM_CAL_TAXIS; taxi++) {
             VTSS_RC(fa_dsm_calc_calendar(vtss_state, taxi, calendar, avg_len));
             VTSS_RC(fa_dsm_chk_calendar(vtss_state, calendar, avg_len));
             if (!fa_dsm_cmp_calendar(vtss_state, taxi, calendar)) {
@@ -2315,7 +2316,7 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
         u32                 taxi_ports[FA_DSM_CAL_MAX_DEVS_PER_TAXI] = {};
         u32                 port_speeds[VTSS_PORTS] = {};
         BOOL                port_speeds_5g_or_higher[VTSS_PORTS] = {};
-        u32                 freq_mhz = 328; // Currently only supported frequency
+        u32                 freq_mhz = 328U; // Currently only supported frequency
         u32                 taxi_bw;
         u32                 interlink_dev, dev;
         BOOL                first, cal_changed;
@@ -2336,9 +2337,9 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
         // bus is 1.055 times lower than actually and use that for all
         // calculations despite actually requested port B/W.
         // Division by 1.055 is roughly the same as multiplication by 0.948.
-        taxi_bw = (freq_mhz * 128 /* bits per taxi word */ * 948) / 1000;
+        taxi_bw = (freq_mhz * 128U /* bits per taxi word */ * 948U) / 1000U;
 
-        for (p = 0; p < vtss_state->port_count; p++) {
+        for (p = 0U; p < vtss_state->port_count; p++) {
             port_speeds[VTSS_CHIP_PORT(p)] = bwd2int(vtss_state->port.map[p].max_bw);
 
             // Computes whether the configured speed is >= 5G similarly to
@@ -2350,7 +2351,7 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
                 vtss_state->port.conf[p].speed == VTSS_SPEED_UNDEFINED;
         }
 
-        for (taxi = 0; taxi < RT_DSM_CAL_TAXIS; taxi++) {
+        for (taxi = 0U; taxi < RT_DSM_CAL_TAXIS; taxi++) {
             // Make taxi_ports[] contain the chip ports on this taxi bus. Not
             // all chip ports may be used in the port map.
             taxi2ports(vtss_state, taxi, taxi_ports);
@@ -2380,7 +2381,7 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
             // Initialize the port that identifies this taxi bus' RedBox'
             // interlink port to an unused calendar value.
             interlink_dev = RT_DSM_CAL_MAX_DEVS_PER_TAXI;
-            for (p = 0; p < RT_DSM_CAL_MAX_DEVS_PER_TAXI; p++) {
+            for (p = 0U; p < RT_DSM_CAL_MAX_DEVS_PER_TAXI; p++) {
                 if (taxi_ports[p] < RT_CHIP_PORTS_ALL) {
                     dev_speeds_from_port_map[p] = port_speeds[taxi_ports[p]];
                     dev_speeds_5g_or_higher[p] = port_speeds_5g_or_higher[taxi_ports[p]];
@@ -2406,7 +2407,7 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
                 // Print calendar
                 first = TRUE;
                 lmu_fmt_buf_init(&buf);
-                for (p = 0; p < cal_len; p++) {
+                for (p = 0U; p < cal_len; p++) {
                     dev = calendar[p];
                     if (dev == TAXI_SLOT_UNUSED || dev == TAXI_SLOT_UNUSED_BUT_LOCKED) {
                         LMU_SS_FMT(&buf.ss, "%s%c", first ? "" : " ",

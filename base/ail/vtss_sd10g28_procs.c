@@ -228,8 +228,8 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
         ret_val->cmu_sel[0] = 3;
     }
     cmu = ret_val->cmu_sel[0];
-    ret_val->cfg_lane_reserve_7_0[0] = (cmu % 2) << 6; // LSB:
-    ret_val->cfg_ssc_rtl_clk_sel[0] = (cmu / 2);       // MSB:
+    ret_val->cfg_lane_reserve_7_0[0] = (cmu % 2U) << 6U; // LSB:
+    ret_val->cfg_ssc_rtl_clk_sel[0] = (cmu / 2U);        // MSB:
     ret_val->cfg_lane_reserve_15_8[0] =
         mode_args->duty_cycle; // Bit 9 controls Duty cycle; Silicon Dependend
                                // this needs to be corrected
@@ -433,19 +433,19 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     ret_val->cfg_itx_ippreemp_base_1_0[0] = 0; // Unused in current IP as per Tony 08/29/2018.
 
     // r_swing_reg;
-    ret_val->cfg_itx_ipdriver_base_2_0[0] = (config.txswing >> 6);
-    ret_val->cfg_ibias_tune_reserve_5_0[0] = (config.txswing & 63);
+    ret_val->cfg_itx_ipdriver_base_2_0[0] = (config.txswing >> 6U);
+    ret_val->cfg_ibias_tune_reserve_5_0[0] = (config.txswing & 63U);
     ret_val->cfg_txswing_half[0] = (config.txmargin);
 
     // r_cdr_from_hwt this is cfg controlled.
-    ret_val->cfg_dis_2ndOrder[0] = 0x1;          //  2nd order CDR disable signal.
-    ret_val->cfg_rx_ssc_lh[0] = 0x0;             //  CDR operation rate selection
-    ret_val->cfg_pi_floop_steps_1_0[0] = 0x0;    //  Frequency loop PI step selection
-    ret_val->cfg_pi_ext_dac_23_16[0] = (1 << 5); //  2nd order CDR digital lowpass filter select
+    ret_val->cfg_dis_2ndOrder[0] = 0x1;            //  2nd order CDR disable signal.
+    ret_val->cfg_rx_ssc_lh[0] = 0x0;               //  CDR operation rate selection
+    ret_val->cfg_pi_floop_steps_1_0[0] = 0x0;      //  Frequency loop PI step selection
+    ret_val->cfg_pi_ext_dac_23_16[0] = (1U << 5U); //  2nd order CDR digital lowpass filter select
 
-    ret_val->cfg_pi_ext_dac_15_8[0] = (0 << 6); //  2nd order CDR digital lowpass filter select
+    ret_val->cfg_pi_ext_dac_15_8[0] = (0U << 6U); //  2nd order CDR digital lowpass filter select
     ret_val->cfg_iscan_ext_dac_7_0[0] =
-        (1 << 7) + 9; // CDR clock phase tuning parameter; Silicon Dependend;
+        (1U << 7U) + 9U; // CDR clock phase tuning parameter; Silicon Dependend;
 
     // RX CDR  and TX driver register Settings
     ret_val->cfg_cdr_kf_gen1_2_0[0] = 1;                    // CDR 1st order Gain Adjust GEN1
