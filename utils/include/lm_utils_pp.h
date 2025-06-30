@@ -36,6 +36,10 @@
 #endif
 #endif
 
+#if defined(__llvm__)
+#define LMU_PP_USE___VA_OPT__
+#endif
+
 #if defined(LMU_PP_USE___VA_OPT__)
 #define LMU_PP_VA_ARGS_NARG_(DUMMY, ...) LMU_PP_ARG_N(__VA_ARGS__)
 #define LMU_PP_VA_ARGS_NARG(...)                                               \
