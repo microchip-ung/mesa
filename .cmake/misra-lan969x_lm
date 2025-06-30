@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'pp'
+require 'open3'
+require 'pathname'
+require 'optparse'
+
+def run cmd, flags = []
+  if $verbose
+    STDOUT.print "RUN: #{cmd}"
+    STDOUT.flush
+  end
+
+  a = Time.now
+  o, e, s = Open3.capture3(cmd)
+  b = Time.now
+
+  if $verbose
+    STDOUT.print " -> #{s} in %1.3fs\n" % [b - a]
+    STDOUT.flush
+  end
+
+  failed = false
+  if s.to_i != 0 and not flags.include? :allow_non_zero_return
+    failed = true
+  end
+
+  if e.size > 0 and not flags.include? :allow_std_err
+    failed = true
+  end
+
+
+  if failed
+    raise "CMD: #{cmd} status: #{s.to_i}, std-err: #{e}"
+  end
+
+  return o, e, s
+end
+
+def cd path
+  puts "cd #{path}  (was: #{Dir.pwd})" if $verbose
+  Dir.chdir(path)
+end
+
+def sys cmd, flags = []
+  if $verbose
+    puts "Running: #{cmd}"
+  end
+
+  a = Time.now
+  system cmd
+  b = Time.now
+
+  if $verbose
+    STDOUT.print " -> #{$?} in %1.3fs\n" % [b - a]
+    STDOUT.flush
+  end
+
+  failed = false
+  if $?.to_i != 0 and not flags.include? :allow_non_zero_return
+    failed = true
+  end
+
+  if failed
+    raise "CMD: #{cmd} status: #{$?.to_i}"
+  end
+end
+
+$top = File.dirname(File.dirname(File.expand_path(__FILE__)))
+cd $top
+
+$opt = { }
+global = OptionParser.new do |opts|
+  opts.banner = "Usage: #{$0} [options]"
+
+  opts.on("-c", "--clean", "Do clean start") do
+    $clean = true
+  end
+
+  opts.on("-v", "--verbose", "Enable verbose printing") do
+    $verbose = true
+  end
+
+end.order!
+
+if $clean
+  run "rm -rf misra-lan969x-lm"
+end
+
+if not File.exist? "misra-lan969x-lm"
+  run "./.cmake/create_cmake_project.rb -n arm64 misra-lan969x-lm", [:allow_std_err]
+  cd "misra-lan969x-lm"
+  run "./cmake .. -Dlan969x_lm_static=on", [:allow_std_err]
+  cd ".."
+end
+
+sys "./.cmake/cov-runner -b misra-lan969x-lm -t lan969x_lm_static", [:allow_non_zero_return]
+

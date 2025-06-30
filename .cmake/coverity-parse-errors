@@ -1,0 +1,169 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'pp'
+require 'pty'
+require 'json'
+require 'optparse'
+require 'pathname'
+
+$col_max = %x{tput cols 2>/dev/null}.to_i
+
+
+opt_parser = OptionParser.new do |opts|
+    opts.banner = """Usage: ctidy [options]
+
+Options:"""
+    opts.on("-f", "--file json-file", "Coverity output file (json-format v10)") do |f|
+        $opt_file = f
+    end
+
+    opts.on("-h", "--help", "Show this message") do
+        puts opts
+        exit
+    end
+end
+
+def hash_lazy_inc hash, key
+  if hash[key].nil?
+    hash[key] = 1
+  else
+    hash[key] += 1
+  end
+end
+
+def hash_lazy_hash hash, key
+  if hash[key].nil?
+    hash[key] = {}
+  end
+  return hash[key]
+end
+
+def short_checker_name c
+  case c
+  when /MISRA C-2023 Directive (.*)/
+    return "D#{$1}"
+  when /MISRA C-2023 Rule (.*)/
+    return "R#{$1}"
+  else
+    return c
+  end
+end
+
+def long_checker_name c
+  s = short_checker_name(c)
+  if c != s
+    return "#{c} (#{s})"
+  end
+  return c
+end
+
+opt_parser.parse!(ARGV)
+
+$j = JSON.parse(File.read($opt_file))
+
+$top = File.dirname(File.dirname(File.expand_path(__FILE__)))
+Dir.chdir($top)
+
+$misra = JSON.parse(File.read(".cmake/misra-rule-db.json"))
+$misra_db = {}
+$misra["rules"].each do |r|
+  $misra_db[r["name"]] = r["description"]
+end
+
+def print_lines lines
+  lines.sort_by! { |e| e[0] }
+  lines.each do |l|
+    if $col_max != 0 and l[1].size > $col_max
+      s = l[1][0..($col_max - 4)]
+      s += "..."
+      puts s
+    else
+      puts l[1]
+    end
+  end
+end
+
+
+$file_status = {}
+$checker_status = {}
+
+$j["issues"].each do |i|
+  p = Pathname.new(i["mainEventFilePathname"]).relative_path_from($top).to_s
+  r = short_checker_name(i["checkerName"])
+  h = hash_lazy_hash($file_status, p)
+  hash_lazy_inc h, r
+  hash_lazy_inc $checker_status, i["checkerName"]
+end
+
+puts "Per checker status"
+puts "=================="
+puts ""
+
+max_length = 0
+$checker_status.each do |k, v|
+  ll = long_checker_name(k).size 
+  if ll > max_length
+    max_length = ll
+  end
+end
+
+total = 0
+lines = []
+$checker_status.each do |k, v|
+  l = "%-#{max_length}s  total: %4d" % [long_checker_name(k), v]
+  desc = $misra_db[k]
+  if desc
+    l += "  desc: #{desc}"
+  end
+  lines << [v, l]
+  total += v
+end
+print_lines lines
+puts "Total: #{total}"
+
+
+puts ""
+puts ""
+puts "Per file status"
+puts "==============="
+puts ""
+
+max_length = 0
+cols = []
+$file_status.each do |k, v|
+  if k.size > max_length
+    max_length = k.size
+  end
+  v.each do |c, cc|
+    cols << c
+  end
+end
+cols.uniq!
+
+lines = []
+$file_status.each do |k, v|
+  l = "%-#{max_length}s" % [k]
+  err_cnt = 0
+  err_list = []
+  cols.each do |c|
+    if v[c]
+      err_cnt += v[c]
+      err_list << [c, v[c]]
+    end
+  end
+  err_list.sort_by!{|x| x[1]}
+  err_list.collect!{|x| "#{x[0]}:#{x[1]}"}
+  err_list.reverse!
+  l += "  total: %4d, [#{err_list.join(", ")}]\n" % [err_cnt]
+  lines << [err_cnt, l]
+end
+print_lines lines
+
+if total == 0
+  exit 0
+else
+  exit 1
+end

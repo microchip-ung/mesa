@@ -63,10 +63,9 @@ macro(mesa_export_targets_recursive)
     set(visited )
 
     set(obj_target "EXECUTABLE"
-                   "STATIC"
                    "SHARED"
                    "MODULE"
-                   "OBJECT"
+                   "OBJECT_LIBRARY"
                    "STATIC_LIBRARY")
 
     set(props "BINARY_DIR"
@@ -113,6 +112,10 @@ macro(mesa_export_targets_recursive)
                 get_property(was_set TARGET ${l} PROPERTY ${p} SET)
                 if(was_set)
                     get_target_property(value ${l} ${p})
+                    if (${p} STREQUAL "INTERFACE_LINK_LIBRARIES")
+                        list(FILTER value EXCLUDE REGEX "LINK_ONLY:")
+                    endif()
+
                     string(APPEND t "${l} ${p} = ${value}\n")
                 endif()
 
@@ -121,7 +124,9 @@ macro(mesa_export_targets_recursive)
             get_property(type TARGET ${l} PROPERTY "TYPE")
             list(FIND obj_target ${type} found)
             if (NOT ${found} EQUAL -1)
-                string(APPEND t "${l} TARGET_FILE = $<TARGET_FILE:${l}>\n")
+                if (NOT type STREQUAL "OBJECT_LIBRARY")
+                    string(APPEND t "${l} TARGET_FILE = $<TARGET_FILE:${l}>\n")
+                endif()
                 string(APPEND t "${l} TARGET_OBJECTS = $<TARGET_OBJECTS:${l}>\n")
             endif()
 

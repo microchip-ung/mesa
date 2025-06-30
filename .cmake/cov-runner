@@ -1,0 +1,196 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'pp'
+require 'pty'
+require 'json'
+require 'open3'
+require 'thread'
+require 'optparse'
+require 'pathname'
+require 'shellwords'
+require_relative "cmake-targets"
+
+$opt_path = nil
+$opt_threads = (%x{grep -c ^processor /proc/cpuinfo}.to_i * 1.5).to_i
+$top = File.dirname(File.dirname(File.expand_path(__FILE__)))
+$cov_bin = "/opt/coverity/analysis/bin"
+
+opt_parser = OptionParser.new do |opts|
+  opts.banner = """Usage: lm-cov-runner [options]
+
+Options:"""
+  opts.on("-b", "--build NAME", "Name of build folder (must be present in project top)") do |p|
+    $opt_path = "#{$top}/#{p}"
+  end
+
+  opts.on("-t", "--target TARGET", "Target to run coverity on") do |t|
+    $opt_target = t
+  end
+
+  opts.on("-j", "--threads number", "Number of threads (defaults to 10)") do |t|
+    $opt_threads = t.to_i
+  end
+
+  opts.on("-v", "--verbose", "Be more verbose") do
+    $opt_verbose = 1
+  end
+
+  opts.on("-h", "--help", "Show this message") do
+    puts opts
+    exit
+  end
+end
+
+opt_parser.parse!(ARGV)
+
+def run cmd
+  puts cmd if $opt_verbose
+  o, e, s = Open3.capture3(cmd)
+  if $?.to_i != 0
+    raise "CMD: #{cmd} failed!"
+  end
+end
+
+if $opt_path.nil?
+  puts "Missing option: -b NAME"
+  exit -1
+end
+
+if $opt_target.nil?
+  puts "Missing option: -t TARGET"
+  exit -1
+end
+
+def coverity_derive_config cmd
+  conf = []
+  skip_next = false
+  cmd.split(" ").each do |e|
+    if not skip_next and (e == "-o" or e == "-c" or e == "-include" or e == "-x")
+      skip_next = true
+    elsif skip_next
+      skip_next = false
+    elsif e =~ /^-(I|D|O|W|g)/
+    else
+      conf << e
+    end
+  end
+
+  type = "unknown"
+  compiler = File.basename(conf[0])
+  case compiler
+  when /gcc/
+    type = "gcc"
+  when /clang/
+    type = "clang"
+  end
+
+  "#{$cov_bin}/cov-configure --config #{$opt_path}/cov_config/config_cc.xml --compiler #{conf[0]} --comptype #{type} -- #{conf.join(" ")}"
+end
+
+def coverity_output_message r
+  if r[:status] == 0
+    puts "OK: #{r[:file]}"
+    $cnt_ok += 1
+  else
+    pp r
+    $cnt_err += 1
+  end
+end
+
+$ct = CmakeTargets.new $opt_path
+$compile_command_records = []
+$ct.visit $opt_target do |n, t, i, s|
+  cmds = t["COMPILE_COMMANDS"]
+  $compile_command_records += cmds if cmds
+end
+
+$cnt_ok = 0
+$cnt_err = 0
+$confs = []
+work_q = Queue.new
+mutex = Mutex.new
+
+$compile_command_records.each do |e|
+  f = e["file"]
+
+  ff = Pathname.new(f).relative_path_from(Pathname.new(Dir.pwd)).to_s
+
+  # Do not run tidy on these
+  next if ff =~ /test/
+  next if ff =~ /third-party/
+  next if ff =~ /os\/drivers\/src\/atf\//
+  next if ff =~ /os\/drivers\/src\/atf_inc\//
+  next if ff.end_with?(".o")
+  next if ff.end_with?(".S")
+
+  record = {:file => ff }
+  $confs << coverity_derive_config(e["command"])
+  record[:cmd] = "#{$cov_bin}/cov-translate --emit-complementary-info --config #{$opt_path}/cov_config/config_cc.xml --dir #{$opt_path}/cov_output #{e["command"]}"
+  work_q.push record
+end
+
+$confs.uniq!
+run "rm -rf #{$opt_path}/cov_output"
+
+$confs.each do |c|
+  puts c
+  run c
+end
+
+workers = (0...$opt_threads).map do
+  Thread.new do
+    begin
+      while record = work_q.pop(true)
+        cmd = record[:cmd]
+        o = ""
+        e = ""
+        s = 0
+
+        time_start  = Time.now
+        o, e, s = Open3.capture3(cmd)
+        time_end = Time.now
+        time_spend = time_end - time_start
+        record[:stdout] = o
+        record[:stderr] = e
+        record[:status] = s
+        record[:timespend] = time_spend
+
+        mutex.synchronize {
+          coverity_output_message record
+        }
+
+      end
+    rescue ThreadError
+    end
+  end
+end
+
+workers.map(&:join)
+puts "Total: #{$cnt_ok + $cnt_err}, OK: #{$cnt_ok}, Error: #{$cnt_err}"
+
+# exclude_files = "--exclude-files '.*/devicetree_generated.h|third-party/.*|target/lan966x/lib/arm/cmsis/.*|target/lan966x/src/Include/mchp,lan966x_icpu.h'"
+exclude_files = ""
+system "/opt/coverity/analysis/bin/cov-analyze --export-summaries false --config #{$opt_path}/cov_config/config_cc.xml --dir #{$opt_path}/cov_output -s #{Dir.pwd} --coding-standard-config /opt/coverity/analysis/config/coding-standards/misrac2023/misrac2023-mandatory-required.config > /dev/null"
+
+system "/opt/coverity/analysis/bin/cov-format-errors --dir #{$opt_path}/cov_output #{exclude_files} --json-output-v10 #{$opt_path}/coverity-output.json"
+system "/opt/coverity/analysis/bin/cov-format-errors --dir #{$opt_path}/cov_output #{exclude_files} --text-output-style oneline"
+system "rm -rf #{$opt_path}/html_output"
+system "/opt/coverity/analysis/bin/cov-format-errors --dir #{$opt_path}/cov_output #{exclude_files} --html-output #{$opt_path}/html_output"
+
+puts ""
+puts ""
+puts "#{$top}/.cmake/coverity-parse-errors -f #{$opt_path}/coverity-output.json"
+system "#{$top}/.cmake/coverity-parse-errors -f #{$opt_path}/coverity-output.json"
+if $? != 0
+  $cnt_err += 1
+end
+
+if $cnt_err > 0
+  exit 1
+else
+  exit 0
+end
+
