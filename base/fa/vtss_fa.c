@@ -289,7 +289,7 @@ vtss_rc vtss_fa_sdx_counters_update(vtss_state_t              *vtss_state,
     /* Update ingress counters, if active */
     idx = stat_idx->idx;
     row = &vtss_state->l2.istat_table.row[idx / 8];
-    if (row->size != 0 && row->col[row->size * ((idx % 8) / row->size)].used) {
+    if (row->size != 0 && row->col[row->size * ((idx % 8) / row->size)].used != 0) {
         /* ISDX counters */
         c = &vtss_state->l2.sdx_info.sdx_table[idx];
         VTSS_RC(fa_evc_isdx_counter_update(vtss_state, idx, 0, &c->rx_green,
@@ -310,7 +310,7 @@ vtss_rc vtss_fa_sdx_counters_update(vtss_state_t              *vtss_state,
     /* Update egress counters, if active */
     idx = stat_idx->edx;
     row = &vtss_state->l2.estat_table.row[idx / 8];
-    if (row->size != 0 && row->col[row->size * ((idx % 8) / row->size)].used) {
+    if (row->size != 0 && row->col[row->size * ((idx % 8) / row->size)].used != 0) {
         c = &vtss_state->l2.sdx_info.sdx_table[idx];
         REG_WR(VTSS_XQS_STAT_CFG, VTSS_F_XQS_STAT_CFG_STAT_VIEW(idx));
         VTSS_RC(fa_evc_qsys_counter_update(vtss_state, 768, &c->tx_green,
@@ -1938,7 +1938,7 @@ static vtss_rc la_dsm_cal_delay_get(vtss_state_t *vtss_state,
     u32  dev;
     BOOL interlink_dev_used = FALSE;
 
-    if (!vtss_state->vtss_features[FEATURE_REDBOX]) {
+    if (vtss_state->vtss_features[FEATURE_REDBOX] == 0) {
         *delay = 0;
         return VTSS_RC_OK;
     }
@@ -2360,7 +2360,7 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
             // can index the rb_conf[] directly with the taxi bus number.
             rb_conf = &vtss_state->l2.rb_conf[taxi];
 
-            if (vtss_state->vtss_features[FEATURE_REDBOX] &&
+            if (vtss_state->vtss_features[FEATURE_REDBOX] != 0 &&
                 rb_conf->mode != VTSS_RB_MODE_DISABLED &&
                 (rb_conf->port_a == VTSS_PORT_NO_NONE || rb_conf->port_b == VTSS_PORT_NO_NONE)) {
                 // This SKU has the RedBox feature active, the RedBox is

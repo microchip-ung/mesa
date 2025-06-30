@@ -342,7 +342,7 @@ vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *table,
 
 vtss_rc vtss_vcap_range_commit(vtss_state_t *vtss_state, vtss_vcap_range_chk_table_t *range_new)
 {
-    if (VTSS_MEMCMP(&vtss_state->vcap.range, range_new, sizeof(*range_new))) {
+    if (VTSS_MEMCMP(&vtss_state->vcap.range, range_new, sizeof(*range_new)) != 0) {
         /* The temporary working copy has changed - Save it and commit */
         vtss_state->vcap.range = *range_new;
         return vtss_cil_vcap_range_commit(vtss_state);

@@ -399,7 +399,7 @@ vtss_rc vtss_register_access_mode_get(const vtss_inst_t inst, BOOL *spi_bus)
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
-    if (!spi_bus) {
+    if (spi_bus == NULL) {
         return VTSS_RC_ERROR;
     }
 
@@ -710,7 +710,7 @@ void vtss_tod_set_ns_cnt_cb(tod_get_ns_cnt_cb_t cb) { hw_get_ns_callout = cb; }
  */
 u32 vtss_tod_get_ns_cnt(void)
 {
-    if (hw_get_ns_callout) {
+    if (hw_get_ns_callout != NULL) {
         return hw_get_ns_callout();
     }
 #if defined(VTSS_FEATURE_TIMESTAMP)
@@ -1031,7 +1031,7 @@ vtss_rc vtss_debug_info_print_buf(const vtss_inst_t              inst,
         ss.buf.begin = buf;
         ss.buf.end = (buf + len);
         rc = vtss_cmn_debug_info_print(vtss_state, &ss, info);
-        if (ss.overflow) {
+        if (ss.overflow != 0) {
             rc = LM_RC_ERROR;
         }
     }

@@ -720,7 +720,7 @@ static u32 api_port(vtss_state_t *vtss_state, u32 chip_port)
                 break;
             }
         }
-        if (!found) {
+        if (found == 0) {
             VTSS_E("unknown chip port: %u, port_no: %d", chip_port, port_no);
         }
     }

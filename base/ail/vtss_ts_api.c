@@ -990,8 +990,8 @@ vtss_rc vtss_tx_timestamp_update(const vtss_inst_t inst)
                     ts.id = vtss_state->ts.status[ts_idx].tx_id[port_idx];
                     ts.ts = vtss_state->ts.status[ts_idx].tx_tc[port_idx];
                     ts.ts_valid = TRUE;
-                    if (vtss_state->ts.status[ts_idx].cb[port_idx] &&
-                        vtss_state->ts.status[ts_idx].context[port_idx]) {
+                    if (vtss_state->ts.status[ts_idx].cb[port_idx] != 0 &&
+                        vtss_state->ts.status[ts_idx].context[port_idx] != 0) {
                         my_vtss_state = vtss_state; /* save context */
                         /* avoid using vtss_state while outside the API lock, as
                          * the API may be called from an other thread */
@@ -1212,7 +1212,7 @@ vtss_rc vtss_timestamp_age(const vtss_inst_t inst)
                 ts.id = id;
                 ts.ts = 0;
                 ts.ts_valid = FALSE;
-                if (status->cb[port_idx] && status->context[port_idx]) {
+                if (status->cb[port_idx] != 0 && status->context[port_idx] != 0) {
                     // Avoid using vtss_state while outside the API lock, as the
                     // API may be called from an other thread
                     my_vtss_state = vtss_state;

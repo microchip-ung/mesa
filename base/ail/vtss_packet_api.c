@@ -773,7 +773,7 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
     vtss_debug_print_value(ss, "L3_OTHER", conf->map.l3_other_queue);
 #endif /* VTSS_FEATURE_LAYER3 */
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+    if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
         vtss_debug_print_value(ss, "SV", conf->map.sv_queue);
     }
 #endif

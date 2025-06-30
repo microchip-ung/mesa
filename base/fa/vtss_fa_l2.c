@@ -968,7 +968,7 @@ vtss_rc vtss_cil_l2_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id
 #endif
 
 #if defined(VTSS_FEATURE_FRER)
-    if (vtss_state->vtss_features[FEATURE_FRER]) {
+    if (vtss_state->vtss_features[FEATURE_FRER] != 0) {
         REG_WR(VTSS_ANA_AC_FRER_GEN_FRER_GEN(isdx),
                VTSS_F_ANA_AC_FRER_GEN_FRER_GEN_RESET(1) |
                    VTSS_F_ANA_AC_FRER_GEN_FRER_GEN_ENABLE(conf->frer.generation));
@@ -1007,7 +1007,7 @@ vtss_rc vtss_cil_l2_iflow_conf_set(vtss_state_t *vtss_state, const vtss_iflow_id
 #endif
 
 #if defined(VTSS_FEATURE_PSFP)
-    if (vtss_state->vtss_features[FEATURE_PSFP]) {
+    if (vtss_state->vtss_features[FEATURE_PSFP] != 0) {
         REG_WR(VTSS_ANA_L2_TSN_CFG(isdx),
                VTSS_F_ANA_L2_TSN_CFG_TSN_SFID(conf->psfp.filter_enable
                                                   ? fa_psfp_sfid(conf->psfp.filter_id)
@@ -1037,7 +1037,7 @@ vtss_rc vtss_cil_l2_icnt_get(vtss_state_t *vtss_state, u16 idx, vtss_ingress_cou
         counters->rx_discard = cnt.rx_discard;
         counters->tx_discard = cnt.tx_discard;
 #if defined(VTSS_FEATURE_PSFP)
-        if (vtss_state->vtss_features[FEATURE_PSFP]) {
+        if (vtss_state->vtss_features[FEATURE_PSFP] != 0) {
             if (vtss_state->init_conf.psfp_counters_enable) {
                 counters->rx_match = counters->rx_green.bytes;
                 counters->rx_green.bytes = 0;
@@ -1451,7 +1451,7 @@ vtss_rc vtss_cil_l2_cstream_conf_set(vtss_state_t *vtss_state, const vtss_frer_c
     vtss_frer_stream_conf_t *conf = &vtss_state->l2.cstream_conf[id];
     BOOL                     vector = (conf->alg == VTSS_FRER_RECOVERY_ALG_VECTOR);
 
-    if (!vtss_state->vtss_features[FEATURE_FRER]) {
+    if (vtss_state->vtss_features[FEATURE_FRER] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -1473,7 +1473,7 @@ vtss_rc vtss_cil_l2_mstream_conf_set(vtss_state_t *vtss_state, const u16 idx)
     vtss_frer_stream_conf_t *conf = &vtss_state->l2.mstream_conf[idx];
     BOOL                     vector = (conf->alg == VTSS_FRER_RECOVERY_ALG_VECTOR);
 
-    if (!vtss_state->vtss_features[FEATURE_FRER]) {
+    if (vtss_state->vtss_features[FEATURE_FRER] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -1519,7 +1519,7 @@ static vtss_rc fa_cstream_cnt_update(vtss_state_t                *vtss_state,
 {
     vtss_frer_chip_counters_t *c = &vtss_state->l2.cs_counters[id];
 
-    if (!vtss_state->vtss_features[FEATURE_FRER]) {
+    if (vtss_state->vtss_features[FEATURE_FRER] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -1547,7 +1547,7 @@ static vtss_rc fa_mstream_cnt_update(vtss_state_t         *vtss_state,
 {
     vtss_frer_chip_counters_t *c = &vtss_state->l2.ms_counters[idx];
 
-    if (!vtss_state->vtss_features[FEATURE_FRER]) {
+    if (vtss_state->vtss_features[FEATURE_FRER] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -1583,7 +1583,7 @@ vtss_rc vtss_cil_l2_psfp_gate_conf_set(vtss_state_t *vtss_state, const vtss_psfp
     vtss_psfp_gce_t       *gce;
     u32                    i, t = 0, sgid = fa_psfp_sgid(id);
 
-    if (!vtss_state->vtss_features[FEATURE_PSFP]) {
+    if (vtss_state->vtss_features[FEATURE_PSFP] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -1642,7 +1642,7 @@ vtss_rc vtss_cil_l2_psfp_gate_status_get(vtss_state_t                  *vtss_sta
     u32 value, prio, sgid = fa_psfp_sgid(id);
     u64 tc;
 
-    if (!vtss_state->vtss_features[FEATURE_PSFP]) {
+    if (vtss_state->vtss_features[FEATURE_PSFP] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -1673,7 +1673,7 @@ vtss_rc vtss_cil_l2_psfp_filter_conf_set(vtss_state_t *vtss_state, const vtss_ps
     vtss_psfp_filter_conf_t *conf = &vtss_state->l2.psfp.filter[id];
     u32 max_sdu = (conf->max_sdu ? conf->max_sdu : VTSS_M_ANA_AC_TSN_SF_CFG_TSN_SF_CFG_TSN_MAX_SDU);
 
-    if (!vtss_state->vtss_features[FEATURE_PSFP]) {
+    if (vtss_state->vtss_features[FEATURE_PSFP] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -1698,7 +1698,7 @@ vtss_rc vtss_cil_l2_psfp_filter_status_get(vtss_state_t                    *vtss
 {
     u32 value;
 
-    if (!vtss_state->vtss_features[FEATURE_PSFP]) {
+    if (vtss_state->vtss_features[FEATURE_PSFP] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -1712,7 +1712,7 @@ vtss_rc vtss_cil_l2_policer_status_get(vtss_state_t              *vtss_state,
                                        const u16                  idx,
                                        vtss_dlb_policer_status_t *status)
 {
-    if (!vtss_state->vtss_features[FEATURE_PSFP]) {
+    if (vtss_state->vtss_features[FEATURE_PSFP] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -1732,7 +1732,7 @@ vtss_rc vtss_cil_l2_rb_cap_get(vtss_state_t        *vtss_state,
     u32            port, id;
 
     for (port_no = 0; port_no < vtss_state->port_count; port_no++) {
-        if (!vtss_state->vtss_features[FEATURE_REDBOX]) {
+        if (vtss_state->vtss_features[FEATURE_REDBOX] == 0) {
             cap->port_list[port_no] = 0;
             continue;
         }
@@ -3123,14 +3123,14 @@ static vtss_rc fa_debug_vxlat(vtss_state_t                  *vtss_state,
     }
 #if defined(VTSS_FEATURE_FRER)
     if (a == 0 || a == 10) {
-        if (vtss_state->vtss_features[FEATURE_FRER]) {
+        if (vtss_state->vtss_features[FEATURE_FRER] != 0) {
             VTSS_RC(fa_debug_frer(vtss_state, ss, info));
         }
     }
 #endif
 #if defined(VTSS_FEATURE_PSFP)
     if (a == 0 || a == 11) {
-        if (vtss_state->vtss_features[FEATURE_PSFP]) {
+        if (vtss_state->vtss_features[FEATURE_PSFP] != 0) {
             VTSS_RC(fa_debug_psfp(vtss_state, ss, info));
         }
     }
@@ -3747,7 +3747,7 @@ vtss_rc vtss_fa_l2_debug_print(vtss_state_t                  *vtss_state,
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_STP, fa_debug_stp, vtss_state, ss, info));
     VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_MIRROR, fa_debug_mirror, vtss_state, ss, info));
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+    if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
         VTSS_RC(vtss_debug_print_group(VTSS_DEBUG_GROUP_REDBOX, fa_debug_redbox, vtss_state, ss,
                                        info));
     }
@@ -3848,7 +3848,7 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
 #endif
 
 #if defined(VTSS_FEATURE_FRER)
-    if (vtss_state->vtss_features[FEATURE_FRER]) {
+    if (vtss_state->vtss_features[FEATURE_FRER] != 0) {
         /* Enable R-tag awareness */
         REG_WR(VTSS_ANA_CL_RTAG_CFG, VTSS_F_ANA_CL_RTAG_CFG_RTAG_TPID_ENA(1));
         REG_WR(VTSS_EACL_RTAG_CFG, VTSS_F_EACL_RTAG_CFG_RTAG_TPID_ENA(1));
@@ -3862,7 +3862,7 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
 #endif
 
 #if defined(VTSS_FEATURE_PSFP)
-    if (vtss_state->vtss_features[FEATURE_PSFP]) {
+    if (vtss_state->vtss_features[FEATURE_PSFP] != 0) {
         /* PSFP CycleTime polling every 10 usec */
         value = (10000000 / vtss_fa_clk_period(vtss_state->init_conf.core_clock.freq));
         REG_WR(VTSS_ANA_AC_SG_ACCESS_SG_CYCLETIME_UPDATE_PERIOD,
@@ -3910,7 +3910,7 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
     REG_WR(VTSS_ANA_AC_TSN_SF_TSN_SF, VTSS_F_ANA_AC_TSN_SF_TSN_SF_MAX_SDU_CNT_INCL_BLOCKED(1));
 #endif
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+    if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
         for (i = 0; i < VTSS_REDBOX_CNT; i++) {
             VTSS_RC(fa_rb_host_cmd(vtss_state, i, FA_HT_CMD_CLEAR, 0));
             VTSS_RC(fa_rb_disc_cmd(vtss_state, i, FA_DT_CMD_CLEAR, 0));
@@ -3975,7 +3975,7 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
 #endif /* VTSS_FEATURE_VLAN_COUNTERS */
     }
 #if defined(VTSS_FEATURE_FRER)
-    if (vtss_state->vtss_features[FEATURE_FRER]) {
+    if (vtss_state->vtss_features[FEATURE_FRER] != 0) {
         /* Poll counters for 10 entries, giving 1536/10 = 153 seconds between
          * each poll */
         u32 mstream_cnt = VTSS_MSTREAM_CNT;
@@ -3998,7 +3998,7 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
     }
 #endif
 #if defined(VTSS_FEATURE_PSFP)
-    if (vtss_state->vtss_features[FEATURE_PSFP]) {
+    if (vtss_state->vtss_features[FEATURE_PSFP] != 0) {
         // Detect up to 10 DLB state changes
         for (i = 0; i < 10; i++) {
             u32 value;
@@ -4018,7 +4018,7 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
     }
 #endif
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+    if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
         // RedBox counters must also be polled at least every 288 seconds
         // (32-bit at 10 Gbps)
         idx = state->rb_poll_idx;

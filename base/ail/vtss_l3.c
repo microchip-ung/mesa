@@ -50,7 +50,7 @@ void vtss_l3_integrity_check(const vtss_state_t *vs, const char *file, unsigned 
     }
 
     if (sum != 0) {
-        if (file) {
+        if (file != NULL) {
             E("%s:%u CHECKSUM ERROR %x != %x", file, line, sum, vs->l3.checksum);
         } else {
             E("CHECKSUM ERROR %x != %x", sum, vs->l3.checksum);
@@ -170,7 +170,7 @@ static inline vtss_rc rleg_id_get_new(vtss_state_t                    *vtss_stat
     if (found_free) {
         D("%s:%d vlan: %u, rleg_id: %u", __FUNCTION__, __LINE__, new_rleg->vlan, free_id);
         rleg_conf[free_id] = *new_rleg;
-        if (rleg_id) {
+        if (rleg_id != NULL) {
             *rleg_id = free_id;
         }
         return VTSS_RC_OK;
@@ -196,11 +196,11 @@ static inline vtss_rc rleg_id_get(vtss_state_t        *vtss_state,
 
     for (i = 0; i < VTSS_RLEG_CNT; ++i) {
         if (rleg_conf[i].vlan == vlan) {
-            if (rleg_id) {
+            if (rleg_id != NULL) {
                 *rleg_id = i;
             }
 
-            if (rleg) {
+            if (rleg != NULL) {
                 *rleg = rleg_conf[i];
             }
 
@@ -1463,7 +1463,7 @@ static inline vtss_rc rt_del(vtss_state_t *vtss_state, const vtss_routing_entry_
         }
         prev_nh = NULL;
         for (nh = cur->grp->list, list = NULL; nh != NULL; nh = nh->next) {
-            if (nh_cmp(&nh->nh, &net_old.nh)) {
+            if (nh_cmp(&nh->nh, &net_old.nh) != 0) {
                 prev_nh = nh_alloc(vtss_state, &list, prev_nh, nh);
             }
         }

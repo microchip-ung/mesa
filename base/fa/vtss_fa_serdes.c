@@ -2124,7 +2124,7 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
     VTSS_RC(vtss_fa_port2sd(vtss_state, port_no, &indx, &type));
     sd_tgt = fa_get_lane_target(vtss_state, type, indx);
 
-    if (ss) {
+    if (ss != NULL) {
         pr("Adjust %s VGA\n", type == FA_SERDES_TYPE_10G  ? "10G"
                               : type == FA_SERDES_TYPE_6G ? "6G"
                                                           : "25G");
@@ -2138,7 +2138,7 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
                     VTSS_F_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0(cfg_eq_res),
                     VTSS_M_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0);
             eye_height = fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
-            if (ss) {
+            if (ss != NULL) {
                 pr("cfg_eq_res:%d eye_height:%d\n", cfg_eq_res, eye_height);
             }
             eye_arr[cfg_eq_res] = eye_height;
@@ -2149,7 +2149,7 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
         REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_0B(sd_tgt),
                 VTSS_F_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0(reg_val[indx]),
                 VTSS_M_SD10G_LANE_TARGET_LANE_0B_CFG_EQ_RES_3_0);
-        if (ss) {
+        if (ss != NULL) {
             pr("Using cfg_eq_res:%d \n", reg_val[indx]);
         }
     } else if (type == FA_SERDES_TYPE_25G) {
@@ -2201,7 +2201,7 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
         cfg_vga_ctrl = 0x6;
     }
 
-    if (ss) {
+    if (ss != NULL) {
         pr("Adjust %s EQR, start from %d :\n",
            type == FA_SERDES_TYPE_10G  ? "10G"
            : type == FA_SERDES_TYPE_6G ? "6G"
@@ -2222,7 +2222,7 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
 #endif
         }
         eye_height = fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
-        if (ss) {
+        if (ss != NULL) {
             pr("eqr_val:%d eye_height:%d\n", cfg_vga_ctrl, eye_height);
         }
 
@@ -2243,7 +2243,7 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
 #endif
     }
 
-    if (ss) {
+    if (ss != NULL) {
         pr("Using eqr_ctrl:%d \n", reg_val[indx]);
     }
 
@@ -2266,7 +2266,7 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
         cfg_eqc_force = 0x8;
     }
 
-    if (ss) {
+    if (ss != NULL) {
         pr("Adjust %s EQC, start from %d :\n",
            type == FA_SERDES_TYPE_10G  ? "10G"
            : type == FA_SERDES_TYPE_6G ? "6G"
@@ -2287,7 +2287,7 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
 #endif
         }
         eye_height = fa_eye_height_num(vtss_state, port_no, EYE_NUM_MEASURES);
-        if (ss) {
+        if (ss != NULL) {
             pr("cfg_eqc_force:%d eye_height:%d\n", cfg_eqc_force, eye_height);
         }
         eye_arr[cfg_eqc_force] = eye_height;
@@ -2307,7 +2307,7 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
 #endif
     }
 
-    if (ss) {
+    if (ss != NULL) {
         pr("Using cfg_eqc_force:%d \n", reg_val[indx]);
     }
     return VTSS_RC_OK;

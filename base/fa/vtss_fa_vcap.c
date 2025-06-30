@@ -777,7 +777,7 @@ static vtss_rc fa_vcap_range_commit(vtss_state_t                *vtss_state,
     vtss_vcap_range_chk_table_t *table = fa_vcap_range_get(vtss_state, vcap_type);
 
     if (new_table != NULL) {
-        if (!VTSS_MEMCMP(table, new_table, sizeof(*table))) {
+        if (VTSS_MEMCMP(table, new_table, sizeof(*table)) == 0) {
             /* Table unchanged */
             return VTSS_RC_OK;
         }
@@ -1210,7 +1210,7 @@ static vtss_rc fa_debug_vcap(vtss_state_t                  *vtss_state,
                                           FA_VCAP_SEL_COUNTER));
             }
         }
-        if (!found && !info->full) {
+        if (found == 0 && !info->full) {
             break;
         }
     }
@@ -3055,7 +3055,7 @@ static vtss_rc fa_is2_entry_add(vtss_state_t     *vtss_state,
             info.ip4 = (ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
             fa_ace_key_bit_set(data, IS2_KO_IP_7TUPLE_L3_TTL_GT0, ipv4 ? ipv4->ttl : ipv6->ttl);
             fa_vcap_key_u8_set(data, IS2_KO_IP_7TUPLE_L3_TOS, ipv4 ? &ipv4->ds : &ipv6->ds);
-            if (ipv4) {
+            if (ipv4 != NULL) {
                 /* IPv4 */
                 VTSS_MEMSET(&sip, 0, sizeof(sip));
                 VTSS_MEMSET(&dip, 0, sizeof(dip));
@@ -3202,7 +3202,7 @@ static vtss_rc fa_is2_entry_add(vtss_state_t     *vtss_state,
         fa_ace_key_bit_set(data, IS2_KO_X6_L3_TTL_GT0, ipv4 ? ipv4->ttl : ipv6->ttl);
         fa_vcap_key_bit_set(data, IS2_KO_X6_IP4, ipv4 ? VTSS_VCAP_BIT_1 : VTSS_VCAP_BIT_0);
         fa_vcap_key_u8_set(data, IS2_KO_X6_L3_TOS, ipv4 ? &ipv4->ds : &ipv6->ds);
-        if (ipv4) {
+        if (ipv4 != NULL) {
             fa_ace_key_bit_set(data, IS2_KO_X6_L3_FRAGMENT_TYPE, ipv4->fragment);
             fa_ace_key_bit_set(data, IS2_KO_X6_L3_OPTIONS, ipv4->options);
             fa_vcap_key_ipv4_set(data, IS2_KO_X6_L3_IP4_DIP, &ipv4->dip);
@@ -4463,7 +4463,7 @@ vtss_rc vtss_cil_vcap_hace_add(vtss_state_t            *vtss_state,
             prl = &prl_range[add_cnt];
             if (key_size == VTSS_VCAP_KEY_SIZE_FULL) {
                 prl->mask[i] = pmask.m[i];
-            } else if (pmask.m[i]) {
+            } else if (pmask.m[i] != 0) {
                 prl->rng = i;
                 prl->mask[0] = pmask.m[i];
                 add_cnt++;
@@ -4507,7 +4507,7 @@ vtss_rc vtss_cil_vcap_hace_add(vtss_state_t            *vtss_state,
         sport = &entry.ace.key.ipv6.sport;
         dport = &entry.ace.key.ipv6.dport;
     }
-    if (sport && dport) {
+    if (sport != NULL && dport != NULL) {
         VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->srange, sport, 1));
         VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->drange, dport, 0));
     }
@@ -5142,7 +5142,7 @@ static vtss_rc fa_es0_entry_add(vtss_state_t     *vtss_state,
     FA_ACT_SET(ES0, ES0_SWAP_MACS_ENA, action->mac_swap_enable);
 
 #if defined(VTSS_FEATURE_FRER)
-    if (vtss_state->vtss_features[FEATURE_FRER]) {
+    if (vtss_state->vtss_features[FEATURE_FRER] != 0) {
         FA_ACT_SET(ES0, ES0_RTAG_POP_ENA, action->rtag.pop);
         FA_ACT_SET(ES0, ES0_RTAG_PUSH_SEL, action->rtag.sel);
     }

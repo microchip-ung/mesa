@@ -3003,7 +3003,7 @@ static vtss_rc fa_rgmii_setup(vtss_state_t         *vtss_state,
             VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_SEL | VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA |
                 VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST | VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA);
 
-    REG_WRM(VTSS_HSIOWRAP_XMII_CFG(!inst), // XMII_CFG index is swapped
+    REG_WRM(VTSS_HSIOWRAP_XMII_CFG(inst), // XMII_CFG index is swapped
             VTSS_F_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(1), VTSS_M_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG);
 
     return VTSS_RC_OK;
@@ -4054,7 +4054,7 @@ static vtss_rc fa_port_counters_chip(vtss_state_t               *vtss_state,
         REG_CNT_1G_ONE(TX_XDEFER, i, &c->tx_xdefer, cmd);
         REG_CNT_1G_ONE(TX_BACKOFF1, i, &c->tx_backoff1, cmd);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] != 0) {
             REG_CNT_1G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, cmd);
             REG_CNT_1G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, cmd);
             REG_CNT_1G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, cmd);
@@ -4104,7 +4104,7 @@ static vtss_rc fa_port_counters_chip(vtss_state_t               *vtss_state,
         REG_CNT_10G(TX_SIZE1024TO1518, i, &c->tx_size1024_1518, cmd);
         REG_CNT_10G(TX_SIZE1519TOMAX, i, &c->tx_size1519_max, cmd);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] != 0) {
             REG_CNT_10G_ONE(MM_RX_ASSEMBLY_ERR, i, &c->rx_mm_assembly_errors, cmd);
             REG_CNT_10G_ONE(MM_RX_SMD_ERR, i, &c->rx_mm_smd_errors, cmd);
             REG_CNT_10G_ONE(MM_RX_ASSEMBLY_OK, i, &c->rx_mm_assembly_ok, cmd);
@@ -4242,7 +4242,7 @@ static vtss_rc fa_port_counters_chip(vtss_state_t               *vtss_state,
     counters->bridge.dot1dTpPortInDiscards = c->rx_local_drops.value;
 #endif /* VTSS_FEATURE_PORT_CNT_BRIDGE */
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-    if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+    if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] != 0) {
         {
             vtss_port_dot3br_counters_t *dot3br = &counters->dot3br;
 
@@ -5031,7 +5031,7 @@ static vtss_rc fa_debug_port_counters(vtss_state_t                  *vtss_state,
         fa_debug_mix_cnt(ss, "oversize", "xdefer", &cnt.rx_oversize, &cnt.tx_xdefer);
         fa_debug_mix_cnt(ss, "jabbers", "backoff1", &cnt.rx_jabbers, &cnt.tx_backoff1);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] != 0) {
             /* 802.3br counters */
             vtss_fa_debug_cnt(ss, "mm_ass_err", NULL, &cnt.rx_mm_assembly_errors, NULL);
             vtss_fa_debug_cnt(ss, "mm_smd_err", NULL, &cnt.rx_mm_smd_errors, NULL);

@@ -331,7 +331,7 @@ vtss_rc vtss_cil_packet_rx_conf_set(vtss_state_t *vtss_state)
                VTSS_F_ANA_L3_CPU_QU_CFG_CPU_IP_TTL_FAIL_QU(map->l3_other_queue));
 #endif
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+    if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
         // RedBox CPU queues
         for (i = 0; i < VTSS_REDBOX_CNT; i++) {
             j = RB_TGT(i);
@@ -613,7 +613,7 @@ vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
     // (Laguna) Bit 279-287 (9 bits) are unused
 
 #if defined(VTSS_FEATURE_REDBOX)
-    if (state->vtss_features[FEATURE_REDBOX]) {
+    if (state->vtss_features[FEATURE_REDBOX] != 0) {
         // RedBox is bit 270-278 (9 bits)
         rb = ((xtr_hdr[1] & 0x7f) << 2) | ((xtr_hdr[2] & 0xc0) >> 6);
     }
@@ -1139,7 +1139,7 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(vtss_state_t *const                vtss_st
                         40); // TS = 40 bits PTP time stamp
 
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+    if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
         if (info->rb_tag_disable) {
             IFH_ENCODE_BITFIELD(bin_hdr, 1, 272, 1); // Disable RedBox tagging
         }

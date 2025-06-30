@@ -482,7 +482,7 @@ vtss_rc vtss_update_masks(vtss_state_t *vtss_state,
     }
 
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+    if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
         // Rx/Tx forwarding also depends on RedBox configuration
         for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
             vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
@@ -1484,7 +1484,7 @@ vtss_rc vtss_port_state_set(const vtss_inst_t inst, const vtss_port_no_t port_no
         }
 #endif /* defined(VTSS_FEATURE_AFI_SWC) */
 #if defined(VTSS_FEATURE_REDBOX)
-        if (vtss_state->vtss_features[FEATURE_REDBOX]) {
+        if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
             if (rc == VTSS_RC_OK) {
                 vtss_rb_id_t    id;
                 vtss_rb_conf_t *conf;
@@ -3495,7 +3495,7 @@ alloc_ok:
     VTSS_I("%s, %s, row: %u, col: %u, idx: %u, count: %u", hdr->name, txt, row_idx, col_idx, *idx,
            count);
     for (i = 0; clear && i < count; i++) {
-        if (hdr->clear) {
+        if (hdr->clear != NULL) {
             VTSS_RC(hdr->clear(vtss_state, *idx + i));
         }
     }
@@ -8072,7 +8072,7 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_get(vtss_state_t                    *vtss_
 BOOL vtss_vlan_counters_enabled(vtss_state_t *vtss_state)
 {
 #if defined(VTSS_ARCH_FA)
-    if (!vtss_state->vtss_features[FEATURE_VLAN_COUNTERS]) {
+    if (vtss_state->vtss_features[FEATURE_VLAN_COUNTERS] == 0) {
         // VLAN counters are not supported by target
         return FALSE;
     }
@@ -9322,7 +9322,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
         if (m == VTSS_RB_MODE_DISABLED && !info->full) {
             continue;
         }
-        if (header) {
+        if (header != 0) {
             header = 0;
             pr("ID  Mode      Port A/B  NetId  LanId  NT DMAC Dis  NT Age  PNT Age  DD Age  SV       SV-Discard\n");
         }
@@ -9352,7 +9352,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
                                              : "CpuOnly",
            conf->sv_discard ? 1 : 0);
     }
-    if (!header) {
+    if (header == 0) {
         pr("\n");
         header = 1;
     }
@@ -9383,7 +9383,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
                                : vtss_cil_l2_rb_node_get_next(vtss_state, i, &node.mac, &node));
             if (rc != VTSS_RC_OK) {
                 break;
-            } else if (header) {
+            } else if (header != 0) {
                 pr("RedBox %u Node Table:\n\n", i);
                 pr("MAC Address        ID    Locked  Type  Fwd A/B  Age A/B  Rx Total A/B           Rx WrongLan A/B\n");
                 header = 0;
@@ -9405,7 +9405,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
             pr("%-23s", buf.s);
             pr("%u/%u\n", node.port_a.cnt.rx_wrong_lan, node.port_b.cnt.rx_wrong_lan);
         }
-        if (!header) {
+        if (header == 0) {
             pr("\n");
             header = 1;
         }
@@ -9417,7 +9417,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
                       : vtss_cil_l2_rb_proxy_node_get_next(vtss_state, i, &pnode.mac, &pnode));
             if (rc != VTSS_RC_OK) {
                 break;
-            } else if (header) {
+            } else if (header != 0) {
                 pr("RedBox %u Proxy Node Table:\n\n", i);
                 pr("MAC Address        ID    Locked  Type  Age    Rx Total\n");
                 header = 0;
@@ -9430,7 +9430,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
                                                            : "?",
                pnode.age, pnode.cnt.rx);
         }
-        if (!header) {
+        if (header == 0) {
             pr("\n");
             header = 1;
         }
@@ -9476,9 +9476,10 @@ void vtss_l2_debug_print(vtss_state_t                  *vtss_state,
     vtss_debug_print_ipmc(vtss_state, ss, info);
 #endif /* VTSS_FEATURE_IPV4_MC_SIP || VTSS_FEATURE_IPV6_MC_SIP */
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
-        if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_REDBOX))
+    if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
+        if (vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_REDBOX)) {
             vtss_debug_print_redbox(vtss_state, ss, info);
+        }
     }
 #endif
 }

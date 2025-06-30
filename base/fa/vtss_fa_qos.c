@@ -1723,7 +1723,7 @@ static vtss_rc fa_qos_queue_cut_through_set(vtss_state_t *vtss_state, const vtss
     }
     for (q = 0; q < 8; q++) {
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] != 0) {
             // If frame preemption is enabled, cut-through is disabled
             if (conf->enable_tx && conf->admin_status[q]) {
                 continue;
@@ -4079,7 +4079,7 @@ vtss_rc vtss_cil_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
     vtss_port_speed_t        speed = vtss_state->port.conf[port_no].speed;
     BOOL                     verify_dis = !(!conf->verify_disable_tx && conf->enable_tx);
 
-    if (!vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+    if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] == 0) {
         VTSS_D("No Frame preemption feature");
         return VTSS_RC_ERROR;
     }
@@ -4167,7 +4167,7 @@ vtss_rc vtss_cil_qos_fp_port_status_get(vtss_state_t                    *vtss_st
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     vtss_port_speed_t        speed = vtss_state->port.conf[port_no].speed;
 
-    if (!vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+    if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] == 0) {
         return VTSS_RC_ERROR;
     }
 
@@ -5816,7 +5816,7 @@ static vtss_rc fa_qos_init(vtss_state_t *vtss_state)
         }
 #endif
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] != 0) {
             vtss_state->qos.fp.port_conf[port_no].add_frag_size =
                 1; // P_MIN_SIZE default value is 1
         }
@@ -5892,7 +5892,7 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
         REG_WRM(VTSS_XQS_FWD_CT_CFG(port), VTSS_F_XQS_FWD_CT_CFG_FWD_CT_ENA(0),
                 VTSS_M_XQS_FWD_CT_CFG_FWD_CT_ENA);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+        if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION] != 0) {
             // Always enable Rx frame preemption
             DEV_WR(ENABLE_CONFIG, port,
                    VTSS_F_DEV1G_ENABLE_CONFIG_MM_RX_ENA(1) |
