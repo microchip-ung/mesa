@@ -75,28 +75,23 @@ def nano_corr_lowest_measure(ip="")
     return $nano_corr_loewst,$range
 end
 
-def tc_to_tod_nano(tc)
+def tc_to_tod_nano(tc, tod)
     $tod_nano_ret = 0
 
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
         tc = tc >> 16
         test "tc_to_tod_nano  tc = #{tc}" do
     
-        tod_ret  = $ts.dut.call("mesa_ts_timeofday_get")
-        tod_tc = (tod_ret[1] >> 16)
-        if (tod_tc < tc)
-            t_i("TOD tc has wrapped. tc #{tc}  tod_tc #{tod_tc}  diff #{tc - tod_tc}")
-            tod_tc += 0xFFFFFFFF    # Add 0xFFFFFFFF to TOD tc
+        tod_tc = (tod[1] >> 16)
+        if (tod_tc > tc)
+            t_i("tc has wrapped. tc #{tc}  tod_tc #{tod_tc}  diff #{tod_tc - tc}")
+            tc += 0xFFFFFFFF    # Add 0xFFFFFFFF to tc
         end
-        diff_tc = tod_tc - tc
-        if (diff_tc > tod_ret[0]["nanoseconds"])
-            t_i("TOD nanoseconds has wrapped")
-            tod_ret[0]["nanoseconds"] += (1000000000*(diff_tc/1000000000))    # Add seconds to TOD nanoseconds
-        end
-        $tod_nano_ret = (tod_ret[0]["nanoseconds"] - diff_tc) & 0x3FFFFFFF
-    
-        t_i("tc = #{tc}  tod_tc = #{tod_tc}  tod[nanoseconds] = #{tod_ret[0]["nanoseconds"]}  diff_tc = #{diff_tc}  tod_nano_ret = #{$tod_nano_ret}")
-    
+        diff_tc = tc - tod_tc
+        diff_ns = diff_tc % 1000000000
+        tod_ns = tod[0]["nanoseconds"] + diff_ns
+        $tod_nano_ret = tod_ns % 1000000000
+        t_i("diff_tc #{diff_tc}  diff_ns #{diff_ns}  tod_ns #{tod_ns}  $tod_nano_ret #{$tod_nano_ret}")
         end
     end
     $tod_nano_ret << 16

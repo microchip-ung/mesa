@@ -68,6 +68,7 @@ def tod_internal_mode_ingress_node_test
     t_i ("Transmit a Two-Step SYNC frame into NPI port with the allocated timestamp id")
     frameHdrTx = frame_create("00:02:03:04:05:06", "00:08:09:0a:0b:0c")
     frametx = tx_ifh_create($loop_port0, "MESA_PACKET_PTP_ACTION_TWO_STEP", idx["ts_id"]<<16) + frameHdrTx.dup + sync_pdu_create()
+    tod_ret  = $ts.dut.call("mesa_ts_timeofday_get")
     frame_tx(frametx, $npi_port, " ", " ", " ", " ", 60)
 
     t_i("Update the TX FIFO in AIL. This will cause callback to Json with the TX timestamp")
@@ -78,7 +79,7 @@ def tod_internal_mode_ingress_node_test
 
     t_i("Calculate the TX TOD nanoseconds based on TX time stamp")
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        tod_nano_tx = tc_to_tod_nano(ts_tx["ts"])
+        tod_nano_tx = tc_to_tod_nano(ts_tx["ts"], tod_ret)
     else
         tod_nano_tx = ts_tx["ts"]
     end
@@ -95,9 +96,9 @@ def tod_internal_mode_ingress_node_test
 
     # check that the transmitted frame is containing expected TS in reserved fields
     diff = frame_ts - (tod_nano_tx>>16)
-    t_i("Difference between frame and TX-FIFO #{diff}")
+    t_i("Difference between frame and TX-FIFO #{diff}  frame_ts #{frame_ts}  tod_nano_tx #{tod_nano_tx>>16}")
     if ((diff < 0) || (diff > $max_diff))
-        t_e("SYNC PDU reserved field not as expected.   frame_ts #{frame_ts}   tod_nano_tx #{tod_nano_tx>>16}")
+        t_e("SYNC PDU reserved field not as expected.")
     end
 
     # age out the allocated timestamps id's
@@ -148,6 +149,7 @@ def tod_internal_mode_egress_node_test
     $ts.dut.call("mesa_ts_timeofday_set", tod_ts[0])
 
     t_i("Transmit the Two-Step SYNC frame into NPI port")
+    tod_ret  = $ts.dut.call("mesa_ts_timeofday_get")
     frame_tx(frametx, $npi_port, " " , " ", " ", " ", 60)
 
     t_i ("Update the TX FIFO in AIL. This will cause callback to Json with the TX timestamp")
@@ -158,7 +160,7 @@ def tod_internal_mode_egress_node_test
 
     t_i ("Calculate the TX TOD nanoseconds based on TX time stamp")
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2"))
-        tod_nano_tx = tc_to_tod_nano(ts_tx["ts"])
+        tod_nano_tx = tc_to_tod_nano(ts_tx["ts"], tod_ret)
     else
         tod_nano_tx = ts_tx["ts"]
     end
