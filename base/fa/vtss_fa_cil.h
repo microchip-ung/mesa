@@ -109,9 +109,9 @@
 #define RT_RES_CFG_MAX_PRIO_IDX   630
 #define RT_RES_CFG_MAX_COLOUR_IDX 638
 #define RT_CORE_QUEUE_CNT         40460
-#define RT_TAS_NUMBER_OF_LISTS    (0x7F + 1)
+#define RT_TAS_NUMBER_OF_LISTS    128
 #define RT_TAS_NUMBER_OF_PROFILES 100
-#define RT_TAS_NUMBER_OF_ENTRIES  (0x3FFF + 1)
+#define RT_TAS_NUMBER_OF_ENTRIES  10000
 #define RT_HSCH_LAYERS            4
 #define RT_HSCH_L0_SES            5040
 #define RT_HSCH_SE_HIGH           4480
@@ -158,8 +158,8 @@
 #define RT_RES_CFG_MAX_COLOUR_IDX     323
 #define RT_CORE_QUEUE_CNT             9030
 #define RT_TAS_NUMBER_OF_LISTS        60
-#define RT_TAS_NUMBER_OF_PROFILES     60
-#define RT_TAS_NUMBER_OF_ENTRIES      (0x1FFF + 1)
+#define RT_TAS_NUMBER_OF_PROFILES     30
+#define RT_TAS_NUMBER_OF_ENTRIES      3000
 #define RT_HSCH_LAYERS                4
 #define RT_HSCH_L0_SES                1120
 #define RT_HSCH_SE_HIGH               1120

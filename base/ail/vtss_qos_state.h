@@ -458,9 +458,16 @@ typedef struct {
 
 #if defined(VTSS_FEATURE_QOS_TAS)
 #if defined(VTSS_ARCH_FA)
-#define VTSS_TAS_NUMBER_OF_LISTS    (0x7F + 1)
+#if defined(VTSS_ARCH_SPARX5)
+#define VTSS_TAS_NUMBER_OF_LISTS    128
 #define VTSS_TAS_NUMBER_OF_PROFILES 100
-#define VTSS_TAS_NUMBER_OF_ENTRIES  (0x3FFF + 1)
+#define VTSS_TAS_NUMBER_OF_ENTRIES  10000
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+#define VTSS_TAS_NUMBER_OF_LISTS    60
+#define VTSS_TAS_NUMBER_OF_PROFILES 30
+#define VTSS_TAS_NUMBER_OF_ENTRIES  3000
+#endif
 #if VTSS_OPT_LIGHT
 #define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK                                                       \
     8 /* Number of entries per block. This is the minimum allocated number of                      \
@@ -485,9 +492,9 @@ typedef struct {
 #endif
 
 #if defined(VTSS_ARCH_LAN966X)
-#define VTSS_TAS_NUMBER_OF_LISTS    (0x1F + 1)
+#define VTSS_TAS_NUMBER_OF_LISTS    24
 #define VTSS_TAS_NUMBER_OF_PROFILES 16
-#define VTSS_TAS_NUMBER_OF_ENTRIES  (0xFFF + 1)
+#define VTSS_TAS_NUMBER_OF_ENTRIES  256
 #endif
 
 typedef struct {
