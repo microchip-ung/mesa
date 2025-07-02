@@ -3007,7 +3007,7 @@ static vtss_rc fa_rgmii_setup(vtss_state_t         *vtss_state,
             VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_SEL | VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA |
                 VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST | VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA);
 
-    REG_WRM(VTSS_HSIOWRAP_XMII_CFG(inst), // XMII_CFG index is swapped
+    REG_WRM(VTSS_HSIOWRAP_XMII_CFG(inst == 0 ? 1 : 0), // XMII_CFG index is swapped
             VTSS_F_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(1), VTSS_M_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG);
 
     return VTSS_RC_OK;
