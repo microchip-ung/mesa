@@ -61,24 +61,12 @@ void vsim_nsleep(u32 n);
 #else
 /** Sleep for \param nsec nanoseconds */
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_NSLEEP(nsec)                                                                          \
-    {                                                                                              \
-        struct timespec ts;                                                                        \
-        ts.tv_sec = 0;                                                                             \
-        ts.tv_nsec = nsec;                                                                         \
-        while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {                                      \
-        }                                                                                          \
-    }
+#define VTSS_NSLEEP(nsec)  vtss_os_nsleep(nsec)
+extern void vtss_os_nsleep(u32 nsec);
 
 /** Sleep for \param msec milliseconds */
-#define VTSS_MSLEEP(msec)                                                                          \
-    {                                                                                              \
-        struct timespec ts;                                                                        \
-        ts.tv_sec = msec / 1000;                                                                   \
-        ts.tv_nsec = (msec % 1000) * 1000000;                                                      \
-        while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {                                      \
-        }                                                                                          \
-    }
+#define VTSS_MSLEEP(msec)  vtss_os_nsleep(msec)
+extern void vtss_os_msleep(u32 msec);
 #endif // _VTSS_MAIN_TYPES_H_
 #endif /* BOARD_SERVAL_VSIM */
 

@@ -4,22 +4,22 @@
 #ifndef _VTSS_FA_LAN969X_H_
 #define _VTSS_FA_LAN969X_H_
 
-#define TAS_LIST_STATE_ADMIN       0
-#define TAS_LIST_STATE_ADVANCING   1
-#define TAS_LIST_STATE_PENDING     2
-#define TAS_LIST_STATE_OPERATING   3
-#define TAS_LIST_STATE_TERMINATING 4
+#define TAS_LIST_STATE_ADMIN       0U
+#define TAS_LIST_STATE_ADVANCING   1U
+#define TAS_LIST_STATE_PENDING     2U
+#define TAS_LIST_STATE_OPERATING   3U
+#define TAS_LIST_STATE_TERMINATING 4U
 
-#define TAS_LIST_IDX_NONE    0xFFFFFFFF
-#define TAS_PROFILE_IDX_NONE 0xFFFFFFFF
-#define TAS_ENTRY_IDX_NONE   0xFFFFFFFF
+#define TAS_LIST_IDX_NONE    0xFFFFFFFFU
+#define TAS_PROFILE_IDX_NONE 0xFFFFFFFFU
+#define TAS_ENTRY_IDX_NONE   0xFFFFFFFFU
 
-#define FA_HSCH_L0_SE(port, queue) FA_TGT ? ((64 * port) + (8 * queue)) : LA_HSCH_L0_SE(port, queue)
-#define FA_HSCH_TAS_SE(port, ot)   FA_TGT ? (5040 + 64 + port) : LA_HSCH_TAS_SE(port, ot)
-#define FA_HSCH_L0_OT_SE(port)     (RT_HSCH_L0_SES - 35 + port)
+#define FA_HSCH_L0_SE(port, queue) FA_TGT ? ((64U * port) + (8U * queue)) : LA_HSCH_L0_SE(port, queue)
+#define FA_HSCH_TAS_SE(port, ot)   FA_TGT ? (5040U + 64U + port) : LA_HSCH_TAS_SE(port, ot)
+#define FA_HSCH_L0_OT_SE(port)     (RT_HSCH_L0_SES - 35U + port)
 
 #define LA_HSCH_TAS_SE(port, ot)   ((ot) ? (FA_HSCH_L0_OT_SE(port)) : (RT_HSCH_L0_SES + port))
-#define LA_HSCH_L0_SE(port, queue) ((32 * port) + (4 * queue))
+#define LA_HSCH_L0_SE(port, queue) ((32U * port) + (4U * queue))
 
 #if defined(VTSS_FEATURE_QOS_TAS)
 u32     lan969x_tas_list_allocate(vtss_state_t *vtss_state, u32 length);

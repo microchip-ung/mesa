@@ -124,4 +124,22 @@ __attribute__((weak)) void vtss_os_free(void *ptr, vtss_mem_flags_t flags) { fre
 
 __attribute__((weak)) uintptr_t vtss_os_cpu_to_dma_addr(void *ptr) { return 0; }
 
+__attribute__((weak)) void vtss_os_nsleep(u32 nsec)
+{
+    struct timespec ts;
+    ts.tv_sec = 0;
+    ts.tv_nsec = nsec;
+    while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
+    }
+}
+
+__attribute__((weak)) void vtss_os_msleep(u32 msec)
+{
+    struct timespec ts;
+    ts.tv_sec = msec / 1000;
+    ts.tv_nsec = (msec % 1000) * 1000000;
+    while (nanosleep(&ts, &ts) == -1 && errno == EINTR) {
+    }
+}
+
 #endif

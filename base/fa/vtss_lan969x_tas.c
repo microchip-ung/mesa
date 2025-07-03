@@ -14,8 +14,8 @@ static u32 tas_op_type_calc(vtss_qos_tas_gco_t gate_operation)
     case VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC:    return 3U;
     }
 
-    VTSS_E("Unknown register QSYS:TAS_GCL_CFG:TAS_GCL_CTRL_CFG.OP_TYPE value");
-    return VTSS_QOS_TAS_GCO_SET_GATE_STATES;
+    VTSS_E("Unknown Gate Operation %u", gate_operation);
+    return 0U;
 }
 
 static vtss_qos_tas_gco_t tas_gate_operation_calc(u32 value)
@@ -26,7 +26,7 @@ static vtss_qos_tas_gco_t tas_gate_operation_calc(u32 value)
     case 3: return VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC;
     }
 
-    VTSS_E("Unknown register QSYS:TAS_GCL_CFG:TAS_GCL_CTRL_CFG.OP_TYPE value");
+    VTSS_E("Unknown register QSYS:TAS_GCL_CFG:TAS_GCL_CTRL_CFG.OP_TYPE value %u", value);
     return VTSS_QOS_TAS_GCO_SET_GATE_STATES;
 }
 
@@ -143,7 +143,8 @@ vtss_rc lan969x_tas_current_port_conf_calc(vtss_state_t             *vtss_state,
                                            vtss_port_no_t            port_no,
                                            vtss_qos_tas_port_conf_t *current_port_conf)
 {
-    u32                   msb, store, value, entry_idx, entry_first, gcl_idx, gate_state;
+    u32                   msb, store, value, entry_idx, entry_first, gcl_idx;
+    u8                    gate_state;
     vtss_tas_gcl_state_t *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
 
     VTSS_MEMSET(current_port_conf, 0, sizeof(*current_port_conf));
@@ -232,11 +233,11 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
                                vtss_qos_tas_port_conf_t *port_conf,
                                u32                       startup_time)
 {
-    u32            gcl_idx, value, time_interval_sum = 0U;
-    u32            maxsdu, i, hold_advance;
-    u32            profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
-    u32            entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
-    vtss_port_no_t chip_port = VTSS_CHIP_PORT(port_no);
+    u32 gcl_idx, value, time_interval_sum = 0U;
+    u32 maxsdu, i, hold_advance;
+    u32 profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
+    u32 entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
+    u32 chip_port = (u32)VTSS_CHIP_PORT(port_no);
 
     vtss_timestamp_t   *base_time = &port_conf->base_time;
     u32                 cycle_time = port_conf->cycle_time;
@@ -246,7 +247,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
     u16 *max_sdu = port_conf->max_sdu;
     u8   preemptable = 0;
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-    u32 fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1 : 0);
+    u32 fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1U : 0U);
 #else
     u32 fp_enable_tx = FALSE;
 #endif
@@ -315,8 +316,8 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
         REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i),
                VTSS_F_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(maxsdu));
         REG_WR(VTSS_HSCH_QMAXSDU_DISC_CFG(profile_idx, i),
-               VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_DISC_ENA((maxsdu != 0) ? 1 : 0) |
-                   VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB(max_sdu[i] % 64));
+               VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_DISC_ENA((maxsdu != 0U) ? 1U : 0U) |
+                   VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB(max_sdu[i] % 64U));
     }
 
     REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &value);
@@ -382,7 +383,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
 
 vtss_rc lan966x_tas_frag_size_update(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no)
 {
-    vtss_port_no_t            chip_port = VTSS_CHIP_PORT(port_no);
+    u32                       chip_port = (u32)VTSS_CHIP_PORT(port_no);
     vtss_qos_tas_port_conf_t *port_conf = &vtss_state->qos.tas.port_conf[port_no];
     vtss_tas_gcl_state_t     *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
     u32                       gcl_length = port_conf->gcl_length;
@@ -391,7 +392,7 @@ vtss_rc lan966x_tas_frag_size_update(struct vtss_state_s *vtss_state, const vtss
     u32 hold_advance, profile_idx, value;
     u8  preemptable = 0;
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
-    u32 fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1 : 0);
+    u32 fp_enable_tx = (vtss_state->qos.fp.port_conf[port_no].enable_tx ? 1U : 0U);
 #else
     u32 fp_enable_tx = FALSE;
 #endif

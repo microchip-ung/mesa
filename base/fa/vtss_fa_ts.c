@@ -279,7 +279,9 @@ vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
         return VTSS_RC_ERROR;
     }
     adj = vtss_state->ts.conf.adj[domain];
-    adj_abs = VTSS_LABS(adj);
+    if (adj >= -2147483648) {
+        adj_abs = VTSS_LABS(adj);
+    }
 
     tod_inc = nominal_tod_increment; /* Fetch the nominal TOD increment as a
                                         baseline */
