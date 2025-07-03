@@ -468,6 +468,11 @@ typedef struct {
 #define VTSS_TAS_NUMBER_OF_PROFILES 30
 #define VTSS_TAS_NUMBER_OF_ENTRIES  3000
 #endif
+#if defined(VTSS_ARCH_LAIKA)
+#define VTSS_TAS_NUMBER_OF_LISTS    60
+#define VTSS_TAS_NUMBER_OF_PROFILES 32
+#define VTSS_TAS_NUMBER_OF_ENTRIES  3000
+#endif
 #if VTSS_OPT_LIGHT
 #define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK                                                       \
     8 /* Number of entries per block. This is the minimum allocated number of                      \
