@@ -700,7 +700,9 @@ vtss_rc vtss_lan966x_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         VTSS_RC(lan966x_sgpio_sd_map_set(vtss_state));
         VTSS_RC(lan966x_gpio_sd_map_set(vtss_state));
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
 
     return VTSS_RC_OK;

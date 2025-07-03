@@ -2085,7 +2085,9 @@ vtss_rc vtss_fa_vop_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     case VTSS_INIT_CMD_CREATE: break;
     case VTSS_INIT_CMD_INIT:   VTSS_RC(fa_init(vtss_state)); break;
     case VTSS_INIT_CMD_POLL:   VTSS_RC(fa_oam_voe_poll_1sec(vtss_state)); break;
-    default:                   break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

@@ -1788,7 +1788,9 @@ vtss_rc vtss_fa_hqos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             REG_WRM(VTSS_HSCH_HSCH_LARGE_ENA(chip_port / 4), 0, large_mask);
         }
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
 
     return VTSS_RC_OK;

@@ -871,7 +871,9 @@ vtss_rc vtss_lan966x_oam_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     case VTSS_INIT_CMD_POLL: VTSS_RC(lan966x_oam_voe_poll_1sec(vtss_state)); break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

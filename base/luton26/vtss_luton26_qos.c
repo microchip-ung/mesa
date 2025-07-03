@@ -1027,7 +1027,9 @@ vtss_rc vtss_l26_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             L26_RD(VTSS_SYS_SCH_SCH_LB_CTRL, &value);
         } while (value & VTSS_F_SYS_SCH_SCH_LB_CTRL_LB_INIT);
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

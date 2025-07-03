@@ -1988,7 +1988,9 @@ vtss_rc vtss_jr2_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     case VTSS_INIT_CMD_INIT:     VTSS_RC(jr2_l2_init(vtss_state)); break;
     case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(jr2_l2_port_map_set(vtss_state)); break;
     case VTSS_INIT_CMD_POLL:     VTSS_RC(jr2_l2_poll(vtss_state)); break;
-    default:                     break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

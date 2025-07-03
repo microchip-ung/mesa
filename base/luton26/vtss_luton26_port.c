@@ -2935,7 +2935,9 @@ vtss_rc vtss_l26_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             VTSS_RC(l26_buf_conf_set(vtss_state));
         }
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

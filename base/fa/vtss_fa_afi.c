@@ -1355,7 +1355,9 @@ vtss_rc vtss_fa_afi_init(vtss_state_t *vtss_state, const vtss_init_cmd_t cmd)
 
     case VTSS_INIT_CMD_POLL: break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
 
     return VTSS_RC_OK;

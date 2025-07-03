@@ -446,7 +446,9 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
     case VTSS_PORT_MUX_MODE_1:
     case VTSS_PORT_MUX_MODE_3:
     case VTSS_PORT_MUX_MODE_5: vtss_state->sys_config.using_pcie = TRUE; break;
-    default:                   break;
+    default:
+        // Empty on purpose
+        break;
     }
     VTSS_I("Vcore_cfg: 0x%04x, VCOREIII: %d, VRAP: %d, PCIe: %d", vtss_state->sys_config.vcore_cfg,
            vtss_state->sys_config.using_vcoreiii, vtss_state->sys_config.using_vrap,

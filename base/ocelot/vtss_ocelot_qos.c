@@ -1183,7 +1183,9 @@ vtss_rc vtss_srvl_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         break;
     }
     case VTSS_INIT_CMD_POLL: break;
-    default:                 break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

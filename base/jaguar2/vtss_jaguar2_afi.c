@@ -1826,7 +1826,9 @@ vtss_rc vtss_jr2_afi_init(vtss_state_t *const vtss_state, const vtss_init_cmd_t 
 
     case VTSS_INIT_CMD_POLL: break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
 
     return VTSS_RC_OK;

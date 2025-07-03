@@ -1063,7 +1063,9 @@ vtss_rc vtss_lan966x_afi_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         VTSS_RC(lan966x_afi_port_link_up(vtss_state, VTSS_PORT_NO_NONE));
         break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

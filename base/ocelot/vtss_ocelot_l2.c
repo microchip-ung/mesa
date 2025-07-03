@@ -1238,7 +1238,9 @@ vtss_rc vtss_srvl_l2_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         }
         break;
     case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(srvl_l2_port_map_set(vtss_state)); break;
-    default:                     break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

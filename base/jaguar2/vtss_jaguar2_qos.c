@@ -2133,7 +2133,9 @@ vtss_rc vtss_jr2_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE: break;
     case VTSS_INIT_CMD_INIT:   VTSS_RC(jr2_qos_init(vtss_state)); break;
-    default:                   break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

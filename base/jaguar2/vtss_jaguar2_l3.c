@@ -671,7 +671,9 @@ vtss_rc vtss_jr2_l3_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         VTSS_RC(jr2_l3_poll(vtss_state));
         vtss_l3_integrity_update(vtss_state);
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }
