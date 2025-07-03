@@ -68,9 +68,9 @@
 #define RT_RES_CFG_MAX_PRIO_IDX       333
 #define RT_RES_CFG_MAX_COLOUR_IDX     341
 #define RT_CORE_QUEUE_CNT             11914
-#define RT_TAS_NUMBER_OF_LISTS        60
-#define RT_TAS_NUMBER_OF_PROFILES     60
-#define RT_TAS_NUMBER_OF_ENTRIES      (0x1FFF + 1)
+#define RT_TAS_NUMBER_OF_LISTS        64
+#define RT_TAS_NUMBER_OF_PROFILES     32
+#define RT_TAS_NUMBER_OF_ENTRIES      3200
 #define RT_HSCH_LAYERS                4
 #define RT_HSCH_L0_SES                1480
 #define RT_HSCH_SE_HIGH               1184

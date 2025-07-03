@@ -469,9 +469,9 @@ typedef struct {
 #define VTSS_TAS_NUMBER_OF_ENTRIES  3000
 #endif
 #if defined(VTSS_ARCH_LAIKA)
-#define VTSS_TAS_NUMBER_OF_LISTS    60
+#define VTSS_TAS_NUMBER_OF_LISTS    64
 #define VTSS_TAS_NUMBER_OF_PROFILES 32
-#define VTSS_TAS_NUMBER_OF_ENTRIES  3000
+#define VTSS_TAS_NUMBER_OF_ENTRIES  3200
 #endif
 #if VTSS_OPT_LIGHT
 #define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK                                                       \
@@ -499,7 +499,7 @@ typedef struct {
 #if defined(VTSS_ARCH_LAN966X)
 #define VTSS_TAS_NUMBER_OF_LISTS    24
 #define VTSS_TAS_NUMBER_OF_PROFILES 16
-#define VTSS_TAS_NUMBER_OF_ENTRIES  256
+#define VTSS_TAS_NUMBER_OF_ENTRIES  2560
 #endif
 
 typedef struct {
