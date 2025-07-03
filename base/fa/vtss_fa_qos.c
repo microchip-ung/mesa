@@ -4676,8 +4676,8 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                             const vtss_debug_info_t *const info)
 {
     vtss_port_no_t port_no;
-    u32            chip_port, i, j, max_burst, min_token, value = 0U, service_pol_set_idx = 0U, div = 0U;
-    u32            qno, src, prio, dst;
+    u32 chip_port, i, j, max_burst, min_token, value = 0U, service_pol_set_idx = 0U, div = 0U;
+    u32 qno, src, prio, dst;
 #if defined(VTSS_FEATURE_QOS_TAS)
     vtss_port_no_t tas_port = 0U;
     u32            tas_list_idx = 0U;

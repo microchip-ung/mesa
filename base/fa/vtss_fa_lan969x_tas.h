@@ -14,9 +14,10 @@
 #define TAS_PROFILE_IDX_NONE 0xFFFFFFFFU
 #define TAS_ENTRY_IDX_NONE   0xFFFFFFFFU
 
-#define FA_HSCH_L0_SE(port, queue) FA_TGT ? ((64U * port) + (8U * queue)) : LA_HSCH_L0_SE(port, queue)
-#define FA_HSCH_TAS_SE(port, ot)   FA_TGT ? (5040U + 64U + port) : LA_HSCH_TAS_SE(port, ot)
-#define FA_HSCH_L0_OT_SE(port)     (RT_HSCH_L0_SES - 35U + port)
+#define FA_HSCH_L0_SE(port, queue)                                                                 \
+    FA_TGT ? ((64U * port) + (8U * queue)) : LA_HSCH_L0_SE(port, queue)
+#define FA_HSCH_TAS_SE(port, ot) FA_TGT ? (5040U + 64U + port) : LA_HSCH_TAS_SE(port, ot)
+#define FA_HSCH_L0_OT_SE(port)   (RT_HSCH_L0_SES - 35U + port)
 
 #define LA_HSCH_TAS_SE(port, ot)   ((ot) ? (FA_HSCH_L0_OT_SE(port)) : (RT_HSCH_L0_SES + port))
 #define LA_HSCH_L0_SE(port, queue) ((32U * port) + (4U * queue))
