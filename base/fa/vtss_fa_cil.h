@@ -250,7 +250,7 @@ void    vtss_fa_reg_error(const char *file, int line, char *txt);
 // @param gc  - group repl count
 // @param rc  - register repl count
 
-static inline u32 __ioreg(int t, int o, int gi, int gw, int ri, int rw, int gc, int rc)
+static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, u32 rc)
 {
 #if VTSS_OPT_TRACE
     if ((gi >= gc) || (ri >= rc)) {
@@ -273,13 +273,13 @@ static inline u32 __ioreg(int t, int o, int gi, int gw, int ri, int rw, int gc, 
         vtss_rc __rc = vtss_fa_rd(vtss_state, o, value);                                           \
         if (__rc != VTSS_RC_OK)                                                                    \
             return __rc;                                                                           \
-    } while (0)
+    } while (FALSE)
 #else
 #define REG_RD_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
     do {                                                                                           \
         u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                          \
         (void)vtss_fa_rd(vtss_state, o, value);                                                    \
-    } while (0)
+    } while (FALSE)
 #endif
 
 #define REG_WR(...) REG_WR_(__VA_ARGS__)
@@ -290,13 +290,13 @@ static inline u32 __ioreg(int t, int o, int gi, int gw, int ri, int rw, int gc, 
         vtss_rc __rc = vtss_fa_wr(vtss_state, o, value);                                           \
         if (__rc != VTSS_RC_OK)                                                                    \
             return __rc;                                                                           \
-    } while (0)
+    } while (FALSE)
 #else
 #define REG_WR_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
     do {                                                                                           \
         u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                          \
         (void)vtss_fa_wr(vtss_state, o, value);                                                    \
-    } while (0)
+    } while (FALSE)
 #endif
 
 #define REG_WRM(...) REG_WRM_(__VA_ARGS__)
@@ -307,13 +307,13 @@ static inline u32 __ioreg(int t, int o, int gi, int gw, int ri, int rw, int gc, 
         vtss_rc __rc = vtss_fa_wrm(vtss_state, o, value, mask);                                    \
         if (__rc != VTSS_RC_OK)                                                                    \
             return __rc;                                                                           \
-    } while (0)
+    } while (FALSE)
 #else
 #define REG_WRM_(tgt, off, gr, gw, r, ro, gc, rc, value, mask)                                     \
     do {                                                                                           \
         u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                          \
         (void)vtss_fa_wrm(vtss_state, o, value, mask);                                             \
-    } while (0)
+    } while (FALSE)
 #endif
 
 #define REG_WRM_SET(p, mask)         REG_WRM(p, mask, mask)
