@@ -1422,7 +1422,9 @@ static vtss_rc jr2_debug_ts(vtss_state_t                  *vtss_state,
             vtss_jr2_debug_reg(vtss_state, ss,
                                VTSS_DEV10G_DEV_CFG_STATUS_PTP_CFG(VTSS_TO_DEV(port)), "PTP_CFG");
             break;
-        default: break;
+        default:
+            // Empty on purpose
+            break;
         }
     }
 
@@ -1486,7 +1488,9 @@ vtss_rc vtss_jr2_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
                     VTSS_M_ANA_ACL_PORT_PTP_CFG_PTP_PORT_NUM);
         }
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

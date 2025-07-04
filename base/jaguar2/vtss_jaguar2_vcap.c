@@ -1085,7 +1085,9 @@ static void jr2_clm_qos_action_update(vtss_state_t             *vtss_state,
         case VTSS_QOS_INGRESS_MAP_KEY_DSCP:         key = 6; break;
         case VTSS_QOS_INGRESS_MAP_KEY_DSCP_PCP_DEI: key = 7; break;
         case VTSS_QOS_INGRESS_MAP_KEY_MPLS_TC:      key = 3; break;
-        default:                                    break;
+        default:
+            // Empty on purpose
+            break;
         }
     }
 
@@ -3413,7 +3415,9 @@ static vtss_rc jr2_debug_is2(vtss_state_t *vtss_state, jr2_vcap_data_t *data)
         JR2_DEBUG_BITS(IS2, "dip", IP6_VID_DIP);
         JR2_DEBUG_BITS(IS2, "sip", IP6_VID_SIP);
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }
@@ -4867,7 +4871,9 @@ vtss_rc vtss_jr2_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(jr2_vcap_port_map(vtss_state)); break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

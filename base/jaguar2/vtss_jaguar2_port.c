@@ -2929,7 +2929,9 @@ vtss_rc vtss_cil_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no
             return VTSS_RC_ERROR;
         }
         return VTSS_RC_OK;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
 
     // Disable signal detect during loopback
@@ -4362,7 +4364,9 @@ vtss_rc vtss_jr2_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
         break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

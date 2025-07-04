@@ -2023,7 +2023,9 @@ static vtss_rc srvl_debug_is1(srvl_debug_info_t *info)
             pr("\n");
             srvl_debug_u32(info, "ip_payload", IS1_HKO_5TUPLE_IP4_IP_PAYLOAD);
             break;
-        default: break;
+        default:
+            // Empty on purpose
+            break;
         }
         return VTSS_RC_OK;
     }
@@ -2073,7 +2075,9 @@ static vtss_rc srvl_debug_is1(srvl_debug_info_t *info)
         srvl_debug_u8(info, "l4_rng", IS1_FKO_5TUPLE_IP6_L4_RNG);
         srvl_debug_u32(info, "ip_payload", IS1_FKO_5TUPLE_IP6_IP_PAYLOAD);
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }
@@ -2765,7 +2769,9 @@ static vtss_rc srvl_debug_is2(srvl_debug_info_t *info)
             srvl_debug_bit(info, "custom_type", IS2_FKO_CUSTOM_CUSTOM_TYPE);
             srvl_debug_u128(info, "data", IS2_FKO_CUSTOM_CUSTOM); /* 128 bits for now */
             break;
-        default: break;
+        default:
+            // Empty on purpose
+            break;
         }
         return VTSS_RC_OK;
     }
@@ -2870,7 +2876,9 @@ static vtss_rc srvl_debug_is2(srvl_debug_info_t *info)
         pr("\n");
         srvl_debug_u128(info, "l3_ip6_sip", IS2_HKO_IP6_STD_L3_IP6_SIP);
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }
@@ -3807,7 +3815,9 @@ vtss_rc vtss_srvl_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         es0->entry_move = srvl_es0_entry_move;
         break;
     case VTSS_INIT_CMD_INIT: VTSS_RC(srvl_vcap_init(vtss_state)); break;
-    default:                 break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

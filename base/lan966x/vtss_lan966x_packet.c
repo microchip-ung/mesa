@@ -536,7 +536,9 @@ static vtss_rc lan966x_rx_frame_discard_grp(vtss_state_t              *vtss_stat
             REG_RD(QS_XTR_RD(xtr_grp), &val); /* Escaped data */
             break;
         case XTR_NOT_READY:
-        default:            break;
+        default:
+            // Empty on purpose
+            break;
         }
     }
     return VTSS_RC_OK;
@@ -944,7 +946,9 @@ vtss_rc vtss_lan966x_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(vtss_cil_packet_rx_conf_set(vtss_state)); break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

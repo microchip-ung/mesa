@@ -28,7 +28,9 @@ static vtss_gpio_mode_t to_vtss_gpio_mode(vtss_gpio_func_alt_t alt)
     case VTSS_GPIO_FUNC_ALT_0: return VTSS_GPIO_ALT_0;
     case VTSS_GPIO_FUNC_ALT_1: return VTSS_GPIO_ALT_1;
     case VTSS_GPIO_FUNC_ALT_2: return VTSS_GPIO_ALT_2;
-    default:                   break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_GPIO_ALT_0;
 }
@@ -804,7 +806,9 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             tx_delay += (1000 * 2878);
         }
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
 
     /* rx_delay and tx_delay are in picoseconds.  */
@@ -1244,7 +1248,9 @@ vtss_rc vtss_lan966x_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     case VTSS_INIT_CMD_INIT: VTSS_RC(lan966x_ts_init(vtss_state)); break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

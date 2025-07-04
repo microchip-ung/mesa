@@ -92,7 +92,9 @@ static BOOL is_internal_cu(vtss_state_t *vtss_state, vtss_port_no_t port)
             // Port 0/1: Cu
             return TRUE;
         }
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
 
     return FALSE;
@@ -2299,7 +2301,9 @@ vtss_rc vtss_lan966x_port_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(lan966x_port_buf_conf_set(vtss_state)); break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

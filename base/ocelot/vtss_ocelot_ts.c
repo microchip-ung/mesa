@@ -10,13 +10,12 @@
 
 /* - CIL functions ------------------------------------------------- */
 
-#define HW_NS_PR_SEC      1000000000L
-#define HW_CLK_CNT_PR_SEC 156250000L
-#define HW_CLK_50_MS      (HW_NS_PR_SEC / 20)
-#define HW_CLK_M950_MS    (-HW_NS_PR_SEC + HW_CLK_50_MS)
-#define EXT_SYNC_INPUT_LATCH_LATENCY                                                               \
-    5 //(1*HW_NS_PR_SEC/HW_CLK_CNT_PR_SEC)  /* 1 clock cycle added to
-      // EXT_SYNC_CURRENT TIME */
+#define HW_NS_PR_SEC                 1000000000L
+#define HW_CLK_CNT_PR_SEC            156250000L
+#define HW_CLK_50_MS                 (HW_NS_PR_SEC / 20)
+#define HW_CLK_M950_MS               (-HW_NS_PR_SEC + HW_CLK_50_MS)
+#define EXT_SYNC_INPUT_LATCH_LATENCY 5 //(1*HW_NS_PR_SEC/HW_CLK_CNT_PR_SEC)
+// 1 clock cycle added to EXT_SYNC_CURRENT TIME */
 #define ADJ_UNITS_PR_NS 10
 
 #define HW_PS_PR_SEC 1000000000000LL
@@ -1384,7 +1383,9 @@ vtss_rc vtss_srvl_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     switch (cmd) {
     case VTSS_INIT_CMD_CREATE: break;
     case VTSS_INIT_CMD_INIT:   VTSS_RC(srvl_ts_init(vtss_state)); break;
-    default:                   break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

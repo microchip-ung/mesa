@@ -1113,7 +1113,9 @@ static vtss_rc lan966x_is2_action_set(vtss_state_t        *vtss_state,
             ptp_cmd = 2; /* Delay request responce */
             ptp_opt = 1;
             break;
-        default: break;
+        default:
+            // Empty on purpose
+            break;
         }
 
         a->rew_op =
@@ -1486,7 +1488,9 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t     *vtss_state,
                 lan966x_vcap_u32_set(&f.u.ip4_other.l3_payload_0, &l3_pl0);
             }
             break;
-        default: break;
+        default:
+            // Empty on purpose
+            break;
         }
     }
     VTSS_RC(lan966x_is2_action_set(vtss_state, &info, &ace->action));
@@ -2969,7 +2973,9 @@ vtss_rc vtss_lan966x_vcap_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
 
     case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(lan966x_vcap_port_map(vtss_state)); break;
 
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

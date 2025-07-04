@@ -962,7 +962,9 @@ static vtss_rc srvl_rx_frame_discard_grp(vtss_state_t              *vtss_state,
             SRVL_RD(VTSS_DEVCPU_QS_XTR_XTR_RD(xtr_grp), &val); /* Escaped data */
             break;
         case XTR_NOT_READY:
-        default:            break;
+        default:
+            // Empty on purpose
+            break;
         }
     }
     return VTSS_RC_OK;
@@ -1831,7 +1833,9 @@ vtss_rc vtss_srvl_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         break;
     case VTSS_INIT_CMD_INIT:     VTSS_RC(srvl_packet_init(vtss_state)); break;
     case VTSS_INIT_CMD_PORT_MAP: VTSS_RC(vtss_cil_packet_rx_conf_set(vtss_state)); break;
-    default:                     break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

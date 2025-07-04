@@ -456,7 +456,9 @@ vtss_rc vtss_l26_gpio_mode(vtss_state_t          *vtss_state,
         L26_WRM_CLR(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(0), mask); /* GPIO mode 0b10 */
         L26_WRM_SET(VTSS_DEVCPU_GCB_GPIO_GPIO_ALT(1), mask); /* -"- */
         return VTSS_RC_OK;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_ERROR;
 }
@@ -1072,7 +1074,9 @@ vtss_rc vtss_l26_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
     case VTSS_INIT_CMD_CREATE: break;
     case VTSS_INIT_CMD_INIT:   break;
     case VTSS_INIT_CMD_POLL:   VTSS_RC(l26_misc_poll_1sec(vtss_state)); break;
-    default:                   break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }

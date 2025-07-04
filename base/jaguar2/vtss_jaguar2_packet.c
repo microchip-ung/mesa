@@ -465,7 +465,9 @@ static vtss_rc jr2_rx_frame_discard_grp(vtss_state_t              *vtss_state,
             JR2_RD(VTSS_DEVCPU_QS_XTR_XTR_RD(xtr_grp), &val); /* Escaped data */
             break;
         case XTR_NOT_READY:
-        default:            break;
+        default:
+            // Empty on purpose
+            break;
         }
     }
     return VTSS_RC_OK;
@@ -1427,7 +1429,9 @@ vtss_rc vtss_jr2_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             VTSS_RC(vtss_cil_packet_rx_conf_set(vtss_state));
         }
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }
