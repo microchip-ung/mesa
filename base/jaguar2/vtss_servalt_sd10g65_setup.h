@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_SERVALT__API_SD10G65_H_UTE
-#define _VTSS_SERVALT__API_SD10G65_H_UTE
+#ifndef VTSS_SERVALT__API_SD10G65_H_UTE
+#define VTSS_SERVALT__API_SD10G65_H_UTE
 
 /* Generation Tag is  UTE_release_vts_ute_tcllib_20180312_trunk_bjo */
 

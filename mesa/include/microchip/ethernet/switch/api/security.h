@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_SECURITY_
-#define _MICROCHIP_ETHERNET_SWITCH_API_SECURITY_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_SECURITY
+#define MICROCHIP_ETHERNET_SWITCH_API_SECURITY
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -644,4 +644,4 @@ mesa_rc mesa_hace_counter_clear(const mesa_inst_t      inst,
                                 const mesa_ace_id_t    ace_id) CAP(ACL_HACL);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_SECURITY_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_SECURITY

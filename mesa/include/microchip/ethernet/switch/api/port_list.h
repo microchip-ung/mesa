@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_PORT_LIST_
-#define _MICROCHIP_ETHERNET_SWITCH_API_PORT_LIST_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_PORT_LIST
+#define MICROCHIP_ETHERNET_SWITCH_API_PORT_LIST
 
 #include <string.h>
 #include <microchip/ethernet/switch/api/types.h>
@@ -249,4 +249,4 @@ static inline int mesa_port_list_get(const mesa_port_list_t *l, int bit)
 }
 
 #endif // __cplusplus
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_PORT_LIST_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_PORT_LIST

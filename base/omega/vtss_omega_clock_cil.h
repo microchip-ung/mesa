@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_ES6514_CLOCK_CIL_H_
-#define _VTSS_ES6514_CLOCK_CIL_H_
+#ifndef VTSS_ES6514_CLOCK_CIL_H
+#define VTSS_ES6514_CLOCK_CIL_H
 
 #if !defined(VTSS_CHIP_ES6514)
 /* Use relative DWORD addresses for registers - must be first */
@@ -173,4 +173,4 @@ vtss_rc vtss_omega_clock_output_filter_bw_refresh(vtss_state_t *vtss_state, cons
 
 vtss_rc vtss_es6514_clock_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 
-#endif /* _VTSS_ES6514_CLOCK_CIL_H_ */
+#endif /* VTSS_ES6514_CLOCK_CIL_H */

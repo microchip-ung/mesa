@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_AFI_
-#define _MICROCHIP_ETHERNET_SWITCH_API_AFI_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_AFI
+#define MICROCHIP_ETHERNET_SWITCH_API_AFI
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/switch/api/capability.h>
@@ -12,7 +12,7 @@
 // injected frame.
 typedef uint32_t mesa_afi_id_t;
 
-#define MESA_AFI_ID_NONE (0xFFFFFFFF) // Used to encode Tx headers for non-AFI frame
+#define MESA_AFI_ID_NONE (0xFFFFFFFFU) // Used to encode Tx headers for non-AFI frame
 
 // AFI Frame description structure.
 // Contains properties that describe how a frame should be injected periodically.
@@ -266,4 +266,4 @@ mesa_rc mesa_afi_port_start(const mesa_inst_t inst, mesa_port_no_t port_no) CAP(
 mesa_rc mesa_afi_port_stop(const mesa_inst_t inst, mesa_port_no_t port_no) CAP(AFI_V2);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_AFI_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_AFI

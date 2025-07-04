@@ -7,8 +7,8 @@
  * \details Definitions common to all OS.
  */
 
-#ifndef _VTSS_OS_COMMON_H_
-#define _VTSS_OS_COMMON_H_
+#ifndef VTSS_OS_COMMON_H
+#define VTSS_OS_COMMON_H
 
 /**
  * \brief Memory allocation flags.

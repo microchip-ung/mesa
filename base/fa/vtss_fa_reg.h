@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 
-#ifndef _FA_REG_H_
-#define _FA_REG_H_
+#ifndef FA_REG_H
+#define FA_REG_H
 
 #if defined(VTSS_ARCH_FA)
 
@@ -121,5 +121,5 @@
 #define ES0_ACT_TC_SEL_MAP_3 7
 
 #endif /* VTSS_ARCH_FA */
-#endif /* _FA_REG_H */
+#endif /* FA_REG_H */
 

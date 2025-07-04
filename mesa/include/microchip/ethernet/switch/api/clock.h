@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_CLOCK_
-#define _MICROCHIP_ETHERNET_SWITCH_API_CLOCK_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_CLOCK
+#define MICROCHIP_ETHERNET_SWITCH_API_CLOCK
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -1062,4 +1062,4 @@ mesa_rc mesa_clock_dpll_event_enable(const mesa_inst_t                  inst,
                                      const mesa_bool_t                  enable) CAP(CLOCK);
 
 #include <microchip/ethernet/hdr_end.h> // ALL INCLUDE ABOVE THIS LINE
-#endif                                  // _MICROCHIP_ETHERNET_SWITCH_API_CLOCK_
+#endif                                  // MICROCHIP_ETHERNET_SWITCH_API_CLOCK

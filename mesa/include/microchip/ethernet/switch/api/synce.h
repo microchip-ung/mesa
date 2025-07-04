@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_SYNCE_
-#define _MICROCHIP_ETHERNET_SWITCH_API_SYNCE_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_SYNCE
+#define MICROCHIP_ETHERNET_SWITCH_API_SYNCE
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -151,4 +151,4 @@ mesa_rc mesa_synce_synce_station_clk_out_get(const mesa_inst_t                  
     CAP(SYNCE_OUT_STATION);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_SYNCE_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_SYNCE

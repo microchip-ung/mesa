@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_PACKET_
-#define _MICROCHIP_ETHERNET_SWITCH_API_PACKET_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_PACKET
+#define MICROCHIP_ETHERNET_SWITCH_API_PACKET
 
 #include <microchip/ethernet/switch/api/qos.h>
 #include <microchip/ethernet/switch/api/vop.h>
@@ -731,4 +731,4 @@ mesa_rc mesa_ptp_get_timestamp(const mesa_inst_t                  inst,
                                mesa_bool_t                       *timestamp_ok);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_PACKET_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_PACKET

@@ -8,8 +8,8 @@
 // retesting and revalidation) we are unable to make the desired changes in all
 // legacy systems without compromising our product or our clients' products.
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_INIT_
-#define _MICROCHIP_ETHERNET_SWITCH_API_INIT_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_INIT
+#define MICROCHIP_ETHERNET_SWITCH_API_INIT
 
 #include <microchip/ethernet/switch/api/misc.h>
 #include <microchip/ethernet/switch/api/types.h>
@@ -485,4 +485,4 @@ mesa_rc mesa_restart_conf_get(const mesa_inst_t inst, mesa_restart_t *const rest
 mesa_rc mesa_restart_conf_set(const mesa_inst_t inst, const mesa_restart_t restart);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_INIT_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_INIT

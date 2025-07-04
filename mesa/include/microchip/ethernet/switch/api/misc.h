@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_MISC_
-#define _MICROCHIP_ETHERNET_SWITCH_API_MISC_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_MISC
+#define MICROCHIP_ETHERNET_SWITCH_API_MISC
 
 #include <stdarg.h>
 #include <microchip/ethernet/switch/api/types.h>
@@ -166,7 +166,7 @@ typedef enum {
 } mesa_debug_group_t;
 
 // Special chip number value for showing information from all chips
-#define MESA_CHIP_NO_ALL 0xffffffff
+#define MESA_CHIP_NO_ALL 0xffffffffU
 
 // Debug information structure
 typedef struct {
@@ -925,4 +925,4 @@ mesa_rc mesa_vscope_scan_status_get(const mesa_inst_t                inst,
                                     mesa_vscope_scan_status_t *const conf) CAP(VSCOPE);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_MISC_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_MISC

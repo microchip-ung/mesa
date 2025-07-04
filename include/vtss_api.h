@@ -8,8 +8,8 @@
  * application
  */
 
-#ifndef _VTSS_API_H_
-#define _VTSS_API_H_
+#ifndef VTSS_API_H
+#define VTSS_API_H
 
 #include <vtss/api/options.h>
 
@@ -79,4 +79,4 @@
 #include <vtss_clock_api.h>
 #endif
 
-#endif /* _VTSS_API_H_ */
+#endif /* VTSS_API_H */

@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_LAN966X_VCAP_H_
-#define _VTSS_LAN966X_VCAP_H_
+#ifndef VTSS_LAN966X_VCAP_H
+#define VTSS_LAN966X_VCAP_H
 
 #include "vtss_lan966x_cil.h"
 
@@ -29,4 +29,4 @@ void vtss_lan966x_vcap_action_set(struct vtss_lan966x_vcap_data *data,
 
 void vtss_lan966x_vcap_action_bit_set(struct vtss_lan966x_vcap_data *data, u32 offset, u32 value);
 
-#endif /* _VTSS_LAN966X_VCAP_H_ */
+#endif /* VTSS_LAN966X_VCAP_H */

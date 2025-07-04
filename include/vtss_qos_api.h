@@ -7,8 +7,8 @@
  * \details This header file describes Quality of Service functions
  */
 
-#ifndef _VTSS_QOS_API_H_
-#define _VTSS_QOS_API_H_
+#ifndef VTSS_QOS_API_H
+#define VTSS_QOS_API_H
 
 #include <vtss/api/types.h>
 
@@ -1011,4 +1011,4 @@ vtss_rc vtss_evc_policer_conf_set(const vtss_inst_t                    inst,
 #ifdef __cplusplus
 }
 #endif
-#endif /* _VTSS_QOS_API_H_ */
+#endif /* VTSS_QOS_API_H */

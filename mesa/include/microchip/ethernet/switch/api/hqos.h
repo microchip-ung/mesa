@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MSCC_ETHERNET_SWITCH_API_HQOS_
-#define _MSCC_ETHERNET_SWITCH_API_HQOS_
+#ifndef MSCC_ETHERNET_SWITCH_API_HQOS
+#define MSCC_ETHERNET_SWITCH_API_HQOS
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -198,4 +198,4 @@ mesa_rc mesa_hqos_status_get(const mesa_inst_t         inst,
                              mesa_hqos_status_t *const status) CAP(HQOS);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MSCC_ETHERNET_SWITCH_API_HQOS_
+#endif // MSCC_ETHERNET_SWITCH_API_HQOS

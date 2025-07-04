@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_MAS_CIL_H_
-#define _VTSS_MAS_CIL_H_
+#ifndef VTSS_MAS_CIL_H
+#define VTSS_MAS_CIL_H
 
 #include "vtss_api.h"
 
@@ -333,4 +333,4 @@ vtss_rc vtss_lan966x_mrp_debug_print(vtss_state_t                  *vtss_state,
                                      const vtss_debug_info_t *const info);
 
 #endif /* VTSS_ARCH_LAN966X */
-#endif /* _VTSS_MAS_CIL_H_ */
+#endif /* VTSS_MAS_CIL_H */

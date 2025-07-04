@@ -8,8 +8,8 @@
  * functions.
  */
 
-#ifndef _VTSS_L3_API_H_
-#define _VTSS_L3_API_H_
+#ifndef VTSS_L3_API_H
+#define VTSS_L3_API_H
 
 #include <vtss/api/types.h>
 
@@ -548,4 +548,4 @@ vtss_rc vtss_l3_counters_rleg_clear(const vtss_inst_t inst, const vtss_vid_t vla
 }
 #endif
 #endif /* VTSS_FEATURE_LAYER3 */
-#endif /* _VTSS_L3_API_H_ */
+#endif /* VTSS_L3_API_H */

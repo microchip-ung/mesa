@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_TYPES_
-#define _MICROCHIP_ETHERNET_SWITCH_API_TYPES_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_TYPES
+#define MICROCHIP_ETHERNET_SWITCH_API_TYPES
 
 #include <microchip/ethernet/common.h>
 
@@ -12,7 +12,7 @@
 // Policer packet rate in PPS
 typedef uint32_t mesa_packet_rate_t;
 
-#define MESA_PACKET_RATE_DISABLED 0xffffffff // Special value for disabling packet policer
+#define MESA_PACKET_RATE_DISABLED 0xffffffffU // Special value for disabling packet policer
 
 // Physical port number
 typedef uint32_t mesa_phys_port_no_t;
@@ -20,17 +20,17 @@ typedef uint32_t mesa_phys_port_no_t;
 // VOE index
 typedef uint32_t mesa_voe_idx_t;
 
-#define MESA_VOE_IDX_NONE 0xFFFFFFFF // Special value meaning no VOE
+#define MESA_VOE_IDX_NONE 0xFFFFFFFFU // Special value meaning no VOE
 
 // VOI (MIP) index
 typedef uint32_t mesa_voi_idx_t;
 
-#define MESA_VOI_IDX_NONE 0xFFFFFFFF // Special value meaning no VOI (MIP)
+#define MESA_VOI_IDX_NONE 0xFFFFFFFFU // Special value meaning no VOI (MIP)
 
 // MRP index
 typedef uint32_t mesa_mrp_idx_t;
 
-#define MESA_MRP_IDX_NONE 0xFFFFFFFF // Special value meaning no MRP
+#define MESA_MRP_IDX_NONE 0xFFFFFFFFU // Special value meaning no MRP
 
 /****************************************************************************
  * QoS types
@@ -76,7 +76,7 @@ typedef uint8_t mesa_pct_t;
 // Policer/Shaper bit rate in kbps (1000 bits per second).
 // The rate will be rounded to the nearest value supported by the chip
 typedef uint32_t mesa_bitrate_t;
-#define MESA_BITRATE_DISABLED 0xffffffff // Bitrate disabled
+#define MESA_BITRATE_DISABLED 0xffffffffU // Bitrate disabled
 
 // Policer/shaper burst level in bytes.
 // The level will be rounded to the nearest value supported by the chip
@@ -525,7 +525,7 @@ typedef enum {
 // ACL policer number
 typedef uint32_t mesa_acl_policer_no_t;
 
-#define MESA_ACL_POLICY_NO_NONE 0xffffffff // ACLs disabled on port
+#define MESA_ACL_POLICY_NO_NONE 0xffffffffU // ACLs disabled on port
 
 // ACL policy number
 typedef uint32_t mesa_acl_policy_no_t;
@@ -642,4 +642,4 @@ typedef uint8_t mesa_clock_identity[MESA_CLOCK_IDENTITY_LENGTH];
 #include <microchip/ethernet/hdr_end.h>
 #include <microchip/ethernet/switch/api/port_list.h>
 
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_TYPES_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_TYPES

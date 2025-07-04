@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_LAN966X_VCAP_TYPES_H_
-#define _VTSS_LAN966X_VCAP_TYPES_H_
+#ifndef VTSS_LAN966X_VCAP_TYPES_H
+#define VTSS_LAN966X_VCAP_TYPES_H
 
 #include "vtss/api/types.h"
 #include "vtss_api.h"
@@ -78,4 +78,4 @@ struct vtss_lan966x_vcap_data {
     u32 tg_mask;                                 /* Current type-group mask */
 };
 
-#endif /* _VTSS_LAN966X_VCAP_TYPES_H_ */
+#endif /* VTSS_LAN966X_VCAP_TYPES_H */

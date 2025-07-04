@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_JAGUAR2C__API_PLL5G_UTE
-#define _VTSS_JAGUAR2C__API_PLL5G_UTE
+#ifndef VTSS_JAGUAR2C__API_PLL5G_UTE
+#define VTSS_JAGUAR2C__API_PLL5G_UTE
 
 /* Generation Tag is  UTE_release_vts_ute_tcllib_20180312_trunk_bjo */
 

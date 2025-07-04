@@ -7,8 +7,8 @@
  * \details This header file describes OS functions for Linux
  */
 
-#ifndef _VTSS_OS_LINUX_H_
-#define _VTSS_OS_LINUX_H_
+#ifndef VTSS_OS_LINUX_H
+#define VTSS_OS_LINUX_H
 
 #ifndef __KERNEL__
 
@@ -397,4 +397,4 @@ extern uintptr_t vtss_os_cpu_to_dma_addr(void *ptr);
 #define VTSS_PROF_ENTER(id, sub)
 #define VTSS_PROF_EXIT(id, sub)
 
-#endif /* _VTSS_OS_LINUX_H_ */
+#endif /* VTSS_OS_LINUX_H */

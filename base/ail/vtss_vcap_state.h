@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_VCAP_STATE_H_
-#define _VTSS_VCAP_STATE_H_
+#ifndef VTSS_VCAP_STATE_H
+#define VTSS_VCAP_STATE_H
 
 #if defined(VTSS_FEATURE_VCAP)
 
@@ -1596,4 +1596,4 @@ void vtss_vcap_debug_print_acl(struct vtss_state_s           *vtss_state,
                                const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_VCAP */
 
-#endif /* _VTSS_VCAP_STATE_H_ */
+#endif /* VTSS_VCAP_STATE_H */

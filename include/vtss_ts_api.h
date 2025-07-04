@@ -8,8 +8,8 @@
  * associated types.
  */
 
-#ifndef _VTSS_TS_API_H_
-#define _VTSS_TS_API_H_
+#ifndef VTSS_TS_API_H
+#define VTSS_TS_API_H
 
 #include <vtss/api/types.h>
 #include <vtss_security_api.h> /* For vtss_ace_u8_t */
@@ -1128,7 +1128,7 @@ vtss_rc vtss_ts_seq_cnt_get(const vtss_inst_t inst, const u32 sec_cntr, u16 *con
 }
 #endif
 #endif /* VTSS_FEATURE_TIMESTAMP */
-#endif // _VTSS_TS_API_H_
+#endif // VTSS_TS_API_H
 
 // ***************************************************************************
 //

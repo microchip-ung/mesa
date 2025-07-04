@@ -3,7 +3,7 @@
 
 /*---------------------------------------------------------------------------
  * $HeadURL:
- *svn://svn-de.vitesse.com/svn-de/vtslibs/vts_ute_tcllib/tags/UTE_release_vts_ute_tcllib_20180312_trunk_bjo/api_c/vtss_sd10g65_procs.h
+ *svn:/svn-de.vitesse.com/svn-de/vtslibs/vts_ute_tcllib/tags/UTE_release_vts_ute_tcllib_20180312_trunk_bjo/api_c/vtss_sd10g65_procs.h
  *$
  *---------------------------------------------------------------------------*/
 
@@ -26,8 +26,8 @@
  *                     http://projissuetracker/bugzilla/enter_bug.cgi?product=Victoria
  * ================================================================= */
 
-#ifndef _VTSS_SD10G65_PROCS_H_
-#define _VTSS_SD10G65_PROCS_H_
+#ifndef VTSS_SD10G65_PROCS_H
+#define VTSS_SD10G65_PROCS_H
 
 #ifdef USE_TCL_STUBS
 #include "ute_webstax_defines.h"

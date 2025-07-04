@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MSCC_ETHERNET_SWITCH_API_MRP_
-#define _MSCC_ETHERNET_SWITCH_API_MRP_
+#ifndef MSCC_ETHERNET_SWITCH_API_MRP
+#define MSCC_ETHERNET_SWITCH_API_MRP
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -337,4 +337,4 @@ mesa_rc mesa_mrp_event_get(const mesa_inst_t       inst,
                            const mesa_mrp_idx_t    mrp_idx,
                            mesa_mrp_event_t *const events) CAP(MRP);
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MSCC_ETHERNET_SWITCH_API_MRP_
+#endif // MSCC_ETHERNET_SWITCH_API_MRP

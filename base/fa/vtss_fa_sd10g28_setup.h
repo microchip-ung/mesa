@@ -15,8 +15,8 @@
  *  /_________\
  * ================================================================= */
 
-#ifndef _VTSS_ANT__API_SD10G28_H_UTE
-#define _VTSS_ANT__API_SD10G28_H_UTE
+#ifndef VTSS_ANT__API_SD10G28_H_UTE
+#define VTSS_ANT__API_SD10G28_H_UTE
 
 #include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)

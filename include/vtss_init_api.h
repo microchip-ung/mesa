@@ -8,8 +8,8 @@
  * targets
  */
 
-#ifndef _VTSS_INIT_API_H_
-#define _VTSS_INIT_API_H_
+#ifndef VTSS_INIT_API_H
+#define VTSS_INIT_API_H
 
 #include <vtss/api/types.h>
 #include <vtss_misc_api.h>
@@ -703,4 +703,4 @@ vtss_rc vtss_restart_conf_set(const vtss_inst_t inst, const vtss_restart_t resta
 #ifdef __cplusplus
 }
 #endif
-#endif /* _VTSS_INIT_API_H_ */
+#endif /* VTSS_INIT_API_H */

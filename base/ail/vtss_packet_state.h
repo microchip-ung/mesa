@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_PACKET_STATE_H_
-#define _VTSS_PACKET_STATE_H_
+#ifndef VTSS_PACKET_STATE_H
+#define VTSS_PACKET_STATE_H
 
 #if defined(VTSS_FEATURE_PACKET)
 
@@ -88,4 +88,4 @@ void vtss_packet_debug_print(struct vtss_state_s           *vtss_state,
                              const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_PACKET */
 
-#endif /* _VTSS_PACKET_STATE_H_ */
+#endif /* VTSS_PACKET_STATE_H */

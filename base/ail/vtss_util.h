@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_UTIL_H_
-#define _VTSS_UTIL_H_
+#ifndef VTSS_UTIL_H
+#define VTSS_UTIL_H
 
 #include "vtss_api.h"
 
@@ -42,4 +42,4 @@ u32  vtss_bs_get(const void *vptr, u32 offset, u32 len);
 u8   vtss_bool8_to_u8(BOOL *array);
 void vtss_u8_to_bool8(u8 value, BOOL *array);
 
-#endif /* _VTSS_UTIL_H_ */
+#endif /* VTSS_UTIL_H */

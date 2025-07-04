@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_FA_CIL_H_
-#define _VTSS_FA_CIL_H_
+#ifndef VTSS_FA_CIL_H
+#define VTSS_FA_CIL_H
 
 #include "vtss_api.h"
 
@@ -794,4 +794,4 @@ vtss_rc        vtss_fa_voe_free(vtss_state_t       *vtss_state,
                                 vtss_voe_idx_t      voe_idx);
 #endif
 #endif /* VTSS_ARCH_FA */
-#endif /* _VTSS_FA_CIL_H_ */
+#endif /* VTSS_FA_CIL_H */

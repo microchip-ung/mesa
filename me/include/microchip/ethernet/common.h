@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_COMMON_
-#define _MICROCHIP_ETHERNET_COMMON_
+#ifndef MICROCHIP_ETHERNET_COMMON
+#define MICROCHIP_ETHERNET_COMMON
 
 #include <stddef.h>
 #include <stdint.h>
@@ -622,4 +622,4 @@ typedef enum {
 typedef int (*mesa_debug_printf_t)(const char *fmt, ...) MESA_ATTR_PRINTF(1, 2);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_COMMON_
+#endif // MICROCHIP_ETHERNET_COMMON

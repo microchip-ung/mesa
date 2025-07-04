@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_SD25G28_PROCS_H_
-#define _VTSS_SD25G28_PROCS_H_
+#ifndef VTSS_SD25G28_PROCS_H
+#define VTSS_SD25G28_PROCS_H
 
 #ifdef USE_TCL_STUBS
 #include "ute_webstax_defines.h"

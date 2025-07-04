@@ -15,8 +15,8 @@
  *  /_________\
  * ================================================================= */
 
-#ifndef _VTSS_ANT__API_SD10G28_UTE
-#define _VTSS_ANT__API_SD10G28_UTE
+#ifndef VTSS_ANT__API_SD10G28_UTE
+#define VTSS_ANT__API_SD10G28_UTE
 
 #include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
@@ -597,5 +597,5 @@ vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t                   *vtss_state,
 
     return rc;
 }
-#endif /* _VTSS_ANT__API_SD10G28_UTE */
+#endif /* VTSS_ANT__API_SD10G28_UTE */
 #endif /* defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X) */

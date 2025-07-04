@@ -7,8 +7,8 @@
  * \details This header file describes CPU Rx/Tx packet functions.
  */
 
-#ifndef _VTSS_PACKET_API_H_
-#define _VTSS_PACKET_API_H_
+#ifndef VTSS_PACKET_API_H
+#define VTSS_PACKET_API_H
 
 #include <vtss_api.h> /* For vtss_sflow_type_t */
 
@@ -831,4 +831,4 @@ vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t                  inst,
 }
 #endif
 #endif /* VTSS_FEATURE_PACKET */
-#endif /* _VTSS_PACKET_API_H_ */
+#endif /* VTSS_PACKET_API_H */

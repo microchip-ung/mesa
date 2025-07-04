@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_FA_LAN969X_H_
-#define _VTSS_FA_LAN969X_H_
+#ifndef VTSS_FA_LAN969X_H
+#define VTSS_FA_LAN969X_H
 
 #define TAS_LIST_STATE_ADMIN       0U
 #define TAS_LIST_STATE_ADVANCING   1U
@@ -41,4 +41,4 @@ u8      tas_link_speed_calc(vtss_port_speed_t speed);
 vtss_rc tas_profile_free(vtss_state_t *vtss_state, u32 profile_idx);
 #endif
 
-#endif /* _VTSS_FA_LAN969X_H_ */
+#endif /* VTSS_FA_LAN969X_H */

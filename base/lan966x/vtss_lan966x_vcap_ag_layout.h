@@ -6,8 +6,8 @@
  * Commit ID: 19cab560f1d81377beda9d9091c75a756073024b (dirty)
  */
 
-#ifndef _VTSS_LAN966X_VCAP_AG_LAYOUT_H_
-#define _VTSS_LAN966X_VCAP_AG_LAYOUT_H_
+#ifndef VTSS_LAN966X_VCAP_AG_LAYOUT_H
+#define VTSS_LAN966X_VCAP_AG_LAYOUT_H
 
 #include "vtss_lan966x_vcap_types.h"
 
@@ -2241,4 +2241,4 @@ struct vtss_lan966x_vcap_is2_action_fields {
     } u;
 };
 
-#endif /* _VTSS_LAN966X_VCAP_AG_LAYOUT_H_ */
+#endif /* VTSS_LAN966X_VCAP_AG_LAYOUT_H */

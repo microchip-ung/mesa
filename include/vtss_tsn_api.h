@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_TSN_API_H_
-#define _VTSS_TSN_API_H_
+#ifndef VTSS_TSN_API_H
+#define VTSS_TSN_API_H
 
 #if defined(VTSS_FEATURE_FRER)
 
@@ -518,4 +518,4 @@ vtss_rc vtss_qos_fp_port_status_get(const vtss_inst_t                inst,
                                     vtss_qos_fp_port_status_t *const status);
 #endif /* defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION) */
 
-#endif /* _VTSS_TSN_API_H_ */
+#endif /* VTSS_TSN_API_H */

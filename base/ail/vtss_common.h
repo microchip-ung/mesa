@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_COMMON_H_
-#define _VTSS_COMMON_H_
+#ifndef VTSS_COMMON_H
+#define VTSS_COMMON_H
 
 #include "vtss_api.h"
 #include <vtss_os.h> /* This defines the *runtime* OS environment */
@@ -73,4 +73,4 @@ vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos);
 vtss_rc srvl_pll5g_read(vtss_state_t *vtss_state, u32 lcpll_mask);
 vtss_rc srvl_pll5g_write(vtss_state_t *vtss_state, u32 lcpll_mask, u32 nsec);
 
-#endif /* _VTSS_COMMON_H_ */
+#endif /* VTSS_COMMON_H */

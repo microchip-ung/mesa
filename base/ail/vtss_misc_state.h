@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_MISC_STATE_H_
-#define _VTSS_MISC_STATE_H_
+#ifndef VTSS_MISC_STATE_H
+#define VTSS_MISC_STATE_H
 
 #if defined(VTSS_FEATURE_MISC)
 
@@ -149,4 +149,4 @@ void    vtss_misc_debug_print(struct vtss_state_s           *vtss_state,
 
 #endif /* VTSS_FEATURE_MISC */
 
-#endif /* _VTSS_MISC_STATE_H_ */
+#endif /* VTSS_MISC_STATE_H */

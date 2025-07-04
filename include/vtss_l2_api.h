@@ -7,8 +7,8 @@
  * \details This header file describes Layer 2 switching functions
  */
 
-#ifndef _VTSS_L2_API_H_
-#define _VTSS_L2_API_H_
+#ifndef VTSS_L2_API_H
+#define VTSS_L2_API_H
 
 #include <vtss/api/types.h>
 #include <vtss/api/l2_types.h> /* For vtss_aggr_mode_t and vtss_vid_mac_t */
@@ -3059,4 +3059,4 @@ vtss_rc vtss_rb_proxy_node_id_get_next(const vtss_inst_t             inst,
 #ifdef __cplusplus
 }
 #endif
-#endif /* _VTSS_L2_API_H_ */
+#endif /* VTSS_L2_API_H */

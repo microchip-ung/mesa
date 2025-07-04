@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_CAPABILITY_
-#define _MICROCHIP_ETHERNET_SWITCH_API_CAPABILITY_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_CAPABILITY
+#define MICROCHIP_ETHERNET_SWITCH_API_CAPABILITY
 
 #include <stdint.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -519,4 +519,4 @@ uint32_t mesa_port_cnt(mesa_inst_t inst);
 #define MESA_CAP(expr) mesa_capability(NULL, expr)
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_CAPABILITY_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_CAPABILITY

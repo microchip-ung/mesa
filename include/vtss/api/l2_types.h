@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_L2_TYPES_H_
-#define _VTSS_L2_TYPES_H_
+#ifndef VTSS_L2_TYPES_H
+#define VTSS_L2_TYPES_H
 
 #include <vtss/api/types.h>
 
@@ -34,4 +34,4 @@ typedef enum {
                                  the port. */
 } vtss_sflow_type_t;
 
-#endif /* #define _VTSS_L2_TYPES_H_ */
+#endif /* #define VTSS_L2_TYPES_H */

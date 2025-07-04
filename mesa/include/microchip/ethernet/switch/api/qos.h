@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_QOS_
-#define _MICROCHIP_ETHERNET_SWITCH_API_QOS_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_QOS
+#define MICROCHIP_ETHERNET_SWITCH_API_QOS
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -714,4 +714,4 @@ mesa_rc mesa_evc_policer_conf_set(const mesa_inst_t                    inst,
                                   const mesa_evc_policer_conf_t *const conf) CAP(EVC_POLICER_CNT);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_QOS_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_QOS

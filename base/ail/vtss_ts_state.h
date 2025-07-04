@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_TS_STATE_H_
-#define _VTSS_TS_STATE_H_
+#ifndef VTSS_TS_STATE_H
+#define VTSS_TS_STATE_H
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
 
@@ -249,4 +249,4 @@ void vtss_ts_debug_print(struct vtss_state_s           *vtss_state,
 
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
-#endif /* _VTSS_TS_STATE_H_ */
+#endif /* VTSS_TS_STATE_H */

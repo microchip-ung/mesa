@@ -6,8 +6,8 @@
  * \brief Port API
  */
 
-#ifndef _VTSS_PORT_API_H_
-#define _VTSS_PORT_API_H_
+#ifndef VTSS_PORT_API_H
+#define VTSS_PORT_API_H
 
 #include <vtss/api/port.h>
 
@@ -1163,4 +1163,4 @@ vtss_rc vtss_port_serdes_debug_set(const vtss_inst_t                     inst,
 #ifdef __cplusplus
 }
 #endif
-#endif /* _VTSS_PORT_API_H_ */
+#endif /* VTSS_PORT_API_H */

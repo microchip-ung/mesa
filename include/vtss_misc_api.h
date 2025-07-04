@@ -7,8 +7,8 @@
  * \details This header file describes miscellaneous API functions
  */
 
-#ifndef _VTSS_MISC_API_H_
-#define _VTSS_MISC_API_H_
+#ifndef VTSS_MISC_API_H
+#define VTSS_MISC_API_H
 
 #include <vtss/api/types.h>
 #include "vtss_init_api.h"
@@ -1365,4 +1365,4 @@ vtss_rc vtss_vscope_scan_status_get(const vtss_inst_t                inst,
 #ifdef __cplusplus
 }
 #endif
-#endif /* VTSS_MISC_API_H_ */
+#endif /* VTSS_MISC_API_H */

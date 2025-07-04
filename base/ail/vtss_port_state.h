@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_PORT_STATE_H_
-#define _VTSS_PORT_STATE_H_
+#ifndef VTSS_PORT_STATE_H
+#define VTSS_PORT_STATE_H
 
 #if defined(VTSS_FEATURE_PORT_CONTROL)
 typedef struct {
@@ -641,4 +641,4 @@ void           vtss_port_debug_print(struct vtss_state_s           *vtss_state,
 
 #endif /* VTSS_FEATURE_PORT_CONTROL */
 
-#endif /* _VTSS_PORT_STATE_H_ */
+#endif /* VTSS_PORT_STATE_H */

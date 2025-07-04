@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_L2_
-#define _MICROCHIP_ETHERNET_SWITCH_API_L2_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_L2
+#define MICROCHIP_ETHERNET_SWITCH_API_L2
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/switch/api/qos.h>
@@ -1827,4 +1827,4 @@ mesa_rc mesa_rb_proxy_node_id_get_next(const mesa_inst_t             inst,
                                        mesa_rb_proxy_node_t *const   entry) CAP(L2_REDBOX_CNT);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_L2_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_L2

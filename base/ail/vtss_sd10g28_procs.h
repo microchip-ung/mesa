@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_SD10G28_PROCS_H_
-#define _VTSS_SD10G28_PROCS_H_
+#ifndef VTSS_SD10G28_PROCS_H
+#define VTSS_SD10G28_PROCS_H
 
 #ifdef USE_TCL_STUBS
 #include "ute_webstax_defines.h"
@@ -154,37 +154,33 @@ typedef struct {
 typedef struct {
     vtss_sd10g28_chip_name_t chip_name; /**< Name of the chip > */
     vtss_sd10g28_mode_t      mode;      /**< Mode parameter.      */
-    // u32                  datarate;       /**< optional parameter; if this is
-    // specified if_width must also be specified > */
-    u8                 if_width;       /**< UDL interface width 10, 16, 20, 32 or 64 bit >     */
-    BOOL               skip_cmu_cfg;   /* Enable/disable CMU configuration for this serdes*/
-    vtss_sd10g28_cmu_t cmu_sel;        /* This needs to be handled based on the
-                                          Device/Mode serdes uses*/
-    BOOL                  no_pwrcycle; /**< Omit initial power-cycle > */
-    vtss_sd10g28_ls_t     slave_loop;  /**< Enable input loop LS1/Ls2/LS3 >  */
-    vtss_sd10g28_lm_t     master_loop; /**< Enable pad loop LM1  > */
-    vtss_sd10g28_preset_t preset;      /**< Preset Media Type  >      */
-    BOOL                  txinvert;    /**< Enable inversion of output data >    */
-    BOOL                  rxinvert;    /**< Enable inversion of input data >    */
-    BOOL                  txmargin;    /**< Set output level to  half/full    */
-    u16                   txswing;     /**< Set output level     */
+    u8                       if_width;  /**< UDL interface width 10, 16, 20, 32 or 64 bit >     */
+    BOOL                     skip_cmu_cfg; /* Enable/disable CMU configuration for this serdes*/
+    vtss_sd10g28_cmu_t       cmu_sel;      /* This needs to be handled based on the
+                                              Device/Mode serdes uses*/
+    BOOL                  no_pwrcycle;     /**< Omit initial power-cycle > */
+    vtss_sd10g28_ls_t     slave_loop;      /**< Enable input loop LS1/Ls2/LS3 >  */
+    vtss_sd10g28_lm_t     master_loop;     /**< Enable pad loop LM1  > */
+    vtss_sd10g28_preset_t preset;          /**< Preset Media Type  >      */
+    BOOL                  txinvert;        /**< Enable inversion of output data >    */
+    BOOL                  rxinvert;        /**< Enable inversion of input data >    */
+    BOOL                  txmargin;        /**< Set output level to  half/full    */
+    u16                   txswing;         /**< Set output level     */
     u8                    dfe_enable;
     BOOL                  mute; /**< Mute Output Buffer. >                                 */
     BOOL                  is_6g;
 } vtss_sd10g28_setup_args_t;
 //
 typedef struct {
-    vtss_sd10g28_mode_t mode; /**< Mode parameter. */
-    // u32                  datarate;       /**< optional parameter; if this is
-    // specified if_width must also be specified > */
-    u8                 bitwidth;     /**< UDL interface width 10, 16, 20, 32 or 64 bit > */
-    vtss_sd10g28_cmu_t cmu_sel;      /* This needs to handled based on the Device/Mode it used*/
-    BOOL               skip_cmu_cfg; /* Enable/disable CMU configuration for this serdes*/
-    u8                 rate;         /**< Rate of network interface >         */
-    u8                 dfe_tap;      /**< Enable inversion of output data >      */
-    u8                 pi_bw_gen1;   /**< Enable inversion of input data >   */
-    u8                 duty_cycle;   /**< Set output level to  half/full   */
-    BOOL               dfe_enable;
+    vtss_sd10g28_mode_t mode;         /**< Mode parameter. */
+    u8                  bitwidth;     /**< UDL interface width 10, 16, 20, 32 or 64 bit > */
+    vtss_sd10g28_cmu_t  cmu_sel;      /* This needs to handled based on the Device/Mode it used*/
+    BOOL                skip_cmu_cfg; /* Enable/disable CMU configuration for this serdes*/
+    u8                  rate;         /**< Rate of network interface >         */
+    u8                  dfe_tap;      /**< Enable inversion of output data >      */
+    u8                  pi_bw_gen1;   /**< Enable inversion of input data >   */
+    u8                  duty_cycle;   /**< Set output level to  half/full   */
+    BOOL                dfe_enable;
 } vtss_sd10g28_mode_args_t;
 
 /** \brief return values of setup function */
@@ -347,28 +343,6 @@ typedef struct {
 /** \brief Input Buffer loop settings based on loop config */
 typedef struct {
 } vtss_sd10g28_loop_cfg_t;
-
-/** \brief Parameters needed for setup_rx function */
-// TODO need to see if this is required
-// typedef struct {
-//     vtss_sd10g28_chip_name_t      chip_name;   /**< Name of the vitesse chip
-//     >                                 */ vtss_sd10g28_rate_t   datarate; /**<
-//     targeted sample frequency / data rate >                    */
-//     vtss_sd10g28_mode_t   mode;      /**< Optional mode for setting up the
-//     frequency.                */
-//                                        /**<   Overwrites f_pll if !=
-//                                        VTSS_SD10G28_MODE_NONE,          */
-//                                        /**<   Mandatory for FX100 mode */
-//     u8                    if_width;    /**< interface width 8, 10, 16, 20, 32
-//     or 40 bit >              */ vtss_sd10g28_preset_t preset;      /**< Setup
-//     macro with link specific presets >                   */
-// } vtss_sd10g28_setup_rx_args_t;
-
-/** \brief return values of setup_rx function */
-// TODO need to see if this is required
-// typedef struct {
-//
-// } vtss_sd10g28_setup_rx_struct_t;
 
 /* ================================================================= *
  *  Function prototypes

@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_L3_STATE_H_
-#define _VTSS_L3_STATE_H_
+#ifndef VTSS_L3_STATE_H
+#define VTSS_L3_STATE_H
 
 #if defined(VTSS_FEATURE_LAYER3)
 
@@ -183,4 +183,4 @@ void    vtss_debug_print_l3(struct vtss_state_s           *vtss_state,
 
 #endif /* VTSS_FEATURE_LAYER3 */
 
-#endif /* _VTSS_L3_STATE_H_ */
+#endif /* VTSS_L3_STATE_H */

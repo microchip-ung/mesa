@@ -8,8 +8,8 @@
 // retesting and revalidation) we are unable to make the desired changes in all
 // legacy systems without compromising our product or our clients' products.
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_TS_
-#define _MICROCHIP_ETHERNET_SWITCH_API_TS_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_TS
+#define MICROCHIP_ETHERNET_SWITCH_API_TS
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/switch/api/security.h>
@@ -1000,4 +1000,4 @@ typedef enum {
 } mesa_ts_tod_internal_tc_mode_t CAP(TS);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_TS_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_TS

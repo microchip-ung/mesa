@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_PORT_
-#define _MICROCHIP_ETHERNET_SWITCH_API_PORT_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_PORT
+#define MICROCHIP_ETHERNET_SWITCH_API_PORT
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/switch/api/misc.h> // For mesa_sgpio_group_t
@@ -962,4 +962,4 @@ mesa_rc mesa_port_serdes_debug_set(const mesa_inst_t                     inst,
                                    const mesa_port_serdes_debug_t *const conf);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_PORT_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_PORT

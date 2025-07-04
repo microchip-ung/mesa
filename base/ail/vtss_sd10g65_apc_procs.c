@@ -3,7 +3,7 @@
 
 /*---------------------------------------------------------------------------
  * $HeadURL:
- *svn://svn-de.vitesse.com/svn-de/vtslibs/vts_ute_tcllib/tags/UTE_release_vts_ute_tcllib_20180312_trunk_bjo/api_c/vtss_sd10g65_apc_procs.c
+ *svn:/svn-de.vitesse.com/svn-de/vtslibs/vts_ute_tcllib/tags/UTE_release_vts_ute_tcllib_20180312_trunk_bjo/api_c/vtss_sd10g65_apc_procs.c
  *$
  *---------------------------------------------------------------------------*/
 

@@ -7,8 +7,8 @@
  * \details This header file describes target features and compile-time options
  */
 
-#ifndef _VTSS_OPTIONS_H_
-#define _VTSS_OPTIONS_H_
+#ifndef VTSS_OPTIONS_H
+#define VTSS_OPTIONS_H
 
 /* ================================================================= *
  *  Features
@@ -915,4 +915,4 @@
 #define VTSS_OPT_PORT_COUNT 0 /**< Use all target ports by default */
 #endif                        /* VTSS_OPT_PORT_COUNT */
 
-#endif /* _VTSS_OPTIONS_H_ */
+#endif /* VTSS_OPTIONS_H */

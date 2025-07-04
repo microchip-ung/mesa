@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_STATE_H_
-#define _VTSS_STATE_H_
+#ifndef VTSS_STATE_H
+#define VTSS_STATE_H
 
 #include <vtss_api.h>
 
@@ -777,4 +777,4 @@ VTSS_TRACE_TYPES
 
 #endif /* VTSS_OPT_TRACE */
 
-#endif /* _VTSS_STATE_H_ */
+#endif /* VTSS_STATE_H */

@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_L3_
-#define _MICROCHIP_ETHERNET_SWITCH_API_L3_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_L3
+#define MICROCHIP_ETHERNET_SWITCH_API_L3
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -230,4 +230,4 @@ mesa_rc mesa_l3_counters_rleg_get(const mesa_inst_t         inst,
 mesa_rc mesa_l3_counters_rleg_clear(const mesa_inst_t inst, const mesa_vid_t vlan) CAP(L3);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_L3_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_L3

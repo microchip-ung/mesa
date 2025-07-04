@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_TSN_
-#define _MICROCHIP_ETHERNET_SWITCH_API_TSN_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_TSN
+#define MICROCHIP_ETHERNET_SWITCH_API_TSN
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -481,4 +481,4 @@ mesa_rc mesa_qos_fp_port_status_get(const mesa_inst_t                inst,
     CAP(QOS_FRAME_PREEMPTION);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_L2_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_TSN

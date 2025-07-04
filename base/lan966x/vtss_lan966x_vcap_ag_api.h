@@ -6,8 +6,8 @@
  * Commit ID: 377a55eebafe278cd5b557227fe13f6167fe1821
  */
 
-#ifndef _VTSS_LAN966X_VCAP_AG_API_H_
-#define _VTSS_LAN966X_VCAP_AG_API_H_
+#ifndef VTSS_LAN966X_VCAP_AG_API_H
+#define VTSS_LAN966X_VCAP_AG_API_H
 
 #include "vtss_lan966x_vcap_ag_layout.h"
 
@@ -138,4 +138,4 @@ const struct vtss_lan966x_vcap_field_attrs *vtss_lan966x_vcap_action_field_attrs
 
 #endif /* VTSS_LAN966X_VCAP_INCLUDE_FIELD_ATTRS */
 
-#endif /* _VTSS_LAN966X_VCAP_AG_API_H_ */
+#endif /* VTSS_LAN966X_VCAP_AG_API_H */

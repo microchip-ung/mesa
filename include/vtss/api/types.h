@@ -7,8 +7,8 @@
  * \details This header file describes generic types used in the API
  */
 
-#ifndef _VTSS_API_TYPES_H_
-#define _VTSS_API_TYPES_H_
+#ifndef VTSS_API_TYPES_H
+#define VTSS_API_TYPES_H
 
 #include <vtss/api/options.h>
 #include <vtss_os.h> /* This defines the *runtime* OS environment */
@@ -1315,4 +1315,4 @@ typedef u32 vtss_vstax_upspn_t;
 }
 #endif
 
-#endif /* _VTSS_API_TYPES_H_ */
+#endif /* VTSS_API_TYPES_H */

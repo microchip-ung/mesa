@@ -6,8 +6,8 @@
  * Commit ID: 377a55eebafe278cd5b557227fe13f6167fe1821
  */
 
-#ifndef _VTSS_LAN966X_VCAP_AG_LAYOUT_FPGA_H_
-#define _VTSS_LAN966X_VCAP_AG_LAYOUT_FPGA_H_
+#ifndef VTSS_LAN966X_VCAP_AG_LAYOUT_FPGA_H
+#define VTSS_LAN966X_VCAP_AG_LAYOUT_FPGA_H
 
 #include "vtss_lan966x_vcap_types.h"
 
@@ -2238,4 +2238,4 @@ struct vtss_lan966x_vcap_is2_action_fields {
     } u;
 };
 
-#endif /* _VTSS_LAN966X_VCAP_AG_LAYOUT_FPGA_H_ */
+#endif /* VTSS_LAN966X_VCAP_AG_LAYOUT_FPGA_H */

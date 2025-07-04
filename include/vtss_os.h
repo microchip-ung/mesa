@@ -7,8 +7,8 @@
  * \details This header file includes the OS specific header file
  */
 
-#ifndef _VTSS_OS_H_
-#define _VTSS_OS_H_
+#ifndef VTSS_OS_H
+#define VTSS_OS_H
 
 #include "lm_utils.h"
 #include <vtss_os_common.h>
@@ -30,4 +30,4 @@
  * since that might lead to uncaught problems on new platforms.
  */
 
-#endif /* _VTSS_OS_H_ */
+#endif /* VTSS_OS_H */

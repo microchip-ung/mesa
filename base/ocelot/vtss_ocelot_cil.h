@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_SERVAL_CIL_H_
-#define _VTSS_SERVAL_CIL_H_
+#ifndef VTSS_SERVAL_CIL_H
+#define VTSS_SERVAL_CIL_H
 
 /* Use relative DWORD addresses for registers - must be first */
 #define VTSS_IOADDR(t, o) ((((t) - VTSS_IO_ORIGIN1_OFFSET) >> 2) + (o))
@@ -290,4 +290,4 @@ vtss_rc vtss_srvl_ts_debug_print(vtss_state_t                  *vtss_state,
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
 #endif /* VTSS_ARCH_OCELOT */
-#endif /* _VTSS_SERVAL_CIL_H_ */
+#endif /* VTSS_SERVAL_CIL_H */

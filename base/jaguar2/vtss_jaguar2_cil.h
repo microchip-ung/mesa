@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_JAGUAR2_CIL_H_
-#define _VTSS_JAGUAR2_CIL_H_
+#ifndef VTSS_JAGUAR2_CIL_H
+#define VTSS_JAGUAR2_CIL_H
 
 /* Use relative DWORD addresses for registers - must be first */
 #define VTSS_IOADDR(t, o) ((((t) - VTSS_IO_ORIGIN1_OFFSET) >> 2) + (o))
@@ -536,4 +536,4 @@ vtss_rc jr2_sd10g_cfg(vtss_state_t           *vtss_state,
                       u32                     port);
 
 #endif /* VTSS_ARCH_JAGUAR_2 */
-#endif /* _VTSS_JAGUAR2_CIL_H_ */
+#endif /* VTSS_JAGUAR2_CIL_H */

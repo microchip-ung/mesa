@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MICROCHIP_ETHERNET_SWITCH_API_VOP_
-#define _MICROCHIP_ETHERNET_SWITCH_API_VOP_
+#ifndef MICROCHIP_ETHERNET_SWITCH_API_VOP
+#define MICROCHIP_ETHERNET_SWITCH_API_VOP
 
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
@@ -264,7 +264,7 @@ mesa_rc mesa_voe_lt_conf_get(const mesa_inst_t         inst,
                              mesa_voe_lt_conf_t *const conf) CAP(VOP_CFM);
 
 // VOE Loop Back configuration.
-#define MESA_VOE_LBM_TRANSACTION_ID_NONE 0xFFFFFFFF
+#define MESA_VOE_LBM_TRANSACTION_ID_NONE 0xFFFFFFFFU
 typedef struct {
     mesa_bool_t enable; // Enable LBM/LBR PDU handling in HW
 
@@ -669,4 +669,4 @@ mesa_rc mesa_voi_conf_get(const mesa_inst_t      inst,
                           mesa_voi_conf_t *const conf) CAP(VOP_V2);
 
 #include <microchip/ethernet/hdr_end.h>
-#endif // _MICROCHIP_ETHERNET_SWITCH_API_VOP_
+#endif // MICROCHIP_ETHERNET_SWITCH_API_VOP
