@@ -2673,10 +2673,10 @@ mesa_rc meba_poe_gen7_bt_nvm_download_and_program_page_data(const meba_poe_ctrl_
                                    data[7],     DUMMY_BYTE,    DUMMY_BYTE};
 
     char *fname = "NVM_Download_and_program_page_DATA";
+    MESA_RC(pd_tx(inst, buf, fname));
+
     if (is_wait_for_flash) {
-        MESA_RC(pd_tx_rx(inst, __FUNCTION__, __LINE__, buf, fname));
-    } else {
-        MESA_RC(pd_tx(inst, buf, fname));
+        VTSS_MSLEEP(2);
     }
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s called line %d", __FUNCTION__, __LINE__);
@@ -2790,11 +2790,8 @@ int intel_hex_to_bin_static(const char *hexdata,
     return 0;
 }
 
-mesa_bool_t bEnablePrintToTextBox = TRUE;
-
 mesa_rc Burn_gen7(const meba_poe_ctrl_inst_t *const inst, const char *hexdata, size_t firmware_size)
 {
-
     const int iNUMBER_OF_BYTES = 8;
     // Telemetry_at_Boot_Up_Error_t tTelemetry_at_Boot_Up_Error;
     bt_system_status_t tBT_System_Status;
@@ -2843,7 +2840,7 @@ mesa_rc Burn_gen7(const meba_poe_ctrl_inst_t *const inst, const char *hexdata, s
           __LINE__, tBT_System_Status.is_boot_mode);
 
     if (!tBT_System_Status.is_boot_mode) {
-        DEBUG(inst, MEBA_TRACE_LVL_INFO,
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING,
               "is_boot_mode= %d ,requsted = 1, Reset device and try again !!!",
               tBT_System_Status.is_boot_mode);
         return MESA_RC_ERROR;
@@ -2863,56 +2860,58 @@ mesa_rc Burn_gen7(const meba_poe_ctrl_inst_t *const inst, const char *hexdata, s
           __LINE__, tBT_System_Status.is_boot_mode, tBT_System_Status.eGen7_bt_boot_up_error);
 
     if (tBT_System_Status.eGen7_bt_boot_up_error != eBoot_bt_gen7_error_6__Boot_During_Download) {
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "boot status error: %d ,requsted = 6",
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING, "boot status error: %d ,requsted = 6",
               tBT_System_Status.eGen7_bt_boot_up_error);
         return MESA_RC_ERROR;
     }
 
     uint8_t bytesToSend[8];
     int     bytesCounter = 0;
+    int last_percent = -1;
+
+    printf("\n\r");
 
     // printf("Line %d, Binary Data %ld bytes:\n", __LINE__, binaryDataLength);
-    for (int i = 0; i < bin_len; i++) {
+    int i;
+    for (i = 0; i < bin_len; i++) {
         bytesToSend[bytesCounter++] = bin_data[i];
 
         int IsWaitForFlash = 0;
 
         if ((i + 1) % 64 == 0) {
-            DEBUG(inst, MEBA_TRACE_LVL_INFO, "flashing. sending sync command");
+            DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "flashing. sending sync command");
             IsWaitForFlash = 1;
         }
 
         if ((i + 1) % 8 == 0) {
-            if (bEnablePrintToTextBox) {
-                char byteGroup[3 * iNUMBER_OF_BYTES + 1];
-                byteGroup[0] = '\0';
+            char byteGroup[3 * iNUMBER_OF_BYTES + 1];
+            byteGroup[0] = '\0';
 
-                for (int i = 0; i < iNUMBER_OF_BYTES; i++) {
-                    char byteStr[4];
-                    snprintf(byteStr, sizeof(byteStr), "%02X ", bytesToSend[i]);
-                    strncat(byteGroup, byteStr, sizeof(byteGroup) - strlen(byteGroup) - 1);
-                }
-
-                // Get the current time
-                // time_t rawtime;
-                // struct tm *timeinfo;
-                // char timeStr[10];
-
-                // time(&rawtime);
-                // timeinfo = localtime(&rawtime);
-                // strftime(timeStr, sizeof(timeStr), "%M:%S.%03d", timeinfo);
-
-                DEBUG(inst, MEBA_TRACE_LVL_INFO, "Sending %d bytes: %s", iNUMBER_OF_BYTES,
-                      byteGroup);
-                // Uncomment the following line if you have a similar event handling mechanism
-                // GlobalsGen_Global_FireModelToViewEvent(ModelToView_Events_e_General_ShowWarrningsInTextBox,
-                // (void *)byteGroup);
+            for (int j = 0; j < iNUMBER_OF_BYTES; j++) {
+                char byteStr[4];
+                snprintf(byteStr, sizeof(byteStr), "%02X ", bytesToSend[j]);
+                strncat(byteGroup, byteStr, sizeof(byteGroup) - strlen(byteGroup) - 1);
             }
+
+            DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "Sending %d bytes: %s", iNUMBER_OF_BYTES, byteGroup);
 
             meba_poe_gen7_bt_nvm_download_and_program_page_data(inst, bytesToSend, IsWaitForFlash);
             bytesCounter = 0;
+            
+            int percent = (int)(((i + 1) * 100.0) / bin_len);
+            if (percent != last_percent) {
+                printf("\rProgress: %3d%%", percent);
+                fflush(stdout);
+                last_percent = percent;
+            }
         }
     }
+
+    if ((last_percent > 0) && (last_percent != 100)) {
+        printf("\rProgress: 100%%");
+    }
+
+    printf("\r\n");
 
     VTSS_MSLEEP(1000);
 
@@ -2933,7 +2932,7 @@ mesa_rc Burn_gen7(const meba_poe_ctrl_inst_t *const inst, const char *hexdata, s
 
     if ((tBT_System_Status.is_boot_mode) &&
         (tBT_System_Status.eGen7_bt_boot_up_error != eBoot_bt_gen7_0_no_error)) {
-        DEBUG(inst, MEBA_TRACE_LVL_INFO, "boot status error: %d ,requsted != 0",
+        DEBUG(inst, MEBA_TRACE_LVL_WARNING, "boot status error: %d ,requsted != 0",
               tBT_System_Status.eGen7_bt_boot_up_error);
         return MESA_RC_ERROR;
     }
@@ -2941,8 +2940,7 @@ mesa_rc Burn_gen7(const meba_poe_ctrl_inst_t *const inst, const char *hexdata, s
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "Updating Devices Firmware if needed");
     meba_poe_gen7_bt_devices_firmware_download(inst);
 
-    DEBUG(inst, MEBA_TRACE_LVL_INFO, "programmed successfully");
-
+    printf("\n\rPoE firmware programmed successfully\n\r");
     return MESA_RC_OK;
 }
 
@@ -2956,7 +2954,7 @@ typedef struct {
     unsigned char  param;
 } HexFileInfo_t;
 
-HexFileInfo_t ExtractHexData(const char *hexData)
+HexFileInfo_t extract_hex_data(const char *hexData)
 {
     HexFileInfo_t fileInfo;
     memset(&fileInfo, 0, sizeof(HexFileInfo_t)); // Initialize the structure to zero
@@ -2972,7 +2970,7 @@ HexFileInfo_t ExtractHexData(const char *hexData)
     return fileInfo;
 }
 
-void PrintFileInfoWithDescription(const meba_poe_ctrl_inst_t *const inst, HexFileInfo_t fileInfo)
+void print_file_info_with_description(const meba_poe_ctrl_inst_t *const inst, HexFileInfo_t fileInfo)
 {
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "Field Name\t\t\tValue\t\t\tDescription");
     DEBUG(
@@ -3007,8 +3005,8 @@ BOOL view_firmware_text_file_header(const meba_poe_ctrl_inst_t *const inst,
         return false;
     }
 
-    *pFileInfo = ExtractHexData(extractedData);
-    PrintFileInfoWithDescription(inst, *pFileInfo);
+    *pFileInfo = extract_hex_data(extractedData);
+    print_file_info_with_description(inst, *pFileInfo);
     return true;
 }
 
@@ -3734,7 +3732,6 @@ static mesa_rc meba_poe_pd_prepare_firmware_upgrade(const meba_poe_ctrl_inst_t *
                   inst->adapter_name);
             return MESA_RC_ERR_POE_FIRMWARE_IS_UP_TO_DATE;
         }
-        // return MESA_RC_ERR_POE_FIRMWARE_IS_UP_TO_DATE; // TODO - remove
     }
 
     meba_poe_pd_set_chipset(inst, MEBA_POE_FIRMWARE_UPGRADE);
