@@ -5447,21 +5447,21 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
 
         /* Initialize VLAN Translation Group free/used lists */
         grp_conf = &vtss_state->l2.vt_trans_conf;
-        grp_conf->used = NULL;
+        grp_conf->used_list = NULL;
         for (i = VTSS_VLAN_TRANS_FIRST_GROUP_ID; i <= VTSS_VLAN_TRANS_MAX_CNT; i++) {
             grp_entry = &grp_conf->trans_list[i - VTSS_VLAN_TRANS_FIRST_GROUP_ID];
             /* Insert in free list */
-            grp_entry->next = grp_conf->free;
-            grp_conf->free = grp_entry;
+            grp_entry->next = grp_conf->free_list;
+            grp_conf->free_list = grp_entry;
         }
         /* Initialize VLAN Translation Port free/used lists */
         port_conf = &vtss_state->l2.vt_port_conf;
-        port_conf->used = NULL;
+        port_conf->used_list = NULL;
         for (i = VTSS_VLAN_TRANS_FIRST_GROUP_ID; i <= VTSS_VLAN_TRANS_GROUP_MAX_CNT; i++) {
             port_entry = &port_conf->port_list[i - VTSS_VLAN_TRANS_FIRST_GROUP_ID];
             /* Insert in free list */
-            port_entry->next = port_conf->free;
-            port_conf->free = port_entry;
+            port_entry->next = port_conf->free_list;
+            port_conf->free_list = port_entry;
         }
     }
 #endif // VTSS_FEATURE_VCAP
@@ -5517,15 +5517,15 @@ vtss_rc vtss_l2_inst_create(vtss_state_t *vtss_state)
             sdx = &isdx_list->table[i];
             sdx->port_no = VTSS_PORT_NO_NONE;
             sdx->sdx = (sdx_info->max_count - i);
-            sdx->next = isdx_list->free;
-            isdx_list->free = sdx;
+            sdx->next = isdx_list->free_list;
+            isdx_list->free_list = sdx;
 
             /* ESDX */
             sdx = &esdx_list->table[i];
             sdx->port_no = VTSS_PORT_NO_NONE;
             sdx->sdx = (sdx_info->max_count - i);
-            sdx->next = esdx_list->free;
-            esdx_list->free = sdx;
+            sdx->next = esdx_list->free_list;
+            esdx_list->free_list = sdx;
         }
     }
 #endif
@@ -7353,7 +7353,7 @@ static vtss_rc vtss_vlan_trans_group_list_add(vtss_state_t                      
     vtss_vlan_trans_grp2vlan_entry_t *tmp, *prev, *new = NULL;
 
     /* Insert the new node into the used list */
-    for (tmp = list->used, prev = NULL; tmp != NULL; tmp = tmp->next) {
+    for (tmp = list->used_list, prev = NULL; tmp != NULL; tmp = tmp->next) {
         /* Check to see if the translation is already configured for this group */
         if (vtss_vlan_trans_group_match(&tmp->conf, conf)) {
             // Ingress/egress match found
@@ -7378,15 +7378,15 @@ static vtss_rc vtss_vlan_trans_group_list_add(vtss_state_t                      
 
     if (new == NULL) {
         // Take entry from free list for new translation
-        if ((new = list->free) == NULL) { /* No free entry exists */
+        if ((new = list->free_list) == NULL) { /* No free entry exists */
             return VTSS_RC_ERROR;
         }
-        list->free = new->next;
+        list->free_list = new->next;
 
         // Insert entry in used list
         if (prev == NULL) {
-            new->next = list->used;
-            list->used = new;
+            new->next = list->used_list;
+            list->used_list = new;
         } else {
             new->next = prev->next;
             prev->next = new;
@@ -7406,19 +7406,19 @@ static vtss_rc vtss_vlan_trans_group_list_del(vtss_state_t                    *v
     vtss_vlan_trans_grp2vlan_entry_t *tmp, *prev;
 
     /* Search used list to find matching entry */
-    for (tmp = list->used, prev = NULL; tmp != NULL; prev = tmp, tmp = tmp->next) {
+    for (tmp = list->used_list, prev = NULL; tmp != NULL; prev = tmp, tmp = tmp->next) {
         if (conf->group_id == tmp->conf.group_id && conf->dir == tmp->conf.dir &&
             conf->vid == tmp->conf.vid && conf->trans_vid == tmp->conf.trans_vid) {
             /* Remove from the used list */
             if (prev == NULL) {
-                list->used = tmp->next;
+                list->used_list = tmp->next;
             } else {
                 prev->next = tmp->next;
             }
 
             /* Add to the free list */
-            tmp->next = list->free;
-            list->free = tmp;
+            tmp->next = list->free_list;
+            list->free_list = tmp;
             return VTSS_RC_OK;
         }
     }
@@ -7432,7 +7432,7 @@ static vtss_rc vtss_vlan_trans_group_list_get(vtss_state_t                    *v
     vtss_vlan_trans_grp2vlan_entry_t *tmp;
 
     /* Search used list to find out matching entry */
-    for (tmp = list->used; tmp != NULL; tmp = tmp->next) {
+    for (tmp = list->used_list; tmp != NULL; tmp = tmp->next) {
         if (vtss_vlan_trans_group_match(&tmp->conf, conf)) {
             // Ingress/egress match found
             *conf = tmp->conf;
@@ -7453,7 +7453,7 @@ static void vtss_vlan_trans_group_hw_entries_add(vtss_state_t *vtss_state,
     vtss_vlan_trans_grp2vlan_conf_t  *conf;
 
     /* Search used list to find out matching entry */
-    for (tmp = list->used; tmp != NULL; tmp = tmp->next) {
+    for (tmp = list->used_list; tmp != NULL; tmp = tmp->next) {
         conf = &tmp->conf;
         if (group_id != conf->group_id) {
             continue;
@@ -7488,7 +7488,7 @@ static void vtss_vlan_trans_group_hw_entries_del(vtss_state_t *vtss_state,
     vtss_vlan_trans_grp2vlan_conf_t  *conf;
 
     /* Search used list to find out matching entry */
-    for (tmp = list->used; tmp != NULL; tmp = tmp->next) {
+    for (tmp = list->used_list; tmp != NULL; tmp = tmp->next) {
         conf = &tmp->conf;
         if (group_id != conf->group_id) {
             continue;
@@ -7527,7 +7527,7 @@ static vtss_rc vtss_vlan_trans_group_port_list_update(vtss_state_t *vtss_state,
     vtss_vlan_trans_grp2vlan_conf_t  *conf;
 
     /* Search used list to find out matching entry */
-    for (tmp = list->used; tmp != NULL; tmp = tmp->next) {
+    for (tmp = list->used_list; tmp != NULL; tmp = tmp->next) {
         conf = &tmp->conf;
         if (group_id != conf->group_id) {
             continue;
@@ -7579,7 +7579,7 @@ static vtss_rc vtss_vlan_trans_port_list_get(vtss_state_t *vtss_state,
     vtss_vlan_trans_port2grp_entry_t *tmp;
 
     VTSS_MEMSET(ports, 0, VTSS_VLAN_TRANS_PORT_BF_SIZE);
-    for (tmp = list->used; tmp != NULL; tmp = tmp->next) {
+    for (tmp = list->used_list; tmp != NULL; tmp = tmp->next) {
         if (tmp->conf.group_id == group_id) {
             VTSS_MEMCPY(ports, tmp->conf.ports, VTSS_VLAN_TRANS_PORT_BF_SIZE);
             return VTSS_RC_OK;
@@ -7598,7 +7598,7 @@ static void vtss_vlan_trans_group_trans_cnt(vtss_state_t *vtss_state,
     u32                               rx_cnt = 0U, tx_cnt = 0U;
 
     /* Search used list to find out matching entry */
-    for (tmp = list->used; tmp != NULL; tmp = tmp->next) {
+    for (tmp = list->used_list; tmp != NULL; tmp = tmp->next) {
         if (group_id == tmp->conf.group_id) {
             if (tmp->conf.dir != VTSS_VLAN_TRANS_DIR_EGRESS) {
                 rx_cnt++;
@@ -7650,7 +7650,7 @@ static vtss_rc vtss_vlan_trans_res_check(vtss_state_t *vtss_state,
     chg = &res.is1;
 #endif
     orig_port_first = VTSS_PORT_NO_NONE;
-    for (tmp = port_list->used; tmp != NULL; tmp = tmp->next) {
+    for (tmp = port_list->used_list; tmp != NULL; tmp = tmp->next) {
         conf = &tmp->conf;
         if (group_id != conf->group_id) {
             // Check if we are moving ports from another group
@@ -7731,7 +7731,7 @@ static vtss_rc vtss_vlan_trans_port_list_del(vtss_state_t *vtss_state, const u8 
     vtss_port_no_t                    port_no;
 
     /* Delete all the port to group mappings corresponding to the ports list */
-    for (tmp = list->used, prev = NULL; tmp != NULL;) {
+    for (tmp = list->used_list, prev = NULL; tmp != NULL;) {
         modified_entry = FALSE;
         del_entry = TRUE;
         conf = tmp->conf; // Copy configuration
@@ -7753,17 +7753,17 @@ static vtss_rc vtss_vlan_trans_port_list_del(vtss_state_t *vtss_state, const u8 
             if (del_entry) {        /* None of the ports is valid, so delete the entry */
                 if (prev == NULL) { /* Delete the first node */
                     /* Remove from the used list */
-                    list->used = tmp->next;
+                    list->used_list = tmp->next;
                 } else {
                     /* Remove from the used list */
                     prev->next = tmp->next;
                 }
                 /* Add to the free list */
-                tmp->next = list->free;
-                list->free = tmp;
+                tmp->next = list->free_list;
+                list->free_list = tmp;
                 /* Update tmp to continue the loop */
                 if (prev == NULL) { /* This is the first node in used list */
-                    tmp = list->used;
+                    tmp = list->used_list;
                     continue;
                 } else {
                     tmp = prev;
@@ -7932,18 +7932,18 @@ vtss_rc vtss_cmn_vlan_trans_group_get(vtss_state_t                    *vtss_stat
         return VTSS_RC_ERROR;
     }
 
-    if (list->used == NULL) {
+    if (list->used_list == NULL) {
         VTSS_D("Group list is empty");
         return VTSS_RC_ERROR;
     }
 
     /* If group_id is 0, return first entry */
     if (conf->group_id == VTSS_VLAN_TRANS_NULL_GROUP_ID) {
-        *conf = list->used->conf;
+        *conf = list->used_list->conf;
         return VTSS_RC_OK;
     }
 
-    for (tmp = list->used; tmp != NULL; tmp = tmp->next) {
+    for (tmp = list->used_list; tmp != NULL; tmp = tmp->next) {
         if (next_entry) {
             *conf = tmp->conf;
             return VTSS_RC_OK;
@@ -7980,7 +7980,7 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_set(vtss_state_t                          
     }
 
     /* Insert the new node into the used list */
-    for (tmp = list->used, prev = NULL; tmp != NULL; prev = tmp, tmp = tmp->next) {
+    for (tmp = list->used_list, prev = NULL; tmp != NULL; prev = tmp, tmp = tmp->next) {
         if (conf->group_id == tmp->conf.group_id) {
             old_conf = tmp->conf; // Copy configuration
             for (i = 0U; i < VTSS_PORT_BF_SIZE; i++) {
@@ -8000,18 +8000,18 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_set(vtss_state_t                          
     }
     if (new == NULL) {
         /* Get free node from free list */
-        if ((new = list->free) == NULL) { /* No free entry exists */
+        if ((new = list->free_list) == NULL) { /* No free entry exists */
             return VTSS_RC_ERROR;
         }
-        list->free = new->next;
+        list->free_list = new->next;
 
         /* Copy the configuration */
         new->conf = *conf;
 
         // Insert entry in used list
         if (prev == NULL) {
-            new->next = list->used;
-            list->used = new;
+            new->next = list->used_list;
+            list->used_list = new;
         } else {
             new->next = prev->next;
             prev->next = new;
@@ -8040,18 +8040,18 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_get(vtss_state_t                    *vtss_
         return VTSS_RC_ERROR;
     }
 
-    if (list->used == NULL) {
+    if (list->used_list == NULL) {
         VTSS_D("Port list is empty");
         return VTSS_RC_ERROR;
     }
 
     /* If group_id is 0, return first entry */
     if (conf->group_id == VTSS_VLAN_TRANS_NULL_GROUP_ID) {
-        *conf = list->used->conf;
+        *conf = list->used_list->conf;
         return VTSS_RC_OK;
     }
 
-    for (tmp = list->used; tmp != NULL; tmp = tmp->next) {
+    for (tmp = list->used_list; tmp != NULL; tmp = tmp->next) {
         if (next_entry == TRUE) {
             *conf = tmp->conf;
             return VTSS_RC_OK;
@@ -8103,13 +8103,13 @@ vtss_sdx_entry_t *vtss_cmn_sdx_alloc(vtss_state_t  *vtss_state,
         return NULL;
     }
 
-    if ((sdx = list->free) == NULL) {
+    if ((sdx = list->free_list) == NULL) {
         VTSS_I("%sSDX alloc failed, port_no: %u", isdx ? "I" : "E", port_no);
         return NULL;
     }
 
     /* Take out of free list */
-    list->free = sdx->next;
+    list->free_list = sdx->next;
     list->count++;
     sdx->port_no = port_no;
     sdx->id = id;
@@ -8128,8 +8128,8 @@ void vtss_cmn_sdx_free(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx, BOOL isd
     sdx->pol_cnt = 0;
     sdx->stat_idx = 0;
     sdx->stat_cnt = 0;
-    sdx->next = list->free;
-    list->free = sdx;
+    sdx->next = list->free_list;
+    list->free_list = sdx;
     list->count--;
 }
 

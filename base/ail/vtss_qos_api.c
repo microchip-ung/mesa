@@ -1157,7 +1157,7 @@ vtss_rc vtss_qos_fp_port_status_get(const vtss_inst_t                inst,
 /* - Warm start synchronization ------------------------------------ */
 
 #if defined(VTSS_FEATURE_WARM_START)
-vtss_rc vtss_qos_restart_sync(vtss_state_t *vtss_state)
+vtss_rc vtss_qos_restart_sync(struct vtss_state_s *vtss_state)
 {
     vtss_port_no_t port_no;
 
@@ -1487,7 +1487,7 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
 
 /* - QoS utilities ------------------------------------------------- */
 
-u32 vtss_cmn_qos_chip_prio(vtss_state_t *vtss_state, const vtss_prio_t prio)
+u32 vtss_cmn_qos_chip_prio(struct vtss_state_s *vtss_state, const vtss_prio_t prio)
 {
     if (prio < vtss_state->qos.prio_count) {
         return (prio * vtss_state->qos.conf.prios) / vtss_state->qos.prio_count;
@@ -1497,7 +1497,7 @@ u32 vtss_cmn_qos_chip_prio(vtss_state_t *vtss_state, const vtss_prio_t prio)
     }
 }
 
-vtss_rc vtss_cmn_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cmn_qos_port_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_rc rc = VTSS_RC_ERROR;
 #if defined(VTSS_FEATURE_ES0)
@@ -2024,7 +2024,7 @@ static u8 bool8_to_u8(BOOL *array)
 }
 #endif
 
-void vtss_qos_debug_print(vtss_state_t                  *vtss_state,
+void vtss_qos_debug_print(struct vtss_state_s           *vtss_state,
                           lmu_ss_t                      *ss,
                           const vtss_debug_info_t *const info)
 {

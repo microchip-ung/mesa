@@ -4,7 +4,6 @@
 #ifndef MICROCHIP_ETHERNET_SWITCH_API_MISC
 #define MICROCHIP_ETHERNET_SWITCH_API_MISC
 
-#include <stdarg.h>
 #include <microchip/ethernet/switch/api/types.h>
 #include <microchip/ethernet/hdr_start.h> // ALL INCLUDE ABOVE THIS LINE
 

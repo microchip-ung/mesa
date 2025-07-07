@@ -63,14 +63,11 @@ vtss_rc     vtss_debug_print_group(const vtss_debug_group_t group,
                                    vtss_state_t                  *vtss_state,
                                    lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info);
-void        vtss_debug_print_sticky(lmu_ss_t *ss, const char *name, u32 value, u32 offset);
+void        vtss_debug_print_sticky(lmu_ss_t *ss, const char *name, u32 value, u32 mask);
 void        vtss_debug_print_value(lmu_ss_t *ss, const char *name, u32 value);
 void        vtss_debug_print_reg_header(lmu_ss_t *ss, const char *name);
 void        vtss_debug_print_reg(lmu_ss_t *ss, const char *name, u32 value);
 
 vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos);
-
-vtss_rc srvl_pll5g_read(vtss_state_t *vtss_state, u32 lcpll_mask);
-vtss_rc srvl_pll5g_write(vtss_state_t *vtss_state, u32 lcpll_mask, u32 nsec);
 
 #endif /* VTSS_COMMON_H */

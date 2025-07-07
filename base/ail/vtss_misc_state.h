@@ -25,17 +25,7 @@ vtss_rc vtss_cil_misc_reg_write(struct vtss_state_s *vtss_state,
                                 const u32            addr,
                                 const u32            value);
 
-vtss_rc vtss_cil_misc_reg_read64(struct vtss_state_s *vtss_state,
-                                 const vtss_chip_no_t chip_no,
-                                 const u64            addr,
-                                 u32 *const           value);
-vtss_rc vtss_cil_misc_reg_write64(struct vtss_state_s *vtss_state,
-                                  const vtss_chip_no_t chip_no,
-                                  const u64            addr,
-                                  const u32            value);
-
 vtss_rc vtss_cil_misc_chip_id_get(struct vtss_state_s *vtss_state, vtss_chip_id_t *const chip_id);
-vtss_rc vtss_cil_misc_intr_sticky_clear(const struct vtss_state_s *const state, u32 ext);
 vtss_rc vtss_cil_misc_poll_1sec(struct vtss_state_s *vtss_state);
 vtss_rc vtss_cil_misc_ptp_event_poll(struct vtss_state_s         *vtss_state,
                                      vtss_ptp_event_type_t *const ev_mask);

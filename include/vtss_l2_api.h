@@ -77,9 +77,9 @@ extern "C" {
      (upsid) <= VTSS_VSTAX_UPSID_MAX) /**< Checks if UPSIDs is legal */
 #define VTSS_VSTAX_UPSID_UNDEF (-1)   /**< Undefined UPSID. Only applicable in selected contexts */
 
-#define VTSS_UPSPN_CPU  0xfffffffe /**< MAC address entry is from CPU */
-#define VTSS_UPSPN_NONE 0xffffffff /**< Used to indicate end of GLAG list */
-#endif                             /* VTSS_FEATURE_VSTAX */
+#define VTSS_UPSPN_CPU  0xfffffffeU /**< MAC address entry is from CPU */
+#define VTSS_UPSPN_NONE 0xffffffffU /**< Used to indicate end of GLAG list */
+#endif                              /* VTSS_FEATURE_VSTAX */
 
 /** \brief MAC address entry */
 typedef struct {
@@ -653,6 +653,7 @@ vtss_rc vtss_vlan_vid_conf_set(const vtss_inst_t                 inst,
                                const vtss_vid_t                  vid,
                                const vtss_vlan_vid_conf_t *const conf);
 
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
 /** \brief VLAN Tx tag type */
 typedef enum {
     VTSS_VLAN_TX_TAG_PORT,    /**< Egress tagging determined by VLAN port
@@ -686,6 +687,7 @@ vtss_rc vtss_vlan_tx_tag_get(const vtss_inst_t  inst,
 vtss_rc vtss_vlan_tx_tag_set(const vtss_inst_t        inst,
                              const vtss_vid_t         vid,
                              const vtss_vlan_tx_tag_t tx_tag[VTSS_PORT_ARRAY_SIZE]);
+#endif // VTSS_FEATURE_VLAN_TX_TAG
 
 #if defined(VTSS_FEATURE_VLAN_COUNTERS)
 /** \brief Container for VLAN counters */

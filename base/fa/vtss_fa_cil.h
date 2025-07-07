@@ -472,12 +472,12 @@ void vtss_fa_debug_cnt(lmu_ss_t            *ss,
                        const char          *col2,
                        vtss_chip_counter_t *c1,
                        vtss_chip_counter_t *c2);
-#define FA_DEBUG_REG(pr, tgt, addr)                                                                \
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr), #addr)
-#define FA_DEBUG_REG_NAME(pr, tgt, addr, name)                                                     \
-    vtss_fa_debug_reg(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr), name)
-#define FA_DEBUG_REGX_NAME(pr, tgt, addr, x, name)                                                 \
-    vtss_fa_debug_reg_inst(vtss_state, pr, REG_ADDR(VTSS_##tgt##_##addr(x)), x, name)
+#define FA_DEBUG_REG(ss, tgt, addr)                                                                \
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_##tgt##_##addr), #addr)
+#define FA_DEBUG_REG_NAME(ss, tgt, addr, name)                                                     \
+    vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_##tgt##_##addr), name)
+#define FA_DEBUG_REGX_NAME(ss, tgt, addr, x, name)                                                 \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_##tgt##_##addr(x)), x, name)
 
 /* MC PGIDs */
 #define PGID_BASE         RT_CHIP_PORTS

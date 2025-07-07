@@ -121,16 +121,10 @@ typedef enum {
 typedef struct {
     vtss_sd25g28_chip_name_t chip_name; /**< Name of the vitesse chip > */
     vtss_sd25g28_mode_t      mode;      /**< Mode parameter.      */
-    // u32                  datarate;       /**< optional parameter; if this is
-    // specified if_width must also be specified > */ u8 if_width;    /**< UDL
-    // interface width 10, 16, 20, 32 or 64 bit > */
-    u8 reg_ctrl; /*Register/Pin configuration control for r_DwidthCtrl_from_hwt
-                    and r_reg_manual > */
-    u8 reg_rst;  /*Reset CMU/Lane registers  */
-    // vtss_sd25g28_cmu_t   cmu_sel;   /* This needs to handled based on the
-    // Device/Mode it used*/ BOOL                 no_pwrcycle; /**< Omit initial
-    // power-cycle > */
-    vtss_sd25g28_ls_t     slave_loop;  /**< Enable input loop LS1/Ls2/LS3 >  */
+    u8 reg_ctrl;                      /*Register/Pin configuration control for r_DwidthCtrl_from_hwt
+                                         and r_reg_manual > */
+    u8                    reg_rst;    /*Reset CMU/Lane registers  */
+    vtss_sd25g28_ls_t     slave_loop; /**< Enable input loop LS1/Ls2/LS3 >  */
     vtss_sd25g28_lm_t     master_loop; /**< Enable pad loop LM1  > */
     vtss_sd25g28_preset_t preset;
     BOOL                  txinvert; /**< Enable inversion of output data > */
@@ -142,40 +136,38 @@ typedef struct {
 
 typedef struct {
     vtss_sd25g28_mode_t mode; /**< Mode parameter. */
-    // u32                  datarate;       /**< optional parameter; if this is
-    // specified if_width must also be specified > */
-    u8 bitwidth;
-    u8 tx_pre_div;
-    u8 fifo_ck_div;
-    u8 pre_divsel;
-    u8 vco_div_mode;
-    u8 sel_div;
-    u8 ck_bitwidth;
-    u8 subrate;
-    u8 com_txcal_en;
-    u8 com_pll_reserve;
-    u8 com_tx_reserve_msb;
-    u8 com_tx_reserve_lsb;
-    u8 ln_tx_reserve_lsb;
-    u8 ln_tx_reserve_msb;
-    u8 ln_bw;
-    u8 ln_rxterm;
-    u8 dfe_enable;
-    u8 dfe_tap;
-    u8 tx_tap_dly;
-    u8 tx_tap_adv; // this depends on actual Si
-    u8 txmargin;
-    u8 ln_cfg_ctle_rstn;
-    u8 ln_r_dfe_rstn;
-    u8 ln_cfg_pi_bw_3_0;
-    u8 ln_cfg_itx_ipcml_base;
-    u8 cfg_i_vco_3_0;
-    u8 cfg_icp_base_sel_3_0;
-    u8 cfg_icp_sel_2_0;
-    u8 cfg_rsel_2_0;
-    u8 ln_cfg_cdr_m_7_0;
-    u8 ln_cfg_dis_2ndorder;
-    u8 ln_cfg_filter2nd_yz_6_0;
+    u8                  bitwidth;
+    u8                  tx_pre_div;
+    u8                  fifo_ck_div;
+    u8                  pre_divsel;
+    u8                  vco_div_mode;
+    u8                  sel_div;
+    u8                  ck_bitwidth;
+    u8                  subrate;
+    u8                  com_txcal_en;
+    u8                  com_pll_reserve;
+    u8                  com_tx_reserve_msb;
+    u8                  com_tx_reserve_lsb;
+    u8                  ln_tx_reserve_lsb;
+    u8                  ln_tx_reserve_msb;
+    u8                  ln_bw;
+    u8                  ln_rxterm;
+    u8                  dfe_enable;
+    u8                  dfe_tap;
+    u8                  tx_tap_dly;
+    u8                  tx_tap_adv; // this depends on actual Si
+    u8                  txmargin;
+    u8                  ln_cfg_ctle_rstn;
+    u8                  ln_r_dfe_rstn;
+    u8                  ln_cfg_pi_bw_3_0;
+    u8                  ln_cfg_itx_ipcml_base;
+    u8                  cfg_i_vco_3_0;
+    u8                  cfg_icp_base_sel_3_0;
+    u8                  cfg_icp_sel_2_0;
+    u8                  cfg_rsel_2_0;
+    u8                  ln_cfg_cdr_m_7_0;
+    u8                  ln_cfg_dis_2ndorder;
+    u8                  ln_cfg_filter2nd_yz_6_0;
 
 } vtss_sd25g28_mode_args_t;
 

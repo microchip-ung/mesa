@@ -679,9 +679,9 @@ vtss_rc vtss_cil_qos_qce_del(struct vtss_state_s *vtss_state,
 #define TAS_LIST_STATE_OPERATING   3
 #define TAS_LIST_STATE_TERMINATING 4
 
-#define TAS_LIST_IDX_NONE    0xFFFFFFFF
-#define TAS_PROFILE_IDX_NONE 0xFFFFFFFF
-#define TAS_ENTRY_IDX_NONE   0xFFFFFFFF
+#define TAS_LIST_IDX_NONE    0xFFFFFFFFU
+#define TAS_PROFILE_IDX_NONE 0xFFFFFFFFU
+#define TAS_ENTRY_IDX_NONE   0xFFFFFFFFU
 
 #define TAS_LIST_STATE_ADMIN       0
 #define TAS_LIST_STATE_ADVANCING   1
@@ -689,9 +689,9 @@ vtss_rc vtss_cil_qos_qce_del(struct vtss_state_s *vtss_state,
 #define TAS_LIST_STATE_OPERATING   3
 #define TAS_LIST_STATE_TERMINATING 4
 
-#define TAS_LIST_IDX_NONE    0xFFFFFFFF
-#define TAS_PROFILE_IDX_NONE 0xFFFFFFFF
-#define TAS_ENTRY_IDX_NONE   0xFFFFFFFF
+#define TAS_LIST_IDX_NONE    0xFFFFFFFFU
+#define TAS_PROFILE_IDX_NONE 0xFFFFFFFFU
+#define TAS_ENTRY_IDX_NONE   0xFFFFFFFFU
 
 static u32 tas_profile_allocate(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
@@ -2588,8 +2588,7 @@ static vtss_rc lan966x_qos_debug(vtss_state_t                  *vtss_state,
         pr("index %u  ts1.seconds %u  ts0.seconds %u\n", index, ts1.seconds, ts0.seconds);
     }
 
-//    if (tas_count_act && (div > 1)) { /* SAT counter analyze must be printed
-//    */
+//    if (tas_count_act && (div > 1)) {
 //        vtss_port_no_t  chip_port = VTSS_CHIP_PORT(tas_port-1);
 //        u32 count, old_count, equal_count, index = 0;
 //        BOOL interval_start;

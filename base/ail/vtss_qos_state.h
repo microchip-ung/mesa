@@ -588,7 +588,7 @@ vtss_rc vtss_cil_qos_qce_del(struct vtss_state_s *vtss_state,
                              const vtss_qcl_id_t  qcl_id,
                              const vtss_qce_id_t  qce_id);
 #endif
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
+#if defined(VTSS_FEATURE_EVC_POLICERS)
 vtss_rc vtss_cil_qos_evc_policer_conf_set(struct vtss_state_s        *vtss_state,
                                           const vtss_evc_policer_id_t policer_id);
 #endif

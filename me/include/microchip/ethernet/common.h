@@ -268,8 +268,8 @@ typedef uint32_t mesa_chip_no_t;
 // Error code type
 typedef int32_t mesa_rc;
 
-#define MESA_PORT_NO_NONE (0xffffffff) // Port number none
-#define MESA_PORT_NO_CPU  (0xfffffffe) // Port number for CPU for special purposes
+#define MESA_PORT_NO_NONE (0xffffffffU) // Port number none
+#define MESA_PORT_NO_CPU  (0xfffffffeU) // Port number for CPU for special purposes
 // Port Number
 typedef uint32_t mesa_port_no_t;
 

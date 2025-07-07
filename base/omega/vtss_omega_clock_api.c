@@ -2605,23 +2605,21 @@ vtss_rc vtss_cil_clock_output_frequency_ratio_set(vtss_state_t                  
     u8   incr;
     u8   interface_width = 40;
     u8   clock_gen_period_half = 4;
-    // u32  multiplier;  /* 1e9 eq. 1*/
-    // u64  multiplier64;  /* 1 eq. 1e9 * 2^13*/
-    u8  synth_speed_sel;
-    u8  synth_fbdiv_sel;
-    u8  synth_ls_speed;
-    u8  synth_cs_speed;
-    u8  synth_half_rate_mode = 0;
-    u16 synth_freq_mult;
-    u16 synth_freq_mult_wa;
-    u8  synth_freq_mult_hi;
-    u64 synth_freq_n;
-    u64 synth_freq_m;
-    u8  synth_freq_m_h;
-    u8  synth_freq_n_h;
-    u32 synth_freq_m_l;
-    u32 synth_freq_n_l;
-    u32 tx_svn_id;
+    u8   synth_speed_sel;
+    u8   synth_fbdiv_sel;
+    u8   synth_ls_speed;
+    u8   synth_cs_speed;
+    u8   synth_half_rate_mode = 0;
+    u16  synth_freq_mult;
+    u16  synth_freq_mult_wa;
+    u8   synth_freq_mult_hi;
+    u64  synth_freq_n;
+    u64  synth_freq_m;
+    u8   synth_freq_m_h;
+    u8   synth_freq_n_h;
+    u32  synth_freq_m_l;
+    u32  synth_freq_n_l;
+    u32  tx_svn_id;
 
     u32 rd_val;
 #if VTSS_OPT_TRACE
@@ -2818,10 +2816,6 @@ vtss_rc vtss_cil_clock_output_frequency_ratio_set(vtss_state_t                  
         /* setup the tx macro with the calculated sample frequency and
          * interface_width */
         /* setup the synthesizer in the tx macro */
-        // multiplier   = sample_freq_khz * 400; /* = * 1000 / 2.5 */
-        // multiplier64 = ((u64)(multiplier)) << 12;  /* synth_freq_mult has 12
-        // fractional bit */ synth_freq_mult = (u16)(VTSS_DIV64(multiplier64,
-        // 1000000000));
         if (((u64)sample_freq_khz * ratio_num) < VTSS_DIV64((u64)10000000 * ratio_den, 3)) {
             /* sample frequncy below 3.33GHz -> use 2/3 * 2G5 .. 4/3 * 2G5 */
             es6514_calc_synth_settings(vtss_state, (u64)sample_freq_khz * ratio_num,
@@ -3990,7 +3984,7 @@ vtss_rc vtss_cil_clock_input_state_get(vtss_state_t                   *vtss_stat
 //
 // ***************************************************************************
 
-// /* Clock input event polling function called by interrupt or periodicly */
+// Clock input event polling function called by interrupt or periodicly
 vtss_rc vtss_cil_clock_input_event_poll(vtss_state_t                        *vtss_state,
                                         const u8                             clock_input,
                                         vtss_clock_input_event_type_t *const ev_mask)

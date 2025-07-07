@@ -722,8 +722,8 @@ typedef enum {
 
 /** \brief Router leg list */
 typedef struct {
-    u8 _private[VTSS_RLEG_LIST_ARRAY_SIZE]; /**< Router leg list, access using
-                                               utilities below */
+    u8 private[VTSS_RLEG_LIST_ARRAY_SIZE]; /**< Router leg list, access using
+                                              utilities below */
 } vtss_rleg_list_t;
 
 /**

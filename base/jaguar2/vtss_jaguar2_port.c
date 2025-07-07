@@ -642,18 +642,6 @@ vtss_rc vtss_jr2_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t port
     return VTSS_RC_OK;
 }
 
-/* static vtss_rc jr2_miim_read_write(vtss_state_t *vtss_state, */
-/*                                     BOOL read,  */
-/*                                     u32 miim_controller,  */
-/*                                     u8 miim_addr,  */
-/*                                     u8 addr,  */
-/*                                     u16 *value,  */
-/*                                     BOOL report_errors) */
-/* { */
-/*     // JR2-TBD: Stub */
-/*     return VTSS_RC_ERROR; */
-/* } */
-
 /* PHY commands */
 #define PHY_CMD_ADDRESS  0 /* 10G: Address */
 #define PHY_CMD_WRITE    1 /* 1G/10G: Write */
@@ -741,8 +729,6 @@ vtss_rc vtss_cil_miim_read(vtss_state_t          *vtss_state,
 {
     return jr2_miim_cmd(vtss_state, PHY_CMD_READ, 1, miim_controller, miim_addr, addr, value,
                         report_errors);
-    //    return jr2_miim_read_write(vtss_state, TRUE, miim_controller,
-    //    miim_addr, addr, value, report_errors);
 }
 
 vtss_rc vtss_cil_miim_write(vtss_state_t          *vtss_state,
@@ -754,8 +740,6 @@ vtss_rc vtss_cil_miim_write(vtss_state_t          *vtss_state,
 {
     return jr2_miim_cmd(vtss_state, PHY_CMD_WRITE, 1, miim_controller, miim_addr, addr, &value,
                         report_errors);
-    //    return jr2_miim_read_write(vtss_state, FALSE, miim_controller,
-    //    miim_addr, addr, &value, report_errors);
 }
 
 vtss_rc vtss_cil_mmd_read(vtss_state_t          *vtss_state,
@@ -973,15 +957,15 @@ static vtss_rc jr2_port_pfc(vtss_state_t *vtss_state, u32 port, vtss_port_conf_t
             VTSS_F_DSM_CFG_RX_PAUSE_CFG_FC_OBEY_LOCAL(VTSS_BOOL(pfc_mask)),
             VTSS_M_DSM_CFG_RX_PAUSE_CFG_FC_OBEY_LOCAL);
 
-    /* // Disable Port memory */
+    /* Disable Port memory */
     JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG((4096 + port + 512)), 0);
 
-    /* // Disable Shared Prio memory */
+    /* Disable Shared Prio memory */
     for (q = 0; q < VTSS_PRIOS; q++) {
         JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG((4096 + q + 496)), 0);
     }
 
-    /* // Disable Shared DP memory */
+    /* Disable Shared DP memory */
     for (q = 0; q < 4; q++) {
         JR2_WR(VTSS_QRES_RES_CTRL_RES_CFG((4096 + q + 508)), 0);
     }
@@ -3462,6 +3446,7 @@ static vtss_rc jr2_debug_chip_port(vtss_state_t                  *vtss_state,
             JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_IB_STATUS1, "IB_STATUS1");
             JR_DEBUG_HSIO(ss, SERDES6G_ANA_STATUS_SERDES6G_PLL_STATUS, "PLL_STATUS");
         } else {
+            // Empty on purpose
         }
         pr("\n");
     }

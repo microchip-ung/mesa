@@ -53,8 +53,6 @@ typedef struct {
 /* Pseudo PGID for IPv4/IPv6 MC */
 #define VTSS_PGID_NONE VTSS_PGIDS
 
-#define VTSS_GLAG_NO_NONE 0xffffffff
-
 /* Size of lookup page and pointer array */
 #define VTSS_MAC_PAGE_SIZE 128
 #define VTSS_MAC_PTR_SIZE  (VTSS_MAC_ADDRS / VTSS_MAC_PAGE_SIZE)
@@ -120,7 +118,7 @@ typedef struct {
 #endif
 
 /* Counter for number of enabled rings with port in discarding state */
-#if (VTSS_ERPIS > 255)
+#if defined(VTSS_ERPIS) && (VTSS_ERPIS > 255)
 typedef u16 vtss_erps_counter_t;
 #else
 typedef u8 vtss_erps_counter_t;
@@ -233,8 +231,8 @@ typedef struct vtss_vlan_trans_grp2vlan_entry_t {
 
 /* VLAN Translation Group lists - used and free */
 typedef struct {
-    vtss_vlan_trans_grp2vlan_entry_t *used; /* used list */
-    vtss_vlan_trans_grp2vlan_entry_t *free; /* free list */
+    vtss_vlan_trans_grp2vlan_entry_t *used_list; /* used list */
+    vtss_vlan_trans_grp2vlan_entry_t *free_list; /* free list */
     vtss_vlan_trans_grp2vlan_entry_t
         trans_list[VTSS_VLAN_TRANS_MAX_CNT]; /* Actual storage for list members   */
 } vtss_vlan_trans_grp2vlan_t;
@@ -247,8 +245,8 @@ typedef struct vtss_vlan_trans_port2grp_entry_t {
 
 /* VLAN Translation Port lists - used and free */
 typedef struct {
-    vtss_vlan_trans_port2grp_entry_t *used;                                    /* used list */
-    vtss_vlan_trans_port2grp_entry_t *free;                                    /* free list */
+    vtss_vlan_trans_port2grp_entry_t *used_list;                               /* used list */
+    vtss_vlan_trans_port2grp_entry_t *free_list;                               /* free list */
     vtss_vlan_trans_port2grp_entry_t port_list[VTSS_VLAN_TRANS_GROUP_MAX_CNT]; /* Actual storage for
                                                                                   list members   */
 } vtss_vlan_trans_port2grp_t;
@@ -433,7 +431,7 @@ typedef struct {
 /* Table and free list for ISDX/ESDX */
 typedef struct {
     u32               count;               /* Actual number of rules */
-    vtss_sdx_entry_t *free;                /* List of free entries */
+    vtss_sdx_entry_t *free_list;           /* List of free entries */
     vtss_sdx_entry_t  table[VTSS_SDX_CNT]; /* Table of entries */
 } vtss_sdx_list_t;
 
@@ -913,9 +911,11 @@ vtss_rc vtss_cmn_vlan_members_get(struct vtss_state_s *state,
 vtss_rc vtss_cmn_vlan_members_set(struct vtss_state_s *vtss_state, const vtss_vid_t vid);
 vtss_rc vtss_cmn_vlan_port_conf_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
 vtss_rc vtss_cmn_vlan_tx_tag_set(struct vtss_state_s     *vtss_state,
                                  const vtss_vid_t         vid,
                                  const vtss_vlan_tx_tag_t tx_tag[VTSS_PORT_ARRAY_SIZE]);
+#endif
 vtss_rc vtss_cmn_vlan_update_all(struct vtss_state_s *vtss_state);
 #if defined(VTSS_FEATURE_L2_MSTP)
 vtss_rc vtss_cmn_mstp_state_set(struct vtss_state_s *vtss_state,
@@ -985,10 +985,12 @@ vtss_rc vtss_cmn_vlan_trans_port_conf_set(struct vtss_state_s                   
 vtss_rc vtss_cmn_vlan_trans_port_conf_get(struct vtss_state_s             *vtss_state,
                                           vtss_vlan_trans_port2grp_conf_t *conf,
                                           BOOL                             next);
+#if defined(VTSS_FEATURE_RCL)
 vtss_rc vtss_rcl_vid_lookup(struct vtss_state_s *vtss_state,
                             vtss_vid_t           vid,
                             u8                  *idx,
                             BOOL                 lookup_free);
+#endif
 #endif // VTSS_FEATURE_VCAP
 
 /* Generic port mask */

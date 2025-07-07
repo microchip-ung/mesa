@@ -211,7 +211,7 @@ typedef enum {
 } vtss_debug_group_t;
 
 /** \brief Special chip number value for showing information from all chips */
-#define VTSS_CHIP_NO_ALL 0xffffffff
+#define VTSS_CHIP_NO_ALL 0xffffffffU
 
 /** \brief Debug information structure */
 typedef struct {

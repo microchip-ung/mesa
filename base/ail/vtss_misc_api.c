@@ -615,7 +615,7 @@ vtss_rc vtss_eee_port_conf_set(const vtss_inst_t                 inst,
 
 /* - Instance create and initialization ---------------------------- */
 
-vtss_rc vtss_misc_inst_create(vtss_state_t *vtss_state)
+vtss_rc vtss_misc_inst_create(struct vtss_state_s *vtss_state)
 {
     vtss_misc_state_t *state = &vtss_state->misc;
 
@@ -733,7 +733,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
 }
 #endif /* VTSS_FEATURE_SERIAL_GPIO */
 
-void vtss_misc_debug_print(vtss_state_t                  *vtss_state,
+void vtss_misc_debug_print(struct vtss_state_s           *vtss_state,
                            lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info)
 {

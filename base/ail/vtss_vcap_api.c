@@ -1663,9 +1663,9 @@ void vtss_rleg_list_set(vtss_rleg_list_t *l, vtss_l3_rleg_id_t rleg, BOOL val)
 
     if (i < VTSS_RLEG_LIST_ARRAY_SIZE) {
         if (val) {
-            l->_private[i] |= m;
+            l->private[i] |= m;
         } else {
-            l->_private[i] &= ~m;
+            l->private[i] &= ~m;
         }
     }
 }
@@ -1675,7 +1675,7 @@ BOOL vtss_rleg_list_get(const vtss_rleg_list_t *l, vtss_l3_rleg_id_t rleg)
     u32 i = (rleg / 8U);
     u8  m = (1U << (rleg % 8U));
 
-    return (i < VTSS_RLEG_LIST_ARRAY_SIZE && (l->_private[i] & m) ? 1 : 0);
+    return (i < VTSS_RLEG_LIST_ARRAY_SIZE && (l->private[i] & m) ? 1 : 0);
 }
 
 #if defined(VTSS_FEATURE_VCAP)

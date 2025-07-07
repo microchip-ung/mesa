@@ -141,6 +141,7 @@ vtss_rc vtss_calc_pll5g_setup(const vtss_pll5g_setup_args_t    config,
             ret_val->pll5g_cfg2__disable_fsm[0] = 1; // toggle once
             ret_val->pll5g_cfg2__disable_fsm[1] = 0;
         }
+    } else {
     }
 
     // vts_wait 5 ;# wait until LCPLL has stabilized

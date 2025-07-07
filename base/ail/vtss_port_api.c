@@ -154,7 +154,7 @@ vtss_rc vtss_port_conf_get(const vtss_inst_t       inst,
 }
 
 // Internal port configuration set function
-vtss_rc vtss_port_conf_set_private(vtss_state_t                 *vtss_state,
+vtss_rc vtss_port_conf_set_private(struct vtss_state_s          *vtss_state,
                                    const vtss_port_no_t          port_no,
                                    const vtss_port_conf_t *const conf)
 {
