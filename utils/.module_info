@@ -49,3 +49,11 @@ attribution: |
   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
   THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+---
+directory: ./src/arm-optimized-routines
+license: MIT or Apache 2.0 WITH LLVM-exception
+name: ARM-software/optimized-routines
+source: https://github.com/ARM-software/optimized-routines/archive/refs/tags/v23.01.tar.gz
+version: v23.01
+description: Optimized implementations of various library functions for ARM architecture processors
+attribution_file: utils/src/arm-optimized-routines/LICENSE
