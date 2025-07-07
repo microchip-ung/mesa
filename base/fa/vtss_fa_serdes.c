@@ -2942,7 +2942,6 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t  *vtss_state,
         REG_WRM_CLR(VTSS_SD25G_TARGET_LANE_0D(sd_tgt), VTSS_M_SD25G_TARGET_LANE_0D_LN_CFG_DFECK_EN);
     }
 
-
     return VTSS_RC_OK;
 }
 #endif // VTSS_FEATURE_SD_25G
@@ -3963,9 +3962,9 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_se
         if (VTSS_BIT64(p) & vtss_state->port.bulk_port_mask) {
             VTSS_RC(vtss_fa_port2sd(vtss_state, p, &sd_indx, &sd_type));
             VTSS_RC(vtss_fa_sd_board_settings(vtss_state, p, sd_indx, sd_type));
-             if (mode == VTSS_SERDES_MODE_QXGMII || mode == VTSS_SERDES_MODE_USXGMII) {
-                 (void)vtss_cil_port_kr_ctle_adjust(vtss_state, p);
-             }
+            if (mode == VTSS_SERDES_MODE_QXGMII || mode == VTSS_SERDES_MODE_USXGMII) {
+                (void)vtss_cil_port_kr_ctle_adjust(vtss_state, p);
+            }
         }
     }
 
