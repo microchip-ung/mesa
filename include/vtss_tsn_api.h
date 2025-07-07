@@ -11,16 +11,16 @@
 // Number of member streams and compound streams */
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_MSTREAM_CNT VTSS_STREAM_CNT
-#define VTSS_CSTREAM_CNT (VTSS_STREAM_CNT / 2)
+#define VTSS_CSTREAM_CNT (VTSS_STREAM_CNT / 2U)
 #elif defined(VTSS_ARCH_LAN966X)
-#define VTSS_MSTREAM_CNT 512
-#define VTSS_CSTREAM_CNT 256
+#define VTSS_MSTREAM_CNT 512U
+#define VTSS_CSTREAM_CNT 256U
 #elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_MSTREAM_CNT 256
-#define VTSS_CSTREAM_CNT 128
+#define VTSS_MSTREAM_CNT 256U
+#define VTSS_CSTREAM_CNT 128U
 #else
-#define VTSS_MSTREAM_CNT 1024
-#define VTSS_CSTREAM_CNT 512
+#define VTSS_MSTREAM_CNT 1024U
+#define VTSS_CSTREAM_CNT 512U
 #endif
 
 // FRER compound stream ID.
@@ -154,11 +154,11 @@ typedef u16 vtss_psfp_gate_id_t;
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_PSFP_GATE_CNT VTSS_STREAM_CNT
 #elif defined(VTSS_ARCH_LAN966X)
-#define VTSS_PSFP_GATE_CNT 256
+#define VTSS_PSFP_GATE_CNT 256U
 #elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_PSFP_GATE_CNT 255
+#define VTSS_PSFP_GATE_CNT 255U
 #else
-#define VTSS_PSFP_GATE_CNT 1023
+#define VTSS_PSFP_GATE_CNT 1023U
 #endif
 
 // PSFP Gate Control Entry configuration
@@ -251,11 +251,11 @@ typedef u16 vtss_psfp_filter_id_t;
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_PSFP_FILTER_CNT VTSS_STREAM_CNT
 #elif defined(VTSS_ARCH_LAN966X)
-#define VTSS_PSFP_FILTER_CNT 256
+#define VTSS_PSFP_FILTER_CNT 256U
 #elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_PSFP_FILTER_CNT 255
+#define VTSS_PSFP_FILTER_CNT 255U
 #else
-#define VTSS_PSFP_FILTER_CNT 1023
+#define VTSS_PSFP_FILTER_CNT 1023U
 #endif
 
 // PSFP filter configuration

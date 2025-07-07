@@ -513,7 +513,7 @@ typedef struct mesa_cap_callback_data {
     const void               *inst; /**< Instance data to pass */
 } mesa_cap_callback_data_t;
 void     mesa_cap_callback_add(mesa_inst_t inst, mesa_cap_callback_data_t *hook);
-uint32_t mesa_capability(mesa_inst_t inst, int cap);
+uint32_t mesa_capability(mesa_inst_t inst, mesa_cap_t cap);
 uint32_t mesa_port_cnt(mesa_inst_t inst);
 
 #define MESA_CAP(expr) mesa_capability(NULL, expr)

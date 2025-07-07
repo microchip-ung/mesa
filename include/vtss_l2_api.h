@@ -2752,7 +2752,7 @@ vtss_rc vtss_rce_del(const vtss_inst_t inst, const vtss_rce_id_t rce_id);
 /* - PRP/HSR RedBox ------------------------------------------------ */
 
 // Number of RedBox instances
-#define VTSS_REDBOX_CNT 5
+#define VTSS_REDBOX_CNT 5U
 
 // RedBox ID, zero-based
 typedef u8 vtss_rb_id_t;

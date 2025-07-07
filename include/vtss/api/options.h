@@ -885,12 +885,12 @@
 #if VTSS_OPT_LIGHT
 // Number of entries for IS1/CLM, ES0, filters, gates, meters, counters etc.
 #if defined(VTSS_OPT_FPGA)
-#define VTSS_STREAM_CNT 16 // Maximum for FPGA
+#define VTSS_STREAM_CNT 16U // Maximum for FPGA
 #else
-#define VTSS_STREAM_CNT 64
+#define VTSS_STREAM_CNT 64U
 #endif
 // Number of ACEs
-#define VTSS_ACE_CNT 68
+#define VTSS_ACE_CNT 68U
 #endif
 
 /* ================================================================= *

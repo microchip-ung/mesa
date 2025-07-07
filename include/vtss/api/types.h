@@ -481,9 +481,9 @@ typedef u32 vtss_mrp_idx_t;
 /** \brief Priority number */
 typedef u32 vtss_prio_t;
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_PRIOS           8          /**< Number of priorities */
-#define VTSS_PRIO_NO_NONE    0xffffffff /**< Priority number none (= undefined) */
-#define VTSS_PRIO_START      0          /**< Priority start number (lowest) */
+#define VTSS_PRIOS           8U          /**< Number of priorities */
+#define VTSS_PRIO_NO_NONE    0xffffffffU /**< Priority number none (= undefined) */
+#define VTSS_PRIO_START      0U          /**< Priority start number (lowest) */
 #define VTSS_PRIO_END        (VTSS_PRIO_START + VTSS_PRIOS) /**< Priority end number */
 #define VTSS_PRIO_ARRAY_SIZE VTSS_PRIO_END                  /**< Priority number array size */
 #endif                                                      // _VTSS_MAIN_TYPES_H_
@@ -492,7 +492,7 @@ typedef u32 vtss_prio_t;
 typedef u32 vtss_queue_t;
 #ifndef _VTSS_MAIN_TYPES_H_
 #define VTSS_QUEUES           VTSS_PRIOS                       /**< Number of queues */
-#define VTSS_QUEUE_START      0                                /**< Queue start number */
+#define VTSS_QUEUE_START      0U                               /**< Queue start number */
 #define VTSS_QUEUE_END        (VTSS_QUEUE_START + VTSS_QUEUES) /**< Queue end number */
 #define VTSS_QUEUE_ARRAY_SIZE VTSS_QUEUE_END                   /**< Queue number array size */
 #endif                                                         // _VTSS_MAIN_TYPES_H_
@@ -502,8 +502,8 @@ typedef u32 vtss_tagprio_t;
 /** \brief Priority Code Point (PCP) */
 typedef u8 vtss_pcp_t;
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_PCPS           8                            /**< Number of PCP values */
-#define VTSS_PCP_START      0                            /**< PCP start number */
+#define VTSS_PCPS           8U                           /**< Number of PCP values */
+#define VTSS_PCP_START      0U                           /**< PCP start number */
 #define VTSS_PCP_END        (VTSS_PCP_START + VTSS_PCPS) /**< PCP end number */
 #define VTSS_PCP_ARRAY_SIZE VTSS_PCP_END                 /**< PCP array size */
 #endif                                                   // _VTSS_MAIN_TYPES_H_
@@ -511,8 +511,8 @@ typedef u8 vtss_pcp_t;
 /** \brief Drop Eligible Indicator (DEI) */
 typedef BOOL vtss_dei_t;
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_DEIS           2                            /**< Number of DEI values */
-#define VTSS_DEI_START      0                            /**< DEI start number */
+#define VTSS_DEIS           2U                           /**< Number of DEI values */
+#define VTSS_DEI_START      0U                           /**< DEI start number */
 #define VTSS_DEI_END        (VTSS_DEI_START + VTSS_DEIS) /**< DEI end number */
 #define VTSS_DEI_ARRAY_SIZE VTSS_DEI_END                 /**< DEI array size */
 #endif                                                   // _VTSS_MAIN_TYPES_H_
@@ -525,10 +525,10 @@ typedef vtss_dp_level_t vtss_dpl_t;
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #undef VTSS_DPLS
-#define VTSS_DPLS 4 /**< Number of drop precedence levels */
-#endif              /* defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
+#define VTSS_DPLS 4U /**< Number of drop precedence levels */
+#endif               /* defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5) */
 
-#define VTSS_DPL_START      0                            /**< DPL start number */
+#define VTSS_DPL_START      0U                           /**< DPL start number */
 #define VTSS_DPL_END        (VTSS_DPL_START + VTSS_DPLS) /**< DPL end number */
 #define VTSS_DPL_ARRAY_SIZE VTSS_DPL_END                 /**< DPL array size */
 
@@ -588,11 +588,11 @@ typedef u32 vtss_wred_group_t;
 typedef u16 vtss_qos_ingress_map_id_t;
 
 #if defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
-#define VTSS_QOS_INGRESS_MAP_IDS 256
+#define VTSS_QOS_INGRESS_MAP_IDS 256U
 #elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_QOS_INGRESS_MAP_IDS 64
+#define VTSS_QOS_INGRESS_MAP_IDS 64U
 #else
-#define VTSS_QOS_INGRESS_MAP_IDS 128
+#define VTSS_QOS_INGRESS_MAP_IDS 128U
 #endif
 
 #define VTSS_QOS_INGRESS_MAP_ID_START 0 /**< ID start number */
@@ -604,11 +604,11 @@ typedef u16 vtss_qos_ingress_map_id_t;
 typedef u16 vtss_qos_egress_map_id_t;
 
 #if defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
-#define VTSS_QOS_EGRESS_MAP_IDS 512
+#define VTSS_QOS_EGRESS_MAP_IDS 512U
 #elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_QOS_EGRESS_MAP_IDS 128
+#define VTSS_QOS_EGRESS_MAP_IDS 128U
 #else
-#define VTSS_QOS_EGRESS_MAP_IDS 256
+#define VTSS_QOS_EGRESS_MAP_IDS 256U
 #endif
 
 #define VTSS_QOS_EGRESS_MAP_ID_START 0 /**< ID start number */
@@ -619,19 +619,19 @@ typedef u16 vtss_qos_egress_map_id_t;
 // TBD_VK: Check the defined values when the FA datasheet is available
 #if defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
 #if VTSS_OPT_LIGHT
-#define VTSS_QOS_TAS_GCL_LEN_MAX 8 /**< Maximum supported length of TAS gate control list */
+#define VTSS_QOS_TAS_GCL_LEN_MAX 8U /**< Maximum supported length of TAS gate control list */
 #else
-#define VTSS_QOS_TAS_GCL_LEN_MAX 256 /**< Maximum supported length of TAS gate control list */
+#define VTSS_QOS_TAS_GCL_LEN_MAX 256U /**< Maximum supported length of TAS gate control list */
 #endif
 #define VTSS_QOS_TAS_CT_MIN                                                                        \
-    256 /**< Minimum supported Gate CycleTime in nS. This is due to                                \
+    256U /**< Minimum supported Gate CycleTime in nS. This is due to                               \
            STARTUP_TIME register resolution */
 #define VTSS_QOS_TAS_CT_MAX                                                                        \
-    (1000000000 - 1) /**< Maximum supported Gate CycleTime in nS. Must be less                     \
+    (1000000000U - 1U) /**< Maximum supported Gate CycleTime in nS. Must be less                   \
                         than one second */
-#define VTSS_QOS_TAS_MAX_SDU_MAX (255 * 64) /**< Maximum supported MAX SDU size */
-#define VTSS_QOS_TAS_MAX_SDU_MIN 64         /**< Minimum supported MAX SDU size */
-#endif                                      /* defined(VTSS_ARCH_SPARX5) */
+#define VTSS_QOS_TAS_MAX_SDU_MAX (255U * 64U) /**< Maximum supported MAX SDU size */
+#define VTSS_QOS_TAS_MAX_SDU_MIN 64U          /**< Minimum supported MAX SDU size */
+#endif                                        /* defined(VTSS_ARCH_SPARX5) */
 
 // Enable and boolean value
 typedef struct {
@@ -769,39 +769,39 @@ typedef u32 vtss_packet_tx_grp_t;
 #ifndef _VTSS_MAIN_TYPES_H_
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 #undef VTSS_PACKET_RX_QUEUE_CNT
-#define VTSS_PACKET_RX_QUEUE_CNT 8 /**< Number of Rx packet queues */
+#define VTSS_PACKET_RX_QUEUE_CNT 8U /**< Number of Rx packet queues */
 #undef VTSS_PACKET_RX_GRP_CNT
-#define VTSS_PACKET_RX_GRP_CNT 2 /**< Number of Rx packet groups to which any queue can map */
+#define VTSS_PACKET_RX_GRP_CNT 2U /**< Number of Rx packet groups to which any queue can map */
 #undef VTSS_PACKET_TX_GRP_CNT
-#define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
-#endif                           /* VTSS_ARCH_LUTON26/SERVAL */
+#define VTSS_PACKET_TX_GRP_CNT 2U /**< Number of Tx packet groups */
+#endif                            /* VTSS_ARCH_LUTON26/SERVAL */
 
 #if defined(VTSS_ARCH_JAGUAR_2)
 #undef VTSS_PACKET_RX_QUEUE_CNT
-#define VTSS_PACKET_RX_QUEUE_CNT 8 /**< Number of Rx packet queues */
+#define VTSS_PACKET_RX_QUEUE_CNT 8U /**< Number of Rx packet queues */
 #undef VTSS_PACKET_RX_GRP_CNT
-#define VTSS_PACKET_RX_GRP_CNT 2 /**< Number of Rx packet groups to which any queue can map */
+#define VTSS_PACKET_RX_GRP_CNT 2U /**< Number of Rx packet groups to which any queue can map */
 #undef VTSS_PACKET_TX_GRP_CNT
-#define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
-#endif                           /* VTSS_ARCH_JAGUAR_2 */
+#define VTSS_PACKET_TX_GRP_CNT 2U /**< Number of Tx packet groups */
+#endif                            /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_ARCH_FA)
 #undef VTSS_PACKET_RX_QUEUE_CNT
-#define VTSS_PACKET_RX_QUEUE_CNT 8 /**< Number of Rx packet queues */
+#define VTSS_PACKET_RX_QUEUE_CNT 8U /**< Number of Rx packet queues */
 #undef VTSS_PACKET_RX_GRP_CNT
-#define VTSS_PACKET_RX_GRP_CNT 2 /**< Number of Rx packet groups to which any queue can map */
+#define VTSS_PACKET_RX_GRP_CNT 2U /**< Number of Rx packet groups to which any queue can map */
 #undef VTSS_PACKET_TX_GRP_CNT
-#define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
-#endif                           /* VTSS_ARCH_FA */
+#define VTSS_PACKET_TX_GRP_CNT 2U /**< Number of Tx packet groups */
+#endif                            /* VTSS_ARCH_FA */
 
 #if defined(VTSS_ARCH_LAN966X)
 #undef VTSS_PACKET_RX_QUEUE_CNT
-#define VTSS_PACKET_RX_QUEUE_CNT 8 /**< Number of Rx packet queues */
+#define VTSS_PACKET_RX_QUEUE_CNT 8U /**< Number of Rx packet queues */
 #undef VTSS_PACKET_RX_GRP_CNT
-#define VTSS_PACKET_RX_GRP_CNT 2 /**< Number of Rx packet groups to which any queue can map */
+#define VTSS_PACKET_RX_GRP_CNT 2U /**< Number of Rx packet groups to which any queue can map */
 #undef VTSS_PACKET_TX_GRP_CNT
-#define VTSS_PACKET_TX_GRP_CNT 2 /**< Number of Tx packet groups */
-#endif                           /* VTSS_ARCH_LAN966X */
+#define VTSS_PACKET_TX_GRP_CNT 2U /**< Number of Tx packet groups */
+#endif                            /* VTSS_ARCH_LAN966X */
 
 #define VTSS_PACKET_RX_QUEUE_NONE                                                                  \
     (0xffffffff)                       /**< Rx queue not selected for a particular type of frames */

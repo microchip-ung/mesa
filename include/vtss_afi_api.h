@@ -38,7 +38,7 @@ typedef u32 vtss_afi_id_t;
 #define VTSS_AFI_ID_NONE (0xFFFFFFFF) /**< Use this to encode Tx headers for non-AFI frame */
 
 #if defined(VTSS_AFI_V1)
-#define VTSS_AFI_SLOT_CNT 1024 /**< Maximum number of AFI flows */
+#define VTSS_AFI_SLOT_CNT 1024U /**< Maximum number of AFI flows */
 
 /** \page AFI Automatic Frame Injector.
  *
@@ -197,7 +197,7 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
 
 // Chip specific properties
 #if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
-#define VTSS_AFI_SLOW_INJ_CNT 4096 /**< Maximum number of simultaneous slow injections */
+#define VTSS_AFI_SLOW_INJ_CNT 4096U /**< Maximum number of simultaneous slow injections */
 #define VTSS_AFI_FAST_INJ_BPS_MIN                                                                  \
     1000ULL /**< Min rate in bits per second: 1kbps (including IFG and                             \
                preamble) */
@@ -208,9 +208,9 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
 
 #if defined(VTSS_ARCH_FA)
 #if defined(VTSS_ARCH_SPARX5)
-#define VTSS_AFI_SLOW_INJ_CNT 4096 /**< Maximum number of simultaneous slow injections */
+#define VTSS_AFI_SLOW_INJ_CNT 4096U /**< Maximum number of simultaneous slow injections */
 #else
-#define VTSS_AFI_SLOW_INJ_CNT 512 /**< Maximum number of simultaneous slow injections */
+#define VTSS_AFI_SLOW_INJ_CNT 512U /**< Maximum number of simultaneous slow injections */
 #endif
 #define VTSS_AFI_FAST_INJ_BPS_MIN                                                                  \
     1000ULL /**< Min rate in bits per second: 1kbps (including IFG and                             \
@@ -295,13 +295,13 @@ vtss_rc vtss_afi_hijack(const vtss_inst_t inst, vtss_afi_id_t id);
  * The recommended default EMIX in ITU-T Y.1564 consists of 5 frames
  * of sizes 1518, 1518, 1024, 64, 64.
  */
-#define VTSS_AFI_FAST_INJ_FRM_CNT_MAX 8
+#define VTSS_AFI_FAST_INJ_FRM_CNT_MAX 8U
 
 #if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C) || defined(VTSS_ARCH_SPARX5)
-#define VTSS_AFI_FAST_INJ_CNT 32 /**< Maximum number of simultaneous fast injections */
+#define VTSS_AFI_FAST_INJ_CNT 32U /**< Maximum number of simultaneous fast injections */
 #elif defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X) ||   \
     defined(VTSS_ARCH_LAIKA)
-#define VTSS_AFI_FAST_INJ_CNT 16 /**< Maximum number of simultaneous fast injections */
+#define VTSS_AFI_FAST_INJ_CNT 16U /**< Maximum number of simultaneous fast injections */
 #else
 #error "Unsupported architecture"
 #endif

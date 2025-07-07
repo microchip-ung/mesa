@@ -62,7 +62,7 @@ typedef vtss_wred_conf_t vtss_red_v2_t;
 #define VTSS_WRED_DPL_CNT                                                                          \
     3 /**< Number of dpl's. There are no profile for dpl 0, only for dpl 1 to                      \
          3 */
-#define VTSS_WRED_GROUP_CNT 3           /**< Number of groups */
+#define VTSS_WRED_GROUP_CNT 3U          /**< Number of groups */
 typedef vtss_wred_conf_t vtss_red_v3_t; /**< Version 3 uses the v2 struct (per queue, per dpl, per
                                            group - switch global */
 #endif                                  /* defined(VTSS_FEATURE_QOS_WRED_V3) */
@@ -161,11 +161,11 @@ vtss_rc vtss_qos_conf_set(const vtss_inst_t inst, const vtss_qos_conf_t *const c
 
 /* Number of Port policers (per port) available in HW */
 #if defined(VTSS_ARCH_SERVAL_T)
-#define VTSS_PORT_POLICERS 2 /**< Number of Port policers (per port) available in HW */
+#define VTSS_PORT_POLICERS 2U /**< Number of Port policers (per port) available in HW */
 #elif defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-#define VTSS_PORT_POLICERS 4 /**< Number of Port policers (per port) available in HW */
+#define VTSS_PORT_POLICERS 4U /**< Number of Port policers (per port) available in HW */
 #else
-#define VTSS_PORT_POLICERS 1 /**< Number of Port policers (per port) available in HW */
+#define VTSS_PORT_POLICERS 1U /**< Number of Port policers (per port) available in HW */
 #endif
 
 /**
