@@ -2867,7 +2867,7 @@ mesa_rc Burn_gen7(const meba_poe_ctrl_inst_t *const inst, const char *hexdata, s
 
     uint8_t bytesToSend[8];
     int     bytesCounter = 0;
-    int last_percent = -1;
+    int     last_percent = -1;
 
     printf("\n\r");
 
@@ -2897,7 +2897,7 @@ mesa_rc Burn_gen7(const meba_poe_ctrl_inst_t *const inst, const char *hexdata, s
 
             meba_poe_gen7_bt_nvm_download_and_program_page_data(inst, bytesToSend, IsWaitForFlash);
             bytesCounter = 0;
-            
+
             int percent = (int)(((i + 1) * 100.0) / bin_len);
             if (percent != last_percent) {
                 printf("\rProgress: %3d%%", percent);
@@ -2970,7 +2970,8 @@ HexFileInfo_t extract_hex_data(const char *hexData)
     return fileInfo;
 }
 
-void print_file_info_with_description(const meba_poe_ctrl_inst_t *const inst, HexFileInfo_t fileInfo)
+void print_file_info_with_description(const meba_poe_ctrl_inst_t *const inst,
+                                      HexFileInfo_t                     fileInfo)
 {
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "Field Name\t\t\tValue\t\t\tDescription");
     DEBUG(
