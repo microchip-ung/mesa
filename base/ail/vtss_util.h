@@ -26,7 +26,7 @@
 #define VTSS_BITMASK(x) ((1 << (x)) - 1)
 #else
 #define VTSS_BIT(x)     (1U << (x))
-#define VTSS_BITMASK(x) ((1U << (x)) - 1)
+#define VTSS_BITMASK(x) ((1U << (x)) - 1U)
 #endif
 #define VTSS_EXTRACT_BITFIELD(x, o, w) (((x) >> (o)) & VTSS_BITMASK(w))
 #define VTSS_ENCODE_BITFIELD(x, o, w)  (((u32)(x) & VTSS_BITMASK(w)) << (o))
