@@ -200,9 +200,9 @@ vtss_rc vtss_jr2_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask);
 #define JR2_BF(name, value) ((VTSS_M_##name & value) ? 1 : 0)
 
 #if defined(VTSS_ARCH_SERVAL_T)
-#define JR2_WR_PMASK(tgt_addr, val64) JR2_WR(tgt_addr, (val64 & 0xffffffff))
+#define JR2_WR_PMASK(tgt_addr, val64) JR2_WR(tgt_addr, (val64 & 0xffffffffU))
 #define JR2_WRM_PMASK(tgt_addr, val64, mask64)                                                     \
-    JR2_WRM(tgt_addr, (val64 & 0xffffffff), mask64 & 0xffffffff)
+    JR2_WRM(tgt_addr, (val64 & 0xffffffffU), mask64 & 0xffffffffU)
 #define JR2_RD_PMASK(tgt_addr, val64)                                                              \
     {                                                                                              \
         u32 _val32_;                                                                               \
@@ -212,7 +212,7 @@ vtss_rc vtss_jr2_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask);
 // Avoid 'Excessive shift value (precision 0 shifted right by 32)' which may
 // occur if val64 is a constant < 2^32
 /*lint -emacro(572,JR2_WRX_PMASK) */
-#define JR2_WRX_PMASK(tgt_addr, x, val64) JR2_WR(tgt_addr(x), ((val64) & 0xffffffff))
+#define JR2_WRX_PMASK(tgt_addr, x, val64) JR2_WR(tgt_addr(x), ((val64) & 0xffffffffU))
 #define JR2_RDX_PMASK(tgt_addr, x, val64)                                                          \
     {                                                                                              \
         u32 _val32_;                                                                               \
@@ -220,18 +220,18 @@ vtss_rc vtss_jr2_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask);
         *val64 = _val32_;                                                                          \
     }
 #define JR2_WRXM_PMASK(tgt_addr, x, val64, mask64)                                                 \
-    JR2_WRM(tgt_addr(x), (val64 & 0xffffffff), mask64 & 0xffffffff)
+    JR2_WRM(tgt_addr(x), (val64 & 0xffffffffU), mask64 & 0xffffffffU)
 #else
 // Macros for writing/reading port masks with naming as specified in TN1160,
 // "Multi-Register Bit Vector"
 #define JR2_WR_PMASK(tgt_addr, val64)                                                              \
     {                                                                                              \
-        JR2_WR(tgt_addr, (val64 & 0xffffffff));                                                    \
+        JR2_WR(tgt_addr, (val64 & 0xffffffffU));                                                   \
         JR2_WR(tgt_addr##1, (val64 >> 32));                                                        \
     }
 #define JR2_WRM_PMASK(tgt_addr, val64, mask64)                                                     \
     {                                                                                              \
-        JR2_WRM(tgt_addr, (val64 & 0xffffffff), mask64 & 0xffffffff);                              \
+        JR2_WRM(tgt_addr, (val64 & 0xffffffffU), mask64 & 0xffffffffU);                            \
         JR2_WRM(tgt_addr##1, (val64 >> 32), mask64 >> 32);                                         \
     }
 
@@ -249,7 +249,7 @@ vtss_rc vtss_jr2_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask);
 /*lint -emacro(572,JR2_WRX_PMASK) */
 #define JR2_WRX_PMASK(tgt_addr, x, val64)                                                          \
     {                                                                                              \
-        JR2_WR(tgt_addr(x), ((val64) & 0xffffffff));                                               \
+        JR2_WR(tgt_addr(x), ((val64) & 0xffffffffU));                                              \
         JR2_WR(tgt_addr##1(x), ((val64) >> 32));                                                   \
     }
 
@@ -264,7 +264,7 @@ vtss_rc vtss_jr2_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask);
 
 #define JR2_WRXM_PMASK(tgt_addr, x, val64, mask64)                                                 \
     {                                                                                              \
-        JR2_WRM(tgt_addr(x), (val64 & 0xffffffff), mask64 & 0xffffffff);                           \
+        JR2_WRM(tgt_addr(x), (val64 & 0xffffffffU), mask64 & 0xffffffffU);                         \
         JR2_WRM(tgt_addr##1(x), (val64 >> 32), mask64 >> 32);                                      \
     }
 #endif /* VTSS_ARCH_SERVAL_T */

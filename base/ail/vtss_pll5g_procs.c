@@ -89,8 +89,8 @@ vtss_rc vtss_calc_pll5g_setup(const vtss_pll5g_setup_args_t    config,
         refclk_sel = 0;
     }
 
-    ret_val->unlock[0] = config.unlock;
-    ret_val->lock[0] = config.lock;
+    ret_val->unlock[0] = (config.unlock ? 1U : 0U);
+    ret_val->lock[0] = (config.lock ? 1U : 0U);
     // ----------------------------------------------------------------------
     if (config.chip_name == VTSS_PLL5G_CHIP_ES6514 || config.chip_name == VTSS_PLL5G_CHIP_FERRET ||
         config.chip_name == VTSS_PLL5G_CHIP_OCELOT || config.chip_name == VTSS_PLL5G_CHIP_JAGUAR2 ||

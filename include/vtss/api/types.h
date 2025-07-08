@@ -13,15 +13,6 @@
 #include <vtss/api/options.h>
 #include <vtss_os.h> /* This defines the *runtime* OS environment */
 
-// TODO, all the _VTSS_MAIN_TYPES_H_ needs to be deleted then the API split is
-// complete
-#ifndef _VTSS_MAIN_TYPES_H_
-
-/** \brief Max/min values for 64 signed integer */
-#define VTSS_I64_MAX 0x7FFFFFFFFFFFFFFFLL  /**<  Max value for 64 bit signed integer */
-#define VTSS_I64_MIN -0x8000000000000000LL /**<  Min value for 64 bit signed integer */
-#endif                                     // _VTSS_MAIN_TYPES_H_
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -205,8 +196,8 @@ typedef BOOL vtss_event_t;
 typedef u32 vtss_packet_rate_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_PACKET_RATE_DISABLED 0xffffffff /**< Special value for disabling packet policer */
-#endif                                       // _VTSS_MAIN_TYPES_H_
+#define VTSS_PACKET_RATE_DISABLED 0xffffffffU /**< Special value for disabling packet policer */
+#endif                                        // _VTSS_MAIN_TYPES_H_
 
 /** \brief Port Number */
 typedef u32 vtss_port_no_t;
@@ -370,8 +361,8 @@ typedef u32 vtss_phys_port_no_t;
 #if VTSS_OPT_PORT_COUNT && ((VTSS_PORT_COUNT == 1) || (VTSS_OPT_PORT_COUNT < VTSS_PORT_COUNT))
 #define VTSS_PORTS VTSS_OPT_PORT_COUNT /**< Number of ports */
 #else
-#define VTSS_PORTS VTSS_PORT_COUNT /**< Number of ports */
-#endif                             /* VTSS_OPT_PORT_COUNT */
+#define VTSS_PORTS (VTSS_PORT_COUNT) /**< Number of ports */
+#endif                               /* VTSS_OPT_PORT_COUNT */
 
 /* The first logical port number is 0. */
 #ifndef _VTSS_MAIN_TYPES_H_
@@ -463,17 +454,17 @@ typedef enum {
 /** \brief VOE index */
 typedef u32 vtss_voe_idx_t;
 
-#define VTSS_VOE_IDX_NONE 0xFFFFFFFF /**< Special value meaning no VOE */
+#define VTSS_VOE_IDX_NONE 0xFFFFFFFFU /**< Special value meaning no VOE */
 
 /** \brief MIP (MIP) index */
 typedef u32 vtss_voi_idx_t;
 
-#define VTSS_VOI_IDX_NONE 0xFFFFFFFF /**< Special value meaning no VOI (MIP) */
+#define VTSS_VOI_IDX_NONE 0xFFFFFFFFU /**< Special value meaning no VOI (MIP) */
 
 // MRP index
 typedef u32 vtss_mrp_idx_t;
 
-#define VTSS_MRP_IDX_NONE 0xFFFFFFFF /**< Special value meaning no MRP */
+#define VTSS_MRP_IDX_NONE 0xFFFFFFFFU /**< Special value meaning no MRP */
 
 /****************************************************************************
  * QoS types
@@ -727,7 +718,7 @@ typedef u16 vtss_iflow_id_t;
 typedef u32 vtss_aggr_no_t;
 #define VTSS_AGGRS (VTSS_PORTS / 2) /**< Number of LLAGs */
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_AGGR_NO_NONE  0xffffffff                      /**< Aggregation number none */
+#define VTSS_AGGR_NO_NONE  0xffffffffU                     /**< Aggregation number none */
 #define VTSS_AGGR_NO_START 0                               /**< Aggregation start number */
 #endif                                                     // _VTSS_MAIN_TYPES_H_
 #define VTSS_AGGR_NO_END (VTSS_AGGR_NO_START + VTSS_AGGRS) /**< Aggregation number end */
@@ -737,7 +728,7 @@ typedef u32 vtss_glag_no_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
 #define VTSS_GLAGS         32                                /**< Number of GLAGs */
-#define VTSS_GLAG_NO_NONE  0xffffffff                        /**< GLAG number none */
+#define VTSS_GLAG_NO_NONE  0xffffffffU                       /**< GLAG number none */
 #define VTSS_GLAG_NO_START 0                                 /**< GLAG start number */
 #define VTSS_GLAG_NO_END   (VTSS_GLAG_NO_START + VTSS_GLAGS) /**< GLAG end number */
 #endif                                                       // _VTSS_MAIN_TYPES_H_
@@ -804,7 +795,7 @@ typedef u32 vtss_packet_tx_grp_t;
 #endif                            /* VTSS_ARCH_LAN966X */
 
 #define VTSS_PACKET_RX_QUEUE_NONE                                                                  \
-    (0xffffffff)                       /**< Rx queue not selected for a particular type of frames */
+    (0xffffffffU)                      /**< Rx queue not selected for a particular type of frames */
 #define VTSS_PACKET_RX_QUEUE_START (0) /**< Rx queue start number */
 #define VTSS_PACKET_RX_QUEUE_END                                                                   \
     (VTSS_PACKET_RX_QUEUE_START + VTSS_PACKET_RX_QUEUE_CNT) /**< Rx queue end number */
@@ -1150,8 +1141,8 @@ typedef u32 vtss_acl_policer_no_t;
 
 /** \brief ACL policy number */
 typedef u32 vtss_acl_policy_no_t;
-#define VTSS_ACL_POLICY_NO_NONE 0xffffffff /**< ACLs disabled on port */
-#define VTSS_ACL_POLICY_NO_MIN  0          /**< ACLs policy minimum number */
+#define VTSS_ACL_POLICY_NO_NONE 0xffffffffU /**< ACLs disabled on port */
+#define VTSS_ACL_POLICY_NO_MIN  0           /**< ACLs policy minimum number */
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN966X) ||       \
     defined(VTSS_ARCH_LAN969X)
 #define VTSS_ACL_POLICY_NO_MAX 255 /**< ACLs policy maximum number */

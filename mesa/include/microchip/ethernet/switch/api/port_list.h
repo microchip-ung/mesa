@@ -44,7 +44,7 @@ struct mesa_port_list_t {
     {
         size_t idx = bit / 8;
         size_t mod = bit % 8;
-        return (_private[idx] >> mod) & 0x1;
+        return (private[idx] >> mod) & 0x1;
     }
 
     void set(size_t bit, bool val = true)
@@ -55,9 +55,9 @@ struct mesa_port_list_t {
         x <<= mod;
 
         if (val) {
-            _private[idx] |= x;
+            private[idx] |= x;
         } else {
-            _private[idx] &= ~x;
+            private[idx] &= ~x;
         }
     }
 
@@ -66,13 +66,13 @@ struct mesa_port_list_t {
     void clear_all()
     {
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
-            _private[i] = 0;
+        private[i] = 0;
     }
 
     bool is_empty() const
     {
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i) {
-            if (_private[i] != 0)
+            if (private[i] != 0)
                 return false;
         }
 
@@ -82,13 +82,13 @@ struct mesa_port_list_t {
     void set_all()
     {
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
-            _private[i] = 0xff;
+        private[i] = 0xff;
     }
 
     mesa_port_list_t &operator|=(const mesa_port_list_t &rhs)
     {
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
-            _private[i] |= rhs._private[i];
+        private[i] |= rhs.private[i];
 
         return *this;
     }
@@ -96,7 +96,7 @@ struct mesa_port_list_t {
     mesa_port_list_t &operator&=(const mesa_port_list_t &rhs)
     {
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
-            _private[i] &= rhs._private[i];
+        private[i] &= rhs.private[i];
 
         return *this;
     }
@@ -105,7 +105,7 @@ struct mesa_port_list_t {
     {
         mesa_port_list_t res(*this);
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
-            res._private[i] &= rhs._private[i];
+            res.private[i] &= rhs.private[i];
 
         return res;
     }
@@ -114,7 +114,7 @@ struct mesa_port_list_t {
     {
         mesa_port_list_t res(*this);
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
-            res._private[i] |= rhs._private[i];
+            res.private[i] |= rhs.private[i];
 
         return res;
     }
@@ -123,7 +123,7 @@ struct mesa_port_list_t {
     {
         mesa_port_list_t res;
         for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
-            res._private[i] = ~_private[i];
+            res.private[i] = ~private[i];
 
         return res;
     }
@@ -135,13 +135,13 @@ struct mesa_port_list_t {
 
     const bool operator[](size_t bit) const { return get(bit); }
 
-    uint8_t _private[MESA_PORT_LIST_ARRAY_SIZE] = {0};
+    uint8_t private[MESA_PORT_LIST_ARRAY_SIZE] = {0};
 };
 
 inline bool operator==(const mesa_port_list_t &rhs, const mesa_port_list_t &lhs)
 {
     for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
-        if (rhs._private[i] != lhs._private[i])
+        if (rhs.private[i] != lhs.private[i])
             return false;
     return true;
 }
@@ -149,7 +149,7 @@ inline bool operator==(const mesa_port_list_t &rhs, const mesa_port_list_t &lhs)
 inline bool operator!=(const mesa_port_list_t &rhs, const mesa_port_list_t &lhs)
 {
     for (size_t i = 0; i < MESA_PORT_LIST_ARRAY_SIZE; ++i)
-        if (rhs._private[i] != lhs._private[i])
+        if (rhs.private[i] != lhs.private[i])
             return true;
     return false;
 }
@@ -205,7 +205,7 @@ void memcpy(mesa_port_list_t *dst, const void *src, size_t);
 
 inline int memcmp(const mesa_port_list_t &s1, const mesa_port_list_t &s2, size_t)
 {
-    return memcmp(s1._private, s2._private, sizeof(s1._private));
+    return memcmp(s1.private, s2.private, sizeof(s1.private));
 }
 
 inline void memset(mesa_port_list_t &s, int c, size_t)
@@ -219,33 +219,37 @@ inline void memset(mesa_port_list_t &s, int c, size_t)
 #else // __cplusplus
 
 typedef struct {
-    uint8_t _private[MESA_PORT_LIST_ARRAY_SIZE];
+    uint8_t private[MESA_PORT_LIST_ARRAY_SIZE];
 } mesa_port_list_t;
 
 static inline void mesa_port_list_clear(mesa_port_list_t *l)
 {
-    memset(l->_private, 0, sizeof(l->_private));
+    (void)memset(l->private, 0, sizeof(l->private));
 }
 
 static inline void mesa_port_list_set(mesa_port_list_t *l, int bit, mesa_bool_t val)
 {
-    size_t  idx = bit / 8;
-    size_t  mod = bit % 8;
+    uint8_t b = (uint8_t)bit;
+    uint8_t idx = (b / 8U);
+    uint8_t mod = (b % 8U);
     uint8_t x = 1;
     x <<= mod;
 
     if (val) {
-        l->_private[idx] |= x;
+        l->private[idx] |= x;
     } else {
-        l->_private[idx] &= ~x;
+        l->private[idx] &= ~x;
     }
 }
 
 static inline int mesa_port_list_get(const mesa_port_list_t *l, int bit)
 {
-    size_t idx = bit / 8;
-    size_t mod = bit % 8;
-    return (l->_private[idx] >> mod) & 0x1;
+    uint8_t b = (uint8_t)bit;
+    uint8_t idx = (b / 8U);
+    uint8_t mod = (b % 8U);
+
+    b = ((l->private[idx] >> mod) & 1U);
+    return (int)b;
 }
 
 #endif // __cplusplus

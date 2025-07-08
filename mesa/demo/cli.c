@@ -71,7 +71,7 @@ static void cli_cmd_debug_mgmt(cli_req_t *req)
 
 mesa_bool_t cli_port_list_member(mesa_port_list_t *port_list, mesa_port_no_t iport)
 {
-    return (iport < cli_port_cnt && (port_list->_private[iport / 8] & (1 << (iport % 8))) != 0);
+    return (iport < cli_port_cnt && (port_list->private[iport / 8] & (1 << (iport % 8))) != 0);
 }
 
 char *cli_port_list_txt(mesa_port_list_t *port_list, char *buf)
