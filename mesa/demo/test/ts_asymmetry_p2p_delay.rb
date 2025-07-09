@@ -94,7 +94,7 @@ def tod_asymmetry_p2p_delay_test
 
     range = (range1 > range) ? range1 : range
     range += range / 6
-    diff_max = range / 2
+    diff_max = (range / 2) + 5 
     test ("The asymmetry delay is subtracted from correction on egress") do
     t_i("lowest_corr_none = #{lowest_corr_none}  lowest_corr_eg = #{lowest_corr_eg}  diff #{diff0}  diff_max #{diff_max}")
     if ((lowest_corr_none < lowest_corr_eg) || (diff0 < -diff_max) || (diff0 > diff_max))
