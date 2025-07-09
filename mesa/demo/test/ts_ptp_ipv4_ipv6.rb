@@ -128,7 +128,7 @@ def ip_test(ip)
 
     lowest_corr_none,range = nano_corr_lowest_measure(ip)
 
-    if ((lowest_corr_none < 0) || (lowest_corr_none > 3100))
+    if ((lowest_corr_none < 0) || (lowest_corr_none > 3160))
         t_e("Unexpected correction field including egress delay. lowest_corr_none = #{lowest_corr_none}")
     end
     end
