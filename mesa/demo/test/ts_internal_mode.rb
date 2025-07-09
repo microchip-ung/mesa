@@ -16,6 +16,7 @@ check_capabilities do
            ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")),
            "Family is #{$cap_family} - must be #{chip_family_to_id("MESA_CHIP_FAMILY_JAGUAR2")} (Jaguar2) or #{chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")} (SparX-5) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")} (Lan966x) or #{chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")} (Lan969x)")
     $cap_epid = $ts.dut.call("mesa_capability", "MESA_CAP_PACKET_IFH_EPID")
+    $cap_pch = $ts.dut.call("mesa_capability", "MESA_CAP_TS_PCH")
 end
 
 $port0 = 0
@@ -210,23 +211,11 @@ end
 
 
 def pch_read(port)
-    port_map_pcb_135 = Array[0,1,2,3,4,5,6,7,8,9]
-    port_map_pcb_134 = Array[12,13,14,15,48,49,50,51,52,53,]
-    port_map_pcb_8291 = Array[0,1,4]
-    port_map_pcb_8309 = Array[0,1,2,3,4]
-    port_map_pcb_8422 = Array[0,4,8,12,16,20,24,25,26,27]
-
+    chip_port = $ts.port_map[port]["chip_port"]
+t_i("port #{port} chip_port #{chip_port}")
     ret = {}
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
-        if ($ts.dut.pcb == 8291)
-            out = $ts.dut.run("symreg SYS:PTPPORT[#{port_map_pcb_8291[port]}]:PCH_CFG")
-        else
-        if ($ts.dut.pcb == 8309)
-            out = $ts.dut.run("symreg SYS:PTPPORT[#{port_map_pcb_8309[port]}]:PCH_CFG")
-        else
-            out = $ts.dut.run("symreg SYS:PTPPORT[#{port}]:PCH_CFG")
-        end
-        end
+        out = $ts.dut.run("symreg SYS:PTPPORT[#{chip_port}]:PCH_CFG")
         split = out[:out].split(" ")
         regval = split[2].to_i(16)
         ret[:port_id] = (regval & 0x780) >> 7
@@ -236,19 +225,7 @@ def pch_read(port)
     end
     if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) ||
         ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")))
-        if ($ts.dut.pcb == 134)
-            out = $ts.dut.run("mesa-cmd deb sym read DEV2G5[#{port_map_pcb_134[port]}]:PTP_CFG_STATUS:PTP_CFG")
-        else
-        if ($ts.dut.pcb == 135)
-            out = $ts.dut.run("mesa-cmd deb sym read DEV2G5[#{port_map_pcb_135[port]}]:PTP_CFG_STATUS:PTP_CFG")
-        else
-        if ($ts.dut.pcb == 8422)
-            out = $ts.dut.run("mesa-cmd deb sym read DEV2G5[#{port_map_pcb_8422[port]}]:PTP_CFG_STATUS:PTP_CFG")
-        else
-            out = $ts.dut.run("mesa-cmd deb sym read DEV2G5[#{port}]:PTP_CFG_STATUS:PTP_CFG")
-        end
-        end
-        end
+        out = $ts.dut.run("mesa-cmd deb sym read DEV2G5[#{chip_port}]:PTP_CFG_STATUS:PTP_CFG")
         split = out[:out].split(" ")
         regval = split[13].to_i
         ret[:port_id] = (regval & 0xF00) >> 8
@@ -264,9 +241,7 @@ end
 
 test "PCH operation" do
     # Test PCH operation mode
-    if (($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X")) ||
-        ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) ||
-        ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_SPARX5")))
+    if ($cap_pch != 0)
         port = $ts.dut.port_list[0]
 
         pch = pch_read(port)
