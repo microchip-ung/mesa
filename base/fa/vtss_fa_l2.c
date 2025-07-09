@@ -3827,8 +3827,8 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
         // Due to potentially short taxi bus calendars that can drain the
         // disassembler and cause underrun, which in turn may cause frames to be
         // dropped, we also disable DSM underrun detection.
-        REG_WRM(VTSS_DSM_BUF_CFG(port),
-                VTSS_F_DSM_BUF_CFG_AGING_ENA(1) | VTSS_F_DSM_BUF_CFG_UNDERFLOW_WATCHDOG_DIS(1),
+        REG_WRM(VTSS_DSM_BUF_CFG(port), VTSS_F_DSM_BUF_CFG_AGING_ENA(1) |
+                VTSS_F_DSM_BUF_CFG_UNDERFLOW_WATCHDOG_DIS(1),
                 VTSS_M_DSM_BUF_CFG_AGING_ENA | VTSS_M_DSM_BUF_CFG_UNDERFLOW_WATCHDOG_DIS);
     }
 
