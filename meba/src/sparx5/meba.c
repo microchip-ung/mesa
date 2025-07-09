@@ -2496,8 +2496,9 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
                 board->port[port_no].board_port = port_no;
                 if ((port_no >= board->port_cnt - 5) && (port_no < board->port_cnt - 1)) {
                     // 4x25G SFP ports
-                    // These are physical ports 52-55
                     board->port[port_no].sgpio_port = board->port[port_no].map.map.chip_port - 32;
+                    // board_port is the i2c port which are always 52,53,54,55
+                    board->port[port_no].board_port = 52 + port_no - (board->port_cnt - 5);
                 }
             } else {
                 T_E(inst, "Board type (%d) and port_cfg (%d) not supported!", board->type,
