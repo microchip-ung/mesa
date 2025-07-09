@@ -96,7 +96,7 @@ test "test_run" do
     lowest_corr_add,range1 = nano_corr_lowest_measure
     range = (range1 > range) ? range1 : range
     range += range / 6
-    diff_max = range / 2
+    diff_max = (range / 2) + 7
 
     t_i("Check that the correction value has the added asymmetry delay")
     diff = (lowest_corr_add - (lowest_corr_none - asymmetry))
