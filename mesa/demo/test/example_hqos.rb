@@ -61,7 +61,7 @@ test "test_priority_run" do
     conf["pvid"] = 100
     $ts.dut.call("mesa_vlan_port_conf_set", $port_list[0], conf)
 
-    measure($ig, $eg, 800, 1,     false,            false,           [1000000000,0,0],  [4.2,420,350],  true,              [0,3,7])
+    measure($ig, $eg, 800, 1,     false,            false,           [1000000000,0,0],  [4.2,600,350],  true,              [0,3,7])
 end
 
 test "test_shaper_run" do
