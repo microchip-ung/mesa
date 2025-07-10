@@ -338,10 +338,10 @@ static vtss_rc fa_vcap_cmd(vtss_state_t *vtss_state, vtss_fa_vcap_reg_info_t *in
 {
     u32 value;
 
-    vtss_fa_wr(vtss_state, info->mv_cfg, info->mv_cfg_value);
-    vtss_fa_wr(vtss_state, info->update_ctrl, info->update_ctrl_value);
+    (void)vtss_fa_wr(vtss_state, info->mv_cfg, info->mv_cfg_value);
+    (void)vtss_fa_wr(vtss_state, info->update_ctrl, info->update_ctrl_value);
     do {
-        vtss_fa_rd(vtss_state, info->update_ctrl, &value);
+        (void)vtss_fa_rd(vtss_state, info->update_ctrl, &value);
     } while (value & info->update_ctrl_mask);
 
     return VTSS_RC_OK;
@@ -482,7 +482,7 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t   *vtss_state,
         /* Entry */
         if (sel & FA_VCAP_SEL_ENTRY) {
             if (entry_width == 0U) {
-                vtss_fa_rd(vtss_state, info.entry_width, &entry_width);
+                (void)vtss_fa_rd(vtss_state, info.entry_width, &entry_width);
             }
             count = FA_BITS_TO_WORDS(entry_width);
             for (j = 0U; j < count; j++) {
@@ -490,8 +490,8 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t   *vtss_state,
                 VTSS_RC(fa_vcap_reg_info_get(vtss_state, &info));
                 if (cmd == FA_VCAP_CMD_READ && i == 0U && j == 0U) {
                     /* Read TG for first word in base address */
-                    vtss_fa_rd(vtss_state, info.entry_dat, &value);
-                    vtss_fa_rd(vtss_state, info.mask_dat, &mask);
+                    (void)vtss_fa_rd(vtss_state, info.entry_dat, &value);
+                    (void)vtss_fa_rd(vtss_state, info.mask_dat, &mask);
                     if ((value & 1U) == 1U && (mask & 1U) == 1U) {
                         /* Match-off means that entry is disabled */
                         tg = FA_VCAP_TG_NONE;
@@ -536,9 +536,9 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t   *vtss_state,
                 w = ((j == (count - 1U) && w != 0U ? w : 32U) - tgw);
                 if (cmd == FA_VCAP_CMD_READ) {
                     /* Read from entry cache */
-                    vtss_fa_rd(vtss_state, info.entry_dat, &value);
-                    vtss_fa_rd(vtss_state, info.mask_dat, &mask);
-                    vtss_fa_rd(vtss_state, info.cnt_dat, &cnt);
+                    (void)vtss_fa_rd(vtss_state, info.entry_dat, &value);
+                    (void)vtss_fa_rd(vtss_state, info.mask_dat, &mask);
+                    (void)vtss_fa_rd(vtss_state, info.cnt_dat, &cnt);
                     VTSS_N("addr: %u, j: %u, value/mask: 0x%08x/%08x, cnt: %u", addr, j, value,
                            mask, cnt);
                     vtss_bs_set(data->entry, entry_offs, w, value >> tgw);
@@ -550,8 +550,8 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t   *vtss_state,
                     mask = ((vtss_bs_get(data->mask, entry_offs, w) << tgw) +
                             VTSS_ENCODE_BITFIELD(0xff, 0, tgw));
                     VTSS_N("addr: %u, j: %u, value/mask: 0x%08x/%08x", addr, j, value, ~mask);
-                    vtss_fa_wr(vtss_state, info.entry_dat, value);
-                    vtss_fa_wr(vtss_state, info.mask_dat, ~mask);
+                    (void)vtss_fa_wr(vtss_state, info.entry_dat, value);
+                    (void)vtss_fa_wr(vtss_state, info.mask_dat, ~mask);
                 }
                 entry_offs += w;
             }
@@ -560,7 +560,7 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t   *vtss_state,
         /* Action */
         if ((sel & FA_VCAP_SEL_ACTION) && (i == 0U || i < fa_vcap_tg_count(data->type))) {
             if (action_width == 0U) {
-                vtss_fa_rd(vtss_state, info.action_width, &action_width);
+                (void)vtss_fa_rd(vtss_state, info.action_width, &action_width);
             }
             count = FA_BITS_TO_WORDS(action_width);
             for (j = 0U; j < count; j++) {
@@ -572,7 +572,7 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t   *vtss_state,
                     w = props->type_width;
                     if (w) {
                         tgw = ((addr % 3U) == 0U ? w : ((addr % 2U) == 0U && w > 2U) ? 2 : 1);
-                        vtss_fa_rd(vtss_state, info.action_dat, &value);
+                        (void)vtss_fa_rd(vtss_state, info.action_dat, &value);
                         tg = VTSS_EXTRACT_BITFIELD(value, 0, tgw);
                         if (w == 2U) {
                             /* IS2/ES2 */
@@ -603,7 +603,7 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t   *vtss_state,
                 w = ((j == (count - 1U) && w != 0U ? w : 32U) - tgw);
                 if (cmd == FA_VCAP_CMD_READ) {
                     /* Read from action cache */
-                    vtss_fa_rd(vtss_state, info.action_dat, &value);
+                    (void)vtss_fa_rd(vtss_state, info.action_dat, &value);
                     VTSS_N("addr: %u, j: %u, action: 0x%08x", addr, j, value);
                     vtss_bs_set(data->action, action_offs, w, value >> tgw);
                 } else {
@@ -611,7 +611,7 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t   *vtss_state,
                     value = ((vtss_bs_get(data->action, action_offs, w) << tgw) +
                              VTSS_ENCODE_BITFIELD(tg, 0, tgw));
                     VTSS_N("addr: %u, j: %u, action: 0x%08x", addr, j, value);
-                    vtss_fa_wr(vtss_state, info.action_dat, value);
+                    (void)vtss_fa_wr(vtss_state, info.action_dat, value);
                 }
                 action_offs += w;
             }
@@ -619,9 +619,9 @@ static vtss_rc fa_vcap_entry_cmd(vtss_state_t   *vtss_state,
 
         if ((sel & FA_VCAP_SEL_COUNTER) && i == 0U) {
             if (cmd == FA_VCAP_CMD_READ) {
-                vtss_fa_rd(vtss_state, info.cnt_dat, &data->counter);
+                (void)vtss_fa_rd(vtss_state, info.cnt_dat, &data->counter);
             } else {
-                vtss_fa_wr(vtss_state, info.cnt_dat, data->counter);
+                (void)vtss_fa_wr(vtss_state, info.cnt_dat, data->counter);
             }
         }
 

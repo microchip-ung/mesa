@@ -1776,9 +1776,9 @@ static vtss_rc fa_debug_vop(vtss_state_t                  *vtss_state,
                                                                             k));
                         }
                     }
-                    vtss_fa_rd(vtss_state, tx_counter, &v);
+                    (void)vtss_fa_rd(vtss_state, tx_counter, &v);
                     pr("%10u      ", v);
-                    vtss_fa_rd(vtss_state, rx_counter, &v);
+                    (void)vtss_fa_rd(vtss_state, rx_counter, &v);
                     pr("%10u\n", v);
                 }
             }

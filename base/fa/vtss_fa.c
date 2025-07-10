@@ -873,12 +873,12 @@ static vtss_rc fa_init_switchcore(vtss_state_t *vtss_state)
 
                 if (i == 0U) {
                     if (r.gazwrap) {
-                        vtss_fa_wr(vtss_state, r.init_reg, r.init_val);
+                        (void)vtss_fa_wr(vtss_state, r.init_reg, r.init_val);
                     } else {
-                        vtss_fa_wrm(vtss_state, r.init_reg, r.init_val, r.init_val);
+                        (void)vtss_fa_wrm(vtss_state, r.init_reg, r.init_val, r.init_val);
                     }
                 } else {
-                    vtss_fa_rd(vtss_state, r.init_reg, &value);
+                    (void)vtss_fa_rd(vtss_state, r.init_reg, &value);
                     if ((value & r.init_val) != r.init_val) {
                         pending--;
                     }

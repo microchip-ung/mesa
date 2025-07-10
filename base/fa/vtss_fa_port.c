@@ -5210,7 +5210,7 @@ vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss, BOOL res
     // which amounts to 638 on SparX5 and 323 on LAN969x.
     idx = 9 * RT_CHIP_PORTS_ALL + 8;
     addr = res_stat_cur ? REG_ADDR(VTSS_QRES_RES_STAT_CUR(idx)) : REG_ADDR(VTSS_QRES_RES_STAT(idx));
-    vtss_fa_rd(vtss_state, addr, &val);
+    (void)vtss_fa_rd(vtss_state, addr, &val);
     fa_debug_qres_print(vtss_state, ss, idx, -1, 0U, 7U, val);
 
     for (resource = 0U; resource < 4U; resource++) {
@@ -5221,7 +5221,7 @@ vtss_rc vtss_fa_port_debug_qres(vtss_state_t *vtss_state, lmu_ss_t *ss, BOOL res
                 idx = port_base + prio;
                 addr = res_stat_cur ? REG_ADDR(VTSS_QRES_RES_STAT_CUR(idx))
                                     : REG_ADDR(VTSS_QRES_RES_STAT(idx));
-                vtss_fa_rd(vtss_state, addr, &val);
+                (void)vtss_fa_rd(vtss_state, addr, &val);
                 if (val) {
                     // Only print non-zero values or we will be flooded.
                     fa_debug_qres_print(vtss_state, ss, idx, chip_port, resource, prio, val);
