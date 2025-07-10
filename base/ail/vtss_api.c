@@ -652,7 +652,7 @@ const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes)
     case VTSS_SERDES_MODE_TEST_MODE:   return "TEST";
     case VTSS_SERDES_MODE_USXGMII:     return "USXGMII";
     case VTSS_SERDES_MODE_USGMII:      return "USGMII";
-    case VTSS_SERDES_MODE_QXGMII:      return "USX_QXGMII";
+    case VTSS_SERDES_MODE_QXGMII:      return "QXGMII";
     case VTSS_SERDES_MODE_DXGMII_10G:  return "DXGMII_10G";
     case VTSS_SERDES_MODE_DXGMII_5G:   return "DXGMII_5G";
     }

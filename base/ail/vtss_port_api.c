@@ -2228,7 +2228,7 @@ static void vtss_port_debug_print_conf(vtss_state_t                  *vtss_state
         if (header) {
             header = 0;
             vtss_debug_print_header(ss, "Configuration");
-            pr("Port  Interface    Serdes     Speed     Aneg  Obey      Generate  ");
+            pr("Port  Interface    Serdes      Speed     Aneg  Obey      Generate  ");
 #if defined(VTSS_FEATURE_PFC)
             pr("PFC[0-7]  ");
 #endif
@@ -2252,10 +2252,10 @@ static void vtss_port_debug_print_conf(vtss_state_t                  *vtss_state
                    : "No";
         lmu_fmt_buf_init(&buf);
         LMU_SS_FMT(&buf.ss, "%s", vtss_serdes_if_txt(vtss_state->port.serdes_mode[port_no]));
-        if (conf->if_type == VTSS_PORT_INTERFACE_SFI) {
+        if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_DISABLE) {
             LMU_SS_FMT(&buf.ss, "(%s)", vtss_media_type_if_txt(conf->serdes.media_type));
         }
-        pr("%-6u%-13s%-11s%-10s%-6s%-10s%-10s", port_no, vtss_port_if_txt(conf->if_type), &buf,
+        pr("%-6u%-13s%-12s%-10s%-6s%-10s%-10s", port_no, vtss_port_if_txt(conf->if_type), &buf,
            mode, aneg, vtss_bool_txt(conf->flow_control.obey),
            vtss_bool_txt(conf->flow_control.generate));
 #if defined(VTSS_FEATURE_PFC)
