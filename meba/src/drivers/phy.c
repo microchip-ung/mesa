@@ -499,11 +499,13 @@ mepa_rc meba_port_status_get(meba_inst_t               inst,
             break;
         }
         // Fall through
-    default:
-        // Break if in-band-aneg is supported
-        if (entry.cap & MEBA_PORT_CAP_IN_BAND_STATUS) {
+    case MESA_PORT_INTERFACE_QXGMII:
+    case MESA_PORT_INTERFACE_USXGMII:
+        // Fall through if out-band-aneg (from phy) is requested
+        if (!(entry.cap & MEBA_PORT_CAP_OUT_BAND_STATUS)) {
             break;
         }
+    default:
         // Poll the PHY driver by default
         if (meba_phy_status_poll(inst, port_no, &status_mepa) == MESA_RC_OK) {
             status->link = status_mepa.link;

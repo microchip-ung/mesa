@@ -93,7 +93,12 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 #define MEBA_PORT_CAP_DUMMY_PHY 0x800000000
 
 // Supports in-band-status through SGMII control word
+// Enabled per default and is here for backwards capability
 #define MEBA_PORT_CAP_IN_BAND_STATUS 0x1000000000
+
+// Out-band-status through phy is requested
+// If in-band is not preferred, out-of-band can be enabled
+#define MEBA_PORT_CAP_OUT_BAND_STATUS 0x4000000000
 
 // Change to SFP when it has PCS link as opposed to SFP detect
 #define MEBA_PORT_CAP_DUAL_SFP_LINK 0x2000000000
