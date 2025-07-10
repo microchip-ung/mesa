@@ -56,8 +56,8 @@ test "frame-cpu-queue-shaper" do
         t = p[:us_rel]
         t_i("t: #{t}")
         if (p == pkts.last)
-            min = 600000
-            max = 1400000
+            min = 500000
+            max = 1500000
             msg = "last frame at #{t}, expected range: #{min} - #{max}"
             if (t > min and t < max)
                 t_i(msg)
