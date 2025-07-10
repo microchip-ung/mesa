@@ -2809,34 +2809,56 @@ static vtss_rc fa_sd_power_save(vtss_state_t        *vtss_state,
                                 const vtss_port_no_t port_no,
                                 BOOL                 power_down)
 {
-    u32  indx, type, sd_tgt, port = VTSS_CHIP_PORT(port_no);
+    u32  indx, type, sd_tgt, port = VTSS_CHIP_PORT(port_no), p;
     BOOL pd_serdes = 1;
 
     if (port_is_rgmii(vtss_state, port_no) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_USGMII) ||
-        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QXGMII) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_DXGMII_5G)) {
         pd_serdes = 0; // Do not power down multi-port serdes
     }
 
-    // Only power down QSGMII serdes when all port instanaces are powered down
-    if (power_down && vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) {
-        u32 base = (port / 4U) * 4U;
-        for (u32 cnt = 0U; cnt < 4U; cnt++) {
-            pd_serdes = 1;
-            for (u32 api_port = VTSS_PORT_NO_START; api_port < vtss_state->port_count; api_port++) {
-                if (api_port == port_no) {
-                    continue;
-                }
-                if (base + cnt == VTSS_CHIP_PORT(api_port)) {
-                    if (!vtss_state->port.conf[api_port].power_down) {
-                        pd_serdes = 0;
-                        break;
+    // Only power down QSGMII/QXGMII serdes when all 4 port instances are powered down
+    if (power_down) {
+        if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QSGMII) {
+            u32 base = (port / 4U) * 4U;
+            for (u32 cnt = 0U; cnt < 4U; cnt++) {
+                pd_serdes = 1;
+                for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+                    if (p == port_no) {
+                        continue;
+                    }
+                    if (base + cnt == VTSS_CHIP_PORT(p)) {
+                        if (!vtss_state->port.conf[p].power_down) {
+                            pd_serdes = 0;
+                            break;
+                        }
                     }
                 }
+                if (!pd_serdes) {
+                    break;
+                }
             }
-            if (!pd_serdes) {
-                break;
+        } else if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_QXGMII) {
+            u32 cnt = 0, indx, this_indx = vtss_fa_sd_lane_indx(vtss_state, port_no);
+            pd_serdes = 0;
+            for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
+                if (vtss_state->port.conf[port_no].if_type != VTSS_PORT_INTERFACE_QXGMII) {
+                    continue;
+                }
+                indx = vtss_fa_sd_lane_indx(vtss_state, p);
+                if (indx != this_indx) {
+                    continue;
+                }
+                if (p == port_no) {
+                    cnt++;
+                } else if (vtss_state->port.conf[p].power_down) {
+                    cnt++;
+                }
+                if (cnt == 4) {
+                    pd_serdes = 1;
+                    break;
+                }
             }
         }
     }
