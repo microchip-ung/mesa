@@ -155,7 +155,7 @@ extern const char *vtss_func;
 
 #define VTSS_BOOL(expr) ((expr) ? 1 : 0)
 
-#define VTSS_CHIP_PORT(port_no)                   vtss_state->port.map[port_no].chip_port
+#define VTSS_CHIP_PORT(port_no)                   (uint32_t)vtss_state->port.map[port_no].chip_port
 #define VTSS_CHIP_NO(port_no)                     vtss_state->port.map[port_no].chip_no
 #define VTSS_CHIP_PORT_FROM_STATE(state, port_no) (state)->port.map[port_no].chip_port
 #define VTSS_CHIP_NO_FROM_STATE(state, port_no)   (state)->port.map[port_no].chip_no

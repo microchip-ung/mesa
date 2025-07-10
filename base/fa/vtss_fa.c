@@ -1131,7 +1131,7 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t  *vtss_state,
     }
 
     // Switch port. Use the port map.
-    if ((*port = VTSS_CHIP_PORT(port_no)) == CHIP_PORT_UNUSED) {
+    if ((*port = vtss_state->port.map[port_no].chip_port) == CHIP_PORT_UNUSED) {
         return FA_CAL_SPEED_NONE;
     }
 

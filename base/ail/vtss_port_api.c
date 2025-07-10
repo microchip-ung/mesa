@@ -1181,7 +1181,7 @@ vtss_port_no_t vtss_cmn_port2port_no(vtss_state_t                  *vtss_state,
     vtss_port_no_t port_no;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        if ((u32)VTSS_CHIP_PORT(port_no) == chip_port && VTSS_PORT_CHIP_SELECTED(port_no)) {
+        if (VTSS_CHIP_PORT(port_no) == chip_port && VTSS_PORT_CHIP_SELECTED(port_no)) {
             if (info->port_list[port_no]) {
                 return port_no;
             }
@@ -1197,7 +1197,7 @@ vtss_port_no_t vtss_api_port(vtss_state_t *vtss_state, u32 chip_port)
 
     /* Map from chip port to API port */
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        if ((u32)VTSS_CHIP_PORT(port_no) == chip_port) {
+        if (VTSS_CHIP_PORT(port_no) == chip_port) {
             if (VTSS_PORT_CHIP_SELECTED(port_no)) {
                 return port_no;
             }

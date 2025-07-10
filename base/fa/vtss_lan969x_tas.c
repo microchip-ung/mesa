@@ -237,7 +237,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
     u32 maxsdu, i, hold_advance;
     u32 profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
     u32 entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
-    u32 chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
 
     vtss_timestamp_t   *base_time = &port_conf->base_time;
     u32                 cycle_time = port_conf->cycle_time;
@@ -383,7 +383,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
 
 vtss_rc lan966x_tas_frag_size_update(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no)
 {
-    u32                       chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    u32                       chip_port = VTSS_CHIP_PORT(port_no);
     vtss_qos_tas_port_conf_t *port_conf = &vtss_state->qos.tas.port_conf[port_no];
     vtss_tas_gcl_state_t     *gcl_state = &vtss_state->qos.tas.tas_gcl_state[port_no];
     u32                       gcl_length = port_conf->gcl_length;

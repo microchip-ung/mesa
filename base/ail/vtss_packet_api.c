@@ -588,7 +588,7 @@ vtss_rc vtss_cmn_logical_to_chip_port_mask(const vtss_state_t *const state,
                 return VTSS_RC_ERROR;
             }
 
-            *chip_port_mask |= (1ULL << state->port.map[p].chip_port);
+            *chip_port_mask |= (1ULL << (uint32_t)state->port.map[p].chip_port);
             *port_no = p;
             (*port_cnt)++;
         }

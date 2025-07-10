@@ -28,7 +28,7 @@ static u32 lan966x_vtss_pgid(vtss_state_t *vtss_state, u32 pgid)
 
     if (pgid < VTSS_CHIP_PORTS) {
         for (port_no = 0; port_no < vtss_state->port_count; port_no++)
-            if ((u32)VTSS_CHIP_PORT(port_no) == pgid)
+            if (VTSS_CHIP_PORT(port_no) == pgid)
                 break;
         return port_no;
     } else {

@@ -1035,7 +1035,7 @@ static vtss_rc fa_queue_policer_set(vtss_state_t   *vtss_state,
 vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32                   i, fc_ena = 0U;
-    u32                   chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    u32                   chip_port = VTSS_CHIP_PORT(port_no);
     vtss_port_conf_t     *port_conf = &vtss_state->port.conf[port_no];
     vtss_qos_port_conf_t *qos_conf = &vtss_state->qos.port_conf[port_no];
 
@@ -1083,7 +1083,7 @@ static vtss_rc fa_qos_ingress_map_port_update(vtss_state_t        *vtss_state,
                                               const vtss_port_no_t port_no,
                                               const u16            id)
 {
-    u32 chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
     u16 ix;
     u32 key;
 
@@ -1552,7 +1552,7 @@ vtss_rc vtss_fa_qos_se_queue_shaper_conf_set(vtss_state_t        *vtss_state,
 static vtss_rc fa_qos_ot_queue_shaper_conf_set(vtss_state_t        *vtss_state,
                                                const vtss_port_no_t port_no)
 {
-    u32 chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    u32 chip_port = VTSS_CHIP_PORT(port_no);
     u32 se = FA_HSCH_L0_OT_SE(chip_port); /* On a port there is one scheduler
                                              element and eight queue shapers */
 
@@ -1685,7 +1685,7 @@ vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t        *vtss_state,
 static vtss_rc fa_qos_queue_shaper_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_qos_port_conf_t *conf = &vtss_state->qos.port_conf[port_no];
-    u32                   chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    u32                   chip_port = VTSS_CHIP_PORT(port_no);
     u32                   layer = 0U; /* Default layer on all variants */
     int                   queue;
 
@@ -1705,7 +1705,7 @@ static vtss_rc fa_qos_queue_shaper_conf_set(vtss_state_t *vtss_state, const vtss
 
 static vtss_rc fa_qos_queue_cut_through_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    u32 q, sp, ct_ena = 0U, port = (u32)VTSS_CHIP_PORT(port_no);
+    u32 q, sp, ct_ena = 0U, port = VTSS_CHIP_PORT(port_no);
 #if defined(VTSS_FEATURE_QOS_FRAME_PREEMPTION)
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
 #endif
@@ -1751,7 +1751,7 @@ vtss_rc vtss_cil_qos_port_conf_update(vtss_state_t *vtss_state, const vtss_port_
 {
     vtss_qos_port_conf_t *conf = &vtss_state->qos.port_conf[port_no];
     vtss_qos_port_conf_t *old_conf = &vtss_state->qos.port_conf_old;
-    u32                   chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    u32                   chip_port = VTSS_CHIP_PORT(port_no);
     u32                   pcp, dei, tag_pcp_cfg, tag_dei_cfg, class, policer, queue;
 #if defined(VTSS_FEATURE_QOS_OT)
     vtss_pct_t ot_it_pct[2];
@@ -3151,7 +3151,7 @@ static void tas_gate_state_write(vtss_state_t  *vtss_state,
                                  BOOL           ot)
 {
     u32            rc = 0U;
-    vtss_port_no_t chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    vtss_port_no_t chip_port = VTSS_CHIP_PORT(port_no);
 
     rc = (vtss_fa_wr(vtss_state, REG_ADDR(VTSS_HSCH_TAS_GATE_STATE_CTRL),
                      FA_HSCH_TAS_SE(chip_port, ot)) != VTSS_RC_OK)
@@ -3173,7 +3173,7 @@ static void tas_gate_state_read(vtss_state_t  *vtss_state,
                                 BOOL           ot)
 {
     u32            rc = 0U, value;
-    vtss_port_no_t chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    vtss_port_no_t chip_port = VTSS_CHIP_PORT(port_no);
 
     vtss_u8_to_bool8(0, gate_open);
 
@@ -3297,7 +3297,7 @@ static vtss_rc hold_qmaxsdu_configure(vtss_state_t        *vtss_state,
                                       u32                  profile_idx,
                                       const vtss_port_no_t port_no)
 {
-    vtss_port_no_t chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    vtss_port_no_t chip_port = VTSS_CHIP_PORT(port_no);
     u32            i, maxsdu;
 
     if (profile_idx == TAS_PROFILE_IDX_NONE) {
@@ -3391,7 +3391,7 @@ static vtss_rc tas_list_start(vtss_state_t             *vtss_state,
     u32  hold_profile_idx = vtss_state->qos.tas.tas_lists[list_idx].hold_profile_idx;
     u32  entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
     u16 *max_sdu = vtss_state->qos.tas.port_conf[port_no].max_sdu;
-    u32  chip_port = (u32)VTSS_CHIP_PORT(port_no);
+    u32  chip_port = VTSS_CHIP_PORT(port_no);
 
     vtss_timestamp_t   *base_time = &port_conf->base_time;
     u32                 cycle_time = port_conf->cycle_time;
@@ -3829,7 +3829,7 @@ vtss_rc vtss_cil_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_port
             } else {
                 /* On Laguna the used profile is indexed by the chip port number
                  * of the list */
-                profile_idx = (u32)VTSS_CHIP_PORT(port_no);
+                profile_idx = VTSS_CHIP_PORT(port_no);
             }
             tas_lists[list_idx].profile_idx = profile_idx;
             tas_lists[list_idx].inherit_profile = FALSE;
@@ -4079,7 +4079,7 @@ vtss_rc vtss_cil_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
 {
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     u32                      enable_tx = (conf->enable_tx ? 1 : 0);
-    u32                      i, unit, port = (u32)VTSS_CHIP_PORT(port_no);
+    u32                      i, unit, port = VTSS_CHIP_PORT(port_no);
     vtss_port_speed_t        speed = vtss_state->port.conf[port_no].speed;
     BOOL                     verify_dis = !(!conf->verify_disable_tx && conf->enable_tx);
 
@@ -4167,7 +4167,7 @@ vtss_rc vtss_cil_qos_fp_port_status_get(vtss_state_t                    *vtss_st
                                         const vtss_port_no_t             port_no,
                                         vtss_qos_fp_port_status_t *const status)
 {
-    u32                      value, v, port = (u32)VTSS_CHIP_PORT(port_no);
+    u32                      value, v, port = VTSS_CHIP_PORT(port_no);
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     vtss_port_speed_t        speed = vtss_state->port.conf[port_no].speed;
 
@@ -4789,7 +4789,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             if (!info->port_list[port_no]) {
                 continue;
             }
-            chip_port = (u32)VTSS_CHIP_PORT(port_no);
+            chip_port = VTSS_CHIP_PORT(port_no);
             REG_RD(VTSS_ANA_CL_VLAN_CTRL(chip_port), &value);
             pr("Port %2u (chip port %2u):\n", port_no, chip_port);
             pr("%-32s: %2u\n", "PORT_PCP", VTSS_X_ANA_CL_VLAN_CTRL_PORT_PCP(value));
@@ -5178,7 +5178,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             if (!info->port_list[port_no]) {
                 continue;
             }
-            chip_port = (u32)VTSS_CHIP_PORT(port_no);
+            chip_port = VTSS_CHIP_PORT(port_no);
             pr("Port %2u (chip port %2u):\n", port_no, chip_port);
             REG_RD(VTSS_ANA_AC_POL_POL_PORT_CTRL_POL_PORT_GAP(chip_port), &value);
             pr("%-32s: %4u\n", "PORT_PIPELINE_PT",
@@ -5399,7 +5399,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             vtss_timestamp_t ts;
         } buffer[1000];
 
-        chip_port = (u32)VTSS_CHIP_PORT(tas_port - 1U);
+        chip_port = VTSS_CHIP_PORT(tas_port - 1U);
 
         _vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
 #if defined(VTSS_FEATURE_QOS_OT)
@@ -5456,7 +5456,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             vtss_timestamp_t ts;
         } buffer[1000];
 
-        chip_port = (u32)VTSS_CHIP_PORT(tas_port - 1U);
+        chip_port = VTSS_CHIP_PORT(tas_port - 1U);
 
         _vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
         REG_RD(VTSS_ASM_RX_UC_CNT(chip_port), &old_count);
@@ -5507,7 +5507,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             if (info->port_list[port_no] == 0) {
                 continue;
             }
-            chip_port = (u32)VTSS_CHIP_PORT(port_no);
+            chip_port = VTSS_CHIP_PORT(port_no);
             pr("Port %2u (chip port %2u):\n", port_no, chip_port);
             pr("Queue    SE  NEXT_LAYER  NEXT_IDX  NEXT_INP\n");
             for (i = 0U; i < 8U; i++) {
@@ -5545,7 +5545,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             if (!info->port_list[port_no]) {
                 continue;
             }
-            chip_port = (u32)VTSS_CHIP_PORT(port_no);
+            chip_port = VTSS_CHIP_PORT(port_no);
             se = chip_port;
             pr("Port %2u (chip port %2u), layer %u, se %4u:\n", port_no, chip_port, layer, se);
             REG_WRM(VTSS_HSCH_HSCH_CFG_CFG,
@@ -5571,7 +5571,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             lmu_fmt_buf_t buf;
             u32           port, tgt;
             if (info->port_list[port_no]) {
-                port = (u32)VTSS_CHIP_PORT(port_no);
+                port = VTSS_CHIP_PORT(port_no);
                 VTSS_FMT(buf, "Port %u (%u)", port, port_no);
                 vtss_fa_debug_reg_header(ss, buf.s);
                 if (vtss_fa_port_is_high_speed(vtss_state, port)) {
@@ -5624,7 +5624,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                 if (info->port_list[port_no] == 0) {
                     continue;
                 }
-                chip_port = (u32)VTSS_CHIP_PORT(port_no);
+                chip_port = VTSS_CHIP_PORT(port_no);
                 pr("Port %u (chip port %u):\n", port_no, chip_port);
             } else {
                 i = (port_no - vtss_state->port_count);
@@ -5657,7 +5657,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             if (!info->port_list[port_no]) {
                 continue;
             }
-            chip_port = (u32)VTSS_CHIP_PORT(port_no);
+            chip_port = VTSS_CHIP_PORT(port_no);
             REG_RD(VTSS_QRES_WRED_GROUP(chip_port), &value);
             pr("Port %2u (chip port %2u):\n", port_no, chip_port);
             pr("%-32s: %u\n", "WRED_GROUP", VTSS_X_QRES_WRED_GROUP_WRED_GROUP(value));
@@ -5694,7 +5694,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
             if (!info->port_list[port_no]) {
                 continue;
             }
-            chip_port = (u32)VTSS_CHIP_PORT(port_no);
+            chip_port = VTSS_CHIP_PORT(port_no);
             REG_RD(VTSS_REW_PORT_VLAN_CFG(chip_port), &value);
             pr("Port %2u (chip port %2u):\n", port_no, chip_port);
             pr("%-32s: %2u\n", "PORT_PCP", VTSS_X_REW_PORT_VLAN_CFG_PORT_PCP(value));
@@ -5893,7 +5893,7 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
     u32            port;
 
     for (port_no = 0U; port_no < vtss_state->port_count; port_no++) {
-        port = (u32)VTSS_CHIP_PORT(port_no);
+        port = VTSS_CHIP_PORT(port_no);
         // Enable cut-through for ingress queues, disable for egress queues
         REG_WR(VTSS_QSYS_IQUEUE_CFG(port), VTSS_F_QSYS_IQUEUE_CFG_CT_ENA(0xff));
         REG_WRM(VTSS_XQS_FWD_CT_CFG(port), VTSS_F_XQS_FWD_CT_CFG_FWD_CT_ENA(0),

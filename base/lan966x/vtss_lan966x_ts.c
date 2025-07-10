@@ -609,7 +609,7 @@ static u32 api_port(vtss_state_t *vtss_state, u32 chip_port)
         port_no = VTSS_CHIP_PORT_CPU;
     } else {
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-            if ((u32)VTSS_CHIP_PORT(port_no) == chip_port) {
+            if (VTSS_CHIP_PORT(port_no) == chip_port) {
                 found = 1;
                 break;
             }
