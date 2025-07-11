@@ -393,6 +393,7 @@ static uint32_t lan969x_capability(meba_inst_t inst, int cap)
     case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET:
     case MEBA_CAP_POE_BT:                      return 1;
     case MEBA_CAP_CPU_PORTS_COUNT:             return 0;
+    case MEBA_CAP_RECOMMENDED_MTU_SIZE:        return 0;
     case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:
         if (board->type == BOARD_TYPE_LAGUNA_PCB8398 || board->type == BOARD_TYPE_LAGUNA_PCB8422) {
             meba_synce_clock_hw_id_t dpll_type;

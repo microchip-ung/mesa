@@ -297,6 +297,10 @@ typedef enum {
     // Number of exposed (external) ports directly connected to the CPU
     MEBA_CAP_CPU_PORTS_COUNT,
 
+    // If recommended MTU size is different from max MTU size. 0 means max MTU
+    // size
+    MEBA_CAP_RECOMMENDED_MTU_SIZE,
+
     // For backwards compatibility, add new capabilities here!
 
     MEBA_CAP_LAST // Last MEBA capability (must be last in list)

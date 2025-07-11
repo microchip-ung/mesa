@@ -49,6 +49,7 @@ static uint32_t lk_capability(meba_inst_t inst, int cap)
     case MEBA_CAP_SYNCE_STATION_CLOCK_MUX_SET: return 0;
     case MEBA_CAP_POE_BT:                      return 0;
     case MEBA_CAP_CPU_PORTS_COUNT:             return 0;
+    case MEBA_CAP_RECOMMENDED_MTU_SIZE:        return 0;
     default:                                   T_E(inst, "Unknown capability %d", cap); MEBA_ASSERT(0);
     }
     return 0;

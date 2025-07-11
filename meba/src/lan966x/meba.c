@@ -507,6 +507,8 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
 
     case MEBA_CAP_CPU_PORTS_COUNT: return 0;
 
+    case MEBA_CAP_RECOMMENDED_MTU_SIZE: return 1518;
+
     default: T_E(inst, "Unknown capability %d", cap); MEBA_ASSERT(0);
     }
     return 0;
