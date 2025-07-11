@@ -14,14 +14,14 @@
 #endif
 
 /* Bit field macros */
-#define VTSS_BF_SIZE(n)   ((n + 7) / 8)
-#define VTSS_BF_GET(a, n) ((a[(n) / 8] & (1 << ((n) % 8))) ? 1 : 0)
+#define VTSS_BF_SIZE(n)   (((n) + 7U) / 8U)
+#define VTSS_BF_GET(a, n) ((a[(n) / 8U] & (1U << ((n) % 8U))) ? 1U : 0U)
 #define VTSS_BF_SET(a, n, v)                                                                       \
     do {                                                                                           \
         if (v) {                                                                                   \
-            a[(n) / 8] |= (1U << ((n) % 8));                                                       \
+            a[(n) / 8U] |= (1U << ((n) % 8U));                                                     \
         } else {                                                                                   \
-            a[(n) / 8] &= ~(1U << ((n) % 8));                                                      \
+            a[(n) / 8U] &= ~(1U << ((n) % 8U));                                                    \
         }                                                                                          \
     } while (0)
 #define VTSS_BF_CLR(a, n) (VTSS_MEMSET(a, 0, VTSS_BF_SIZE(n)))
@@ -137,8 +137,9 @@ extern const char *vtss_func;
 #define VTSS_RC(expr)                                                                              \
     {                                                                                              \
         vtss_rc __rc__ = (expr);                                                                   \
-        if (__rc__ < VTSS_RC_OK)                                                                   \
+        if (__rc__ < VTSS_RC_OK) {                                                                 \
             return __rc__;                                                                         \
+        }                                                                                          \
     }
 
 #define VTSS_FMT(fmt_buf, fmt_str, ...)                                                            \
@@ -151,7 +152,7 @@ extern const char *vtss_func;
 // Debug print
 #define pr(fmt_str, ...)                                                                           \
     LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)                                 \
-    (ss, (fmt_str), ##__VA_ARGS__)
+    ((ss), (fmt_str), ##__VA_ARGS__)
 
 #define VTSS_BOOL(expr) ((expr) ? 1 : 0)
 

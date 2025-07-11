@@ -332,8 +332,8 @@ typedef u32 vtss_phys_port_no_t;
 #if defined(VTSS_ARCH_LAN969X)
 #if (VTSS_PORT_COUNT < 30)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 30 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 30 */
+#define VTSS_PORT_COUNT 30U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 30 */
 #endif
 
 #if defined(VTSS_ARCH_SPARX5)
@@ -1131,9 +1131,9 @@ typedef enum {
 /** \brief ACL policer number */
 typedef u32 vtss_acl_policer_no_t;
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-#define VTSS_ACL_POLICERS 32 /**< Number of ACL policers */
+#define VTSS_ACL_POLICERS 32U /**< Number of ACL policers */
 #else
-#define VTSS_ACL_POLICERS 16 /**< Number of ACL policers */
+#define VTSS_ACL_POLICERS 16U /**< Number of ACL policers */
 #endif
 #define VTSS_ACL_POLICER_NO_START 0 /**< ACL policer start number */
 #define VTSS_ACL_POLICER_NO_END                                                                    \

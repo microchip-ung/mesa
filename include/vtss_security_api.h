@@ -231,7 +231,7 @@ typedef enum {
  * consumes 4 rules **/
 typedef u8 vtss_acl_sip_idx_t;
 
-#define VTSS_ACL_SIP_CNT 32 /**< Number of ACL Source IP entries */
+#define VTSS_ACL_SIP_CNT 32U /**< Number of ACL Source IP entries */
 
 /** \brief ACL Source IP configuration */
 typedef struct {
@@ -430,7 +430,7 @@ typedef enum {
 /** \brief ACE ID type */
 typedef u32 vtss_ace_id_t;
 
-#define VTSS_ACE_ID_LAST 0 /**< Special value used to add last in list */
+#define VTSS_ACE_ID_LAST 0U /**< Special value used to add last in list */
 
 /** \brief ACE 1 bit */
 typedef enum {
@@ -718,7 +718,7 @@ typedef enum {
     VTSS_HACL_TYPE_EPACL, /**< Egress port ACL (E-PACL) */
 } vtss_hacl_type_t;
 
-#define VTSS_RLEG_LIST_ARRAY_SIZE 64 /**< Router leg list */
+#define VTSS_RLEG_LIST_ARRAY_SIZE 64U /**< Router leg list */
 
 /** \brief Router leg list */
 typedef struct {

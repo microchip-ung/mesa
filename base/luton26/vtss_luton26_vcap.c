@@ -1348,7 +1348,7 @@ vtss_rc vtss_l26_acl_evc_policer_move(vtss_state_t       *vtss_state,
     }
 
     /* Update IS2 entries using old policer */
-    for (cur = obj->used, i = 0; cur != NULL; cur = cur->next, i++) {
+    for (cur = obj->used_list, i = 0; cur != NULL; cur = cur->next, i++) {
         is2 = &cur->data.u.is2;
         if (cur->user == VTSS_IS2_USER_ACL && is2->policer_type != VTSS_L26_POLICER_NONE &&
             is2->policer == policer_id) {
@@ -1731,7 +1731,7 @@ vtss_rc vtss_cil_vcap_ace_status_get(vtss_state_t            *vtss_state,
     vtss_vcap_entry_t *cur;
     u16                idx = 1, idx_0 = VTSS_ACE_IDX_NONE, idx_1 = VTSS_ACE_IDX_NONE;
 
-    for (cur = vtss_state->vcap.is2.obj.used; cur != NULL; cur = cur->next, idx++) {
+    for (cur = vtss_state->vcap.is2.obj.used_list; cur != NULL; cur = cur->next, idx++) {
         if (cur->id == id) {
             if (cur->user == VTSS_IS2_USER_ACL_PTP) {
                 /* Extra PTP entry */

@@ -4504,7 +4504,7 @@ vtss_rc vtss_cil_vcap_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u1
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = JR2_VCAP_TG_X1;
     VTSS_MEMSET(&idx, 0, sizeof(idx));
-    for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
+    for (cur = obj->used_list; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->esdx != esdx_old) {
             continue;
@@ -4565,7 +4565,7 @@ vtss_rc vtss_cil_vcap_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflo
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = JR2_VCAP_TG_X1;
     VTSS_MEMSET(&idx, 0, sizeof(idx));
-    for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
+    for (cur = obj->used_list; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->flow_id == flow_id) {
             es0->esdx = esdx;

@@ -4549,7 +4549,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
             res.es0.add++;
         }
     }
-    for (cur = obj->used; cur != NULL; cur = cur->next) {
+    for (cur = obj->used_list; cur != NULL; cur = cur->next) {
         if (cur->user == user) {
             vtss_id2tce(cur->id, &cur_id, &port_no);
             if (cur_id == tce->id) {
@@ -4668,7 +4668,7 @@ static vtss_rc vtss_cmn_tce_del(vtss_state_t *vtss_state, const vtss_tce_id_t tc
     for (port_no = 0U; port_no < vtss_state->port_count; port_no++) {
         port_del[port_no] = 0;
     }
-    for (cur = obj->used; cur != NULL; cur = cur->next) {
+    for (cur = obj->used_list; cur != NULL; cur = cur->next) {
         if (cur->user == user) {
             vtss_id2tce(cur->id, &cur_id, &port_no);
             if (cur_id == tce_id) {
@@ -6244,7 +6244,7 @@ vtss_rc vtss_cmn_vcl_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_
     if (vtss_state->l2.vcl_port_conf[port_no].key_type !=
         vtss_state->l2.vcl_port_conf_old.key_type) {
         /* Key type changed, check if port used in VCL/VLAN translation rules */
-        for (cur = obj->used; cur != NULL; cur = cur->next) {
+        for (cur = obj->used_list; cur != NULL; cur = cur->next) {
             if (cur->data.u.is1.port_no == port_no) {
                 VTSS_I("port_no: %u is used in VCAP rules, key type can not be changed", port_no);
                 return VTSS_RC_ERROR;

@@ -4386,7 +4386,7 @@ vtss_rc vtss_cil_vcap_hace_add(vtss_state_t            *vtss_state,
     range_old = fa_vcap_range_get(vtss_state, obj->type);
     range_new = *range_old;
     vtss_cmn_res_init(&res);
-    for (cur = obj->used; cur != NULL; cur = cur->next) {
+    for (cur = obj->used_list; cur != NULL; cur = cur->next) {
         if (cur->user == user && (cur->id & FA_ACE_ID_MASK) == hace->id) {
             data = cur->data;
             chg->del_key[data.key_size]++;
@@ -4592,7 +4592,7 @@ static vtss_rc fa_hace_cmd(vtss_state_t             *vtss_state,
     if (counter == NULL) {
         /* Find all VCAP rules for HACE */
         range = fa_vcap_range_get(vtss_state, obj->type);
-        for (cur = obj->used; cur != NULL; cur = cur->next) {
+        for (cur = obj->used_list; cur != NULL; cur = cur->next) {
             if (cur->user == user && (cur->id & FA_ACE_ID_MASK) == ace_id) {
                 if (cur->id == ace_id) {
                     /* Free counter and range checkers for main entry */
@@ -5486,7 +5486,7 @@ vtss_rc vtss_cil_vcap_es0_esdx_update(vtss_state_t *vtss_state, u16 esdx_old, u1
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = FA_VCAP_TG_X1;
     VTSS_MEMSET(&idx, 0, sizeof(idx));
-    for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
+    for (cur = obj->used_list; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->esdx != esdx_old) {
             continue;
@@ -5551,7 +5551,7 @@ vtss_rc vtss_cil_vcap_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflo
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
     data->tg = FA_VCAP_TG_X1;
     VTSS_MEMSET(&idx, 0, sizeof(idx));
-    for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
+    for (cur = obj->used_list; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->flow_id == flow_id) {
             es0->esdx = esdx;

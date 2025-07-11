@@ -2291,7 +2291,7 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         obj->max_count /= 2;
         obj->max_rule_count /= 2;
         for (i = 0; i < obj->max_rule_count; i++) {
-            obj->free = obj->free->next;
+            obj->free_list = obj->free_list->next;
         }
     }
 #endif /* VTSS_ARCH_JAGUAR_2_C */

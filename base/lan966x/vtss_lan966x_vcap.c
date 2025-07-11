@@ -1768,7 +1768,7 @@ vtss_rc vtss_cil_vcap_es0_eflow_update(vtss_state_t *vtss_state, const vtss_eflo
     }
 
     VTSS_MEMSET(&idx, 0, sizeof(idx));
-    for (cur = obj->used; cur != NULL; cur = cur->next, idx.row++) {
+    for (cur = obj->used_list; cur != NULL; cur = cur->next, idx.row++) {
         es0 = &cur->data.u.es0;
         if (es0->flow_id == flow_id) {
             es0->esdx = esdx;
@@ -2085,7 +2085,7 @@ static vtss_rc lan966x_vcap_port_key_addr_set(vtss_state_t        *vtss_state,
             // Step 1: Check if resources are available
             // Step 2: Update resources
 
-            for (cur = obj->used; cur != NULL; cur = cur->next) {
+            for (cur = obj->used_list; cur != NULL; cur = cur->next) {
                 vtss_is1_entry_t *copy = cur->copy;
 
                 if (copy == NULL) {

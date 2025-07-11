@@ -80,18 +80,18 @@
 #endif
 
 /** \brief VCAP key size */
-typedef enum {
-    VTSS_VCAP_KEY_SIZE_FULL,     /**< Full (1/1) key */
-    VTSS_VCAP_KEY_SIZE_HALF,     /**< Half (1/2) key */
-    VTSS_VCAP_KEY_SIZE_QUARTER,  /**< Quarter (1/4) key */
-    VTSS_VCAP_KEY_SIZE_SIXTH,    /**< Sixth (1/6) key */
-    VTSS_VCAP_KEY_SIZE_EIGHTH,   /**< Eighth (1/8) key */
-    VTSS_VCAP_KEY_SIZE_TWELFTH,  /**< Twelfth (1/12) key */
-    VTSS_VCAP_KEY_SIZE_SIXTEENTH /**< Sixteeth (1/16) key */
-} vtss_vcap_key_size_t;
+#define VTSS_VCAP_KEY_SIZE_FULL      0U /**< Full (1/1) key */
+#define VTSS_VCAP_KEY_SIZE_HALF      1U /**< Half (1/2) key */
+#define VTSS_VCAP_KEY_SIZE_QUARTER   2U /**< Quarter (1/4) key */
+#define VTSS_VCAP_KEY_SIZE_SIXTH     3U /**< Sixth (1/6) key */
+#define VTSS_VCAP_KEY_SIZE_EIGHTH    4U /**< Eighth (1/8) key */
+#define VTSS_VCAP_KEY_SIZE_TWELFTH   5U /**< Twelfth (1/12) key */
+#define VTSS_VCAP_KEY_SIZE_SIXTEENTH 6U /**< Sixteeth (1/16) key */
+
+typedef u8 vtss_vcap_key_size_t;
 
 #define VTSS_VCAP_KEY_SIZE_LAST VTSS_VCAP_KEY_SIZE_SIXTEENTH
-#define VTSS_VCAP_KEY_SIZE_MAX  (VTSS_VCAP_KEY_SIZE_LAST + 1)
+#define VTSS_VCAP_KEY_SIZE_MAX  (VTSS_VCAP_KEY_SIZE_LAST + 1U)
 
 /* Resource change data */
 typedef struct {
@@ -148,88 +148,40 @@ typedef enum {
 typedef u64 vtss_vcap_id_t;
 
 /* VCAP users in prioritized order */
-typedef enum {
-    /* IS0 users */
-    VTSS_IS0_USER_EVC, /* EVC (JR1) */
-#if defined(VTSS_ARCH_OCELOT)
-    VTSS_IS0_USER_MPLS_LL,     /* MPLS link layer */
-    VTSS_IS0_USER_MPLS_MLBS_3, /* MPLS label stack depth 3 */
-    VTSS_IS0_USER_MPLS_MLBS_2, /* MPLS label stack depth 2 */
-    VTSS_IS0_USER_MPLS_MLBS_1, /* MPLS label stack depth 1 */
-#endif
+// IS1 users
+#define VTSS_IS1_USER_VCL  10U // VCL
+#define VTSS_IS1_USER_VLAN 11U // VLAN translation
+#define VTSS_IS1_USER_QOS  12U // QCL
+#define VTSS_IS1_USER_ACL  13U // ACL SIP/SMAC (third lookup, L26)
+#define VTSS_IS1_USER_SSM  14U // SSM (first lookup, L26)
+#define VTSS_IS1_USER_RCL  15U // RCL
 
-/* IS1 users */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-    VTSS_IS1_USER_MPLS_LL,   /* MPLS link layer */
-    VTSS_IS1_USER_MPLS_MLBS, /* MPLS label stack, single label */
-    VTSS_IS1_USER_MCE_0,     /* MCE_0 (First MCE user) */
-#else
-    VTSS_IS1_USER_TT_LOOP_0, /* TT_LOOP before MEP (first lookup) */
-#endif
-    VTSS_IS1_USER_VCL,  /* VCL (first lookup) */
-    VTSS_IS1_USER_VLAN, /* VLAN translation (first lookup) */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-    VTSS_IS1_USER_MCE_1, /* MCE_1 (Second MCE user) */
-    VTSS_IS1_USER_MCE_2, /* MCE_2 (Third MCE user) */
-    VTSS_IS1_USER_MCE_3, /* MCE_3 (Fourth MCE user) */
-    VTSS_IS1_USER_MCE_4, /* MCE_4 (Fifth MCE user) */
-#else
-    VTSS_IS1_USER_MEP,       /* MEP (first lookup, L26/SRVL) */
-    VTSS_IS1_USER_TT_LOOP_1, /* TT_LOOP after MEP */
-#endif
-    VTSS_IS1_USER_ECE,     /* ECE (JR2) */
-    VTSS_IS1_USER_EVC,     /* EVC (first lookup, L26/SRVL) */
-    VTSS_IS1_USER_EVC_CPU, /* EVC CPU port (JR2) */
-    VTSS_IS1_USER_QOS,     /* QoS QCL (second lookup for L26/JR1, third lookup for
-                              SRVL) */
-    VTSS_IS1_USER_ACL,     /* ACL SIP/SMAC (third lookup, L26) */
-    VTSS_IS1_USER_SSM,     /* SSM (first lookup, L26) */
-    VTSS_IS1_USER_RCL,     /* RCL */
+// IS2 users
+#define VTSS_IS2_USER_SSM     20U // SSM rules
+#define VTSS_IS2_USER_ASM     21U // ASM rules
+#define VTSS_IS2_USER_ACL_PTP 22U // ACL PTP rules (second lookup, L26)
+#define VTSS_IS2_USER_ACL_SIP 23U // ACL SIP/SMAC rules
+#define VTSS_IS2_USER_ACL     24U // ACL rules
+#define VTSS_IS2_USER_IPACL   25U // I-PACL
+#define VTSS_IS2_USER_IVACL   26U // I-VACL
+#define VTSS_IS2_USER_IRACL   27U // I-RACL
+#define VTSS_IS2_USER_ERACL   28U // E-RACL
 
-    /* IS2 users */
-    VTSS_IS2_USER_IGMP,     /* IGMP rules (first lookup, JR1) */
-    VTSS_IS2_USER_SSM,      /* SSM rules */
-    VTSS_IS2_USER_ASM,      /* ASM rules */
-    VTSS_IS2_USER_IGMP_ANY, /* IGMP any rules (first lookup, JR1) */
-    VTSS_IS2_USER_EEE,      /* EEE loopback port rules (second lookup, JR1) */
-    VTSS_IS2_USER_ACL_PTP,  /* ACL PTP rules (second lookup, L26) */
-    VTSS_IS2_USER_ACL_SIP,  /* ACL SIP/SMAC rules (Serval) */
-    VTSS_IS2_USER_ACL,      /* ACL rules (first lookup for L26, second lookup for
-                               JR1) */
-    VTSS_IS2_USER_IPACL,    /* I-PACL */
-    VTSS_IS2_USER_IVACL,    /* I-VACL */
-    VTSS_IS2_USER_IRACL,    /* I-RACL */
-    VTSS_IS2_USER_ERACL,    /* E-RACL */
+// ES0 users
+#define VTSS_ES0_USER_TCL    30U // Tag Control List
+#define VTSS_ES0_USER_VLAN   31U // VLAN translation
+#define VTSS_ES0_USER_TX_TAG 32U // VLAN Tx tagging
 
-    /* ES0 users */
-    VTSS_ES0_USER_TCL, /* Tag Control List */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-    VTSS_ES0_USER_MCE_0, /* MCE_0 (First MCE user) */
-#else
-    VTSS_ES0_USER_TT_LOOP, /* TT_LOOP (first lookup) */
-#endif
-    VTSS_ES0_USER_VLAN, /* VLAN translation */
-#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-    VTSS_ES0_USER_MCE_1, /* MCE_1 (Second MCE user) */
-    VTSS_ES0_USER_MCE_2, /* MCE_2 (Third MCE user) */
-    VTSS_ES0_USER_MCE_3, /* MCE_3 (Fourth MCE user) */
-#else
-    VTSS_ES0_USER_MEP, /* MEP (first lookup, L26/SRVL) */
-#endif
-    VTSS_ES0_USER_EVC,    /* EVC rules */
-    VTSS_ES0_USER_EFE,    /* EFE rules */
-    VTSS_ES0_USER_TX_TAG, /* VLAN Tx tagging */
-    VTSS_ES0_USER_MPLS,   /* MPLS */
+// LPM users
+#define VTSS_LPM_USER_ACL   40U // ACL SIP/SMAC
+#define VTSS_LPM_USER_L3    41U // L3 Unicast
+#define VTSS_LPM_USER_L3_MC 42U // L3 Mulitcast
 
-    /* LPM users */
-    VTSS_LPM_USER_ACL,   /* ACL SIP/SMAC */
-    VTSS_LPM_USER_L3,    /* L3 Unicast */
-    VTSS_LPM_USER_L3_MC, /* L3 Mulitcast */
+// ES2 users
+#define VTSS_ES2_USER_EVACL 50U // E-VACL
+#define VTSS_ES2_USER_EPACL 51U // E-PACL
 
-    /* ES2 users */
-    VTSS_ES2_USER_EVACL, /* E-VACL */
-    VTSS_ES2_USER_EPACL, /* E-PACL */
-} vtss_vcap_user_t;
+typedef u8 vtss_vcap_user_t;
 
 #if defined(VTSS_FEATURE_MPLS) && defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #define VTSS_MPLS_IN_ENCAP_LABEL_CNT  3 /* Number of HW labels supported at ingress */
@@ -967,23 +919,23 @@ typedef struct {
     vtss_es0_key_t    key;
 } vtss_es0_entry_t;
 
-#define VTSS_ES0_FLAG_MASK_PORT 0x000000ff /* Flags related to ES0 egress port */
-#define VTSS_ES0_FLAG_MASK_NNI  0x0000ff00 /* Flags related to ES0 NNI port */
+#define VTSS_ES0_FLAG_MASK_PORT 0x000000ffU /* Flags related to ES0 egress port */
+#define VTSS_ES0_FLAG_MASK_NNI  0x0000ff00U /* Flags related to ES0 NNI port */
 
-#define VTSS_ES0_FLAG_OT_UVID    0x00000001 /* Use port UVID for outer tag */
-#define VTSS_ES0_FLAG_OT_TPID    0x00000002 /* Use port TPID for outer tag */
-#define VTSS_ES0_FLAG_OT_PCP     0x00000004 /* Use port PCP for outer tag */
-#define VTSS_ES0_FLAG_OT_DEI     0x00000008 /* Use port DEI for outer tag */
-#define VTSS_ES0_FLAG_IT_UVID    0x00000010 /* Use port UVID for inner tag */
-#define VTSS_ES0_FLAG_IT_TPID    0x00000020 /* Use port TPID for inner tag */
-#define VTSS_ES0_FLAG_IT_PCP     0x00000040 /* Use port PCP for inner tag */
-#define VTSS_ES0_FLAG_IT_DEI     0x00000080 /* Use port DEI for inner tag */
-#define VTSS_ES0_FLAG_PCP_MAP    0x00000100 /* Use mapped PCP for ECE */
-#define VTSS_ES0_FLAG_MAP_OT_PCP 0x00010000 /* Map outer tag PCP */
-#define VTSS_ES0_FLAG_MAP_OT_DEI 0x00020000 /* Map outer tag DEI */
-#define VTSS_ES0_FLAG_MAP_IT_PCP 0x00040000 /* Map inner tag PCP */
-#define VTSS_ES0_FLAG_MAP_IT_DEI 0x00080000 /* Map inner tag DEI */
-#define VTSS_ES0_FLAG_MAP_ID_TC  0x00100000 /* MPLS TC egress map ID valid */
+#define VTSS_ES0_FLAG_OT_UVID    0x00000001U /* Use port UVID for outer tag */
+#define VTSS_ES0_FLAG_OT_TPID    0x00000002U /* Use port TPID for outer tag */
+#define VTSS_ES0_FLAG_OT_PCP     0x00000004U /* Use port PCP for outer tag */
+#define VTSS_ES0_FLAG_OT_DEI     0x00000008U /* Use port DEI for outer tag */
+#define VTSS_ES0_FLAG_IT_UVID    0x00000010U /* Use port UVID for inner tag */
+#define VTSS_ES0_FLAG_IT_TPID    0x00000020U /* Use port TPID for inner tag */
+#define VTSS_ES0_FLAG_IT_PCP     0x00000040U /* Use port PCP for inner tag */
+#define VTSS_ES0_FLAG_IT_DEI     0x00000080U /* Use port DEI for inner tag */
+#define VTSS_ES0_FLAG_PCP_MAP    0x00000100U /* Use mapped PCP for ECE */
+#define VTSS_ES0_FLAG_MAP_OT_PCP 0x00010000U /* Map outer tag PCP */
+#define VTSS_ES0_FLAG_MAP_OT_DEI 0x00020000U /* Map outer tag DEI */
+#define VTSS_ES0_FLAG_MAP_IT_PCP 0x00040000U /* Map inner tag PCP */
+#define VTSS_ES0_FLAG_MAP_IT_DEI 0x00080000U /* Map inner tag DEI */
+#define VTSS_ES0_FLAG_MAP_ID_TC  0x00100000U /* MPLS TC egress map ID valid */
 
 /* Combined VLAN/QoS flags */
 #define VTSS_ES0_FLAG_OT_VLAN (VTSS_ES0_FLAG_OT_UVID | VTSS_ES0_FLAG_OT_TPID)
@@ -1082,7 +1034,7 @@ typedef struct {
     u32                max_rule_count;                  /* Maximum number of rules */
     u32                rule_count;                      /* Actual number of rules */
     vtss_vcap_entry_t  table[VTSS_VCAP_SUPER_RULE_CNT]; /* Table */
-    vtss_vcap_entry_t *free;                            /* Free entries */
+    vtss_vcap_entry_t *free_list;                       /* Free entries */
 } vtss_vcap_super_obj_t;
 #endif /* VTSS_FEATURE_VCAP_SUPER */
 
@@ -1094,8 +1046,8 @@ typedef struct {
     u32                max_rule_count;                    /* Maximum number of rules */
     u32                rule_count;                        /* Actual number of rules */
     u32                key_count[VTSS_VCAP_KEY_SIZE_MAX]; /* Actual number of rule per key */
-    vtss_vcap_entry_t *used;                              /* Used entries */
-    vtss_vcap_entry_t *free;                              /* Free entries */
+    vtss_vcap_entry_t *used_list;                         /* Used entries */
+    vtss_vcap_entry_t *free_list;                         /* Free entries */
     const char        *name;                              /* VCAP name for debugging */
     vtss_vcap_type_t   type;                              /* VCAP type */
 
@@ -1117,10 +1069,10 @@ typedef struct {
 } vtss_vcap_obj_t;
 
 /* Special VCAP ID used to add last in list */
-#define VTSS_VCAP_ID_LAST 0
+#define VTSS_VCAP_ID_LAST 0U
 
 /* Special VCAP ID used to add before entry with greater ID */
-#define VTSS_VCAP_ID_GT 0xffffffffffffffff
+#define VTSS_VCAP_ID_GT 0xffffffffffffffffU
 
 /* VCAP ranges */
 #if defined(VTSS_ARCH_FA)
@@ -1129,7 +1081,7 @@ typedef struct {
 #else
 #define VTSS_VCAP_RANGE_CHK_CNT 8
 #endif
-#define VTSS_VCAP_RANGE_CHK_NONE 0xffffffff
+#define VTSS_VCAP_RANGE_CHK_NONE 0xffffffffU
 
 /* VCAP range checker type */
 typedef enum {
@@ -1479,18 +1431,18 @@ vtss_rc vtss_cmn_vcap_res_check(vtss_vcap_obj_t *obj, vtss_res_chg_t *chg);
 vtss_rc vtss_cmn_res_check(struct vtss_state_s *vtss_state, vtss_res_t *res);
 
 BOOL    vtss_vcap_udp_tcp_rule(const vtss_vcap_u8_t *proto);
-vtss_rc vtss_vcap_range_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
+vtss_rc vtss_vcap_range_alloc(vtss_vcap_range_chk_table_t *table,
                               u32                         *range,
                               vtss_vcap_range_chk_type_t   type,
                               u32                          min,
                               u32                          max);
-vtss_rc vtss_vcap_range_free(vtss_vcap_range_chk_table_t *range_chk_table, u32 range);
-vtss_rc vtss_vcap_udp_tcp_range_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
+vtss_rc vtss_vcap_range_free(vtss_vcap_range_chk_table_t *table, u32 range);
+vtss_rc vtss_vcap_udp_tcp_range_alloc(vtss_vcap_range_chk_table_t *table,
                                       u32                         *range,
                                       vtss_vcap_udp_tcp_t         *port,
                                       BOOL                         sport);
 BOOL    vtss_vcap_vr_rng2vm(vtss_vcap_vr_t *vr);
-vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *range_chk_table,
+vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *table,
                            u32                         *range,
                            vtss_vcap_range_chk_type_t   type,
                            vtss_vcap_vr_t              *vr);
@@ -1500,25 +1452,25 @@ u32     vtss_vcap_key_rule_count(vtss_vcap_key_size_t key_size);
 char   *vtss_vcap_id_txt(struct vtss_state_s *vtss_state, vtss_vcap_id_t id);
 vtss_rc vtss_vcap_lookup(struct vtss_state_s *vtss_state,
                          vtss_vcap_obj_t     *obj,
-                         int                  user,
+                         vtss_vcap_user_t     user,
                          vtss_vcap_id_t       id,
                          vtss_vcap_data_t    *data,
                          vtss_vcap_idx_t     *idx);
-u32     vtss_vcap_count_get(vtss_vcap_obj_t *obj, int user);
+u32     vtss_vcap_count_get(vtss_vcap_obj_t *obj, vtss_vcap_user_t user);
 vtss_rc vtss_vcap_del(struct vtss_state_s *vtss_state,
                       vtss_vcap_obj_t     *obj,
-                      int                  user,
+                      vtss_vcap_user_t     user,
                       vtss_vcap_id_t       id);
 vtss_rc vtss_vcap_add(struct vtss_state_s *vtss_state,
                       vtss_vcap_obj_t     *obj,
-                      int                  user,
+                      vtss_vcap_user_t     user,
                       vtss_vcap_id_t       id,
                       vtss_vcap_id_t       ins_id,
                       vtss_vcap_data_t    *data,
                       BOOL                 dont_add);
 vtss_rc vtss_vcap_get_next_id(vtss_vcap_obj_t *obj,
-                              int              user1,
-                              int              user2,
+                              vtss_vcap_user_t user1,
+                              vtss_vcap_user_t user2,
                               vtss_vcap_id_t   id,
                               vtss_vcap_id_t  *ins_id);
 #if defined(VTSS_FEATURE_VCAP_SUPER)
