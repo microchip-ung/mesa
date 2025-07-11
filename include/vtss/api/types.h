@@ -205,129 +205,129 @@ typedef u32 vtss_port_no_t;
 /** \brief Physical port number */
 typedef u32 vtss_phys_port_no_t;
 
-#define VTSS_PORT_COUNT 1 /**< Default number of ports */
+#define VTSS_PORT_COUNT 1U /**< Default number of ports */
 
 #if defined(VTSS_CHIP_SERVAL_LITE) || defined(VTSS_CHIP_CARACAL_LITE)
 #if (VTSS_PORT_COUNT < 7)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 7 /**< Number of ports */
-#endif                    /* VTSS_PORT_COUNT < 7 */
-#endif                    /* SERVAL_LITE/CARACAL_LITE */
+#define VTSS_PORT_COUNT 7U /**< Number of ports */
+#endif                     /* VTSS_PORT_COUNT < 7 */
+#endif                     /* SERVAL_LITE/CARACAL_LITE */
 
 #if defined(VTSS_CHIP_7513)
 #if (VTSS_PORT_COUNT < 9)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 9 /**< Number of ports */
-#endif                    /* VTSS_PORT_COUNT < 9 */
-#endif                    /* 7513 */
+#define VTSS_PORT_COUNT 9U /**< Number of ports */
+#endif                     /* VTSS_PORT_COUNT < 9 */
+#endif                     /* 7513 */
 
 #if defined(VTSS_CHIP_SPARX_III_10) || defined(VTSS_CHIP_SPARX_III_10_UM) ||                       \
     defined(VTSS_CHIP_SPARX_III_10_01)
 #if (VTSS_PORT_COUNT < 10)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 10 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 10 */
-#endif                     /* SPARX_III_10 */
+#define VTSS_PORT_COUNT 10U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 10 */
+#endif                      /* SPARX_III_10 */
 
 #if defined(VTSS_CHIP_7511)
 #if (VTSS_PORT_COUNT < 4)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 4 /**< Number of ports */
-#endif                    /* VTSS_PORT_COUNT < 4 */
-#endif                    /* 7511 */
+#define VTSS_PORT_COUNT 4U /**< Number of ports */
+#endif                     /* VTSS_PORT_COUNT < 4 */
+#endif                     /* 7511 */
 
 #if defined(VTSS_CHIP_CARACAL_1) || defined(VTSS_CHIP_SERVAL) ||                                   \
     defined(VTSS_CHIP_SPARX_III_11) || defined(VTSS_CHIP_7512) || defined(VTSS_CHIP_7514)
 #if (VTSS_PORT_COUNT < 11)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 11 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 11 */
-#endif                     /* CARACAL_1/SERVAL/7514 */
+#define VTSS_PORT_COUNT 11U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 11 */
+#endif                      /* CARACAL_1/SERVAL/7514 */
 
 #if defined(VTSS_CHIP_SPARX_III_17_UM)
 #if (VTSS_PORT_COUNT < 17)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 17 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 17 */
-#endif                     /* SPARX_III_17_UM */
+#define VTSS_PORT_COUNT 17U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 17 */
+#endif                      /* SPARX_III_17_UM */
 
 #if defined(VTSS_CHIP_SPARX_III_18)
 #if (VTSS_PORT_COUNT < 18)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 18 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 18 */
-#endif                     /* SPARX_III_18 */
+#define VTSS_PORT_COUNT 18U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 18 */
+#endif                      /* SPARX_III_18 */
 
 #if defined(VTSS_CHIP_SPARX_III_24)
 #if (VTSS_PORT_COUNT < 24)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 24 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 24 */
-#endif                     /* SPARX_III_24 */
+#define VTSS_PORT_COUNT 24U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 24 */
+#endif                      /* SPARX_III_24 */
 
 #if defined(VTSS_CHIP_SPARX_III_25_UM)
 #if (VTSS_PORT_COUNT < 25)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 25 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 25 */
-#endif                     /* SPARX_III_25_UM */
+#define VTSS_PORT_COUNT 25U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 25 */
+#endif                      /* SPARX_III_25_UM */
 
 #if defined(VTSS_CHIP_SPARX_III_26) || defined(VTSS_CHIP_CARACAL_2)
 #if (VTSS_PORT_COUNT < 26)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 26 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 26 */
-#endif                     /* SPARX_III_26 */
+#define VTSS_PORT_COUNT 26U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 26 */
+#endif                      /* SPARX_III_26 */
 
 #if defined(VTSS_CHIP_SERVAL_2)
 /* 12x1G + 2x10G + NPI */
 #if (VTSS_PORT_COUNT < 15)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 15 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 15 */
-#endif                     /* VTSS_CHIP_SERVAL_2 */
+#define VTSS_PORT_COUNT 15U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 15 */
+#endif                      /* VTSS_CHIP_SERVAL_2 */
 
 #if defined(VTSS_CHIP_LYNX_2) || defined(VTSS_CHIP_SPARX_IV_44)
 /* 24x1G + 2x10G + NPI */
 #if (VTSS_PORT_COUNT < 27)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 27 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 27 */
-#endif                     /* VTSS_CHIP_LYNX_2/SPARX_IV_44 */
+#define VTSS_PORT_COUNT 27U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 27 */
+#endif                      /* VTSS_CHIP_LYNX_2/SPARX_IV_44 */
 
 #if defined(VTSS_CHIP_JAGUAR_2) || defined(VTSS_CHIP_SPARX_IV_52) ||                               \
     defined(VTSS_CHIP_SPARX_IV_80) || defined(VTSS_CHIP_SPARX_IV_90)
 /* 48x1G + 4x1G + NPI */
 #if (VTSS_PORT_COUNT < 53)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 53 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 53 */
-#endif                     /* VTSS_CHIP_JAGUAR_2/SPARX_IV_52/SPARX_IV_80/SPARX_IV_90 */
+#define VTSS_PORT_COUNT 53U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 53 */
+#endif                      /* VTSS_CHIP_JAGUAR_2/SPARX_IV_52/SPARX_IV_80/SPARX_IV_90 */
 
 #if defined(VTSS_CHIP_SERVAL_T) || defined(VTSS_CHIP_SERVAL_TP) || defined(VTSS_CHIP_SERVAL_TE) || \
     defined(VTSS_CHIP_SERVAL_TEP)
 /* 4x1G + 2x2.5G + NPI */
 #if (VTSS_PORT_COUNT < 7)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 7 /**< Number of ports */
-#endif                    /* VTSS_PORT_COUNT < 7 */
-#endif                    /* VTSS_CHIP_SERVAL_T/SERVAL_TE */
+#define VTSS_PORT_COUNT 7U /**< Number of ports */
+#endif                     /* VTSS_PORT_COUNT < 7 */
+#endif                     /* VTSS_CHIP_SERVAL_T/SERVAL_TE */
 
 #if defined(VTSS_CHIP_SERVAL_2_LITE) || defined(VTSS_CHIP_SPARX_IV_34)
 /* 4x1G + 4x2.5G + 2x10G + NPI */
 #if (VTSS_PORT_COUNT < 11)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 11 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 11 */
-#endif                     /* VTSS_CHIP_SERVAL_2_LITE/SPARX_IV_34 */
+#define VTSS_PORT_COUNT 11U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 11 */
+#endif                      /* VTSS_CHIP_SERVAL_2_LITE/SPARX_IV_34 */
 
 #if defined(VTSS_CHIP_SERVAL_TE10)
 /* 4x1G + 2x2.5G + 2x10G + NPI */
 #if (VTSS_PORT_COUNT < 9)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 9 /**< Number of ports */
-#endif                    /* VTSS_PORT_COUNT < 9 */
-#endif                    /* VTSS_CHIP_SERVAL_TE10 */
+#define VTSS_PORT_COUNT 9U /**< Number of ports */
+#endif                     /* VTSS_PORT_COUNT < 9 */
+#endif                     /* VTSS_CHIP_SERVAL_TE10 */
 
 #if defined(VTSS_ARCH_LAN969X)
 #if (VTSS_PORT_COUNT < 30)
@@ -339,22 +339,22 @@ typedef u32 vtss_phys_port_no_t;
 #if defined(VTSS_ARCH_SPARX5)
 #if (VTSS_PORT_COUNT < 65)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 65 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 65 */
+#define VTSS_PORT_COUNT 65U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 65 */
 #endif
 
 #if defined(VTSS_CHIP_966X)
 #if (VTSS_PORT_COUNT < 8)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 8 /**< Number of ports */
+#define VTSS_PORT_COUNT 8U /**< Number of ports */
 #endif
 #endif
 
 #if defined(VTSS_ARCH_LAIKA)
 #if (VTSS_PORT_COUNT < 32)
 #undef VTSS_PORT_COUNT
-#define VTSS_PORT_COUNT 32 /**< Number of ports */
-#endif                     /* VTSS_PORT_COUNT < 32 */
+#define VTSS_PORT_COUNT 32U /**< Number of ports */
+#endif                      /* VTSS_PORT_COUNT < 32 */
 #endif
 
 /* Number of ports may optionally be less than number of chip ports */

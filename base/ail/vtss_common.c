@@ -11,17 +11,22 @@
 /* This is the IEEE802.1Q-2011 recommended priority to traffic class mappings */
 u32 vtss_cmn_pcp2qos(u32 pcp)
 {
+    u32 ret;
     switch (pcp) {
-    case 0:  return 1U;
-    case 1:  return 0U;
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:  return pcp;
-    default: VTSS_E("Invalid PCP (%u)", pcp); return 0U;
+    case 0U: ret = 1U; break;
+    case 1U: ret = 0U; break;
+    case 2U:
+    case 3U:
+    case 4U:
+    case 5U:
+    case 6U:
+    case 7U: ret = pcp; break;
+    default:
+        VTSS_E("Invalid PCP (%u)", pcp);
+        ret = 0;
+        break;
     }
+    return ret;
 }
 
 const char *vtss_func;
@@ -50,17 +55,20 @@ vtss_rc vtss_port_no_none_check(vtss_state_t *vtss_state, const vtss_port_no_t p
 vtss_rc vtss_cmn_restart_update(vtss_state_t *vtss_state, u32 value)
 {
     vtss_init_conf_t *conf = &vtss_state->init_conf;
+    u32               bitfield;
 
     /* Return if restart has already been updated */
     if (vtss_state->restart_updated) {
         return VTSS_RC_OK;
     }
-    vtss_state->restart_updated = 1;
+    vtss_state->restart_updated = TRUE;
 
-    vtss_state->restart_prev =
-        VTSS_EXTRACT_BITFIELD(value, VTSS_RESTART_TYPE_OFFSET, VTSS_RESTART_TYPE_WIDTH);
+    bitfield = VTSS_EXTRACT_BITFIELD(value, VTSS_RESTART_TYPE_OFFSET, VTSS_RESTART_TYPE_WIDTH);
+    vtss_state->restart_prev = (bitfield == 0U)   ? VTSS_RESTART_COLD
+                               : (bitfield == 1U) ? VTSS_RESTART_COOL
+                                                  : VTSS_RESTART_WARM;
     vtss_state->version_prev =
-        VTSS_EXTRACT_BITFIELD(value, VTSS_RESTART_VERSION_OFFSET, VTSS_RESTART_VERSION_WIDTH);
+        (u16)VTSS_EXTRACT_BITFIELD(value, VTSS_RESTART_VERSION_OFFSET, VTSS_RESTART_VERSION_WIDTH);
     vtss_state->restart_cur = vtss_state->restart_prev;
     vtss_state->version_cur = VTSS_API_VERSION;
     switch (vtss_state->restart_cur) {
@@ -73,7 +81,7 @@ vtss_rc vtss_cmn_restart_update(vtss_state_t *vtss_state, u32 value)
                 VTSS_I("downgrade from version %u to %u", vtss_state->version_prev,
                        vtss_state->version_cur);
             } else {
-                vtss_state->warm_start_cur = 1;
+                vtss_state->warm_start_cur = TRUE;
                 VTSS_I("warm starting");
                 return VTSS_RC_OK;
             }
@@ -178,7 +186,9 @@ void vtss_cmn_counter_32_cmd(u32 value, vtss_chip_counter_t *counter, vtss_count
         }
         counter->value += (new + add - counter->prev);
         break;
-    default: break;
+    default:
+        /* Counter rebase - do nothing */
+        break;
     }
     counter->prev = new;
 }
@@ -198,14 +208,16 @@ void vtss_cmn_counter_dual_cmd(u32                  emac,
     case VTSS_COUNTER_CMD_UPDATE:
         /* Accumulate EMAC/PMAC counter */
         add += emac;
-        add += (emac < counter->emac ? (1ULL << 32U) : 0);
+        add += (emac < counter->emac ? (1ULL << 32U) : 0ULL);
         add -= counter->emac;
         add += pmac;
-        add += (pmac < counter->pmac ? (1ULL << 32U) : 0);
+        add += (pmac < counter->pmac ? (1ULL << 32U) : 0ULL);
         add -= counter->pmac;
         counter->value += add;
         break;
-    default: break;
+    default:
+        /* Counter rebase - do nothing */
+        break;
     }
     counter->emac = emac;
     counter->pmac = pmac;
@@ -254,7 +266,7 @@ const char *vtss_serdes_mode_txt(vtss_serdes_mode_t mode)
 }
 #endif
 #if defined(VTSS_FEATURE_CORE_CLOCK)
-const char *vtss_core_freq_to_txt(vtss_core_clock_freq_t freq)
+static const char *vtss_core_freq_to_txt(vtss_core_clock_freq_t freq)
 {
     return (freq == VTSS_CORE_CLOCK_180MHZ   ? "180MHZ"
             : freq == VTSS_CORE_CLOCK_250MHZ ? "250MHZ"
@@ -264,7 +276,7 @@ const char *vtss_core_freq_to_txt(vtss_core_clock_freq_t freq)
                                              : "?");
 }
 
-const char *vtss_ref_freq_to_txt(vtss_core_ref_clk_t freq)
+static const char *vtss_ref_freq_to_txt(vtss_core_ref_clk_t freq)
 {
     return (freq == VTSS_CORE_REF_CLK_25MHZ   ? "25MHZ"
             : freq == VTSS_CORE_REF_CLK_39MHZ ? "39MHZ"
@@ -290,10 +302,10 @@ char *vtss_mac_txt(vtss_mac_t *mac)
 
 void vtss_debug_print_header_underlined(lmu_ss_t *ss, const char *header, BOOL layer)
 {
-    int i, len = VTSS_STRLEN(header);
+    u64 i, len = VTSS_STRLEN(header);
 
     pr("%s\n", header);
-    for (i = 0; i < len; i++) {
+    for (i = 0U; i < len; i++) {
         pr(layer ? "=" : "-");
     }
     pr("\n\n");
@@ -363,13 +375,13 @@ BOOL vtss_debug_group_enabled(lmu_ss_t                      *ss,
 {
     if (info->group == VTSS_DEBUG_GROUP_ALL || info->group == group) {
         vtss_debug_print_header_underlined(ss,
-                                           group < VTSS_DEBUG_GROUP_COUNT
+                                           (group < VTSS_DEBUG_GROUP_COUNT)
                                                ? vtss_debug_group_name[group]
                                                : "?",
-                                           0);
-        return 1;
+                                           FALSE);
+        return TRUE;
     }
-    return 0;
+    return FALSE;
 }
 
 vtss_rc vtss_debug_print_group(const vtss_debug_group_t group,
@@ -389,7 +401,7 @@ vtss_rc vtss_debug_print_group(const vtss_debug_group_t group,
 
 void vtss_debug_print_sticky(lmu_ss_t *ss, const char *name, u32 value, u32 mask)
 {
-    pr("%-32s: %u\n", name, VTSS_BOOL(value & mask));
+    pr("%-32s: %u\n", name, VTSS_BOOL((value & mask) != 0U));
 }
 
 void vtss_debug_print_value(lmu_ss_t *ss, const char *name, u32 value)
@@ -404,11 +416,13 @@ void vtss_debug_print_reg_header(lmu_ss_t *ss, const char *name)
 
 void vtss_debug_print_reg(lmu_ss_t *ss, const char *name, u32 value)
 {
-    u32 i;
+    u32 i, val, dot;
 
     pr("%-32s: ", name);
     for (i = 0U; i < 32U; i++) {
-        pr("%s%u", i == 0 || (i % 8) ? "" : ".", value & (1 << (31 - i)) ? 1 : 0);
+        val = ((value & ((u32)1U << (31U - i))) != 0U) ? 1U : 0U;
+        dot = ((i == 0U) || ((i % 8U) != 0U)) ? 0U : 1U;
+        pr("%s%u", (dot == 0U) ? "" : ".", val);
     }
     pr(" 0x%08x\n", value);
 }
@@ -500,8 +514,10 @@ void vtss_debug_print_port_header(vtss_state_t *vtss_state,
         i = (port & 7U);
         if (i == 0U || i == 7U || (port == (count - 1U) && i > 2U)) {
             pr("%s%u", port != 0 && i == 0 ? "." : "", port);
-        } else if (port < 10U || i > 2U) {
-            pr(" ");
+        } else {
+            if (port < 10U || i > 2U) {
+                pr(" ");
+            }
         }
     }
     if (nl) {
@@ -512,10 +528,12 @@ void vtss_debug_print_port_header(vtss_state_t *vtss_state,
 void vtss_debug_print_ports(vtss_state_t *vtss_state, lmu_ss_t *ss, u8 *member, BOOL nl)
 {
     vtss_port_no_t port_no;
+    u32            val, dot;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        pr("%s%s", port_no == 0 || (port_no & 7) ? "" : ".",
-           VTSS_PORT_BF_GET(member, port_no) ? "1" : "0");
+        val = (VTSS_PORT_BF_GET(member, port_no) != 0U) ? 1U : 0U;
+        dot = ((port_no == 0U) || ((port_no & 7U) != 0U)) ? 0U : 1U;
+        pr("%s%s", (dot != 0) ? "" : ".", (val != 0) ? "1" : "0");
     }
     if (nl) {
         pr("\n");
@@ -532,7 +550,7 @@ void vtss_debug_print_port_members(vtss_state_t *vtss_state,
 
     VTSS_PORT_BF_CLR(member);
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        VTSS_PORT_BF_SET(member, port_no, port_member[port_no]);
+        VTSS_PORT_BF_SET(member, port_no, (port_member[port_no] == TRUE));
     }
     vtss_debug_print_ports(vtss_state, ss, member, nl);
 }
@@ -590,7 +608,7 @@ static vtss_rc vtss_debug_ail_print(vtss_state_t                  *vtss_state,
         return VTSS_RC_OK;
     }
 
-    vtss_debug_print_header_underlined(ss, "Application Interface Layer", 1);
+    vtss_debug_print_header_underlined(ss, "Application Interface Layer", TRUE);
 
     vtss_debug_print_init(vtss_state, ss, info);
 
@@ -677,7 +695,7 @@ static vtss_rc vtss_debug_cil_print(vtss_state_t                  *vtss_state,
         }
         VTSS_SELECT_CHIP(chip_no);
         VTSS_FMT(buf, "Chip Interface Layer[%u]", chip_no);
-        vtss_debug_print_header_underlined(ss, buf.s, 1);
+        vtss_debug_print_header_underlined(ss, buf.s, TRUE);
         rc = vtss_cil_debug_info_print(vtss_state, ss, info);
     }
     return rc;
@@ -702,16 +720,16 @@ vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos)
     }
 
     if (msw == 0U) {
-        *bit_pos = VTSS_OS_CTZ(lsw);
+        *bit_pos = (u32)VTSS_OS_CTZ(lsw);
         lsw &= ~VTSS_BIT(*bit_pos);
-        if (lsw) {
+        if (lsw != 0U) {
             // Two or more bits set in lsw
             goto err;
         }
     } else {
         *bit_pos = VTSS_OS_CTZ(msw);
         msw &= ~VTSS_BIT(*bit_pos);
-        if (msw) {
+        if (msw != 0U) {
             // Two or more bits set in msw
             goto err;
         }

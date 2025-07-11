@@ -15,22 +15,28 @@
 
 /* Bit field macros */
 #define VTSS_BF_SIZE(n)   (((n) + 7U) / 8U)
-#define VTSS_BF_GET(a, n) ((a[(n) / 8U] & (1U << ((n) % 8U))) ? 1U : 0U)
+#define VTSS_BF_GET(a, n) (((a[(n) / 8U] & ((u32)1U << ((n) % 8U))) != 0U) ? 1U : 0U)
+
 #define VTSS_BF_SET(a, n, v)                                                                       \
     do {                                                                                           \
         if (v) {                                                                                   \
             a[(n) / 8U] |= (1U << ((n) % 8U));                                                     \
         } else {                                                                                   \
-            a[(n) / 8U] &= ~(1U << ((n) % 8U));                                                    \
+            u8 mask = (1U << ((n) % 8U));                                                          \
+            a[(n) / 8U] &= ~mask;                                                                  \
         }                                                                                          \
     } while (0)
-#define VTSS_BF_CLR(a, n) (VTSS_MEMSET(a, 0, VTSS_BF_SIZE(n)))
+#define VTSS_BF_CLR(a, n) ((void)VTSS_MEMSET(a, 0, VTSS_BF_SIZE(n)))
 
 /* Port member bit field macros */
-#define VTSS_PORT_BF_SIZE               VTSS_BF_SIZE(VTSS_PORTS)
-#define VTSS_PORT_BF_GET(a, port_no)    VTSS_BF_GET(a, (port_no) - VTSS_PORT_NO_START)
-#define VTSS_PORT_BF_SET(a, port_no, v) VTSS_BF_SET(a, (port_no) - VTSS_PORT_NO_START, v)
-#define VTSS_PORT_BF_CLR(a)             VTSS_BF_CLR(a, VTSS_PORTS)
+#define VTSS_PORT_BF_SIZE            VTSS_BF_SIZE(VTSS_PORTS)
+#define VTSS_PORT_BF_GET(a, port_no) VTSS_BF_GET(a, ((u8)port_no) - VTSS_PORT_NO_START)
+#define VTSS_PORT_BF_SET(a, port_no, v)                                                            \
+    {                                                                                              \
+        u8 port = (u8)port_no - VTSS_PORT_NO_START;                                                \
+        VTSS_BF_SET(a, port, v);                                                                   \
+    }
+#define VTSS_PORT_BF_CLR(a) VTSS_BF_CLR(a, VTSS_PORTS)
 
 #if defined(VTSS_FEATURE_MISC)
 #include "vtss_misc_state.h"
@@ -179,10 +185,10 @@ typedef enum {
 } vtss_arch_t;
 
 /* Warm start scratch-pad 32-bit register layout */
-#define VTSS_RESTART_VERSION_OFFSET 0
-#define VTSS_RESTART_VERSION_WIDTH  16
-#define VTSS_RESTART_TYPE_OFFSET    16
-#define VTSS_RESTART_TYPE_WIDTH     3
+#define VTSS_RESTART_VERSION_OFFSET 0U
+#define VTSS_RESTART_VERSION_WIDTH  16U
+#define VTSS_RESTART_TYPE_OFFSET    16U
+#define VTSS_RESTART_TYPE_WIDTH     3U
 
 /* API version used to determine if warm start can be done while
  * downgrading/upgrading */

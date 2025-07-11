@@ -286,7 +286,7 @@ static __always_inline long long vtss_llabs(long long j) { return (j < 0 ? -j : 
  *
  * Note: __builtin_ctzl() is undefined for zero input values.
  */
-#define VTSS_OS_CTZ(val32) ((val32) == 0 ? 32 : __builtin_ctzl((unsigned long)val32))
+#define VTSS_OS_CTZ(val32) ((val32) == 0U ? 32U : (u32)__builtin_ctzl((unsigned long)val32))
 
 /**
  * Count trailing zeros of a 64-bit unsigned.
@@ -301,7 +301,7 @@ static __always_inline long long vtss_llabs(long long j) { return (j < 0 ? -j : 
 #define VTSS_OS_CTZ64(val64)                                                                       \
     ({                                                                                             \
         u32 _r = VTSS_OS_CTZ((u32)(val64));                                                        \
-        (val64) == 0 ? 64 : _r < 32 ? _r : 32 + VTSS_OS_CTZ((u32)((val64) >> 32));                 \
+        (val64) == 0U ? 64U : _r < 32U ? _r : 32U + VTSS_OS_CTZ((u32)((val64) >> 32U));            \
     })
 
 #if defined(VTSS_NO_CTZL) || (defined(__GNUC__) && __GNUC__ < 3)
