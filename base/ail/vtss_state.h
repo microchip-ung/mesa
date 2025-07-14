@@ -160,7 +160,7 @@ extern const char *vtss_func;
     LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)                                 \
     ((ss), (fmt_str), ##__VA_ARGS__)
 
-#define VTSS_BOOL(expr) ((expr) ? 1 : 0)
+#define VTSS_BOOL(expr) (((expr) != 0) ? 1 : 0)
 
 #define VTSS_CHIP_PORT(port_no)                   (uint32_t)vtss_state->port.map[port_no].chip_port
 #define VTSS_CHIP_NO(port_no)                     vtss_state->port.map[port_no].chip_no

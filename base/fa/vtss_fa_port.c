@@ -3898,11 +3898,10 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
 
         if ((sd_type == FA_SERDES_TYPE_25G) && (conf->speed == VTSS_SPEED_25G)) {
             /* PCS and Analog Macro SD must agree on link status */
-            if (VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) &&
-                analog_sd) {
+            if ((value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) && analog_sd) {
                 status->link = TRUE;
                 vtss_state->port.link[port_no] = TRUE;
-            } else if (VTSS_BOOL(value != VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) &&
+            } else if ((value != VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) &&
                        !analog_sd) {
                 status->link = FALSE;
                 vtss_state->port.link[port_no] = FALSE;
@@ -3911,9 +3910,10 @@ vtss_rc vtss_cil_port_status_get(vtss_state_t             *vtss_state,
             }
         } else {
             /* Combine status from PCS and Analog Macro */
-            status->link =
-                VTSS_BOOL(value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) &&
-                analog_sd;
+            status->link = ((value == VTSS_M_DEV10G_MAC_TX_MONITOR_STICKY_IDLE_STATE_STICKY) &&
+                            (analog_sd == TRUE))
+                               ? TRUE
+                               : FALSE;
         }
 
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)

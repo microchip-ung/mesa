@@ -218,13 +218,13 @@
 #define VTSS_TO_DEV10G(port) vtss_to_dev10g(vtss_state, port)
 #define VTSS_TO_DEV25G(port) vtss_to_dev25g(vtss_state, port)
 #define VTSS_TO_HIGH_DEV(port)                                                                     \
-    VTSS_PORT_IS_5G(port)    ? VTSS_TO_DEV5G(port)                                                 \
-    : VTSS_PORT_IS_10G(port) ? VTSS_TO_DEV10G(port)                                                \
-                             : VTSS_TO_DEV25G(port)
+    (VTSS_PORT_IS_5G(port) != 0)    ? VTSS_TO_DEV5G(port)                                          \
+    : (VTSS_PORT_IS_10G(port) != 0) ? VTSS_TO_DEV10G(port)                                         \
+                                    : VTSS_TO_DEV25G(port)
 #define VTSS_TO_PCS_TGT(port)                                                                      \
-    VTSS_PORT_IS_5G(port)    ? vtss_to_pcs5g(vtss_state, port)                                     \
-    : VTSS_PORT_IS_10G(port) ? vtss_to_pcs10g(vtss_state, port)                                    \
-                             : vtss_to_pcs25g(vtss_state, port)
+    (VTSS_PORT_IS_5G(port) != 0)    ? vtss_to_pcs5g(vtss_state, port)                              \
+    : (VTSS_PORT_IS_10G(port) != 0) ? vtss_to_pcs10g(vtss_state, port)                             \
+                                    : vtss_to_pcs25g(vtss_state, port)
 #define VTSS_TO_SD_CMU(indx)     vtss_to_sd_cmu(vtss_state, indx)
 #define VTSS_TO_SD_CMU_CFG(indx) vtss_to_sd_cmu_cfg(vtss_state, indx)
 #define VTSS_TO_SD6G_LANE(indx)  vtss_to_sd6g_lane(vtss_state, indx)
@@ -322,7 +322,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 
 #define DEV_RD(name, port, value)                                                                  \
     {                                                                                              \
-        if (vtss_fa_port_is_high_speed(vtss_state, port)) {                                        \
+        if (vtss_fa_port_is_high_speed(vtss_state, port) != 0U) {                                  \
             REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value);                             \
         } else {                                                                                   \
             REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);                                \
@@ -332,7 +332,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 #define DEV_WR(name, port, value)                                                                  \
     {                                                                                              \
         REG_WR(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);                                    \
-        if (!VTSS_PORT_IS_2G5(port)) {                                                             \
+        if (VTSS_PORT_IS_2G5(port) == 0U) {                                                        \
             REG_WR(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value);                             \
         }                                                                                          \
     }
@@ -340,14 +340,14 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 #define DEV_WRM(name, port, value, mask)                                                           \
     {                                                                                              \
         REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value, mask);                             \
-        if (!VTSS_PORT_IS_2G5(port)) {                                                             \
+        if (VTSS_PORT_IS_2G5(port) == 0U) {                                                        \
             REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value, mask);                      \
         }                                                                                          \
     }
 
 #define DEV_RD_IDX(name, index, port, value)                                                       \
     {                                                                                              \
-        if (vtss_fa_port_is_high_speed(vtss_state, port)) {                                        \
+        if (vtss_fa_port_is_high_speed(vtss_state, port) != 0U) {                                  \
             REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value);                      \
         } else {                                                                                   \
             REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value);                         \
@@ -357,7 +357,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 #define DEV_WRM_IDX(name, index, port, value, mask)                                                \
     {                                                                                              \
         REG_WRM(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port), index), value, mask);                      \
-        if (!VTSS_PORT_IS_2G5(port)) {                                                             \
+        if (VTSS_PORT_IS_2G5(port) == 0U) {                                                        \
             REG_WRM(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port), index), value, mask);               \
         }                                                                                          \
     }
