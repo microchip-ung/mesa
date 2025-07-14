@@ -533,7 +533,7 @@ void vtss_debug_print_ports(vtss_state_t *vtss_state, lmu_ss_t *ss, u8 *member, 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
         val = (VTSS_PORT_BF_GET(member, port_no) != 0U) ? 1U : 0U;
         dot = ((port_no == 0U) || ((port_no & 7U) != 0U)) ? 0U : 1U;
-        pr("%s%s", (dot != 0) ? "" : ".", (val != 0) ? "1" : "0");
+        pr("%s%s", (dot == 0) ? "" : ".", (val != 0) ? "1" : "0");
     }
     if (nl) {
         pr("\n");

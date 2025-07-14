@@ -15,7 +15,7 @@
 
 /* Bit field macros */
 #define VTSS_BF_SIZE(n)   (((n) + 7U) / 8U)
-#define VTSS_BF_GET(a, n) (((a[(n) / 8U] & ((u32)1U << ((n) % 8U))) != 0U) ? 1U : 0U)
+#define VTSS_BF_GET(a, n) (((a[(n) / 8U] & ((u32)1U << ((n) % 8U))) != 0U) ? TRUE : FALSE)
 
 #define VTSS_BF_SET(a, n, v)                                                                       \
     do {                                                                                           \
@@ -25,15 +25,15 @@
             u8 mask = (1U << ((n) % 8U));                                                          \
             a[(n) / 8U] &= ~mask;                                                                  \
         }                                                                                          \
-    } while (0)
-#define VTSS_BF_CLR(a, n) ((void)VTSS_MEMSET(a, 0, VTSS_BF_SIZE(n)))
+    } while (0 == 1)
+#define VTSS_BF_CLR(a, n) (VTSS_MEMSET(a, 0, VTSS_BF_SIZE(n)))
 
 /* Port member bit field macros */
 #define VTSS_PORT_BF_SIZE            VTSS_BF_SIZE(VTSS_PORTS)
 #define VTSS_PORT_BF_GET(a, port_no) VTSS_BF_GET(a, ((u8)port_no) - VTSS_PORT_NO_START)
 #define VTSS_PORT_BF_SET(a, port_no, v)                                                            \
     {                                                                                              \
-        u8 port = (u8)port_no - VTSS_PORT_NO_START;                                                \
+        u8 port = (u8)(port_no) - VTSS_PORT_NO_START;                                              \
         VTSS_BF_SET(a, port, v);                                                                   \
     }
 #define VTSS_PORT_BF_CLR(a) VTSS_BF_CLR(a, VTSS_PORTS)
@@ -150,17 +150,17 @@ extern const char *vtss_func;
 
 #define VTSS_FMT(fmt_buf, fmt_str, ...)                                                            \
     do {                                                                                           \
-        lmu_fmt_buf_init(&fmt_buf);                                                                \
+        lmu_fmt_buf_init(&(fmt_buf));                                                              \
         LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)                             \
-        (&fmt_buf.ss, (fmt_str), ##__VA_ARGS__);                                                   \
-    } while (0)
+        (&(fmt_buf).ss, (fmt_str), ##__VA_ARGS__);                                                 \
+    } while (0 == 1)
 
 // Debug print
 #define pr(fmt_str, ...)                                                                           \
     LMU_PP_VA_ARGS_OVERLOAD_ONE_OR_MORE(LMU_SS_FMT, ##__VA_ARGS__)                                 \
     ((ss), (fmt_str), ##__VA_ARGS__)
 
-#define VTSS_BOOL(expr) (((expr) != 0) ? 1 : 0)
+#define VTSS_BOOL(expr) (((expr) != 0) ? TRUE : FALSE)
 
 #define VTSS_CHIP_PORT(port_no)                   (uint32_t)vtss_state->port.map[port_no].chip_port
 #define VTSS_CHIP_NO(port_no)                     vtss_state->port.map[port_no].chip_no

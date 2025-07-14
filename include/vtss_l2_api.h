@@ -57,13 +57,13 @@ extern "C" {
     By default, automatic learning and ageing is enabled.
 */
 #if VTSS_OPT_LIGHT
-#define VTSS_MAC_ADDRS 128 /**< Number of MAC addresses */
+#define VTSS_MAC_ADDRS 128U /**< Number of MAC addresses */
 #elif defined(VTSS_ARCH_JAGUAR_2)
-#define VTSS_MAC_ADDRS 32768 /**< Number of MAC addresses */
+#define VTSS_MAC_ADDRS 32768U /**< Number of MAC addresses */
 #elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_MAC_ADDRS 16384 /**< Number of MAC addresses */
+#define VTSS_MAC_ADDRS 16384U /**< Number of MAC addresses */
 #else
-#define VTSS_MAC_ADDRS 8192 /**< Number of MAC addresses */
+#define VTSS_MAC_ADDRS 8192U /**< Number of MAC addresses */
 #endif
 
 #if defined(VTSS_FEATURE_VSTAX)
@@ -805,7 +805,7 @@ typedef u32 vtss_vce_id_t;
 #define VTSS_VCL_ID_END     (VTSS_VCL_ID_START + VTSS_VCL_IDS) /**< VCL ID end number */
 #define VTSS_VCL_ARRAY_SIZE VTSS_VCL_ID_END                    /**< VCL ID array size */
 
-#define VTSS_VCE_ID_LAST 0 /**< Special value used to add last in list */
+#define VTSS_VCE_ID_LAST 0U /**< Special value used to add last in list */
 
 /** \brief VCE MAC header information */
 typedef struct {
@@ -1230,12 +1230,12 @@ vtss_rc vtss_iflow_conf_set(const vtss_inst_t              inst,
 /** \brief TCE ID type */
 typedef u32 vtss_tce_id_t;
 
-#define VTSS_TCE_ID_LAST 0 /**< Special value used to add last in list */
+#define VTSS_TCE_ID_LAST 0U /**< Special value used to add last in list */
 
 /** \brief Egress flow ID */
 typedef u16 vtss_eflow_id_t;
 
-#define VTSS_EFLOW_ID_NONE 0 /**< No flow ID allocated */
+#define VTSS_EFLOW_ID_NONE 0U /**< No flow ID allocated */
 
 /** \brief TCE Key */
 typedef struct {
@@ -1510,14 +1510,15 @@ vtss_rc vtss_eflow_conf_set(const vtss_inst_t              inst,
     By default, no VLAN translation rules are setup.
 */
 #define VTSS_VLAN_TRANS_GROUP_MAX_CNT                                                              \
-    VTSS_PORTS                              /**< Maximum VLAN Translation Groups count          */
-#define VTSS_VLAN_TRANS_MAX_CNT        256  /**< Maximum VLAN Translations per group count      */
-#define VTSS_VLAN_TRANS_NULL_GROUP_ID  0    /**< Special value for group ID                     */
-#define VTSS_VLAN_TRANS_FIRST_GROUP_ID 1    /**< First Group ID                                 */
-#define VTSS_VLAN_TRANS_VID_START      1    /**< First valid VLAN ID                            */
-#define VTSS_VLAN_TRANS_MAX_VLAN_ID    4095 /**< Last valid VLAN ID                             */
+    VTSS_PORTS                               /**< Maximum VLAN Translation Groups count          */
+#define VTSS_VLAN_TRANS_MAX_CNT        256U  /**< Maximum VLAN Translations per group count      */
+#define VTSS_VLAN_TRANS_NULL_GROUP_ID  0U    /**< Special value for group ID                     */
+#define VTSS_VLAN_TRANS_FIRST_GROUP_ID 1U    /**< First Group ID                                 */
+#define VTSS_VLAN_TRANS_VID_START      1U    /**< First valid VLAN ID                            */
+#define VTSS_VLAN_TRANS_MAX_VLAN_ID    4095U /**< Last valid VLAN ID                             */
 #define VTSS_VLAN_TRANS_LAST_GROUP_ID                                                              \
-    (VTSS_VLAN_TRANS_FIRST_GROUP_ID + VTSS_VLAN_TRANS_GROUP_MAX_CNT - 1) /**< Last valid Group ID */
+    (VTSS_VLAN_TRANS_FIRST_GROUP_ID + VTSS_VLAN_TRANS_GROUP_MAX_CNT -                              \
+     1U) /**< Last valid Group ID */
 
 #define VTSS_VLAN_TRANS_VALID_GROUP_CHECK(grp_id)                                                  \
     (((grp_id < VTSS_VLAN_TRANS_FIRST_GROUP_ID) || (grp_id > VTSS_VLAN_TRANS_LAST_GROUP_ID))       \
@@ -1528,9 +1529,10 @@ vtss_rc vtss_eflow_conf_set(const vtss_inst_t              inst,
          ? FALSE                                                                                   \
          : TRUE) /**< Macro to check valid VLAN ID  */
 #define VTSS_VLAN_TRANS_NULL_CHECK(ptr)                                                            \
-    ((ptr == NULL) ? FALSE : TRUE)                          /**< Macro to check NULL Pointer */
-#define VTSS_VLAN_TRANS_PORT_BF_SIZE ((VTSS_PORTS + 7) / 8) /**< Macro Same as VTSS_PORT_BF_SIZE */
-typedef u64 vtss_vt_id_t;                                   /**< VLAN Translation ID */
+    ((ptr == NULL) ? FALSE : TRUE) /**< Macro to check NULL Pointer */
+#define VTSS_VLAN_TRANS_PORT_BF_SIZE                                                               \
+    ((VTSS_PORTS + 7U) / 8U) /**< Macro Same as VTSS_PORT_BF_SIZE */
+typedef u64 vtss_vt_id_t;    /**< VLAN Translation ID */
 
 /** \brief VLAN translation port-to-group configuration */
 typedef struct {
@@ -1761,7 +1763,7 @@ vtss_rc vtss_isolated_port_members_set(const vtss_inst_t inst,
 typedef u32 vtss_pvlan_no_t;
 
 #define VTSS_PVLANS           (VTSS_PORTS)                        /**< Number of PVLANs */
-#define VTSS_PVLAN_NO_START   (0)                                 /**< PVLAN start number */
+#define VTSS_PVLAN_NO_START   (0U)                                /**< PVLAN start number */
 #define VTSS_PVLAN_NO_END     (VTSS_PVLAN_NO_START + VTSS_PVLANS) /**< PVLAN end number */
 #define VTSS_PVLAN_ARRAY_SIZE VTSS_PVLAN_NO_END                   /**< PVLAN array size */
 #define VTSS_PVLAN_NO_DEFAULT (0)                                 /**< Default PVLAN */

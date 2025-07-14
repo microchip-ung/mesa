@@ -49,9 +49,9 @@ void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
 
 #define VTSS_OS_FREE(s, f)
 
-#define VTSS_MEMSET(s, c, n) lmu_memset(s, c, n)
+#define VTSS_MEMSET(s, c, n) (void)lmu_memset(s, c, n)
 #define VTSS_MEMCMP(s, c, n) lmu_memcmp(s, c, n)
-#define VTSS_MEMCPY(s, c, n) lmu_memcpy(s, c, n)
+#define VTSS_MEMCPY(s, c, n) (void)lmu_memcpy(s, c, n)
 
 #define VTSS_STRLEN(s)      lmu_czstrlen(s)
 #define VTSS_STRCPY(sd, ss) lmu_czstrcpy(sd, ss)

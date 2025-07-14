@@ -8,9 +8,11 @@
 
 /* Port forwarding state */
 #define VTSS_PORT_RX_FORWARDING(fwd_state)                                                         \
-    (fwd_state == VTSS_PORT_FORWARD_ENABLED || fwd_state == VTSS_PORT_FORWARD_INGRESS ? 1 : 0)
+    ((fwd_state) == VTSS_PORT_FORWARD_ENABLED || (fwd_state) == VTSS_PORT_FORWARD_INGRESS ? TRUE   \
+                                                                                          : FALSE)
 #define VTSS_PORT_TX_FORWARDING(fwd_state)                                                         \
-    (fwd_state == VTSS_PORT_FORWARD_ENABLED || fwd_state == VTSS_PORT_FORWARD_EGRESS ? 1 : 0)
+    ((fwd_state) == VTSS_PORT_FORWARD_ENABLED || (fwd_state) == VTSS_PORT_FORWARD_EGRESS ? TRUE    \
+                                                                                         : FALSE)
 
 /* PVLAN entry */
 typedef struct {
@@ -42,7 +44,7 @@ typedef struct {
 
 #if defined(VTSS_ARCH_FA)
 #if VTSS_OPT_LIGHT
-#define VTSS_PGID_FA 128
+#define VTSS_PGID_FA 128U
 #else
 #define VTSS_PGID_FA (2048 + 65)
 #endif
@@ -54,17 +56,17 @@ typedef struct {
 #define VTSS_PGID_NONE VTSS_PGIDS
 
 /* Size of lookup page and pointer array */
-#define VTSS_MAC_PAGE_SIZE 128
+#define VTSS_MAC_PAGE_SIZE 128U
 #define VTSS_MAC_PTR_SIZE  (VTSS_MAC_ADDRS / VTSS_MAC_PAGE_SIZE)
 
 /* MAC address table users */
-#define VTSS_MAC_USER_NONE 0 /* Normal entries added by the application */
-#define VTSS_MAC_USER_SSM  1 /* Internal entries added for SSM purposes */
-#define VTSS_MAC_USER_ASM  2 /* Internal entries added for ASM purposes */
+#define VTSS_MAC_USER_NONE 0U /* Normal entries added by the application */
+#define VTSS_MAC_USER_SSM  1U /* Internal entries added for SSM purposes */
+#define VTSS_MAC_USER_ASM  2U /* Internal entries added for ASM purposes */
 typedef u8 vtss_mac_user_t;
 
 /* MAC address entry flags */
-#define VTSS_MAC_FLAG_ADDED 0x01 /* Entry added flag used for warm start synchronization */
+#define VTSS_MAC_FLAG_ADDED 0x01U /* Entry added flag used for warm start synchronization */
 
 /* MAC address table for get next operations */
 typedef struct vtss_mac_entry_t {
@@ -81,11 +83,8 @@ typedef struct vtss_mac_entry_t {
 
 /* IPv4 and IPv6 multicast address */
 #define VTSS_MAC_IPV4_MC(mac)                                                                      \
-    (mac[0] == 0x01 && mac[1] == 0x00 && mac[2] == 0x5e && (mac[3] & 0x80) == 0x00)
-#define VTSS_MAC_IPV6_MC(mac) (mac[0] == 0x33 && mac[1] == 0x33)
-#define VTSS_MAC_BC(mac)                                                                           \
-    (mac[0] == 0xff && mac[1] == 0xff && mac[2] == 0xff && mac[3] == 0xff && mac[4] == 0xff &&     \
-     mac[5] == 0xff)
+    ((mac)[0] == 0x01U && (mac)[1] == 0x00U && (mac)[2] == 0x5eU && ((mac)[3] & 0x80U) == 0x00U)
+#define VTSS_MAC_IPV6_MC(mac) ((mac)[0] == 0x33U && (mac)[1] == 0x33U)
 
 void vtss_mach_macl_get(const vtss_vid_mac_t *vid_mac, u32 *mach, u32 *macl);
 void vtss_mach_macl_set(vtss_vid_mac_t *vid_mac, u32 mach, u32 macl);
@@ -158,14 +157,14 @@ typedef struct {
 } vtss_vsi_info_t;
 #endif /* VTSS_ARCH_JAGUAR_2 */
 
-#define VLAN_FLAGS_ENABLED  0x01
-#define VLAN_FLAGS_UPDATE   0x02
-#define VLAN_FLAGS_ISOLATED 0x04
-#define VLAN_FLAGS_LEARN    0x08
-#define VLAN_FLAGS_FLOOD    0x10
-#define VLAN_FLAGS_MIRROR   0x20
-#define VLAN_FLAGS_FILTER   0x40
-#define VLAN_FLAGS_OT       0x80
+#define VLAN_FLAGS_ENABLED  0x01U
+#define VLAN_FLAGS_UPDATE   0x02U
+#define VLAN_FLAGS_ISOLATED 0x04U
+#define VLAN_FLAGS_LEARN    0x08U
+#define VLAN_FLAGS_FLOOD    0x10U
+#define VLAN_FLAGS_MIRROR   0x20U
+#define VLAN_FLAGS_FILTER   0x40U
+#define VLAN_FLAGS_OT       0x80U
 
 /* VLAN entry */
 typedef struct {
@@ -302,7 +301,7 @@ typedef struct {
 #if defined(VTSS_FEATURE_PSFP)
 
 // PSFP Gate Control List maximum length
-#define VTSS_PSFP_GCL_CNT 4
+#define VTSS_PSFP_GCL_CNT 4U
 
 typedef struct {
     u32             gcl_length;
@@ -974,9 +973,9 @@ vtss_rc vtss_cmn_vce_add(struct vtss_state_s    *vtss_state,
                          const vtss_vce_t *const vce);
 vtss_rc vtss_cmn_vce_del(struct vtss_state_s *vtss_state, const vtss_vce_id_t vce_id);
 vtss_rc vtss_cmn_vlan_trans_group_add(struct vtss_state_s                   *vtss_state,
-                                      const vtss_vlan_trans_grp2vlan_conf_t *conf);
+                                      const vtss_vlan_trans_grp2vlan_conf_t *conf_add);
 vtss_rc vtss_cmn_vlan_trans_group_del(struct vtss_state_s                   *vtss_state,
-                                      const vtss_vlan_trans_grp2vlan_conf_t *conf);
+                                      const vtss_vlan_trans_grp2vlan_conf_t *conf_del);
 vtss_rc vtss_cmn_vlan_trans_group_get(struct vtss_state_s             *vtss_state,
                                       vtss_vlan_trans_grp2vlan_conf_t *conf,
                                       BOOL                             next);
@@ -1012,13 +1011,7 @@ vtss_sdx_entry_t *vtss_cmn_sdx_alloc(struct vtss_state_s *vtss_state,
                                      vtss_port_no_t       port_no,
                                      u16                  id,
                                      BOOL                 isdx);
-void    vtss_cmn_sdx_free(struct vtss_state_s *vtss_state, vtss_sdx_entry_t *sdx, BOOL isdx);
-vtss_rc vtss_cmn_policer_alloc(struct vtss_state_s *vtss_state, u8 count, u16 *idx);
-vtss_rc vtss_cmn_policer_free(struct vtss_state_s *vtss_state, u16 *idx);
-vtss_rc vtss_cmn_istat_alloc(struct vtss_state_s *vtss_state, u8 count, u16 *idx);
-vtss_rc vtss_cmn_istat_free(struct vtss_state_s *vtss_state, u16 *idx);
-vtss_rc vtss_cmn_estat_alloc(struct vtss_state_s *vtss_state, u8 count, u16 *idx);
-vtss_rc vtss_cmn_estat_free(struct vtss_state_s *vtss_state, u16 *idx);
+void vtss_cmn_sdx_free(struct vtss_state_s *vtss_state, vtss_sdx_entry_t *sdx, BOOL isdx);
 vtss_sdx_entry_t   *vtss_iflow_lookup(struct vtss_state_s *vtss_state, vtss_iflow_id_t id);
 vtss_eflow_entry_t *vtss_eflow_lookup(struct vtss_state_s *vtss_state, vtss_eflow_id_t id);
 #endif

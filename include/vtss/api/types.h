@@ -712,14 +712,14 @@ typedef u32 vtss_isdx_t;   /**< Ingress Service Index type */
 /* Ingress flow ID */
 typedef u16 vtss_iflow_id_t;
 
-#define VTSS_IFLOW_ID_NONE 0 /**< No flow ID allocated */
+#define VTSS_IFLOW_ID_NONE 0U /**< No flow ID allocated */
 
 /** \brief Aggregation Number. */
 typedef u32 vtss_aggr_no_t;
-#define VTSS_AGGRS (VTSS_PORTS / 2) /**< Number of LLAGs */
+#define VTSS_AGGRS (VTSS_PORTS / 2U) /**< Number of LLAGs */
 #ifndef _VTSS_MAIN_TYPES_H_
 #define VTSS_AGGR_NO_NONE  0xffffffffU                     /**< Aggregation number none */
-#define VTSS_AGGR_NO_START 0                               /**< Aggregation start number */
+#define VTSS_AGGR_NO_START 0U                              /**< Aggregation start number */
 #endif                                                     // _VTSS_MAIN_TYPES_H_
 #define VTSS_AGGR_NO_END (VTSS_AGGR_NO_START + VTSS_AGGRS) /**< Aggregation number end */
 

@@ -97,7 +97,7 @@ typedef struct {
 #endif
 #endif
 
-#define VTSS_POL_STAT_NONE 0 /* The NO Policer/SDX statistics value */
+#define VTSS_POL_STAT_NONE 0U /* The NO Policer/SDX statistics value */
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #if defined(VTSS_ARCH_SERVAL_T)
@@ -120,8 +120,8 @@ typedef struct {
 #define VTSS_QUEUE_POL_IDX(port, queue) (VTSS_JR_POL_CNT + (port * 8) + queue)
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_SDX_CNT      VTSS_STREAM_CNT
-#define VTSS_EVC_POL_CNT  (VTSS_STREAM_CNT + 8) // 8 policers used internally
-#define VTSS_EVC_STAT_CNT (VTSS_STREAM_CNT + 8) // 8 policers used internally
+#define VTSS_EVC_POL_CNT  (VTSS_STREAM_CNT + 8U) // 8 policers used internally
+#define VTSS_EVC_STAT_CNT (VTSS_STREAM_CNT + 8U) // 8 policers used internally
 #else
 #define VTSS_SDX_CNT      VTSS_JR_SDX_CNT
 #define VTSS_EVC_POL_CNT  VTSS_JR_POL_CNT

@@ -384,9 +384,9 @@ extern uintptr_t vtss_os_cpu_to_dma_addr(void *ptr);
  */
 #define VTSS_OS_RAND() rand()
 
-#define VTSS_MEMSET(s, c, n) memset(s, c, n)
+#define VTSS_MEMSET(s, c, n) (void)memset(s, c, n)
 #define VTSS_MEMCMP(s, c, n) memcmp(s, c, n)
-#define VTSS_MEMCPY(s, c, n) memcpy(s, c, n)
+#define VTSS_MEMCPY(s, c, n) (void)memcpy(s, c, n)
 
 #define VTSS_STRLEN(s)      strlen(s)
 #define VTSS_STRCPY(sd, ss) strcpy(sd, ss)

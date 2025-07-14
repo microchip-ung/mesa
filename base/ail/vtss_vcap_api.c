@@ -12,7 +12,7 @@
 /* - Resource utilities -------------------------------------------- */
 
 /* Initialize resource change information */
-void vtss_cmn_res_init(vtss_res_t *res) { (void)VTSS_MEMSET(res, 0, sizeof(*res)); }
+void vtss_cmn_res_init(vtss_res_t *res) { VTSS_MEMSET(res, 0, sizeof(*res)); }
 
 /* Check VCAP resource usage */
 vtss_rc vtss_cmn_vcap_res_check(vtss_vcap_obj_t *obj, vtss_res_chg_t *chg)
@@ -464,7 +464,7 @@ vtss_rc vtss_vcap_lookup(struct vtss_state_s *vtss_state,
 
     VTSS_D("VCAP %s, id: %s", obj->name, vtss_vcap_id_txt(vtss_state, id));
 
-    (void)VTSS_MEMSET(ndx, 0, sizeof(ndx));
+    VTSS_MEMSET(ndx, 0, sizeof(ndx));
 
     for (cur = obj->used_list; cur != NULL; cur = cur->next) {
         key_size = cur->data.key_size;
@@ -689,7 +689,7 @@ vtss_rc vtss_vcap_del(struct vtss_state_s *vtss_state,
 
     VTSS_D("VCAP %s, id: %s", obj->name, vtss_vcap_id_txt(vtss_state, id));
 
-    (void)VTSS_MEMSET(ndx, 0, sizeof(ndx));
+    VTSS_MEMSET(ndx, 0, sizeof(ndx));
     for (cur = obj->used_list; cur != NULL; cur = cur->next) {
         key_size = cur->data.key_size;
         if (cur->user == user && cur->id == id) {
@@ -723,7 +723,7 @@ vtss_rc vtss_vcap_add(struct vtss_state_s *vtss_state,
     u32                 *rule_count = &obj->rule_count;
 
     key_size_new = (data != NULL ? data->key_size : VTSS_VCAP_KEY_SIZE_FULL);
-    (void)VTSS_MEMSET(ndx_old_key, 0, sizeof(ndx_old_key));
+    VTSS_MEMSET(ndx_old_key, 0, sizeof(ndx_old_key));
 
     VTSS_D("VCAP %s, key_size: %s, id: %s, ins_id: %s", obj->name,
            vtss_vcap_key_size2txt(key_size_new), vtss_vcap_id_txt(vtss_state, id),
@@ -789,7 +789,7 @@ vtss_rc vtss_vcap_add(struct vtss_state_s *vtss_state,
 
     /* Check if resources are available */
     if (old == NULL || old->data.key_size != key_size_new) {
-        (void)VTSS_MEMSET(&chg, 0, sizeof(chg));
+        VTSS_MEMSET(&chg, 0, sizeof(chg));
 
         /* Calculate added resources */
         if ((obj->key_count[key_size_new] % vtss_vcap_key_rule_count(key_size_new)) == 0U) {
@@ -1011,8 +1011,8 @@ void vtss_vcap_is1_init(vtss_vcap_data_t *data, vtss_is1_entry_t *entry)
 {
     vtss_is1_data_t *is1 = &data->u.is1;
 
-    (void)VTSS_MEMSET(data, 0, sizeof(*data));
-    (void)VTSS_MEMSET(entry, 0, sizeof(*entry));
+    VTSS_MEMSET(data, 0, sizeof(*data));
+    VTSS_MEMSET(entry, 0, sizeof(*entry));
     is1->vid_range = VTSS_VCAP_RANGE_CHK_NONE;
     is1->dscp_range = VTSS_VCAP_RANGE_CHK_NONE;
     is1->sport_range = VTSS_VCAP_RANGE_CHK_NONE;
@@ -1141,8 +1141,8 @@ void vtss_vcap_is2_init(vtss_vcap_data_t *data, vtss_is2_entry_t *entry)
 {
     vtss_is2_data_t *is2 = &data->u.is2;
 
-    (void)VTSS_MEMSET(data, 0, sizeof(*data));
-    (void)VTSS_MEMSET(entry, 0, sizeof(*entry));
+    VTSS_MEMSET(data, 0, sizeof(*data));
+    VTSS_MEMSET(entry, 0, sizeof(*entry));
     is2->srange = VTSS_VCAP_RANGE_CHK_NONE;
     is2->drange = VTSS_VCAP_RANGE_CHK_NONE;
     is2->entry = entry;
@@ -1152,8 +1152,8 @@ void vtss_vcap_is2_init(vtss_vcap_data_t *data, vtss_is2_entry_t *entry)
 #if defined(VTSS_FEATURE_ES0)
 void vtss_vcap_es0_init(vtss_vcap_data_t *data, vtss_es0_entry_t *entry)
 {
-    (void)VTSS_MEMSET(data, 0, sizeof(*data));
-    (void)VTSS_MEMSET(entry, 0, sizeof(*entry));
+    VTSS_MEMSET(data, 0, sizeof(*data));
+    VTSS_MEMSET(entry, 0, sizeof(*entry));
     data->u.es0.entry = entry;
     entry->key.rx_port_no = VTSS_PORT_NO_NONE;
 }
@@ -1344,7 +1344,7 @@ vtss_rc vtss_vcap_is2_update(struct vtss_state_s *vtss_state)
     }
 
     /* Update IS2 rules */
-    (void)VTSS_MEMSET(ndx, 0, sizeof(ndx));
+    VTSS_MEMSET(ndx, 0, sizeof(ndx));
     for (cur = obj->used_list; cur != NULL; cur = cur->next) {
         idx.key_size = cur->data.key_size;
         is2 = &cur->data.u.is2;
@@ -1576,7 +1576,7 @@ vtss_rc vtss_ace_init(const vtss_inst_t inst, const vtss_ace_type_t type, vtss_a
     vtss_rc rc = VTSS_RC_OK;
 
     VTSS_D("type: %d", type);
-    (void)VTSS_MEMSET(ace, 0, sizeof(*ace));
+    VTSS_MEMSET(ace, 0, sizeof(*ace));
     ace->type = type;
     ace->action.learn = TRUE;
 
@@ -1725,7 +1725,7 @@ vtss_rc vtss_hace_init(const vtss_inst_t inst, const vtss_ace_type_t type, vtss_
 
     VTSS_D("type: %d", type);
 
-    (void)VTSS_MEMSET(hace, 0, sizeof(*hace));
+    VTSS_MEMSET(hace, 0, sizeof(*hace));
     key->type = type;
 
     switch (type) {
