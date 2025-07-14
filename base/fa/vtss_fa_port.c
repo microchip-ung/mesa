@@ -2966,7 +2966,7 @@ static vtss_rc fa_usxgmii_enable(vtss_state_t        *vtss_state,
                     VTSS_M_DEV10G_USXGMII_TX_RADAPT_CFG_TX_LF_GEN_DIS);
 
         REG_WRM(VTSS_DEV10G_USXGMII_ANEG_CFG(tgt),
-                VTSS_F_DEV10G_USXGMII_ANEG_CFG_ADV_ABILITY(0xd801) |
+                VTSS_F_DEV10G_USXGMII_ANEG_CFG_ADV_ABILITY(0xd601) |
                     VTSS_F_DEV10G_USXGMII_ANEG_CFG_ANEG_ENA(1) |
                     VTSS_F_DEV10G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1) |
                     VTSS_F_DEV10G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA(1),
