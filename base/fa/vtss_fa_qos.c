@@ -3128,7 +3128,7 @@ static u32 tas_list_cycle_time_read(vtss_state_t *vtss_state, u32 list_idx)
              ? (rc + 1U)
              : rc;
 
-    if (rc != 0U) {
+    if (rc == 0U) {
         cycle_time = value;
     }
 
