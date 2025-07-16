@@ -50,14 +50,14 @@
 #define LA_TGT 0
 #define LK_TGT 0
 #else
-#define FA_TGT 0
-#define LA_TGT 1
-#define LK_TGT 0
+#define FA_TGT FALSE
+#define LA_TGT TRUE
+#define LK_TGT FALSE
 #endif
 
 // CIL constants, which are different for FA/LA/LK
 #if defined(VTSS_ARCH_LAIKA)
-#define RT_CHIP_PORTS                 32
+#define RT_CHIP_PORTS                 32U
 #define RT_SERDES_10G_START           0
 #define RT_SERDES_25G_START           0
 #define RT_SERDES_CNT                 10
@@ -98,7 +98,7 @@
 #define RT_ALT_PPS_PIN                4
 #define RT_TOD_ACC_PIN                7 // The last PTP pin is not connected to GPIO but can be used for TOD access
 #elif defined(VTSS_ARCH_SPARX5)
-#define RT_CHIP_PORTS             65
+#define RT_CHIP_PORTS             65U
 #define RT_SERDES_10G_START       13
 #define RT_SERDES_25G_START       25
 #define RT_SERDES_CNT             33
@@ -146,7 +146,7 @@
 #define RT_ALT_PPS_PIN               3
 #define RT_TOD_ACC_PIN               4 // The last PTP pin is not connected to GPIO but can be used for TOD access
 #else
-#define RT_CHIP_PORTS                 30
+#define RT_CHIP_PORTS                 30U
 #define RT_SERDES_10G_START           0
 #define RT_SERDES_25G_START           0
 #define RT_SERDES_CNT                 10
@@ -179,7 +179,7 @@
 #define RT_ACL_CNT_SIZE               1024
 #define RT_ES2_CNT_SIZE               512
 #define RT_IP6PFX_CNT                 256
-#define RT_PGID_FA                    (1024 + 30)
+#define RT_PGID_FA                    (1024U + 30U)
 #define RT_DSM_CAL_MAX_DEVS_PER_TAXI  10
 #define RT_DSM_CAL_TAXIS              5
 #define RT_EXT_CLK_PIN                4 // PIN configuration for external clock
@@ -193,12 +193,12 @@
 
 // Port numbers
 #define RT_CHIP_PORT_CPU   RT_CHIP_PORTS
-#define RT_CHIP_PORT_CPU_0 (RT_CHIP_PORT_CPU + 0) /* 1. CPU Port */
-#define RT_CHIP_PORT_CPU_1 (RT_CHIP_PORT_CPU + 1) /* 2. CPU Port */
-#define RT_CHIP_PORT_VD0   (RT_CHIP_PORT_CPU + 2) /* VD0/Port used for IPMC */
-#define RT_CHIP_PORT_VD1   (RT_CHIP_PORT_CPU + 3) /* VD1/Port used for AFI/OAM */
-#define RT_CHIP_PORT_VD2   (RT_CHIP_PORT_CPU + 4) /* VD2/Port used for IPinIP*/
-#define RT_CHIP_PORTS_ALL  (RT_CHIP_PORT_CPU + 5) /* Total number of ports */
+#define RT_CHIP_PORT_CPU_0 (RT_CHIP_PORT_CPU + 0U) /* 1. CPU Port */
+#define RT_CHIP_PORT_CPU_1 (RT_CHIP_PORT_CPU + 1U) /* 2. CPU Port */
+#define RT_CHIP_PORT_VD0   (RT_CHIP_PORT_CPU + 2U) /* VD0/Port used for IPMC */
+#define RT_CHIP_PORT_VD1   (RT_CHIP_PORT_CPU + 3U) /* VD1/Port used for AFI/OAM */
+#define RT_CHIP_PORT_VD2   (RT_CHIP_PORT_CPU + 4U) /* VD2/Port used for IPinIP*/
+#define RT_CHIP_PORTS_ALL  (RT_CHIP_PORT_CPU + 5U) /* Total number of ports */
 
 // TAS constants
 #define RT_TAS_NUMBER_OF_ENTRIES_PER_BLOCK 32
@@ -318,7 +318,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 
 #define REG_WRM_SET(p, mask)         REG_WRM(p, mask, mask)
 #define REG_WRM_CLR(p, mask)         REG_WRM(p, 0, mask)
-#define REG_WRM_CTL(p, _cond_, mask) REG_WRM(p, (_cond_) ? mask : 0, mask)
+#define REG_WRM_CTL(p, _cond_, mask) REG_WRM(p, (_cond_) ? mask : 0U, mask)
 
 #define DEV_RD(name, port, value)                                                                  \
     {                                                                                              \
@@ -380,7 +380,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
     }
 
 // Determine instance count based on register field
-#define REG_FLD_CNT(name) (VTSS_X_##name(VTSS_M_##name) + 1)
+#define REG_FLD_CNT(name) (VTSS_X_##name(VTSS_M_##name) + 1U)
 
 // RedBox target offset
 #define RB_TGT(i) (VTSS_TO_RB_0 + (i) * (VTSS_TO_RB_1 - VTSS_TO_RB_0))
@@ -481,27 +481,27 @@ void vtss_fa_debug_cnt(lmu_ss_t            *ss,
 
 /* MC PGIDs */
 #define PGID_BASE         RT_CHIP_PORTS
-#define PGID_UC_FLOOD     (PGID_BASE + 0)
-#define PGID_MC_FLOOD     (PGID_BASE + 1)
-#define PGID_IPV4_MC_DATA (PGID_BASE + 2)
-#define PGID_IPV4_MC_CTRL (PGID_BASE + 3)
-#define PGID_IPV6_MC_DATA (PGID_BASE + 4)
-#define PGID_IPV6_MC_CTRL (PGID_BASE + 5)
-#define PGID_DROP         (PGID_BASE + 6)
-#define PGID_FLOOD        (PGID_BASE + 7)
+#define PGID_UC_FLOOD     (PGID_BASE + 0U)
+#define PGID_MC_FLOOD     (PGID_BASE + 1U)
+#define PGID_IPV4_MC_DATA (PGID_BASE + 2U)
+#define PGID_IPV4_MC_CTRL (PGID_BASE + 3U)
+#define PGID_IPV6_MC_DATA (PGID_BASE + 4U)
+#define PGID_IPV6_MC_CTRL (PGID_BASE + 5U)
+#define PGID_DROP         (PGID_BASE + 6U)
+#define PGID_FLOOD        (PGID_BASE + 7U)
 
 /* Mirror probe usage */
-#define FA_MIRROR_PROBE_RX   0 /* Ingress mirror probe */
-#define FA_MIRROR_PROBE_TX   1 /* Egress mirror probe */
-#define FA_MIRROR_PROBE_VLAN 2 /* VLAN mirror probe */
+#define FA_MIRROR_PROBE_RX   0U /* Ingress mirror probe */
+#define FA_MIRROR_PROBE_TX   1U /* Egress mirror probe */
+#define FA_MIRROR_PROBE_VLAN 2U /* VLAN mirror probe */
 
 #define QFWD_FRAME_COPY_CFG_CPU_QU(qu)              (qu)
 #define QFWD_FRAME_COPY_CFG_LRN_ALL                 8
-#define QFWD_FRAME_COPY_CFG_MIRROR_PROBE(probe_idx) (probe_idx + 9)
+#define QFWD_FRAME_COPY_CFG_MIRROR_PROBE(probe_idx) (probe_idx + 9U)
 
 /* sFlow H/W-related min/max */
-#define FA_SFLOW_MIN_SAMPLE_RATE 1     /**< Minimum allowable sampling rate for sFlow */
-#define FA_SFLOW_MAX_SAMPLE_RATE 32767 /**< Maximum allowable sampling rate for sFlow */
+#define FA_SFLOW_MIN_SAMPLE_RATE 1U     /**< Minimum allowable sampling rate for sFlow */
+#define FA_SFLOW_MAX_SAMPLE_RATE 32767U /**< Maximum allowable sampling rate for sFlow */
 
 /* Bits used to control IFH.CL_RSLT from CLM/IS2 */
 #define FA_IFH_CL_RSLT_ACL_HIT  0x0001 /* ACL hit flag */

@@ -14,7 +14,7 @@
 #endif
 
 /* Round x divided by y to nearest integer. x and y are integers */
-#define VTSS_ROUNDING_DIVISION(x, y) (((x) + ((y) / 2)) / (y))
+#define VTSS_ROUNDING_DIVISION(x, y) (((x) + ((y) / 2U)) / (y))
 
 /* Round x divided by y to nearest higher integer. x and y are integers */
 #define VTSS_DIV_ROUND_UP(x, y)   (((x) + (y) - 1) / (y))
