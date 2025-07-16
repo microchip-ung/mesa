@@ -2934,7 +2934,7 @@ static vtss_rc fa_usxgmii_enable(vtss_state_t        *vtss_state,
 
         REG_WRM(VTSS_DEV1G_USXGMII_ANEG_CFG(tgt),
                 VTSS_F_DEV1G_USXGMII_ANEG_CFG_ADV_ABILITY(0xd801) |
-                    VTSS_F_DEV1G_USXGMII_ANEG_CFG_LINK_TIMER(1) |
+                    VTSS_F_DEV1G_USXGMII_ANEG_CFG_LINK_TIMER(1008) | // 1.6ms
                     VTSS_F_DEV1G_USXGMII_ANEG_CFG_ANEG_ENA(1) |
                     VTSS_F_DEV1G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA(1),
                 VTSS_M_DEV1G_USXGMII_ANEG_CFG_ADV_ABILITY |
@@ -2967,10 +2967,12 @@ static vtss_rc fa_usxgmii_enable(vtss_state_t        *vtss_state,
 
         REG_WRM(VTSS_DEV10G_USXGMII_ANEG_CFG(tgt),
                 VTSS_F_DEV10G_USXGMII_ANEG_CFG_ADV_ABILITY(0xd601) |
+                    VTSS_F_DEV10G_USXGMII_ANEG_CFG_LINK_TIMER(1008) | // 1.6ms
                     VTSS_F_DEV10G_USXGMII_ANEG_CFG_ANEG_ENA(1) |
                     VTSS_F_DEV10G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1) |
                     VTSS_F_DEV10G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA(1),
                 VTSS_M_DEV10G_USXGMII_ANEG_CFG_ADV_ABILITY |
+                    VTSS_M_DEV10G_USXGMII_ANEG_CFG_LINK_TIMER |
                     VTSS_M_DEV10G_USXGMII_ANEG_CFG_ANEG_ENA |
                     VTSS_M_DEV10G_USXGMII_ANEG_CFG_ANEG_RESTART_ONE_SHOT |
                     VTSS_M_DEV10G_USXGMII_ANEG_CFG_SW_RESOLVE_ENA);
