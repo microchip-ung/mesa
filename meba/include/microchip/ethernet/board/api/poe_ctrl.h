@@ -606,7 +606,7 @@ typedef struct {
     uint8_t poe_type_from_tag;
 
     // poe controllers count from tag
-    uint8_t poe_controllers_count_from_tag;	
+    uint8_t poe_controllers_count_from_tag;
 } meba_poe_init_params_t;
 
 // PoE port pd version 3,4 data.

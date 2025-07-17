@@ -87,8 +87,7 @@ static meba_poe_parameters_t poe_default_parameters = {
     // Selects the power limit at the port (maximum or according to class or predefined)
     .prebt_pm2_default = OCELOT_PM2_PREBT_DEFAULT,
     // Selects the start condition. (Not recommended for new designs, keep 0x00)
-    .prebt_pm3_default = OCELOT_PM3_PREBT_DEFAULT
-};
+    .prebt_pm3_default = OCELOT_PM3_PREBT_DEFAULT};
 
 meba_poe_psu_input_prob_t ocelot_power_supplies[] = {
     {.id = MEBA_POE_CTRL_PSU_ALL, // PowerSupply-ID
@@ -121,19 +120,22 @@ mesa_rc meba_poe_system_initialize(meba_inst_t inst, meba_poe_init_params_t *tPo
 
     if ((tPoe_init_params->poe_type_from_tag == 1) || (tPoe_init_params->poe_type_from_tag == 2)) {
         poe_default_parameters.eMeba_poe_firmware_type = tPoe_init_params->poe_type_from_tag;
-        printf("\n\rpoe firmware type from tag=%d\n\r", poe_default_parameters.eMeba_poe_firmware_type);
+        printf("\n\rpoe firmware type from tag=%d\n\r",
+               poe_default_parameters.eMeba_poe_firmware_type);
     } else {
         // poe firmware type - TYPE_PREBT , GEN6_BT
-        //poe_default_parameters.eMeba_poe_firmware_type = OCELOT_POE_FIRMWARE_TYPE_DEFAULT;
-        printf("\n\rpoe firmware type default=%d\n\r", poe_default_parameters.eMeba_poe_firmware_type);
+        // poe_default_parameters.eMeba_poe_firmware_type = OCELOT_POE_FIRMWARE_TYPE_DEFAULT;
+        printf("\n\rpoe firmware type default=%d\n\r",
+               poe_default_parameters.eMeba_poe_firmware_type);
     }
-    
+
     // overide tMeba_poe_init_params params if using H file parameters
     // overide meba power supply by appl init_params
     if (!tPoe_init_params->use_poe_static_parameters) {
         ocelot_power_supplies->def_w = tPoe_init_params->power_supply_default_power_limit;
         ocelot_power_supplies->max_w = tPoe_init_params->power_supply_max_power_w;
-        ocelot_power_supplies->system_pwr_usage_w = tPoe_init_params->power_supply_internal_pwr_usage;
+        ocelot_power_supplies->system_pwr_usage_w =
+            tPoe_init_params->power_supply_internal_pwr_usage;
     }
 
     if (poe_default_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
@@ -141,18 +143,19 @@ mesa_rc meba_poe_system_initialize(meba_inst_t inst, meba_poe_init_params_t *tPo
         // ocelot_ctrl.api = ....;
         // ocelot_ctrl.private_data = ....;
         ocelot_pd69200_system.controller_count = 1;
-        ocelot_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * ocelot_pd69200_system.controller_count);
+        ocelot_pd69200_system.controllers =
+            malloc(sizeof(meba_poe_ctrl_inst_t) * ocelot_pd69200_system.controller_count);
 
         // overide tMeba_poe_init_params params if using H file parameters
         if (tPoe_init_params->use_poe_static_parameters) {
-            poe_default_parameters.max_poe_ports = sizeof(ocelot_pd69200_4pairs_port_map) / sizeof(meba_poe_port_properties_t);
+            poe_default_parameters.max_poe_ports =
+                sizeof(ocelot_pd69200_4pairs_port_map) / sizeof(meba_poe_port_properties_t);
         }
 
         inst->iface
             .debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
                    "using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                   poe_default_parameters.max_poe_ports,
-                   ocelot_power_supplies->max_w,
+                   poe_default_parameters.max_poe_ports, ocelot_power_supplies->max_w,
                    poe_default_parameters.eMeba_poe_firmware_type);
 
         ocelot_pd69200_system.controllers[0].index = 0;
@@ -170,25 +173,26 @@ mesa_rc meba_poe_system_initialize(meba_inst_t inst, meba_poe_init_params_t *tPo
                                ocelot_power_supplies,
                                sizeof(ocelot_power_supplies) / sizeof(meba_poe_psu_input_prob_t),
                                inst->iface.debug, poe_default_parameters);
-    } else if (poe_default_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT) {
+    } else if (poe_default_parameters.eMeba_poe_firmware_type ==
+               MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT) {
         // Do poe chip detection and fill
         // ocelot_ctrl.api = ....;
         // ocelot_ctrl.private_data = ....;
         ocelot_pd69200_system.controller_count = 1;
-        ocelot_pd69200_system.controllers = malloc(sizeof(meba_poe_ctrl_inst_t) * ocelot_pd69200_system.controller_count);
+        ocelot_pd69200_system.controllers =
+            malloc(sizeof(meba_poe_ctrl_inst_t) * ocelot_pd69200_system.controller_count);
 
         // overide tMeba_poe_init_params params if using H file parameters
         if (tPoe_init_params->use_poe_static_parameters) {
-            poe_default_parameters.max_poe_ports = sizeof(ocelot_pd69200_2pairs_port_map) / sizeof(meba_poe_port_properties_t);
+            poe_default_parameters.max_poe_ports =
+                sizeof(ocelot_pd69200_2pairs_port_map) / sizeof(meba_poe_port_properties_t);
         }
 
         inst->iface
             .debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
                    "using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                   poe_default_parameters.max_poe_ports, 
-                   ocelot_power_supplies->max_w,
+                   poe_default_parameters.max_poe_ports, ocelot_power_supplies->max_w,
                    poe_default_parameters.eMeba_poe_firmware_type);
-
 
         ocelot_pd69200_system.controllers[0].index = 0;
         meba_pd69200_driver_init(&ocelot_pd69200_system.controllers[0], "pd69x00at",

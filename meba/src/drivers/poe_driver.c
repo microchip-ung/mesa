@@ -2139,7 +2139,8 @@ mesa_rc get_15_bytes_comm_protocol_reply(const meba_poe_ctrl_inst_t *const inst,
                       "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d", __FUNCTION__,
                       private_data->tPoE_parameters.eMeba_poe_firmware_type);
 
-                if (private_data->tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
+                if (private_data->tPoE_parameters.eMeba_poe_firmware_type ==
+                    MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
                     return check_for_poe_BT_Gen7_firmware_errors(inst, rx_data, ptBT_System_Status);
                 } else {
 
@@ -3774,8 +3775,7 @@ static mesa_rc meba_poe_pd_firmware_upgrade(const meba_poe_ctrl_inst_t *const in
     software_version_t tSoftware_version;
     mesa_rc            valid = meba_poe_pd_get_software_version(inst, &tSoftware_version);
 
-    if (private_data->tPoE_parameters.eMeba_poe_firmware_type ==
-        MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
+    if (private_data->tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
         if (!microsemi_firmware) { // Use built-in firmware
             struct stat st;
 
@@ -8597,8 +8597,7 @@ mesa_rc meba_poe_ctrl_pd_bt_chip_initialization(const meba_poe_ctrl_inst_t *cons
 
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
           "%s(%s): power_supply_max_power_w=%d, power_limit_w=%d, current_global_cfg->power_supply_poe_limit_w=%d",
-          __FUNCTION__, inst->adapter_name,
-          inst->psu_map->max_w, power_limit_w,
+          __FUNCTION__, inst->adapter_name, inst->psu_map->max_w, power_limit_w,
           current_global_cfg->power_supply_poe_limit_w);
 
     current_global_cfg->power_supply_poe_limit_w = power_limit_w;
@@ -8898,7 +8897,7 @@ void meba_pd_bt_driver_init(meba_poe_ctrl_inst_t       *inst,
 
     // Make sure initial value is different from configured value as configuration only is applied
     // when values are different.
-    private_data->cfg.global.power_supply_poe_limit_w =  psu_map->max_w;
+    private_data->cfg.global.power_supply_poe_limit_w = psu_map->max_w;
 
     inst->api = &meba_pd_bt_api;
     inst->private_data = private_data;
