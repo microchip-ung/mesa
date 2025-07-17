@@ -955,6 +955,8 @@ vtss_rc vtss_cil_l2_iflow_conf_set(struct vtss_state_s *vtss_state, const vtss_i
         /* VOE reference, do not point at Port VOE */
         voe_idx = conf->voe_idx;
         voe_valid = TRUE;
+    }
+    if (conf->voe_idx != VTSS_VOE_IDX_NONE) {
         /* Independent MEL when no pointer to active VOE */
         independent_mel = FALSE;
     }
