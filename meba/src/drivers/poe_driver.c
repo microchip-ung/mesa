@@ -2137,10 +2137,9 @@ mesa_rc get_15_bytes_comm_protocol_reply(const meba_poe_ctrl_inst_t *const inst,
 
                 DEBUG(inst, MEBA_TRACE_LVL_INFO,
                       "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d", __FUNCTION__,
-                      private_data->tPoE_parameters.tMeba_poe_firmware_type);
+                      private_data->tPoE_parameters.eMeba_poe_firmware_type);
 
-                if (private_data->tPoE_parameters.tMeba_poe_firmware_type ==
-                    MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
+                if (private_data->tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
                     return check_for_poe_BT_Gen7_firmware_errors(inst, rx_data, ptBT_System_Status);
                 } else {
 
@@ -2451,7 +2450,7 @@ static mesa_rc meba_poe_pd_get_software_version(const meba_poe_ctrl_inst_t *cons
     ptSoftware_version->build_H = buf[3];        // Gen7 - Build_H #
     ptSoftware_version->product_number = buf[4]; // Prod#
 
-    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
+    if (private_data->tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
         // Major version is the hundreds digit (3)
         ptSoftware_version->sw_version_H = buf[5];
 
@@ -3243,14 +3242,14 @@ static mesa_bool_t is_gen6_firmware_version_identical(const meba_poe_ctrl_inst_t
         // in case user select specific PoE controller - use it instead of the
         // auto detected PoE controller and warn if different
         if ((ePoE_detected_controller_type !=
-             private_data->tPoE_parameters.ePoE_Controller_Type_default) &&
+             private_data->tPoE_parameters.ePoE_gen6_controller_detection_type) &&
             (ePoE_detected_controller_type != MEBA_POE_PD692X0_CONTROLLER_TYPE_AUTO_DETECTION)) {
             DEBUG(inst, MEBA_TRACE_LVL_WARNING,
                   "Detected PoE controller: %d is different than USER selection: %d",
                   ePoE_detected_controller_type,
-                  private_data->tPoE_parameters.ePoE_Controller_Type_default);
+                  private_data->tPoE_parameters.ePoE_gen6_controller_detection_type);
             ePoE_detected_controller_type =
-                private_data->tPoE_parameters.ePoE_Controller_Type_default;
+                private_data->tPoE_parameters.ePoE_gen6_controller_detection_type;
         }
     } else { // RC timeout or OK - try to read the product number
         rc = meba_poe_pd_get_software_version(inst, &tSoftware_version);
@@ -3775,7 +3774,7 @@ static mesa_rc meba_poe_pd_firmware_upgrade(const meba_poe_ctrl_inst_t *const in
     software_version_t tSoftware_version;
     mesa_rc            valid = meba_poe_pd_get_software_version(inst, &tSoftware_version);
 
-    if (private_data->tPoE_parameters.poe_init_params.eMeba_poe_firmware_type ==
+    if (private_data->tPoE_parameters.eMeba_poe_firmware_type ==
         MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
         if (!microsemi_firmware) { // Use built-in firmware
             struct stat st;
@@ -4316,8 +4315,7 @@ mesa_rc meba_poe_ctrl_pd_version_get(const meba_poe_ctrl_inst_t *const inst,
 
     MESA_RC(meba_poe_pd_get_software_version(inst, &tSoftware_version));
 
-    if (private_data->tPoE_parameters.poe_init_params.eMeba_poe_firmware_type ==
-        MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
+    if (private_data->tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
         snprintf(
             value, max_size,
             "HW Version:%d, poe mcu type:0x%X, sw ver:%d.%d, param#:%d, build=%d.%d, internal sw#=0x%04X, boot version=%d",
@@ -4477,9 +4475,9 @@ mesa_rc print_indv_masks_bt(const meba_poe_ctrl_inst_t *const inst, meba_poe_ind
     poe_driver_private_t *private_data = (poe_driver_private_t *)(inst->private_data);
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
-          __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
+          __FUNCTION__, private_data->tPoE_parameters.eMeba_poe_firmware_type);
 
-    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (private_data->tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
         // Turn off lowest priority port, when a higher priority has a PD connected.
         MESA_RC(meba_poe_pd_get_individual_mask(inst, INDV_MASK_BT_IGNORE_HIGHER_PRIORITY_0x00,
                                                 &im_BT->bt_ignore_high_priority,
@@ -4516,9 +4514,9 @@ mesa_rc print_indv_masks_bt(const meba_poe_ctrl_inst_t *const inst, meba_poe_ind
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG, "BT- led_stream_type=%d", im_BT->bt_led_stream_type);
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
-          __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
+          __FUNCTION__, private_data->tPoE_parameters.eMeba_poe_firmware_type);
 
-    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (private_data->tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
         // Layer2 Power Allocation Limit.
         MESA_RC(meba_poe_pd_get_individual_mask(inst,
                                                 INDV_MASK_BT_LAYER2_POWER_ALLOCATION_LIMIT_0x2C,
@@ -4544,9 +4542,9 @@ mesa_rc print_indv_masks_bt(const meba_poe_ctrl_inst_t *const inst, meba_poe_ind
           im_BT->bt_support_lldp_half_priority);
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
-          __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
+          __FUNCTION__, private_data->tPoE_parameters.eMeba_poe_firmware_type);
 
-    if (private_data->tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (private_data->tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
         // HOCPP - high_over Current Pulse Protection
         MESA_RC(meba_poe_pd_get_individual_mask(inst, INDV_MASK_BT_HOCPP_0x50, &im_BT->bt_hocpp,
                                                 "BT- hocpp"));
@@ -5327,7 +5325,7 @@ mesa_rc meba_poe_ctrl_pd69200_prebt_chip_initialization(const meba_poe_ctrl_inst
                                            &power_limit_w));
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: power_supply_max_power_w=%d , power_limit_w=%d",
-          __FUNCTION__, tPoE_parameters.poe_init_params.power_supply_max_power_w, power_limit_w);
+          __FUNCTION__, inst->psu_map->max_w, power_limit_w);
     current_global_cfg->power_supply_poe_limit_w = power_limit_w;
 
     // Read active matrix and compare with intended matrix before programming
@@ -6660,8 +6658,8 @@ void meba_pd69200_driver_init(meba_poe_ctrl_inst_t       *inst,
         private_data->cfg.ports[i].cable_length = 255;
     }
 
-    private_data->cfg.global.power_supply_poe_limit_w =
-        tMeba_poe_parameters.poe_init_params.power_supply_max_power_w;
+    private_data->cfg.global.power_supply_poe_limit_w = psu_map->max_w;
+
     // Make sure initial value is different
     // from configured value as configuration
     // only is applied when values are different.
@@ -6670,7 +6668,7 @@ void meba_pd69200_driver_init(meba_poe_ctrl_inst_t       *inst,
     inst->adapter_name = adapter_name;
     inst->adapter_fd = adapter_fd;
     inst->capabilities = capabilities;
-    inst->port_poe_length = tMeba_poe_parameters.poe_init_params.max_poe_ports;
+    inst->port_poe_length = tMeba_poe_parameters.max_poe_ports;
     inst->port_map = port_map;
     inst->port_map_length = port_map_length;
     inst->psu_map = psu_map;
@@ -8600,7 +8598,7 @@ mesa_rc meba_poe_ctrl_pd_bt_chip_initialization(const meba_poe_ctrl_inst_t *cons
     DEBUG(inst, MEBA_TRACE_LVL_DEBUG,
           "%s(%s): power_supply_max_power_w=%d, power_limit_w=%d, current_global_cfg->power_supply_poe_limit_w=%d",
           __FUNCTION__, inst->adapter_name,
-          tPoE_parameters.poe_init_params.power_supply_max_power_w, power_limit_w,
+          inst->psu_map->max_w, power_limit_w,
           current_global_cfg->power_supply_poe_limit_w);
 
     current_global_cfg->power_supply_poe_limit_w = power_limit_w;
@@ -8619,7 +8617,7 @@ mesa_rc meba_poe_ctrl_pd_bt_chip_initialization(const meba_poe_ctrl_inst_t *cons
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s(%s): syncing BT individual masks parameters", __FUNCTION__,
           inst->adapter_name);
 
-    if (tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
 
         // Turn off lowest priority port, when a higher priority has a PD connected.
         uint8_t ignore_high_priority;
@@ -8685,7 +8683,7 @@ mesa_rc meba_poe_ctrl_pd_bt_chip_initialization(const meba_poe_ctrl_inst_t *cons
         bChangedFlag = true;
     }
 
-    if (tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
         // Layer2 Power Allocation Limit.
         uint8_t layer2_power_allocation_limit;
         MESA_RC(meba_poe_pd_get_individual_mask(inst,
@@ -8732,7 +8730,7 @@ mesa_rc meba_poe_ctrl_pd_bt_chip_initialization(const meba_poe_ctrl_inst_t *cons
         bChangedFlag = true;
     }
 
-    if (tPoE_parameters.tMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
+    if (tPoE_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
 
         // HOCPP - high_over Current Pulse Protection
         uint8_t hocpp;
@@ -8867,8 +8865,8 @@ void meba_pd_bt_driver_init(meba_poe_ctrl_inst_t       *inst,
         .meba_poe_ctrl_port_pd_data_clear = meba_poe_ctrl_pd_bt_port_pd_data_clear,
     };
 
-    if (tMeba_poe_parameters.tMeba_poe_firmware_type ==
-        MEBA_POE_FIRMWARE_TYPE_GEN7_BT) { // Assign Gen7 version
+    // Assign Gen7 version
+    if (tMeba_poe_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN7_BT) {
         meba_pd_bt_api.meba_poe_ctrl_do_detection = meba_poe_ctrl_pd_gen7_do_detection;
         is_firmware_version_identical = is_gen7_firmware_version_identical;
         I2C_OPERATION_DELAY_MS = GEN7_I2C_OPERATION_DELAY_MS;
@@ -8900,15 +8898,14 @@ void meba_pd_bt_driver_init(meba_poe_ctrl_inst_t       *inst,
 
     // Make sure initial value is different from configured value as configuration only is applied
     // when values are different.
-    private_data->cfg.global.power_supply_poe_limit_w =
-        tMeba_poe_parameters.poe_init_params.power_supply_max_power_w;
+    private_data->cfg.global.power_supply_poe_limit_w =  psu_map->max_w;
 
     inst->api = &meba_pd_bt_api;
     inst->private_data = private_data;
     inst->adapter_fd = adapter_fd;
     inst->adapter_name = adapter_name;
     inst->capabilities = capabilities;
-    inst->port_poe_length = tMeba_poe_parameters.poe_init_params.max_poe_ports;
+    inst->port_poe_length = tMeba_poe_parameters.max_poe_ports;
     inst->port_map = port_map;
     inst->port_map_length = port_map_length;
     inst->psu_map = psu_map;
@@ -8923,7 +8920,7 @@ void meba_pd_bt_driver_init(meba_poe_ctrl_inst_t       *inst,
     Set_BT_ParamsByOperationMode(inst);
 
     DEBUG(inst, MEBA_TRACE_LVL_INFO, "%s: private_data->tPoE_parameters.tMeba_poe_firmware_type=%d",
-          __FUNCTION__, private_data->tPoE_parameters.tMeba_poe_firmware_type);
+          __FUNCTION__, private_data->tPoE_parameters.eMeba_poe_firmware_type);
 
     return;
 }

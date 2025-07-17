@@ -16,10 +16,13 @@ typedef void (*pointer_to_meba_poe_io_reset_t)(mesa_bool_t);
 typedef struct {
 
     // the type of the firmware: GEN6_BT, GEN7_BT or PreBT
-    uint8_t tMeba_poe_firmware_type; // meba_poe_firmware_type_t
+    uint8_t eMeba_poe_firmware_type; // meba_poe_firmware_type_t
 
     // PD692x0 family detection method
-    uint8_t ePoE_Controller_Type_default; // meba_poe_controller_type_t
+    uint8_t ePoE_gen6_controller_detection_type;
+
+    // number of active PoE controllers
+    uint8_t poe_controllers_count;
 
     // BT complient port operation Mode
     uint8_t bt_operation_mode_compliant_15w_default;
@@ -40,9 +43,6 @@ typedef struct {
 
     // gpio number used to reset poe ports
     uint8_t reset_poe_gpio_number;
-
-    // the final (from appl or from api h file) init parameters to init poe module
-    meba_poe_init_params_t poe_init_params;
 
     // prebt - power higher priority port.
     uint8_t indv_mask_prebt_ignore_higher_priority_default;
@@ -110,6 +110,9 @@ typedef struct {
 
     // Selects the start condition. (Not recommended for new designs, keep 0x00).
     uint8_t prebt_pm3_default;
+
+    // extra information
+    uint8_t max_poe_ports;
 } meba_poe_parameters_t;
 
 /**

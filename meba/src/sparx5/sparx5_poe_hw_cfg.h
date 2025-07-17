@@ -37,7 +37,7 @@
 // Set the number of PoE controllers (can be 1 or 2):
 // MEBA_POE_ONE_CONTROLLER
 // MEBA_POE_TWO_CONTROLLERS
-#define SPARX5_POE_CONTROLLERS_COUNT MEBA_POE_TWO_CONTROLLERS
+#define SPARX5_POE_CONTROLLERS_COUNT_DEFAULT MEBA_POE_TWO_CONTROLLERS
 
 //--- poe card gen6 mcu i2c address ---//
 
@@ -511,6 +511,7 @@ meba_poe_port_properties_t sparx5_pd69777_4pairs_port_map[] = {
 //----------------------------------------------------------//
 
 // laguna (lan969x) has 4pairs and both PREBT, Gen BT and Gen7 BT implementations
+// laguna has only 1 poe card (one PoE controller)
 
 //------ LAGUNA general parameters ------//
 
@@ -530,11 +531,6 @@ meba_poe_port_properties_t sparx5_pd69777_4pairs_port_map[] = {
 // MEBA_POE_FIRMWARE_TYPE_GEN6_BT
 // MEBA_POE_FIRMWARE_TYPE_GEN7_BT
 #define LAGUNA_POE_FIRMWARE_TYPE_DEFAULT MEBA_POE_FIRMWARE_TYPE_GEN6_BT
-
-// Set the number of PoE controllers (can be 1 or 2):
-// MEBA_POE_ONE_CONTROLLER
-// MEBA_POE_TWO_CONTROLLERS
-#define LAGUNA_POE_CONTROLLERS_COUNT MEBA_POE_ONE_CONTROLLER
 
 //--- poe card gen6 mcu i2c address (0x1 - 0xFE) ---//
 

@@ -581,8 +581,10 @@ typedef struct {
 typedef struct {
     mesa_bool_t use_poe_static_parameters;
 
-    uint8_t max_poe_ports; // Max number of POE channels (6/12/24/48)
+    // maximum number of POE ports
+    uint8_t max_poe_ports;
 
+    // when PS external (DC) or internal (AC)
     meba_power_supply_int_ext_t ePower_supply_internal_external;
 
     // Power Supply Max-Power(Watt): after decrementing internal power consumption (450 -> 430,etc)
@@ -597,8 +599,14 @@ typedef struct {
     // Product name - retrieved from DB according to product being detected
     char product_name_string[MAX_PORD_NAME_STR_LEN + 1];
 
-    // AF/AT ,BT
+    // poe type gen6 prebt ,gen6 BT, gen7 BT
     meba_poe_firmware_type_t eMeba_poe_firmware_type;
+
+    // poe type from tag
+    uint8_t poe_type_from_tag;
+
+    // poe controllers count from tag
+    uint8_t poe_controllers_count_from_tag;	
 } meba_poe_init_params_t;
 
 // PoE port pd version 3,4 data.
