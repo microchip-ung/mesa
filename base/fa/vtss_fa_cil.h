@@ -147,45 +147,45 @@
 #define RT_TOD_ACC_PIN               4 // The last PTP pin is not connected to GPIO but can be used for TOD access
 #else
 #define RT_CHIP_PORTS                 30U
-#define RT_SERDES_10G_START           0
-#define RT_SERDES_25G_START           0
-#define RT_SERDES_CNT                 10
-#define RT_CMU_CNT                    6
-#define RT_BUFFER_MEMORY              1572864
-#define RT_BUFFER_REFERENCE           8548
-#define RT_RES_CFG_MAX_PORT_IDX       280
-#define RT_RES_CFG_MAX_PRIO_IDX       315
-#define RT_RES_CFG_MAX_COLOUR_IDX     323
-#define RT_CORE_QUEUE_CNT             9030
-#define RT_TAS_NUMBER_OF_LISTS        60
-#define RT_TAS_NUMBER_OF_PROFILES     30
-#define RT_TAS_NUMBER_OF_ENTRIES      3000
-#define RT_HSCH_LAYERS                4
-#define RT_HSCH_L0_SES                1120
-#define RT_HSCH_SE_HIGH               1120
-#define RT_HSCH_L1_SES                32
-#define RT_HSCH_L2_SES                35
-#define RT_HSCH_L3_QSHPS              1120
-#define RT_HSCH_MAX_RATE_GROUP_0      655355
-#define RT_HSCH_MAX_RATE_GROUP_1      1048568
-#define RT_HSCH_MAX_RATE_GROUP_2      6553550
-#define RT_HSCH_MAX_RATE_GROUP_3      10485680
-#define RT_HSCH_MAX_RATE_QSHP_GROUP_0 1048568
-#define RT_HSCH_MAX_RATE_QSHP_GROUP_1 2621420
-#define RT_HSCH_MAX_RATE_QSHP_GROUP_2 6553550
-#define RT_HSCH_MAX_RATE_QSHP_GROUP_3 10485680
-#define RT_LB_GROUP_CNT               5
-#define RT_LB_SET_CNT                 496
-#define RT_ACL_CNT_SIZE               1024
-#define RT_ES2_CNT_SIZE               512
-#define RT_IP6PFX_CNT                 256
+#define RT_SERDES_10G_START           0U
+#define RT_SERDES_25G_START           0U
+#define RT_SERDES_CNT                 10U
+#define RT_CMU_CNT                    6U
+#define RT_BUFFER_MEMORY              1572864U
+#define RT_BUFFER_REFERENCE           8548U
+#define RT_RES_CFG_MAX_PORT_IDX       280U
+#define RT_RES_CFG_MAX_PRIO_IDX       315U
+#define RT_RES_CFG_MAX_COLOUR_IDX     323U
+#define RT_CORE_QUEUE_CNT             9030U
+#define RT_TAS_NUMBER_OF_LISTS        60U
+#define RT_TAS_NUMBER_OF_PROFILES     30U
+#define RT_TAS_NUMBER_OF_ENTRIES      3000U
+#define RT_HSCH_LAYERS                4U
+#define RT_HSCH_L0_SES                1120U
+#define RT_HSCH_SE_HIGH               1120U
+#define RT_HSCH_L1_SES                32U
+#define RT_HSCH_L2_SES                35U
+#define RT_HSCH_L3_QSHPS              1120U
+#define RT_HSCH_MAX_RATE_GROUP_0      655355U
+#define RT_HSCH_MAX_RATE_GROUP_1      1048568U
+#define RT_HSCH_MAX_RATE_GROUP_2      6553550U
+#define RT_HSCH_MAX_RATE_GROUP_3      10485680U
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_0 1048568U
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_1 2621420U
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_2 6553550U
+#define RT_HSCH_MAX_RATE_QSHP_GROUP_3 10485680U
+#define RT_LB_GROUP_CNT               5U
+#define RT_LB_SET_CNT                 496U
+#define RT_ACL_CNT_SIZE               1024U
+#define RT_ES2_CNT_SIZE               512U
+#define RT_IP6PFX_CNT                 256U
 #define RT_PGID_FA                    (1024U + 30U)
-#define RT_DSM_CAL_MAX_DEVS_PER_TAXI  10
-#define RT_DSM_CAL_TAXIS              5
-#define RT_EXT_CLK_PIN                4 // PIN configuration for external clock
-#define RT_ALT_LDST_PIN               5
-#define RT_ALT_PPS_PIN                4
-#define RT_TOD_ACC_PIN                7 // The last PTP pin is not connected to GPIO but can be used for TOD access
+#define RT_DSM_CAL_MAX_DEVS_PER_TAXI  10U
+#define RT_DSM_CAL_TAXIS              5U
+#define RT_EXT_CLK_PIN                4U // PIN configuration for external clock
+#define RT_ALT_LDST_PIN               5U
+#define RT_ALT_PPS_PIN                4U
+#define RT_TOD_ACC_PIN                7U // The last PTP pin is used for TOD access
 #endif
 
 // Buffer cell size
@@ -201,7 +201,7 @@
 #define RT_CHIP_PORTS_ALL  (RT_CHIP_PORT_CPU + 5U) /* Total number of ports */
 
 // TAS constants
-#define RT_TAS_NUMBER_OF_ENTRIES_PER_BLOCK 32
+#define RT_TAS_NUMBER_OF_ENTRIES_PER_BLOCK 32U
 #define RT_TAS_NUMBER_OF_BLOCKS_PER_ROW                                                            \
     (VTSS_QOS_TAS_GCL_LEN_MAX / VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK)
 #define RT_TAS_NUMBER_OF_ENTRIES_PER_ROW VTSS_QOS_TAS_GCL_LEN_MAX
@@ -218,13 +218,13 @@
 #define VTSS_TO_DEV10G(port) vtss_to_dev10g(vtss_state, port)
 #define VTSS_TO_DEV25G(port) vtss_to_dev25g(vtss_state, port)
 #define VTSS_TO_HIGH_DEV(port)                                                                     \
-    (VTSS_PORT_IS_5G(port) != 0)    ? VTSS_TO_DEV5G(port)                                          \
-    : (VTSS_PORT_IS_10G(port) != 0) ? VTSS_TO_DEV10G(port)                                         \
-                                    : VTSS_TO_DEV25G(port)
+    (VTSS_PORT_IS_5G(port) != 0U)    ? VTSS_TO_DEV5G(port)                                         \
+    : (VTSS_PORT_IS_10G(port) != 0U) ? VTSS_TO_DEV10G(port)                                        \
+                                     : VTSS_TO_DEV25G(port)
 #define VTSS_TO_PCS_TGT(port)                                                                      \
-    (VTSS_PORT_IS_5G(port) != 0)    ? vtss_to_pcs5g(vtss_state, port)                              \
-    : (VTSS_PORT_IS_10G(port) != 0) ? vtss_to_pcs10g(vtss_state, port)                             \
-                                    : vtss_to_pcs25g(vtss_state, port)
+    (VTSS_PORT_IS_5G(port) != 0U)    ? vtss_to_pcs5g(vtss_state, port)                             \
+    : (VTSS_PORT_IS_10G(port) != 0U) ? vtss_to_pcs10g(vtss_state, port)                            \
+                                     : vtss_to_pcs25g(vtss_state, port)
 #define VTSS_TO_SD_CMU(indx)     vtss_to_sd_cmu(vtss_state, indx)
 #define VTSS_TO_SD_CMU_CFG(indx) vtss_to_sd_cmu_cfg(vtss_state, indx)
 #define VTSS_TO_SD6G_LANE(indx)  vtss_to_sd6g_lane(vtss_state, indx)
@@ -552,11 +552,11 @@ u32     vtss_to_pcs10g(vtss_state_t *vtss_state, u32 port);
 u32     vtss_to_pcs25g(vtss_state_t *vtss_state, u32 port);
 
 /* Serdes functions */
-#define FA_SERDES_TYPE_UNKNOWN 0
-#define FA_SERDES_CMU          14
-#define FA_SERDES_TYPE_6G      6
-#define FA_SERDES_TYPE_10G     10
-#define FA_SERDES_TYPE_25G     25
+#define FA_SERDES_TYPE_UNKNOWN 0U
+#define FA_SERDES_CMU          14U
+#define FA_SERDES_TYPE_6G      6U
+#define FA_SERDES_TYPE_10G     10U
+#define FA_SERDES_TYPE_25G     25U
 vtss_rc vtss_fa_port2sd(vtss_state_t  *vtss_state,
                         vtss_port_no_t port_no,
                         u32           *sd_indx,

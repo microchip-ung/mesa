@@ -234,7 +234,7 @@ vtss_rc _vtss_ts_domain_timeofday_get(const vtss_inst_t       inst,
     vtss_rc       rc;
 
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = vtss_cil_ts_domain_timeofday_get(vtss_state, domain, ts, tc);
+        rc = vtss_cil_ts_domain_tod_get(vtss_state, domain, ts, tc);
     }
 
     return rc;
@@ -288,7 +288,7 @@ vtss_rc vtss_ts_timeofday_next_pps_get(const vtss_inst_t inst, vtss_timestamp_t 
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = vtss_cil_ts_timeofday_next_pps_get(vtss_state, ts);
+        rc = vtss_cil_ts_tod_next_pps_get(vtss_state, ts);
     }
     VTSS_EXIT();
     return rc;
@@ -302,7 +302,7 @@ vtss_rc vtss_ts_timeofday_prev_pps_get(const vtss_inst_t inst, vtss_timestamp_t 
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = vtss_cil_ts_timeofday_prev_pps_get(vtss_state, ts);
+        rc = vtss_cil_ts_tod_prev_pps_get(vtss_state, ts);
     }
     VTSS_EXIT();
     return rc;
@@ -381,7 +381,7 @@ vtss_rc vtss_ts_domain_timeofday_set_delta(const vtss_inst_t       inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = vtss_cil_ts_domain_timeofday_set_delta(vtss_state, domain, ts, negative);
+        rc = vtss_cil_ts_domain_tod_set_delta(vtss_state, domain, ts, negative);
     }
     VTSS_EXIT();
     return rc;
@@ -646,7 +646,7 @@ vtss_rc vtss_ts_timeofday_next_pps_set(const vtss_inst_t inst, const vtss_timest
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = vtss_cil_ts_timeofday_next_pps_set(vtss_state, ts);
+        rc = vtss_cil_ts_tod_next_pps_set(vtss_state, ts);
     }
     VTSS_EXIT();
     return rc;

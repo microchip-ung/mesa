@@ -666,12 +666,12 @@ vtss_rc vtss_cil_ts_timeofday_raw(struct vtss_state_s *vtss_state, vtss_timestam
     return VTSS_RC_ERROR;
 }
 
-vtss_rc vtss_cil_ts_timeofday_next_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_tod_next_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts)
 {
     return VTSS_RC_ERROR;
 }
 
-vtss_rc vtss_cil_ts_timeofday_prev_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_tod_prev_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts)
 {
     return VTSS_RC_ERROR;
 }
@@ -817,10 +817,10 @@ static vtss_rc l26_ts_init(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
-                                         u32               domain,
-                                         vtss_timestamp_t *ts,
-                                         u64              *tc)
+vtss_rc vtss_cil_ts_domain_tod_get(vtss_state_t     *vtss_state,
+                                   u32               domain,
+                                   vtss_timestamp_t *ts,
+                                   u64              *tc)
 {
     if (domain == 0) {
         return vtss_cil_ts_timeofday_get(vtss_state, ts, tc);
@@ -840,10 +840,10 @@ vtss_rc vtss_cil_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
     }
 }
 
-vtss_rc vtss_cil_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_state,
-                                               u32                     domain,
-                                               const vtss_timestamp_t *ts,
-                                               BOOL                    negative)
+vtss_rc vtss_cil_ts_domain_tod_set_delta(vtss_state_t           *vtss_state,
+                                         u32                     domain,
+                                         const vtss_timestamp_t *ts,
+                                         BOOL                    negative)
 {
     if (domain == 0) {
         return vtss_cil_ts_timeofday_set_delta(vtss_state, ts, negative);

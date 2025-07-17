@@ -27,32 +27,32 @@ extern "C" {
 
 /** \brief Number of clock cycle counts pr sec. */
 #if defined(VTSS_ARCH_OCELOT)
-#define VTSS_HW_TIME_CNT_PR_SEC 1000000000 /* Serval counts ns instead of clock cycles */
+#define VTSS_HW_TIME_CNT_PR_SEC 1000000000U /* Serval counts ns instead of clock cycles */
 /** \brief Number of nanoseconds pr clock count. */
-#define VTSS_HW_TIME_NSEC_PR_CNT 1
+#define VTSS_HW_TIME_NSEC_PR_CNT 1U
 #endif
 #if defined(VTSS_ARCH_LUTON26)
-#define VTSS_HW_TIME_CNT_PR_SEC 250000000 /* L26 counts clock cycles instead of ns */
+#define VTSS_HW_TIME_CNT_PR_SEC 250000000U /* L26 counts clock cycles instead of ns */
 /** \brief Number of nanoseconds pr clock count. */
-#define VTSS_HW_TIME_NSEC_PR_CNT 4
+#define VTSS_HW_TIME_NSEC_PR_CNT 4U
 #endif
 #if defined(VTSS_ARCH_LAN966X) /* TBD. Check/set correct value */
-#define VTSS_HW_TIME_CNT_PR_SEC 1000000000
+#define VTSS_HW_TIME_CNT_PR_SEC 1000000000U
 /** \brief Number of nanoseconds pr clock count. */
-#define VTSS_HW_TIME_NSEC_PR_CNT  1
-#define VTSS_HW_TIME_MIN_ADJ_RATE 10 /* 1 ppb */
+#define VTSS_HW_TIME_NSEC_PR_CNT  1U
+#define VTSS_HW_TIME_MIN_ADJ_RATE 10U /* 1 ppb */
 #endif
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-#define VTSS_HW_TIME_CNT_PR_SEC 1000000000
+#define VTSS_HW_TIME_CNT_PR_SEC 1000000000U
 /** \brief Number of nanoseconds pr clock count. */
-#define VTSS_HW_TIME_NSEC_PR_CNT 1
+#define VTSS_HW_TIME_NSEC_PR_CNT 1U
 #endif
 
 #if defined(VTSS_ARCH_FA) || defined(VTSS_ARCH_LAN966X)
 /** \brief All the newer platforms do not use separate time counter for timestamping
  *   other than LTC. So time wrap around limit is same as nano second rollover i.e. 10^9. */
-#define VTSS_HW_TIME_WRAP_LIMIT 1000000000
+#define VTSS_HW_TIME_WRAP_LIMIT 1000000000U
 #endif
 
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2)
@@ -60,57 +60,57 @@ extern "C" {
  *   caracal, ocelot and Jaguar-2 maintain 32-bit time counter for ingress timestamps. This
  *   counter wraps when 0xffffffff is reached. So, wrap around value is obtained by adding 1
  *   to this value. */
-#define VTSS_HW_TIME_WRAP_LIMIT 0 /* time counter wrap around limit+1 (=0 if wrap at 0xffffffff) */
+#define VTSS_HW_TIME_WRAP_LIMIT 0U /* time counter wrap around limit+1 (=0 if wrap at 0xffffffff) */
 #endif
 
 #if defined(VTSS_ARCH_LUTON26)
 /** \brief Luton26 minimum adjustment rate in units of 0,1 ppb. */
-#define VTSS_HW_TIME_MIN_ADJ_RATE 40 /* 4 ppb */
+#define VTSS_HW_TIME_MIN_ADJ_RATE 40U /* 4 ppb */
 #endif
 #if defined(VTSS_ARCH_OCELOT)
 /** \brief Serval minimum adjustment rate in units of 0,1 ppb. */
-#define VTSS_HW_TIME_MIN_ADJ_RATE 10 /* 1 ppb */
+#define VTSS_HW_TIME_MIN_ADJ_RATE 10U /* 1 ppb */
 #endif
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 /** \brief Jaguar 2 minimum adjustment rate in units of 0,1 ppb. */
-#define VTSS_HW_TIME_MIN_ADJ_RATE 10 /* 1 ppb */
+#define VTSS_HW_TIME_MIN_ADJ_RATE 10U /* 1 ppb */
 #endif
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 /** \brief Number of Jaguar2 PTP pins, that can be used as 1PPS or clock
  * output/input. */
-#define VTSS_TS_IO_ARRAY_SIZE 8
+#define VTSS_TS_IO_ARRAY_SIZE 8U
 /** \brief Number of separate clock domains in Jaguar2 */
-#define VTSS_TS_DOMAIN_ARRAY_SIZE 3
+#define VTSS_TS_DOMAIN_ARRAY_SIZE 3U
 #elif defined(VTSS_ARCH_LAN966X)
 /** \brief Number of LAN966X PTP pins, that can be used as 1PPS or clock
  * output/input. */
-#define VTSS_TS_IO_ARRAY_SIZE     7
+#define VTSS_TS_IO_ARRAY_SIZE     7U
 /** \brief Number of separate clock domains in LAN966X */
-#define VTSS_TS_DOMAIN_ARRAY_SIZE 3
+#define VTSS_TS_DOMAIN_ARRAY_SIZE 3U
 #elif defined(VTSS_ARCH_OCELOT)
 /** \brief Number of Ocelot PTP pins that can be used as 1 PPS or clock
  * output/input. */
-#define VTSS_TS_IO_ARRAY_SIZE     4
+#define VTSS_TS_IO_ARRAY_SIZE     4U
 /** \brief Number of separate clock domains in Ocelot */
-#define VTSS_TS_DOMAIN_ARRAY_SIZE 1
+#define VTSS_TS_DOMAIN_ARRAY_SIZE 1U
 #else
 /** \brief Number of L26 or Serval PTP pins, that can be used as 1PPS or clock
  * output/input. */
-#define VTSS_TS_IO_ARRAY_SIZE     1
+#define VTSS_TS_IO_ARRAY_SIZE     1U
 /** \brief Number of separate clock domains in L26 */
-#define VTSS_TS_DOMAIN_ARRAY_SIZE 1
+#define VTSS_TS_DOMAIN_ARRAY_SIZE 1U
 #endif
 
 #if defined(VTSS_ARCH_FA)
 /** \brief Number of Automatic Delay Response controllers in SparX-5 */
-#define VTSS_TS_RESP_CTRL_ARRAY_SIZE 4
+#define VTSS_TS_RESP_CTRL_ARRAY_SIZE 4U
 #endif
 
 /** \brief This is the max time offset adjustment that os done without setting
  * ports in disabled state */
-#define VTSS_HW_TIME_MAX_FINE_ADJ 25
+#define VTSS_HW_TIME_MAX_FINE_ADJ 25U
 
 // TSN global configuration
 typedef struct {

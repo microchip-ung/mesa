@@ -14,20 +14,20 @@ static vtss_gpio_func_info_t ptp_gpio[GPIO_FUNC_INFO_SIZE] = {};
 
 static u64 nominal_tod_increment = 0;
 
-#define HW_NS_PR_SEC    1000000000L
-#define HW_PS_PR_SEC    1000000000000LL
-#define HW_PS_PR_NS     1000
-#define ADJ_UNITS_PR_NS 10
-#define PPS_WIDTH       1000000 /* Width of 1PPS pulse in ns */
+#define HW_NS_PR_SEC    1000000000U
+#define HW_PS_PR_SEC    1000000000000ULL
+#define HW_PS_PR_NS     1000U
+#define ADJ_UNITS_PR_NS 10U
+#define PPS_WIDTH       1000000U /* Width of 1PPS pulse in ns */
 
 /* Actions on PTP pins */
-#define PTP_PIN_ACTION_IDLE   0
-#define PTP_PIN_ACTION_LOAD   1
-#define PTP_PIN_ACTION_SAVE   2
-#define PTP_PIN_ACTION_CLOCK  3
-#define PTP_PIN_ACTION_DELTA  4
-#define PTP_PIN_ACTION_NOSYNC 0
-#define PTP_PIN_ACTION_SYNC   3
+#define PTP_PIN_ACTION_IDLE   0U
+#define PTP_PIN_ACTION_LOAD   1U
+#define PTP_PIN_ACTION_SAVE   2U
+#define PTP_PIN_ACTION_CLOCK  3U
+#define PTP_PIN_ACTION_DELTA  4U
+#define PTP_PIN_ACTION_NOSYNC 0U
+#define PTP_PIN_ACTION_SYNC   3U
 
 /* ACTION has to be done in two steps. First write SYNC and DOMAIN and then the
  * ACTION. */
@@ -41,6 +41,20 @@ static u64 nominal_tod_increment = 0;
     REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(pin), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_ACTION(act),   \
             VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_ACTION);
 
+static vtss_gpio_mode_t gpio_mode_calc(vtss_gpio_func_alt_t func_alt)
+{
+    vtss_gpio_mode_t ret;
+
+    switch (func_alt) {
+    case VTSS_GPIO_FUNC_ALT_0: ret = VTSS_GPIO_ALT_0; break;
+    case VTSS_GPIO_FUNC_ALT_1: ret = VTSS_GPIO_ALT_1; break;
+    case VTSS_GPIO_FUNC_ALT_2: ret = VTSS_GPIO_ALT_2; break;
+    case VTSS_GPIO_FUNC_ALT_3: ret = VTSS_GPIO_ALT_3; break;
+    default:                   ret = VTSS_GPIO_ALT_0; break;
+    }
+    return ret;
+}
+
 static vtss_rc fa_ts_io_pin_timeofday_get(vtss_state_t     *vtss_state,
                                           u32               io,
                                           vtss_timestamp_t *ts,
@@ -49,7 +63,7 @@ static vtss_rc fa_ts_io_pin_timeofday_get(vtss_state_t     *vtss_state,
     u32 value;
 
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(io), &value);
-    ts->sec_msb = VTSS_X_DEVCPU_PTP_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(value);
+    ts->sec_msb = (u16)VTSS_X_DEVCPU_PTP_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(value);
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(io), &ts->seconds);
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(io), &value);
     ts->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(value);
@@ -59,11 +73,11 @@ static vtss_rc fa_ts_io_pin_timeofday_get(vtss_state_t     *vtss_state,
         ts->nanoseconds = 999999984U + (ts->nanoseconds & 0xfU);
     }
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(io), &value);
-    ts->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(value)
-                          << 8U; /* In register it is 8 bit nano second fragments. Must return in
-                                   16 bit nano second fragments */
-    *tc = ((u64)ts->nanoseconds << 16U) + (u64)ts->nanosecondsfrac; /* Must return tc in 16 bit nano
-                                                                      second fragments */
+    /* In register it is 8 bit nano second fragments.
+       Must return in 16 bit nano second fragments */
+    ts->nanosecondsfrac = (u16)(VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(value) << 8U);
+    /* Must return tc in 16 bit nano second fragments */
+    *tc = ((u64)ts->nanoseconds << 16U) + (u64)ts->nanosecondsfrac;
     return VTSS_RC_OK;
 }
 
@@ -81,15 +95,10 @@ static vtss_rc fa_ts_supported(vtss_state_t *vtss_state)
     return (vtss_state->vtss_features[FEATURE_TIMESTAMP] ? VTSS_RC_OK : VTSS_RC_ERROR);
 }
 
-vtss_rc vtss_cil_ts_timeofday_sample(vtss_state_t *vtss_state)
-{
-    return fa_ts_supported(vtss_state);
-}
-
-vtss_rc vtss_cil_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
-                                         u32               domain,
-                                         vtss_timestamp_t *ts,
-                                         u64              *tc)
+vtss_rc vtss_cil_ts_domain_tod_get(struct vtss_state_s *vtss_state,
+                                   u32                  domain,
+                                   vtss_timestamp_t    *ts,
+                                   u64                 *tc)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
     VTSS_RC(fa_ts_timeofday_read(vtss_state, domain, ts, tc));
@@ -98,10 +107,10 @@ vtss_rc vtss_cil_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_timeofday_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts, u64 *tc)
+vtss_rc vtss_cil_ts_timeofday_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts, u64 *tc)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    return vtss_cil_ts_domain_timeofday_get(vtss_state, 0U, ts, tc);
+    return vtss_cil_ts_domain_tod_get(vtss_state, 0U, ts, tc);
 }
 
 static vtss_rc fa_ts_domain_timeofday_prev_pps_get(vtss_state_t     *vtss_state,
@@ -120,9 +129,9 @@ static vtss_rc fa_ts_domain_timeofday_prev_pps_get(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state_t     *vtss_state,
-                                                  u32               domain,
-                                                  vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_domain_timeofday_next_pps_get(struct vtss_state_s *vtss_state,
+                                                  u32                  domain,
+                                                  vtss_timestamp_t    *ts)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
     VTSS_RC(fa_ts_domain_timeofday_prev_pps_get(vtss_state, domain, ts));
@@ -133,19 +142,19 @@ vtss_rc vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_timeofday_next_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_tod_next_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
     return vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state, 0U, ts);
 }
 
-vtss_rc vtss_cil_ts_timeofday_prev_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_tod_prev_pps_get(struct vtss_state_s *vtss_state, vtss_timestamp_t *ts)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
     return fa_ts_domain_timeofday_prev_pps_get(vtss_state, 0U, ts);
 }
 
-vtss_rc vtss_cil_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_state,
+vtss_rc vtss_cil_ts_multi_domain_timeofday_get(struct vtss_state_s    *vtss_state,
                                                const uint32_t          domain_cnt,
                                                vtss_timestamp_t *const ts)
 {
@@ -159,7 +168,7 @@ vtss_rc vtss_cil_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_stat
     for (domain = 0U; domain < domain_cnt; domain++) {
         t_stamp = &ts[domain];
         REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_MSB(domain), &value);
-        t_stamp->sec_msb = VTSS_X_DEVCPU_PTP_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(value);
+        t_stamp->sec_msb = (u16)VTSS_X_DEVCPU_PTP_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(value);
         REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_SEC_LSB(domain), &t_stamp->seconds);
         REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC(domain), &value);
         t_stamp->nanoseconds = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_PTP_CUR_NSEC(value);
@@ -169,8 +178,8 @@ vtss_rc vtss_cil_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_stat
             t_stamp->nanoseconds = 999999984U + (t_stamp->nanoseconds & 0xfU);
         }
         REG_RD(VTSS_DEVCPU_PTP_PTP_CUR_NSEC_FRAC(domain), &value);
-        t_stamp->nanosecondsfrac = VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(value)
-                                   << 8U;
+        t_stamp->nanosecondsfrac =
+            (u16)(VTSS_X_DEVCPU_PTP_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(value) << 8U);
         VTSS_I("domain %u ts sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u",
                domain, t_stamp->sec_msb, t_stamp->seconds, t_stamp->nanoseconds,
                t_stamp->nanosecondsfrac);
@@ -181,7 +190,7 @@ vtss_rc vtss_cil_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_stat
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
+vtss_rc vtss_cil_ts_domain_timeofday_set(struct vtss_state_s    *vtss_state,
                                          u32                     domain,
                                          const vtss_timestamp_t *ts)
 {
@@ -202,13 +211,15 @@ vtss_rc vtss_cil_ts_domain_timeofday_set(vtss_state_t           *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_timeofday_set(struct vtss_state_s *vtss_state, const vtss_timestamp_t *ts)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
     return vtss_cil_ts_domain_timeofday_set(vtss_state, 0U, ts);
 }
 
-vtss_rc vtss_cil_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 domain, i32 offset)
+vtss_rc vtss_cil_ts_domain_timeofday_offset_set(struct vtss_state_s *vtss_state,
+                                                u32                  domain,
+                                                i32                  offset)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
     VTSS_D("offset before: %d", offset);
@@ -221,20 +232,20 @@ vtss_rc vtss_cil_ts_domain_timeofday_offset_set(vtss_state_t *vtss_state, u32 do
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_timeofday_offset_set(vtss_state_t *vtss_state, i32 offset)
+vtss_rc vtss_cil_ts_timeofday_offset_set(struct vtss_state_s *vtss_state, i32 offset)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
     return vtss_cil_ts_domain_timeofday_offset_set(vtss_state, 0U, offset);
 }
 
-vtss_rc vtss_cil_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_state,
-                                               u32                     domain,
-                                               const vtss_timestamp_t *ts,
-                                               BOOL                    negative)
+vtss_rc vtss_cil_ts_domain_tod_set_delta(struct vtss_state_s    *vtss_state,
+                                         u32                     domain,
+                                         const vtss_timestamp_t *ts,
+                                         BOOL                    negative)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    if (ts->seconds > 0U || ts->sec_msb > 0 || ts->nanoseconds > HW_NS_PR_SEC / 2 ||
-        ts->nanosecondsfrac > 0) {
+    if ((ts->seconds > 0U) || (ts->sec_msb > 0U) || (ts->nanoseconds > HW_NS_PR_SEC / 2U) ||
+        (ts->nanosecondsfrac > 0U)) {
         vtss_timestamp_t ts_prev;
         u64              tc;
 
@@ -251,23 +262,23 @@ vtss_rc vtss_cil_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_stat
         return vtss_cil_ts_domain_timeofday_set(vtss_state, domain, &ts_prev);
     } else {
         return vtss_cil_ts_domain_timeofday_offset_set(vtss_state, domain,
-                                                       negative ? (i32)ts->nanoseconds
-                                                                : -ts->nanoseconds);
+                                                       (negative) ? (i32)ts->nanoseconds
+                                                                  : -(i32)ts->nanoseconds);
     }
 }
 
-vtss_rc vtss_cil_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
+vtss_rc vtss_cil_ts_timeofday_set_delta(struct vtss_state_s    *vtss_state,
                                         const vtss_timestamp_t *ts,
                                         BOOL                    negative)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
-    return vtss_cil_ts_domain_timeofday_set_delta(vtss_state, 0U, ts, negative);
+    return vtss_cil_ts_domain_tod_set_delta(vtss_state, 0U, ts, negative);
 }
 
-vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
+vtss_rc vtss_cil_ts_domain_adjtimer_set(struct vtss_state_s *vtss_state, u32 domain)
 {
     i32 adj;
-    u32 adj_abs, dom_mask = 0x01U << domain;
+    u32 adj_abs, dom_mask = (u32)0x01U << domain;
     u64 tod_inc, one_pico, tod_delta, tod_trunk;
 
     VTSS_RC(fa_ts_supported(vtss_state));
@@ -279,9 +290,7 @@ vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
         return VTSS_RC_ERROR;
     }
     adj = vtss_state->ts.conf.adj[domain];
-    if (adj >= -2147483648) {
-        adj_abs = VTSS_LABS(adj);
-    }
+    adj_abs = (u32)VTSS_ABS(adj);
 
     tod_inc = nominal_tod_increment; /* Fetch the nominal TOD increment as a
                                         baseline */
@@ -290,19 +299,19 @@ vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
      * nominal TOD increment. */
     /* The fraction is given by 'adj' in 1E-10. The calculation is: tod_delta =
      * tod_inc * (adj / 1E10) */
-    tod_trunk = tod_inc % 10000000000LL; /* We will divide before multiplying to avoid overrun.
+    tod_trunk = tod_inc % 10000000000ULL; /* We will divide before multiplying to avoid overrun.
                                             The TOD truncated part is saved in 'tod_trunk' */
-    tod_delta = (tod_inc / 10000000000LL) * adj_abs; /* Divide and then multiply */
+    tod_delta = (tod_inc / 10000000000ULL) * adj_abs; /* Divide and then multiply */
     tod_delta +=
-        (tod_trunk * adj_abs) / 10000000000LL; /* Now the truncated part is multiplied and then
+        (tod_trunk * adj_abs) / 10000000000ULL; /* Now the truncated part is multiplied and then
                                                   divided. Result is added to 'tod_delta' */
 
     /* Check if the delta value is too large */
-    one_pico = 0x0800000000000000 / 1000; /* One pico is one nano divided by 1000. One nano in 5.59
-                                             notation is 0x0800000000000000 */
+    one_pico = 0x0800000000000000U / 1000U; /* One pico is one nano divided by 1000.
+                                               One nano in 5.59 notation is 0x0800000000000000 */
     VTSS_D("adj %d  tod_delta %" PRIu64 "  1.9pico %" PRIu64 "", adj, tod_delta,
-           ((one_pico * 19) / 10));
-    if (tod_delta > (one_pico * 19) / 10) { /* In case the numeric change is more than 1.9 pico
+           ((one_pico * 19U) / 10U));
+    if (tod_delta > (one_pico * 19U) / 10U) { /* In case the numeric change is more than 1.9 pico
                                                seconds, PTP must be restarted so this is rejected */
         VTSS_I("Rejected restarting of PTP due to more than 1.9 pico second change in TOD increment");
         return VTSS_RC_ERROR;
@@ -318,7 +327,7 @@ vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
     /* Configure the new adjusted TOD increment value */
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(dom_mask),
             VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
-    REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 0), (u32)(tod_inc & 0xFFFFFFFF));
+    REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 0), (u32)(tod_inc & 0xFFFFFFFFU));
     REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 1), (u32)(tod_inc >> 32));
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(0),
             VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
@@ -326,14 +335,14 @@ vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_adjtimer_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_adjtimer_set(struct vtss_state_s *vtss_state)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
     return vtss_cil_ts_domain_adjtimer_set(vtss_state, 0U);
 }
 
 /* Set the clock mode for the external clock */
-vtss_rc vtss_cil_ts_external_clock_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_external_clock_mode_set(struct vtss_state_s *vtss_state)
 {
     vtss_ts_ext_clock_mode_t *ext_clock_mode = &vtss_state->ts.conf.ext_clock_mode;
 
@@ -352,13 +361,13 @@ vtss_rc vtss_cil_ts_external_clock_mode_set(vtss_state_t *vtss_state)
                VTSS_F_DEVCPU_PTP_PIN_WF_LOW_PERIOD_PIN_WFL(low_div));
 
         (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_EXT_CLK_PIN].gpio_no,
-                                ptp_gpio[RT_EXT_CLK_PIN].alt);
+                                gpio_mode_calc(ptp_gpio[RT_EXT_CLK_PIN].alt));
         FA_PTP_PIN_ACTION(RT_EXT_CLK_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_NOSYNC,
                           ext_clock_mode->domain);
 
     } else if (ext_clock_mode->one_pps_mode == TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT) {
         (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_EXT_CLK_PIN].gpio_no,
-                                ptp_gpio[RT_EXT_CLK_PIN].alt);
+                                gpio_mode_calc(ptp_gpio[RT_EXT_CLK_PIN].alt));
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_HIGH_PERIOD(RT_EXT_CLK_PIN),
                VTSS_F_DEVCPU_PTP_PIN_WF_HIGH_PERIOD_PIN_WFH(PPS_WIDTH));
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(RT_EXT_CLK_PIN), 0);
@@ -373,14 +382,14 @@ vtss_rc vtss_cil_ts_external_clock_mode_set(vtss_state_t *vtss_state)
 }
 
 /* Get the saved nanosec counter */
-vtss_rc vtss_cil_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const saved)
+vtss_rc vtss_cil_ts_alt_clock_saved_get(struct vtss_state_s *vtss_state, u64 *saved)
 {
     u32 nsec, nsec_frac;
 
     VTSS_RC(fa_ts_supported(vtss_state));
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(RT_ALT_LDST_PIN), &nsec);
     nsec = VTSS_X_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(nsec);
-    if (nsec >= 0x3ffffff0U && nsec <= 0x3fffffffU) { /* -1..-16 = 10^9-1..16 */
+    if (nsec >= 0x3ffffff0U) { /* -1..-16 = 10^9-1..16 */
         nsec = 999999984U + (nsec & 0xfU);
     }
     REG_RD(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(RT_ALT_LDST_PIN), &nsec_frac);
@@ -396,7 +405,7 @@ vtss_rc vtss_cil_ts_alt_clock_saved_get(vtss_state_t *vtss_state, u64 *const sav
  *    BOOL save;               Save actual time counter at next 1 PPS input
  *    BOOL load;               Load actual time counter at next 1 PPS input
  */
-vtss_rc vtss_cil_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_alt_clock_mode_set(struct vtss_state_s *vtss_state)
 {
     vtss_ts_alt_clock_mode_t *alt_clock_mode = &vtss_state->ts.conf.alt_clock_mode;
 
@@ -408,7 +417,7 @@ vtss_rc vtss_cil_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
         REG_WR(VTSS_DEVCPU_PTP_PIN_WF_LOW_PERIOD(RT_ALT_PPS_PIN), 0);
 
         (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_PPS_PIN].gpio_no,
-                                ptp_gpio[RT_ALT_PPS_PIN].alt);
+                                gpio_mode_calc(ptp_gpio[RT_ALT_PPS_PIN].alt));
         FA_PTP_PIN_ACTION(RT_ALT_PPS_PIN, PTP_PIN_ACTION_CLOCK, PTP_PIN_ACTION_SYNC, 0);
     } else {
         (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_PPS_PIN].gpio_no, VTSS_GPIO_IN);
@@ -421,12 +430,14 @@ vtss_rc vtss_cil_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
             return VTSS_RC_ERROR;
         } else if (alt_clock_mode->save) {
             (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_LDST_PIN].gpio_no,
-                                    ptp_gpio[RT_ALT_LDST_PIN].alt);
+                                    gpio_mode_calc(ptp_gpio[RT_ALT_LDST_PIN].alt));
             FA_PTP_PIN_ACTION(RT_ALT_LDST_PIN, PTP_PIN_ACTION_SAVE, PTP_PIN_ACTION_SYNC, 0);
         } else if (alt_clock_mode->load) {
             (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_LDST_PIN].gpio_no,
-                                    ptp_gpio[RT_ALT_LDST_PIN].alt);
+                                    gpio_mode_calc(ptp_gpio[RT_ALT_LDST_PIN].alt));
             FA_PTP_PIN_ACTION(RT_ALT_LDST_PIN, PTP_PIN_ACTION_LOAD, PTP_PIN_ACTION_SYNC, 0);
+        } else {
+            /* MISRA - must be here */
         }
     } else {
         (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[RT_ALT_LDST_PIN].gpio_no, VTSS_GPIO_IN);
@@ -436,14 +447,13 @@ vtss_rc vtss_cil_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
 
 /* Set the time to be loaded into the PTP timer at the next 1PPS
  * It is assumed that this function is called at the beginning of a sec */
-vtss_rc vtss_cil_ts_timeofday_next_pps_set(vtss_state_t                 *vtss_state,
-                                           const vtss_timestamp_t *const ts)
+vtss_rc vtss_cil_ts_tod_next_pps_set(struct vtss_state_s *vtss_state, const vtss_timestamp_t *ts)
 {
     VTSS_RC(fa_ts_supported(vtss_state));
     if (vtss_state->ts.conf.alt_clock_mode.one_pps_in) {
         REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_MSB(RT_ALT_LDST_PIN),
                VTSS_F_DEVCPU_PTP_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(ts->sec_msb));
-        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(RT_ALT_LDST_PIN), ts->seconds - 1);
+        REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_SEC_LSB(RT_ALT_LDST_PIN), ts->seconds - 1U);
         REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC(RT_ALT_LDST_PIN),
                VTSS_F_DEVCPU_PTP_PTP_TOD_NSEC_PTP_TOD_NSEC(ts->nanoseconds));
         REG_WR(VTSS_DEVCPU_PTP_PTP_TOD_NSEC_FRAC(RT_ALT_LDST_PIN),
@@ -455,12 +465,13 @@ vtss_rc vtss_cil_ts_timeofday_next_pps_set(vtss_state_t                 *vtss_st
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_ingress_latency_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf;
-    i32                  rx_delay;
-    u64                  ingr_latency;
-    i64                  sign = 1;
+    u32                  rx_delay;
+    u32                  port = VTSS_CHIP_PORT(port_no);
+    i64                  latency;
+    u64                  one_mia_shift;
 
     VTSS_RC(fa_ts_supported(vtss_state));
     VTSS_D("Enter  port_no %d", port_no);
@@ -471,36 +482,41 @@ vtss_rc vtss_cil_ts_ingress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t
     }
 
     conf = &vtss_state->ts.port_conf[port_no];
-    ingr_latency = VTSS_LLABS(conf->ingress_latency);
-    if (conf->ingress_latency < 0) {
-        if ((ingr_latency >> 16U) > (conf->default_igr_latency / 1000)) {
-            VTSS_I(" Negative ingress latency too high to be configured for port %d", port_no);
-            return VTSS_RC_ERROR;
-        }
-        sign = -1;
-    }
 
-    /* The default_igr_latency is in picoseconds */
-    /* The ingress_latency is in nanoseconds<<16  */
+    /* The ingress_latency is in nanoseconds<<16 so second must also be shifted 16  */
+    one_mia_shift = VTSS_ONE_MIA << 16;
+
+    /* Calculate the Ingress Latency nanosecond part by doing MOD with second */
+    latency = VTSS_MOD64(conf->ingress_latency, (i64)one_mia_shift);
+
+    /* The default_igr_latency is in picoseconds. */
     /* Register is in nanoseconds<<8 */
-    rx_delay = ((VTSS_MOD64(ingr_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8U) * sign) +
-               ((conf->default_igr_latency << 8U) / 1000);
+    /* Signed integer cannot be shifted.
+        dividing by 256 is the same as >> 8
+        multiplying by 256 is the same as << 8 */
+    latency = (latency / 256) + ((conf->default_igr_latency * 256) / 1000);
 
-    if (rx_delay > 0xFFFFFF) { /* Register max value is 0xFFFFFF */
-        rx_delay = 0xFFFFFF;
+    /* The register cannot have negative latency */
+    if (latency < 0) {
+        VTSS_I(" Negative ingress latency too high to be configured for port %d", port_no);
     }
 
-    VTSS_I("rx_delay %d  ingr_latency %u  default_igr_latency %u", rx_delay,
+    rx_delay = (u32)latency;
+
+    if (rx_delay > 0xFFFFFFU) { /* Register max value is 0xFFFFFF */
+        rx_delay = 0xFFFFFFU;
+    }
+
+    VTSS_I("rx_delay %d  ingr_latency %u  default_igr_latency %d", rx_delay,
            VTSS_INTERVAL_NS(conf->ingress_latency), conf->default_igr_latency);
-    u32 port;
-    port = VTSS_CHIP_PORT(port_no);
+
     DEV_WRM(PTP_RXDLY_CFG, port, VTSS_F_DEV1G_PTP_RXDLY_CFG_PTP_RX_IO_DLY(rx_delay),
             VTSS_M_DEV1G_PTP_RXDLY_CFG_PTP_RX_IO_DLY);
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_p2p_delay_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
     i32                  p2p_delay = VTSS_INTERVAL_NS(conf->p2p_delay);
@@ -511,12 +527,13 @@ vtss_rc vtss_cil_ts_p2p_delay_set(vtss_state_t *vtss_state, vtss_port_no_t port_
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_egress_latency_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf;
     u32                  tx_delay;
-    u64                  egr_latency;
-    i64                  sign = 1;
+    u32                  port = VTSS_CHIP_PORT(port_no);
+    i64                  latency;
+    u64                  one_mia_shift;
 
     VTSS_RC(fa_ts_supported(vtss_state));
     VTSS_D("Enter  port_no %d", port_no);
@@ -527,36 +544,41 @@ vtss_rc vtss_cil_ts_egress_latency_set(vtss_state_t *vtss_state, vtss_port_no_t 
     }
 
     conf = &vtss_state->ts.port_conf[port_no];
-    egr_latency = VTSS_LLABS(conf->egress_latency);
-    if (conf->egress_latency < 0) {
-        if ((egr_latency >> 16U) > (conf->default_egr_latency / 1000)) {
-            VTSS_I(" Negative latency too high to be configured for port %d", port_no);
-            return VTSS_RC_ERROR;
-        }
-        sign = -1;
+
+    /* The egress_latency is in nanoseconds<<16 so second must also be shifted 16  */
+    one_mia_shift = VTSS_ONE_MIA << 16;
+
+    /* Calculate the Egress Latency nanosecond part by doing MOD with second */
+    latency = VTSS_MOD64(conf->egress_latency, (i64)one_mia_shift);
+
+    /* The default_egr_latency is in picoseconds. */
+    /* Register is in nanoseconds<<8 */
+    /* Signed integer cannot be shifted.
+        dividing by 256 is the same as >> 8
+        multiplying by 256 is the same as << 8 */
+    latency = (latency / 256) + ((conf->default_egr_latency * 256) / 1000);
+
+    /* The register cannot have negative latency */
+    if (latency < 0) {
+        VTSS_I(" Negative egress latency too high to be configured for port %d", port_no);
     }
 
-    /* The default_egr_latency is in picoseconds */
-    /* The egress_latency is in nanoseconds<<16  */
-    /* Register is in nanoseconds<<8 */
-    tx_delay = ((VTSS_MOD64(egr_latency, ((u64)VTSS_ONE_MIA << 16)) >> 8U) * sign) +
-               ((conf->default_egr_latency << 8U) / 1000);
+    tx_delay = (u32)latency;
 
     if (tx_delay > 0xFFFFFFU) { /* Register max value is 0xFFFFFF */
         tx_delay = 0xFFFFFFU;
     }
-    VTSS_I("tx_delay %u  egress_latency %u  default_egr_latency %u", tx_delay,
+
+    VTSS_I("tx_delay %u  egress_latency %u  default_egr_latency %d", tx_delay,
            VTSS_INTERVAL_NS(conf->egress_latency), conf->default_egr_latency);
 
-    u32 port;
-    port = VTSS_CHIP_PORT(port_no);
     DEV_WRM(PTP_TXDLY_CFG, port, VTSS_F_DEV1G_PTP_TXDLY_CFG_PTP_TX_IO_DLY(tx_delay),
             VTSS_M_DEV1G_PTP_TXDLY_CFG_PTP_TX_IO_DLY);
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_delay_asymmetry_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_delay_asymmetry_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no)
 {
     vtss_ts_port_conf_t *conf = &vtss_state->ts.port_conf[port_no];
     i32                  delay = VTSS_INTERVAL_NS(conf->delay_asymmetry);
@@ -573,9 +595,9 @@ vtss_rc vtss_cil_ts_delay_asymmetry_set(vtss_state_t *vtss_state, vtss_port_no_t
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_operation_mode_set(vtss_state_t  *vtss_state,
-                                       vtss_port_no_t port_no,
-                                       BOOL           mode_domain_config)
+vtss_rc vtss_cil_ts_operation_mode_set(struct vtss_state_s *vtss_state,
+                                       vtss_port_no_t       port_no,
+                                       BOOL                 mode_domain_config)
 {
     vtss_ts_operation_mode_t *o_mode = &vtss_state->ts.port_conf[port_no].mode;
     vtss_ts_mode_t            mode = o_mode->mode;
@@ -583,6 +605,7 @@ vtss_rc vtss_cil_ts_operation_mode_set(vtss_state_t  *vtss_state,
     vtss_ts_internal_fmt_t    fmt = vtss_state->ts.int_mode.int_fmt;
     u32                       mode_val = 0U;
     u32                       port = VTSS_CHIP_PORT(port_no);
+    BOOL                      ret_err = FALSE;
 
     VTSS_RC(fa_ts_supported(vtss_state));
 #if defined(VTSS_FEATURE_TIMESTAMP_PCH)
@@ -661,14 +684,23 @@ vtss_rc vtss_cil_ts_operation_mode_set(vtss_state_t  *vtss_state,
         case TS_INTERNAL_FMT_RESERVED_LEN_30BIT: mode_val = 1U; break;
         case TS_INTERNAL_FMT_RESERVED_LEN_32BIT:
             VTSS_E("unsupported internal timestamp format: %u", fmt);
-            return VTSS_RC_ERROR;
+            ret_err = TRUE;
+            break;
         case TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62:
             VTSS_E("unsupported internal timestamp format: %u", fmt);
-            return VTSS_RC_ERROR;
+            ret_err = TRUE;
+            break;
         case TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF: mode_val = 2U; break;
-        default:                                    VTSS_E("unsupported internal timestamp format: %u", fmt); return VTSS_RC_ERROR;
+        default:
+            VTSS_E("unsupported internal timestamp format: %u", fmt);
+            ret_err = TRUE;
+            break;
         }
     }
+    if (ret_err == TRUE) {
+        return VTSS_RC_ERROR;
+    }
+
     VTSS_I("port %d, mode %d, domain %u,mode_val %u", port_no, mode, domain, mode_val);
     REG_WRM(VTSS_REW_PTP_MODE_CFG(port, 0),
             VTSS_F_REW_PTP_MODE_CFG_PTP_MODE_VAL(mode_val) |
@@ -679,34 +711,39 @@ vtss_rc vtss_cil_ts_operation_mode_set(vtss_state_t  *vtss_state,
                 VTSS_F_REW_PTP_MODE_CFG_PTP_DOM_VAL(domain),
             VTSS_M_REW_PTP_MODE_CFG_PTP_MODE_VAL | VTSS_M_REW_PTP_MODE_CFG_PTP_DOM_VAL);
     // Set up pr port Delay_Req/Resp Processing
-    REG_WRM(VTSS_ANA_ACL_PTP_CFG(port), VTSS_F_ANA_ACL_PTP_CFG_PTP_PORT_NUM(port_no + 1),
+    REG_WRM(VTSS_ANA_ACL_PTP_CFG(port), VTSS_F_ANA_ACL_PTP_CFG_PTP_PORT_NUM(port_no + 1U),
             VTSS_M_ANA_ACL_PTP_CFG_PTP_PORT_NUM);
     // disable central counters in DEVCPU
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0),
-            VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1 << domain));
+            VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA((u32)1U << domain));
     // Set domain in DEV_xxx
     DEV_WRM(PTP_CFG, port, VTSS_F_DEV1G_PTP_CFG_PTP_DOM(domain), VTSS_M_DEV1G_PTP_CFG_PTP_DOM);
     // enable central counters in DEVCPU
-    REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1 << domain),
-            VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(1 << domain));
+    REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA((u32)1U << domain),
+            VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA((u32)1U << domain));
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_internal_mode_set(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_internal_mode_set(struct vtss_state_s *vtss_state)
 {
     vtss_ts_internal_fmt_t fmt = vtss_state->ts.int_mode.int_fmt;
+    vtss_rc                rc = VTSS_RC_OK;
 
     VTSS_RC(fa_ts_supported(vtss_state));
+
     switch (fmt) {
     case TS_INTERNAL_FMT_NONE:
     case TS_INTERNAL_FMT_RESERVED_LEN_30BIT:
     case TS_INTERNAL_FMT_RESERVED_LEN_32BIT:
     case TS_INTERNAL_FMT_SUB_ADD_LEN_44BIT_CF62:
     case TS_INTERNAL_FMT_RESERVED_LEN_48BIT_CF:  break;
-    default:                                     VTSS_E("unsupported internal timestamp format: %u", fmt); return VTSS_RC_ERROR;
+    default:
+        VTSS_E("unsupported internal timestamp format: %u", fmt);
+        rc = VTSS_RC_ERROR;
+        break;
     }
-    return VTSS_RC_OK;
+    return rc;
 }
 
 static u32 api_port(vtss_state_t *vtss_state, u32 chip_port)
@@ -731,7 +768,7 @@ static u32 api_port(vtss_state_t *vtss_state, u32 chip_port)
 }
 
 #if defined(VTSS_ARCH_SPARX5)
-vtss_rc vtss_cil_ts_timestamp_get(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_timestamp_get(struct vtss_state_s *vtss_state)
 {
     u32  value;
     u32  delay;
@@ -775,7 +812,7 @@ vtss_rc vtss_cil_ts_timestamp_get(vtss_state_t *vtss_state)
             vtss_state->ts.status[mess_id].tx_tc[tx_port] = ((u64)delay << 16) | (sub_ns & 0xff)
                                                                                      << 8;
             vtss_state->ts.status[mess_id].tx_id[tx_port] = mess_id;
-            vtss_state->ts.status[mess_id].valid_mask |= 1LL << tx_port;
+            vtss_state->ts.status[mess_id].valid_mask |= 1ULL << tx_port;
         } else {
             VTSS_E("invalid port (%u)", tx_port);
         }
@@ -790,7 +827,7 @@ vtss_rc vtss_cil_ts_timestamp_get(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 #else
-vtss_rc vtss_cil_ts_timestamp_get(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_ts_timestamp_get(struct vtss_state_s *vtss_state)
 {
     u32  value;
     u32  delay;
@@ -801,29 +838,32 @@ vtss_rc vtss_cil_ts_timestamp_get(vtss_state_t *vtss_state)
 
     VTSS_RC(fa_ts_supported(vtss_state));
     REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, &value);
-    while (VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_VLD(value)) {
+    while (VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_VLD(value) != 0U) {
         /* Read TX timestamp */
-        if (!VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_STAMP_TX(value)) {
+        if (VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_STAMP_TX(value) == 0U) {
             VTSS_E("TX timestamp expected but RX timestamp found");
             REG_WR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, VTSS_F_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_NXT(1));
             REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, &value);
             continue;
         }
-        overflow |= VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_OVFL(value);
+        overflow =
+            overflow || ((VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_OVFL(value) != 0U) ? TRUE : FALSE);
         REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC, &delay);
         tx_port = api_port(vtss_state, VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_STAMP_PORT(value));
         REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_SUBNS, &sub_ns);
         /* Read RX timestamp */
         REG_WR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, VTSS_F_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_NXT(1));
         REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, &value);
-        if (!VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_VLD(value) ||
-            VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_STAMP_TX(value)) {
+        if ((VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_VLD(value) == 0U) ||
+            (VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_STAMP_TX(value) != 0U)) {
             VTSS_E("RX timestamp not found");
-            REG_WR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, VTSS_F_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_NXT(1));
+            REG_WR(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL,
+                   VTSS_F_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_NXT(TRUE));
             REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_CTRL, &value);
             continue;
         }
-        overflow |= VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_OVFL(value);
+        overflow =
+            overflow || (VTSS_X_DEVCPU_PTP_PTP_TWOSTEP_CTRL_PTP_OVFL(value) != 0U) ? TRUE : FALSE;
         REG_RD(VTSS_DEVCPU_PTP_PTP_TWOSTEP_STAMP_NSEC, &mess_id);
 
         if (mess_id >= VTSS_TS_ID_SIZE) {
@@ -832,7 +872,7 @@ vtss_rc vtss_cil_ts_timestamp_get(vtss_state_t *vtss_state)
             vtss_state->ts.status[mess_id].tx_tc[tx_port] = ((u64)delay << 16U) | (sub_ns & 0xffU)
                                                                                       << 8U;
             vtss_state->ts.status[mess_id].tx_id[tx_port] = mess_id;
-            vtss_state->ts.status[mess_id].valid_mask |= 1LL << tx_port;
+            vtss_state->ts.status[mess_id].valid_mask |= 1ULL << tx_port;
         } else {
             VTSS_E("invalid port (%u)", tx_port);
         }
@@ -867,7 +907,7 @@ static io_delay_t seriel_25G_rs_delay[VTSS_PORT_COUNT];
  * Signal port status (configuration actually) change (used to detect and
  * compensate for the internal ingress and egress latencies)
  */
-vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_status_change(struct vtss_state_s *vtss_state, vtss_port_no_t port_no)
 {
     vtss_port_interface_t interface;
     vtss_port_speed_t     speed;
@@ -875,21 +915,22 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
     vtss_rc               rc = VTSS_RC_OK, rc2;
     u32                   rx_delay = 0U, tx_delay = 0U, delay_var = 0U;
     u32                   sd_indx, sd_type, sd_lane_tgt, sd_rx_delay_var = 0U, sd_tx_delay_var = 0U;
+    i32                   delay_signed;
     io_delay_t           *dv_factor = NULL;
     io_delay_t            delay_var_factor[5] = {
         {64000U, 128000U},
         {25600U, 51200U },
         {12400U, 15500U },
         {18600U, 24800U },
-        {0000U,  0000U  }
+        {0U,     0U     }
     }; /* SD_LANE_TARGET -   Speed 1G - 2.5G - 5G - 10G - 25G */
 #if defined(VTSS_FEATURE_SD_25G)
     io_delay_t delay_var_factor_25G[5] = {
-        {128000, 128000},
-        {51200,  51200 },
-        {49600,  37200 },
-        {24800,  18600 },
-        {6200,   6200  }
+        {128000U, 128000U},
+        {51200U,  51200U },
+        {49600U,  37200U },
+        {24800U,  18600U },
+        {6200U,   6200U  }
     }; /* SD25G_CFG_TARGET - Speed 1G - 2.5G - 5G - 10G - 25G */
 #endif
 
@@ -950,11 +991,15 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             REG_RD(VTSS_SD_LANE_TARGET_SD_DELAY_VAR(sd_lane_tgt), &value);
             sd_rx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_RX_DELAY_VAR(value);
             sd_tx_delay_var = VTSS_X_SD_LANE_TARGET_SD_DELAY_VAR_TX_DELAY_VAR(value);
-            if ((speed == VTSS_SPEED_5G) &&
-                (LA_TGT || (sd_indx > 12U))) { /* 5 Gbps and (on FA) lane > 12. The delay
-                                                 factor must be corrected */
-                delay_var_factor[2].rx = 37200U;
-                delay_var_factor[2].tx = 49600U;
+            if (speed == VTSS_SPEED_5G) {
+#if !defined(VTSS_ARCH_LAN969X)
+                if (sd_indx > 12U)
+#endif
+                {
+                    /* 5 Gbps and (on FA) lane > 12. The delay factor must be corrected */
+                    delay_var_factor[2].rx = 37200U;
+                    delay_var_factor[2].tx = 49600U;
+                }
             }
 #endif
         }
@@ -979,10 +1024,16 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
                 800U * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value); /* Add the variable delay in
                                                                           the device */
             if (sd_type == FA_SERDES_TYPE_25G) {
-                rx_delay += ((i16)sd_rx_delay_var * (i32)dv_factor[0].rx) /
-                            (i32)65536; /* Add the variable RX delay in the
-                                           SERDES. On 25G SERDES 1G speed
-                                           sd_rx_delay_var is signed */
+                /* Calculate the variable RX delay in the SERDES. */
+                /* On 25G SERDES 1G speed sd_rx_delay_var is signed */
+                delay_signed = ((i16)sd_rx_delay_var * (i32)dv_factor[0].rx) / (i32)65536;
+                /* Add it to the rx_delay */
+                delay_signed = (i32)rx_delay + delay_signed;
+                if (delay_signed < 0) {
+                    VTSS_D("This should not happen - the rx_delay cannot be negative");
+                    delay_signed = 0;
+                }
+                rx_delay = (u32)delay_signed;
             } else {
                 rx_delay += (sd_rx_delay_var * dv_factor[0].rx) /
                             65536U; /* Add the variable RX delay in the SERDES */
@@ -998,10 +1049,16 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
                 320U * VTSS_X_DEV1G_PCS1G_LINK_STATUS_DELAY_VAR(value); /* Add the variable delay in
                                                                           the device */
             if (sd_type == FA_SERDES_TYPE_25G) {
-                rx_delay += ((i16)sd_rx_delay_var * (i32)dv_factor[1].rx) /
-                            (i32)65536; /* Add the variable RX delay in the
-                                           SERDES. On 25G SERDES 2.5G speed
-                                           sd_rx_delay_var is signed */
+                /* Calculate the variable RX delay in the SERDES. */
+                /* On 25G SERDES 2.5G speed sd_rx_delay_var is signed */
+                delay_signed = ((i16)sd_rx_delay_var * (i32)dv_factor[1].rx) / (i32)65536;
+                /* Add it to the rx_delay */
+                delay_signed = (i32)rx_delay + delay_signed;
+                if (delay_signed < 0) {
+                    VTSS_D("This should not happen - the rx_delay cannot be negative");
+                    delay_signed = 0;
+                }
+                rx_delay = (u32)delay_signed;
             } else {
                 rx_delay += (sd_rx_delay_var * dv_factor[1].rx) /
                             65536U; /* Add the variable RX delay in the SERDES */
@@ -1095,7 +1152,7 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             delay_var = VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value);
         }
 #else
-        REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 4), &value);
+        REG_RD(VTSS_PORT_CONF_QSGMII_STAT(port / 4U), &value);
         delay_var = VTSS_X_PORT_CONF_QSGMII_STAT_DELAY_VAR(value);
 #endif
         rx_delay += (delay_var * 200U) - ((port % 4U) * 2000U);
@@ -1129,7 +1186,13 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
         rx_delay = 0U;
         tx_delay = 0U;
         break;
-    default: VTSS_E("unsupported interface: %u", interface); return VTSS_RC_ERROR;
+    default:
+        rc = VTSS_RC_ERROR;
+        VTSS_E("unsupported interface: %u", interface);
+        break;
+    }
+    if (rc == VTSS_RC_ERROR) {
+        return rc;
     }
 
     /* Add additional delays found in testing. Note that rx_delay and tx_delay
@@ -1137,8 +1200,8 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
     switch (interface) {
     case VTSS_PORT_INTERFACE_SGMII_CISCO:
         if (speed == VTSS_SPEED_1G) { /* 1 Gbps */
-            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 348) : (1000 * 49);
-            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 348) : (1000 * 49);
+            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000U * 348U) : (1000U * 49U);
+            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000U * 348U) : (1000U * 49U);
         }
         break;
     case VTSS_PORT_INTERFACE_SGMII:
@@ -1150,12 +1213,12 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             /* According to Morten this is not relevant */
         }
         if (speed == VTSS_SPEED_1G) { /* 1 Gbps */
-            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 1080) : (1000 * 49);
-            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 1080) : (1000 * 49);
+            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100U * 1080U) : (1000U * 49U);
+            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100U * 1080U) : (1000U * 49U);
         }
         if (speed == VTSS_SPEED_2500M) { /* 2.5 Gbps */
-            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 33) : (1000 * 21);
-            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 33) : (1000 * 21);
+            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000U * 33U) : (1000U * 21U);
+            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000U * 33U) : (1000U * 21U);
         }
         break;
     case VTSS_PORT_INTERFACE_RGMII:
@@ -1164,8 +1227,8 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
             /* According to Morten this is not relevant */
         }
         if (speed == VTSS_SPEED_1G) { /* 1 Gbps */
-            rx_delay += (1000 * 49);
-            tx_delay += (1000 * 49);
+            rx_delay += (1000U * 49U);
+            tx_delay += (1000U * 49U);
         }
         break;
     case VTSS_PORT_INTERFACE_100FX:
@@ -1175,32 +1238,32 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
     case VTSS_PORT_INTERFACE_SFI:
         /* Single-Lane SerDes at 5 or 10 or 25 Gbps */
         if (speed == VTSS_SPEED_5G) { /* 5 Gbps */
-            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 25) : (1000 * 8);
-            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000 * 25) : (1000 * 8);
+            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000U * 25U) : (1000U * 8U);
+            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000U * 25U) : (1000U * 8U);
         }
         if (speed == VTSS_SPEED_10G) { /* 10 Gbps */
-            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 135) : (1000 * 5);
-            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100 * 135) : (1000 * 5);
+            rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100U * 135U) : (1000U * 5U);
+            tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (100U * 135U) : (1000U * 5U);
         }
         if (speed == VTSS_SPEED_25G) { /* 25 Gbps */
-            rx_delay += 1000 * 8;
-            tx_delay += 1000 * 8;
+            rx_delay += 1000U * 8U;
+            tx_delay += 1000U * 8U;
         }
         break;
     case VTSS_PORT_INTERFACE_QSGMII:
         /* Single-Lane SerDes at 4 Gbps (QSGMII) */
         /* Approximated by port calibration and taking 1-PPS error into account*/
-        rx_delay += 230 * 1000 + 63999;
-        tx_delay += 230 * 1000 - 63999;
+        rx_delay += 230U * 1000U + 63999U;
+        tx_delay += 230U * 1000U - 63999U;
 
         if (speed == VTSS_SPEED_100M) { /* APPL-5631: Additional adjustment for
                                            100 Mbps */
-            rx_delay += (2000 * 1000);
-            tx_delay += (2000 * 1000);
+            rx_delay += (2000U * 1000U);
+            tx_delay += (2000U * 1000U);
         }
         break;
 
-    default: break;
+    default: VTSS_D("MISRA NON empty default"); break;
     }
 
 #if defined(VTSS_ARCH_LAN969X)
@@ -1250,8 +1313,8 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
     /* rx_delay and tx_delay are in picoseconds.  */
     VTSS_I(" port_no %d speed %d interface %d rx_dly %u tx_dly %u", port_no, speed, interface,
            rx_delay, tx_delay);
-    vtss_state->ts.port_conf[port_no].default_igr_latency = rx_delay;
-    vtss_state->ts.port_conf[port_no].default_egr_latency = tx_delay;
+    vtss_state->ts.port_conf[port_no].default_igr_latency = (i32)rx_delay;
+    vtss_state->ts.port_conf[port_no].default_egr_latency = (i32)tx_delay;
     rc = vtss_cil_ts_ingress_latency_set(vtss_state, port_no);
     rc2 = vtss_cil_ts_egress_latency_set(vtss_state, port_no);
     if (rc == VTSS_RC_OK) {
@@ -1260,12 +1323,12 @@ vtss_rc vtss_cil_ts_status_change(vtss_state_t *vtss_state, const vtss_port_no_t
     return rc;
 }
 
-vtss_rc vtss_cil_ts_timestamp_id_release(vtss_state_t *vtss_state, u32 ts_id)
+vtss_rc vtss_cil_ts_timestamp_id_release(struct vtss_state_s *vtss_state, u32 ts_id)
 {
     return fa_ts_supported(vtss_state);
 }
 
-vtss_rc vtss_cil_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
+vtss_rc vtss_cil_ts_external_io_mode_set(struct vtss_state_s *vtss_state, u32 io)
 {
     vtss_ts_ext_io_mode_t *ext_io_mode;
 
@@ -1283,7 +1346,8 @@ vtss_rc vtss_cil_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
     if (ext_io_mode->pin == TS_EXT_IO_MODE_ONE_PPS_DISABLE) {
         (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[io].gpio_no, VTSS_GPIO_IN);
     } else {
-        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[io].gpio_no, ptp_gpio[io].alt);
+        (void)vtss_fa_gpio_mode(vtss_state, 0U, ptp_gpio[io].gpio_no,
+                                gpio_mode_calc(ptp_gpio[io].alt));
     }
     /* Set pin configuration */
     if (ext_io_mode->pin == TS_EXT_IO_MODE_WAVEFORM_OUTPUT) {
@@ -1315,10 +1379,10 @@ vtss_rc vtss_cil_ts_external_io_mode_set(vtss_state_t *vtss_state, u32 io)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
-                                        u32               io,
-                                        vtss_timestamp_t *ts,
-                                        u64              *tc)
+vtss_rc vtss_cil_ts_saved_timeofday_get(struct vtss_state_s *vtss_state,
+                                        u32                  io,
+                                        vtss_timestamp_t    *ts,
+                                        u64                 *tc)
 {
     vtss_rc                rc;
     vtss_ts_ext_io_mode_t *ext_io_mode;
@@ -1338,7 +1402,9 @@ vtss_rc vtss_cil_ts_saved_timeofday_get(vtss_state_t     *vtss_state,
     return rc;
 }
 
-vtss_rc vtss_cil_ts_output_clock_edge_offset_get(vtss_state_t *vtss_state, u32 io, u32 *offset)
+vtss_rc vtss_cil_ts_output_clock_edge_offset_get(struct vtss_state_s *vtss_state,
+                                                 u32                  io,
+                                                 u32                 *offset)
 {
     u32 value;
 
@@ -1355,7 +1421,7 @@ vtss_rc vtss_cil_ts_output_clock_edge_offset_get(vtss_state_t *vtss_state, u32 i
 }
 
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
-vtss_rc vtss_cil_ts_autoresp_cfg_set(vtss_state_t *vtss_state, u8 ctrl)
+vtss_rc vtss_cil_ts_autoresp_cfg_set(struct vtss_state_s *vtss_state, u8 ctrl)
 {
     vtss_ts_autoresp_dom_cfg_t *cfg;
 
@@ -1382,7 +1448,7 @@ vtss_rc vtss_cil_ts_autoresp_cfg_set(vtss_state_t *vtss_state, u8 ctrl)
     }
 }
 
-vtss_rc vtss_cil_ts_smac_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
+vtss_rc vtss_cil_ts_smac_set(struct vtss_state_s *vtss_state, vtss_port_no_t port_no)
 {
     u32 port = VTSS_CHIP_PORT(port_no);
     // Set up pr port Source Mac address
@@ -1398,7 +1464,7 @@ vtss_rc vtss_cil_ts_smac_set(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 }
 #endif // defined (VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
 
-vtss_rc vtss_cil_ts_seq_cnt_get(vtss_state_t *vtss_state, u32 sec_cntr, u16 *const cnt_val)
+vtss_rc vtss_cil_ts_seq_cnt_get(struct vtss_state_s *vtss_state, u32 sec_cntr, u16 *const cnt_val)
 {
     vtss_rc rc = VTSS_RC_OK;
     u32     value;
@@ -1407,7 +1473,7 @@ vtss_rc vtss_cil_ts_seq_cnt_get(vtss_state_t *vtss_state, u32 sec_cntr, u16 *con
     if (sec_cntr <= 1023U) {
         // read sec counter REW:PTP_SEQ_NO:PTP_SEQ_NO[0-1023].PTP_SEQ_NO
         REG_RD(VTSS_REW_PTP_SEQ_NO(sec_cntr), &value);
-        *cnt_val = VTSS_X_REW_PTP_SEQ_NO_PTP_SEQ_NO(value);
+        *cnt_val = (u16)VTSS_X_REW_PTP_SEQ_NO_PTP_SEQ_NO(value);
     } else {
         VTSS_E("Invalid sequence counter number %d", sec_cntr);
         rc = VTSS_RC_ERROR;
@@ -1472,7 +1538,7 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
 {
     u32           port;
     lmu_fmt_buf_t buf;
-    int           idx;
+    u32           idx;
 
     /* REW:PORT */
     for (port = 0U; port <= RT_CHIP_PORTS; port++) {
@@ -1521,7 +1587,7 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
     vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_PTP_PTP_DOM_CFG), "PTP_DOM_CFG");
 
     /* DEVCPU_PTP:PTP_PINS */
-    for (idx = 0; idx <= 3; idx++) {
+    for (idx = 0U; idx <= 3U; idx++) {
         VTSS_FMT(buf, "DEVCPU_PTP:PTP_PINS[%u]", idx);
         vtss_fa_debug_reg_header(ss, buf.s);
         vtss_fa_debug_reg(vtss_state, ss, REG_ADDR(VTSS_DEVCPU_PTP_PTP_PIN_CFG(idx)),
@@ -1617,7 +1683,7 @@ static vtss_rc fa_debug_ts(vtss_state_t                  *vtss_state,
                               REG_ADDR(VTSS_DEV1G_DEV_PFRAME_CFG(VTSS_TO_DEV10G(port))),
                               "DEV_PFRAME_CFG");
             break;
-        default: break;
+        default: VTSS_D("MISRA NON empty default"); break;
         }
     }
 
@@ -1692,15 +1758,14 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
             nominal_tod_increment = 0x2C834656FFBDCFFA;
         }
         break;
-    default: {
-    };
+    default: VTSS_D("MISRA NON empty default"); break;
     }
 
     /* Configure the calculated increment */
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(7),
             VTSS_M_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS);
     for (domain = 0U; domain < VTSS_TS_DOMAIN_ARRAY_SIZE; domain++) {
-        REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 0), (u32)(nominal_tod_increment & 0xFFFFFFFF));
+        REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 0), (u32)(nominal_tod_increment & 0xFFFFFFFFU));
         REG_WR(VTSS_DEVCPU_PTP_CLK_PER_CFG(domain, 1), (u32)(nominal_tod_increment >> 32));
     }
     REG_WRM(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_CLKCFG_DIS(0),
@@ -1710,28 +1775,27 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
     REG_WR(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(7));
 
     /* Configure the PTP pin to GPIO selection */
-    if (FA_TGT) {
-        for (i = 0U; i < 4U; ++i) {
-            REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(i), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(i),
-                    VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
+#if defined(VTSS_ARCH_SPARX5)
+    for (i = 0U; i < 4U; ++i) {
+        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(i), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(i),
+                VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
+    }
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+    /* The PTP pin clock generator will only work when the PTP_PIN number is
+     * the same as PTPSYNC number. */
+    /* The 1PPS out is PTPSYNC4 so only PTP_PIN number 4 can be used */
+    REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(4), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(4),
+            VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
+    REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(5), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(5),
+            VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
+
+    for (i = 0U; i < RT_CHIP_PORTS_ALL; i++) {
+        if ((VTSS_PORT_IS_5G(i) != 0U) || (VTSS_PORT_IS_10G(i) != 0U)) {
+            REG_WR(VTSS_DEV10G_PTP_STAMPER_CFG(VTSS_TO_HIGH_DEV(i)), 5U);
         }
     }
-    if (LA_TGT) {
-        /* The PTP pin clock generator will only work when the PTP_PIN number is
-         * the same as PTPSYNC number. */
-        /* The 1PPS out is PTPSYNC4 so only PTP_PIN number 4 can be used */
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(4), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(4),
-                VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_CFG(5), VTSS_F_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT(5),
-                VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
-
-        for (i = 0U; i < RT_CHIP_PORTS_ALL; i++) {
-            if (VTSS_PORT_IS_5G(i) || VTSS_PORT_IS_10G(i)) {
-                REG_WR(VTSS_DEV10G_PTP_STAMPER_CFG(VTSS_TO_HIGH_DEV(i)), 5);
-            }
-        }
-    }
-
+#endif
     /* Get the GPIO functionality information */
     vtss_rc rc = VTSS_RC_OK;
     if (vtss_state->init_conf.gpio_func_info_get != NULL) {
@@ -1740,31 +1804,17 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_1, &ptp_gpio[1]);
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_2, &ptp_gpio[2]);
         rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_3, &ptp_gpio[3]);
-        if (LA_TGT) {
-            rc +=
-                vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_4, &ptp_gpio[4]);
-            rc +=
-                vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_5, &ptp_gpio[5]);
-            rc +=
-                vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_6, &ptp_gpio[6]);
-            rc +=
-                vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_7, &ptp_gpio[7]);
-        }
+#if defined(VTSS_ARCH_LAN969X)
+        rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_4, &ptp_gpio[4]);
+        rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_5, &ptp_gpio[5]);
+        rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_6, &ptp_gpio[6]);
+        rc += vtss_state->init_conf.gpio_func_info_get(NULL, VTSS_GPIO_FUNC_PTP_7, &ptp_gpio[7]);
+#endif
         if (rc != VTSS_RC_OK) {
             VTSS_E("Not able to get valid GPIO functionallity information");
         }
     } else {
         VTSS_E("gpio_func_info_get is NULL");
-    }
-
-    for (i = 0U; i < GPIO_FUNC_INFO_SIZE; ++i) { // Convert ALT enumerate to vtss_gpio_mode_t. This
-                                                 // is not so nice but it works.
-        switch (ptp_gpio[i].alt) {
-        case VTSS_GPIO_FUNC_ALT_0: ptp_gpio[i].alt = VTSS_GPIO_ALT_0; break;
-        case VTSS_GPIO_FUNC_ALT_1: ptp_gpio[i].alt = VTSS_GPIO_ALT_1; break;
-        case VTSS_GPIO_FUNC_ALT_2: ptp_gpio[i].alt = VTSS_GPIO_ALT_2; break;
-        case VTSS_GPIO_FUNC_ALT_3: ptp_gpio[i].alt = VTSS_GPIO_ALT_3; break;
-        }
     }
 
     VTSS_MEMSET(seriel_1G_delay, 0, sizeof(seriel_1G_delay));
@@ -2915,12 +2965,12 @@ vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
             /* Initialize the PTP Port ID port number. This is done anyway in
              * the jr2_ts_operation_mode_set() function but this is only called
              * from AIL in case of changes in mode or domain. */
-            REG_WRM(VTSS_ANA_ACL_PTP_CFG(port), VTSS_F_ANA_ACL_PTP_CFG_PTP_PORT_NUM(port_no + 1),
+            REG_WRM(VTSS_ANA_ACL_PTP_CFG(port), VTSS_F_ANA_ACL_PTP_CFG_PTP_PORT_NUM(port_no + 1U),
                     VTSS_M_ANA_ACL_PTP_CFG_PTP_PORT_NUM);
         }
         VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 80);
         break;
-    default: break;
+    default: VTSS_D("MISRA NON empty default"); break;
     }
     return VTSS_RC_OK;
 }

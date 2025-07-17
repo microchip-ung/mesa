@@ -1222,8 +1222,8 @@ typedef i64 vtss_clk_adj_rate_t;
 typedef i64 vtss_timeinterval_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_ONE_MIA          1000000000           /**< One billion */
-#define VTSS_ONE_MILL         1000000              /**< One million */
+#define VTSS_ONE_MIA          1000000000U          /**< One billion */
+#define VTSS_ONE_MILL         1000000U             /**< One million */
 #define VTSS_MAX_TIMEINTERVAL 0x7fffffffffffffffLL /**< Maximum time interval */
 #endif                                             // _VTSS_MAIN_TYPES_H_
 
@@ -1234,7 +1234,7 @@ typedef i64 vtss_timeinterval_t;
     ((i32)VTSS_DIV64((t) >> 16, VTSS_ONE_MILL))                /**< One millisecond time interval */
 #define VTSS_INTERVAL_US(t) ((i32)VTSS_DIV64((t) >> 16, 1000)) /**< One microsecond time interval */
 #define VTSS_INTERVAL_NS(t)                                                                        \
-    ((i32)VTSS_MOD64((t) >> 16, VTSS_ONE_MIA)) /**< This returns the ns part of the                \
+    ((i32)VTSS_MOD64((t) / 65536, (i64)VTSS_ONE_MIA)) /**< This returns the ns part of the         \
                                                   interval, not the total number of ns */
 #define VTSS_INTERVAL_PS(t)                                                                        \
     (((((i32)(t & 0xffff)) * 1000) + 0x8000) / 0x10000) /**< This returns the ps part of the       \

@@ -90,10 +90,10 @@ static vtss_rc lan966x_ts_timeofday_read(vtss_state_t     *vtss_state,
     return lan966x_ts_io_pin_timeofday_get(vtss_state, TOD_ACC_PIN, ts, tc);
 }
 
-vtss_rc vtss_cil_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
-                                         u32               domain,
-                                         vtss_timestamp_t *ts,
-                                         u64              *tc)
+vtss_rc vtss_cil_ts_domain_tod_get(vtss_state_t     *vtss_state,
+                                   u32               domain,
+                                   vtss_timestamp_t *ts,
+                                   u64              *tc)
 {
     VTSS_RC(lan966x_ts_timeofday_read(vtss_state, domain, ts, tc));
     VTSS_D("sec_msb: %u, seconds: %u, nanoseconds: %u, nanosecondsfrac: %u", ts->sec_msb,
@@ -103,7 +103,7 @@ vtss_rc vtss_cil_ts_domain_timeofday_get(vtss_state_t     *vtss_state,
 
 vtss_rc vtss_cil_ts_timeofday_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts, u64 *tc)
 {
-    return vtss_cil_ts_domain_timeofday_get(vtss_state, 0, ts, tc);
+    return vtss_cil_ts_domain_tod_get(vtss_state, 0, ts, tc);
 }
 
 vtss_rc vtss_cil_ts_multi_domain_timeofday_get(vtss_state_t           *vtss_state,
@@ -166,12 +166,12 @@ vtss_rc vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state_t     *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_timeofday_next_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_tod_next_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
 {
     return vtss_cil_ts_domain_timeofday_next_pps_get(vtss_state, 0, ts);
 }
 
-vtss_rc vtss_cil_ts_timeofday_prev_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
+vtss_rc vtss_cil_ts_tod_prev_pps_get(vtss_state_t *vtss_state, vtss_timestamp_t *ts)
 {
     return lan966x_ts_domain_timeofday_prev_pps_get(vtss_state, 0, ts);
 }
@@ -214,10 +214,10 @@ vtss_rc vtss_cil_ts_timeofday_set(vtss_state_t *vtss_state, const vtss_timestamp
     return vtss_cil_ts_domain_timeofday_set(vtss_state, 0, ts);
 }
 
-vtss_rc vtss_cil_ts_domain_timeofday_set_delta(vtss_state_t           *vtss_state,
-                                               u32                     domain,
-                                               const vtss_timestamp_t *ts,
-                                               BOOL                    negative)
+vtss_rc vtss_cil_ts_domain_tod_set_delta(vtss_state_t           *vtss_state,
+                                         u32                     domain,
+                                         const vtss_timestamp_t *ts,
+                                         BOOL                    negative)
 {
     i32 nanoseconds;
 
@@ -255,7 +255,7 @@ vtss_rc vtss_cil_ts_timeofday_set_delta(vtss_state_t           *vtss_state,
                                         const vtss_timestamp_t *ts,
                                         BOOL                    negative)
 {
-    return vtss_cil_ts_domain_timeofday_set_delta(vtss_state, 0, ts, negative);
+    return vtss_cil_ts_domain_tod_set_delta(vtss_state, 0, ts, negative);
 }
 
 vtss_rc vtss_cil_ts_domain_adjtimer_set(vtss_state_t *vtss_state, u32 domain)
@@ -416,8 +416,7 @@ vtss_rc vtss_cil_ts_alt_clock_mode_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_ts_timeofday_next_pps_set(vtss_state_t                 *vtss_state,
-                                           const vtss_timestamp_t *const ts)
+vtss_rc vtss_cil_ts_tod_next_pps_set(vtss_state_t *vtss_state, const vtss_timestamp_t *const ts)
 {
     if (vtss_state->ts.conf.alt_clock_mode.one_pps_in) {
         REG_WR(PTP_TOD_SEC_MSB(ALT_LDST_PIN), PTP_TOD_SEC_MSB_TOD_SEC_MSB(ts->sec_msb));
