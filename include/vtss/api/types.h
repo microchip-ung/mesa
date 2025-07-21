@@ -48,8 +48,8 @@ extern "C" {
 #error "Environment not 32 or 64-bit."
 #endif
 
-#define VTSS_BIT64(x)     (1ULL << (x))       /**< Set one bit in a 64-bit mask               */
-#define VTSS_BITMASK64(x) ((1ULL << (x)) - 1) /**< Get a bitmask consisting of x ones         */
+#define VTSS_BIT64(x)     (1ULL << (x))        /**< Set one bit in a 64-bit mask               */
+#define VTSS_BITMASK64(x) ((1ULL << (x)) - 1U) /**< Get a bitmask consisting of x ones         */
 #define VTSS_EXTRACT_BITFIELD64(x, o, w)                                                           \
     (((x) >> (o)) & VTSS_BITMASK64(w)) /**< Extract w bits from bit position o in x    */
 #define VTSS_ENCODE_BITFIELD64(x, o, w)                                                            \
@@ -704,10 +704,10 @@ typedef struct {
     /**< Broadcast address used for addr in the vtss_mac_t struct */
 
 #ifndef _VTSS_MAIN_TYPES_H_
-typedef u32 vtss_isdx_t;   /**< Ingress Service Index type */
-#define VTSS_ISDX_NONE (0) /**< Ingress Service Index number none */
-#define VTSS_VSI_NONE  (0) /**< Virtual Switching Instance number none */
-#endif                     // _VTSS_MAIN_TYPES_H_
+typedef u32 vtss_isdx_t;    /**< Ingress Service Index type */
+#define VTSS_ISDX_NONE (0U) /**< Ingress Service Index number none */
+#define VTSS_VSI_NONE  (0U) /**< Virtual Switching Instance number none */
+#endif                      // _VTSS_MAIN_TYPES_H_
 
 /* Ingress flow ID */
 typedef u16 vtss_iflow_id_t;

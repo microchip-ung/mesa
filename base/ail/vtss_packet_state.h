@@ -24,11 +24,11 @@ vtss_rc vtss_cil_packet_tx_frame_ifh(struct vtss_state_s              *vtss_stat
                                      const vtss_packet_tx_ifh_t *const ifh,
                                      const u8 *const                   frame,
                                      const u32                         length);
-vtss_rc vtss_cil_packet_rx_hdr_decode(const struct vtss_state_s *const   state,
+vtss_rc vtss_cil_packet_rx_hdr_decode(const struct vtss_state_s *const   vtss_state,
                                       const vtss_packet_rx_meta_t *const meta,
                                       const u8                     hdr[VTSS_PACKET_HDR_SIZE_BYTES],
                                       vtss_packet_rx_info_t *const info);
-vtss_rc vtss_cil_packet_tx_hdr_encode(struct vtss_state_s *const         state,
+vtss_rc vtss_cil_packet_tx_hdr_encode(struct vtss_state_s *const         vtss_state,
                                       const vtss_packet_tx_info_t *const info,
                                       u8 *const                          bin_hdr,
                                       u32 *const                         bin_hdr_len);

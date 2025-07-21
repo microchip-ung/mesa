@@ -385,10 +385,10 @@ typedef enum {
                                           for one target. */
 #endif
 
-#define VTSS_SVL_RX_IFH_SIZE 16 /**< Serval1 Rx IFH size is 16 bytes */
-#define VTSS_L26_RX_IFH_SIZE 8  /**< Luton26 Rx IFH size is  8 bytes */
-#define VTSS_JR2_RX_IFH_SIZE 28 /**< Jaguar2 Rx IFH size is 28 bytes */
-#define VTSS_FA_RX_IFH_SIZE  36 /**< Fireant Rx IFH size is 36 bytes */
+#define VTSS_SVL_RX_IFH_SIZE 16U /**< Serval1 Rx IFH size is 16 bytes */
+#define VTSS_L26_RX_IFH_SIZE 8U  /**< Luton26 Rx IFH size is  8 bytes */
+#define VTSS_JR2_RX_IFH_SIZE 28U /**< Jaguar2 Rx IFH size is 28 bytes */
+#define VTSS_FA_RX_IFH_SIZE  36U /**< Fireant Rx IFH size is 36 bytes */
 
 /**
  * \brief Input structure to vtss_packet_rx_hdr_decode().

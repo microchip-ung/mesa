@@ -7531,6 +7531,6 @@ enum lan966x_target {
 #define XTR_ABORT			0x05000080U
 #define XTR_ESCAPE			0x06000080U
 #define XTR_NOT_READY			0x07000080U
-#define XTR_VALID_BYTES(x)		(4 - (((x) >> 24) & 3))
+#define XTR_VALID_BYTES(x)		(4U - (((x) >> 24U) & 3U))
 
 #endif /* _VTSS_LAN966X_REGS_AD_H_ */

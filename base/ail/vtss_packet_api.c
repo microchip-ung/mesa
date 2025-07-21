@@ -108,10 +108,12 @@ vtss_rc vtss_packet_tx_frame(const vtss_inst_t                  inst,
     vtss_packet_tx_ifh_t ifh;
 
     VTSS_ENTER();
-    ifh.length = sizeof(ifh.ifh);
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
-        (rc = vtss_packet_tx_hdr_encode(inst, tx_info, (u8 *)ifh.ifh, &ifh.length)) == VTSS_RC_OK) {
-        rc = vtss_cil_packet_tx_frame_ifh(vtss_state, &ifh, frame, length);
+    ifh.length = (u32)sizeof(ifh.ifh);
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if ((rc = vtss_packet_tx_hdr_encode(inst, tx_info, (u8 *)ifh.ifh, &ifh.length)) ==
+            VTSS_RC_OK) {
+            rc = vtss_cil_packet_tx_frame_ifh(vtss_state, &ifh, frame, length);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -129,16 +131,17 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                        *stat
     vtss_aggr_no_t aggr_no;
 
     vtss_packet_port_filter_t *port_filter;
-    BOOL                       vlan_filter = 0, vlan_member[VTSS_PORT_ARRAY_SIZE];
-    BOOL                       vlan_rx_filter = 0;
+    BOOL                       vlan_filter = FALSE, vlan_member[VTSS_PORT_ARRAY_SIZE];
+    BOOL                       vlan_rx_filter = FALSE;
     vtss_vlan_port_conf_t     *vlan_port_conf;
 
     port_rx = info->port_no;
     vid = info->vid;
     VTSS_MEMSET(vlan_member, 0, VTSS_PORT_ARRAY_SIZE); /* Please Lint */
     if (vid != VTSS_VID_NULL) {
-        vlan_filter = 1;
-        vlan_rx_filter = (state->l2.vlan_table[vid].flags & VLAN_FLAGS_FILTER ? 1 : 0);
+        vlan_filter = TRUE;
+        vlan_rx_filter =
+            (((state->l2.vlan_table[vid].flags & VLAN_FLAGS_FILTER) != 0U) ? TRUE : FALSE);
         VTSS_RC(vtss_cmn_vlan_members_get(state, vid, vlan_member));
     }
 
@@ -159,7 +162,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                        *stat
                 continue;
             }
 
-            if (vlan_filter && vlan_member[port_rx] == 0 &&
+            if (vlan_filter && vlan_member[port_rx] == FALSE &&
                 (vlan_rx_filter || state->l2.vlan_port_conf[port_rx].ingress_filter)) {
                 /* VLAN/MSTP/ERPS/.. ingress filtering */
                 VTSS_N("port_rx %u not member of VLAN %u", port_rx, vid);
@@ -181,7 +184,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                        *stat
             }
 
             aggr_no = state->l2.port_aggr_no[port_rx];
-            if (info->aggr_rx_disable == 0 && aggr_no != VTSS_AGGR_NO_NONE &&
+            if (info->aggr_rx_disable == FALSE && aggr_no != VTSS_AGGR_NO_NONE &&
                 state->l2.port_aggr_no[port_tx] == aggr_no) {
                 /* Ingress LLAG filter */
                 VTSS_N("port_rx %u and port_tx %u are members of same LLAG %u", port_rx, port_tx,
@@ -191,7 +194,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                        *stat
         }
 
         /* Egress port filtering */
-        if (vlan_filter && vlan_member[port_tx] == 0) {
+        if (vlan_filter && vlan_member[port_tx] == FALSE) {
             /* VLAN/MSTP/ERPS/.. egress filtering */
             VTSS_N("port_tx %u not member of VLAN %u", port_tx, vid);
             continue;
@@ -207,6 +210,8 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                        *stat
             /* Egress LAG/STP check */
             VTSS_N("port_tx: %u not LAG/STP forwarding", port_tx);
             continue;
+        } else {
+            VTSS_D("MISRA Non empty else");
         }
 
         /* Determine whether to send tagged or untagged */
@@ -220,7 +225,7 @@ static vtss_rc vtss_packet_port_filter(vtss_state_t                        *stat
         switch (vlan_port_conf->port_type) {
         case VTSS_VLAN_PORT_TYPE_S:        port_filter->tpid = VTSS_ETYPE_TAG_S; break;
         case VTSS_VLAN_PORT_TYPE_S_CUSTOM: port_filter->tpid = state->l2.vlan_conf.s_etype; break;
-        default:                           break;
+        default:                           VTSS_D("MISRA Non empty default"); break;
         }
     } /* Port loop */
     return VTSS_RC_OK;
@@ -232,7 +237,7 @@ static vtss_rc vtss_packet_filter(vtss_state_t                         *state,
 {
     vtss_packet_port_info_t   port_info;
     vtss_packet_port_filter_t port_filter[VTSS_PORT_ARRAY_SIZE];
-    BOOL                      tx_filter = (info->port_tx == VTSS_PORT_NO_NONE ? 0 : 1);
+    BOOL                      tx_filter = (info->port_tx == VTSS_PORT_NO_NONE ? FALSE : TRUE);
 
     /* Copy fields to port filter */
     port_info.port_no = info->port_no;
@@ -281,7 +286,7 @@ vtss_rc vtss_packet_port_filter_get(const vtss_inst_t                    inst,
     vtss_rc       rc;
 
     if ((rc = vtss_inst_check_get(inst, &vtss_state)) == VTSS_RC_OK) {
-        rc = vtss_packet_port_filter(vtss_state, info, filter, 1);
+        rc = vtss_packet_port_filter(vtss_state, info, filter, TRUE);
     }
     return rc;
 }
@@ -416,7 +421,7 @@ vtss_rc vtss_npi_conf_set(const vtss_inst_t inst, const vtss_npi_conf_t *const c
         VTSS_RC_OK) {
         conf_old = vtss_state->packet.npi_conf;
         if ((rc = vtss_cil_packet_npi_conf_set(vtss_state, conf)) == VTSS_RC_OK) {
-            rc = vtss_update_masks(vtss_state, 1, 0, 0); // Update src masks
+            rc = vtss_update_masks(vtss_state, TRUE, FALSE, FALSE); // Update src masks
             /* Update VLAN configuration for old and new NPI port */
             if (rc == VTSS_RC_OK && conf_old.enable) {
                 rc = VTSS_RC_COLD(vtss_cmn_vlan_port_conf_set(vtss_state, conf_old.port_no));
@@ -439,9 +444,7 @@ vtss_rc vtss_packet_phy_cnt_to_ts_cnt(const vtss_inst_t inst, const u32 phy_cnt,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (rc == VTSS_RC_OK) {
-            rc = vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state, phy_cnt, ts_cnt);
-        }
+        rc = vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state, phy_cnt, ts_cnt);
     }
     VTSS_EXIT();
     return rc;
@@ -456,9 +459,7 @@ vtss_rc vtss_packet_ns_to_ts_cnt(const vtss_inst_t inst, const u32 ns, u64 *ts_c
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (rc == VTSS_RC_OK) {
-            rc = vtss_cil_packet_ns_to_ts_cnt(vtss_state, ns, ts_cnt);
-        }
+        rc = vtss_cil_packet_ns_to_ts_cnt(vtss_state, ns, ts_cnt);
     }
     VTSS_EXIT();
     return rc;
@@ -488,7 +489,7 @@ vtss_rc vtss_ptp_get_timestamp(const vtss_inst_t                  inst,
 
 /* - Instance create and initialization ---------------------------- */
 
-vtss_rc vtss_packet_inst_create(vtss_state_t *vtss_state)
+vtss_rc vtss_packet_inst_create(struct vtss_state_s *vtss_state)
 {
     vtss_packet_rx_conf_t *rx_conf = &vtss_state->packet.rx_conf;
     u32                    queue;
@@ -498,7 +499,7 @@ vtss_rc vtss_packet_inst_create(vtss_state_t *vtss_state)
         return VTSS_RC_OK;
     }
 
-    rx_conf->reg.bpdu_cpu_only = 1;
+    rx_conf->reg.bpdu_cpu_only = TRUE;
     /* Enabling SFlow queue has side-effects on some platforms (JR-48), so by
      * default we don't. */
     rx_conf->map.sflow_queue = VTSS_PACKET_RX_QUEUE_NONE;
@@ -559,13 +560,13 @@ vtss_rc vtss_cmn_logical_to_chip_port_mask(const vtss_state_t *const state,
      */
     /*lint --e{506, 550, 661, 662} */
 
-    if (!logical_port_mask) {
+    if (logical_port_mask == 0U) {
         VTSS_E("Empty port mask");
         return VTSS_RC_ERROR;
     }
 
-    *chip_port_mask = 0;
-    *chip_no = 0xFFFFFFFFUL;
+    *chip_port_mask = 0U;
+    *chip_no = 0xFFFFFFFFU;
     *stack_port_no = VTSS_PORT_NO_NONE;
     *port_cnt = 0U;
 
@@ -576,16 +577,18 @@ vtss_rc vtss_cmn_logical_to_chip_port_mask(const vtss_state_t *const state,
             w &= ~VTSS_BIT(p);
             p += i;
 
-            if (p >= state->port_count) {
+            if ((p >= state->port_count) || (p >= VTSS_PORT_ARRAY_SIZE)) {
                 VTSS_E("port = %u out of range (mask = 0x%" PRIx64 ")", p, logical_port_mask);
                 return VTSS_RC_ERROR;
             }
 
-            if (*chip_no == 0xFFFFFFFFUL) {
+            if (*chip_no == 0xFFFFFFFFU) {
                 *chip_no = state->port.map[p].chip_no;
             } else if (*chip_no != state->port.map[p].chip_no) {
                 VTSS_E("Maps to two different devices (mask = 0x%" PRIx64 ")", logical_port_mask);
                 return VTSS_RC_ERROR;
+            } else {
+                VTSS_D("MISRA Non empty else");
             }
 
             *chip_port_mask |= (1ULL << (uint32_t)state->port.map[p].chip_port);
@@ -646,7 +649,9 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t *const    state,
         if (etype == VTSS_ETYPE_TAG_C) {
             info->tag_type = VTSS_TAG_TYPE_C_TAGGED;
         } else if (etype == VTSS_ETYPE_TAG_S || etype == state->l2.vlan_conf.s_etype) {
-            info->hints |= VTSS_PACKET_RX_HINTS_VLAN_TAG_MISMATCH;
+            info->hints |= (u32)VTSS_PACKET_RX_HINTS_VLAN_TAG_MISMATCH;
+        } else {
+            VTSS_D("MISRA Non empty else");
         }
         break;
 
@@ -654,7 +659,9 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t *const    state,
         if (etype == VTSS_ETYPE_TAG_S) {
             info->tag_type = VTSS_TAG_TYPE_S_TAGGED;
         } else if (etype == VTSS_ETYPE_TAG_C || etype == state->l2.vlan_conf.s_etype) {
-            info->hints |= VTSS_PACKET_RX_HINTS_VLAN_TAG_MISMATCH;
+            info->hints |= (u32)VTSS_PACKET_RX_HINTS_VLAN_TAG_MISMATCH;
+        } else {
+            VTSS_D("MISRA Non empty else");
         }
         break;
 
@@ -662,23 +669,25 @@ vtss_rc vtss_cmn_packet_hints_update(const vtss_state_t *const    state,
         if (etype == state->l2.vlan_conf.s_etype) {
             info->tag_type = VTSS_TAG_TYPE_S_CUSTOM_TAGGED;
         } else if (etype == VTSS_ETYPE_TAG_C || etype == VTSS_ETYPE_TAG_S) {
-            info->hints |= VTSS_PACKET_RX_HINTS_VLAN_TAG_MISMATCH;
+            info->hints |= (u32)VTSS_PACKET_RX_HINTS_VLAN_TAG_MISMATCH;
+        } else {
+            VTSS_D("MISRA Non empty else");
         }
         break;
 
-    default: break;
+    default: VTSS_D("MISRA Non empty default"); break;
     }
 
     if ((info->tag_type == VTSS_TAG_TYPE_UNTAGGED &&
          vlan_port_conf->frame_type == VTSS_VLAN_FRAME_TAGGED) ||
         (info->tag_type != VTSS_TAG_TYPE_UNTAGGED &&
          vlan_port_conf->frame_type == VTSS_VLAN_FRAME_UNTAGGED)) {
-        info->hints |= VTSS_PACKET_RX_HINTS_VLAN_FRAME_MISMATCH;
+        info->hints |= (u32)VTSS_PACKET_RX_HINTS_VLAN_FRAME_MISMATCH;
     }
 
     if (!VTSS_PORT_BF_GET(vlan_entry->member, info->port_no) &&
-        (vlan_port_conf->ingress_filter || (vlan_entry->flags & VLAN_FLAGS_FILTER))) {
-        info->hints |= VTSS_PACKET_RX_HINTS_VID_MISMATCH;
+        (vlan_port_conf->ingress_filter || ((vlan_entry->flags & VLAN_FLAGS_FILTER) != 0U))) {
+        info->hints |= (u32)VTSS_PACKET_RX_HINTS_VID_MISMATCH;
     }
 
     return VTSS_RC_OK;
@@ -700,7 +709,7 @@ static const char *vtss_packet_reg_txt(vtss_packet_reg_type_t type)
                                              : "?");
 }
 
-void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
+void vtss_packet_debug_print(struct vtss_state_s           *vtss_state,
                              lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info)
 {
@@ -716,14 +725,14 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
     {
         vtss_port_no_t              port_no;
         vtss_packet_rx_port_conf_t *port_conf;
-        BOOL                        header = 1;
+        BOOL                        header = TRUE;
 
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             if (!info->port_list[port_no]) {
                 continue;
             }
             if (header) {
-                header = 0;
+                header = FALSE;
                 pr("Port  BPDU              GARP              ");
 #if defined(VTSS_ARCH_OCELOT)
                 pr("IPMC  IGMP  MLD");
@@ -732,11 +741,13 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
             }
             pr("%-6u", port_no);
             port_conf = &vtss_state->packet.rx_port_conf[port_no];
+            char const *tmp1; /* This is MISRA support code */
+            char const *tmp2;
             for (i = 0U; i < 32U; i++) {
-                pr("%s%s",
-                   vtss_packet_reg_txt(i < 16 ? port_conf->bpdu_reg[i]
-                                              : port_conf->garp_reg[i - 16]),
-                   i % 16 == 15 ? "  " : "");
+                tmp1 = vtss_packet_reg_txt((i < 16U) ? port_conf->bpdu_reg[i]
+                                                     : port_conf->garp_reg[i - 16U]);
+                tmp2 = ((i % 16U) == 15U) ? "  " : "";
+                pr("%s%s", tmp1, tmp2);
             }
 #if defined(VTSS_ARCH_OCELOT)
             pr("%-6s%-6s%s", vtss_packet_reg_txt(port_conf->ipmc_ctrl_reg),
@@ -749,14 +760,14 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
         }
     }
 
-    vtss_debug_print_value(ss, "BPDU", conf->reg.bpdu_cpu_only);
+    vtss_debug_print_value(ss, "BPDU", (u32)conf->reg.bpdu_cpu_only);
     for (i = 0U; i < 16U; i++) {
         VTSS_FMT(buf, "GARP_%u", i);
-        vtss_debug_print_value(ss, buf.s, conf->reg.garp_cpu_only[i]);
+        vtss_debug_print_value(ss, buf.s, (u32)conf->reg.garp_cpu_only[i]);
     }
-    vtss_debug_print_value(ss, "IPMC", conf->reg.ipmc_ctrl_cpu_copy);
-    vtss_debug_print_value(ss, "IGMP", conf->reg.igmp_cpu_only);
-    vtss_debug_print_value(ss, "MLD", conf->reg.mld_cpu_only);
+    vtss_debug_print_value(ss, "IPMC", (u32)conf->reg.ipmc_ctrl_cpu_copy);
+    vtss_debug_print_value(ss, "IGMP", (u32)conf->reg.igmp_cpu_only);
+    vtss_debug_print_value(ss, "MLD", (u32)conf->reg.mld_cpu_only);
     pr("\n");
 
     vtss_debug_print_header(ss, "Queue Mappings");
@@ -773,26 +784,26 @@ void vtss_packet_debug_print(vtss_state_t                  *vtss_state,
     vtss_debug_print_value(ss, "L3_OTHER", conf->map.l3_other_queue);
 #endif /* VTSS_FEATURE_LAYER3 */
 #if defined(VTSS_FEATURE_REDBOX)
-    if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
+    if (vtss_state->vtss_features[FEATURE_REDBOX]) {
         vtss_debug_print_value(ss, "SV", conf->map.sv_queue);
     }
 #endif
     pr("\n");
 
     vtss_debug_print_header(ss, "NPI");
-    vtss_debug_print_value(ss, "Enabled", vtss_state->packet.npi_conf.enable);
+    vtss_debug_print_value(ss, "Enabled", (u32)vtss_state->packet.npi_conf.enable);
     if (vtss_state->packet.npi_conf.port_no != VTSS_PORT_NO_NONE) {
         vtss_debug_print_value(ss, "NPI_PORT", vtss_state->packet.npi_conf.port_no);
         for (i = 0U; i < vtss_state->packet.rx_queue_count; i++) {
             VTSS_FMT(buf, "REDIR:CPUQ_%u", i);
-            vtss_debug_print_value(ss, buf.s, conf->queue[i].npi.enable);
+            vtss_debug_print_value(ss, buf.s, (u32)conf->queue[i].npi.enable);
         }
     }
     pr("\n");
 
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
     vtss_debug_print_header(ss, "CPU Shaper");
-    vtss_debug_print_value(ss, "Enabled", !(conf->shaper_rate == VTSS_BITRATE_DISABLED));
+    vtss_debug_print_value(ss, "Enabled", (u32)(conf->shaper_rate != VTSS_BITRATE_DISABLED));
     if (conf->shaper_rate != VTSS_BITRATE_DISABLED) {
         vtss_debug_print_value(ss, "Rate", conf->shaper_rate);
     }

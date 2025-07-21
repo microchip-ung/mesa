@@ -501,7 +501,7 @@ static vtss_rc lan966x_packet_mode_update(vtss_state_t *vtss_state)
 #define XTR_ABORT          0x80000005U
 #define XTR_ESCAPE         0x80000006U
 #define XTR_NOT_READY      0x80000007U
-#define XTR_VALID_BYTES(x) (4 - ((x) & 3))
+#define XTR_VALID_BYTES(x) (4U - ((x) & 3U))
 #else
 #define XTR_EOF_0          0x00000080U
 #define XTR_EOF_1          0x01000080U
@@ -511,7 +511,7 @@ static vtss_rc lan966x_packet_mode_update(vtss_state_t *vtss_state)
 #define XTR_ABORT          0x05000080U
 #define XTR_ESCAPE         0x06000080U
 #define XTR_NOT_READY      0x07000080U
-#define XTR_VALID_BYTES(x) (4 - (((x) >> 24) & 3))
+#define XTR_VALID_BYTES(x) (4U - (((x) >> 24U) & 3U))
 #endif
 
 static vtss_rc lan966x_rx_frame_discard_grp(vtss_state_t              *vtss_state,

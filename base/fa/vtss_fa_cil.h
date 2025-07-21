@@ -42,13 +42,13 @@
 //                               30 port devices + 14 'shadow' devices
 
 #if defined(VTSS_ARCH_LAIKA)
-#define FA_TGT 0
-#define LA_TGT 0
-#define LK_TGT 1
+#define FA_TGT FALSE
+#define LA_TGT FALSE
+#define LK_TGT TRUE
 #elif defined(VTSS_ARCH_SPARX5)
-#define FA_TGT 1
-#define LA_TGT 0
-#define LK_TGT 0
+#define FA_TGT TRUE
+#define LA_TGT FALSE
+#define LK_TGT FALSE
 #else
 #define FA_TGT FALSE
 #define LA_TGT TRUE
@@ -189,7 +189,7 @@
 #endif
 
 // Buffer cell size
-#define FA_BUFFER_CELL_SZ 184 // FA=LA
+#define FA_BUFFER_CELL_SZ 184U // FA=LA
 
 // Port numbers
 #define RT_CHIP_PORT_CPU   RT_CHIP_PORTS

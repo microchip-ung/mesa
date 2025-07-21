@@ -164,7 +164,7 @@ extern const char *vtss_func;
 
 #define VTSS_CHIP_PORT(port_no)                   (uint32_t)vtss_state->port.map[port_no].chip_port
 #define VTSS_CHIP_NO(port_no)                     vtss_state->port.map[port_no].chip_no
-#define VTSS_CHIP_PORT_FROM_STATE(state, port_no) (state)->port.map[port_no].chip_port
+#define VTSS_CHIP_PORT_FROM_STATE(state, port_no) (uint32_t)(state)->port.map[port_no].chip_port
 #define VTSS_CHIP_NO_FROM_STATE(state, port_no)   (state)->port.map[port_no].chip_no
 #define VTSS_PORT_CHIP_SELECTED(port_no)                                                           \
     (vtss_state->port.map[port_no].chip_no == vtss_state->chip_no)
@@ -195,8 +195,8 @@ typedef enum {
 #define VTSS_API_VERSION 1
 
 /* Ethernet types */
-#define VTSS_ETYPE_TAG_C 0x8100
-#define VTSS_ETYPE_TAG_S 0x88a8
+#define VTSS_ETYPE_TAG_C 0x8100U
+#define VTSS_ETYPE_TAG_S 0x88a8U
 
 #if defined(VTSS_FEATURE_EEE)
 #define VTSS_EEE_TIMER_TABLE_CNT 128
