@@ -572,8 +572,8 @@ typedef u16 vtss_evc_policer_id_t;
 typedef u32 vtss_wred_group_t;
 
 #ifndef _VTSS_MAIN_TYPES_H_
-#define VTSS_QOS_MAP_ID_NONE 0xfff /**< ID for unallocated/unused ingress or egress map */
-#endif                             // _VTSS_MAIN_TYPES_H_
+#define VTSS_QOS_MAP_ID_NONE 0xfffU /**< ID for unallocated/unused ingress or egress map */
+#endif                              // _VTSS_MAIN_TYPES_H_
 
 /** \brief Ingress map ID */
 typedef u16 vtss_qos_ingress_map_id_t;
@@ -1135,7 +1135,7 @@ typedef u32 vtss_acl_policer_no_t;
 #else
 #define VTSS_ACL_POLICERS 16U /**< Number of ACL policers */
 #endif
-#define VTSS_ACL_POLICER_NO_START 0 /**< ACL policer start number */
+#define VTSS_ACL_POLICER_NO_START 0U /**< ACL policer start number */
 #define VTSS_ACL_POLICER_NO_END                                                                    \
     (VTSS_ACL_POLICER_NO_START + VTSS_ACL_POLICERS) /**< ACL policer end number */
 

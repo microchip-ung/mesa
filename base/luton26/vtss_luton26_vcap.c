@@ -1408,14 +1408,14 @@ vtss_rc vtss_cil_vcap_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_por
     return l26_is2_port_action_update(vtss_state, port_no);
 }
 
-vtss_rc vtss_cil_vcap_acl_port_counter_get(vtss_state_t                  *vtss_state,
-                                           const vtss_port_no_t           port_no,
-                                           vtss_acl_port_counter_t *const counter)
+vtss_rc vtss_cil_vcap_acl_port_cnt_get(vtss_state_t                  *vtss_state,
+                                       const vtss_port_no_t           port_no,
+                                       vtss_acl_port_counter_t *const counter)
 {
     return l26_is2_port_get(vtss_state, VTSS_CHIP_PORT(port_no), counter, 0);
 }
 
-vtss_rc vtss_cil_vcap_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_cnt_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 counter;
 

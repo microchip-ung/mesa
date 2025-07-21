@@ -32,23 +32,23 @@
 #define VTSS_FEATURE_LPM        /* VCAP LPM */
 #define VTSS_FEATURE_VCAP_SUPER /* VCAP_SUPER pool */
 #if defined(VTSS_ARCH_SERVAL_T)
-#define VTSS_VCAP_SUPER_BLK_CNT 6  /* Number of VCAP_SUPER blocks */
-#define VTSS_VCAP_SUPER_ROW_CNT 64 /* Number of rows in one VCAP super block (full rules) */
+#define VTSS_VCAP_SUPER_BLK_CNT 6U  /* Number of VCAP_SUPER blocks */
+#define VTSS_VCAP_SUPER_ROW_CNT 64U /* Number of rows in one VCAP super block (full rules) */
 #else
 #if defined(VTSS_CHIP_SPARX_IV_52)
-#define VTSS_VCAP_SUPER_BLK_CNT 4 /* Number of VCAP_SUPER blocks */
+#define VTSS_VCAP_SUPER_BLK_CNT 4U /* Number of VCAP_SUPER blocks */
 #elif defined(VTSS_CHIP_SERVAL_2)
-#define VTSS_VCAP_SUPER_BLK_CNT 5 /* Number of VCAP_SUPER blocks */
+#define VTSS_VCAP_SUPER_BLK_CNT 5U /* Number of VCAP_SUPER blocks */
 #elif defined(VTSS_CHIP_SPARX_IV_44)
-#define VTSS_VCAP_SUPER_BLK_CNT 6 /* Number of VCAP_SUPER blocks */
+#define VTSS_VCAP_SUPER_BLK_CNT 6U /* Number of VCAP_SUPER blocks */
 #else
-#define VTSS_VCAP_SUPER_BLK_CNT 8 /* Number of VCAP_SUPER blocks */
+#define VTSS_VCAP_SUPER_BLK_CNT 8U /* Number of VCAP_SUPER blocks */
 #endif
-#define VTSS_VCAP_SUPER_ROW_CNT 256 /* Number of rows in one VCAP super block (full rules) */
-#endif                              /* VTSS_ARCH_SERVAL_T */
+#define VTSS_VCAP_SUPER_ROW_CNT 256U /* Number of rows in one VCAP super block (full rules) */
+#endif                               /* VTSS_ARCH_SERVAL_T */
 #define VTSS_VCAP_SUPER_RULE_CNT                                                                   \
-    (VTSS_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 8) /* Eight rules per row */
-#endif                                                      /* VTSS_ARCH_JAGUAR_2 */
+    (VTSS_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 8U) /* Eight rules per row */
+#endif                                                       /* VTSS_ARCH_JAGUAR_2 */
 
 #if defined(VTSS_ARCH_FA)
 #define VTSS_FEATURE_VCAP_SUPER /* VCAP_SUPER pool */
@@ -61,21 +61,21 @@
 #define VTSS_FEATURE_ES2 /* VCAP ES2 */
 #endif
 #if defined(VTSS_ARCH_SPARX5)
-#define VTSS_VCAP_SUPER_BLK_CNT 10 /* Number of VCAP_SUPER blocks */
+#define VTSS_VCAP_SUPER_BLK_CNT 10U /* Number of VCAP_SUPER blocks */
 #else
-#define VTSS_VCAP_SUPER_BLK_CNT 6 /* Number of VCAP_SUPER blocks */
+#define VTSS_VCAP_SUPER_BLK_CNT 6U /* Number of VCAP_SUPER blocks */
 #endif
 #if defined(VTSS_ARCH_LAIKA)
-#define VTSS_VCAP_SUPER_ROW_CNT 64 /* Number of rows in one block (full rules) */
+#define VTSS_VCAP_SUPER_ROW_CNT 64U /* Number of rows in one block (full rules) */
 #else
-#define VTSS_VCAP_SUPER_ROW_CNT 256 /* Number of rows in one block (full rules) */
+#define VTSS_VCAP_SUPER_ROW_CNT 256U /* Number of rows in one block (full rules) */
 #endif
 #if defined(VTSS_STREAM_CNT)
 // Full CLM rules, X1 LPM rules, full IS2 rules
 #define VTSS_VCAP_SUPER_RULE_CNT (VTSS_STREAM_CNT + VTSS_LPM_CNT + VTSS_ACE_CNT)
 #else
 #define VTSS_VCAP_SUPER_RULE_CNT                                                                   \
-    (VTSS_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 6) /* Six rules per row */
+    (VTSS_VCAP_SUPER_BLK_CNT * VTSS_VCAP_SUPER_ROW_CNT * 6U) /* Six rules per row */
 #endif
 #endif
 
@@ -130,19 +130,19 @@ typedef struct {
     u32            clm;
 } vtss_res_t;
 
-typedef enum {
-    VTSS_VCAP_TYPE_NONE,
-    VTSS_VCAP_TYPE_IS0,
-    VTSS_VCAP_TYPE_IS1,
-    VTSS_VCAP_TYPE_IS2,
-    VTSS_VCAP_TYPE_IS2_B,
-    VTSS_VCAP_TYPE_ES0,
-    VTSS_VCAP_TYPE_ES2,
-    VTSS_VCAP_TYPE_CLM_A,
-    VTSS_VCAP_TYPE_CLM_B,
-    VTSS_VCAP_TYPE_CLM_C,
-    VTSS_VCAP_TYPE_LPM
-} vtss_vcap_type_t;
+#define VTSS_VCAP_TYPE_NONE  0U
+#define VTSS_VCAP_TYPE_IS0   1U
+#define VTSS_VCAP_TYPE_IS1   2U
+#define VTSS_VCAP_TYPE_IS2   3U
+#define VTSS_VCAP_TYPE_IS2_B 4U
+#define VTSS_VCAP_TYPE_ES0   5U
+#define VTSS_VCAP_TYPE_ES2   6U
+#define VTSS_VCAP_TYPE_CLM_A 7U
+#define VTSS_VCAP_TYPE_CLM_B 8U
+#define VTSS_VCAP_TYPE_CLM_C 9U
+#define VTSS_VCAP_TYPE_LPM   10U
+
+typedef u8 vtss_vcap_type_t;
 
 /* VCAP ID */
 typedef u64 vtss_vcap_id_t;
@@ -600,9 +600,9 @@ typedef struct {
     vtss_is1_key_t    key;
 } vtss_is1_entry_t;
 
-#define VTSS_IS1_FLAG_MAP_ID    0x01 /* Ingress map ID valid */
-#define VTSS_IS1_FLAG_MAP_INNER 0x02 /* Ingress map ID used for inner tag */
-#define VTSS_IS1_FLAG_TRI_VID   0x04 /* Use TRI_VID (JR2) */
+#define VTSS_IS1_FLAG_MAP_ID    0x01U /* Ingress map ID valid */
+#define VTSS_IS1_FLAG_MAP_INNER 0x02U /* Ingress map ID used for inner tag */
+#define VTSS_IS1_FLAG_TRI_VID   0x04U /* Use TRI_VID (JR2) */
 
 typedef struct {
     u8                lookup; /* Lookup (Serval) or first flag (L26/JR) */
@@ -707,11 +707,11 @@ typedef struct {
 } vtss_is2_entry_t;
 
 // Internal port action used for SSM
-#define VTSS_ACL_PORT_ACTION_PGID 100
+#define VTSS_ACL_PORT_ACTION_PGID 100U
 
 typedef struct {
     BOOL redir;                     /* Port redirect flag */
-    BOOL member[VTSS_PORT_BF_SIZE]; /* Port redirect list */
+    u8   member[VTSS_PORT_BF_SIZE]; /* Port redirect list */
 } vtss_is2_action_t;
 
 typedef struct {
@@ -1077,9 +1077,9 @@ typedef struct {
 /* VCAP ranges */
 #if defined(VTSS_ARCH_FA)
 // IS2/ES2 have more range checkers
-#define VTSS_VCAP_RANGE_CHK_CNT 16
+#define VTSS_VCAP_RANGE_CHK_CNT 16U
 #else
-#define VTSS_VCAP_RANGE_CHK_CNT 8
+#define VTSS_VCAP_RANGE_CHK_CNT 8U
 #endif
 #define VTSS_VCAP_RANGE_CHK_NONE 0xffffffffU
 
@@ -1237,7 +1237,7 @@ typedef struct {
 #elif defined(VTSS_ARCH_LAIKA)
 #define VTSS_FA_ES0_CNT 1024
 #else
-#define VTSS_FA_ES0_CNT 4096
+#define VTSS_FA_ES0_CNT 4096U
 #endif
 #define VTSS_ES0_CNT VTSS_FA_ES0_CNT
 #else
@@ -1259,7 +1259,7 @@ typedef struct {
 #elif defined(VTSS_ARCH_LAIKA)
 #define VTSS_FA_ES2_CNT 64 /* 64 rows allowing 128 half rules */
 #else
-#define VTSS_FA_ES2_CNT 512 /* 512 rows allowing 256 half rules */
+#define VTSS_FA_ES2_CNT 512U /* 512 rows allowing 256 half rules */
 #endif
 
 #if defined(VTSS_FEATURE_ES2)
@@ -1309,8 +1309,8 @@ vtss_rc vtss_cil_vcap_es0_entry_update(struct vtss_state_s *vtss_state,
                                        vtss_vcap_idx_t     *idx,
                                        vtss_es0_data_t     *es0);
 vtss_rc vtss_cil_vcap_es0_esdx_update(struct vtss_state_s *vtss_state,
-                                      const u16            idx_old,
-                                      const u16            idx_new);
+                                      const u16            esdx_old,
+                                      const u16            esdx_new);
 #if defined(VTSS_FEATURE_XFLOW)
 vtss_rc vtss_cil_vcap_es0_eflow_update(struct vtss_state_s  *vtss_state,
                                        const vtss_eflow_id_t flow_id);
@@ -1324,11 +1324,11 @@ vtss_rc vtss_cil_vcap_acl_sip_set(struct vtss_state_s *vtss_state, const vtss_ac
 #endif
 vtss_rc vtss_cil_vcap_acl_port_conf_set(struct vtss_state_s *vtss_state,
                                         const vtss_port_no_t port_no);
-vtss_rc vtss_cil_vcap_acl_port_counter_get(struct vtss_state_s           *vtss_state,
-                                           const vtss_port_no_t           port_no,
-                                           vtss_acl_port_counter_t *const counter);
-vtss_rc vtss_cil_vcap_acl_port_counter_clear(struct vtss_state_s *vtss_state,
-                                             const vtss_port_no_t port_no);
+vtss_rc vtss_cil_vcap_acl_port_cnt_get(struct vtss_state_s           *vtss_state,
+                                       const vtss_port_no_t           port_no,
+                                       vtss_acl_port_counter_t *const counter);
+vtss_rc vtss_cil_vcap_acl_port_cnt_clear(struct vtss_state_s *vtss_state,
+                                         const vtss_port_no_t port_no);
 vtss_rc vtss_cil_vcap_ace_add(struct vtss_state_s    *vtss_state,
                               const vtss_ace_id_t     ace_id,
                               const vtss_ace_t *const ace);

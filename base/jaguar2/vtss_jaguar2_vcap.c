@@ -4122,16 +4122,16 @@ vtss_rc vtss_cil_vcap_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_por
                               JR2_VCAP_SEL_ACTION);
 }
 
-vtss_rc vtss_cil_vcap_acl_port_counter_get(vtss_state_t                  *vtss_state,
-                                           const vtss_port_no_t           port_no,
-                                           vtss_acl_port_counter_t *const counter)
+vtss_rc vtss_cil_vcap_acl_port_cnt_get(vtss_state_t                  *vtss_state,
+                                       const vtss_port_no_t           port_no,
+                                       vtss_acl_port_counter_t *const counter)
 {
     u32 cnt_id = jr2_acl_port_cnt_id(VTSS_CHIP_PORT(port_no));
 
     return jr2_is2_cnt_get(vtss_state, cnt_id, counter);
 }
 
-vtss_rc vtss_cil_vcap_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_cnt_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 cnt_id = jr2_acl_port_cnt_id(VTSS_CHIP_PORT(port_no));
 

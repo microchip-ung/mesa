@@ -1551,7 +1551,7 @@ vtss_rc vtss_acl_port_counter_get(const vtss_inst_t              inst,
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = vtss_cil_vcap_acl_port_counter_get(vtss_state, port_no, counter);
+        rc = vtss_cil_vcap_acl_port_cnt_get(vtss_state, port_no, counter);
     }
     VTSS_EXIT();
     return rc;
@@ -1565,7 +1565,7 @@ vtss_rc vtss_acl_port_counter_clear(const vtss_inst_t inst, const vtss_port_no_t
     VTSS_D("port_no: %u", port_no);
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = vtss_cil_vcap_acl_port_counter_clear(vtss_state, port_no);
+        rc = vtss_cil_vcap_acl_port_cnt_clear(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;

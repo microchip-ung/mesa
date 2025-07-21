@@ -504,13 +504,13 @@ void vtss_fa_debug_cnt(lmu_ss_t            *ss,
 #define FA_SFLOW_MAX_SAMPLE_RATE 32767U /**< Maximum allowable sampling rate for sFlow */
 
 /* Bits used to control IFH.CL_RSLT from CLM/IS2 */
-#define FA_IFH_CL_RSLT_ACL_HIT  0x0001 /* ACL hit flag */
-#define FA_IFH_CL_RSLT_ACL_FLAG 0x0002 /* ACL discard flag */
+#define FA_IFH_CL_RSLT_ACL_HIT  0x0001U /* ACL hit flag */
+#define FA_IFH_CL_RSLT_ACL_FLAG 0x0002U /* ACL discard flag */
 
 /* IS2 key selection starting at index 70 */
-#define FA_VCAP_IS2_KEY_SEL_IRLEG 0
-#define FA_VCAP_IS2_KEY_SEL_ERLEG 1
-#define FA_VCAP_IS2_KEY_SEL_VD0   2
+#define FA_VCAP_IS2_KEY_SEL_IRLEG 0U
+#define FA_VCAP_IS2_KEY_SEL_ERLEG 1U
+#define FA_VCAP_IS2_KEY_SEL_VD0   2U
 
 /* Common functions */
 vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);

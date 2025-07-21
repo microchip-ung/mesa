@@ -3335,14 +3335,14 @@ vtss_rc vtss_cil_vcap_acl_port_conf_set(vtss_state_t *vtss_state, const vtss_por
     return rc;
 }
 
-vtss_rc vtss_cil_vcap_acl_port_counter_get(vtss_state_t                  *vtss_state,
-                                           const vtss_port_no_t           port_no,
-                                           vtss_acl_port_counter_t *const counter)
+vtss_rc vtss_cil_vcap_acl_port_cnt_get(vtss_state_t                  *vtss_state,
+                                       const vtss_port_no_t           port_no,
+                                       vtss_acl_port_counter_t *const counter)
 {
     return srvl_vcap_port_get(vtss_state, VTSS_TCAM_IS2, VTSS_CHIP_PORT(port_no), counter, 0);
 }
 
-vtss_rc vtss_cil_vcap_acl_port_counter_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_vcap_acl_port_cnt_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     u32 counter;
 

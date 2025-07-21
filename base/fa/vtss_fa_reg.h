@@ -63,42 +63,42 @@
 #define CLM_PL_PT_ANA_DONE     16
 
 /* ES0 PUSH_OUTER_TAG values */
-#define ES0_ACT_PUSH_OT_PORT_ENA 0
-#define ES0_ACT_PUSH_OT_ES0      1
-#define ES0_ACT_PUSH_OT_PORT     2
-#define ES0_ACT_PUSH_OT_NONE     3
+#define ES0_ACT_PUSH_OT_PORT_ENA 0U
+#define ES0_ACT_PUSH_OT_ES0      1U
+#define ES0_ACT_PUSH_OT_PORT     2U
+#define ES0_ACT_PUSH_OT_NONE     3U
 
 /* ES0 TPID_SEL values */
-#define ES0_ACT_TPID_SEL_C        0
-#define ES0_ACT_TPID_SEL_S        1
-#define ES0_ACT_TPID_SEL_CUSTOM_1 2
-#define ES0_ACT_TPID_SEL_CUSTOM_2 3
-#define ES0_ACT_TPID_SEL_CUSTOM_3 4
-#define ES0_ACT_TPID_SEL_INGRESS  5
+#define ES0_ACT_TPID_SEL_C        0U
+#define ES0_ACT_TPID_SEL_S        1U
+#define ES0_ACT_TPID_SEL_CUSTOM_1 2U
+#define ES0_ACT_TPID_SEL_CUSTOM_2 3U
+#define ES0_ACT_TPID_SEL_CUSTOM_3 4U
+#define ES0_ACT_TPID_SEL_INGRESS  5U
 
 /* ES0 VID_SEL values */
-#define ES0_ACT_VID_SEL_CL_VID   0
-#define ES0_ACT_VID_SEL_VID_ES0  1
-#define ES0_ACT_VID_SEL_GVID     2
+#define ES0_ACT_VID_SEL_CL_VID   0U
+#define ES0_ACT_VID_SEL_VID_ES0  1U
+#define ES0_ACT_VID_SEL_GVID     2U
 
 /* ES0 PCP_SEL values */
-#define ES0_ACT_PCP_SEL_CL_PCP  0
-#define ES0_ACT_PCP_SEL_PCP_ES0 1
-#define ES0_ACT_PCP_SEL_POPPED  3
-#define ES0_ACT_PCP_SEL_MAP_0   4
-#define ES0_ACT_PCP_SEL_MAP_1   5
-#define ES0_ACT_PCP_SEL_MAP_2   6
-#define ES0_ACT_PCP_SEL_MAP_3   7
+#define ES0_ACT_PCP_SEL_CL_PCP  0U
+#define ES0_ACT_PCP_SEL_PCP_ES0 1U
+#define ES0_ACT_PCP_SEL_POPPED  3U
+#define ES0_ACT_PCP_SEL_MAP_0   4U
+#define ES0_ACT_PCP_SEL_MAP_1   5U
+#define ES0_ACT_PCP_SEL_MAP_2   6U
+#define ES0_ACT_PCP_SEL_MAP_3   7U
 
 /* ES0 DEI_SEL values */
-#define ES0_ACT_DEI_SEL_CL_DEI  0
-#define ES0_ACT_DEI_SEL_DEI_ES0 1
-#define ES0_ACT_DEI_SEL_MAPPED  2
-#define ES0_ACT_DEI_SEL_POPPED  3
-#define ES0_ACT_DEI_SEL_MAP_0   4
-#define ES0_ACT_DEI_SEL_MAP_1   5
-#define ES0_ACT_DEI_SEL_MAP_2   6
-#define ES0_ACT_DEI_SEL_MAP_3   7
+#define ES0_ACT_DEI_SEL_CL_DEI  0U
+#define ES0_ACT_DEI_SEL_DEI_ES0 1U
+#define ES0_ACT_DEI_SEL_MAPPED  2U
+#define ES0_ACT_DEI_SEL_POPPED  3U
+#define ES0_ACT_DEI_SEL_MAP_0   4U
+#define ES0_ACT_DEI_SEL_MAP_1   5U
+#define ES0_ACT_DEI_SEL_MAP_2   6U
+#define ES0_ACT_DEI_SEL_MAP_3   7U
 
 /* ES0 DSCP_SEL values */
 #define ES0_ACT_DSCP_SEL_PORT  0
