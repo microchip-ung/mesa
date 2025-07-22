@@ -1703,7 +1703,10 @@ vtss_rc vtss_fa_ts_debug_print(vtss_state_t                  *vtss_state,
 
 static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
 {
-    u32 i, domain;
+    u32 domain;
+#if !defined(VTSS_ARCH_LAIKA)
+    u32 i;
+#endif
 
     /* Disable PTP (all 3 domains)*/
     REG_WR(VTSS_DEVCPU_PTP_PTP_DOM_CFG, VTSS_F_DEVCPU_PTP_PTP_DOM_CFG_PTP_ENA(0));

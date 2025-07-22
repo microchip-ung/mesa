@@ -653,7 +653,6 @@ vtss_rc vtss_vlan_vid_conf_set(const vtss_inst_t                 inst,
                                const vtss_vid_t                  vid,
                                const vtss_vlan_vid_conf_t *const conf);
 
-#if defined(VTSS_FEATURE_VLAN_TX_TAG)
 /** \brief VLAN Tx tag type */
 typedef enum {
     VTSS_VLAN_TX_TAG_PORT,    /**< Egress tagging determined by VLAN port
@@ -662,6 +661,7 @@ typedef enum {
     VTSS_VLAN_TX_TAG_ENABLE,  /**< Egress tagging enabled */
 } vtss_vlan_tx_tag_t;
 
+#if defined(VTSS_FEATURE_VLAN_TX_TAG)
 /**
  * \brief Get VLAN Tx tagging configuration.
  *

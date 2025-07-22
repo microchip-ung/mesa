@@ -14,14 +14,18 @@
 #include "../ail/vtss_sd10g28_procs.h"
 #include "../ail/vtss_sd25g28_procs.h"
 #include "vtss_fa_reg.h"
+#if defined(VTSS_ARCH_SPARX5)
+#include "vtss_fa_regs.h"
+#include "vtss_fa_vcap.h"
+#endif
+#if defined(VTSS_ARCH_LAN969X)
+#include "vtss_la_regs.h"
+#include "vtss_la_vcap.h"
+#endif
 #if defined(VTSS_ARCH_LAIKA)
 #include "vtss_lk_regs.h"
-#elif defined(VTSS_ARCH_SPARX5)
-#include "vtss_fa_regs.h"
-#else
-#include "vtss_la_regs.h"
+#include "vtss_lk_vcap.h"
 #endif
-#include "fla_vcap_regs.h" // New FA/LA merged VCAP header files
 
 // Fireant port devices:
 // D0  - D11                     DEV5G  (12)
