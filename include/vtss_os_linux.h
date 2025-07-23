@@ -80,7 +80,7 @@ typedef struct {
 #define VTSS_MTIMER_START(timer, msec)                                                             \
     {                                                                                              \
         (void)gettimeofday(&((timer)->timeout), NULL);                                             \
-        (timer)->timeout.tv_usec += msec * 1000;                                                   \
+        (timer)->timeout.tv_usec += (msec) * 1000;                                                 \
         if ((timer)->timeout.tv_usec >= 1000000) {                                                 \
             (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;                         \
             (timer)->timeout.tv_usec %= 1000000;                                                   \

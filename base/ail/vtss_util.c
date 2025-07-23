@@ -113,6 +113,33 @@ void vtss_u8_to_bool8(u8 value, BOOL *array)
     }
 }
 
+u32 vtss_u16_get(const u8 *p)
+{
+    u32 x = p[0];
+
+    x <<= 8;
+    x += p[1];
+    return x;
+}
+
+u32 vtss_u24_get(const u8 *p)
+{
+    u32 x = vtss_u16_get(p);
+
+    x <<= 8;
+    x += p[2];
+    return x;
+}
+
+u32 vtss_u32_get(const u8 *p)
+{
+    u32 x = vtss_u24_get(p);
+
+    x <<= 8;
+    x += p[3];
+    return x;
+}
+
 #if defined(VTSS_OPSYS_LINUX)
 
 __attribute__((weak)) void *vtss_os_malloc(size_t size, vtss_mem_flags_t flags)

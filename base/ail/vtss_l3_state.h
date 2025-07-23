@@ -8,16 +8,16 @@
 
 // One router leg is reserved for discarding
 #define VTSS_RLEG_DISCARD  VTSS_RLEG_CNT
-#define VTSS_RLEG_STAT_CNT (VTSS_RLEG_CNT + 1)
+#define VTSS_RLEG_STAT_CNT (VTSS_RLEG_CNT + 1U)
 
 /* ARP table is divided into rows with 12 columns each */
-#define VTSS_L3_ARP_COL_CNT 12
+#define VTSS_L3_ARP_COL_CNT 12U
 #define VTSS_L3_ARP_ROW_CNT (VTSS_ARP_CNT / VTSS_L3_ARP_COL_CNT)
 
 typedef struct {
-    u8 size;
-    u8 cnt;
-    u8 used[VTSS_L3_ARP_COL_CNT];
+    u8   size;
+    u8   cnt;
+    BOOL used[VTSS_L3_ARP_COL_CNT];
 } vtss_l3_arp_row_t;
 
 typedef struct {
@@ -65,14 +65,14 @@ typedef struct vtss_l3_mc_rt_t {
 } vtss_l3_mc_rt_t;
 
 /* Table sizes */
-#define VTSS_L3_NH_MAX     8 /* Maximum number of next-hops per group */
+#define VTSS_L3_NH_MAX     8U /* Maximum number of next-hops per group */
 #define VTSS_L3_NH_CNT     (VTSS_ARP_CNT + VTSS_L3_NH_MAX)
-#define VTSS_L3_NH_GRP_CNT ((VTSS_ARP_CNT / 2) + 1) /* Each group has at least two next-hops */
+#define VTSS_L3_NH_GRP_CNT ((VTSS_ARP_CNT / 2U) + 1U) /* Each group has at least two next-hops */
 #define VTSS_L3_NET_CNT    VTSS_LPM_CNT
 #define VTSS_L3_NB_CNT     VTSS_LPM_CNT /* Neighbours may be encoded directly in LPM table */
 #define VTSS_L3_MC_RT_CNT  VTSS_LPM_MC_CNT
 
-#define VTSS_L3_MC_RPF_DIS 0xFF /* ID for disabled RPF  */
+#define VTSS_L3_MC_RPF_DIS 0xFFU /* ID for disabled RPF  */
 
 typedef struct vtss_l3_nb_t {
     struct vtss_l3_nb_t *next; /* Next entry */
@@ -83,7 +83,7 @@ typedef struct vtss_l3_nb_t {
 
 /* Next-hop information */
 typedef struct {
-    vtss_l3_nh_t *free;                  /* Free list */
+    vtss_l3_nh_t *free_list;             /* Free list */
     u32           free_cnt;              /* Free count */
     vtss_l3_nh_t  table[VTSS_L3_NH_CNT]; /* Table */
 } vtss_l3_nh_info_t;
@@ -91,7 +91,7 @@ typedef struct {
 /* Next-hop group information */
 typedef struct {
     vtss_l3_nh_grp_t *list;                      /* Actual list */
-    vtss_l3_nh_grp_t *free;                      /* Free list */
+    vtss_l3_nh_grp_t *free_list;                 /* Free list */
     u32               free_cnt;                  /* Free count */
     vtss_l3_nh_grp_t  table[VTSS_L3_NH_GRP_CNT]; /* Table */
 } vtss_l3_nh_grp_info_t;
@@ -99,7 +99,7 @@ typedef struct {
 /* Network information */
 typedef struct {
     vtss_l3_net_t *list;                   /* Actual list */
-    vtss_l3_net_t *free;                   /* Free list */
+    vtss_l3_net_t *free_list;              /* Free list */
     u32            free_cnt;               /* Free count */
     vtss_l3_net_t  table[VTSS_L3_NET_CNT]; /* Table */
     u64            id;                     /* Next free VCAP ID */
@@ -108,7 +108,7 @@ typedef struct {
 /* Neighbour information */
 typedef struct {
     vtss_l3_nb_t *list;                  /* Actual list */
-    vtss_l3_nb_t *free;                  /* Free list */
+    vtss_l3_nb_t *free_list;             /* Free list */
     u32           free_cnt;              /* Free count */
     vtss_l3_nb_t  table[VTSS_L3_NB_CNT]; /* Table */
 } vtss_l3_nb_info_t;
@@ -116,7 +116,7 @@ typedef struct {
 /* MC information */
 typedef struct {
     vtss_l3_mc_rt_t *list;                     /* Actual list */
-    vtss_l3_mc_rt_t *free;                     /* Free list */
+    vtss_l3_mc_rt_t *free_list;                /* Free list */
     u32              free_cnt;                 /* Free count */
     vtss_l3_mc_rt_t  table[VTSS_L3_MC_RT_CNT]; /* L3 MC Table */
     u64              id;                       /* Next free VCAP ID */
@@ -136,25 +136,25 @@ typedef struct {
 } vtss_l3_statistics_t;
 
 // CIL functions
-vtss_rc vtss_cil_l3_rleg_counters_get(struct vtss_state_s *vtss_state, const vtss_l3_rleg_id_t);
+vtss_rc vtss_cil_l3_rleg_counters_get(struct vtss_state_s *vtss_state, vtss_l3_rleg_id_t rleg);
 vtss_rc vtss_cil_l3_rleg_counters_reset(struct vtss_state_s *vtss_state);
-vtss_rc vtss_cil_l3_common_set(struct vtss_state_s *vtss_state, const vtss_l3_common_conf_t *const);
-vtss_rc vtss_cil_l3_rleg_set(struct vtss_state_s *vtss_state,
-                             const vtss_l3_rleg_id_t,
-                             const vtss_l3_rleg_conf_t *const);
-vtss_rc vtss_cil_l3_vlan_set(struct vtss_state_s *vtss_state,
-                             const vtss_l3_rleg_id_t,
-                             const vtss_vid_t,
-                             const BOOL);
+vtss_rc vtss_cil_l3_common_set(struct vtss_state_s               *vtss_state,
+                               const vtss_l3_common_conf_t *const conf);
+vtss_rc vtss_cil_l3_rleg_set(struct vtss_state_s             *vtss_state,
+                             const vtss_l3_rleg_id_t          rleg,
+                             const vtss_l3_rleg_conf_t *const conf);
+vtss_rc vtss_cil_l3_vlan_set(struct vtss_state_s    *vtss_state,
+                             const vtss_l3_rleg_id_t rleg,
+                             const vtss_vid_t        vid,
+                             const BOOL              enable);
 vtss_rc vtss_cil_l3_rt_add(struct vtss_state_s *vtss_state,
                            vtss_l3_net_t       *net,
                            vtss_l3_nb_t        *nb,
                            u32                  cnt);
 vtss_rc vtss_cil_l3_rt_del(struct vtss_state_s *vtss_state, vtss_l3_net_t *net);
-vtss_rc vtss_cil_l3_mc_rt_add(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
-vtss_rc vtss_cil_l3_mc_rt_del(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
-vtss_rc vtss_cil_l3_mc_rt_rleg_add(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
-vtss_rc vtss_cil_l3_mc_rt_rleg_del(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *net);
+vtss_rc vtss_cil_l3_mc_rt_add(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *rt);
+vtss_rc vtss_cil_l3_mc_rt_del(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *rt);
+vtss_rc vtss_cil_l3_mc_rt_rleg_add(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *grp);
 vtss_rc vtss_cil_l3_arp_set(struct vtss_state_s *vtss_state, u32 idx, vtss_l3_nb_t *nb);
 vtss_rc vtss_cil_l3_debug_sticky_clear(struct vtss_state_s *vtss_state);
 
@@ -173,10 +173,8 @@ typedef struct {
 } vtss_l3_state_t;
 
 vtss_rc vtss_l3_inst_create(struct vtss_state_s *vtss_state);
-void    vtss_l3_integrity_update(struct vtss_state_s *vtss_state);
-void    vtss_l3_integrity_check(const struct vtss_state_s *vtss_state,
-                                const char                *file,
-                                unsigned                   line);
+void    vtss_l3_integrity_update(struct vtss_state_s *vs);
+void    vtss_l3_integrity_check(const struct vtss_state_s *vs, const char *file, unsigned line);
 void    vtss_debug_print_l3(struct vtss_state_s           *vtss_state,
                             lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info);

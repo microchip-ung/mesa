@@ -1754,6 +1754,7 @@ vtss_rc vtss_hace_init(const vtss_inst_t inst, const vtss_ace_type_t type, vtss_
     return rc;
 }
 
+#if VTSS_OPT_TRACE
 static const char *vtss_hacl_type_txt(const vtss_hacl_type_t type)
 {
     return (type == VTSS_HACL_TYPE_IPACL   ? "I-PACL"
@@ -1764,6 +1765,7 @@ static const char *vtss_hacl_type_txt(const vtss_hacl_type_t type)
             : type == VTSS_HACL_TYPE_EPACL ? "E-PACL"
                                            : "?");
 }
+#endif
 
 vtss_rc vtss_hace_add(const vtss_inst_t        inst,
                       const vtss_hacl_type_t   type,

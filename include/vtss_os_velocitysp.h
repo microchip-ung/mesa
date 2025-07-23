@@ -94,7 +94,7 @@ void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
 #define VTSS_MTIMER_START(timer, msec)                                                             \
     {                                                                                              \
         lm_mesa_timeval_init(&((timer)->timeout));                                                 \
-        (timer)->timeout.tv_usec += msec * 1000;                                                   \
+        (timer)->timeout.tv_usec += (msec) * 1000;                                                 \
         if ((timer)->timeout.tv_usec >= 1000000) {                                                 \
             (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;                         \
             (timer)->timeout.tv_usec %= 1000000;                                                   \

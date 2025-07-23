@@ -41,5 +41,8 @@ u32  vtss_bs_get(const void *vptr, u32 offset, u32 len);
 
 u8   vtss_bool8_to_u8(BOOL *array);
 void vtss_u8_to_bool8(u8 value, BOOL *array);
+u32  vtss_u16_get(const u8 *p);
+u32  vtss_u24_get(const u8 *p);
+u32  vtss_u32_get(const u8 *p);
 
 #endif /* VTSS_UTIL_H */

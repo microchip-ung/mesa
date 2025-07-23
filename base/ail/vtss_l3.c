@@ -6,17 +6,13 @@
 #include <vtss/api/options.h>
 #if defined(VTSS_FEATURE_LAYER3)
 
+#define VTSS_TRACE_GROUP VTSS_TRACE_GROUP_L3
 #include "vtss_api.h"
 #include "vtss_state.h"
 #include "vtss_os.h"
 
 // Allow to do bulk opertations for ~20ms
 #define BULK_TIME_MAX 20
-
-#define E(...) VTSS_EG(VTSS_TRACE_GROUP_L3, ##__VA_ARGS__)
-#define I(...) VTSS_IG(VTSS_TRACE_GROUP_L3, ##__VA_ARGS__)
-#define D(...) VTSS_DG(VTSS_TRACE_GROUP_L3, ##__VA_ARGS__)
-#define N(...) VTSS_NG(VTSS_TRACE_GROUP_L3, ##__VA_ARGS__)
 
 #define MAC_FORMAT  "%02x-%02x-%02x-%02x-%02x-%02x"
 #define MAC_ARGS(X) X.addr[0], X.addr[1], X.addr[2], X.addr[3], X.addr[4], X.addr[5]
@@ -41,53 +37,48 @@
 #define IPV4N_FORMAT IPV4_FORMAT "/%hhu"
 #define IPV4N_ARG(X) IPV4_ARGS((X).address), (X).prefix_size
 
-void vtss_l3_integrity_check(const vtss_state_t *vs, const char *file, unsigned line)
+void vtss_l3_integrity_check(const struct vtss_state_s *vs, const char *file, unsigned line)
 {
-    u32        i, sum = 0U;
-    const u32 *data = (const u32 *)(&vs->l3);
-    for (i = 0U; i < sizeof(vtss_l3_state_t) / 4; ++i, ++data) {
+    u32         i, sum = 0U;
+    const void *p = (const void *)&vs->l3;
+    const u32  *data = (const u32 *)p;
+
+    for (i = 0U; i < sizeof(vtss_l3_state_t) / 4U; i++) {
         sum ^= *data;
+        data++;
     }
 
     if (sum != 0U) {
         if (file != NULL) {
-            E("%s:%u CHECKSUM ERROR %x != %x", file, line, sum, vs->l3.checksum);
+            VTSS_E("%s:%u CHECKSUM ERROR %x != %x", file, line, sum, vs->l3.checksum);
         } else {
-            E("CHECKSUM ERROR %x != %x", sum, vs->l3.checksum);
+            VTSS_E("CHECKSUM ERROR %x != %x", sum, vs->l3.checksum);
         }
     }
 }
 
-void vtss_l3_integrity_update(vtss_state_t *vs)
+void vtss_l3_integrity_update(struct vtss_state_s *vs)
 {
-    u32 i, sum = 0U;
+    u32         i, sum = 0U;
+    const void *p = (const void *)&vs->l3;
+    const u32  *data = (const u32 *)p;
 
     vs->l3.checksum = 0U;
-    const u32 *data = (const u32 *)(&vs->l3);
-    for (i = 0U; i < sizeof(vtss_l3_state_t) / 4; ++i, ++data) {
+    for (i = 0U; i < sizeof(vtss_l3_state_t) / 4U; i++) {
         sum ^= *data;
+        data++;
     }
 
     vs->l3.checksum = sum;
-}
-
-void vtss_api_l3_integrity_check(const char *file, unsigned line)
-{
-    vtss_state_t *vs;
-    if (vtss_inst_check(0, &vs) == VTSS_RC_OK) {
-        vtss_l3_integrity_check(vs, file, line);
-    } else {
-        E("INSTANCE ERROR");
-    }
 }
 
 static void integrity_check(const vtss_inst_t inst)
 {
     vtss_state_t *vs;
     if (vtss_inst_check(inst, &vs) == VTSS_RC_OK) {
-        vtss_l3_integrity_check(vs, 0, 0U);
+        vtss_l3_integrity_check(vs, NULL, 0U);
     } else {
-        E("INSTANCE ERROR");
+        VTSS_E("INSTANCE ERROR");
     }
 }
 
@@ -97,7 +88,7 @@ static void integrity_update(vtss_inst_t inst)
     if (vtss_inst_check(inst, &vs) == VTSS_RC_OK) {
         vtss_l3_integrity_update(vs);
     } else {
-        E("INSTANCE ERROR");
+        VTSS_E("INSTANCE ERROR");
     }
 }
 
@@ -117,15 +108,15 @@ static void ss_mac(lmu_ss_t *ss, vtss_mac_t *mac)
 
 static void ss_ipv4(lmu_ss_t *ss, vtss_ipv4_t u)
 {
-    for (int i = 0; i < 4; i++) {
-        LMU_SS_FMT(ss, "%s%u", i == 0 ? "" : ".", (u >> (24 - i * 8)) & 0xff);
+    for (u32 i = 0; i < 4U; i++) {
+        LMU_SS_FMT(ss, "%s%u", i == 0 ? "" : ".", (u >> (24U - i * 8U)) & 0xffU);
     }
 }
 
 static void ss_ipv6(lmu_ss_t *ss, vtss_ipv6_t *ipv6)
 {
-    for (int i = 0; i < 16; i++) {
-        LMU_SS_FMT(ss, "%s%02x", i == 0 || (i & 1) ? "" : ":", ipv6->addr[i]);
+    for (u32 i = 0; i < 16U; i++) {
+        LMU_SS_FMT(ss, "%s%02x", i == 0U || (i & 1U) ? "" : ":", ipv6->addr[i]);
     }
 }
 
@@ -149,26 +140,26 @@ static inline vtss_rc rleg_id_get_new(vtss_state_t                    *vtss_stat
                                       vtss_l3_rleg_id_t               *rleg_id)
 {
     u32  i;
-    u32  free_id = 0xffffffff; // just to make lint happy
+    u32  free_id = 0xffffffffU;
     BOOL found_free = FALSE;
 
     for (i = 0U; i < VTSS_RLEG_CNT; ++i) {
         if (rleg_conf[i].vlan == new_rleg->vlan) {
-            E("rleg_id_get_new failed, as vlan %d is allready used by rleg %d", rleg_conf[i].vlan,
-              i);
+            VTSS_E("rleg_id_get_new failed, as vlan %d is allready used by rleg %d",
+                   rleg_conf[i].vlan, i);
 
             return VTSS_RC_ERROR;
         }
 
-        if (rleg_conf[i].vlan == 0 && found_free == FALSE &&
-            (new_rleg->rleg_enable == 0 || new_rleg->rleg_id == i)) {
+        if (rleg_conf[i].vlan == 0U && found_free == FALSE &&
+            (new_rleg->rleg_enable == FALSE || new_rleg->rleg_id == i)) {
             found_free = TRUE;
             free_id = i;
         }
     }
 
     if (found_free) {
-        D("%s:%d vlan: %u, rleg_id: %u", __FUNCTION__, __LINE__, new_rleg->vlan, free_id);
+        VTSS_D("%s:%d vlan: %u, rleg_id: %u", __FUNCTION__, __LINE__, new_rleg->vlan, free_id);
         rleg_conf[free_id] = *new_rleg;
         if (rleg_id != NULL) {
             *rleg_id = free_id;
@@ -176,7 +167,7 @@ static inline vtss_rc rleg_id_get_new(vtss_state_t                    *vtss_stat
         return VTSS_RC_OK;
     }
 
-    I("New rleg requested, but we are out of resources");
+    VTSS_I("New rleg requested, but we are out of resources");
     return VTSS_RC_ERROR;
 }
 
@@ -190,7 +181,7 @@ static inline vtss_rc rleg_id_get(vtss_state_t        *vtss_state,
 {
     u32 i;
 
-    if (vlan == 0) {
+    if (vlan == 0U) {
         return VTSS_RC_ERROR;
     }
 
@@ -219,7 +210,7 @@ static inline vtss_rc rleg_id_del(vtss_state_t        *vtss_state,
                                   vtss_l3_rleg_id_t   *rleg_id)
 {
     vtss_l3_rleg_id_t id;
-    VTSS_RC(rleg_id_get(vtss_state, rleg_conf, vlan, &id, 0));
+    VTSS_RC(rleg_id_get(vtss_state, rleg_conf, vlan, &id, NULL));
 
     *rleg_id = id;
     rleg_conf[id].ipv4_unicast_enable = FALSE;
@@ -230,7 +221,7 @@ static inline vtss_rc rleg_id_del(vtss_state_t        *vtss_state,
     rleg_conf[id].ipv6_icmp_redirect_enable = FALSE;
     rleg_conf[id].vlan = 0;
 
-    I("rleg_id = %d, vlan = %d", id, vlan);
+    VTSS_I("rleg_id = %d, vlan = %d", id, vlan);
 
     return VTSS_RC_OK;
 }
@@ -240,7 +231,7 @@ static vtss_rc rleg_del(vtss_state_t        *vtss_state,
                         const vtss_vid_t     vlan)
 {
     vtss_rc             rc;
-    vtss_l3_rleg_id_t   rleg_id = 0xffffffff; // Just to make lint happy
+    vtss_l3_rleg_id_t   rleg_id = 0xffffffffU;
     vtss_l3_rleg_conf_t conf = {.ipv4_unicast_enable = FALSE,
                                 .ipv6_unicast_enable = FALSE,
                                 .ipv4_multicast_enable = FALSE,
@@ -249,19 +240,20 @@ static vtss_rc rleg_del(vtss_state_t        *vtss_state,
                                 .ipv6_icmp_redirect_enable = FALSE,
                                 .vlan = vlan};
 
-#define DO(X)                                                                                      \
-    if (rc == VTSS_RC_OK) {                                                                        \
-        rc = (X);                                                                                  \
-        if (rc != VTSS_RC_OK) {                                                                    \
-            E("Failed: " #X "rleg_id = %d, vlan = %d", rleg_id, vlan);                             \
-        }                                                                                          \
-    }
     rc = rleg_id_del(vtss_state, rleg_conf, vlan, &rleg_id);
-    I("Deleting rleg_id = %d, vlan = %d", rleg_id, vlan);
-    DO(vtss_cil_l3_vlan_set(vtss_state, rleg_id, vlan, FALSE));
-    DO(vtss_cil_l3_rleg_set(vtss_state, rleg_id, &conf));
-#undef DO
-
+    VTSS_I("Deleting rleg_id = %d, vlan = %d", rleg_id, vlan);
+    if (rc == VTSS_RC_OK) {
+        rc = vtss_cil_l3_vlan_set(vtss_state, rleg_id, vlan, FALSE);
+        if (rc != VTSS_RC_OK) {
+            VTSS_E("failed, rleg_id = %u, vlan = %u", rleg_id, vlan);
+        }
+    }
+    if (rc == VTSS_RC_OK) {
+        rc = vtss_cil_l3_rleg_set(vtss_state, rleg_id, &conf);
+        if (rc != VTSS_RC_OK) {
+            VTSS_E("failed, rleg_id = %u, vlan = %u", rleg_id, vlan);
+        }
+    }
     return rc;
 }
 
@@ -270,23 +262,22 @@ static vtss_rc rleg_add(vtss_state_t                    *vtss_state,
                         const vtss_l3_rleg_conf_t *const conf)
 {
     vtss_rc           rc;
-    vtss_l3_rleg_id_t rleg_id = 0xffffffff; // Just to make lint happy
+    vtss_l3_rleg_id_t rleg_id = 0xffffffffU;
 
-#define DO(X)                                                                                      \
-    if (rc == VTSS_RC_OK) {                                                                        \
-        rc = (X);                                                                                  \
-        if (rc != VTSS_RC_OK) {                                                                    \
-            E("Failed: " #X "rleg_id = %d, vlan = %d", rleg_id, conf->vlan);                       \
-        }                                                                                          \
-    } else {                                                                                       \
-        I("Skipping: " #X "rleg_id = %d, vlan = %d due to earlier error", rleg_id, conf->vlan);    \
-    }
     rc = rleg_id_get_new(vtss_state, vtss_state->l3.rleg_conf, conf, &rleg_id);
-    D("Adding rleg: rleg_id = %d, vlan = %d", rleg_id, conf->vlan);
-    DO(vtss_cil_l3_rleg_set(vtss_state, rleg_id, conf));
-    DO(vtss_cil_l3_vlan_set(vtss_state, rleg_id, conf->vlan, TRUE));
-#undef DO
-
+    VTSS_D("Adding rleg: rleg_id = %d, vlan = %d", rleg_id, conf->vlan);
+    if (rc == VTSS_RC_OK) {
+        rc = vtss_cil_l3_rleg_set(vtss_state, rleg_id, conf);
+        if (rc != VTSS_RC_OK) {
+            VTSS_E("failed, rleg_id = %u, vlan = %u", rleg_id, conf->vlan);
+        }
+    }
+    if (rc == VTSS_RC_OK) {
+        rc = vtss_cil_l3_vlan_set(vtss_state, rleg_id, conf->vlan, TRUE);
+        if (rc != VTSS_RC_OK) {
+            VTSS_E("failed, rleg_id = %u, vlan = %u", rleg_id, conf->vlan);
+        }
+    }
     return rc;
 }
 
@@ -300,7 +291,7 @@ static vtss_rc rleg_update(vtss_state_t                    *vtss_state,
     for (i = 0U; i < VTSS_RLEG_CNT; ++i) {
         if (rleg_conf[i].vlan == conf->vlan) {
             rleg_conf[i] = *conf;
-            D("Updating rleg: rleg_id = %d, vlan = %d", i, conf->vlan);
+            VTSS_D("Updating rleg: rleg_id = %d, vlan = %d", i, conf->vlan);
             rc = vtss_cil_l3_rleg_set(vtss_state, i, conf);
             break;
         }
@@ -340,6 +331,7 @@ static char *vtss_routing_entry_to_string(const vtss_routing_entry_t *const entr
     return buf->s;
 }
 
+#if VTSS_LPM_MC_CNT
 static char *vtss_routing_mc_entry_to_string(const vtss_routing_mc_entry_t *const entry,
                                              lmu_fmt_buf_t                       *buf)
 {
@@ -360,6 +352,7 @@ static char *vtss_routing_mc_entry_to_string(const vtss_routing_mc_entry_t *cons
     }
     return buf->s;
 }
+#endif
 
 static char *vtss_neighbour_to_string(const vtss_l3_neighbour_t *const entry, lmu_fmt_buf_t *buf)
 {
@@ -393,7 +386,7 @@ static inline int ipv6_cmp(const vtss_ipv6_t *a, const vtss_ipv6_t *b)
 {
     u8 i, a_addr, b_addr;
 
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < 16U; i++) {
         a_addr = a->addr[i];
         b_addr = b->addr[i];
         if (a_addr != b_addr) {
@@ -427,7 +420,8 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
 {
     vtss_l3_arp_info_t *arp = &vtss_state->l3.arp;
     vtss_l3_arp_row_t  *row, *row_free;
-    u8                  size, done;
+    u8                  size;
+    BOOL                done;
     u16                 i, j, k, i_free = arp->row_cnt, j_free = 0, old, new;
     struct {
         u16 free_cnt;                     /* Number of free entries */
@@ -436,22 +430,24 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
         u16 row_cnt;                      /* Smallest number of used entries */
     } info[VTSS_L3_ARP_COL_CNT + 1], *pi; /* Info per size (2/3/4/6/12) */
 
-    if (cnt < 2 || cnt > VTSS_L3_ARP_COL_CNT) {
-        E("illegal size: %u", cnt);
+    if (cnt < 2U || cnt > VTSS_L3_ARP_COL_CNT) {
+        VTSS_E("illegal size: %u", cnt);
         return VTSS_RC_ERROR;
-    } else if (cnt > (VTSS_L3_ARP_COL_CNT / 2)) {
+    } else if (cnt > (VTSS_L3_ARP_COL_CNT / 2U)) {
         cnt = VTSS_L3_ARP_COL_CNT;
-    } else if (cnt == 5) {
-        cnt = (VTSS_L3_ARP_COL_CNT / 2);
+    } else if (cnt == 5U) {
+        cnt = (VTSS_L3_ARP_COL_CNT / 2U);
+    } else {
+        // Empty on purpose
     }
 
     VTSS_MEMSET(info, 0, sizeof(info));
-    done = 0;
+    done = FALSE;
     for (i = 0; i < arp->row_cnt && !done; i++) {
         row = &arp->row[i];
-        if ((size = row->size) != 0) {
+        if ((size = row->size) != 0U) {
             pi = &info[size];
-            if (pi->row_cnt == 0 || row->cnt < pi->row_cnt) {
+            if (pi->row_cnt == 0U || row->cnt < pi->row_cnt) {
                 /* Row with fewer used entries found */
                 pi->row_cnt = row->cnt;
                 pi->row_idx = i;
@@ -463,7 +459,7 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
                     /* Free entry with correct size found */
                     i_free = i;
                     j_free = j;
-                    done = 1;
+                    done = TRUE;
                     break;
                 } else {
                     pi->free_cnt += size;
@@ -472,13 +468,15 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
         } else if (i_free == arp->row_cnt) {
             /* First free row found */
             i_free = i;
+        } else {
+            // Empty on purpose
         }
     }
 
     pi = NULL;
     if (i_free == arp->row_cnt) {
         /* No free row or column found, check if we can free a new row */
-        for (size = (VTSS_L3_ARP_COL_CNT / 2); size > 1; size--) {
+        for (size = (VTSS_L3_ARP_COL_CNT / 2U); size > 1U; size--) {
             if (info[size].free_cnt >= VTSS_L3_ARP_COL_CNT) {
                 pi = &info[size];
                 break;
@@ -486,25 +484,25 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
         }
 
         if (pi == NULL) {
-            I("no free ARP entries");
+            VTSS_I("no free ARP entries");
             return VTSS_RC_ERROR;
         }
     }
 
     if (pi != NULL) {
         /* Free row to make room for new entry */
-        I("freeing row %u, size: %u", pi->row_idx, size);
+        VTSS_I("freeing row %u, size: %u", pi->row_idx, size);
         row_free = &arp->row[pi->row_idx];
         pi->col_idx = VTSS_L3_ARP_COL_CNT;
         for (j = 0; j < VTSS_L3_ARP_COL_CNT; j += size) {
             if (row_free->used[j]) {
                 /* Found first used column to be moved */
-                I("free first col: %u", j);
+                VTSS_I("free first col: %u", j);
                 pi->col_idx = j;
                 break;
             }
         }
-        done = 0;
+        done = FALSE;
         for (i = 0; i < arp->row_cnt && !done; i++) {
             row = &arp->row[i];
             if (row->size != size || row == row_free) {
@@ -518,16 +516,18 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
                 new = (i * VTSS_L3_ARP_COL_CNT + j);
                 VTSS_RC(rt_grp_move(vtss_state, old, new));
                 for (k = 0; k < size; k++) {
-                    row->used[j + k] = 1;
-                    row_free->used[pi->col_idx + k] = 0;
+                    if ((j + k) < VTSS_L3_ARP_COL_CNT) {
+                        row->used[j + k] = TRUE;
+                    }
+                    row_free->used[pi->col_idx + k] = FALSE;
                 }
                 row->cnt += size;
-                done = 1;
+                done = TRUE;
                 for (k = (pi->col_idx + size); k < VTSS_L3_ARP_COL_CNT; k += size) {
                     if (row_free->used[k]) {
-                        I("free next col: %u", k);
+                        VTSS_I("free next col: %u", k);
                         pi->col_idx = k;
-                        done = 0;
+                        done = FALSE;
                         break;
                     }
                 }
@@ -544,10 +544,10 @@ static inline vtss_rc arp_alloc(vtss_state_t *vtss_state, u8 cnt, u16 *idx)
     row->size = cnt;
     row->cnt += cnt;
     for (j = 0; j < cnt; j++) {
-        row->used[j + j_free] = 1;
+        row->used[j + j_free] = TRUE;
     }
     *idx = (i_free * VTSS_L3_ARP_COL_CNT + j_free);
-    I("allocate %u", *idx);
+    VTSS_I("allocate %u", *idx);
 
     return VTSS_RC_OK;
 }
@@ -561,22 +561,22 @@ static inline vtss_rc arp_free(vtss_state_t *vtss_state, u16 idx)
     u16                 j = (idx % VTSS_L3_ARP_COL_CNT);
 
     if (i >= arp->row_cnt) {
-        E("illegal idx: %u", idx);
+        VTSS_E("illegal idx: %u", idx);
         return VTSS_RC_ERROR;
     }
 
     row = &arp->row[i];
-    if ((size = row->size) == 0 || row->used[j] == 0) {
-        E("already free idx: %u", idx);
+    if ((size = row->size) == 0U || row->used[j] == FALSE) {
+        VTSS_E("already free idx: %u", idx);
         return VTSS_RC_ERROR;
     }
 
-    I("free idx: %u", idx);
+    VTSS_I("free idx: %u", idx);
     for (i = 0; i < size; i++) {
-        row->used[j + i] = 0;
+        row->used[j + i] = FALSE;
     }
     row->cnt -= size;
-    if (row->cnt == 0) {
+    if (row->cnt == 0U) {
         row->size = 0;
     }
     return VTSS_RC_OK;
@@ -606,11 +606,11 @@ static inline vtss_l3_nh_t *nh_alloc(vtss_state_t  *vtss_state,
     vtss_l3_nh_info_t *info = &vtss_state->l3.nh;
     vtss_l3_nh_t      *nh;
 
-    if ((nh = info->free) == NULL) {
+    if ((nh = info->free_list) == NULL) {
         /* We should run out of ARP entries before next-hop entries */
-        E("no more next-hop entries");
+        VTSS_E("no more next-hop entries");
     } else {
-        info->free = nh->next;
+        info->free_list = nh->next;
         info->free_cnt--;
         *nh = *new;
         if (prev == NULL) {
@@ -627,12 +627,12 @@ static inline vtss_l3_nh_t *nh_alloc(vtss_state_t  *vtss_state,
 static inline void nh_free(vtss_state_t *vtss_state, vtss_l3_nh_t *list)
 {
     vtss_l3_nh_info_t *info = &vtss_state->l3.nh;
-    vtss_l3_nh_t      *nh, *next;
+    vtss_l3_nh_t      *nh = list, *next;
 
-    for (nh = list; nh != NULL;) {
+    while (nh != NULL) {
         next = nh->next;
-        nh->next = info->free;
-        info->free = nh;
+        nh->next = info->free_list;
+        info->free_list = nh;
         info->free_cnt++;
         nh = next;
     }
@@ -642,7 +642,7 @@ static inline vtss_rc nh_update(vtss_state_t *vtss_state, u32 idx, vtss_l3_nb_t 
 {
     BOOL enable = vtss_state->l3.common.routing_enable;
 
-    I("idx: %u, dmac: " MAC_FORMAT ", vid: %u", idx, MAC_ARGS(nb->dmac), nb->nh.vid);
+    VTSS_I("idx: %u, dmac: " MAC_FORMAT ", vid: %u", idx, MAC_ARGS(nb->dmac), nb->nh.vid);
     return (enable ? vtss_cil_l3_arp_set(vtss_state, idx, nb) : VTSS_RC_OK);
 }
 
@@ -655,15 +655,15 @@ static inline vtss_l3_nh_grp_t *nh_grp_alloc(vtss_state_t *vtss_state, u8 cnt)
     u16                    idx;
 
     if (cnt > VTSS_L3_NH_MAX) {
-        E("maximum %u next-hops are supported", VTSS_L3_NH_MAX);
+        VTSS_E("maximum %u next-hops are supported", VTSS_L3_NH_MAX);
     } else if (arp_alloc(vtss_state, cnt, &idx) != VTSS_RC_OK) {
         /* We should run out of ARP entries before next-hop groups */
     } else if (vtss_state->l3.nh.free_cnt < cnt) {
-        E("no more next-hop entries");
-    } else if ((grp = info->free) == NULL) {
-        E("no more next-hop groups");
+        VTSS_E("no more next-hop entries");
+    } else if ((grp = info->free_list) == NULL) {
+        VTSS_E("no more next-hop groups");
     } else {
-        info->free = grp->next;
+        info->free_list = grp->next;
         info->free_cnt--;
         grp->next = info->list;
         info->list = grp;
@@ -678,28 +678,29 @@ static inline void nh_grp_free(vtss_state_t *vtss_state, vtss_l3_nh_grp_t *grp)
     vtss_l3_nh_grp_t      *cur, *prev = NULL;
 
     if (grp->count == 0U) {
-        E("group already free");
+        VTSS_E("group already free");
     } else {
         grp->count--;
         if (grp->count == 0U) {
             /* Free next-hop list and move group to free list */
             nh_free(vtss_state, grp->list);
             (void)arp_free(vtss_state, grp->idx);
-            for (cur = info->list; cur != NULL; prev = cur, cur = cur->next) {
+            for (cur = info->list; cur != NULL; cur = cur->next) {
                 if (cur == grp) {
                     break;
                 }
+                prev = cur;
             }
             if (cur == NULL) {
-                E("group not found");
+                VTSS_E("group not found");
             } else {
                 if (prev == NULL) {
                     info->list = cur->next;
                 } else {
                     prev->next = cur->next;
                 }
-                cur->next = info->free;
-                info->free = grp;
+                cur->next = info->free_list;
+                info->free_list = grp;
                 info->free_cnt++;
             }
         }
@@ -714,7 +715,9 @@ static inline vtss_rc nh_grp_update(vtss_state_t *vtss_state, vtss_l3_nh_grp_t *
     int           cmp;
 
     VTSS_MEMSET(&nb_zero, 0, sizeof(nb_zero));
-    for (nh = grp->list, nb = vtss_state->l3.nb.list; nh != NULL;) {
+    nh = grp->list;
+    nb = vtss_state->l3.nb.list;
+    while (nh != NULL) {
         cmp = (nb == NULL ? -1 : nh_cmp(&nh->nh, &nb->nh));
         if (cmp > 0) {
             /* Next-hop is bigger, take next neighbour */
@@ -748,10 +751,14 @@ static inline vtss_l3_nh_grp_t *nh_grp_lookup(vtss_state_t *vtss_state, vtss_l3_
             continue;
         }
         cmp = 1;
-        for (a = grp->list, b = list; a != NULL && b != NULL; a = a->next, b = b->next) {
+        a = grp->list;
+        b = list;
+        while (a != NULL && b != NULL) {
             if ((cmp = nh_cmp(&a->nh, &b->nh)) != 0) {
                 break;
             }
+            a = a->next;
+            b = b->next;
         }
         if (cmp == 0 && a == NULL && b == NULL) {
             break;
@@ -798,21 +805,21 @@ static inline int mc_rt_cmp(const vtss_l3_mc_rt_t *a, const vtss_l3_mc_rt_t *b)
 
 static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
                                 vtss_l3_net_t *net,
-                                vtss_l3_nb_t  *nb,
+                                vtss_l3_nb_t  *nbr,
                                 u32            cnt)
 {
     BOOL         enable = vtss_state->l3.common.routing_enable;
-    BOOL         discard = 1;
-    int          i;
-    vtss_l3_nb_t nb_zero = {0};
+    BOOL         discard = TRUE;
+    u32          i;
+    vtss_l3_nb_t nb_zero = {0}, *nb = nbr;
 
     if (net->network.type == VTSS_IP_TYPE_IPV4) {
-        I("net: " IPV4N_FORMAT, IPV4_ARGS(net->network.addr.ipv4), net->prefix_size);
+        VTSS_I("net: " IPV4N_FORMAT, IPV4_ARGS(net->network.addr.ipv4), net->prefix_size);
     } else {
-        I("net: " IPV6N_FORMAT, IPV6_ARGS(net->network.addr.ipv6), net->prefix_size);
+        VTSS_I("net: " IPV6N_FORMAT, IPV6_ARGS(net->network.addr.ipv6), net->prefix_size);
     }
     if (cnt > VTSS_L3_NH_MAX) {
-        I("delete net");
+        VTSS_I("delete net");
         return (enable ? vtss_cil_l3_rt_del(vtss_state, net) : VTSS_RC_OK);
     }
     if (net->grp == NULL) {
@@ -820,11 +827,11 @@ static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
         if (nb == NULL) {
             nb = &nb_zero;
             if (net->network.type == VTSS_IP_TYPE_IPV4) {
-                discard = (net->nh.dip.addr.ipv4 == 0xffffffff);
+                discard = (net->nh.dip.addr.ipv4 == 0xffffffffU);
             } else {
-                for (i = 0; i < 16; i++) {
-                    if (net->nh.dip.addr.ipv6.addr[i] != 0xff) {
-                        discard = 0;
+                for (i = 0; i < 16U; i++) {
+                    if (net->nh.dip.addr.ipv6.addr[i] != 0xffU) {
+                        discard = FALSE;
                     }
                 }
             }
@@ -834,9 +841,9 @@ static inline vtss_rc rt_update(vtss_state_t  *vtss_state,
                 nb->rleg = VTSS_RLEG_DISCARD;
             }
         }
-        I("dmac: " MAC_FORMAT ", vid: %u", MAC_ARGS(nb->dmac), nb->nh.vid);
+        VTSS_I("dmac: " MAC_FORMAT ", vid: %u", MAC_ARGS(nb->dmac), nb->nh.vid);
     } else {
-        I("cnt: %u, idx: %u", cnt, net->grp->idx);
+        VTSS_I("cnt: %u, idx: %u", cnt, net->grp->idx);
     }
     return (enable ? vtss_cil_l3_rt_add(vtss_state, net, nb, cnt) : VTSS_RC_OK);
 }
@@ -846,9 +853,9 @@ static inline vtss_rc mc_rt_update(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *ne
     BOOL enable = vtss_state->l3.common.mc_routing_enable;
 
     if (net->network.type == VTSS_IP_TYPE_IPV4) {
-        I("group: " IPV4N_FORMAT, IPV4_ARGS(net->network.addr.ipv4), 32);
+        VTSS_I("group: " IPV4N_FORMAT, IPV4_ARGS(net->network.addr.ipv4), 32);
     } else {
-        I("group: " IPV6N_FORMAT, IPV6_ARGS(net->network.addr.ipv6), 128);
+        VTSS_I("group: " IPV6N_FORMAT, IPV6_ARGS(net->network.addr.ipv6), 128);
     }
     if (add) {
         return (enable ? vtss_cil_l3_mc_rt_add(vtss_state, net) : VTSS_RC_OK);
@@ -864,7 +871,7 @@ static inline vtss_rc rt_grp_move(vtss_state_t *vtss_state, u16 idx_old, u16 idx
     vtss_l3_nh_t     *nh;
     u32               cnt = 0U;
 
-    I("old: %u, new: %u", idx_old, idx_new);
+    VTSS_I("old: %u, new: %u", idx_old, idx_new);
     for (grp = vtss_state->l3.nh_grp.list; grp != NULL; grp = grp->next) {
         if (grp->idx == idx_old) {
             grp->idx = idx_new;
@@ -919,6 +926,7 @@ static inline void route2net(const vtss_routing_entry_t *route, vtss_l3_net_t *n
     net->nh.vid = route->vlan;
 }
 
+#if VTSS_LPM_MC_CNT
 static inline void route2mc_rt(const vtss_routing_mc_entry_t *route, vtss_l3_mc_rt_t *net)
 {
     VTSS_MEMSET(net, 0, sizeof(*net));
@@ -937,6 +945,7 @@ static inline void route2mc_rt(const vtss_routing_mc_entry_t *route, vtss_l3_mc_
     }
     net->src_rleg = route->source_rleg;
 }
+#endif
 
 static vtss_rc rt_res_check(vtss_state_t *vtss_state, u32 ipv4_cnt, u32 ipv6_cnt)
 {
@@ -952,6 +961,7 @@ static vtss_rc rt_res_check(vtss_state_t *vtss_state, u32 ipv4_cnt, u32 ipv6_cnt
     return vtss_cmn_vcap_res_check(&vtss_state->vcap.lpm.obj, &res);
 }
 
+#if VTSS_LPM_MC_CNT
 static vtss_rc mc_rt_res_check(vtss_state_t *vtss_state, u32 ipv4_cnt, u32 ipv6_cnt)
 {
     vtss_res_chg_t res;
@@ -1015,7 +1025,7 @@ static vtss_rc mc_update_rleg_tbl(vtss_state_t    *vtss_state,
     if (cur->src_rleg != VTSS_VID_NULL) {
         if (rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, cur->src_rleg, &rpf, NULL) !=
             VTSS_RC_OK) {
-            E("Router leg not found");
+            VTSS_E("Router leg not found");
             return VTSS_RC_ERROR;
         }
     }
@@ -1037,7 +1047,7 @@ static vtss_rc mc_update_rleg_tbl(vtss_state_t    *vtss_state,
     } else {
         // Entry does not exist create a new one
         if (!mc_tbl_find(vtss_state, tbl_ptr, NULL, 0, &new_tbl_id)) {
-            I("MC L3 Table is full");
+            VTSS_I("MC L3 Table is full");
             return VTSS_RC_ERROR;
         }
         tbl_ptr[cur->tbl].cnt--;
@@ -1074,17 +1084,17 @@ static inline vtss_rc mc_rt_rleg_modify(vtss_state_t                        *vts
         }
     }
     if (cmp != 0) {
-        I("MC Route not found");
+        VTSS_I("MC Route not found");
         return VTSS_RC_ERROR;
     }
     if (rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, dest_rleg, &rleg_id, NULL) !=
         VTSS_RC_OK) {
-        E("Router leg not found");
+        VTSS_E("Router leg not found");
         return VTSS_RC_ERROR;
     }
 
     if (rleg_id >= 128U) {
-        E("Router leg id above 128 not supported");
+        VTSS_E("Router leg id above 128 not supported");
         return VTSS_RC_ERROR;
     }
 
@@ -1132,7 +1142,7 @@ static inline vtss_rc mc_rt_get_active(vtss_state_t                        *vtss
     }
 
     if (cur == NULL) {
-        I("MC route not found");
+        VTSS_I("MC route not found");
         return VTSS_RC_ERROR;
     }
 
@@ -1168,9 +1178,9 @@ static inline vtss_rc mc_rt_add(vtss_state_t                        *vtss_state,
             cnt = (net_new.network.type == VTSS_IP_TYPE_IPV4 ? 1 : 0);
             VTSS_RC(mc_rt_res_check(vtss_state, cnt, 1 - cnt));
         }
-        if ((cur = info->free) == NULL || info->free_cnt == 0U) {
+        if ((cur = info->free_list) == NULL || info->free_cnt == 0U) {
             /* Allocation failed */
-            E("no free mc entries");
+            VTSS_E("no free mc entries");
             return VTSS_RC_ERROR;
         }
         if (net_new.network.type == VTSS_IP_TYPE_IPV4) {
@@ -1179,7 +1189,7 @@ static inline vtss_rc mc_rt_add(vtss_state_t                        *vtss_state,
             info->free_cnt = info->free_cnt < 4U ? 0U : info->free_cnt - 4U;
         }
 
-        info->free = cur->next;
+        info->free_list = cur->next;
         *cur = net_new;
         cur->id = info->id++;
         if (prev == NULL) {
@@ -1194,7 +1204,7 @@ static inline vtss_rc mc_rt_add(vtss_state_t                        *vtss_state,
 
         // Find an empty L3 MC entry
         if (!mc_tbl_find(vtss_state, tbl_ptr, NULL, 0, &new_tbl_id)) {
-            E("MC L3 Table is full");
+            VTSS_E("MC L3 Table is full");
             return VTSS_RC_ERROR;
         }
         cur->tbl = new_tbl_id;
@@ -1218,7 +1228,7 @@ static inline vtss_rc mc_rt_del(vtss_state_t                        *vtss_state,
         }
     }
     if (cur == NULL) {
-        I("MC route not found");
+        VTSS_I("MC route not found");
         return VTSS_RC_ERROR;
     }
 
@@ -1229,8 +1239,8 @@ static inline vtss_rc mc_rt_del(vtss_state_t                        *vtss_state,
     } else {
         prev->next = cur->next;
     }
-    cur->next = info->free;
-    info->free = cur;
+    cur->next = info->free_list;
+    info->free_list = cur;
     if (net_old.network.type == VTSS_IP_TYPE_IPV4) {
         info->free_cnt++;
     } else {
@@ -1238,6 +1248,7 @@ static inline vtss_rc mc_rt_del(vtss_state_t                        *vtss_state,
     }
     return mc_rt_update(vtss_state, cur, FALSE);
 }
+#endif // VTSS_LPM_MC_CNT
 
 static inline vtss_rc rt_add(vtss_state_t *vtss_state, const vtss_routing_entry_t *const route)
 {
@@ -1251,10 +1262,11 @@ static inline vtss_rc rt_add(vtss_state_t *vtss_state, const vtss_routing_entry_
 
     /* Search for an existing network or a place to insert new network */
     route2net(route, &net_new);
-    for (cur = info->list; cur != NULL; prev = cur, cur = cur->next) {
+    for (cur = info->list; cur != NULL; cur = cur->next) {
         if ((cmp = net_cmp(&net_new, cur)) >= 0) {
             break;
         }
+        prev = cur;
     }
 
     if (cmp != 0) {
@@ -1262,16 +1274,16 @@ static inline vtss_rc rt_add(vtss_state_t *vtss_state, const vtss_routing_entry_
         if (vtss_state->l3.common.routing_enable && obj->count == obj->max_count) {
             /* Routing is enabled and current LPM block is full, check resources
              */
-            cnt = (net_new.network.type == VTSS_IP_TYPE_IPV4 ? 1 : 0);
-            VTSS_RC(rt_res_check(vtss_state, cnt, 1 - cnt));
+            cnt = (net_new.network.type == VTSS_IP_TYPE_IPV4 ? 1U : 0U);
+            VTSS_RC(rt_res_check(vtss_state, cnt, cnt == 0U ? 1U : 0U));
         }
-        if ((cur = info->free) == NULL) {
+        if ((cur = info->free_list) == NULL) {
             /* Allocation failed */
-            I("no free net entries");
+            VTSS_I("no free net entries");
             return VTSS_RC_ERROR;
         }
         info->free_cnt--;
-        info->free = cur->next;
+        info->free_list = cur->next;
         *cur = net_new;
         cur->id = info->id++;
         if (prev == NULL) {
@@ -1313,8 +1325,11 @@ static inline vtss_rc rt_add(vtss_state_t *vtss_state, const vtss_routing_entry_
             }
 
             /* Insert next-hop entries in list */
-            for (nh = list, list = NULL; nh != NULL; nh = nh->next) {
+            nh = list;
+            list = NULL;
+            while (nh != NULL) {
                 prev_nh = nh_alloc(vtss_state, &list, prev_nh, nh);
+                nh = nh->next;
             }
             grp->list = list;
             VTSS_RC(nh_grp_update(vtss_state, grp));
@@ -1330,10 +1345,11 @@ static inline vtss_rc rt_add(vtss_state_t *vtss_state, const vtss_routing_entry_
     for (nh = list; nh != NULL; nh = nh->next) {
         cnt++;
     }
-    for (nh = list; nh != NULL; prev_nh = nh, nh = nh->next) {
+    for (nh = list; nh != NULL; nh = nh->next) {
         if ((cmp = nh_cmp(&nh->nh, &nh_new.nh)) >= 0) {
             break;
         }
+        prev_nh = nh;
     }
     if (cmp == 0) {
         /* Next-hop already found in list */
@@ -1362,14 +1378,16 @@ static inline vtss_rc rt_add(vtss_state_t *vtss_state, const vtss_routing_entry_
             return VTSS_RC_ERROR;
         }
         prev_nh = NULL;
-        for (nh = cur->grp->list, list = NULL; nh != NULL; nh = nh->next) {
+        list = NULL;
+        for (nh = cur->grp->list; nh != NULL; nh = nh->next) {
             prev_nh = nh_alloc(vtss_state, &list, prev_nh, nh);
         }
         prev_nh = NULL;
-        for (nh = list; nh != NULL; prev_nh = nh, nh = nh->next) {
+        for (nh = list; nh != NULL; nh = nh->next) {
             if (nh_cmp(&nh->nh, &nh_new.nh) > 0) {
                 break;
             }
+            prev_nh = nh;
         }
         (void)nh_alloc(vtss_state, &list, prev_nh, &nh_new);
         grp->list = list;
@@ -1393,14 +1411,15 @@ static inline vtss_rc rt_del(vtss_state_t *vtss_state, const vtss_routing_entry_
 
     /* Search for network */
     route2net(route, &net_old);
-    for (cur = info->list; cur != NULL; prev = cur, cur = cur->next) {
+    for (cur = info->list; cur != NULL; cur = cur->next) {
         if (net_cmp(&net_old, cur) == 0) {
             break;
         }
+        prev = cur;
     }
 
     if (cur == NULL) {
-        I("network not found");
+        VTSS_I("network not found");
         return VTSS_RC_ERROR;
     }
 
@@ -1411,32 +1430,34 @@ static inline vtss_rc rt_del(vtss_state_t *vtss_state, const vtss_routing_entry_
         } else {
             prev->next = cur->next;
         }
-        cur->next = info->free;
-        info->free = cur;
+        cur->next = info->free_list;
+        info->free_list = cur;
         info->free_cnt++;
-        return rt_update(vtss_state, cur, NULL, VTSS_L3_NH_MAX + 1);
+        return rt_update(vtss_state, cur, NULL, VTSS_L3_NH_MAX + 1U);
     }
 
     /* Network with multiple next-hops */
     list = cur->grp->list;
-    for (cnt = 0, nh = list; nh != NULL; nh = nh->next) {
+    cnt = 0;
+    for (nh = list; nh != NULL; nh = nh->next) {
         cnt++;
     }
-    for (nh = list; nh != NULL; prev_nh = nh, nh = nh->next) {
+    for (nh = list; nh != NULL; nh = nh->next) {
         if (nh_cmp(&nh->nh, &net_old.nh) == 0) {
             break;
         }
+        prev_nh = nh;
     }
 
     if (nh == NULL) {
-        I("next-hop not found");
+        VTSS_I("next-hop not found");
         return VTSS_RC_ERROR;
     }
 
-    if (cnt < 3) {
+    if (cnt < 3U) {
         /* Route has two next-hops and returns to single next-hop */
         cur->nh = (nh->next == NULL ? list->nh : nh->next->nh);
-        I("single next-hop, free idx: %u", cur->grp->idx);
+        VTSS_I("single next-hop, free idx: %u", cur->grp->idx);
         nh_grp_free(vtss_state, cur->grp);
         cur->grp = NULL;
         return rt_update(vtss_state, cur, nb_lookup(vtss_state, &cur->nh), 0U);
@@ -1462,7 +1483,8 @@ static inline vtss_rc rt_del(vtss_state_t *vtss_state, const vtss_routing_entry_
             return VTSS_RC_ERROR;
         }
         prev_nh = NULL;
-        for (nh = cur->grp->list, list = NULL; nh != NULL; nh = nh->next) {
+        list = NULL;
+        for (nh = cur->grp->list; nh != NULL; nh = nh->next) {
             if (nh_cmp(&nh->nh, &net_old.nh) != 0) {
                 prev_nh = nh_alloc(vtss_state, &list, prev_nh, nh);
             }
@@ -1497,19 +1519,23 @@ static inline vtss_rc nb_update(vtss_state_t *vtss_state, vtss_l3_nb_t *nb)
 
     /* Search for single next-hop addresses to update */
     for (net = l3->net.list; net != NULL; net = net->next) {
-        if (net->grp == NULL && nh_cmp(&net->nh, &nb->nh) == 0 &&
-            (rc = rt_update(vtss_state, net, nb, 0U)) != VTSS_RC_OK) {
-            return rc;
+        if (net->grp == NULL && nh_cmp(&net->nh, &nb->nh) == 0) {
+            if ((rc = rt_update(vtss_state, net, nb, 0U)) != VTSS_RC_OK) {
+                return rc;
+            }
         }
     }
 
     /* Look for group next-hop entries to update */
     for (grp = l3->nh_grp.list; grp != NULL; grp = grp->next) {
-        for (nh = grp->list, idx = grp->idx; nh != NULL; nh = nh->next, idx++) {
-            if (nh_cmp(&nh->nh, &nb->nh) == 0 &&
-                (rc = nh_update(vtss_state, idx, nb)) != VTSS_RC_OK) {
-                return rc;
+        idx = grp->idx;
+        for (nh = grp->list; nh != NULL; nh = nh->next) {
+            if (nh_cmp(&nh->nh, &nb->nh) == 0) {
+                if ((rc = nh_update(vtss_state, idx, nb)) != VTSS_RC_OK) {
+                    return rc;
+                }
             }
+            idx++;
         }
     }
     return VTSS_RC_OK;
@@ -1527,21 +1553,22 @@ static inline vtss_rc nb_add(vtss_state_t *vtss_state, const vtss_l3_neighbour_t
 
     /* Search for an existing entry or a place to insert new entry */
     nb2nh(nb, &nh);
-    for (cur = info->list; cur != NULL; prev = cur, cur = cur->next) {
+    for (cur = info->list; cur != NULL; cur = cur->next) {
         if ((cmp = nh_cmp(&cur->nh, &nh)) >= 0) {
             break;
         }
+        prev = cur;
     }
 
     if (cmp != 0) {
         /* Add new entry */
-        if ((cur = info->free) == NULL) {
+        if ((cur = info->free_list) == NULL) {
             /* Allocation failed */
-            I("no free neighbour entries");
+            VTSS_I("no free neighbour entries");
             return VTSS_RC_ERROR;
         } else {
             info->free_cnt--;
-            info->free = cur->next;
+            info->free_list = cur->next;
             if (prev == NULL) {
                 /* Insert first */
                 cur->next = info->list;
@@ -1569,14 +1596,15 @@ static inline vtss_rc nb_del(vtss_state_t *vtss_state, const vtss_l3_neighbour_t
 
     /* Search for entry */
     nb2nh(nb, &nh);
-    for (cur = info->list; cur != NULL; prev = cur, cur = cur->next) {
+    for (cur = info->list; cur != NULL; cur = cur->next) {
         if (nh_cmp(&cur->nh, &nh) == 0) {
             break;
         }
+        prev = cur;
     }
 
     if (cur == NULL) {
-        I("neighbour not found");
+        VTSS_I("neighbour not found");
         return VTSS_RC_ERROR;
     }
 
@@ -1585,8 +1613,8 @@ static inline vtss_rc nb_del(vtss_state_t *vtss_state, const vtss_l3_neighbour_t
     } else {
         prev->next = cur->next;
     }
-    cur->next = info->free;
-    info->free = cur;
+    cur->next = info->free_list;
+    info->free_list = cur;
     info->free_cnt++;
 
     /* Clear DMAC and update hardware */
@@ -1622,7 +1650,7 @@ static vtss_rc rt_setup(vtss_state_t *vtss_state, BOOL enable)
     vtss_l3_net_t   *net, *next;
     vtss_l3_nh_t    *nh;
     vtss_l3_nb_t    *nb = NULL;
-    u32              cnt = (VTSS_L3_NH_MAX + 1), ipv4_cnt = 0U, ipv6_cnt = 0U;
+    u32              cnt = (VTSS_L3_NH_MAX + 1U), ipv4_cnt = 0U, ipv6_cnt = 0U;
     vtss_rc          rc = VTSS_RC_OK;
 
     if (enable) {
@@ -1640,7 +1668,8 @@ static vtss_rc rt_setup(vtss_state_t *vtss_state, BOOL enable)
     /* Enable routing temporarily to allow CIL calls */
     l3->common.routing_enable = TRUE;
     l3->common.mc_routing_enable = TRUE;
-    for (net = vtss_state->l3.net.list; net != NULL; net = net->next) {
+    net = vtss_state->l3.net.list;
+    while (net != NULL) {
         if (enable) {
             /* Add routes */
             cnt = 0U;
@@ -1659,11 +1688,12 @@ static vtss_rc rt_setup(vtss_state_t *vtss_state, BOOL enable)
         net->next = NULL;
         rc = rt_update(vtss_state, net, nb, cnt);
         net->next = next;
+        net = next;
         if (rc != VTSS_RC_OK) {
             break;
         }
     }
-    l3->common.routing_enable = (enable ? 0 : 1);
+    l3->common.routing_enable = (enable ? FALSE : TRUE);
 
     return rc;
 }
@@ -1674,18 +1704,19 @@ vtss_rc vtss_l3_common_set(const vtss_inst_t inst, const vtss_l3_common_conf_t *
     vtss_rc       rc;
     BOOL          enable;
 
-    I("%s %d " MAC_FORMAT, __FUNCTION__, conf->rleg_mode, MAC_ARGS(conf->base_address));
+    VTSS_I("%s %d " MAC_FORMAT, __FUNCTION__, conf->rleg_mode, MAC_ARGS(conf->base_address));
 
     VTSS_L3_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
-        (rc = vtss_cil_l3_common_set(vtss_state, conf)) == VTSS_RC_OK) {
-        enable = (conf->routing_enable ? 1 : 0);
-        if (enable != (vtss_state->l3.common.routing_enable ? 1 : 0)) {
-            I("routing is %sabled at runtime", enable ? "en" : "dis");
-            rc = rt_setup(vtss_state, enable);
-        }
-        if (rc == VTSS_RC_OK) {
-            vtss_state->l3.common = *conf;
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        if ((rc = vtss_cil_l3_common_set(vtss_state, conf)) == VTSS_RC_OK) {
+            enable = (conf->routing_enable ? TRUE : FALSE);
+            if (enable != (vtss_state->l3.common.routing_enable ? TRUE : FALSE)) {
+                VTSS_I("routing is %sabled at runtime", enable ? "en" : "dis");
+                rc = rt_setup(vtss_state, enable);
+            }
+            if (rc == VTSS_RC_OK) {
+                vtss_state->l3.common = *conf;
+            }
         }
     }
     VTSS_L3_EXIT();
@@ -1698,17 +1729,18 @@ vtss_rc vtss_l3_rleg_add(const vtss_inst_t inst, const vtss_l3_rleg_conf_t *cons
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
-    I("%s vlan:%u %s %s %s %s %s %s %d %d", __FUNCTION__, conf->vlan,
-      (conf->ipv4_unicast_enable ? "ipv4_uc" : "no-ipv4_uc"),
-      (conf->ipv6_unicast_enable ? "ipv6_uc" : "no-ipv6_uc"),
-      (conf->ipv4_multicast_enable ? "ipv4_mc" : "no-ipv4_mc"),
-      (conf->ipv6_multicast_enable ? "ipv6_mc" : "no-ipv6_mc"),
-      (conf->ipv4_icmp_redirect_enable ? "ipv4_icmp_redirect" : "no-ipv4_icmp_redirect"),
-      (conf->ipv6_icmp_redirect_enable ? "ipv6_icmp_redirect" : "no-ipv6_icmp_redirect"),
-      (conf->vrid0_enable ? (int)conf->vrid0 : -1), (conf->vrid1_enable ? (int)conf->vrid1 : -1));
+    VTSS_I("%s vlan:%u %s %s %s %s %s %s %d %d", __FUNCTION__, conf->vlan,
+           (conf->ipv4_unicast_enable ? "ipv4_uc" : "no-ipv4_uc"),
+           (conf->ipv6_unicast_enable ? "ipv6_uc" : "no-ipv6_uc"),
+           (conf->ipv4_multicast_enable ? "ipv4_mc" : "no-ipv4_mc"),
+           (conf->ipv6_multicast_enable ? "ipv6_mc" : "no-ipv6_mc"),
+           (conf->ipv4_icmp_redirect_enable ? "ipv4_icmp_redirect" : "no-ipv4_icmp_redirect"),
+           (conf->ipv6_icmp_redirect_enable ? "ipv6_icmp_redirect" : "no-ipv6_icmp_redirect"),
+           (conf->vrid0_enable ? (int)conf->vrid0 : -1),
+           (conf->vrid1_enable ? (int)conf->vrid1 : -1));
 
     if (conf->vlan == VTSS_VID_NULL || conf->vlan > VTSS_VID_RESERVED) {
-        E("%u is not a valid vlan id", conf->vlan);
+        VTSS_E("%u is not a valid vlan id", conf->vlan);
         return VTSS_RC_ERROR;
     }
 
@@ -1726,17 +1758,18 @@ vtss_rc vtss_l3_rleg_update(const vtss_inst_t inst, const vtss_l3_rleg_conf_t *c
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
-    I("%s vlan:%u %s %s %s %s %s %s %d %d", __FUNCTION__, conf->vlan,
-      (conf->ipv4_unicast_enable ? "ipv4_uc" : "no-ipv4_uc"),
-      (conf->ipv6_unicast_enable ? "ipv6_uc" : "no-ipv6_uc"),
-      (conf->ipv4_multicast_enable ? "ipv4_mc" : "no-ipv4_mc"),
-      (conf->ipv6_multicast_enable ? "ipv6_mc" : "no-ipv6_mc"),
-      (conf->ipv4_icmp_redirect_enable ? "ipv4_redir" : "no-ipv4_redir"),
-      (conf->ipv6_icmp_redirect_enable ? "ipv6_redir" : "no-ipv6_redir"),
-      (conf->vrid0_enable ? (int)conf->vrid0 : -1), (conf->vrid1_enable ? (int)conf->vrid1 : -1));
+    VTSS_I("%s vlan:%u %s %s %s %s %s %s %d %d", __FUNCTION__, conf->vlan,
+           (conf->ipv4_unicast_enable ? "ipv4_uc" : "no-ipv4_uc"),
+           (conf->ipv6_unicast_enable ? "ipv6_uc" : "no-ipv6_uc"),
+           (conf->ipv4_multicast_enable ? "ipv4_mc" : "no-ipv4_mc"),
+           (conf->ipv6_multicast_enable ? "ipv6_mc" : "no-ipv6_mc"),
+           (conf->ipv4_icmp_redirect_enable ? "ipv4_redir" : "no-ipv4_redir"),
+           (conf->ipv6_icmp_redirect_enable ? "ipv6_redir" : "no-ipv6_redir"),
+           (conf->vrid0_enable ? (int)conf->vrid0 : -1),
+           (conf->vrid1_enable ? (int)conf->vrid1 : -1));
 
     if (conf->vlan == VTSS_VID_NULL || conf->vlan > VTSS_VID_RESERVED) {
-        E("%u is not a valid vlan id", conf->vlan);
+        VTSS_E("%u is not a valid vlan id", conf->vlan);
         return VTSS_RC_ERROR;
     }
 
@@ -1755,7 +1788,7 @@ vtss_rc vtss_l3_rleg_get_specific(const vtss_inst_t inst, vtss_vid_t vid, vtss_l
     vtss_rc       rc;
 
     if (vid == VTSS_VID_NULL || vid > VTSS_VID_RESERVED) {
-        E("%u is not a valid vlan id", vid);
+        VTSS_E("%u is not a valid vlan id", vid);
         return VTSS_RC_ERROR;
     }
 
@@ -1772,10 +1805,10 @@ vtss_rc vtss_l3_rleg_del(const vtss_inst_t inst, const vtss_vid_t vlan)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
-    I("%s vlan:%u", __FUNCTION__, vlan);
+    VTSS_I("%s vlan:%u", __FUNCTION__, vlan);
 
     if (vlan == VTSS_VID_NULL || vlan > VTSS_VID_RESERVED) {
-        E("%u is not a valid vlan id", vlan);
+        VTSS_E("%u is not a valid vlan id", vlan);
         return VTSS_RC_ERROR;
     }
 
@@ -1793,7 +1826,7 @@ vtss_rc vtss_l3_counters_reset(const vtss_inst_t inst)
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
-    I("l3_counters_reset");
+    VTSS_I("l3_counters_reset");
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -1816,7 +1849,7 @@ vtss_rc vtss_l3_counters_system_get(const vtss_inst_t inst, vtss_l3_counters_t *
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         VTSS_MEMSET(counters, 0, sizeof(*counters));
         for (i = 0U; i < VTSS_RLEG_CNT; i++) {
-            if (vtss_state->l3.rleg_conf[i].vlan != 0 &&
+            if (vtss_state->l3.rleg_conf[i].vlan != 0U &&
                 vtss_cil_l3_rleg_counters_get(vtss_state, i) == VTSS_RC_OK) {
                 /* Summarize router leg counters */
                 cnt = &vtss_state->l3.statistics.interface_counter[i];
@@ -1848,66 +1881,50 @@ vtss_rc vtss_l3_counters_rleg_get(const vtss_inst_t         inst,
                                   const vtss_vid_t          vlan,
                                   vtss_l3_counters_t *const counters)
 {
-#define DO(X)                                                                                      \
-    if (rc == VTSS_RC_OK) {                                                                        \
-        rc = (X);                                                                                  \
-        if (rc != VTSS_RC_OK) {                                                                    \
-            E("Failed: " #X "rleg_id = %d, vlan = %d", rleg, vlan);                                \
-        }                                                                                          \
-    }
-
     vtss_state_t     *vtss_state;
-    vtss_rc           rc = VTSS_RC_OK;
+    vtss_rc           rc;
     vtss_l3_rleg_id_t rleg = 0U;
-    D("%s vlan:%u", __FUNCTION__, vlan);
+    VTSS_D("%s vlan:%u", __FUNCTION__, vlan);
 
     if (vlan == VTSS_VID_NULL || vlan > VTSS_VID_RESERVED) {
-        E("%u is not a valid vlan id", vlan);
+        VTSS_E("%u is not a valid vlan id", vlan);
         return VTSS_RC_ERROR;
     }
 
     VTSS_L3_ENTER();
-    DO(vtss_inst_check(inst, &vtss_state));
-    DO(rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, vlan, &rleg, 0));
-    if (rc == VTSS_RC_OK && vtss_cil_l3_rleg_counters_get(vtss_state, rleg) == VTSS_RC_OK) {
-        *counters = vtss_state->l3.statistics.interface_counter[rleg];
+    rc = vtss_inst_check(inst, &vtss_state);
+    if (rc == VTSS_RC_OK) {
+        rc = rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, vlan, &rleg, NULL);
+        if (rc == VTSS_RC_OK && vtss_cil_l3_rleg_counters_get(vtss_state, rleg) == VTSS_RC_OK) {
+            *counters = vtss_state->l3.statistics.interface_counter[rleg];
+        }
     }
     VTSS_L3_EXIT();
-
-#undef DO
     return rc;
 }
 
 vtss_rc vtss_l3_counters_rleg_clear(const vtss_inst_t inst, const vtss_vid_t vlan)
 {
-#define DO(X)                                                                                      \
-    if (rc == VTSS_RC_OK) {                                                                        \
-        rc = (X);                                                                                  \
-        if (rc != VTSS_RC_OK) {                                                                    \
-            E("Failed: " #X "rleg_id = %d, vlan = %d", rleg, vlan);                                \
-        }                                                                                          \
-    }
-
     vtss_state_t     *vtss_state;
-    vtss_rc           rc = VTSS_RC_OK;
+    vtss_rc           rc;
     vtss_l3_rleg_id_t rleg = 0U;
-    D("%s vlan:%u", __FUNCTION__, vlan);
+    VTSS_D("%s vlan:%u", __FUNCTION__, vlan);
 
     if (vlan == VTSS_VID_NULL || vlan > VTSS_VID_RESERVED) {
-        E("%u is not a valid vlan id", vlan);
+        VTSS_E("%u is not a valid vlan id", vlan);
         return VTSS_RC_ERROR;
     }
 
     VTSS_L3_ENTER();
-    DO(vtss_inst_check(inst, &vtss_state));
-    DO(rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, vlan, &rleg, 0));
+    rc = vtss_inst_check(inst, &vtss_state);
+    if (rc == VTSS_RC_OK) {
+        rc = rleg_id_get(vtss_state, vtss_state->l3.rleg_conf, vlan, &rleg, NULL);
+    }
     if (rc == VTSS_RC_OK) {
         (void)VTSS_MEMSET(&(vtss_state->l3.statistics.interface_counter[rleg]), 0,
                           sizeof(vtss_l3_counters_t));
     }
     VTSS_L3_EXIT();
-
-#undef DO
     return rc;
 }
 
@@ -1919,7 +1936,7 @@ vtss_rc vtss_l3_route_add(const vtss_inst_t inst, const vtss_routing_entry_t *co
     lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_entry_to_string(entry, &buf));
+    VTSS_I("%s", vtss_routing_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -1938,13 +1955,13 @@ static vtss_rc RT_bulk_add_del(const vtss_inst_t           inst,
 {
     vtss_rc       rc;
     vtss_mtimer_t start_time;
-    u32           done_ = 0U, i = 0U;
+    u32           done = 0U, i = 0U;
     vtss_state_t *vtss_state;
 
     VTSS_L3_ENTER();
     VTSS_MTIMER_START(&start_time, BULK_TIME_MAX);
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        for (i = 0U; i < cnt; ++i, ++entry) {
+        for (i = 0U; i < cnt; i++) {
             if (del) {
                 // Ignore return value when doing bulk delete operations.
                 // Resource is not expected to be an issue here.
@@ -1957,18 +1974,19 @@ static vtss_rc RT_bulk_add_del(const vtss_inst_t           inst,
                 break;
             }
 
-            done_++;
+            done++;
             if (VTSS_MTIMER_TIMEOUT(&start_time)) {
                 break;
             }
+            entry++;
         }
     }
     VTSS_L3_EXIT();
 
-    *cnt_out = done_;
+    *cnt_out = done;
 
     // Success if one or more routes was added correctly
-    if (done_ > 0U) {
+    if (done > 0U) {
         return VTSS_RC_OK;
     }
 
@@ -1991,7 +2009,7 @@ vtss_rc vtss_l3_route_del(const vtss_inst_t inst, const vtss_routing_entry_t *co
     lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_entry_to_string(entry, &buf));
+    VTSS_I("%s", vtss_routing_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2018,7 +2036,7 @@ vtss_rc vtss_l3_neighbour_add(const vtss_inst_t inst, const vtss_l3_neighbour_t 
     lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_neighbour_to_string(entry, &buf));
+    VTSS_I("%s", vtss_neighbour_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2037,7 +2055,7 @@ vtss_rc vtss_l3_neighbour_del(const vtss_inst_t inst, const vtss_l3_neighbour_t 
     lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_neighbour_to_string(entry, &buf));
+    VTSS_I("%s", vtss_neighbour_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2050,13 +2068,14 @@ vtss_rc vtss_l3_neighbour_del(const vtss_inst_t inst, const vtss_l3_neighbour_t 
 
 vtss_rc vtss_l3_mc_route_add(const vtss_inst_t inst, const vtss_routing_mc_entry_t *const entry)
 {
+#if VTSS_LPM_MC_CNT
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
     lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_mc_entry_to_string(entry, &buf));
+    VTSS_I("%s", vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2065,19 +2084,23 @@ vtss_rc vtss_l3_mc_route_add(const vtss_inst_t inst, const vtss_routing_mc_entry
     VTSS_L3_EXIT();
 
     return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 vtss_rc vtss_l3_mc_route_active_get(const vtss_inst_t                    inst,
                                     const vtss_routing_mc_entry_t *const entry,
                                     BOOL *const                          active)
 {
+#if VTSS_LPM_MC_CNT
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
     lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_mc_entry_to_string(entry, &buf));
+    VTSS_I("%s", vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2086,17 +2109,21 @@ vtss_rc vtss_l3_mc_route_active_get(const vtss_inst_t                    inst,
     VTSS_L3_EXIT();
 
     return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 vtss_rc vtss_l3_mc_route_del(const vtss_inst_t inst, const vtss_routing_mc_entry_t *const entry)
 {
+#if VTSS_LPM_MC_CNT
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
     lmu_fmt_buf_t buf;
 #endif
 
-    I("%s", vtss_routing_mc_entry_to_string(entry, &buf));
+    VTSS_I("%s", vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2105,19 +2132,23 @@ vtss_rc vtss_l3_mc_route_del(const vtss_inst_t inst, const vtss_routing_mc_entry
     VTSS_L3_EXIT();
 
     return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 vtss_rc vtss_l3_mc_route_rleg_add(const vtss_inst_t                    inst,
                                   const vtss_routing_mc_entry_t *const entry,
                                   const vtss_vid_t                     dest_rleg)
 {
+#if VTSS_LPM_MC_CNT
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
     lmu_fmt_buf_t buf;
 #endif
 
-    I("Add rleg:%d for group %s", dest_rleg, vtss_routing_mc_entry_to_string(entry, &buf));
+    VTSS_I("Add rleg:%d for group %s", dest_rleg, vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2126,19 +2157,23 @@ vtss_rc vtss_l3_mc_route_rleg_add(const vtss_inst_t                    inst,
     VTSS_L3_EXIT();
 
     return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 vtss_rc vtss_l3_mc_route_rleg_del(const vtss_inst_t                    inst,
                                   const vtss_routing_mc_entry_t *const entry,
                                   const vtss_vid_t                     dest_rleg)
 {
+#if VTSS_LPM_MC_CNT
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 #if VTSS_OPT_TRACE
     lmu_fmt_buf_t buf;
 #endif
 
-    I("Del rleg:%d for %s", dest_rleg, vtss_routing_mc_entry_to_string(entry, &buf));
+    VTSS_I("Del rleg:%d for %s", dest_rleg, vtss_routing_mc_entry_to_string(entry, &buf));
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
@@ -2147,6 +2182,9 @@ vtss_rc vtss_l3_mc_route_rleg_del(const vtss_inst_t                    inst,
     VTSS_L3_EXIT();
 
     return rc;
+#else
+    return VTSS_RC_ERROR;
+#endif
 }
 
 #ifdef __cplusplus
@@ -2159,7 +2197,7 @@ vtss_rc vtss_l3_debug_sticky_clear(const vtss_inst_t inst)
     vtss_state_t *vtss_state;
     vtss_rc       rc;
 
-    I("sticky_clear");
+    VTSS_I("sticky_clear");
 
     VTSS_L3_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) != VTSS_RC_OK) {
@@ -2170,22 +2208,25 @@ vtss_rc vtss_l3_debug_sticky_clear(const vtss_inst_t inst)
     return rc;
 }
 
-void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
+void vtss_debug_print_l3(struct vtss_state_s           *vtss_state,
                          lmu_ss_t                      *ss,
                          const vtss_debug_info_t *const info)
 {
-    u32                        i, j, cnt = 0U, counter;
+    u32                        i, j, cnt = 0U;
     vtss_l3_rleg_common_mode_t m;
     vtss_l3_state_t           *l3 = &vtss_state->l3;
     vtss_l3_net_t             *net;
-    vtss_l3_mc_rt_t           *mc_net;
     lmu_fmt_buf_t              buf;
     vtss_ip_type_t             type = VTSS_IP_TYPE_NONE;
     vtss_l3_nh_grp_t          *grp;
     vtss_l3_nh_t              *nh;
     vtss_l3_nb_t              *nb;
     vtss_l3_arp_row_t         *row;
-    BOOL                       empty;
+#if VTSS_LPM_MC_CNT
+    vtss_l3_mc_rt_t *mc_net;
+    u32              counter;
+    BOOL             empty;
+#endif
 
     vtss_l3_integrity_check(vtss_state, 0, 0U);
 
@@ -2362,6 +2403,7 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
         pr("\nUsed : %u\n\n", cnt);
     }
 
+#if VTSS_LPM_MC_CNT
     pr("Multicast Groups:\n");
     pr("================\n");
     pr("Free count: %u\n", l3->mc_rt.free_cnt);
@@ -2434,17 +2476,17 @@ void vtss_debug_print_l3(vtss_state_t                  *vtss_state,
         pr("\n");
     }
     pr("\n");
+#endif
 }
 
-vtss_rc vtss_l3_inst_create(vtss_state_t *vtss_state)
+vtss_rc vtss_l3_inst_create(struct vtss_state_s *vtss_state)
 {
     vtss_l3_state_t  *l3 = &vtss_state->l3;
-    int               i;
+    u32               i;
     vtss_l3_nh_t     *nh;
     vtss_l3_nh_grp_t *grp;
     vtss_l3_net_t    *net;
     vtss_l3_nb_t     *nb;
-    vtss_l3_mc_rt_t  *mc_net;
 
     if (vtss_state->create_pre) {
         // Preprocessing
@@ -2457,34 +2499,36 @@ vtss_rc vtss_l3_inst_create(vtss_state_t *vtss_state)
     /* Fill up free lists */
     for (i = 0; i < (VTSS_ARP_CNT + VTSS_L3_NH_MAX); i++) {
         nh = &l3->nh.table[i];
-        nh->next = l3->nh.free;
-        l3->nh.free = nh;
+        nh->next = l3->nh.free_list;
+        l3->nh.free_list = nh;
         l3->nh.free_cnt++;
     }
-    for (i = 0; i <= (VTSS_ARP_CNT / 2); i++) {
+    for (i = 0; i <= (VTSS_ARP_CNT / 2U); i++) {
         grp = &l3->nh_grp.table[i];
-        grp->next = l3->nh_grp.free;
-        l3->nh_grp.free = grp;
+        grp->next = l3->nh_grp.free_list;
+        l3->nh_grp.free_list = grp;
         l3->nh_grp.free_cnt++;
     }
     for (i = 0; i < VTSS_L3_NET_CNT; i++) {
         net = &l3->net.table[i];
-        net->next = l3->net.free;
-        l3->net.free = net;
+        net->next = l3->net.free_list;
+        l3->net.free_list = net;
         l3->net.free_cnt++;
     }
     for (i = 0; i < VTSS_L3_NB_CNT; i++) {
         nb = &l3->nb.table[i];
-        nb->next = l3->nb.free;
-        l3->nb.free = nb;
+        nb->next = l3->nb.free_list;
+        l3->nb.free_list = nb;
         l3->nb.free_cnt++;
     }
+#if VTSS_LPM_MC_CNT
     for (i = 0; i < VTSS_L3_MC_RT_CNT; i++) {
-        mc_net = &l3->mc_rt.table[i];
-        mc_net->next = l3->mc_rt.free;
-        l3->mc_rt.free = mc_net;
+        vtss_l3_mc_rt_t *mc_net = &l3->mc_rt.table[i];
+        mc_net->next = l3->mc_rt.free_list;
+        l3->mc_rt.free_list = mc_net;
         l3->mc_rt.free_cnt++;
     }
+#endif
     l3->net.id = 1;
     l3->mc_rt.id = 1;
 

@@ -9,16 +9,17 @@
 /* - CIL functions ------------------------------------------------- */
 
 /* L3 counter indices */
-#define FA_L3_CNT_IP_UC_PACKETS 0
-#define FA_L3_CNT_IP_UC_BYTES   1
-#define FA_L3_CNT_IP_MC_PACKETS 2
-#define FA_L3_CNT_IP_MC_BYTES   3
+#define FA_L3_CNT_IP_UC_PACKETS 0U
+#define FA_L3_CNT_IP_UC_BYTES   1U
+#define FA_L3_CNT_IP_MC_PACKETS 2U
+#define FA_L3_CNT_IP_MC_BYTES   3U
 
-vtss_rc vtss_cil_l3_common_set(vtss_state_t *vtss_state, const vtss_l3_common_conf_t *const conf)
+vtss_rc vtss_cil_l3_common_set(struct vtss_state_s               *vtss_state,
+                               const vtss_l3_common_conf_t *const conf)
 {
     const u8        *addr = conf->base_address.addr;
-    u32              msb = ((addr[0] << 16U) | (addr[1] << 8U) | addr[2]);
-    u32              lsb = ((addr[3] << 16U) | (addr[4] << 8U) | addr[5]);
+    u32              msb = vtss_u24_get(&addr[0]);
+    u32              lsb = vtss_u24_get(&addr[3]);
     vtss_port_mask_t pmask;
 
     /* Setup router leg MAC address and type */
@@ -34,12 +35,12 @@ vtss_rc vtss_cil_l3_common_set(vtss_state_t *vtss_state, const vtss_l3_common_co
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_l3_rleg_counter_update(vtss_state_t *vtss_state,
-                                         BOOL          rx,
-                                         u32           i,
-                                         u32           j,
-                                         u64          *prev,
-                                         u64          *counter)
+static vtss_rc fa_l3_rleg_counter_update(struct vtss_state_s *vtss_state,
+                                         BOOL                 rx,
+                                         u32                  i,
+                                         u32                  j,
+                                         u64                 *prev,
+                                         u64                 *counter)
 {
     vtss_chip_counter_t chip_counter;
     u32                 lsb, msb;
@@ -66,81 +67,82 @@ static vtss_rc fa_l3_rleg_counter_update(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_l3_rleg_counters_get(vtss_state_t *vtss_state, vtss_l3_rleg_id_t rleg)
+vtss_rc vtss_cil_l3_rleg_counters_get(struct vtss_state_s *vtss_state, vtss_l3_rleg_id_t rleg)
 {
     vtss_l3_counters_t *prev = &vtss_state->l3.statistics.interface_shadow_counter[rleg];
     vtss_l3_counters_t *counter = &vtss_state->l3.statistics.interface_counter[rleg];
+    BOOL                ena = TRUE, dis = FALSE;
 
     /* IPv4 counters */
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_PACKETS,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, ena, rleg, FA_L3_CNT_IP_UC_PACKETS,
                                       &prev->ipv4uc_received_frames,
                                       &counter->ipv4uc_received_frames));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_BYTES,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, ena, rleg, FA_L3_CNT_IP_UC_BYTES,
                                       &prev->ipv4uc_received_octets,
                                       &counter->ipv4uc_received_octets));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, FALSE, rleg, FA_L3_CNT_IP_UC_PACKETS,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, dis, rleg, FA_L3_CNT_IP_UC_PACKETS,
                                       &prev->ipv4uc_transmitted_frames,
                                       &counter->ipv4uc_transmitted_frames));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, FALSE, rleg, FA_L3_CNT_IP_UC_BYTES,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, dis, rleg, FA_L3_CNT_IP_UC_BYTES,
                                       &prev->ipv4uc_transmitted_octets,
                                       &counter->ipv4uc_transmitted_octets));
 
     /* IPv4 MC counters */
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_MC_PACKETS,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, ena, rleg, FA_L3_CNT_IP_MC_PACKETS,
                                       &prev->ipv4mc_received_frames,
                                       &counter->ipv4mc_received_frames));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_MC_BYTES,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, ena, rleg, FA_L3_CNT_IP_MC_BYTES,
                                       &prev->ipv4mc_received_octets,
                                       &counter->ipv4mc_received_octets));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, FALSE, rleg, FA_L3_CNT_IP_MC_PACKETS,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, dis, rleg, FA_L3_CNT_IP_MC_PACKETS,
                                       &prev->ipv4mc_transmitted_frames,
                                       &counter->ipv4mc_transmitted_frames));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, FALSE, rleg, FA_L3_CNT_IP_MC_BYTES,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, dis, rleg, FA_L3_CNT_IP_MC_BYTES,
                                       &prev->ipv4mc_transmitted_octets,
                                       &counter->ipv4mc_transmitted_octets));
 
     /* IPv6 counters */
-    if (FA_TGT) {
-        rleg += 512U;
-    } else {
-        rleg += 128U;
-    }
+#if defined(VTSS_ARCH_SPARX5)
+    rleg += 512U;
+#else
+    rleg += 128U;
+#endif
 
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_PACKETS,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, ena, rleg, FA_L3_CNT_IP_UC_PACKETS,
                                       &prev->ipv6uc_received_frames,
                                       &counter->ipv6uc_received_frames));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_UC_BYTES,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, ena, rleg, FA_L3_CNT_IP_UC_BYTES,
                                       &prev->ipv6uc_received_octets,
                                       &counter->ipv6uc_received_octets));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, FALSE, rleg, FA_L3_CNT_IP_UC_PACKETS,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, dis, rleg, FA_L3_CNT_IP_UC_PACKETS,
                                       &prev->ipv6uc_transmitted_frames,
                                       &counter->ipv6uc_transmitted_frames));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, FALSE, rleg, FA_L3_CNT_IP_UC_BYTES,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, dis, rleg, FA_L3_CNT_IP_UC_BYTES,
                                       &prev->ipv6uc_transmitted_octets,
                                       &counter->ipv6uc_transmitted_octets));
 
     /* IPv6 MC counters */
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_MC_PACKETS,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, ena, rleg, FA_L3_CNT_IP_MC_PACKETS,
                                       &prev->ipv6mc_received_frames,
                                       &counter->ipv6mc_received_frames));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, TRUE, rleg, FA_L3_CNT_IP_MC_BYTES,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, ena, rleg, FA_L3_CNT_IP_MC_BYTES,
                                       &prev->ipv6mc_received_octets,
                                       &counter->ipv6mc_received_octets));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, FALSE, rleg, FA_L3_CNT_IP_MC_PACKETS,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, dis, rleg, FA_L3_CNT_IP_MC_PACKETS,
                                       &prev->ipv6mc_transmitted_frames,
                                       &counter->ipv6mc_transmitted_frames));
-    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, FALSE, rleg, FA_L3_CNT_IP_MC_BYTES,
+    VTSS_RC(fa_l3_rleg_counter_update(vtss_state, dis, rleg, FA_L3_CNT_IP_MC_BYTES,
                                       &prev->ipv6mc_transmitted_octets,
                                       &counter->ipv6mc_transmitted_octets));
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_l3_rleg_counters_reset(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l3_rleg_counters_reset(struct vtss_state_s *vtss_state)
 {
     u32 i, j;
 
-    for (i = 0U; i < (2 * VTSS_RLEG_STAT_CNT); i++) {
+    for (i = 0U; i < (2U * VTSS_RLEG_STAT_CNT); i++) {
         for (j = 0U; j < 2U; j++) {
             REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_IRLEG_STAT_MSB_CNT(i, j), 0);
             REG_WR(VTSS_ANA_AC_STAT_CNT_CFG_IRLEG_STAT_LSB_CNT(i, j), 0);
@@ -151,12 +153,12 @@ vtss_rc vtss_cil_l3_rleg_counters_reset(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_l3_rleg_set(vtss_state_t                    *vtss_state,
+vtss_rc vtss_cil_l3_rleg_set(struct vtss_state_s             *vtss_state,
                              const vtss_l3_rleg_id_t          rleg,
                              const vtss_l3_rleg_conf_t *const conf)
 {
     BOOL vrid_enable = (conf->vrid0_enable || conf->vrid1_enable);
-    u32  i, vrid;
+    u32  i, vrid, mask;
 
     REG_WR(VTSS_ANA_L3_RLEG_CTRL(rleg),
            VTSS_F_ANA_L3_RLEG_CTRL_RLEG_EVID(conf->vlan) |
@@ -171,11 +173,10 @@ vtss_rc vtss_cil_l3_rleg_set(vtss_state_t                    *vtss_state,
                VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP6_VRID_ENA(vrid_enable) |
                VTSS_F_ANA_L3_RLEG_CTRL_RLEG_IP4_VRID_ENA(vrid_enable));
 
+    mask = (conf->mc_ttl_limit_enable ? conf->mc_ttl_limit : 0U);
     REG_WRM(VTSS_ANA_L3_VMID_MC(rleg),
-            VTSS_F_ANA_L3_VMID_MC_RLEG_IP6_MC_TTL(conf->mc_ttl_limit_enable ? conf->mc_ttl_limit
-                                                                            : 0) |
-                VTSS_F_ANA_L3_VMID_MC_RLEG_IP4_MC_TTL(conf->mc_ttl_limit_enable ? conf->mc_ttl_limit
-                                                                                : 0),
+            VTSS_F_ANA_L3_VMID_MC_RLEG_IP6_MC_TTL(mask) |
+                VTSS_F_ANA_L3_VMID_MC_RLEG_IP4_MC_TTL(mask),
             VTSS_M_ANA_L3_VMID_MC_RLEG_IP6_MC_TTL | VTSS_M_ANA_L3_VMID_MC_RLEG_IP4_MC_TTL);
 
     /* If only one VRID is enabled, both are set to the same value */
@@ -195,23 +196,23 @@ vtss_rc vtss_cil_l3_rleg_set(vtss_state_t                    *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_l3_vlan_set(vtss_state_t           *vtss_state,
-                             const vtss_l3_rleg_id_t rleg_id,
+vtss_rc vtss_cil_l3_vlan_set(struct vtss_state_s    *vtss_state,
+                             const vtss_l3_rleg_id_t rleg,
                              const vtss_vid_t        vid,
                              const BOOL              enable)
 {
     vtss_vlan_entry_t *vlan_entry = &vtss_state->l2.vlan_table[vid];
 
     vlan_entry->rl_enable = enable;
-    vlan_entry->rl_id = rleg_id;
+    vlan_entry->rl_id = (u16)rleg;
     return vtss_fa_vlan_update(vtss_state, vid);
 }
 
-vtss_rc vtss_cil_l3_mc_rt_rleg_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *grp)
+vtss_rc vtss_cil_l3_mc_rt_rleg_add(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *grp)
 {
     vtss_l3_mc_tbl_t *tbl = &vtss_state->l3.mc_tbl[grp->tbl];
 
-    for (u16 i = 0; i < 4; i++) {
+    for (u16 i = 0; i < 4U; i++) {
         REG_WRM(VTSS_ANA_L3_EVMID_MASK_CFG(grp->tbl, i),
                 VTSS_F_ANA_L3_EVMID_MASK_CFG_EVMID_MASK(tbl->rlegs[i]),
                 VTSS_M_ANA_L3_EVMID_MASK_CFG_EVMID_MASK);
@@ -220,7 +221,7 @@ vtss_rc vtss_cil_l3_mc_rt_rleg_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *gr
     REG_WRM(VTSS_ANA_L3_L3MC_CTRL(grp->tbl),
             VTSS_F_ANA_L3_L3MC_CTRL_EVMID_MASK_MODE(1) | /* mask mode = router leg bit mask (max 128
                                                             rlegs) */
-                VTSS_F_ANA_L3_L3MC_CTRL_RPF_VMID(tbl->rpf == VTSS_L3_MC_RPF_DIS ? 0 : tbl->rpf) |
+                VTSS_F_ANA_L3_L3MC_CTRL_RPF_VMID(tbl->rpf == VTSS_L3_MC_RPF_DIS ? 0U : tbl->rpf) |
                 VTSS_F_ANA_L3_L3MC_CTRL_RPF_CHK_ENA(tbl->rpf == VTSS_L3_MC_RPF_DIS ? 0 : 1),
             VTSS_M_ANA_L3_L3MC_CTRL_EVMID_MASK_MODE | VTSS_M_ANA_L3_L3MC_CTRL_RPF_VMID |
                 VTSS_M_ANA_L3_L3MC_CTRL_RPF_CHK_ENA);
@@ -228,7 +229,7 @@ vtss_rc vtss_cil_l3_mc_rt_rleg_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *gr
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
+vtss_rc vtss_cil_l3_mc_rt_add(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *rt)
 {
     vtss_vcap_obj_t   *obj = &vtss_state->vcap.lpm.obj;
     vtss_vcap_data_t   data;
@@ -252,9 +253,9 @@ vtss_rc vtss_cil_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
         data.key_size = VTSS_VCAP_KEY_SIZE_SIXTH;
         key->type = VTSS_LPM_KEY_DBL_IP4;
         key->data.dbl_ip4.dip.value = addr->addr.ipv4;
-        key->data.dbl_ip4.dip.mask = 0xFFFFFFFF;
+        key->data.dbl_ip4.dip.mask = 0xFFFFFFFFU;
         key->data.dbl_ip4.sip.value = sip->addr.ipv4;
-        key->data.dbl_ip4.sip.mask = (sip->addr.ipv4 == 0U) ? 0U : 0xFFFFFFFF;
+        key->data.dbl_ip4.sip.mask = (sip->addr.ipv4 == 0U) ? 0U : 0xFFFFFFFFU;
     } else {
         /* IPv6 multicast */
         data.key_size = VTSS_VCAP_KEY_SIZE_HALF;
@@ -262,7 +263,7 @@ vtss_rc vtss_cil_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
         for (i = 0U; i < 16U; i++) {
             sum += sip->addr.ipv6.addr[i];
         }
-        sip_mask = sum == 0U ? 0 : 0xFF;
+        sip_mask = sum == 0U ? 0U : 0xFFU;
         for (i = 0U; i < 16U; i++) {
             key->data.dbl_ip6.dip.value[i] = addr->addr.ipv6.addr[i];
             key->data.dbl_ip6.dip.mask[i] = 0xFF;
@@ -276,10 +277,13 @@ vtss_rc vtss_cil_l3_mc_rt_add(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
     action->data.l3mc_idx = rt->tbl;
 
     return vtss_vcap_add(vtss_state, obj, VTSS_LPM_USER_L3_MC, rt->id,
-                         rt->next == NULL ? VTSS_VCAP_ID_LAST : rt->next->id, &data, 0);
+                         rt->next == NULL ? VTSS_VCAP_ID_LAST : rt->next->id, &data, FALSE);
 }
 
-vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state, vtss_l3_net_t *net, vtss_l3_nb_t *nb, u32 cnt)
+vtss_rc vtss_cil_l3_rt_add(struct vtss_state_s *vtss_state,
+                           vtss_l3_net_t       *net,
+                           vtss_l3_nb_t        *nb,
+                           u32                  cnt)
 {
     vtss_vcap_obj_t   *obj = &vtss_state->vcap.lpm.obj;
     vtss_vcap_data_t   data;
@@ -296,7 +300,7 @@ vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state, vtss_l3_net_t *net, vtss_l3
     if (addr->type == VTSS_IP_TYPE_IPV4) {
         data.key_size = VTSS_VCAP_KEY_SIZE_TWELFTH;
         key->type = VTSS_LPM_KEY_SGL_IP4;
-        key->data.sgl_ip4.dst_ena = 1;
+        key->data.sgl_ip4.dst_ena = TRUE;
         key->data.sgl_ip4.xip.value = addr->addr.ipv4;
         for (i = 0U; i < 32U; i++) {
             mask <<= 1;
@@ -308,7 +312,7 @@ vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state, vtss_l3_net_t *net, vtss_l3
     } else {
         data.key_size = VTSS_VCAP_KEY_SIZE_QUARTER;
         key->type = VTSS_LPM_KEY_SGL_IP6;
-        key->data.sgl_ip6.dst_ena = 1;
+        key->data.sgl_ip6.dst_ena = TRUE;
         for (i = 0U; i < 16U; i++) {
             key->data.sgl_ip6.xip.value[i] = addr->addr.ipv6.addr[i];
             n = 8U * i;
@@ -319,40 +323,40 @@ vtss_rc vtss_cil_l3_rt_add(vtss_state_t *vtss_state, vtss_l3_net_t *net, vtss_l3
                     mask |= 1U;
                 }
             }
-            key->data.sgl_ip6.xip.mask[i] = mask;
+            key->data.sgl_ip6.xip.mask[i] = (u8)mask;
         }
     }
     if (net->grp == NULL) {
         action->type = LPM_X1_TYPE_ARP_ENTRY;
         action->data.arp_entry.mac = nb->dmac;
-        action->data.arp_entry.vmid = nb->rleg;
-        action->data.arp_entry.arp_ena = 1;
+        action->data.arp_entry.vmid = (u16)nb->rleg;
+        action->data.arp_entry.arp_ena = TRUE;
     } else {
         action->type = LPM_X1_TYPE_ARP_PTR;
         action->data.arp_ptr.arp_ptr = net->grp->idx;
-        action->data.arp_ptr.ecmp_cnt = (cnt - 1U);
+        action->data.arp_ptr.ecmp_cnt = (u8)(cnt - 1U);
     }
     return vtss_vcap_add(vtss_state, obj, VTSS_LPM_USER_L3, net->id,
-                         net->next == NULL ? VTSS_VCAP_ID_LAST : net->next->id, &data, 0);
+                         net->next == NULL ? VTSS_VCAP_ID_LAST : net->next->id, &data, FALSE);
 }
 
-vtss_rc vtss_cil_l3_mc_rt_del(vtss_state_t *vtss_state, vtss_l3_mc_rt_t *rt)
+vtss_rc vtss_cil_l3_mc_rt_del(struct vtss_state_s *vtss_state, vtss_l3_mc_rt_t *rt)
 {
     vtss_vcap_obj_t *obj = &vtss_state->vcap.lpm.obj;
     return vtss_vcap_del(vtss_state, obj, VTSS_LPM_USER_L3_MC, rt->id);
 }
 
-vtss_rc vtss_cil_l3_rt_del(vtss_state_t *vtss_state, vtss_l3_net_t *net)
+vtss_rc vtss_cil_l3_rt_del(struct vtss_state_s *vtss_state, vtss_l3_net_t *net)
 {
     vtss_vcap_obj_t *obj = &vtss_state->vcap.lpm.obj;
     return vtss_vcap_del(vtss_state, obj, VTSS_LPM_USER_L3, net->id);
 }
 
-vtss_rc vtss_cil_l3_arp_set(vtss_state_t *vtss_state, u32 idx, vtss_l3_nb_t *nb)
+vtss_rc vtss_cil_l3_arp_set(struct vtss_state_s *vtss_state, u32 idx, vtss_l3_nb_t *nb)
 {
     const u8 *addr = nb->dmac.addr;
-    u32       msb = ((addr[0] << 8U) | addr[1]);
-    u32       lsb = ((addr[2] << 24U) | (addr[3] << 16U) | (addr[4] << 8U) | addr[5]);
+    u32       msb = vtss_u16_get(&addr[0]);
+    u32       lsb = vtss_u32_get(&addr[2]);
 
     REG_WR(VTSS_ANA_L3_ARP_CFG_0(idx), VTSS_F_ANA_L3_ARP_CFG_0_MAC_MSB(msb) |
                                            VTSS_F_ANA_L3_ARP_CFG_0_ARP_VMID(nb->rleg) |
@@ -362,9 +366,9 @@ vtss_rc vtss_cil_l3_arp_set(vtss_state_t *vtss_state, u32 idx, vtss_l3_nb_t *nb)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_l3_debug_sticky_clear(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_l3_debug_sticky_clear(struct vtss_state_s *vtss_state)
 {
-    u32 value = 0xffffffff;
+    u32 value = 0xffffffffU;
 
     REG_WR(VTSS_ANA_L3_L3_LPM_REMAP_STICKY, value);
     REG_WR(VTSS_ANA_L3_VLAN_STICKY, value);
@@ -390,7 +394,7 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
                                const vtss_debug_info_t *const info)
 {
     vtss_l3_state_t    *l3 = &vtss_state->l3;
-    BOOL                header = 1;
+    BOOL                header = TRUE;
     vtss_vid_t          vid;
     u32                 i, value, enable, cfg0, cfg1;
     lmu_fmt_buf_t       buf;
@@ -412,13 +416,13 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
        VTSS_X_ANA_L3_RLEG_CFG_1_RLEG_MAC_TYPE_SEL(cfg1));
 
     for (i = 0U; i < VTSS_RLEG_STAT_CNT; i++) {
-        if (i < VTSS_RLEG_CNT && l3->rleg_conf[i].vlan == 0 && !info->full) {
+        if (i < VTSS_RLEG_CNT && l3->rleg_conf[i].vlan == 0U && !info->full) {
             continue;
         }
 
         if (header) {
             pr("RLEG  VID   IP4_UC  IP6_UC  IP4_MC  IP6_MC  IP4_REDIR  IP6_REDIR  IP4_VRID     IP6_VRID    MC_TTL\n");
-            header = 0;
+            header = FALSE;
         }
         REG_RD(VTSS_ANA_L3_RLEG_CTRL(i), &value);
         REG_RD(VTSS_ANA_L3_VRRP_CFG(i, 0), &cfg0);
@@ -443,17 +447,17 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
     }
     if (!header) {
         pr("\n");
-        header = 1;
+        header = TRUE;
     }
 
     for (vid = VTSS_VID_NULL; vid < VTSS_VIDS; vid++) {
-        if (!(vtss_state->l2.vlan_table[vid].flags & VLAN_FLAGS_ENABLED) && !info->full) {
+        if ((vtss_state->l2.vlan_table[vid].flags & VLAN_FLAGS_ENABLED) == 0U && !info->full) {
             continue;
         }
 
         if (header) {
             pr("VID   RLEG_ENA  VMID\n");
-            header = 0;
+            header = FALSE;
         }
         REG_RD(VTSS_ANA_L3_VLAN_CFG(vid), &value);
         enable = VTSS_X_ANA_L3_VLAN_CFG_VLAN_RLEG_ENA(value);
@@ -465,10 +469,11 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
     }
     if (!header) {
         pr("\n");
-        header = 1;
     }
     VTSS_RC(vtss_fa_debug_lpm(vtss_state, ss, info));
 
+#if VTSS_ARP_CNT
+    header = TRUE;
     for (i = 0U; i < VTSS_ARP_CNT; i++) {
         REG_RD(VTSS_ANA_L3_ARP_CFG_0(i), &cfg0);
         if (VTSS_X_ANA_L3_ARP_CFG_0_ARP_ENA(cfg0) == 0U && !info->full) {
@@ -486,9 +491,10 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
     if (!header) {
         pr("\n");
     }
+#endif
 
     for (i = 0U; i < VTSS_RLEG_STAT_CNT; i++) {
-        if ((i < VTSS_RLEG_CNT && l3->rleg_conf[i].vlan == 0 && !info->full) ||
+        if ((i < VTSS_RLEG_CNT && l3->rleg_conf[i].vlan == 0U && !info->full) ||
             vtss_cil_l3_rleg_counters_get(vtss_state, i) != VTSS_RC_OK) {
             continue;
         }
@@ -532,21 +538,22 @@ vtss_rc vtss_fa_l3_debug_print(vtss_state_t                  *vtss_state,
 
 static vtss_rc fa_l3_init_counter(vtss_state_t *vtss_state,
                                   u32           idx,
-                                  u32           cnt_byte,
+                                  BOOL          cnt_byte,
                                   u32           event_ir,
                                   u32           event_er)
 {
     u32 frame_type = 1U; /* Events with no FCS errors */
+    u32 u = 1U;
 
     /* IRLEG counters */
     REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG(idx),
            VTSS_F_ANA_AC_STAT_GLOBAL_CFG_IRLEG_GLOBAL_CNT_FRM_TYPE_CFG_GLOBAL_CFG_CNT_FRM_TYPE(
-               frame_type));
+               cnt_byte));
     REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_CFG(idx),
            VTSS_F_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(cnt_byte));
     REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK(idx),
            VTSS_F_ANA_AC_STAT_GLOBAL_CFG_IRLEG_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(
-               1 << event_ir)); /* IP unicast */
+               u << event_ir)); /* IP unicast */
 
     /* ERLEG counters */
     REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_GLOBAL_CNT_FRM_TYPE_CFG(idx),
@@ -556,7 +563,7 @@ static vtss_rc fa_l3_init_counter(vtss_state_t *vtss_state,
            VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_CFG_GLOBAL_CFG_CNT_BYTE(cnt_byte));
     REG_WR(VTSS_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK(idx),
            VTSS_F_ANA_AC_STAT_GLOBAL_CFG_ERLEG_STAT_GLOBAL_EVENT_MASK_GLOBAL_EVENT_MASK(
-               1 << event_er)); /* IP unicast */
+               u << event_er)); /* IP unicast */
 
     return VTSS_RC_OK;
 }
@@ -565,10 +572,10 @@ static vtss_rc fa_l3_init(vtss_state_t *vtss_state)
 {
     u32 mask;
 
-    VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_UC_PACKETS, 0, 3, 1));
-    VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_UC_BYTES, 1, 3, 1));
-    VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_MC_PACKETS, 0, 4, 2));
-    VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_MC_BYTES, 1, 4, 2));
+    VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_UC_PACKETS, FALSE, 3, 1));
+    VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_UC_BYTES, TRUE, 3, 1));
+    VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_MC_PACKETS, FALSE, 4, 2));
+    VTSS_RC(fa_l3_init_counter(vtss_state, FA_L3_CNT_IP_MC_BYTES, TRUE, 4, 2));
 
     mask = (VTSS_M_ANA_L3_ROUTING_CFG_RT_SMAC_UPDATE_ENA |
             VTSS_M_ANA_L3_ROUTING_CFG_CPU_RLEG_IP_HDR_FAIL_REDIR_ENA |
@@ -612,7 +619,9 @@ vtss_rc vtss_fa_l3_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         vtss_l3_integrity_update(vtss_state);
         VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 50);
         break;
-    default: break;
+    default:
+        // Empty on purpose
+        break;
     }
     return VTSS_RC_OK;
 }
