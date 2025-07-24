@@ -459,28 +459,26 @@ typedef struct {
 #if defined(VTSS_FEATURE_QOS_TAS)
 #if defined(VTSS_ARCH_FA)
 #if defined(VTSS_ARCH_SPARX5)
-#define VTSS_TAS_NUMBER_OF_LISTS    128
-#define VTSS_TAS_NUMBER_OF_PROFILES 100
-#define VTSS_TAS_NUMBER_OF_ENTRIES  10000
+#define VTSS_TAS_NUMBER_OF_LISTS    128U
+#define VTSS_TAS_NUMBER_OF_PROFILES 100U
+#define VTSS_TAS_NUMBER_OF_ENTRIES  10000U
 #endif
 #if defined(VTSS_ARCH_LAN969X)
-#define VTSS_TAS_NUMBER_OF_LISTS    60
-#define VTSS_TAS_NUMBER_OF_PROFILES 30
-#define VTSS_TAS_NUMBER_OF_ENTRIES  3000
+#define VTSS_TAS_NUMBER_OF_LISTS    60U
+#define VTSS_TAS_NUMBER_OF_PROFILES 30U
+#define VTSS_TAS_NUMBER_OF_ENTRIES  3000U
 #endif
 #if defined(VTSS_ARCH_LAIKA)
-#define VTSS_TAS_NUMBER_OF_LISTS    64
-#define VTSS_TAS_NUMBER_OF_PROFILES 32
-#define VTSS_TAS_NUMBER_OF_ENTRIES  3200
+#define VTSS_TAS_NUMBER_OF_LISTS    64U
+#define VTSS_TAS_NUMBER_OF_PROFILES 32U
+#define VTSS_TAS_NUMBER_OF_ENTRIES  3200U
 #endif
 #if VTSS_OPT_LIGHT
-#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK                                                       \
-    8 /* Number of entries per block. This is the minimum allocated number of                      \
-         entries for a list */
+/* Number of entries per block. This is the minimum allocated number of entries for a list */
+#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK 8U
 #else
-#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK                                                       \
-    32 /* Number of entries per block. This is the minimum allocated number of                     \
-          entries for a list */
+/* Number of entries per block. This is the minimum allocated number of entries for a list */
+#define VTSS_TAS_NUMBER_OF_ENTRIES_PER_BLOCK 32U
 #endif
 #define VTSS_TAS_NUMBER_OF_BLOCKS_PER_ROW                                                          \
     (VTSS_QOS_TAS_GCL_LEN_MAX /                                                                    \
@@ -497,9 +495,9 @@ typedef struct {
 #endif
 
 #if defined(VTSS_ARCH_LAN966X)
-#define VTSS_TAS_NUMBER_OF_LISTS    24
-#define VTSS_TAS_NUMBER_OF_PROFILES 16
-#define VTSS_TAS_NUMBER_OF_ENTRIES  2560
+#define VTSS_TAS_NUMBER_OF_LISTS    24U
+#define VTSS_TAS_NUMBER_OF_PROFILES 16U
+#define VTSS_TAS_NUMBER_OF_ENTRIES  2560U
 #endif
 
 typedef struct {

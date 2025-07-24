@@ -8,26 +8,34 @@
 
 static u32 tas_op_type_calc(vtss_qos_tas_gco_t gate_operation)
 {
+    u32 retval;
     switch (gate_operation) {
-    case VTSS_QOS_TAS_GCO_SET_GATE_STATES:     return 0U;
-    case VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC: return 2U;
-    case VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC:    return 3U;
+    case VTSS_QOS_TAS_GCO_SET_GATE_STATES:     retval = 0U; break;
+    case VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC: retval = 2U; break;
+    case VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC:    retval = 3U; break;
+    default:
+        VTSS_E("Unknown Gate Operation %u", gate_operation);
+        retval = 0U;
+        break;
     }
 
-    VTSS_E("Unknown Gate Operation %u", gate_operation);
-    return 0U;
+    return retval;
 }
 
 static vtss_qos_tas_gco_t tas_gate_operation_calc(u32 value)
 {
+    vtss_qos_tas_gco_t retval;
     switch (value) {
-    case 0: return VTSS_QOS_TAS_GCO_SET_GATE_STATES;
-    case 2: return VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC;
-    case 3: return VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC;
+    case 0: retval = VTSS_QOS_TAS_GCO_SET_GATE_STATES; break;
+    case 2: retval = VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC; break;
+    case 3: retval = VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC; break;
+    default:
+        VTSS_E("Unknown register QSYS:TAS_GCL_CFG:TAS_GCL_CTRL_CFG.OP_TYPE value %u", value);
+        retval = VTSS_QOS_TAS_GCO_SET_GATE_STATES;
+        break;
     }
 
-    VTSS_E("Unknown register QSYS:TAS_GCL_CFG:TAS_GCL_CTRL_CFG.OP_TYPE value %u", value);
-    return VTSS_QOS_TAS_GCO_SET_GATE_STATES;
+    return retval;
 }
 
 static void tas_next_unused_entry_get(vtss_state_t *vtss_state, u32 *entry_idx)
@@ -65,14 +73,18 @@ u32 lan969x_tas_list_allocate(vtss_state_t *vtss_state, u32 length)
     }
 
     /* Check that there are unused list entries for the complete list */
-    for (i = 0U, found = 0U, first = TRUE; ((found < length) && (i < RT_TAS_NUMBER_OF_ENTRIES));
-         ++i) {
+    found = 0U;
+    first = TRUE;
+    for (i = 0U; i < RT_TAS_NUMBER_OF_ENTRIES; ++i) {
         if (!entries[i].in_use) {
             if (first) {
                 first = FALSE;
                 first_entry = i;
             }
             found += 1U;
+            if (found >= length) {
+                break;
+            }
         }
     }
 
@@ -234,7 +246,8 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
                                u32                       startup_time)
 {
     u32 gcl_idx, value, time_interval_sum = 0U;
-    u32 maxsdu, i, hold_advance;
+    //    u32 maxsdu, i, hold_advance;
+    u32 i, hold_advance;
     u32 profile_idx = vtss_state->qos.tas.tas_lists[list_idx].profile_idx;
     u32 entry_idx = vtss_state->qos.tas.tas_lists[list_idx].entry_idx;
     u32 chip_port = VTSS_CHIP_PORT(port_no);
@@ -286,7 +299,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
            VTSS_F_HSCH_TAS_STARTUP_CFG_OBSOLETE_IDX((obsolete_list_idx != TAS_LIST_IDX_NONE)
                                                         ? obsolete_list_idx
                                                         : list_idx) |
-               VTSS_F_HSCH_TAS_STARTUP_CFG_STARTUP_TIME(startup_time / 256));
+               VTSS_F_HSCH_TAS_STARTUP_CFG_STARTUP_TIME(startup_time / 256U));
 #if defined(VTSS_FEATURE_QOS_OT)
     if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
         REG_WR(VTSS_HSCH_TAS_LIST_CFG,
@@ -312,12 +325,12 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
 
     /* Configure the profile */
     for (i = 0U; i < VTSS_QUEUE_ARRAY_SIZE; ++i) {
-        maxsdu = (max_sdu[i] / 64U);
+        //        maxsdu = (max_sdu[i] / 64U);
         REG_WR(VTSS_HSCH_TAS_QMAXSDU_CFG(profile_idx, i),
-               VTSS_F_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL(maxsdu));
+               VTSS_F_HSCH_TAS_QMAXSDU_CFG_QMAXSDU_VAL((u32)max_sdu[i] / 64U));
         REG_WR(VTSS_HSCH_QMAXSDU_DISC_CFG(profile_idx, i),
-               VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_DISC_ENA((maxsdu != 0U) ? 1U : 0U) |
-                   VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB(max_sdu[i] % 64U));
+               VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_DISC_ENA(((u32)max_sdu[i] != 0U) ? 1U : 0U) |
+                   VTSS_F_HSCH_QMAXSDU_DISC_CFG_QMAXSDU_LSB((u32)max_sdu[i] % 64U));
     }
 
     REG_RD(VTSS_DSM_PREEMPT_CFG(chip_port), &value);
