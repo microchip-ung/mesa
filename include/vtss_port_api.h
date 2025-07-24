@@ -233,7 +233,7 @@ typedef struct {
 #endif
 } vtss_port_flow_control_conf_t;
 
-#define VTSS_FRAME_GAP_DEFAULT 0 /**< Default frame gap used */
+#define VTSS_FRAME_GAP_DEFAULT 0U /**< Default frame gap used */
 
 /** \brief Inter frame gap structure */
 typedef struct {
@@ -243,8 +243,8 @@ typedef struct {
 } vtss_port_frame_gaps_t;
 
 /* A selection of max frame lengths */
-#define VTSS_MAX_FRAME_LENGTH_STANDARD 1518  /**< IEEE 802.3 standard */
-#define VTSS_MAX_FRAME_LENGTH_MAX      10240 /**< Maximum frame length supported */
+#define VTSS_MAX_FRAME_LENGTH_STANDARD 1518U  /**< IEEE 802.3 standard */
+#define VTSS_MAX_FRAME_LENGTH_MAX      10240U /**< Maximum frame length supported */
 
 #if defined(VTSS_ARCH_LUTON26)
 #undef VTSS_MAX_FRAME_LENGTH_MAX
