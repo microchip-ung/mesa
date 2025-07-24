@@ -137,18 +137,19 @@
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_2 6553550
 #define RT_HSCH_MAX_RATE_QSHP_GROUP_3 10485680
 #endif
-#define RT_LB_GROUP_CNT              10
-#define RT_LB_SET_CNT                4615
-#define RT_ACL_CNT_SIZE              4096
-#define RT_ES2_CNT_SIZE              2048
-#define RT_IP6PFX_CNT                512
-#define RT_PGID_FA                   (2048 + 65)
-#define RT_DSM_CAL_MAX_DEVS_PER_TAXI 13
-#define RT_DSM_CAL_TAXIS             8
-#define RT_EXT_CLK_PIN               1 // PIN configuration for external clock
-#define RT_ALT_LDST_PIN              2
-#define RT_ALT_PPS_PIN               3
-#define RT_TOD_ACC_PIN               4 // The last PTP pin is not connected to GPIO but can be used for TOD access
+#define RT_LB_GROUP_CNT              10U
+#define RT_LB_SET_CNT                4615U
+#define RT_ACL_CNT_SIZE              4096U
+#define RT_ES2_CNT_SIZE              2048U
+#define RT_IP6PFX_CNT                512U
+#define RT_PGID_FA                   (2048U + 65U)
+#define RT_DSM_CAL_MAX_DEVS_PER_TAXI 13U
+#define RT_DSM_CAL_TAXIS             8U
+#define RT_EXT_CLK_PIN               1U // PIN configuration for external clock
+#define RT_ALT_LDST_PIN              2U
+#define RT_ALT_PPS_PIN               3U
+#define RT_TOD_ACC_PIN                                                                             \
+    4U // The last PTP pin is not connected to GPIO but can be used for TOD access
 #else
 #define RT_CHIP_PORTS                 30U
 #define RT_SERDES_10G_START           0U
@@ -326,7 +327,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 
 #define DEV_RD(name, port, value)                                                                  \
     {                                                                                              \
-        if (vtss_fa_port_is_high_speed(vtss_state, port) != 0U) {                                  \
+        if (vtss_fa_port_is_high_speed(vtss_state, port)) {                                        \
             REG_RD(VTSS_DEV10G_##name(VTSS_TO_HIGH_DEV(port)), value);                             \
         } else {                                                                                   \
             REG_RD(VTSS_DEV1G_##name(VTSS_TO_DEV2G5(port)), value);                                \
@@ -372,15 +373,15 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 /* Poll bits in mask until all are zero */
 #define REG_POLL_MASK(_p_, _mask_)                                                                 \
     {                                                                                              \
-        u32 _x_, _cnt_ = 0;                                                                        \
+        u32 _x_, _cnt_ = 0U;                                                                       \
         do {                                                                                       \
             REG_RD(_p_, &_x_);                                                                     \
             VTSS_MSLEEP(1);                                                                        \
-            if (++_cnt_ == 100) {                                                                  \
-                VTSS_E("timeout, addr: %s, m: 0x%x, v: 0x%x", #_p_, (_mask_), _x_);                \
+            if (++_cnt_ == 100U) {                                                                 \
+                VTSS_E("timeout, m: 0x%x, v: 0x%x", (_mask_), _x_);                                \
                 return VTSS_RC_ERROR;                                                              \
             }                                                                                      \
-        } while (_x_ & (_mask_));                                                                  \
+        } while ((_x_ & (_mask_)) != 0U);                                                          \
     }
 
 // Determine instance count based on register field

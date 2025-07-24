@@ -91,9 +91,9 @@ typedef struct {
 #define VTSS_EVC_POL_CNT  VTSS_STREAM_CNT
 #define VTSS_EVC_STAT_CNT VTSS_STREAM_CNT
 #else
-#define VTSS_SDX_CNT      255
-#define VTSS_EVC_POL_CNT  240 /* DLB policers (port/queue/ACL policers reserved) */
-#define VTSS_EVC_STAT_CNT 256 /* ISDX/ESDX statistics */
+#define VTSS_SDX_CNT      255U
+#define VTSS_EVC_POL_CNT  240U /* DLB policers (port/queue/ACL policers reserved) */
+#define VTSS_EVC_STAT_CNT 256U /* ISDX/ESDX statistics */
 #endif
 #endif
 
@@ -105,19 +105,19 @@ typedef struct {
 #define VTSS_JR_POL_CNT  512  /* EVC policers */
 #define VTSS_JR_STAT_CNT 1024 /* EVC statistics */
 #elif defined(VTSS_ARCH_LAN969X)
-#define VTSS_JR_SDX_CNT  1023
-#define VTSS_JR_POL_CNT  256  /* EVC policers */
-#define VTSS_JR_STAT_CNT 1024 /* EVC statistics */
+#define VTSS_JR_SDX_CNT  1023U
+#define VTSS_JR_POL_CNT  256U  /* EVC policers */
+#define VTSS_JR_STAT_CNT 1024U /* EVC statistics */
 #elif defined(VTSS_ARCH_LAIKA)
-#define VTSS_JR_SDX_CNT  2047
-#define VTSS_JR_POL_CNT  256  /* EVC policers */
-#define VTSS_JR_STAT_CNT 2048 /* EVC statistics */
+#define VTSS_JR_SDX_CNT  2047U
+#define VTSS_JR_POL_CNT  256U  /* EVC policers */
+#define VTSS_JR_STAT_CNT 2048U /* EVC statistics */
 #else
-#define VTSS_JR_SDX_CNT  4095
-#define VTSS_JR_POL_CNT  4096 /* EVC policers */
-#define VTSS_JR_STAT_CNT 8192 /* EVC statistics */
+#define VTSS_JR_SDX_CNT  4095U
+#define VTSS_JR_POL_CNT  4096U /* EVC policers */
+#define VTSS_JR_STAT_CNT 8192U /* EVC statistics */
 #endif
-#define VTSS_QUEUE_POL_IDX(port, queue) (VTSS_JR_POL_CNT + (port * 8) + queue)
+#define VTSS_QUEUE_POL_IDX(port, queue) (VTSS_JR_POL_CNT + (port * 8U) + queue)
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_SDX_CNT      VTSS_STREAM_CNT
 #define VTSS_EVC_POL_CNT  (VTSS_STREAM_CNT + 8U) // 8 policers used internally
@@ -355,20 +355,20 @@ vtss_rc vtss_cmn_qos_map_del(struct vtss_state_s *vtss_state,
 #define VTSS_HSCH_L2_SES   57                     /**< Number of scheduler elements in layer 2 */
 #define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
 #elif defined(VTSS_ARCH_FA)
-#define VTSS_HSCH_LAYERS 4 /**< Number of layers (L0, L1, L2 and QSCH) */
+#define VTSS_HSCH_LAYERS 4U /**< Number of layers (L0, L1, L2 and QSCH) */
 #if defined(VTSS_ARCH_LAN969X) && VTSS_OPT_LIGHT
-#define VTSS_HSCH_L0_SES 1120 /**< Number of scheduler elements in layer 0 */
-#define VTSS_HSCH_L1_SES 32   /**< Number of scheduler elements in layer 1 */
-#define VTSS_HSCH_L2_SES 35   /**< Number of scheduler elements in layer 2 */
+#define VTSS_HSCH_L0_SES 1120U /**< Number of scheduler elements in layer 0 */
+#define VTSS_HSCH_L1_SES 32U   /**< Number of scheduler elements in layer 1 */
+#define VTSS_HSCH_L2_SES 35U   /**< Number of scheduler elements in layer 2 */
 #else
-#define VTSS_HSCH_L0_SES 5040 /**< Number of scheduler elements in layer 0 */
-#define VTSS_HSCH_L1_SES 64   /**< Number of scheduler elements in layer 1 */
-#define VTSS_HSCH_L2_SES 70   /**< Number of scheduler elements in layer 2 */
+#define VTSS_HSCH_L0_SES 5040U /**< Number of scheduler elements in layer 0 */
+#define VTSS_HSCH_L1_SES 64U   /**< Number of scheduler elements in layer 1 */
+#define VTSS_HSCH_L2_SES 70U   /**< Number of scheduler elements in layer 2 */
 #endif
-#define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2) /**< Number of queue shapers in layer 3 */
-#endif                                            /* defined(VTSS_ARCH_SERVAL_T) */
+#define VTSS_HSCH_L3_QSHPS (VTSS_HSCH_L0_SES * 2U) /**< Number of queue shapers in layer 3 */
+#endif                                             /* defined(VTSS_ARCH_SERVAL_T) */
 
-#define VTSS_HSCH_LEAK_LISTS 4 /**< Number of leak list groups per layer */
+#define VTSS_HSCH_LEAK_LISTS 4U /**< Number of leak list groups per layer */
 
 /* The bit rates below must be defined in increasing order */
 #if defined(VTSS_ARCH_SERVAL_T) || defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)

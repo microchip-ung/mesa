@@ -17,13 +17,13 @@
 #define VTSS_ROUNDING_DIVISION(x, y) (((x) + ((y) / 2U)) / (y))
 
 /* Round x divided by y to nearest higher integer. x and y are integers */
-#define VTSS_DIV_ROUND_UP(x, y)   (((x) + (y) - 1) / (y))
-#define VTSS_DIV64_ROUND_UP(x, y) (VTSS_DIV64(((x) + (y) - 1), (y)))
+#define VTSS_DIV_ROUND_UP(x, y)   (((x) + (y) - 1U) / (y))
+#define VTSS_DIV64_ROUND_UP(x, y) (VTSS_DIV64(((x) + (y) - 1U), (y)))
 
 #ifndef VTSS_BITOPS_DEFINED
 #ifdef __ASSEMBLER__
-#define VTSS_BIT(x)     (1 << (x))
-#define VTSS_BITMASK(x) ((1 << (x)) - 1)
+#define VTSS_BIT(x)     ((u32)1U << (x))
+#define VTSS_BITMASK(x) (((u32)1U << (x)) - 1U)
 #else
 #define VTSS_BIT(x)     ((u32)1U << (x))
 #define VTSS_BITMASK(x) (((u32)1U << (x)) - 1U)

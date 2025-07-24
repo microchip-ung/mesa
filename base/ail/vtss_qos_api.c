@@ -59,7 +59,8 @@ vtss_rc vtss_qos_conf_set(const vtss_inst_t inst, const vtss_qos_conf_t *const c
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         /* Verify that prios is a power of two and not greater than prio_count
          * (which must also be a power of two) */
-        if ((prios != 0U) && !(prios & (prios - 1U)) && (prios <= vtss_state->qos.prio_count)) {
+        if ((prios != 0U) && ((prios & (prios - 1U)) == 0U) &&
+            (prios <= vtss_state->qos.prio_count)) {
             changed = (vtss_state->qos.conf.prios != prios);
             vtss_state->qos.conf = *conf;
             rc = vtss_cil_qos_conf_set(vtss_state, changed);
@@ -1166,7 +1167,7 @@ vtss_rc vtss_qos_restart_sync(struct vtss_state_s *vtss_state)
         VTSS_RC(vtss_cil_qos_port_conf_set(vtss_state, port_no));
     }
 
-    VTSS_RC(vtss_cil_qos_conf_set(vtss_state, 1));
+    VTSS_RC(vtss_cil_qos_conf_set(vtss_state, TRUE));
 
 #if defined(VTSS_FEATURE_EVC_POLICERS)
     {
@@ -1223,10 +1224,10 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
 
         for (i = 0U; i < 64U; i++) {
             qos->dscp_remark[i] = FALSE;
-            qos->dscp_translate_map[i] = i;
-            qos->dscp_remap[i] = i;
+            qos->dscp_translate_map[i] = (u8)i;
+            qos->dscp_remap[i] = (u8)i;
 #if defined(VTSS_FEATURE_QOS_DSCP_REMARK_DP_AWARE)
-            qos->dscp_remap_dp1[i] = i;
+            qos->dscp_remap_dp1[i] = (u8)i;
 #endif /* VTSS_FEATURE_QOS_DSCP_REMARK_DP_AWARE */
         }
 
@@ -1353,13 +1354,13 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         }
 
         qos->default_dpl = 0;
-        qos->default_dei = 0;
+        qos->default_dei = FALSE;
         qos->tag_class_enable = FALSE;
         for (i = VTSS_PCP_START; i < VTSS_PCP_ARRAY_SIZE; i++) {
-            int dei;
+            u32 dei;
             for (dei = VTSS_DEI_START; dei < VTSS_DEI_ARRAY_SIZE; dei++) {
                 qos->qos_class_map[i][dei] = vtss_cmn_pcp2qos(i);
-                qos->dp_level_map[i][dei] = dei; // Defaults to same value as DEI
+                qos->dp_level_map[i][dei] = (u8)dei; // Defaults to same value as DEI
             }
         }
 
@@ -1373,12 +1374,12 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
 
         qos->tag_remark_mode = VTSS_TAG_REMARK_MODE_CLASSIFIED;
         qos->tag_default_pcp = 0U;
-        qos->tag_default_dei = 0;
+        qos->tag_default_dei = FALSE;
         for (i = VTSS_PRIO_START; i < VTSS_PRIO_END; i++) {
-            int dpl;
-            for (dpl = 0; dpl < 2; dpl++) {
+            u32 dpl;
+            for (dpl = 0U; dpl < 2U; dpl++) {
                 qos->tag_pcp_map[i][dpl] = vtss_cmn_pcp2qos(i);
-                qos->tag_dei_map[i][dpl] = dpl; // Defaults to same value as DP level
+                qos->tag_dei_map[i][dpl] = (dpl != 0U); // Defaults to same value as DP level
             }
         }
 
@@ -1520,13 +1521,13 @@ vtss_rc vtss_cmn_qos_port_conf_set(struct vtss_state_s *vtss_state, const vtss_p
         /* PCP/DEI remark mode changed, update QOS */
         flags |= (VTSS_ES0_FLAG_OT_QOS | VTSS_ES0_FLAG_IT_QOS);
     }
-    for (pcp = 0; pcp < 8; pcp++) {
+    for (pcp = 0U; pcp < 8U; pcp++) {
         if (old->qos_class_map[pcp][0] != new->qos_class_map[pcp][0]) {
             flags |= VTSS_ES0_FLAG_PCP_MAP;
             break;
         }
     }
-    if (flags) {
+    if (flags != 0U) {
         /* Update ES0 rules */
         VTSS_RC(vtss_vcap_es0_update(vtss_state, port_no, flags));
     }
@@ -1551,13 +1552,13 @@ vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, u32 num, u8
 {
     u32        i, c_max;
     vtss_pct_t w_min = 100;
-    if ((bit_width < 4) || (bit_width > 8)) {
+    if ((bit_width < 4U) || (bit_width > 8U)) {
         VTSS_E("illegal bit_width: %u", bit_width);
         return VTSS_RC_ERROR;
     }
-    c_max = 1U << bit_width;
+    c_max = (u32)1U << bit_width;
     for (i = 0U; i < num; i++) {
-        if ((weight[i] < 1) || (weight[i] > 100)) {
+        if ((weight[i] < 1U) || (weight[i] > 100U)) {
             VTSS_E("illegal weight: %u", weight[i]);
             return VTSS_RC_ERROR;
         }
@@ -1567,35 +1568,41 @@ vtss_rc vtss_cmn_qos_weight2cost(const vtss_pct_t *weight, u8 *cost, u32 num, u8
         // Round half up: Multiply with 16 before division, add 8 and divide
         // result with 16 again
         u32 c = (((c_max << 4U) * w_min / weight[i]) + 8U) >> 4U;
-        cost[i] = MAX(1, c) - 1U; // Force range to be 0..(c_max - 1)
+        cost[i] = MAX(1U, (u8)c) - 1U; // Force range to be 0..(c_max - 1)
     }
     return VTSS_RC_OK;
 }
 
 u32 vtss_cmn_qos_storm_mode(vtss_packet_rate_t rate, vtss_storm_policer_mode_t mode)
 {
+    u32 retval;
+
     if (rate == VTSS_PACKET_RATE_DISABLED) {
         return 0U; /* Disabled */
     }
 
     switch (mode) {
-    case VTSS_STORM_POLICER_MODE_PORTS_AND_CPU:
-        return 3U; /* Police both CPU and front port destinations */
-    case VTSS_STORM_POLICER_MODE_PORTS_ONLY: return 2U; /* Police front port destinations only */
-    case VTSS_STORM_POLICER_MODE_CPU_ONLY:   return 1U; /* Police CPU destination only */
-    default:                                 return 0U;                                 /* Disabled */
+    /* Police both CPU and front port destinations */
+    case VTSS_STORM_POLICER_MODE_PORTS_AND_CPU: retval = 3U; break;
+    /* Police front port destinations only */
+    case VTSS_STORM_POLICER_MODE_PORTS_ONLY: retval = 2U; break;
+    /* Police CPU destination only */
+    case VTSS_STORM_POLICER_MODE_CPU_ONLY: retval = 1U; break;
+    /* Disabled */
+    default: retval = 0U; break;
     }
+    return retval;
 }
 
 u32 vtss_cmn_qos_packet_rate(vtss_packet_rate_t rate, u32 *unit)
 {
-    int i;
+    u32 i;
     u32 new_rate;
 
     if (rate > 512U) {
         /* Supported rate = 1k, 2k, 4k, 8k, 16k, 32k, 64k, 128k, 256k, 512k and
          * 1024k frames per second*/
-        new_rate = VTSS_DIV_ROUND_UP(rate, 1000);
+        new_rate = VTSS_DIV_ROUND_UP(rate, 1000U);
         *unit = 0U; /* Base unit is 1 kiloframes per second */
     } else {
         /* Supported rate = 1, 2, 4, 8, 16, 32, 64, 128, 256 and 512 frames per
@@ -1604,8 +1611,8 @@ u32 vtss_cmn_qos_packet_rate(vtss_packet_rate_t rate, u32 *unit)
         *unit = 1U; /* Base unit is 1 frame per second */
     }
 
-    for (i = 0; i < 10; i++) {
-        if ((u32)(1U << i) >= new_rate) { /* 2^i is equal to or higher than new_rate */
+    for (i = 0U; i < 10U; i++) {
+        if (((u32)1U << i) >= new_rate) { /* 2^i is equal to or higher than new_rate */
             break;
         }
     }
@@ -2001,24 +2008,28 @@ static void vtss_debug_print_map(lmu_ss_t                      *ss,
           defined(VTSS_FEATURE_QOS_EGRESS_MAP) */
 
 #if defined(VTSS_FEATURE_QOS_TAS)
-static char *debug_gate_operation_string(const vtss_qos_tas_gco_t gate_operation)
+static const char *debug_gate_operation_string(const vtss_qos_tas_gco_t gate_operation)
 {
-    switch (gate_operation) {
-    case VTSS_QOS_TAS_GCO_SET_GATE_STATES:     return ("SET");
-    case VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC:    return ("SET_HOLD");
-    case VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC: return ("SET_RELEASE");
+    if (gate_operation == VTSS_QOS_TAS_GCO_SET_GATE_STATES) {
+        return ("SET");
+    } else if (gate_operation == VTSS_QOS_TAS_GCO_SET_AND_HOLD_MAC) {
+        return ("SET_HOLD");
+    } else if (gate_operation == VTSS_QOS_TAS_GCO_SET_AND_RELEASE_MAC) {
+        return ("SET_RELEASE");
+    } else {
+        return ("INVALID");
     }
-    return ("INVALID");
 }
 
 static u8 bool8_to_u8(BOOL *array)
 {
     u8 i, value = 0, mask = 1;
 
-    for (i = 0; i < 8; i++, mask <<= 1) {
+    for (i = 0U; i < 8U; i++) {
         if (array[i]) {
             value |= mask;
         }
+        mask <<= 1U;
     }
     return value;
 }
@@ -2242,13 +2253,11 @@ void vtss_qos_debug_print(struct vtss_state_s           *vtss_state,
             continue;
         }
         pr("%4u %8s ", port_no, port_conf->dwrr_enable ? "Weighted" : "Strict");
-        pr("%3u ",
 #if defined(VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT)
-           port_conf->dwrr_cnt
+        pr("%3u ", port_conf->dwrr_cnt);
 #else
-           6
+        pr("%3u ", 6);
 #endif /* VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT */
-        );
         for (i = 0; i < 8; i++) {
             pr("%3u ", port_conf->queue_pct[i]);
         }
