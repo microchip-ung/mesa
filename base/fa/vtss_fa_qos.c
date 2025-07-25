@@ -3560,7 +3560,7 @@ vtss_rc vtss_fa_qos_tas_port_conf_update(struct vtss_state_s *vtss_state,
     }
 #endif
 
-#if defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN969X)
     REG_WRM(VTSS_HSCH_TAS_PROFILE_CONFIG(VTSS_CHIP_PORT(port_no)),
             VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port
                                                                               .conf[port_no]
@@ -5972,7 +5972,7 @@ static vtss_rc fa_qos_port_map_set(vtss_state_t *vtss_state)
             DEV_WRM(DEV_PFRAME_CFG, port, VTSS_F_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG(12),
                     VTSS_M_DEV1G_DEV_PFRAME_CFG_DEV_FRAGMENT_IFG);
 
-            if (VTSS_PORT_IS_2G5(port)) {
+            if (!VTSS_PORT_IS_2G5(port)) {
                 REG_WRM(VTSS_DEV10G_MAC_ADV_CHK_CFG(VTSS_TO_HIGH_DEV(port)),
                         VTSS_F_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA(0),
                         VTSS_M_DEV10G_MAC_ADV_CHK_CFG_SFD_CHK_ENA);
