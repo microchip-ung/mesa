@@ -38,41 +38,45 @@
 #include "vtss_sd10g65_procs.h"
 #include "vtss_sd10g65_apc_procs.h"
 
-static u8 to_u8(const BOOL a) { return (a == TRUE) ? 1 : 0; }
+static u8 to_u8(const BOOL a) { return (a == TRUE) ? 1U : 0U; }
 
 /* function to map from SD10G65 interface width to configuration value */
 static u8 sd10g65_apc_get_iw_setting(const u8 interface_width)
 {
+    u8 retval;
+
     switch (interface_width) {
-    case 8: {
-        return 0;
+    case 8U: {
+        retval = 0U;
         break;
     }
-    case 10: {
-        return 1;
+    case 10U: {
+        retval = 1U;
         break;
     }
-    case 16: {
-        return 2;
+    case 16U: {
+        retval = 2U;
         break;
     }
-    case 20: {
-        return 3;
+    case 20U: {
+        retval = 3U;
         break;
     }
-    case 32: {
-        return 4;
+    case 32U: {
+        retval = 4U;
         break;
     }
-    case 40: {
-        return 5;
+    case 40U: {
+        retval = 5U;
         break;
     }
     default: {
         VTSS_E("Illegal value %d for interface width\n", interface_width);
-        return VTSS_RC_ERROR;
+        retval = 0U;
+        break;
     }
     }
+    return retval
 }
 
 static vtss_rc vtss_sd10g65_apc_set_default_preset_values(const vtss_chip_name_t chip_name,
@@ -195,7 +199,8 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
     vtss_sd10g65_apc_preset_struct_t preset;
     vtss_apc_param_set_t             apc_set[apc_param];
     vtss_sd10g65_f_pll_t             cfg_f_pll = config.f_pll;
-    u32                              f_pll_khz_plain, optimize_for_1g = FALSE;
+    u32                              f_pll_khz_plain;
+    BOOL                             optimize_for_1g = FALSE;
     u8                               thresh_init;
 
     f_pll_khz_plain = (u32)(VTSS_DIV64(((u64)cfg_f_pll.f_pll_khz * (u64)cfg_f_pll.ratio_num),
@@ -332,7 +337,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
         preset.agc_max = 216;
         preset.lc_smartctrl = 1;
         break;
-    default: break;
+    default: VTSS_D("MISRA Non empty default"); break;
     }
 
     // overrider ld_lev_ini / range_sel if requested
@@ -370,15 +375,15 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
     apc_set[VTSS_SD10G65_APC_PARAM_DFE1].ini = 64;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE1].min = preset.dfe1_min;
 
-    apc_set[VTSS_SD10G65_APC_PARAM_DFE2].max = optimize_for_1g ? 36 : 48; // 1G optimization
+    apc_set[VTSS_SD10G65_APC_PARAM_DFE2].max = (optimize_for_1g) ? 36U : 48U; // 1G optimization
     apc_set[VTSS_SD10G65_APC_PARAM_DFE2].ini = 32;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE2].min = 0;
 
-    apc_set[VTSS_SD10G65_APC_PARAM_DFE3].max = optimize_for_1g ? 20 : 31; // 1G optimization;
+    apc_set[VTSS_SD10G65_APC_PARAM_DFE3].max = (optimize_for_1g) ? 20U : 31U; // 1G optimization;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE3].ini = 16;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE3].min = 0;
 
-    apc_set[VTSS_SD10G65_APC_PARAM_DFE4].max = optimize_for_1g ? 20 : 31; // 1G optimization;
+    apc_set[VTSS_SD10G65_APC_PARAM_DFE4].max = (optimize_for_1g) ? 20U : 31U; // 1G optimization;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE4].ini = 16;
     apc_set[VTSS_SD10G65_APC_PARAM_DFE4].min = 0;
 
@@ -428,10 +433,10 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
         if (config.chip_name != VTSS_SD10G65_CHIP_VENICE) {
             ret_val->calibration_time_ms[0] = 0; // not used at all
             ret_val->calibration_time_ms[1] =
-                (u16)(VTSS_DIV64((((u64)1 << (2 * ret_val->apc_ld_cal_cfg__cal_clk_div[0])) *
-                                  (ret_val->apc_is_cal_cfg1__cal_num_iterations[0] + 1) * 156500 *
+                (u16)(VTSS_DIV64((((u64)1 << (2U * ret_val->apc_ld_cal_cfg__cal_clk_div[0])) *
+                                  (ret_val->apc_is_cal_cfg1__cal_num_iterations[0] + 1U) * 156500U *
                                   config.if_width) +
-                                     (f_pll_khz_plain - 1),
+                                     (f_pll_khz_plain - 1U),
                                  f_pll_khz_plain));
         } else {
             ret_val->calibration_time_ms[0] = 50;
@@ -440,7 +445,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
     }
 
     ret_val->apc_eqz_common_cfg__eqz_gain_auto_restart[0] = 0;
-    ret_val->ib_cal_only[0] = config.ib_cal_only;
+    ret_val->ib_cal_only[0] = (config.ib_cal_only ? 1U : 0U);
     ret_val->apc_eqz_agc_par_cfg__eqz_agc_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_AGC].ini;
     ret_val->apc_dfe1_par_cfg__dfe1_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE1].ini;
     ret_val->apc_dfe2_par_cfg__dfe2_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_DFE2].ini;
@@ -498,9 +503,9 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
     }
 
     if (f_pll_khz_plain > 2500000U) {
-        ret_val->high_data_rate[0] = 1;
+        ret_val->high_data_rate[0] = 1U;
     } else {
-        ret_val->high_data_rate[0] = 0;
+        ret_val->high_data_rate[0] = 0U;
     }
 
     /* L anc C control either forced or enabled for higher data rates only */
@@ -515,8 +520,8 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
         ret_val->apc_eqz_l_par_cfg__eqz_l_min[0] =
             apc_set[VTSS_SD10G65_APC_PARAM_L].min; /* Not used in this mode */
         ret_val->apc_eqz_l_par_cfg__eqz_l_ini[0] = config.force_eqz_l_val;
-        ret_val->apc_eqz_l_ctrl__eqz_l_sync_mode[0] = 0; /* disabled */
-    } else if (ret_val->high_data_rate[0] == 1) {
+        ret_val->apc_eqz_l_ctrl__eqz_l_sync_mode[0] = 0U; /* disabled */
+    } else if (ret_val->high_data_rate[0] == 1U) {
         /* high data rates -> use and ctrl L and C */
         ret_val->apc_eqz_l_par_cfg__eqz_l_chg_mode[0] =
             apc_set[VTSS_SD10G65_APC_PARAM_L].chg_mode; /* control parameter */
@@ -525,11 +530,11 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
         ret_val->apc_eqz_l_par_cfg__eqz_l_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_L].max;
         ret_val->apc_eqz_l_par_cfg__eqz_l_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_L].min;
         ret_val->apc_eqz_l_par_cfg__eqz_l_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_L].ini;
-        if ((config.lc_softctrl == TRUE) || (preset.lc_smartctrl == 1)) {
+        if ((config.lc_softctrl == TRUE) || (preset.lc_smartctrl == 1U)) {
             /* start LC softctrl with known initial values */
-            ret_val->apc_eqz_l_ctrl__eqz_l_sync_mode[0] = 0; /* disabled */
+            ret_val->apc_eqz_l_ctrl__eqz_l_sync_mode[0] = 0U; /* disabled */
         } else {
-            ret_val->apc_eqz_l_ctrl__eqz_l_sync_mode[0] = 1;
+            ret_val->apc_eqz_l_ctrl__eqz_l_sync_mode[0] = 1U;
         }
     } else {
         /* low data rates -> force L and C to 0 */
@@ -556,7 +561,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
             apc_set[VTSS_SD10G65_APC_PARAM_C].min; /* Not used in this mode */
         ret_val->apc_eqz_c_par_cfg__eqz_c_ini[0] = config.force_eqz_c_val;
         ret_val->apc_eqz_c_ctrl__eqz_c_sync_mode[0] = 0; /* disabled */
-    } else if (ret_val->high_data_rate[0] == 1) {
+    } else if (ret_val->high_data_rate[0] == 1U) {
         /* high data rates -> use and ctrl L and C */
         ret_val->apc_eqz_c_par_cfg__eqz_c_chg_mode[0] =
             apc_set[VTSS_SD10G65_APC_PARAM_C].chg_mode; /* control parameter */
@@ -565,7 +570,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
         ret_val->apc_eqz_c_par_cfg__eqz_c_max[0] = apc_set[VTSS_SD10G65_APC_PARAM_C].max;
         ret_val->apc_eqz_c_par_cfg__eqz_c_min[0] = apc_set[VTSS_SD10G65_APC_PARAM_C].min;
         ret_val->apc_eqz_c_par_cfg__eqz_c_ini[0] = apc_set[VTSS_SD10G65_APC_PARAM_C].ini;
-        if ((config.lc_softctrl == TRUE) || (preset.lc_smartctrl == 1)) {
+        if ((config.lc_softctrl == TRUE) || (preset.lc_smartctrl == 1U)) {
             /* start LC softctrl with known initial values */
             ret_val->apc_eqz_c_ctrl__eqz_c_sync_mode[0] = 0; /* disabled */
         } else {
