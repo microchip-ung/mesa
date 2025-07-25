@@ -3747,7 +3747,7 @@ vtss_rc vtss_cil_qos_tas_port_conf_set(struct vtss_state_s *vtss_state,
             }
 
             /* Check for correct cycle time */
-            if (tas_cycle_time_ok(new_port_conf)) {
+            if (!tas_cycle_time_ok(new_port_conf)) {
                 VTSS_D("Check of cycle time failed");
                 return VTSS_RC_ERROR;
             }
