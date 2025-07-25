@@ -13,6 +13,7 @@
 #include "../ail/vtss_util.h"
 #include "../ail/vtss_sd10g28_procs.h"
 #include "../ail/vtss_sd25g28_procs.h"
+#include "vtss_fa.h"
 #include "vtss_fa_reg.h"
 #if defined(VTSS_ARCH_SPARX5)
 #include "vtss_fa_regs.h"
@@ -627,7 +628,7 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t          *vtss_state,
                           const vtss_chip_no_t   chip_no,
                           const vtss_gpio_no_t   gpio_no,
                           const vtss_gpio_mode_t mode);
-u32     vtss_fa_clk_period(vtss_core_clock_freq_t clock);
+u32     vtss_fa_clk_period(vtss_core_clock_freq_t c);
 vtss_rc vtss_fa_dsm_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss);
 vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss);
 u32     vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no);

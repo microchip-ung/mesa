@@ -414,6 +414,7 @@ u32 vtss_to_pcs25g(vtss_state_t *vtss_state, u32 port)
     return t;
 }
 
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 static u32 vtss_to_sd10g_kr(vtss_state_t *vtss_state, u32 port)
 {
     u32 t = 0U;
@@ -452,6 +453,7 @@ static u32 vtss_to_sd10g_kr(vtss_state_t *vtss_state, u32 port)
     }
     return t;
 }
+#endif
 
 #if defined(VTSS_FEATURE_SD_25G)
 static u32 vtss_to_rsfec(vtss_state_t *vtss_state, u32 port)
@@ -2381,8 +2383,7 @@ static vtss_rc fa_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 #else
 static vtss_rc la_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    u32 p = VTSS_CHIP_PORT(port_no), Q;
-    u32 R, H;
+    u32 u, p = VTSS_CHIP_PORT(port_no);
 
     if (vtss_state->port.current_if_type[port_no] == vtss_state->port.conf[port_no].if_type) {
         return VTSS_RC_OK; // Nothing to do
@@ -2390,21 +2391,21 @@ static vtss_rc la_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 
     switch (vtss_state->port.conf[port_no].if_type) {
     case VTSS_PORT_INTERFACE_QSGMII: /* QSGMII: 4x2G5 devices. Mode Q'  */
-        Q = (p - p % 4U) / 4U;
-        REG_WRM(VTSS_PORT_CONF_QSGMII_ENA, VTSS_BIT(Q), VTSS_BIT(Q));
+        u = (p - p % 4U) / 4U;
+        REG_WRM(VTSS_PORT_CONF_QSGMII_ENA, VTSS_BIT(u), VTSS_BIT(u));
         break;
     case VTSS_PORT_INTERFACE_QXGMII: /* QXGMII: 4x2G5 devices. Mode 'R'. Use 2G5
                                         device. */
 #if defined(VTSS_ARCH_LAN969X)
         if (p >= 8U && p < 23U) {
-            R = p / 4U; /* equals index 2-5 */
-            REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(R),
+            u = p / 4U; /* equals index 2-5 */
+            REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(u),
                     VTSS_F_PORT_CONF_USXGMII_CFG_TX_ENA(1) |
                         VTSS_F_PORT_CONF_USXGMII_CFG_RX_ENA(1) |
                         VTSS_F_PORT_CONF_USXGMII_CFG_NUM_PORTS(2),
                     VTSS_M_PORT_CONF_USXGMII_CFG_TX_ENA | VTSS_M_PORT_CONF_USXGMII_CFG_RX_ENA |
                         VTSS_M_PORT_CONF_USXGMII_CFG_NUM_PORTS);
-            REG_WRM(VTSS_PORT_CONF_USXGMII_ENA, VTSS_BIT(R), VTSS_BIT(R));
+            REG_WRM(VTSS_PORT_CONF_USXGMII_ENA, VTSS_BIT(u), VTSS_BIT(u));
         } else
 #endif
         {
@@ -2414,14 +2415,14 @@ static vtss_rc la_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         break;
     case VTSS_PORT_INTERFACE_USXGMII: /* USXGMII: 1x10G USXGMII. Mode 'H' */
         if (VTSS_PORT_IS_10G(p)) {
-            H = vtss_port_dev_index(vtss_state, p);
-            REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(H),
+            u = vtss_port_dev_index(vtss_state, p);
+            REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(u),
                     VTSS_F_PORT_CONF_USXGMII_CFG_TX_ENA(1) |
                         VTSS_F_PORT_CONF_USXGMII_CFG_RX_ENA(1) |
                         VTSS_F_PORT_CONF_USXGMII_CFG_NUM_PORTS(0),
                     VTSS_M_PORT_CONF_USXGMII_CFG_TX_ENA | VTSS_M_PORT_CONF_USXGMII_CFG_RX_ENA |
                         VTSS_M_PORT_CONF_USXGMII_CFG_NUM_PORTS);
-            REG_WRM(VTSS_PORT_CONF_USXGMII_ENA, VTSS_BIT(H), VTSS_BIT(H));
+            REG_WRM(VTSS_PORT_CONF_USXGMII_ENA, VTSS_BIT(u), VTSS_BIT(u));
         } else {
             VTSS_E("chip port %d does not support SXGMII mode", p);
             return VTSS_RC_ERROR;
