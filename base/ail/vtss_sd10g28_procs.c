@@ -25,46 +25,56 @@ static u8 to_u8(const BOOL in)
 /* function to map from SD10G28 interface width to configuration value */
 static u8 sd10g28_get_iw_setting(const u8 interface_width)
 {
+    u8 retval;
+
     VTSS_D(" sd10g28_get_iw_setting:  Interface width is %d bits \n", interface_width);
     switch (interface_width) {
-    case 10: {
-        return 0;
+    case 10U: {
+        retval = 0U;
+        break;
     }
-    case 16: {
-        return 1;
+    case 16U: {
+        retval = 1U;
+        break;
     }
-    case 20: {
-        return 2;
+    case 20U: {
+        retval = 2U;
+        break;
     }
-    case 32: {
-        return 3;
+    case 32U: {
+        retval = 3U;
+        break;
     }
-    case 40: {
-        return 4;
+    case 40U: {
+        retval = 4U;
+        break;
     }
-    case 64: {
-        return 7;
+    case 64U: {
+        retval = 7U;
+        break;
     }
     default: {
         VTSS_E("Illegal value %d for interface width\n", interface_width);
-        return 0;
+        retval = 0U;
+        break;
     }
     }
+    return retval;
 }
 
 vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
-                                        vtss_sd10g28_mode_t             f_mode,
+                                        vtss_sd10g28_mode_t             mode,
                                         vtss_sd10g28_mode_args_t *const ret_val)
 {
 
-    switch (f_mode) {
+    switch (mode) {
     case VTSS_SD10G28_MODE_10G_QSXGMII:
     case VTSS_SD10G28_MODE_10G_DSXGMII: {
         // ret_val->datarate = 10.3125e9;
         ret_val->bitwidth = sd10g28_get_iw_setting(32); // usgmii_ext and usxgmii_ext_rx_to_64
         ret_val->cmu_sel = VTSS_SD10G28_MAIN;           // MAIN CMU
         ret_val->rate = 0x0;
-        ret_val->dfe_enable = 1;
+        ret_val->dfe_enable = TRUE;
         ret_val->dfe_tap = 0x1f;
         ret_val->pi_bw_gen1 = 0x0;
         ret_val->duty_cycle = 0x2;
@@ -78,7 +88,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
         ret_val->bitwidth = sd10g28_get_iw_setting(64);
         ret_val->cmu_sel = VTSS_SD10G28_MAIN; // MAIN CMU
         ret_val->rate = 0x0;
-        ret_val->dfe_enable = 1;
+        ret_val->dfe_enable = TRUE;
         ret_val->dfe_tap = 0x1f;
         ret_val->pi_bw_gen1 = 0x0;
         ret_val->duty_cycle = 0x2;
@@ -96,7 +106,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
         }
         ret_val->cmu_sel = VTSS_SD10G28_MAIN; // MAIN CMU
         ret_val->rate = 0x1;
-        ret_val->dfe_enable = 0;
+        ret_val->dfe_enable = FALSE;
         ret_val->dfe_tap = 0;
         ret_val->pi_bw_gen1 = 0x5;
         ret_val->duty_cycle = 0x0;
@@ -114,7 +124,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
                                                         // (serdes)<-> 64bit (Devices)
         ret_val->cmu_sel = VTSS_SD10G28_MAIN;           // MAIN CMU
         ret_val->rate = 0x1;
-        ret_val->dfe_enable = 0;
+        ret_val->dfe_enable = FALSE;
         ret_val->dfe_tap = 0;
         ret_val->pi_bw_gen1 = 0x5;
         ret_val->duty_cycle = 0x0;
@@ -126,7 +136,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
         ret_val->bitwidth = sd10g28_get_iw_setting(20);
         ret_val->cmu_sel = VTSS_SD10G28_AUX1; // AUX1 CMU
         ret_val->rate = 0x0;
-        ret_val->dfe_enable = 1;
+        ret_val->dfe_enable = TRUE;
         ret_val->dfe_tap = 0x1f;
         ret_val->pi_bw_gen1 = 0x0;
         ret_val->duty_cycle = 0x2;
@@ -138,7 +148,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
         ret_val->bitwidth = sd10g28_get_iw_setting(20);
         ret_val->cmu_sel = VTSS_SD10G28_AUX1; // AUX1 CMU
         ret_val->rate = 0x1;
-        ret_val->dfe_enable = 0;
+        ret_val->dfe_enable = FALSE;
         ret_val->dfe_tap = 0;
         ret_val->pi_bw_gen1 = 0x5;
         ret_val->duty_cycle = 0x0;
@@ -151,7 +161,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
         ret_val->bitwidth = sd10g28_get_iw_setting(10);
         ret_val->cmu_sel = VTSS_SD10G28_AUX2; // AUX2 CMU
         ret_val->rate = 0x2;
-        ret_val->dfe_enable = 0;
+        ret_val->dfe_enable = FALSE;
         ret_val->dfe_tap = 0;
         ret_val->pi_bw_gen1 = 0x7;
         ret_val->duty_cycle = 0x0;
@@ -166,7 +176,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
         ret_val->bitwidth = sd10g28_get_iw_setting(10);
         ret_val->cmu_sel = VTSS_SD10G28_AUX1; // AUX1 CMU
         ret_val->rate = 0x3;
-        ret_val->dfe_enable = 0;
+        ret_val->dfe_enable = FALSE;
         ret_val->dfe_tap = 0;
         ret_val->pi_bw_gen1 = 0x7; // SBCHG 7->9
         ret_val->duty_cycle = 0x0;
@@ -181,7 +191,7 @@ vtss_rc vtss_sd10g28_get_conf_from_mode(BOOL                            is_6g,
         ret_val->bitwidth = sd10g28_get_iw_setting(64);
         ret_val->cmu_sel = VTSS_SD10G28_MAIN; // MAIN CMU
         ret_val->rate = 0x0;
-        ret_val->dfe_enable = 1;
+        ret_val->dfe_enable = TRUE;
         ret_val->dfe_tap = 0x1f;
         ret_val->pi_bw_gen1 = 0x0;
         ret_val->duty_cycle = 0x2;
@@ -226,6 +236,8 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
         ret_val->cmu_sel[0] = 1;
     } else if (mode_args->cmu_sel == VTSS_SD10G28_AUX2) {
         ret_val->cmu_sel[0] = 3;
+    } else {
+        VTSS_D("MISRA Non empty else");
     }
     cmu = ret_val->cmu_sel[0];
     ret_val->cfg_lane_reserve_7_0[0] = (cmu % 2U) << 6U; // LSB:
@@ -239,7 +251,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     ret_val->cfg_txrate_1_0[0] = mode_args->rate;
     ret_val->cfg_rxrate_1_0[0] = mode_args->rate;
 
-    ret_val->fx_100[0] = config.mode == VTSS_SD10G28_MODE_FX100;
+    ret_val->fx_100[0] = (config.mode == VTSS_SD10G28_MODE_FX100) ? 1U : 0U;
 
     // UDL interface configuration bitwidth, tx and rx clock selection, phymode
     // selection
@@ -274,7 +286,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
         preset.cfg_eq_res_3_0 = 0xa; // CTLE gain control.
         preset.cfg_eqR_byp = 1;
         preset.cfg_eqC_force_3_0 = 0xF;
-        mode_args->dfe_enable = 0;
+        mode_args->dfe_enable = FALSE;
         preset.cfg_alos_thr_3_0 = 0x3;
         break;
     case VTSS_SD10G28_DAC3M: // r_txeq_reg related signals
@@ -391,11 +403,11 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
 
     // r_reg_manual related signals
     ret_val->cfg_cdrck_en[0] = 1;
-    ret_val->cfg_dfeck_en[0] = mode_args->dfe_enable;
-    ret_val->cfg_dfe_pd[0] = (mode_args->dfe_enable == 1) ? 0 : 1;
+    ret_val->cfg_dfeck_en[0] = (mode_args->dfe_enable) ? 1U : 0U;
+    ret_val->cfg_dfe_pd[0] = (mode_args->dfe_enable) ? 0U : 1U;
     ret_val->cfg_dfetap_en_5_1[0] = mode_args->dfe_tap;
-    ret_val->cfg_erramp_pd[0] = (mode_args->dfe_enable == 1) ? 0 : 1;
-    ret_val->cfg_pi_DFE_en[0] = mode_args->dfe_enable;
+    ret_val->cfg_erramp_pd[0] = (mode_args->dfe_enable) ? 0U : 1U;
+    ret_val->cfg_pi_DFE_en[0] = (mode_args->dfe_enable) ? 1U : 0U;
     ret_val->cfg_pi_en[0] = 1;
     ret_val->cfg_pd_ctle[0] = 0;
     ret_val->cfg_summer_en[0] = 1;
@@ -405,7 +417,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     ret_val->cfg_pd_driver[0] = 0;
     ret_val->cfg_rx_reg_pu[0] = 1;
     ret_val->cfg_Dcdr_pd[0] = 0;
-    ret_val->cfg_pd_sq[0] = mode_args->dfe_enable;
+    ret_val->cfg_pd_sq[0] = (mode_args->dfe_enable) ? 1U : 0U;
     ret_val->cfg_rxdet_en[0] = 0;
     ret_val->cfg_rxdet_str[0] = 0;
     ret_val->r_multi_lane_mode[0] = 0;
@@ -425,7 +437,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     ret_val->cfg_eq_res_3_0[0] = preset.cfg_eq_res_3_0; // CTLE gain control.
     ret_val->cfg_eqR_byp[0] = preset.cfg_eqR_byp;
     ret_val->cfg_eqC_force_3_0[0] = preset.cfg_eqC_force_3_0;
-    ret_val->cfg_en_dfedig[0] = mode_args->dfe_enable;
+    ret_val->cfg_en_dfedig[0] = (mode_args->dfe_enable) ? 1U : 0U;
     ret_val->cfg_sum_setcm_en[0] = 1;
 
     // r_misc_reg
@@ -433,9 +445,9 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     ret_val->cfg_itx_ippreemp_base_1_0[0] = 0; // Unused in current IP as per Tony 08/29/2018.
 
     // r_swing_reg;
-    ret_val->cfg_itx_ipdriver_base_2_0[0] = (config.txswing >> 6U);
-    ret_val->cfg_ibias_tune_reserve_5_0[0] = (config.txswing & 63U);
-    ret_val->cfg_txswing_half[0] = (config.txmargin);
+    ret_val->cfg_itx_ipdriver_base_2_0[0] = (u8)(config.txswing >> 6U);
+    ret_val->cfg_ibias_tune_reserve_5_0[0] = (u8)(config.txswing & 63U);
+    ret_val->cfg_txswing_half[0] = (config.txmargin ? 1U : 0U);
 
     // r_cdr_from_hwt this is cfg controlled.
     ret_val->cfg_dis_2ndOrder[0] = 0x1;            //  2nd order CDR disable signal.
@@ -461,8 +473,9 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     ret_val->cfg_pi_ext_dac_7_0[0] = 3; // DFE clock phase tuning parameter; Silicon Dependend;
     ret_val->cfg_pi_steps[0] = 0;
     ret_val->cfg_mp_max_3_0[0] = 1;
-    ret_val->cfg_rstn_dfedig[0] = mode_args->dfe_enable; // DFE Reset; it is reset automatically
-                                                         // after assert and release of pclk_gating
+    ret_val->cfg_rstn_dfedig[0] =
+        (mode_args->dfe_enable) ? 1U : 0U; // DFE Reset; it is reset automatically
+                                           // after assert and release of pclk_gating
 
     ret_val->cfg_alos_thr_3_0[0] =
         preset.cfg_alos_thr_3_0; // Voltage threshold for squelch detection
@@ -477,8 +490,8 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
 
     ret_val->r_en_auto_cdr_rstn[0] = 0; //  Lane CDR auto reset function enable
 
-    ret_val->cfg_oscal_afe[0] = ret_val->fx_100[0] ? 0 : 1;
-    ret_val->cfg_pd_osdac_afe[0] = ret_val->fx_100[0] ? 1 : 0;
+    ret_val->cfg_oscal_afe[0] = (ret_val->fx_100[0] != 0U) ? 0U : 1U;
+    ret_val->cfg_pd_osdac_afe[0] = (ret_val->fx_100[0] != 0U) ? 1U : 0U;
     ret_val->cfg_resetb_oscal_afe[0] = 0;
     ret_val->cfg_resetb_oscal_afe[1] = 1;
 
@@ -495,6 +508,8 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     } else if (config.master_loop == VTSS_SD10G28_MASTER_LOOP_NONE) {
         ret_val->cfg_tx2rx_lp_en[0] = 0;
         ret_val->cfg_txlb_en[0] = 0;
+    } else {
+        VTSS_D("MISRA Non empty else");
     }
 
     if (config.slave_loop == VTSS_SD10G28_LS1 &&
@@ -511,6 +526,8 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
         ret_val->cfg_rx2tx_lp_en[0] = 0; //
         ret_val->cfg_rxlb_en[0] = 0;
         ret_val->cfg_cdrck_en[0] = 1;
+    } else {
+        VTSS_D("MISRA Non empty else");
     }
     // TX invert
     if (config.txinvert) {
@@ -604,9 +621,9 @@ vtss_rc vtss_calc_sd10g28_cmu_type(int cmu_num, vtss_sd10g28_cmu_type_t *const r
 
         VTSS_D("vtss_calc_sd10g28_cmu_type: %d CMU Number\n", cmu_num);
         if (cmu_num == 1 || cmu_num == 4 || cmu_num == 7 || cmu_num == 10 || cmu_num == 13) {
-            ret_val->cmu_type[0] = to_u8(1); /*AUX2 */
+            ret_val->cmu_type[0] = to_u8(TRUE); /*AUX2 */
         } else {
-            ret_val->cmu_type[0] = to_u8(0); /*MAIN and AUX1*/
+            ret_val->cmu_type[0] = to_u8(FALSE); /*MAIN and AUX1*/
         }
 
         VTSS_D("vtss_calc_sd10g28_cmu_type: %d CMU Number and %d Type \n", cmu_num,
