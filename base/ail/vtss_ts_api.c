@@ -8,11 +8,11 @@
 
 #if defined(VTSS_FEATURE_TIMESTAMP)
 
-#define HW_NS_PR_SEC 1000000000L
+#define HW_NS_PR_SEC 1000000000U
 
 vtss_rc vtss_timestampAddSec(vtss_timestamp_t *ts)
 {
-    if (ts->seconds == 0xffffffff) {
+    if (ts->seconds == 0xffffffffU) {
         ts->sec_msb++;
         ts->seconds = 0U;
     } else {
@@ -25,7 +25,7 @@ vtss_rc vtss_timestampSubSec(vtss_timestamp_t *ts)
 {
     if (ts->seconds == 0U) {
         ts->sec_msb--;
-        ts->seconds = 0xffffffff;
+        ts->seconds = 0xffffffffU;
     } else {
         ts->seconds--;
     }
@@ -36,7 +36,7 @@ static vtss_rc timestampSubNanosec(vtss_timestamp_t *ts)
 {
     if (ts->nanoseconds == 0U) {
         VTSS_RC(vtss_timestampSubSec(ts));
-        ts->nanoseconds = HW_NS_PR_SEC - 1;
+        ts->nanoseconds = HW_NS_PR_SEC - 1U;
     } else {
         ts->nanoseconds--;
     }
