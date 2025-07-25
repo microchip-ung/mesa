@@ -527,31 +527,31 @@ vtss_rc vtss_mdio_conf_set(const vtss_inst_t             inst,
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
-#define VTSS_GPIOS 32
+#define VTSS_GPIOS 32U
 #endif /* VTSS_ARCH_LUTON26/SERVAL */
 
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_SPARX5)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
-#define VTSS_GPIOS 64
+#define VTSS_GPIOS 64U
 #endif /* VTSS_ARCH_JAGUAR_2/SPARX5 */
 
 #if defined(VTSS_ARCH_LAN969X)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
-#define VTSS_GPIOS 67
+#define VTSS_GPIOS 67U
 #endif /* VTSS_ARCH_LAN969X */
 
 #if defined(VTSS_ARCH_LAN966X)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
-#define VTSS_GPIOS 78
+#define VTSS_GPIOS 78U
 #endif /* VTSS_ARCH_LAN966X */
 
 #if defined(VTSS_ARCH_LAIKA)
 /** \brief Number of GPIOs */
 #undef VTSS_GPIOS
-#define VTSS_GPIOS 0
+#define VTSS_GPIOS 0U
 #endif /* VTSS_ARCH_LAIKA */
 
 /** \brief GPIO number */
@@ -559,7 +559,7 @@ typedef u32 vtss_gpio_no_t;
 
 #if defined(VTSS_GPIOS)
 /** \brief GPIO start number */
-#define VTSS_GPIO_NO_START 0
+#define VTSS_GPIO_NO_START 0U
 
 /** \brief GPIO end number */
 #define VTSS_GPIO_NO_END (VTSS_GPIO_NO_START + VTSS_GPIOS)
@@ -718,29 +718,29 @@ typedef vtss_rc (*vtss_gpio_func_info_get_t)(const vtss_inst_t            inst,
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_SERVAL_T) ||      \
     defined(VTSS_ARCH_LAN966X) || defined(VTSS_ARCH_LAN969X)
 /** \brief Number of serial GPIO groups */
-#define VTSS_SGPIO_GROUPS 1
+#define VTSS_SGPIO_GROUPS 1U
 #endif /* VTSS_ARCH_LUTON26/SERVAL/SERVAL_T */
 
 #if defined(VTSS_ARCH_JAGUAR_2_B) || defined(VTSS_ARCH_JAGUAR_2_C)
 /** \brief Number of serial GPIO groups */
-#define VTSS_SGPIO_GROUPS 3
+#define VTSS_SGPIO_GROUPS 3U
 #endif /* VTSS_ARCH_JAGUAR_2_B/C */
 
 #if defined(VTSS_ARCH_SPARX5)
 /** \brief Number of serial GPIO groups */
-#define VTSS_SGPIO_GROUPS 3
+#define VTSS_SGPIO_GROUPS 3U
 #endif /* VTSS_ARCH_SPARX5 */
 
 #if defined(VTSS_ARCH_LAIKA)
 /** \brief Number of serial GPIO groups */
-#define VTSS_SGPIO_GROUPS 0
+#define VTSS_SGPIO_GROUPS 0U
 #endif /* VTSS_ARCH_LAIKA */
 
 /** \brief Serial GPIO group */
 typedef u32 vtss_sgpio_group_t;
 
 /** \brief Number of serial GPIO ports */
-#define VTSS_SGPIO_PORTS 32
+#define VTSS_SGPIO_PORTS 32U
 
 /** \brief SGPIO output mode */
 typedef enum {
@@ -1132,9 +1132,9 @@ typedef enum {
 typedef enum { VTSS_FAN_2_WIRE_TYPE, VTSS_FAN_3_WIRE_TYPE, VTSS_FAN_4_WIRE_TYPE } vtss_fan_type_t;
 
 /** \brief Maximum fan speed level (Fan runs at full speed) */
-#define VTSS_FAN_SPEED_MAX 0x255
+#define VTSS_FAN_SPEED_MAX 0x255U
 /** \brief Minimum fan speed level (Fan is OFF) */
-#define VTSS_FAN_SPEED_MIN 0x0
+#define VTSS_FAN_SPEED_MIN 0x0U
 
 /** \brief Fan specifications */
 typedef struct {
@@ -1321,8 +1321,8 @@ vtss_rc vtss_vscope_conf_get(const vtss_inst_t         inst,
                              const vtss_port_no_t      port_no,
                              vtss_vscope_conf_t *const conf);
 
-#define VSCOPE_BOOLEAN_STORAGE_COUNT  6 /**<BOOL parameters to be stored during Vscope Scan */
-#define VSCOPE_UNSIGNED_STORAGE_COUNT 5 /**<UNSIGNED parameters to be stored during Vscope Scan */
+#define VSCOPE_BOOLEAN_STORAGE_COUNT  6U /**<BOOL parameters to be stored during Vscope Scan */
+#define VSCOPE_UNSIGNED_STORAGE_COUNT 5U /**<UNSIGNED parameters to be stored during Vscope Scan */
 
 typedef struct {
     BOOL ib_storage_bool[VSCOPE_BOOLEAN_STORAGE_COUNT]; /**<boolean values to be
@@ -1346,8 +1346,8 @@ typedef struct {
     u32  ber;     /**<bit error rate */
 } vtss_vscope_scan_conf_t;
 
-#define PHASE_POINTS     128 /**<phase points range from 0-127 */
-#define AMPLITUDE_POINTS 64  /**<amplitude points range from 0-63 */
+#define PHASE_POINTS     128U /**<phase points range from 0-127 */
+#define AMPLITUDE_POINTS 64U  /**<amplitude points range from 0-63 */
 
 /**\ brief Vscope eye scan status*/
 typedef struct {

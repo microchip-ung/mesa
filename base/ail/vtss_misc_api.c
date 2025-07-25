@@ -57,11 +57,12 @@ vtss_rc vtss_reg_write_masked(const vtss_inst_t    inst,
     u32           val = 0U; /* Please Lint */
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_cil_misc_reg_read(vtss_state, chip_no, addr, &val)) == VTSS_RC_OK) {
-        val = ((val & ~mask) | (value & mask));
-        rc = vtss_cil_misc_reg_write(vtss_state, chip_no, addr, val);
-        VTSS_D("addr: 0x%08x, value: 0x%08x", addr, val);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_cil_misc_reg_read(vtss_state, chip_no, addr, &val)) == VTSS_RC_OK) {
+            val = ((val & ~mask) | (value & mask));
+            rc = vtss_cil_misc_reg_write(vtss_state, chip_no, addr, val);
+            VTSS_D("addr: 0x%08x, value: 0x%08x", addr, val);
+        }
     }
     VTSS_EXIT();
 
@@ -90,10 +91,7 @@ vtss_rc vtss_poll_1sec(const vtss_inst_t inst)
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        vtss_rc rc2 = vtss_cil_misc_poll_1sec(vtss_state);
-        if (rc == VTSS_RC_OK) {
-            rc = rc2;
-        }
+        rc = vtss_cil_misc_poll_1sec(vtss_state);
     }
     VTSS_EXIT();
     return rc;
@@ -136,7 +134,7 @@ vtss_rc vtss_ptp_event_enable(const vtss_inst_t           inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if (rc == VTSS_RC_OK && ev_mask) {
+        if ((u32)ev_mask != 0U) {
             rc = vtss_cil_misc_ptp_event_enable(vtss_state, ev_mask, enable);
         }
     }
@@ -168,7 +166,8 @@ vtss_rc vtss_dev_all_event_enable(const vtss_inst_t               inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK && ev_mask) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK &&
+        ((u32)ev_mask != 0U)) {
         rc = vtss_cil_misc_dev_all_event_enable(vtss_state, port_no, ev_mask, enable);
     }
     VTSS_EXIT();
@@ -194,9 +193,10 @@ vtss_rc vtss_gpio_mode_set(const vtss_inst_t      inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
-        rc = vtss_cil_misc_gpio_mode(vtss_state, chip_no, gpio_no, mode);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
+            rc = vtss_cil_misc_gpio_mode(vtss_state, chip_no, gpio_no, mode);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -220,9 +220,10 @@ vtss_rc vtss_gpio_read(const vtss_inst_t    inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
-        rc = vtss_cil_misc_gpio_read(vtss_state, chip_no, gpio_no, value);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
+            rc = vtss_cil_misc_gpio_read(vtss_state, chip_no, gpio_no, value);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -237,9 +238,10 @@ vtss_rc vtss_gpio_write(const vtss_inst_t    inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
-        rc = vtss_cil_misc_gpio_write(vtss_state, chip_no, gpio_no, value);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
+            rc = vtss_cil_misc_gpio_write(vtss_state, chip_no, gpio_no, value);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -269,9 +271,10 @@ vtss_rc vtss_gpio_event_enable(const vtss_inst_t    inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
-        rc = vtss_cil_misc_gpio_event_enable(vtss_state, chip_no, gpio_no, enable);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_gpio_no_check(vtss_state, gpio_no)) == VTSS_RC_OK) {
+            rc = vtss_cil_misc_gpio_event_enable(vtss_state, chip_no, gpio_no, enable);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -300,9 +303,10 @@ vtss_rc vtss_sgpio_conf_get(const vtss_inst_t        inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
-        *conf = vtss_state->misc.sgpio_conf[chip_no][group];
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
+            *conf = vtss_state->misc.sgpio_conf[chip_no][group];
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -317,14 +321,15 @@ vtss_rc vtss_sgpio_conf_set(const vtss_inst_t              inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
-        if (conf->bit_count == 0 || conf->bit_count > 4) {
-            VTSS_E("illegal bit_count: %u", conf->bit_count);
-            rc = VTSS_RC_ERROR;
-        } else {
-            vtss_state->misc.sgpio_conf[chip_no][group] = *conf;
-            rc = vtss_cil_misc_sgpio_conf_set(vtss_state, chip_no, group, conf);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
+            if (conf->bit_count == 0U || conf->bit_count > 4U) {
+                VTSS_E("illegal bit_count: %u", conf->bit_count);
+                rc = VTSS_RC_ERROR;
+            } else {
+                vtss_state->misc.sgpio_conf[chip_no][group] = *conf;
+                rc = vtss_cil_misc_sgpio_conf_set(vtss_state, chip_no, group, conf);
+            }
         }
     }
     VTSS_EXIT();
@@ -340,9 +345,10 @@ vtss_rc vtss_sgpio_read(const vtss_inst_t        inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
-        rc = vtss_cil_misc_sgpio_read(vtss_state, chip_no, group, data);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
+            rc = vtss_cil_misc_sgpio_read(vtss_state, chip_no, group, data);
+        }
     }
     VTSS_EXIT();
     return rc;
@@ -358,13 +364,14 @@ vtss_rc vtss_sgpio_event_poll(const vtss_inst_t        inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
-        if (bit >= 4U) {
-            VTSS_E("illegal parameter  bit: %u", bit);
-            rc = VTSS_RC_ERROR;
-        } else {
-            rc = vtss_cil_misc_sgpio_event_poll(vtss_state, chip_no, group, bit, events);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
+            if (bit >= 4U) {
+                VTSS_E("illegal parameter  bit: %u", bit);
+                rc = VTSS_RC_ERROR;
+            } else {
+                rc = vtss_cil_misc_sgpio_event_poll(vtss_state, chip_no, group, bit, events);
+            }
         }
     }
     VTSS_EXIT();
@@ -382,14 +389,16 @@ vtss_rc vtss_sgpio_event_enable(const vtss_inst_t        inst,
     vtss_rc       rc;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK &&
-        (rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
-        if ((port >= VTSS_SGPIO_PORTS) || (bit >= 4U)) {
-            VTSS_E("illegal parameter  port: %u  bit: %u", port, bit);
-            rc = VTSS_RC_ERROR;
-        } else {
-            vtss_state->misc.sgpio_event_enabled[chip_no][group].enable[port][bit] = enable;
-            rc = vtss_cil_misc_sgpio_event_enable(vtss_state, chip_no, group, port, bit, enable);
+    if ((rc = vtss_inst_chip_no_check(inst, &vtss_state, chip_no)) == VTSS_RC_OK) {
+        if ((rc = vtss_sgpio_group_check(vtss_state, group)) == VTSS_RC_OK) {
+            if ((port >= VTSS_SGPIO_PORTS) || (bit >= 4U)) {
+                VTSS_E("illegal parameter  port: %u  bit: %u", port, bit);
+                rc = VTSS_RC_ERROR;
+            } else {
+                vtss_state->misc.sgpio_event_enabled[chip_no][group].enable[port][bit] = enable;
+                rc =
+                    vtss_cil_misc_sgpio_event_enable(vtss_state, chip_no, group, port, bit, enable);
+            }
         }
     }
     VTSS_EXIT();
@@ -629,8 +638,8 @@ vtss_rc vtss_misc_inst_create(struct vtss_state_s *vtss_state)
         vtss_sgpio_group_t group;
 
         for (group = 0U; group < VTSS_SGPIO_GROUPS; group++) {
-            state->sgpio_conf[0][group].bit_count = 4;
-            state->sgpio_conf[1][group].bit_count = 4;
+            state->sgpio_conf[0][group].bit_count = 4U;
+            state->sgpio_conf[1][group].bit_count = 4U;
         }
     }
 #endif /* VTSS_FEATURE_SERIAL_GPIO */
@@ -667,7 +676,8 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
     lmu_fmt_buf_t           buf;
     vtss_sgpio_conf_t      *conf;
     vtss_sgpio_port_conf_t *port_conf;
-    u32                     port, i, cnt;
+    u32                     port;
+    u8                      i, cnt;
 
     if (!vtss_debug_group_enabled(ss, info, VTSS_DEBUG_GROUP_SER_GPIO)) {
         return;
@@ -696,7 +706,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
 
             pr("\n");
             pr("Port  Status    ");
-            cnt = (info->full ? 4 : conf->bit_count);
+            cnt = (info->full ? 4U : conf->bit_count);
             for (i = 0U; i < cnt; i++) {
                 pr("Mode_%u     ", i);
             }
@@ -706,7 +716,7 @@ static void vtss_debug_print_ser_gpio(vtss_state_t                  *vtss_state,
             pr("\n");
             for (port = 0U; port < VTSS_SGPIO_PORTS; port++) {
                 port_conf = &conf->port_conf[port];
-                if (port_conf->enabled == 0 && info->full == 0) {
+                if (port_conf->enabled && info->full) {
                     continue;
                 }
                 pr("%-4u  %-10s", port, vtss_bool_txt(port_conf->enabled));
