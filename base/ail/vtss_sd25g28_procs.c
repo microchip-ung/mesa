@@ -292,7 +292,7 @@ vtss_rc vtss_sd25g28_get_conf_from_mode(vtss_sd25g28_mode_t             mode,
             ((0U << 6U) + (0U << 5U) + (0U << 4U) + (1U << 3U) + (0U << 1U));
         ret_val->ln_tx_reserve_lsb = ((2U << 6U) + (0U << 4U) + (0xaU << 0U)); // 09Jan Mail
         ret_val->ln_bw = 0U;
-        ret_val->ln_cfg_pi_bw_3_0 = 0U;   //_004
+        ret_val->ln_cfg_pi_bw_3_0 = 0U;  //_004
         ret_val->ln_rxterm = (1U << 2U); //_004
         ret_val->dfe_enable = 0U;
         ret_val->dfe_tap = 0U;
@@ -565,7 +565,7 @@ vtss_rc vtss_calc_sd25g28_setup_lane(const vtss_sd25g28_setup_args_t    config,
     ret_val->ln_cfg_rx_subrate_2_0[0] = mode_args->subrate; // L1_rx_rate_sel; ln_pma_rx_ck
                                                             // full/subrate frequency selection;
     ret_val->r_multi_lane_mode[0] = 0U;
-    ret_val->ln_cfg_cdrck_en[0] = 1U;                     // L1_pcs2pma_power_ctrl[0]
+    ret_val->ln_cfg_cdrck_en[0] = 1U;                    // L1_pcs2pma_power_ctrl[0]
     ret_val->ln_cfg_dfeck_en[0] = mode_args->dfe_enable; // L1_pcs2pma_power_ctrl[1]
     // ret_val->ln_cfg_dfe_pd[0]   = 1;//L1_pcs2pma_power_ctrl[2]
     ret_val->ln_cfg_dfe_pd[0] = (mode_args->dfe_enable == 1U) ? 0U : 1U;
