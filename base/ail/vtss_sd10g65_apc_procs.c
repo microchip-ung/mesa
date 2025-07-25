@@ -76,7 +76,7 @@ static u8 sd10g65_apc_get_iw_setting(const u8 interface_width)
         break;
     }
     }
-    return retval
+    return retval;
 }
 
 static vtss_rc vtss_sd10g65_apc_set_default_preset_values(const vtss_chip_name_t chip_name,
