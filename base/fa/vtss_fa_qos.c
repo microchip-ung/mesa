@@ -4126,7 +4126,7 @@ vtss_rc vtss_cil_qos_fp_port_conf_set(struct vtss_state_s *vtss_state, const vts
     vtss_port_speed_t        speed = vtss_state->port.conf[port_no].speed;
     BOOL                     verify_dis = !(!conf->verify_disable_tx && conf->enable_tx);
 
-    if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+    if (!vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
         VTSS_D("No Frame preemption feature");
         return VTSS_RC_ERROR;
     }
@@ -4214,7 +4214,7 @@ vtss_rc vtss_cil_qos_fp_port_status_get(struct vtss_state_s             *vtss_st
     vtss_qos_fp_port_conf_t *conf = &vtss_state->qos.fp.port_conf[port_no];
     vtss_port_speed_t        speed = vtss_state->port.conf[port_no].speed;
 
-    if (vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
+    if (!vtss_state->vtss_features[FEATURE_QOS_FRAME_PREEMPTION]) {
         return VTSS_RC_ERROR;
     }
 
