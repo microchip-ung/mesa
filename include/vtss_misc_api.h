@@ -1321,8 +1321,8 @@ vtss_rc vtss_vscope_conf_get(const vtss_inst_t         inst,
                              const vtss_port_no_t      port_no,
                              vtss_vscope_conf_t *const conf);
 
-#define VSCOPE_BOOLEAN_STORAGE_COUNT  6U /**<BOOL parameters to be stored during Vscope Scan */
-#define VSCOPE_UNSIGNED_STORAGE_COUNT 5U /**<UNSIGNED parameters to be stored during Vscope Scan */
+#define VSCOPE_BOOLEAN_STORAGE_COUNT  6 /**<BOOL parameters to be stored during Vscope Scan */
+#define VSCOPE_UNSIGNED_STORAGE_COUNT 5 /**<UNSIGNED parameters to be stored during Vscope Scan */
 
 typedef struct {
     BOOL ib_storage_bool[VSCOPE_BOOLEAN_STORAGE_COUNT]; /**<boolean values to be
@@ -1346,8 +1346,8 @@ typedef struct {
     u32  ber;     /**<bit error rate */
 } vtss_vscope_scan_conf_t;
 
-#define PHASE_POINTS     128U /**<phase points range from 0-127 */
-#define AMPLITUDE_POINTS 64U  /**<amplitude points range from 0-63 */
+#define PHASE_POINTS     128 /**<phase points range from 0-127 */
+#define AMPLITUDE_POINTS 64  /**<amplitude points range from 0-63 */
 
 /**\ brief Vscope eye scan status*/
 typedef struct {
