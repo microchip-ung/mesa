@@ -674,7 +674,7 @@ static vtss_rc vtss_macsec_verify_port(const vtss_inst_t                inst,
         if (!phy10g) {
 #ifdef VTSS_CHIP_CU_PHY
             if (vtss_state->phy_state[port_no].setup.mode == VTSS_PHY_MODE_POWER_DOWN) {
-                return VTSS_RC_ERROR;
+                return VTSS_RC_ERR_MACSEC_PHY_POWERED_DOWN;
             }
             *id = vtss_state->phy_state[port_no].type.part_number;
 #endif /* VTSS_CHIP_CU_PHY */
@@ -3480,15 +3480,15 @@ static vtss_rc vtss_macsec_rx_sa_get_priv(vtss_state_t                  *vtss_st
     if (phy10g) {
 #ifdef VTSS_CHIP_10G_PHY
         if (vtss_state->phy_10g_state[port.port_no].power) {
-            VTSS_E("Port:%u power down, cannot access registers", port.port_no);
-            return VTSS_RC_ERROR;
+            VTSS_I("Port:%u power down, cannot access registers", port.port_no);
+            return VTSS_RC_ERR_MACSEC_PHY_POWERED_DOWN;
         }
 #endif
     } else {
 #ifdef VTSS_CHIP_CU_PHY
         if (vtss_state->phy_state[port.port_no].setup.mode == VTSS_PHY_MODE_POWER_DOWN) {
-            VTSS_E("Port:%u power down, cannot access registers", port.port_no);
-            return VTSS_RC_ERROR;
+            VTSS_I("Port:%u power down, cannot access registers", port.port_no);
+            return VTSS_RC_ERR_MACSEC_PHY_POWERED_DOWN;
         }
 #endif
     }
@@ -7305,8 +7305,8 @@ vtss_rc vtss_macsec_init_set(const vtss_inst_t                inst,
     if (is_phy_1g) {
         VTSS_RC(vtss_phy_conf_get(inst,  port_no, &power));
         if (power.mode == VTSS_PHY_MODE_POWER_DOWN) {
-            VTSS_E("Phy %u is powered down, i.e. the MacSec block is not accessible", port_no);
-            return VTSS_RC_ERROR;
+            VTSS_I("Phy %u is powered down, i.e. the MacSec block is not accessible", port_no);
+            return VTSS_RC_ERR_MACSEC_PHY_POWERED_DOWN;
         }
     }
 #endif /* VTSS_CHIP_CU_PHY */
@@ -7315,8 +7315,8 @@ vtss_rc vtss_macsec_init_set(const vtss_inst_t                inst,
     if (vtss_phy_10G_is_valid(inst, port_no)) {
         if (vtss_phy_10g_power_get(inst, port_no, &power_mode) == VTSS_RC_OK) {
             if (power_mode == VTSS_PHY_10G_POWER_DISABLE) {
-                VTSS_E("Phy %u is powered down, i.e. the MacSec block is not accessible", port_no);
-                return VTSS_RC_ERROR;
+                VTSS_I("Phy %u is powered down, i.e. the MacSec block is not accessible", port_no);
+                return VTSS_RC_ERR_MACSEC_PHY_POWERED_DOWN;
             }
         }
     }
