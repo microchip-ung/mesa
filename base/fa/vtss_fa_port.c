@@ -2397,7 +2397,7 @@ static vtss_rc la_port_mux_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     case VTSS_PORT_INTERFACE_QXGMII: /* QXGMII: 4x2G5 devices. Mode 'R'. Use 2G5
                                         device. */
 #if defined(VTSS_ARCH_LAN969X)
-        if (p >= 8U && p < 23U) {
+        if (p >= 8U && p <= 23U) {
             u = p / 4U; /* equals index 2-5 */
             REG_WRM(VTSS_PORT_CONF_USXGMII_CFG(u),
                     VTSS_F_PORT_CONF_USXGMII_CFG_TX_ENA(1) |
