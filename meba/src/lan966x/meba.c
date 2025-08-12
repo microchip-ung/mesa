@@ -64,11 +64,11 @@ static const meba_ptp_rs422_conf_t lan966x_rs422_conf = {
 // PTP IO Events used for virtual port.
 static const meba_event_t init_int_source_id[VTSS_TS_IO_ARRAY_SIZE] = {
     MEBA_EVENT_PTP_PIN_0, MEBA_EVENT_PTP_PIN_1, MEBA_EVENT_PTP_PIN_2, MEBA_EVENT_PTP_PIN_3,
-    MEBA_EVENT_LAST,      MEBA_EVENT_LAST,      MEBA_EVENT_LAST};
+    MEBA_EVENT_PTP_PIN_4, MEBA_EVENT_LAST,      MEBA_EVENT_LAST};
 
 static const uint32_t pin_conf_lan9668[VTSS_TS_IO_ARRAY_SIZE] = {
-    (MEBA_PTP_IO_CAP_PIN_IN),  (MEBA_PTP_IO_CAP_UNUSED), (MEBA_PTP_IO_CAP_UNUSED),
-    (MEBA_PTP_IO_CAP_PIN_OUT), (MEBA_PTP_IO_CAP_UNUSED), (MEBA_PTP_IO_CAP_UNUSED),
+    (MEBA_PTP_IO_CAP_PIN_IN),  (MEBA_PTP_IO_CAP_UNUSED),   (MEBA_PTP_IO_CAP_UNUSED),
+    (MEBA_PTP_IO_CAP_PIN_OUT), (MEBA_PTP_IO_CAP_PHY_SYNC), (MEBA_PTP_IO_CAP_UNUSED),
     (MEBA_PTP_IO_CAP_UNUSED),
 };
 
@@ -297,6 +297,8 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
         }
         break;
     case BOARD_TYPE_8PORT:
+        mesa_ts_ext_io_mode_t pps_mode;
+
         // GPIO 24 is IRQ from PHYs
         (void)mesa_gpio_mode_set(NULL, 0, GPIO_IRQ, MESA_GPIO_ALT_4);
         (void)mesa_gpio_event_enable(NULL, 0, GPIO_IRQ, true);
@@ -322,6 +324,12 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
         // GPIO 39 is used for delivering 1pps to PHY.
         gpio_no = 39;
         (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_2);
+
+        // io pin 4 is used for enabling 1pps to phy on lan-9668.
+        pps_mode.pin = MESA_TS_EXT_IO_MODE_ONE_PPS_OUTPUT;
+        pps_mode.domain = 0;
+        pps_mode.freq = 0;
+        (void)mesa_ts_external_io_mode_set(NULL, 4, &pps_mode);
         break;
     case BOARD_TYPE_EDS2:
         for (gpio_no = 32; gpio_no < 36; gpio_no++) {
@@ -484,7 +492,9 @@ static uint32_t lan966x_capability(meba_inst_t inst, int cap)
                                               // used on lan966x. Therefore, it
                                               // has been set to 0
         return 0;
-    case MEBA_CAP_ONE_PPS_INT_ID: return MEBA_EVENT_PTP_PIN_3;
+    // PPS pin used for synchronising PHYs with switch is PTP4 on UNG8290 board.
+    case MEBA_CAP_ONE_PPS_INT_ID:
+        return board->type == BOARD_TYPE_8PORT ? MEBA_EVENT_PTP_PIN_4 : MEBA_EVENT_PTP_PIN_3;
 
     case MEBA_CAP_SYNCE_DPLL_MODE_SINGLE: return 0;
     case MEBA_CAP_SYNCE_DPLL_MODE_DUAL:
@@ -987,6 +997,7 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst, meba_event_t event_id, mes
     case MEBA_EVENT_PTP_PIN_1:
     case MEBA_EVENT_PTP_PIN_2:
     case MEBA_EVENT_PTP_PIN_3:
+    case MEBA_EVENT_PTP_PIN_4:
     case MEBA_EVENT_CLK_TSTAMP:
         ptp_event = meba_generic_ptp_source_to_event(inst, event_id);
 

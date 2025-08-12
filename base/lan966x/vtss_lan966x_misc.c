@@ -139,6 +139,7 @@ vtss_rc vtss_cil_misc_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_ty
     *ev_mask |= (sticky & (1 << 1) ? VTSS_PTP_PIN_1_SYNC_EV : 0);
     *ev_mask |= (sticky & (1 << 2) ? VTSS_PTP_PIN_2_SYNC_EV : 0);
     *ev_mask |= (sticky & (1 << 3) ? VTSS_PTP_PIN_3_SYNC_EV : 0);
+    *ev_mask |= (sticky & (1 << 4) ? VTSS_PTP_PIN_4_SYNC_EV : 0);
     return VTSS_RC_OK;
 }
 
@@ -163,6 +164,10 @@ vtss_rc vtss_cil_misc_ptp_event_enable(vtss_state_t         *vtss_state,
     if (ev_mask & VTSS_PTP_PIN_3_SYNC_EV) {
         val |= (ena << 3);
         msk |= (1 << 3);
+    }
+    if (ev_mask & VTSS_PTP_PIN_4_SYNC_EV) {
+        val |= (ena << 4);
+        msk |= (1 << 4);
     }
     if (msk) {
         REG_WRM(PTP_PIN_INTR_ENA, PTP_PIN_INTR_ENA_INTR_ENA(val), PTP_PIN_INTR_ENA_INTR_ENA(msk));
