@@ -263,7 +263,7 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
 
     ret_val->cfg_lane_id_2_0[0] = 0; //  Bias Trace Selection
 
-    if ((config.chip_name != VTSS_SD10G28_CHIP_ANT) ||
+    if ((config.chip_name != VTSS_SD10G28_CHIP_ANT) &&
         (config.chip_name != VTSS_SD10G28_CHIP_LAGUNA)) {
         if ((config.preset == VTSS_SD10G28_ZR) || (config.preset == VTSS_SD10G28_DAC5M) ||
             (config.preset == VTSS_SD10G28_KR)) {
@@ -275,7 +275,6 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
     switch (config.preset) {
     case VTSS_SD10G28_SR: // r_txeq_reg related signals
         preset.cfg_en_adv = 1;
-        preset.cfg_en_main = 1;
         preset.cfg_en_dly = 1;
         preset.cfg_tap_adv_3_0 = 0;
         preset.cfg_tap_main = 1;
@@ -291,7 +290,6 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
         break;
     case VTSS_SD10G28_DAC3M: // r_txeq_reg related signals
         preset.cfg_en_adv = 1;
-        preset.cfg_en_main = 1;
         preset.cfg_en_dly = 1;
         preset.cfg_tap_adv_3_0 = 12;
         preset.cfg_tap_main = 1;
@@ -306,7 +304,6 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
         break;
     case VTSS_SD10G28_DAC1M: // r_txeq_reg related signals :Not Tested
         preset.cfg_en_adv = 1;
-        preset.cfg_en_main = 1;
         preset.cfg_en_dly = 1;
         preset.cfg_tap_adv_3_0 = 0;
         preset.cfg_tap_main = 1;
@@ -321,7 +318,6 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
         break;
     case VTSS_SD10G28_DAC2M: // r_txeq_reg related signals :Not Tested
         preset.cfg_en_adv = 1;
-        preset.cfg_en_main = 1;
         preset.cfg_en_dly = 1;
         preset.cfg_tap_adv_3_0 = 0;
         preset.cfg_tap_main = 1;
@@ -338,7 +334,6 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
 
     case VTSS_SD10G28_DAC5M: // r_txeq_reg related signals :Not Tested
         preset.cfg_en_adv = 1;
-        preset.cfg_en_main = 1;
         preset.cfg_en_dly = 1;
         preset.cfg_tap_adv_3_0 = 0;
         preset.cfg_tap_main = 1;
@@ -354,7 +349,6 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
         break;
     case VTSS_SD10G28_DAC3M_PVT: // r_txeq_reg related signals
         preset.cfg_en_adv = 1;
-        preset.cfg_en_main = 1;
         preset.cfg_en_dly = 1;
         preset.cfg_tap_adv_3_0 = 12;
         preset.cfg_tap_main = 1;
@@ -370,7 +364,6 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
 
     case VTSS_SD10G28_FX100: // r_txeq_reg related signals
         preset.cfg_en_adv = 0;
-        preset.cfg_en_main = 1;
         preset.cfg_en_dly = 0;
         preset.cfg_tap_adv_3_0 = 0;
         preset.cfg_tap_main = 1;
@@ -386,7 +379,6 @@ vtss_rc vtss_calc_sd10g28_setup_lane(const vtss_sd10g28_setup_args_t    config,
 
     default: // r_txeq_reg related signals
         preset.cfg_en_adv = 0;
-        preset.cfg_en_main = 1;
         preset.cfg_en_dly = 0;
         preset.cfg_tap_adv_3_0 = 0;
         preset.cfg_tap_main = 1;
