@@ -11,46 +11,60 @@
 
 u32 vtss_to_sd6g_lane(vtss_state_t *vtss_state, u32 indx)
 {
-    switch (indx) {
 #if defined(VTSS_ARCH_SPARX5)
-    case 0:  return VTSS_TO_SD6G_LANE_0;
-    case 1:  return VTSS_TO_SD6G_LANE_1;
-    case 2:  return VTSS_TO_SD6G_LANE_2;
-    case 3:  return VTSS_TO_SD6G_LANE_3;
-    case 4:  return VTSS_TO_SD6G_LANE_4;
-    case 5:  return VTSS_TO_SD6G_LANE_5;
-    case 6:  return VTSS_TO_SD6G_LANE_6;
-    case 7:  return VTSS_TO_SD6G_LANE_7;
-    case 8:  return VTSS_TO_SD6G_LANE_8;
-    case 9:  return VTSS_TO_SD6G_LANE_9;
-    case 10: return VTSS_TO_SD6G_LANE_10;
-    case 11: return VTSS_TO_SD6G_LANE_11;
-    case 12: return VTSS_TO_SD6G_LANE_12;
-#endif
-    default: VTSS_E("illegal 6G_lane index %d", indx);
+    u32 val;
+
+    switch (indx) {
+    case 0:  val = VTSS_TO_SD6G_LANE_0; break;
+    case 1:  val = VTSS_TO_SD6G_LANE_1; break;
+    case 2:  val = VTSS_TO_SD6G_LANE_2; break;
+    case 3:  val = VTSS_TO_SD6G_LANE_3; break;
+    case 4:  val = VTSS_TO_SD6G_LANE_4; break;
+    case 5:  val = VTSS_TO_SD6G_LANE_5; break;
+    case 6:  val = VTSS_TO_SD6G_LANE_6; break;
+    case 7:  val = VTSS_TO_SD6G_LANE_7; break;
+    case 8:  val = VTSS_TO_SD6G_LANE_8; break;
+    case 9:  val = VTSS_TO_SD6G_LANE_9; break;
+    case 10: val = VTSS_TO_SD6G_LANE_10; break;
+    case 11: val = VTSS_TO_SD6G_LANE_11; break;
+    case 12: val = VTSS_TO_SD6G_LANE_12; break;
+    default:
+        VTSS_E("illegal 6G_lane index %d", indx);
+        val = 0U;
+        break;
     }
+    return val;
+#else
+    VTSS_E("illegal 6G_lane index %d", indx);
     return 0U;
+#endif
 }
 
 u32 vtss_to_sd10g_lane(vtss_state_t *vtss_state, u32 indx)
 {
+    u32 val;
+
     switch (indx) {
-    case 0: return VTSS_TO_SD10G_LANE_0;
-    case 1: return VTSS_TO_SD10G_LANE_1;
-    case 2: return VTSS_TO_SD10G_LANE_2;
-    case 3: return VTSS_TO_SD10G_LANE_3;
-    case 4: return VTSS_TO_SD10G_LANE_4;
-    case 5: return VTSS_TO_SD10G_LANE_5;
-    case 6: return VTSS_TO_SD10G_LANE_6;
-    case 7: return VTSS_TO_SD10G_LANE_7;
-    case 8: return VTSS_TO_SD10G_LANE_8;
-    case 9: return VTSS_TO_SD10G_LANE_9;
+    case 0: val = VTSS_TO_SD10G_LANE_0; break;
+    case 1: val = VTSS_TO_SD10G_LANE_1; break;
+    case 2: val = VTSS_TO_SD10G_LANE_2; break;
+    case 3: val = VTSS_TO_SD10G_LANE_3; break;
+    case 4: val = VTSS_TO_SD10G_LANE_4; break;
+    case 5: val = VTSS_TO_SD10G_LANE_5; break;
+    case 6: val = VTSS_TO_SD10G_LANE_6; break;
+    case 7: val = VTSS_TO_SD10G_LANE_7; break;
+    case 8: val = VTSS_TO_SD10G_LANE_8; break;
+    case 9: val = VTSS_TO_SD10G_LANE_9; break;
 #if defined(VTSS_ARCH_SPARX5)
-    case 10: return VTSS_TO_SD10G_LANE_10;
-    case 11: return VTSS_TO_SD10G_LANE_11;
+    case 10: val = VTSS_TO_SD10G_LANE_10; break;
+    case 11: val = VTSS_TO_SD10G_LANE_11; break;
 #endif
-    default: VTSS_E("illegal 10G_lane index %d", indx); return 0U;
+    default:
+        VTSS_E("illegal 10G_lane index %d", indx);
+        val = 0U;
+        break;
     }
+    return val;
 }
 
 #if defined(VTSS_FEATURE_SD_25G)
@@ -73,127 +87,154 @@ u32 vtss_to_sd25g_lane(vtss_state_t *vtss_state, u32 indx)
 
 u32 vtss_to_sd_cmu(vtss_state_t *vtss_state, u32 indx)
 {
+    u32 val;
+
     switch (indx) {
-    case 0: return VTSS_TO_SD_CMU_0;
-    case 1: return VTSS_TO_SD_CMU_1;
-    case 2: return VTSS_TO_SD_CMU_2;
-    case 3: return VTSS_TO_SD_CMU_3;
-    case 4: return VTSS_TO_SD_CMU_4;
-    case 5: return VTSS_TO_SD_CMU_5;
+    case 0: val = VTSS_TO_SD_CMU_0; break;
+    case 1: val = VTSS_TO_SD_CMU_1; break;
+    case 2: val = VTSS_TO_SD_CMU_2; break;
+    case 3: val = VTSS_TO_SD_CMU_3; break;
+    case 4: val = VTSS_TO_SD_CMU_4; break;
+    case 5: val = VTSS_TO_SD_CMU_5; break;
 #if defined(VTSS_ARCH_SPARX5)
-    case 6:  return VTSS_TO_SD_CMU_6;
-    case 7:  return VTSS_TO_SD_CMU_7;
-    case 8:  return VTSS_TO_SD_CMU_8;
-    case 9:  return VTSS_TO_SD_CMU_9;
-    case 10: return VTSS_TO_SD_CMU_10;
-    case 11: return VTSS_TO_SD_CMU_11;
-    case 12: return VTSS_TO_SD_CMU_12;
-    case 13: return VTSS_TO_SD_CMU_13;
+    case 6:  val = VTSS_TO_SD_CMU_6; break;
+    case 7:  val = VTSS_TO_SD_CMU_7; break;
+    case 8:  val = VTSS_TO_SD_CMU_8; break;
+    case 9:  val = VTSS_TO_SD_CMU_9; break;
+    case 10: val = VTSS_TO_SD_CMU_10; break;
+    case 11: val = VTSS_TO_SD_CMU_11; break;
+    case 12: val = VTSS_TO_SD_CMU_12; break;
+    case 13: val = VTSS_TO_SD_CMU_13; break;
 #endif
-    default: VTSS_E("illegal sd_cmu index %d", indx); return 0U;
+    default:
+        VTSS_E("illegal sd_cmu index %d", indx);
+        val = 0U;
+        break;
     }
+    return val;
 }
 
 u32 vtss_to_sd_cmu_cfg(vtss_state_t *vtss_state, u32 indx)
 {
+    u32 val;
+
     switch (indx) {
-    case 0: return VTSS_TO_SD_CMU_CFG_0;
-    case 1: return VTSS_TO_SD_CMU_CFG_1;
-    case 2: return VTSS_TO_SD_CMU_CFG_2;
-    case 3: return VTSS_TO_SD_CMU_CFG_3;
-    case 4: return VTSS_TO_SD_CMU_CFG_4;
-    case 5: return VTSS_TO_SD_CMU_CFG_5;
+    case 0: val = VTSS_TO_SD_CMU_CFG_0; break;
+    case 1: val = VTSS_TO_SD_CMU_CFG_1; break;
+    case 2: val = VTSS_TO_SD_CMU_CFG_2; break;
+    case 3: val = VTSS_TO_SD_CMU_CFG_3; break;
+    case 4: val = VTSS_TO_SD_CMU_CFG_4; break;
+    case 5: val = VTSS_TO_SD_CMU_CFG_5; break;
 #if defined(VTSS_ARCH_SPARX5)
-    case 6:  return VTSS_TO_SD_CMU_CFG_6;
-    case 7:  return VTSS_TO_SD_CMU_CFG_7;
-    case 8:  return VTSS_TO_SD_CMU_CFG_8;
-    case 9:  return VTSS_TO_SD_CMU_CFG_9;
-    case 10: return VTSS_TO_SD_CMU_CFG_10;
-    case 11: return VTSS_TO_SD_CMU_CFG_11;
-    case 12: return VTSS_TO_SD_CMU_CFG_12;
-    case 13: return VTSS_TO_SD_CMU_CFG_13;
+    case 6:  val = VTSS_TO_SD_CMU_CFG_6; break;
+    case 7:  val = VTSS_TO_SD_CMU_CFG_7; break;
+    case 8:  val = VTSS_TO_SD_CMU_CFG_8; break;
+    case 9:  val = VTSS_TO_SD_CMU_CFG_9; break;
+    case 10: val = VTSS_TO_SD_CMU_CFG_10; break;
+    case 11: val = VTSS_TO_SD_CMU_CFG_11; break;
+    case 12: val = VTSS_TO_SD_CMU_CFG_12; break;
+    case 13: val = VTSS_TO_SD_CMU_CFG_13; break;
 #endif
-    default: VTSS_E("illegal sd_cmu index %d", indx); return 0U;
+    default:
+        VTSS_E("illegal sd_cmu index %d", indx);
+        val = 0U;
+        break;
     }
+    return val;
 }
 
 u32 vtss_to_sd_lane(vtss_state_t *vtss_state, u32 indx)
 {
+    u32 val;
+
     switch (indx) {
-    case 0: return VTSS_TO_SD_LANE_0;
-    case 1: return VTSS_TO_SD_LANE_1;
-    case 2: return VTSS_TO_SD_LANE_2;
-    case 3: return VTSS_TO_SD_LANE_3;
-    case 4: return VTSS_TO_SD_LANE_4;
-    case 5: return VTSS_TO_SD_LANE_5;
-    case 6: return VTSS_TO_SD_LANE_6;
-    case 7: return VTSS_TO_SD_LANE_7;
-    case 8: return VTSS_TO_SD_LANE_8;
-    case 9: return VTSS_TO_SD_LANE_9;
+    case 0: val = VTSS_TO_SD_LANE_0; break;
+    case 1: val = VTSS_TO_SD_LANE_1; break;
+    case 2: val = VTSS_TO_SD_LANE_2; break;
+    case 3: val = VTSS_TO_SD_LANE_3; break;
+    case 4: val = VTSS_TO_SD_LANE_4; break;
+    case 5: val = VTSS_TO_SD_LANE_5; break;
+    case 6: val = VTSS_TO_SD_LANE_6; break;
+    case 7: val = VTSS_TO_SD_LANE_7; break;
+    case 8: val = VTSS_TO_SD_LANE_8; break;
+    case 9: val = VTSS_TO_SD_LANE_9; break;
 #if defined(VTSS_ARCH_SPARX5)
-    case 10: return VTSS_TO_SD_LANE_10;
-    case 11: return VTSS_TO_SD_LANE_11;
-    case 12: return VTSS_TO_SD_LANE_12;
-    case 13: return VTSS_TO_SD_LANE_13;
-    case 14: return VTSS_TO_SD_LANE_14;
-    case 15: return VTSS_TO_SD_LANE_15;
-    case 16: return VTSS_TO_SD_LANE_16;
-    case 17: return VTSS_TO_SD_LANE_17;
-    case 18: return VTSS_TO_SD_LANE_18;
-    case 19: return VTSS_TO_SD_LANE_19;
-    case 20: return VTSS_TO_SD_LANE_20;
-    case 21: return VTSS_TO_SD_LANE_21;
-    case 22: return VTSS_TO_SD_LANE_22;
-    case 23: return VTSS_TO_SD_LANE_23;
-    case 24: return VTSS_TO_SD_LANE_24;
-    case 25: return VTSS_TO_SD_LANE_25;
-    case 26: return VTSS_TO_SD_LANE_26;
-    case 27: return VTSS_TO_SD_LANE_27;
-    case 28: return VTSS_TO_SD_LANE_28;
-    case 29: return VTSS_TO_SD_LANE_29;
-    case 30: return VTSS_TO_SD_LANE_30;
-    case 31: return VTSS_TO_SD_LANE_31;
-    case 32: return VTSS_TO_SD_LANE_32;
+    case 10: val = VTSS_TO_SD_LANE_10; break;
+    case 11: val = VTSS_TO_SD_LANE_11; break;
+    case 12: val = VTSS_TO_SD_LANE_12; break;
+    case 13: val = VTSS_TO_SD_LANE_13; break;
+    case 14: val = VTSS_TO_SD_LANE_14; break;
+    case 15: val = VTSS_TO_SD_LANE_15; break;
+    case 16: val = VTSS_TO_SD_LANE_16; break;
+    case 17: val = VTSS_TO_SD_LANE_17; break;
+    case 18: val = VTSS_TO_SD_LANE_18; break;
+    case 19: val = VTSS_TO_SD_LANE_19; break;
+    case 20: val = VTSS_TO_SD_LANE_20; break;
+    case 21: val = VTSS_TO_SD_LANE_21; break;
+    case 22: val = VTSS_TO_SD_LANE_22; break;
+    case 23: val = VTSS_TO_SD_LANE_23; break;
+    case 24: val = VTSS_TO_SD_LANE_24; break;
+    case 25: val = VTSS_TO_SD_LANE_25; break;
+    case 26: val = VTSS_TO_SD_LANE_26; break;
+    case 27: val = VTSS_TO_SD_LANE_27; break;
+    case 28: val = VTSS_TO_SD_LANE_28; break;
+    case 29: val = VTSS_TO_SD_LANE_29; break;
+    case 30: val = VTSS_TO_SD_LANE_30; break;
+    case 31: val = VTSS_TO_SD_LANE_31; break;
+    case 32: val = VTSS_TO_SD_LANE_32; break;
 #endif
-    default: VTSS_E("illegal sd_lane index %d", indx); return 0U;
+    default:
+        VTSS_E("illegal sd_lane index %d", indx);
+        val = 0U;
+        break;
     }
+    return val;
 }
 
 static vtss_sd10g28_preset_t serdes2preset(vtss_sd10g_media_type_t m)
 {
+    vtss_sd10g28_preset_t val;
+
     switch (m) {
     case VTSS_SD10G_MEDIA_SR:
-    case VTSS_SD10G_MEDIA_ZR:     return (VTSS_SD10G28_SR);
-    case VTSS_SD10G_MEDIA_DAC:    return (VTSS_SD10G28_DAC3M); // Default to 3m
-    case VTSS_SD10G_MEDIA_DAC_1M: return (VTSS_SD10G28_DAC1M);
-    case VTSS_SD10G_MEDIA_DAC_2M: return (VTSS_SD10G28_DAC2M);
-    case VTSS_SD10G_MEDIA_DAC_3M: return (VTSS_SD10G28_DAC3M);
-    case VTSS_SD10G_MEDIA_DAC_5M: return (VTSS_SD10G28_DAC5M);
+    case VTSS_SD10G_MEDIA_ZR: val = VTSS_SD10G28_SR; break;
+    case VTSS_SD10G_MEDIA_DAC:
+        val = VTSS_SD10G28_DAC3M; // Default to 3m
+        break;
+    case VTSS_SD10G_MEDIA_DAC_1M: val = VTSS_SD10G28_DAC1M; break;
+    case VTSS_SD10G_MEDIA_DAC_2M: val = VTSS_SD10G28_DAC2M; break;
+    case VTSS_SD10G_MEDIA_DAC_3M: val = VTSS_SD10G28_DAC3M; break;
+    case VTSS_SD10G_MEDIA_DAC_5M: val = VTSS_SD10G28_DAC5M; break;
     case VTSS_SD10G_MEDIA_BP:
     case VTSS_SD10G_MEDIA_B2B:
-    case VTSS_SD10G_MEDIA_10G_KR: return (VTSS_SD10G28_DAC3M);
-    default:                      return (VTSS_SD10G28_PRESET_NONE);
+    case VTSS_SD10G_MEDIA_10G_KR: val = VTSS_SD10G28_DAC3M; break;
+    default:                      val = VTSS_SD10G28_PRESET_NONE; break;
     }
+    return val;
 }
 
-const char *vtss_serdes_preset_txt(vtss_sd10g28_preset_t pr)
+static const char *vtss_serdes_preset_txt(vtss_sd10g28_preset_t p)
 {
-    switch (pr) {
-    case VTSS_SD10G28_ATE:         return "ATE";
-    case VTSS_SD10G28_ZR:          return "ZR";
-    case VTSS_SD10G28_DAC3M:       return "DAC3M";
-    case VTSS_SD10G28_DAC5M:       return "DAC5M";
-    case VTSS_SD10G28_DAC2M:       return "DAC2M";
-    case VTSS_SD10G28_DAC1M:       return "DAC1M";
-    case VTSS_SD10G28_DAC3M_PVT:   return "DAC3_PVT";
-    case VTSS_SD10G28_SR:          return "SR";
-    case VTSS_SD10G28_KR:          return "KR";
-    case VTSS_SD10G28_FX100:       return "100FX";
-    case VTSS_SD10G28_PRESET_NONE: return "None";
+    const char *txt;
+
+    switch (p) {
+    case VTSS_SD10G28_ATE:         txt = "ATE"; break;
+    case VTSS_SD10G28_ZR:          txt = "ZR"; break;
+    case VTSS_SD10G28_DAC3M:       txt = "DAC3M"; break;
+    case VTSS_SD10G28_DAC5M:       txt = "DAC5M"; break;
+    case VTSS_SD10G28_DAC2M:       txt = "DAC2M"; break;
+    case VTSS_SD10G28_DAC1M:       txt = "DAC1M"; break;
+    case VTSS_SD10G28_DAC3M_PVT:   txt = "DAC3_PVT"; break;
+    case VTSS_SD10G28_SR:          txt = "SR"; break;
+    case VTSS_SD10G28_KR:          txt = "KR"; break;
+    case VTSS_SD10G28_FX100:       txt = "100FX"; break;
+    case VTSS_SD10G28_PRESET_NONE: txt = "None"; break;
+    default:                       txt = "?   "; break;
     }
-    return "?   ";
+    return txt;
 }
 
+#if defined(VTSS_FEATURE_SD_25G)
 static vtss_sd25g28_preset_t serdes2preset_25g(vtss_sd10g_media_type_t m, vtss_port_speed_t speed)
 {
     if (speed == VTSS_SPEED_25G) {
@@ -244,8 +285,9 @@ const char *vtss_serdes25g_preset_txt(vtss_sd25g28_preset_t pr)
     }
     return "?   ";
 }
+#endif
 
-static vtss_rc fa_get_lane_target(vtss_state_t *vtss_state, u32 type, u32 indx)
+static u32 fa_get_lane_target(vtss_state_t *vtss_state, u32 type, u32 indx)
 
 {
     if (type == FA_SERDES_TYPE_6G) {
@@ -263,74 +305,75 @@ u32 vtss_fa_sd10g28_get_cmu(vtss_state_t *vtss_state, u8 cmu_type, vtss_port_no_
 {
     u32 serdes_no = vtss_fa_sd_lane_indx(vtss_state, port_no);
 
-    if (LA_TGT) {
-        if (serdes_no > 9U) {
-            VTSS_E("illegal serdes no (%d)", serdes_no);
-        }
-        if (cmu_type == 0) {
-            if (serdes_no < 8U) {
-                return 2U;
-            } else {
-                return 5U;
-            }
-        } else if (cmu_type == 1) {
-            if (serdes_no < 2U) {
-                return 0U;
-            } else {
-                return 3U;
-            }
+#if defined(VTSS_ARCH_LAN969X)
+    if (serdes_no > 9U) {
+        VTSS_E("illegal serdes no (%d)", serdes_no);
+    }
+    if (cmu_type == 0U) {
+        if (serdes_no < 8U) {
+            return 2U;
         } else {
-            if (serdes_no < 4U) {
-                return 1U;
-            } else {
-                return 4U;
-            }
+            return 5U;
+        }
+    } else if (cmu_type == 1U) {
+        if (serdes_no < 2U) {
+            return 0U;
+        } else {
+            return 3U;
         }
     } else {
-        if (cmu_type == 0) {
-            // Main CMU of FA
-            if (serdes_no < 8U) {
-                return 2U;
-            } else if (serdes_no < 16U) {
-                return 5U;
-            } else if (serdes_no == 16U) {
-                return 8U;
-            } else {
-                return 11U;
-            }
-        } else if (cmu_type == 1) {
-            // AUX1 CMU of FA
-            if (serdes_no < 2U) {
-                return 0U;
-            } else if (serdes_no < 10U) {
-                return 3U;
-            } else if (serdes_no < 17U) {
-                return 6U;
-            } else if (serdes_no < 19U) {
-                return 9U;
-            } else {
-                return 12U;
-            }
+        if (serdes_no < 4U) {
+            return 1U;
         } else {
-            // AUX2 CMU of FA
-            if (serdes_no < 4U) {
-                return 1U;
-            } else if (serdes_no < 12U) {
-                return 4U;
-            } else if (serdes_no < 17U) {
-                return 7U;
-            } else if (serdes_no < 21U) {
-                return 10U;
-            } else {
-                return 13U;
-            }
+            return 4U;
         }
     }
+#else
+    if (cmu_type == 0U) {
+        // Main CMU of FA
+        if (serdes_no < 8U) {
+            return 2U;
+        } else if (serdes_no < 16U) {
+            return 5U;
+        } else if (serdes_no == 16U) {
+            return 8U;
+        } else {
+            return 11U;
+        }
+    } else if (cmu_type == 1U) {
+        // AUX1 CMU of FA
+        if (serdes_no < 2U) {
+            return 0U;
+        } else if (serdes_no < 10U) {
+            return 3U;
+        } else if (serdes_no < 17U) {
+            return 6U;
+        } else if (serdes_no < 19U) {
+            return 9U;
+        } else {
+            return 12U;
+        }
+    } else {
+        // AUX2 CMU of FA
+        if (serdes_no < 4U) {
+            return 1U;
+        } else if (serdes_no < 12U) {
+            return 4U;
+        } else if (serdes_no < 17U) {
+            return 7U;
+        } else if (serdes_no < 21U) {
+            return 10U;
+        } else {
+            return 13U;
+        }
+    }
+#endif
 }
 
 vtss_rc vtss_fa_cmu_cfg_wrm(vtss_state_t *vtss_state, u32 cmu, u32 value, u32 mask)
 {
-    u32 term, tgt = VTSS_TO_SD_CMU_CFG(cmu);
+    u32  tgt = VTSS_TO_SD_CMU_CFG(cmu);
+    BOOL term;
 
     // Determine if TERM or NONTERM target
 #if defined(VTSS_ARCH_SPARX5)
@@ -354,14 +397,15 @@ vtss_rc vtss_fa_cmu_cfg_wrm(vtss_state_t *vtss_state, u32 cmu, u32 value, u32 ma
 
 static void buf_set(char *str, u32 *u_ptr)
 {
-    u32           num;
+    u32           num, n;
     lmu_fmt_buf_t buf;
 
     lmu_fmt_buf_init(&buf);
     for (int a = 7; a >= 0; a--) {
         num = u_ptr[a];
         for (int i = 7; i >= 0; i--) {
-            LMU_SS_FMT(&buf.ss, "%d", (num & (1 << i)) >> i);
+            n = (u32)i;
+            LMU_SS_FMT(&buf.ss, "%d", (num & (1 << n)) >> n);
         }
     }
     lmu_czstrcpy(str, buf.s);
@@ -498,6 +542,7 @@ static vtss_rc fa_port_25g_kr_tap_set(vtss_state_t        *vtss_state,
 }
 #endif
 
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t        *vtss_state,
                                       const vtss_port_no_t port_no,
                                       u16                  tap_dly,
@@ -523,21 +568,21 @@ static vtss_rc fa_port_10g_kr_tap_set(vtss_state_t        *vtss_state,
                 VTSS_M_SD10G_LANE_TARGET_LANE_02_CFG_EN_ADV);
 
     REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_33(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0(ampl >> 6),
+            VTSS_F_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0((u32)ampl >> 6U),
             VTSS_M_SD10G_LANE_TARGET_LANE_33_CFG_ITX_IPDRIVER_BASE_2_0);
 
     REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_52(sd_tgt),
-            VTSS_F_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0(ampl & 0x3F),
+            VTSS_F_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0((u32)ampl & 0x3FU),
             VTSS_M_SD10G_LANE_TARGET_LANE_52_CFG_IBIAS_TUNE_RESERVE_5_0);
 
     return VTSS_RC_OK;
 }
 
-vtss_rc fa_port_10g_kr_tap_get(vtss_state_t  *vtss_state,
-                               vtss_port_no_t port_no,
-                               u16           *tap_dly,
-                               u16           *tap_adv,
-                               u16           *ampl)
+static vtss_rc fa_port_10g_kr_tap_get(vtss_state_t  *vtss_state,
+                                      vtss_port_no_t port_no,
+                                      u16           *tap_dly,
+                                      u16           *tap_adv,
+                                      u16           *ampl)
 {
     u32 sd_indx = 0U, sd_type, sd_tgt, val1, val2;
 
@@ -596,8 +641,6 @@ vtss_rc fa_port_kr_tap_get(vtss_state_t        *vtss_state,
 
     return VTSS_RC_OK;
 }
-
-#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 
 /** \brief 10G KR coefficient types */
 typedef enum {
@@ -1588,6 +1631,7 @@ static vtss_port_kr_status_codes_t fa_coef_status_25g_10g_calc(vtss_state_t *vts
 }
 #endif // VTSS_FEATURE_SD_25G
 
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
 vtss_rc fa_kr_coef2status(vtss_state_t                   *vtss_state,
                           const vtss_port_no_t            port_no,
                           const u16                       coef_in,
@@ -1654,6 +1698,7 @@ vtss_rc fa_kr_coef2status(vtss_state_t                   *vtss_state,
 
     return VTSS_RC_OK;
 }
+#endif
 
 #if defined(VTSS_FEATURE_SD_25G)
 vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no)
@@ -2048,21 +2093,22 @@ static vtss_rc fa_serdes_dfe_read(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 po
     return VTSS_RC_OK;
 }
 
-#define CTLE_PRM_RANGE   15
-#define EYE_NUM_MEASURES 3
+#define CTLE_PRM_RANGE   15U
+#define EYE_NUM_MEASURES 3U
 
 static u32 fa_get_best_eye_indx(u16 *array, u32 len)
 {
     u32 max_height = 0U, equals = 0U, found_hig = 0U;
-    u32 indx = 0U, repl = 0U, max_repl = 0U;
+    u32 i, indx = 0U, repl = 0U, max_repl = 0U;
 
-    for (u32 i = 0U; i < len; i++) {
+    for (i = 0U; i < len; i++) {
         if (array[i] > max_height) {
             max_height = array[i];
         }
     }
     // Find the midfield of the identcial max height posistions in a row
-    for (u32 i = 0U; i < len; i++) {
+    i = 0U;
+    while (i < len) {
         if (array[i] == max_height) {
             for (u32 a = i; a < len; a++) {
                 if (array[a] == max_height) {
@@ -2083,6 +2129,7 @@ static u32 fa_get_best_eye_indx(u16 *array, u32 len)
                 break;
             }
         }
+        i++;
     }
     // Find the midfield of identcial single height posistions
     if (max_repl == 1U && equals > 1U) {
@@ -2107,8 +2154,9 @@ u32 fa_eye_height_num(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 num)
         return 0U;
     }
     for (u8 i = 0; i < num; i++) {
-        fa_kr_eye_height(vtss_state, port_no, 3U, &eye[i]);
-        eye_sum += eye[i];
+        if (fa_kr_eye_height(vtss_state, port_no, 3U, &eye[i]) == VTSS_RC_OK) {
+            eye_sum += eye[i];
+        }
         VTSS_NSLEEP(10000); // 10usec
     }
 
@@ -2141,8 +2189,8 @@ static vtss_rc fa_serdes_vga_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
             if (ss != NULL) {
                 pr("cfg_eq_res:%d eye_height:%d\n", cfg_eq_res, eye_height);
             }
-            eye_arr[cfg_eq_res] = eye_height;
-            reg_val[cfg_eq_res] = cfg_eq_res;
+            eye_arr[cfg_eq_res] = (u16)eye_height;
+            reg_val[cfg_eq_res] = (u16)cfg_eq_res;
             cfg_eq_res--;
         }
         indx = fa_get_best_eye_indx(eye_arr, CTLE_PRM_RANGE);
@@ -2226,8 +2274,8 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
             pr("eqr_val:%d eye_height:%d\n", cfg_vga_ctrl, eye_height);
         }
 
-        eye_arr[cfg_vga_ctrl] = eye_height;
-        reg_val[cfg_vga_ctrl] = cfg_vga_ctrl;
+        eye_arr[cfg_vga_ctrl] = (u16)eye_height;
+        reg_val[cfg_vga_ctrl] = (u16)cfg_vga_ctrl;
         cfg_vga_ctrl++;
     }
     indx = fa_get_best_eye_indx(eye_arr, CTLE_PRM_RANGE);
@@ -2290,8 +2338,8 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
         if (ss != NULL) {
             pr("cfg_eqc_force:%d eye_height:%d\n", cfg_eqc_force, eye_height);
         }
-        eye_arr[cfg_eqc_force] = eye_height;
-        reg_val[cfg_eqc_force] = cfg_eqc_force;
+        eye_arr[cfg_eqc_force] = (u16)eye_height;
+        reg_val[cfg_eqc_force] = (u16)cfg_eqc_force;
         cfg_eqc_force++;
     }
     indx = fa_get_best_eye_indx(eye_arr, CTLE_PRM_RANGE);
@@ -2454,7 +2502,7 @@ static vtss_rc fa_serdes_10g_eye_dimension(vtss_state_t  *vtss_state,
 
     while (cnt <= 500U) {
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D0(sd_tgt), &val);
-        if (VTSS_X_SD10G_LANE_TARGET_LANE_D0_ISCAN_DONE(val)) {
+        if (VTSS_X_SD10G_LANE_TARGET_LANE_D0_ISCAN_DONE(val) > 0U) {
             break;
         }
         VTSS_NSLEEP(1000); // 1 us
@@ -2484,15 +2532,15 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, lm
     u32  vref_cnt = 0U;
     char buf[100];
     u32  bottom = 0U;
-    BOOL top_found = 0;
-    BOOL bottom_found = 0;
+    BOOL top_found = FALSE;
+    BOOL bottom_found = FALSE;
 
     REG_RD(VTSS_SD10G_LANE_TARGET_LANE_DB(sd_tgt), &vref);
 
     while (TRUE) {
         while (cnt <= 500U) {
             REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D0(sd_tgt), &val);
-            if (VTSS_X_SD10G_LANE_TARGET_LANE_D0_ISCAN_DONE(val)) {
+            if (VTSS_X_SD10G_LANE_TARGET_LANE_D0_ISCAN_DONE(val) > 0U) {
                 break;
             }
             VTSS_MSLEEP(1);
@@ -2513,23 +2561,23 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, lm
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D6(sd_tgt), &eye_res[vref_cnt][indx++]);
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D7(sd_tgt), &eye_res[vref_cnt][indx++]);
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D8(sd_tgt), &eye_res[vref_cnt][indx++]);
-        REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D9(sd_tgt), &eye_res[vref_cnt][indx++]);
+        REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D9(sd_tgt), &eye_res[vref_cnt][indx]);
 
         if ((!bottom_found || !top_found) && vref_cnt > 1U) {
             u32 sum = 0U;
-            for (u16 a = 0; a < 8; a++) {
+            for (u16 a = 0; a < 8U; a++) {
                 sum += eye_res[vref_cnt][a];
             }
             //            printf("vref:%d bott:%d top:%d
             //            sum:%d\n",vref_cnt,bottom_found, top_found, sum);
             if (!bottom_found && (sum != 2040U)) {
                 bottom = vref_cnt;
-                bottom_found = 1;
+                bottom_found = TRUE;
             }
 
             if (!top_found && bottom_found && (sum == 2040U)) {
                 if (vref_cnt - bottom > 5U) {
-                    top_found = 1;
+                    top_found = TRUE;
                 }
             }
         }
@@ -2547,8 +2595,8 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, lm
         vref_cnt++;
     }
     if (ss != NULL) {
-        for (int i = vref_cnt; i >= 0; i--) {
-            if ((i % 4U == 0U) || i == 127) {
+        for (int i = (int)vref_cnt; i >= 0; i--) {
+            if ((i % 4) == 0 || i == 127) {
                 (void)buf_set(buf, eye_res[i]);
                 pr("%-5d %s\n", i, buf);
             }
@@ -2589,9 +2637,9 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss
     u32  vref_cnt = 0U;
     u32  top = 0U;
     u32  bottom = 0U;
-    BOOL top_found = 0;
-    BOOL bottom_found = 0;
-    BOOL first = 1;
+    BOOL top_found = FALSE;
+    BOOL bottom_found = FALSE;
+    BOOL first = TRUE;
     u32  repeat;
 
     for (u32 y = 0U; y < 9U; y++) {
@@ -2602,7 +2650,7 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss
         cnt = 0U;
         while (cnt <= 500U) {
             REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D0(sd_tgt), &val);
-            if (VTSS_X_SD10G_LANE_TARGET_LANE_D0_ISCAN_DONE(val)) {
+            if (VTSS_X_SD10G_LANE_TARGET_LANE_D0_ISCAN_DONE(val) > 0U) {
                 break;
             }
             VTSS_NSLEEP(1000); // 1us
@@ -2613,18 +2661,18 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss
         if (bottom_found) {
             if (eye_res[2] != 0xFFU) {
                 if (first) {
-                    first = 0;
+                    first = FALSE;
                     repeat = 10U;
                 } else if (eye_res[2] == 0U) {
                     repeat = 5U;
                 } else {
                     repeat = 2U;
                 }
-                fa_10g_kr_vref_incr(vtss_state, sd_tgt, repeat);
+                (void)fa_10g_kr_vref_incr(vtss_state, sd_tgt, repeat);
                 vref_cnt += repeat;
                 continue;
             } else {
-                fa_10g_kr_vref_incr(vtss_state, sd_tgt, 2U);
+                (void)fa_10g_kr_vref_incr(vtss_state, sd_tgt, 2U);
                 vref_cnt += 2U;
             }
         }
@@ -2632,19 +2680,19 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss
 
         if (!bottom_found || !top_found) {
             u32 sum = 0U;
-            for (u16 a = 0; a < 8; a++) {
+            for (u16 a = 0; a < 8U; a++) {
                 sum += eye_res[a];
             }
 
             if (!bottom_found && (sum != 2040U)) {
                 bottom = vref_cnt;
-                bottom_found = 1;
+                bottom_found = TRUE;
             }
 
             if (!top_found && bottom_found && (sum == 2040U)) {
                 if (vref_cnt - bottom > 3U) {
                     top = vref_cnt;
-                    top_found = 1;
+                    top_found = TRUE;
                 }
             }
 
@@ -2654,12 +2702,12 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss
             }
         }
         if (vref_cnt < 40U) {
-            fa_10g_kr_vref_incr(vtss_state, sd_tgt, 40U);
+            (void)fa_10g_kr_vref_incr(vtss_state, sd_tgt, 40U);
             vref_cnt += 40U;
         }
 
         if (!bottom_found) {
-            fa_10g_kr_vref_incr(vtss_state, sd_tgt, 2U);
+            (void)fa_10g_kr_vref_incr(vtss_state, sd_tgt, 2U);
             vref_cnt += 2U;
         }
 
@@ -2948,13 +2996,13 @@ static vtss_rc fa_serdes_25g_eye_setup(vtss_state_t  *vtss_state,
 
 #define FA_DEBUG_LANE(ss, addr, i, name)                                                           \
     FA_TGT                                                                                         \
-    ? vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_SD10G_LANE_TARGET_LANE_##addr), i,      \
+    ? vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_SD10G_LANE_TARGET_##addr), i,           \
                              (sd_type == FA_SERDES_TYPE_10G) ? "VTSS_SD10G_LANE_TARGET_LANE_" name \
                                                              : "VTSS_SD6G_LANE_TARGET_LANE_" name) \
-    : vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_SD10G_LANE_TARGET_LANE_##addr), i,      \
+    : vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_SD10G_LANE_TARGET_##addr), i,           \
                              "VTSS_SD10G_LANE_TARGET_LANE_" name)
 #define FA_DEBUG_25G_LANE(ss, addr, i, name)                                                       \
-    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_SD25G_TARGET_CMU_##addr), i,              \
+    vtss_fa_debug_reg_inst(vtss_state, ss, REG_ADDR(VTSS_SD25G_TARGET_##addr), i,                  \
                            "VTSS_SD25G_TARGET_CMU_" name)
 
 static vtss_rc fa_serdes_dump(vtss_state_t *vtss_state, lmu_ss_t *ss, vtss_port_no_t port_no)
@@ -2971,90 +3019,90 @@ static vtss_rc fa_serdes_dump(vtss_state_t *vtss_state, lmu_ss_t *ss, vtss_port_
         REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0xFF),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
-        FA_DEBUG_25G_LANE(ss, 01(sd_tgt), indx, "01");
-        FA_DEBUG_25G_LANE(ss, 03(sd_tgt), indx, "03");
-        FA_DEBUG_25G_LANE(ss, 04(sd_tgt), indx, "04");
-        FA_DEBUG_25G_LANE(ss, 05(sd_tgt), indx, "05");
-        FA_DEBUG_25G_LANE(ss, 06(sd_tgt), indx, "06");
-        FA_DEBUG_25G_LANE(ss, 07(sd_tgt), indx, "07");
-        FA_DEBUG_25G_LANE(ss, 09(sd_tgt), indx, "09");
-        FA_DEBUG_25G_LANE(ss, 1B(sd_tgt), indx, "09");
-        FA_DEBUG_25G_LANE(ss, 0A(sd_tgt), indx, "0A");
-        FA_DEBUG_25G_LANE(ss, 0B(sd_tgt), indx, "0B");
-        FA_DEBUG_25G_LANE(ss, 0C(sd_tgt), indx, "0C");
-        FA_DEBUG_25G_LANE(ss, 0D(sd_tgt), indx, "0D");
-        FA_DEBUG_25G_LANE(ss, 0E(sd_tgt), indx, "0E");
-        FA_DEBUG_25G_LANE(ss, 0F(sd_tgt), indx, "0F");
-        FA_DEBUG_25G_LANE(ss, 13(sd_tgt), indx, "13");
-        FA_DEBUG_25G_LANE(ss, 18(sd_tgt), indx, "18");
-        FA_DEBUG_25G_LANE(ss, 19(sd_tgt), indx, "19");
-        FA_DEBUG_25G_LANE(ss, 1A(sd_tgt), indx, "1A");
-        FA_DEBUG_25G_LANE(ss, 1D(sd_tgt), indx, "1D");
-        FA_DEBUG_25G_LANE(ss, 1C(sd_tgt), indx, "1C");
-        FA_DEBUG_25G_LANE(ss, 1E(sd_tgt), indx, "1E");
-        FA_DEBUG_25G_LANE(ss, 22(sd_tgt), indx, "22");
-        FA_DEBUG_25G_LANE(ss, 25(sd_tgt), indx, "25");
-        FA_DEBUG_25G_LANE(ss, 26(sd_tgt), indx, "26");
-        FA_DEBUG_25G_LANE(ss, 28(sd_tgt), indx, "28");
-        FA_DEBUG_25G_LANE(ss, 2C(sd_tgt), indx, "2C");
-        FA_DEBUG_25G_LANE(ss, 2E(sd_tgt), indx, "2E");
-        FA_DEBUG_25G_LANE(ss, 30(sd_tgt), indx, "30");
-        FA_DEBUG_25G_LANE(ss, 31(sd_tgt), indx, "31");
-        FA_DEBUG_25G_LANE(ss, 40(sd_tgt), indx, "40");
-        FA_DEBUG_25G_LANE(ss, 43(sd_tgt), indx, "43");
-        FA_DEBUG_25G_LANE(ss, 43(sd_tgt), indx, "42");
-        FA_DEBUG_25G_LANE(ss, 44(sd_tgt), indx, "44");
-        FA_DEBUG_25G_LANE(ss, 45(sd_tgt), indx, "45");
-        FA_DEBUG_25G_LANE(ss, 46(sd_tgt), indx, "46");
-        FA_DEBUG_25G_LANE(ss, C0(sd_tgt), indx, "C0");
-        FA_DEBUG_25G_LANE(ss, FF(sd_tgt), indx, "FF");
+        FA_DEBUG_25G_LANE(ss, CMU_01(sd_tgt), indx, "01");
+        FA_DEBUG_25G_LANE(ss, CMU_03(sd_tgt), indx, "03");
+        FA_DEBUG_25G_LANE(ss, CMU_04(sd_tgt), indx, "04");
+        FA_DEBUG_25G_LANE(ss, CMU_05(sd_tgt), indx, "05");
+        FA_DEBUG_25G_LANE(ss, CMU_06(sd_tgt), indx, "06");
+        FA_DEBUG_25G_LANE(ss, CMU_07(sd_tgt), indx, "07");
+        FA_DEBUG_25G_LANE(ss, CMU_09(sd_tgt), indx, "09");
+        FA_DEBUG_25G_LANE(ss, CMU_1B(sd_tgt), indx, "09");
+        FA_DEBUG_25G_LANE(ss, CMU_0A(sd_tgt), indx, "0A");
+        FA_DEBUG_25G_LANE(ss, CMU_0B(sd_tgt), indx, "0B");
+        FA_DEBUG_25G_LANE(ss, CMU_0C(sd_tgt), indx, "0C");
+        FA_DEBUG_25G_LANE(ss, CMU_0D(sd_tgt), indx, "0D");
+        FA_DEBUG_25G_LANE(ss, CMU_0E(sd_tgt), indx, "0E");
+        FA_DEBUG_25G_LANE(ss, CMU_0F(sd_tgt), indx, "0F");
+        FA_DEBUG_25G_LANE(ss, CMU_13(sd_tgt), indx, "13");
+        FA_DEBUG_25G_LANE(ss, CMU_18(sd_tgt), indx, "18");
+        FA_DEBUG_25G_LANE(ss, CMU_19(sd_tgt), indx, "19");
+        FA_DEBUG_25G_LANE(ss, CMU_1A(sd_tgt), indx, "1A");
+        FA_DEBUG_25G_LANE(ss, CMU_1D(sd_tgt), indx, "1D");
+        FA_DEBUG_25G_LANE(ss, CMU_1C(sd_tgt), indx, "1C");
+        FA_DEBUG_25G_LANE(ss, CMU_1E(sd_tgt), indx, "1E");
+        FA_DEBUG_25G_LANE(ss, CMU_22(sd_tgt), indx, "22");
+        FA_DEBUG_25G_LANE(ss, CMU_25(sd_tgt), indx, "25");
+        FA_DEBUG_25G_LANE(ss, CMU_26(sd_tgt), indx, "26");
+        FA_DEBUG_25G_LANE(ss, CMU_28(sd_tgt), indx, "28");
+        FA_DEBUG_25G_LANE(ss, CMU_2C(sd_tgt), indx, "2C");
+        FA_DEBUG_25G_LANE(ss, CMU_2E(sd_tgt), indx, "2E");
+        FA_DEBUG_25G_LANE(ss, CMU_30(sd_tgt), indx, "30");
+        FA_DEBUG_25G_LANE(ss, CMU_31(sd_tgt), indx, "31");
+        FA_DEBUG_25G_LANE(ss, CMU_40(sd_tgt), indx, "40");
+        FA_DEBUG_25G_LANE(ss, CMU_43(sd_tgt), indx, "43");
+        FA_DEBUG_25G_LANE(ss, CMU_43(sd_tgt), indx, "42");
+        FA_DEBUG_25G_LANE(ss, CMU_44(sd_tgt), indx, "44");
+        FA_DEBUG_25G_LANE(ss, CMU_45(sd_tgt), indx, "45");
+        FA_DEBUG_25G_LANE(ss, CMU_46(sd_tgt), indx, "46");
+        FA_DEBUG_25G_LANE(ss, CMU_C0(sd_tgt), indx, "C0");
+        FA_DEBUG_25G_LANE(ss, CMU_FF(sd_tgt), indx, "FF");
         REG_WRM(VTSS_SD25G_TARGET_CMU_FF(sd_tgt),
                 VTSS_F_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX(0),
                 VTSS_M_SD25G_TARGET_CMU_FF_REGISTER_TABLE_INDEX);
 #endif
     } else {
-        FA_DEBUG_LANE(ss, 01(sd_tgt), indx, "01");
-        FA_DEBUG_LANE(ss, 02(sd_tgt), indx, "02");
-        FA_DEBUG_LANE(ss, 03(sd_tgt), indx, "03");
-        FA_DEBUG_LANE(ss, 04(sd_tgt), indx, "04");
-        FA_DEBUG_LANE(ss, 06(sd_tgt), indx, "06");
-        FA_DEBUG_LANE(ss, 0B(sd_tgt), indx, "0B");
-        FA_DEBUG_LANE(ss, 0C(sd_tgt), indx, "0C");
-        FA_DEBUG_LANE(ss, 0D(sd_tgt), indx, "0D");
-        FA_DEBUG_LANE(ss, 0E(sd_tgt), indx, "0E");
-        FA_DEBUG_LANE(ss, 0F(sd_tgt), indx, "0F");
-        FA_DEBUG_LANE(ss, 13(sd_tgt), indx, "13");
-        FA_DEBUG_LANE(ss, 14(sd_tgt), indx, "14");
-        FA_DEBUG_LANE(ss, 15(sd_tgt), indx, "15");
-        FA_DEBUG_LANE(ss, 16(sd_tgt), indx, "16");
-        FA_DEBUG_LANE(ss, 1A(sd_tgt), indx, "1A");
-        FA_DEBUG_LANE(ss, 22(sd_tgt), indx, "22");
-        FA_DEBUG_LANE(ss, 23(sd_tgt), indx, "23");
-        FA_DEBUG_LANE(ss, 24(sd_tgt), indx, "24");
-        FA_DEBUG_LANE(ss, 26(sd_tgt), indx, "26");
-        FA_DEBUG_LANE(ss, 2F(sd_tgt), indx, "2F");
-        FA_DEBUG_LANE(ss, 30(sd_tgt), indx, "30");
-        FA_DEBUG_LANE(ss, 31(sd_tgt), indx, "31");
-        FA_DEBUG_LANE(ss, 32(sd_tgt), indx, "32");
-        FA_DEBUG_LANE(ss, 33(sd_tgt), indx, "33");
-        FA_DEBUG_LANE(ss, 34(sd_tgt), indx, "34");
-        FA_DEBUG_LANE(ss, 35(sd_tgt), indx, "35");
-        FA_DEBUG_LANE(ss, 36(sd_tgt), indx, "36");
-        FA_DEBUG_LANE(ss, 37(sd_tgt), indx, "37");
-        FA_DEBUG_LANE(ss, 39(sd_tgt), indx, "39");
-        FA_DEBUG_LANE(ss, 3A(sd_tgt), indx, "3A");
-        FA_DEBUG_LANE(ss, 3C(sd_tgt), indx, "3C");
-        FA_DEBUG_LANE(ss, 41(sd_tgt), indx, "41");
-        FA_DEBUG_LANE(ss, 42(sd_tgt), indx, "42");
-        FA_DEBUG_LANE(ss, 48(sd_tgt), indx, "48");
-        FA_DEBUG_LANE(ss, 50(sd_tgt), indx, "50");
-        FA_DEBUG_LANE(ss, 52(sd_tgt), indx, "52");
-        FA_DEBUG_LANE(ss, 83(sd_tgt), indx, "83");
-        FA_DEBUG_LANE(ss, 93(sd_tgt), indx, "93");
-        FA_DEBUG_LANE(ss, 94(sd_tgt), indx, "94");
-        FA_DEBUG_LANE(ss, 9E(sd_tgt), indx, "9E");
-        FA_DEBUG_LANE(ss, A1(sd_tgt), indx, "A1");
-        FA_DEBUG_LANE(ss, A2(sd_tgt), indx, "A2");
+        FA_DEBUG_LANE(ss, LANE_01(sd_tgt), indx, "01");
+        FA_DEBUG_LANE(ss, LANE_02(sd_tgt), indx, "02");
+        FA_DEBUG_LANE(ss, LANE_03(sd_tgt), indx, "03");
+        FA_DEBUG_LANE(ss, LANE_04(sd_tgt), indx, "04");
+        FA_DEBUG_LANE(ss, LANE_06(sd_tgt), indx, "06");
+        FA_DEBUG_LANE(ss, LANE_0B(sd_tgt), indx, "0B");
+        FA_DEBUG_LANE(ss, LANE_0C(sd_tgt), indx, "0C");
+        FA_DEBUG_LANE(ss, LANE_0D(sd_tgt), indx, "0D");
+        FA_DEBUG_LANE(ss, LANE_0E(sd_tgt), indx, "0E");
+        FA_DEBUG_LANE(ss, LANE_0F(sd_tgt), indx, "0F");
+        FA_DEBUG_LANE(ss, LANE_13(sd_tgt), indx, "13");
+        FA_DEBUG_LANE(ss, LANE_14(sd_tgt), indx, "14");
+        FA_DEBUG_LANE(ss, LANE_15(sd_tgt), indx, "15");
+        FA_DEBUG_LANE(ss, LANE_16(sd_tgt), indx, "16");
+        FA_DEBUG_LANE(ss, LANE_1A(sd_tgt), indx, "1A");
+        FA_DEBUG_LANE(ss, LANE_22(sd_tgt), indx, "22");
+        FA_DEBUG_LANE(ss, LANE_23(sd_tgt), indx, "23");
+        FA_DEBUG_LANE(ss, LANE_24(sd_tgt), indx, "24");
+        FA_DEBUG_LANE(ss, LANE_26(sd_tgt), indx, "26");
+        FA_DEBUG_LANE(ss, LANE_2F(sd_tgt), indx, "2F");
+        FA_DEBUG_LANE(ss, LANE_30(sd_tgt), indx, "30");
+        FA_DEBUG_LANE(ss, LANE_31(sd_tgt), indx, "31");
+        FA_DEBUG_LANE(ss, LANE_32(sd_tgt), indx, "32");
+        FA_DEBUG_LANE(ss, LANE_33(sd_tgt), indx, "33");
+        FA_DEBUG_LANE(ss, LANE_34(sd_tgt), indx, "34");
+        FA_DEBUG_LANE(ss, LANE_35(sd_tgt), indx, "35");
+        FA_DEBUG_LANE(ss, LANE_36(sd_tgt), indx, "36");
+        FA_DEBUG_LANE(ss, LANE_37(sd_tgt), indx, "37");
+        FA_DEBUG_LANE(ss, LANE_39(sd_tgt), indx, "39");
+        FA_DEBUG_LANE(ss, LANE_3A(sd_tgt), indx, "3A");
+        FA_DEBUG_LANE(ss, LANE_3C(sd_tgt), indx, "3C");
+        FA_DEBUG_LANE(ss, LANE_41(sd_tgt), indx, "41");
+        FA_DEBUG_LANE(ss, LANE_42(sd_tgt), indx, "42");
+        FA_DEBUG_LANE(ss, LANE_48(sd_tgt), indx, "48");
+        FA_DEBUG_LANE(ss, LANE_50(sd_tgt), indx, "50");
+        FA_DEBUG_LANE(ss, LANE_52(sd_tgt), indx, "52");
+        FA_DEBUG_LANE(ss, LANE_83(sd_tgt), indx, "83");
+        FA_DEBUG_LANE(ss, LANE_93(sd_tgt), indx, "93");
+        FA_DEBUG_LANE(ss, LANE_94(sd_tgt), indx, "94");
+        FA_DEBUG_LANE(ss, LANE_9E(sd_tgt), indx, "9E");
+        FA_DEBUG_LANE(ss, LANE_A1(sd_tgt), indx, "A1");
+        FA_DEBUG_LANE(ss, LANE_A2(sd_tgt), indx, "A2");
     }
     return VTSS_RC_OK;
 }
@@ -3177,9 +3225,14 @@ vtss_rc fa_debug_serdes_set(vtss_state_t                         *vtss_state,
 //            VTSS_RC(fa_serdes_oscal_set(vtss_state, sd_tgt, port_no));
 #endif
         }
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
     } else if (conf->debug_type == VTSS_SERDES_TXEQ_PRM) {
-        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, conf->serdes_prm[0], conf->serdes_prm[1],
-                                   conf->serdes_prm[2])); // TxEQ set
+        VTSS_RC(fa_port_kr_tap_set(vtss_state, port_no, (u16)conf->serdes_prm[0],
+                                   (u16)conf->serdes_prm[1],
+                                   (u16)conf->serdes_prm[2])); // TxEQ set
+#endif
+    } else {
+        // Empty on purpose
     }
 
     return VTSS_RC_OK;
@@ -3212,7 +3265,7 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t  *vtss_state,
     REG_WR(VTSS_SD10G_LANE_TARGET_LANE_21(sd_tgt), dlev_6_0);
     REG_WR(VTSS_SD10G_LANE_TARGET_LANE_1D(sd_tgt), h1_4_0);
 
-    if (h2_4_0 & 0x10U) { // If bit 5
+    if ((h2_4_0 & 0x10U) > 0U) { // If bit 5
         val = two_complement(h2_4_0, 0xFU) | 0x10U;
     } else {
         val = h2_4_0;
@@ -3221,7 +3274,7 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t  *vtss_state,
             VTSS_F_SD10G_LANE_TARGET_LANE_1E_CFG_DFE_BYP_H2_4_0(val),
             VTSS_M_SD10G_LANE_TARGET_LANE_1E_CFG_DFE_BYP_H2_4_0);
 
-    if (h3_3_0 & 0x8U) { // If bit 4
+    if ((h3_3_0 & 0x8U) > 0U) { // If bit 4
         val = two_complement(h3_3_0, 0x7U) | 0x8U;
     } else {
         val = h3_3_0;
@@ -3230,7 +3283,7 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t  *vtss_state,
             VTSS_F_SD10G_LANE_TARGET_LANE_1F_CFG_DFE_BYP_H3_3_0(val),
             VTSS_M_SD10G_LANE_TARGET_LANE_1F_CFG_DFE_BYP_H3_3_0);
 
-    if (h4_3_0 & 0x8U) { // If bit 4
+    if ((h4_3_0 & 0x8U) > 0U) { // If bit 4
         val = two_complement(h4_3_0, 0x7U) | 0x8U;
     } else {
         val = h4_3_0;
@@ -3239,7 +3292,7 @@ static vtss_rc fa_serdes_10g_eye_setup(vtss_state_t  *vtss_state,
             VTSS_F_SD10G_LANE_TARGET_LANE_1F_CFG_DFE_BYP_H4_3_0(val),
             VTSS_M_SD10G_LANE_TARGET_LANE_1F_CFG_DFE_BYP_H4_3_0);
 
-    if (h5_3_0 & 0x8U) { // If bit 4
+    if ((h5_3_0 & 0x8U) > 0U) { // If bit 4
         val = two_complement(h5_3_0, 0x7U) | 0x8U;
     } else {
         val = h5_3_0;
@@ -3389,14 +3442,16 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
             pr("%-6s ", vtss_serdes_if_txt(vtss_state->port.sd28_mode[sd_indx]));
             if (vtss_fa_port_is_high_speed(vtss_state, port)) {
                 vtss_sd10g_media_type_t mtype = vtss_state->port.conf[port_no].serdes.media_type;
-                vtss_port_speed_t       speed = vtss_state->port.conf[port_no].speed;
 
                 if (sd_type == FA_SERDES_TYPE_10G) {
                     pr(": %s", vtss_serdes_preset_txt(serdes2preset(mtype)));
                 }
+#if defined(VTSS_FEATURE_SD_25G)
                 if (sd_type == FA_SERDES_TYPE_25G) {
+                    vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
                     pr(": %s", vtss_serdes25g_preset_txt(serdes2preset_25g(mtype, speed)));
                 }
+#endif
             }
             pr("\n");
         }
@@ -3406,11 +3461,15 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
         VTSS_RC(fa_serdes_dump(vtss_state, ss, port_no));
     } else if (info->action >= 2U && info->action <= 4U) {
         if (sd_type == FA_SERDES_TYPE_10G || sd_type == FA_SERDES_TYPE_6G) {
-            VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val, 0));
+            VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val,
+                                            FALSE));
         } else if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
 #if defined(VTSS_FEATURE_SD_25G)
-            VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val, 0));
+            VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val,
+                                            FALSE));
 #endif
+        } else {
+            // Empty on purpose
         }
     } else if (info->action == 5U) {
         // Read DFE settings
@@ -3426,6 +3485,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
                                   FALSE)); // DFE Disable
     } else if (info->action == 9U) {
         VTSS_RC(fa_serdes_dfe_set(vtss_state, ss, port_no, TRUE)); // DFE Enable
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
     } else if (info->action == 10U) {
         u16 tap_dly = 0, tap_adv = 0, ampl = 0;
         VTSS_RC(fa_port_kr_tap_get(vtss_state, port_no, &tap_dly, &tap_adv,
@@ -3433,6 +3493,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
         pr("Tap_dly   (CP):%d\n", tap_dly);
         pr("Tap_adv   (CM):%d\n", tap_adv);
         pr("Amplitude:(C0):%d\n", ampl);
+#endif
     } else if (info->action == 11U) {
         VTSS_RC(fa_port_kr_square_wave(vtss_state, ss, port_no, TRUE));
     } else if (info->action == 12U) {
@@ -3488,6 +3549,8 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
         }
         fa_serdes_tx_eq_tune(vtss_state, ss, port_no, coef, action);
 #endif /* VTSS_FEATURE_PORT_KR_IRQ */
+    } else {
+        // Empty on purpose
     }
 
     return VTSS_RC_OK;
@@ -3502,10 +3565,10 @@ vtss_rc fa_kr_eye_height(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 a
         return VTSS_RC_ERROR;
     }
     if (sd_type == FA_SERDES_TYPE_10G || sd_type == FA_SERDES_TYPE_6G) {
-        rc = fa_serdes_10g_eye_setup(vtss_state, NULL, action, port_no, ret_val, 1);
+        rc = fa_serdes_10g_eye_setup(vtss_state, NULL, action, port_no, ret_val, TRUE);
     } else {
 #if defined(VTSS_FEATURE_SD_25G)
-        rc = fa_serdes_25g_eye_setup(vtss_state, NULL, action, port_no, ret_val, 1);
+        rc = fa_serdes_25g_eye_setup(vtss_state, NULL, action, port_no, ret_val, TRUE);
 #endif // VTSS_FEATURE_SD_25G
     }
 
@@ -3535,156 +3598,153 @@ vtss_rc vtss_fa_port2sd(vtss_state_t *vtss_state, vtss_port_no_t port_no, u32 *s
 
     u32 p = VTSS_CHIP_PORT(port_no);
 
-    if (FA_TGT) {
-        switch (vtss_state->port.conf[port_no].if_type) {
-        case VTSS_PORT_INTERFACE_QSGMII:
-            if (p <= 47U) {
-                u32 Q = (p - p % 4U) / 4U;
-                *sd_indx = Q;
-                *sd_type = FA_SERDES_TYPE_10G;
-                VTSS_N("(Q QUAD 1G SD) QSGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
-            } else {
-                return VTSS_RC_ERROR;
-            }
-            break;
-        case VTSS_PORT_INTERFACE_USGMII:
-            if (p <= 47U) {
-                u32 X = (p - p % 8U) / 8U;
-                *sd_indx = X + 4U;
-                *sd_type = FA_SERDES_TYPE_10G;
-                VTSS_N("(X OCTAL 1G SD) USGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
-            } else {
-                return VTSS_RC_ERROR;
-            }
-            break;
-        case VTSS_PORT_INTERFACE_QXGMII: /* QXGMII:    4x2G5 devices. Mode 'R'. */
-            if (p <= 63U) {
-                int R = (p < 16U) ? p : (p < 32U) ? p - 16U : (p < 48U) ? p - 32U : p - 48U;
-                if (R < 8) {
-                    *sd_indx = R + 4;
-                    *sd_type = FA_SERDES_TYPE_10G;
-                    VTSS_N("(R QUAD 2G5 SD) 10USXGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
-                } else {
-                    *sd_indx = R - 8;
-                    *sd_type = FA_SERDES_TYPE_25G;
-                    VTSS_N("(R QUAD 2G5 SD) 10USXGMII p:%d SD25G_LANE index: %d", p, *sd_indx);
-                }
-            } else {
-                return VTSS_RC_ERROR;
-            }
-            break;
-        case VTSS_PORT_INTERFACE_DXGMII_10G: /* DXGMII_10G: 2x5G devices. Mode
-                                                'U'.*/
-            if (p <= 63U && (p <= 15U || p >= 48U)) {
-                int U = (p < 16U) ? p : p - 48U;
-                if (U < 8) {
-                    *sd_indx = U + 4;
-                    *sd_type = FA_SERDES_TYPE_10G;
-                    VTSS_N("(U DUAL 5G SD) 10USXGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
-                } else {
-                    *sd_indx = U - 8;
-                    *sd_type = FA_SERDES_TYPE_25G;
-                    VTSS_N("(U DUAL 5G SD) 10USXGMII p:%d SD25G_LANE index: %d", p, *sd_indx);
-                }
-            } else {
-                return VTSS_RC_ERROR;
-            }
-            break;
-        case VTSS_PORT_INTERFACE_DXGMII_5G: /* DXGMII_5G: 2x2G5 devices. Mode
-                                               'F'.*/
-            if (p <= 63U) {
-                int F = (p < 32U) ? p : p - 32U;
-                if (F < 12) {
-                    *sd_indx = F + 1;
-                    *sd_type = FA_SERDES_TYPE_6G;
-                    VTSS_N("(F DUAL 2G5 SD) 5USXGMII p:%d SD6G_LANE index: %d", p, *sd_indx);
-                } else if (F < 24) {
-                    *sd_indx = F - 12;
-                    *sd_type = FA_SERDES_TYPE_10G;
-                    VTSS_N("(F DUAL 2G5 SD) 5USXGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
-                } else {
-                    *sd_indx = F - 24;
-                    *sd_type = FA_SERDES_TYPE_25G;
-                    VTSS_N("(F DUAL 2G5 SD) 5USXGMII p:%d SD25G_LANE index: %d", p, *sd_indx);
-                }
-            } else {
-                return VTSS_RC_ERROR;
-            }
-            break;
-        default:
-            if (p < 12U) {
-                *sd_indx = p + 1U;
-                *sd_type = FA_SERDES_TYPE_6G;
-                VTSS_N("Single Serdes p:%d SD6G_LANE index: %d", p, *sd_indx);
-                return VTSS_TO_SD6G_LANE(p + 1);
-            } else if (p >= 12U && p < 16U) {
-                *sd_indx = p - 12U;
-                *sd_type = FA_SERDES_TYPE_10G;
-                VTSS_N("Single Serdes p:%d SD10_LANE index: %d", p, *sd_indx);
-            } else if (p >= 48U && p < 56U) {
-                *sd_indx = p - 44U;
-                *sd_type = FA_SERDES_TYPE_10G;
-                VTSS_N("Single Serdes p:%d SD10_LANE index: %d", p, *sd_indx);
-            } else if (p >= 56U && p < 64U) {
-                *sd_indx = p - 56U;
-                *sd_type = FA_SERDES_TYPE_25G;
-                VTSS_N("Single Serdes p:%d SD25_LANE index: %d", p, *sd_indx);
-            } else if (p == 64U) {
-                *sd_indx = 0U;
-                *sd_type = FA_SERDES_TYPE_6G;
-                VTSS_N("Single Serdes p:%d SD6G_LANE index: %d", p, *sd_indx);
-            } else {
-                VTSS_D("illegal port/interface mode %d/%d", p,
-                       vtss_state->port.conf[port_no].if_type);
-                return VTSS_RC_ERROR;
-            }
+#if defined(VTSS_ARCH_SPARX5)
+    switch (vtss_state->port.conf[port_no].if_type) {
+    case VTSS_PORT_INTERFACE_QSGMII:
+        if (p <= 47U) {
+            u32 Q = (p - p % 4U) / 4U;
+            *sd_indx = Q;
+            *sd_type = FA_SERDES_TYPE_10G;
+            VTSS_N("(Q QUAD 1G SD) QSGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
         }
-    } else {
-        switch (vtss_state->port.conf[port_no].if_type) {
-        case VTSS_PORT_INTERFACE_QSGMII:
-            if (p <= 23U) {
-                u32 Q = (p - p % 4U) / 4U;
-                *sd_indx = Q;
-                VTSS_N("(Q QUAD 1G SD) QSGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
+        break;
+    case VTSS_PORT_INTERFACE_USGMII:
+        if (p <= 47U) {
+            u32 X = (p - p % 8U) / 8U;
+            *sd_indx = X + 4U;
+            *sd_type = FA_SERDES_TYPE_10G;
+            VTSS_N("(X OCTAL 1G SD) USGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    case VTSS_PORT_INTERFACE_QXGMII: /* QXGMII:    4x2G5 devices. Mode 'R'. */
+        if (p <= 63U) {
+            u32 R = (p < 16U) ? p : (p < 32U) ? p - 16U : (p < 48U) ? p - 32U : p - 48U;
+            if (R < 8U) {
+                *sd_indx = R + 4U;
+                *sd_type = FA_SERDES_TYPE_10G;
+                VTSS_N("(R QUAD 2G5 SD) 10USXGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
             } else {
-                return VTSS_RC_ERROR;
+                *sd_indx = R - 8U;
+                *sd_type = FA_SERDES_TYPE_25G;
+                VTSS_N("(R QUAD 2G5 SD) 10USXGMII p:%d SD25G_LANE index: %d", p, *sd_indx);
             }
-            break;
-        case VTSS_PORT_INTERFACE_QXGMII: /* QXGMII:    4x2G5 devices. Mode 'R'. */
-            if (p >= 8U && p <= 23U) {
-                u32 R = (p - p % 4U) / 4U;
-                *sd_indx = R;
-                VTSS_N("(R QUAD 2G5 SD) QXGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
-            } else {
-                return VTSS_RC_ERROR;
-            }
-            break;
-        case VTSS_PORT_INTERFACE_DXGMII_10G: /* DXGMII_10G: 2x5G devices. Mode
-                                                'U'.*/
-            if (p >= 8U && p <= 21U) {
-                int U = p <= 9U ? 2 : p <= 13U ? 3 : p <= 17U ? 4 : 5;
-                *sd_indx = U;
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    case VTSS_PORT_INTERFACE_DXGMII_10G: /* DXGMII_10G: 2x5G devices. Mode
+                                            'U'.*/
+        if (p <= 63U && (p <= 15U || p >= 48U)) {
+            u32 U = (p < 16U) ? p : p - 48U;
+            if (U < 8U) {
+                *sd_indx = U + 4U;
+                *sd_type = FA_SERDES_TYPE_10G;
                 VTSS_N("(U DUAL 5G SD) 10USXGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
             } else {
-                return VTSS_RC_ERROR;
+                *sd_indx = U - 8U;
+                *sd_type = FA_SERDES_TYPE_25G;
+                VTSS_N("(U DUAL 5G SD) 10USXGMII p:%d SD25G_LANE index: %d", p, *sd_indx);
             }
-            break;
-        default:
-            if (p == 0U || p == 4U || p == 8U || p == 12U || p == 16U || p == 20U || p == 24U) {
-                *sd_indx = p / 4U;
-                VTSS_N("Single Serdes p:%d SD10_LANE index: %d", p, *sd_indx);
-            } else if (p > 24U && p < 28U) {
-                *sd_indx = 6U + p - 24U;
-                VTSS_N("Single Serdes p:%d SD10_LANE index: %d", p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    case VTSS_PORT_INTERFACE_DXGMII_5G: /* DXGMII_5G: 2x2G5 devices. Mode
+                                           'F'.*/
+        if (p <= 63U) {
+            u32 F = (p < 32U) ? p : p - 32U;
+            if (F < 12U) {
+                *sd_indx = F + 1U;
+                *sd_type = FA_SERDES_TYPE_6G;
+                VTSS_N("(F DUAL 2G5 SD) 5USXGMII p:%d SD6G_LANE index: %d", p, *sd_indx);
+            } else if (F < 24U) {
+                *sd_indx = F - 12U;
+                *sd_type = FA_SERDES_TYPE_10G;
+                VTSS_N("(F DUAL 2G5 SD) 5USXGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
             } else {
-                return VTSS_RC_ERROR;
+                *sd_indx = F - 24U;
+                *sd_type = FA_SERDES_TYPE_25G;
+                VTSS_N("(F DUAL 2G5 SD) 5USXGMII p:%d SD25G_LANE index: %d", p, *sd_indx);
             }
+        } else {
+            return VTSS_RC_ERROR;
         }
-
-        if (sd_type != NULL) {
+        break;
+    default:
+        if (p < 12U) {
+            *sd_indx = p + 1U;
+            *sd_type = FA_SERDES_TYPE_6G;
+            VTSS_N("Single Serdes p:%d SD6G_LANE index: %d", p, *sd_indx);
+        } else if (p >= 12U && p < 16U) {
+            *sd_indx = p - 12U;
             *sd_type = FA_SERDES_TYPE_10G;
+            VTSS_N("Single Serdes p:%d SD10_LANE index: %d", p, *sd_indx);
+        } else if (p >= 48U && p < 56U) {
+            *sd_indx = p - 44U;
+            *sd_type = FA_SERDES_TYPE_10G;
+            VTSS_N("Single Serdes p:%d SD10_LANE index: %d", p, *sd_indx);
+        } else if (p >= 56U && p < 64U) {
+            *sd_indx = p - 56U;
+            *sd_type = FA_SERDES_TYPE_25G;
+            VTSS_N("Single Serdes p:%d SD25_LANE index: %d", p, *sd_indx);
+        } else if (p == 64U) {
+            *sd_indx = 0U;
+            *sd_type = FA_SERDES_TYPE_6G;
+            VTSS_N("Single Serdes p:%d SD6G_LANE index: %d", p, *sd_indx);
+        } else {
+            VTSS_D("illegal port/interface mode %d/%d", p, vtss_state->port.conf[port_no].if_type);
+            return VTSS_RC_ERROR;
         }
+        break;
     }
+#else
+    switch (vtss_state->port.conf[port_no].if_type) {
+    case VTSS_PORT_INTERFACE_QSGMII:
+        if (p <= 23U) {
+            u32 Q = (p - p % 4U) / 4U;
+            *sd_indx = Q;
+            VTSS_N("(Q QUAD 1G SD) QSGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    case VTSS_PORT_INTERFACE_QXGMII: /* QXGMII:    4x2G5 devices. Mode 'R'. */
+        if (p >= 8U && p <= 23U) {
+            u32 R = (p - p % 4U) / 4U;
+            *sd_indx = R;
+            VTSS_N("(R QUAD 2G5 SD) QXGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    case VTSS_PORT_INTERFACE_DXGMII_10G: /* DXGMII_10G: 2x5G devices. Mode
+                                            'U'.*/
+        if (p >= 8U && p <= 21U) {
+            u32 U = p <= 9U ? 2U : p <= 13U ? 3U : p <= 17U ? 4U : 5U;
+            *sd_indx = U;
+            VTSS_N("(U DUAL 5G SD) 10USXGMII p:%d SD10G_LANE index: %d", p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    default:
+        if (p == 0U || p == 4U || p == 8U || p == 12U || p == 16U || p == 20U || p == 24U) {
+            *sd_indx = p / 4U;
+            VTSS_N("Single Serdes p:%d SD10_LANE index: %d", p, *sd_indx);
+        } else if (p > 24U && p < 28U) {
+            *sd_indx = 6U + p - 24U;
+            VTSS_N("Single Serdes p:%d SD10_LANE index: %d", p, *sd_indx);
+        } else {
+            return VTSS_RC_ERROR;
+        }
+        break;
+    }
+    *sd_type = FA_SERDES_TYPE_10G;
+#endif
     return VTSS_RC_OK;
 }
 
@@ -3811,6 +3871,7 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t      *vtss_state,
                             vtss_serdes_mode_t mode,
                             u32                sd_type)
 {
+    vtss_rc                   rc = VTSS_RC_OK;
     vtss_port_speed_t         speed = vtss_state->port.conf[port_no].speed;
     vtss_sd10g28_setup_args_t sd_cfg = {0};
 
@@ -3884,15 +3945,17 @@ static vtss_rc fa_sd10g_cfg(vtss_state_t      *vtss_state,
     }
     default: {
         VTSS_E("Serdes mode (%d) not supported", mode);
-        return VTSS_RC_ERROR;
+        rc = VTSS_RC_ERROR;
+        break;
     }
     }
-    if (vtss_ant_sd10g28_setup_lane(vtss_state, sd_cfg, port_no) != VTSS_RC_OK) {
+    if (rc == VTSS_RC_OK &&
+        vtss_ant_sd10g28_setup_lane(vtss_state, sd_cfg, port_no) != VTSS_RC_OK) {
         VTSS_E("Could not configure Serdes mode (%d) at port:%d", mode, port_no);
         return VTSS_RC_ERROR;
     }
 
-    return VTSS_RC_OK;
+    return rc;
 }
 
 // Apply board specific TX equalizer settings
@@ -3901,7 +3964,8 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t  *vtss_state,
                                          u32            sd_indx,
                                          u32            sd_type)
 {
-    vtss_rc           rc = VTSS_RC_OK;
+    vtss_rc rc = VTSS_RC_OK;
+#if defined(VTSS_FEATURE_PORT_KR_IRQ)
     vtss_port_speed_t speed = vtss_state->port.conf[port_no].speed;
     u32               value;
     u16               tap_dly = 0, tap_adv = 0, ampl = 0;
@@ -3917,7 +3981,7 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t  *vtss_state,
                                              &value) == VTSS_RC_OK) {
         if (tap_dly != value) {
             changed = TRUE;
-            tap_dly = value;
+            tap_dly = (u16)value;
         }
     }
 
@@ -3925,7 +3989,7 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t  *vtss_state,
                                              &value) == VTSS_RC_OK) {
         if (tap_adv != value) {
             changed = TRUE;
-            tap_adv = value;
+            tap_adv = (u16)value;
         }
     }
 
@@ -3933,14 +3997,14 @@ static vtss_rc vtss_fa_sd_board_settings(vtss_state_t  *vtss_state,
                                              &value) == VTSS_RC_OK) {
         if (ampl != value) {
             changed = TRUE;
-            ampl = value;
+            ampl = (u16)value;
         }
     }
 
-    if (changed) {
-        rc |= fa_port_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl);
+    if (changed && rc == VTSS_RC_OK) {
+        rc = fa_port_kr_tap_set(vtss_state, port_no, tap_dly, tap_adv, ampl);
     }
-
+#endif
     return rc;
 }
 
@@ -3959,7 +4023,7 @@ vtss_rc vtss_fa_sd_cfg(vtss_state_t *vtss_state, vtss_port_no_t port_no, vtss_se
 
     /*  Apply board specific TX equalizer settings */
     for (u32 p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
-        if (VTSS_BIT64(p) & vtss_state->port.bulk_port_mask) {
+        if ((VTSS_BIT64(p) & vtss_state->port.bulk_port_mask) > 0U) {
             VTSS_RC(vtss_fa_port2sd(vtss_state, p, &sd_indx, &sd_type));
             VTSS_RC(vtss_fa_sd_board_settings(vtss_state, p, sd_indx, sd_type));
             if (mode == VTSS_SERDES_MODE_QXGMII || mode == VTSS_SERDES_MODE_USXGMII) {

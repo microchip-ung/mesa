@@ -610,12 +610,6 @@ vtss_rc fa_port_kr_tap_set(vtss_state_t        *vtss_state,
                            u16                  ampl);
 
 vtss_rc fa_serdes_40b_mode(vtss_state_t *vtss_state, u32 port_no);
-
-vtss_rc fa_port_kr_tap_set(vtss_state_t        *vtss_state,
-                           const vtss_port_no_t port_no,
-                           u16                  tap_dly,
-                           u16                  tap_adv,
-                           u16                  ampl);
 #endif
 
 /* Miscellaneous functions */
