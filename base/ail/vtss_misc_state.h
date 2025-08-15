@@ -58,7 +58,7 @@ vtss_rc vtss_cil_misc_sgpio_event_enable(struct vtss_state_s     *vtss_state,
                                          const vtss_sgpio_group_t group,
                                          const vtss_port_no_t     port,
                                          const u32                bit,
-                                         BOOL                     enable);
+                                         const BOOL               enable);
 vtss_rc vtss_cil_misc_sgpio_event_poll(struct vtss_state_s     *vtss_state,
                                        const vtss_chip_no_t     chip_no,
                                        const vtss_sgpio_group_t group,

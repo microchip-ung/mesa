@@ -223,7 +223,7 @@ vtss_rc vtss_cil_fan_rotation_get(vtss_state_t    *vtss_state,
  *  Temperature Sensor
  * ================================================================= */
 #if defined(VTSS_FEATURE_TEMP_SENSOR)
-vtss_rc vtss_cil_chip_temp_init(vtss_state_t *vtss_state, const BOOL enable)
+vtss_rc vtss_cil_chip_temp_init(struct vtss_state_s *vtss_state, const BOOL enable)
 {
     u32                    system_clock_freq_in_1us = 625U;
     vtss_core_clock_freq_t freq = vtss_state->init_conf.core_clock.freq;
@@ -232,6 +232,8 @@ vtss_rc vtss_cil_chip_temp_init(vtss_state_t *vtss_state, const BOOL enable)
         system_clock_freq_in_1us = 250U;
     } else if (freq == VTSS_CORE_CLOCK_500MHZ) {
         system_clock_freq_in_1us = 500U;
+    } else {
+        // Empty on purpose
     }
 
 #if defined(VTSS_ARCH_LAN969X)
@@ -241,8 +243,7 @@ vtss_rc vtss_cil_chip_temp_init(vtss_state_t *vtss_state, const BOOL enable)
             VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_CLK_CYCLES_1US);
 
     // Enable/Disable
-    REG_WRM(VTSS_CHIP_TOP_TEMP_SENSOR_CFG, enable ? 1 : 0,
-            VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_SAMPLE_ENA);
+    REG_WRM_CTL(VTSS_CHIP_TOP_TEMP_SENSOR_CFG, enable, VTSS_M_CHIP_TOP_TEMP_SENSOR_CFG_SAMPLE_ENA);
 #else
     // Clock cycles per us
     REG_WRM(VTSS_HSIOWRAP_TEMP_SENSOR_CFG,
@@ -250,14 +251,13 @@ vtss_rc vtss_cil_chip_temp_init(vtss_state_t *vtss_state, const BOOL enable)
             VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_CLK_CYCLES_1US);
 
     // Enable/Disable
-    REG_WRM(VTSS_HSIOWRAP_TEMP_SENSOR_CFG, enable ? 1 : 0,
-            VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_SAMPLE_ENA);
+    REG_WRM_CTL(VTSS_HSIOWRAP_TEMP_SENSOR_CFG, enable, VTSS_M_HSIOWRAP_TEMP_SENSOR_CFG_SAMPLE_ENA);
 #endif
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_chip_temp_get(vtss_state_t *vtss_state, i16 *temp_celsius)
+vtss_rc vtss_cil_chip_temp_get(struct vtss_state_s *vtss_state, i16 *chip_temp)
 {
     u32 val;
 
@@ -265,7 +265,7 @@ vtss_rc vtss_cil_chip_temp_get(vtss_state_t *vtss_state, i16 *temp_celsius)
     REG_RD(VTSS_CHIP_TOP_TEMP_SENSOR_STAT, &val);
 
     // Check if the data is valid.
-    if (!VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP_VALID(val)) {
+    if (VTSS_X_CHIP_TOP_TEMP_SENSOR_STAT_TEMP_VALID(val) == 0U) {
         return VTSS_RC_ERROR;
     }
 
@@ -275,14 +275,14 @@ vtss_rc vtss_cil_chip_temp_get(vtss_state_t *vtss_state, i16 *temp_celsius)
     REG_RD(VTSS_HSIOWRAP_TEMP_SENSOR_STAT, &val);
 
     // Check if the data is valid.
-    if (!VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP_VALID(val)) {
+    if (VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP_VALID(val) == 0U) {
         return VTSS_RC_ERROR;
     }
 
     // See VML:'
     val = VTSS_X_HSIOWRAP_TEMP_SENSOR_STAT_TEMP(val);
 #endif
-    *temp_celsius = (((i16)(val) * 3522 / 4096 - 1094) / 10);
+    *chip_temp = (((i16)(val) * 3522 / 4096 - 1094) / 10);
 
     return VTSS_RC_OK;
 }
@@ -293,7 +293,7 @@ vtss_rc vtss_cil_chip_temp_get(vtss_state_t *vtss_state, i16 *temp_celsius)
  *  Miscellaneous
  * ================================================================= */
 
-vtss_rc vtss_cil_misc_reg_read(vtss_state_t        *vtss_state,
+vtss_rc vtss_cil_misc_reg_read(struct vtss_state_s *vtss_state,
                                const vtss_chip_no_t chip_no,
                                const u32            addr,
                                u32 *const           value)
@@ -301,7 +301,7 @@ vtss_rc vtss_cil_misc_reg_read(vtss_state_t        *vtss_state,
     return vtss_fa_rd(vtss_state, addr, value);
 }
 
-vtss_rc vtss_cil_misc_reg_write(vtss_state_t        *vtss_state,
+vtss_rc vtss_cil_misc_reg_write(struct vtss_state_s *vtss_state,
                                 const vtss_chip_no_t chip_no,
                                 const u32            addr,
                                 const u32            value)
@@ -309,99 +309,101 @@ vtss_rc vtss_cil_misc_reg_write(vtss_state_t        *vtss_state,
     return vtss_fa_wr(vtss_state, addr, value);
 }
 
-vtss_rc vtss_cil_misc_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id)
+vtss_rc vtss_cil_misc_chip_id_get(struct vtss_state_s *vtss_state, vtss_chip_id_t *const chip_id)
 {
     u32 value;
 
     REG_RD(VTSS_DEVCPU_GCB_CHIP_ID, &value);
-    if (value == 0U || value == 0xffffffff) {
+    if (value == 0U || value == 0xffffffffU) {
         VTSS_E("CPU interface[%u] error, chipid: 0x%08x", vtss_state->chip_no, value);
         return VTSS_RC_ERROR;
     }
-    chip_id->part_number = VTSS_X_DEVCPU_GCB_CHIP_ID_PART_ID(value);
-    chip_id->revision = VTSS_X_DEVCPU_GCB_CHIP_ID_REV_ID(value);
+    chip_id->part_number = (u16)VTSS_X_DEVCPU_GCB_CHIP_ID_PART_ID(value);
+    chip_id->revision = (u16)VTSS_X_DEVCPU_GCB_CHIP_ID_REV_ID(value);
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_ptp_event_poll(vtss_state_t *vtss_state, vtss_ptp_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_ptp_event_poll(struct vtss_state_s         *vtss_state,
+                                     vtss_ptp_event_type_t *const ev_mask)
 {
     u32 sticky, mask;
+    u32 e = (u32)VTSS_PTP_NONE_EV;
 
     /* PTP events */
-    *ev_mask = VTSS_PTP_NONE_EV;
     REG_RD(VTSS_DEVCPU_PTP_PTP_PIN_INTR, &sticky);
     REG_WR(VTSS_DEVCPU_PTP_PTP_PIN_INTR, sticky);
     REG_RD(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA, &mask);
     sticky &= mask; /* Only handle enabled sources */
 
-    *ev_mask |=
-        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 0)) ? VTSS_PTP_PIN_0_SYNC_EV : 0;
-    *ev_mask |=
-        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 1)) ? VTSS_PTP_PIN_1_SYNC_EV : 0;
-    *ev_mask |=
-        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 2)) ? VTSS_PTP_PIN_2_SYNC_EV : 0;
-    *ev_mask |=
-        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 3)) ? VTSS_PTP_PIN_3_SYNC_EV : 0;
-    *ev_mask |=
-        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 4)) ? VTSS_PTP_PIN_4_SYNC_EV : 0;
-    *ev_mask |=
-        (sticky & VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1 << 5)) ? VTSS_PTP_PIN_5_SYNC_EV : 0;
+    mask = VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1U << 0);
+    e |= ((sticky & mask) > 0U ? (u32)VTSS_PTP_PIN_0_SYNC_EV : 0U);
+
+    mask = VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1U << 1);
+    e |= ((sticky & mask) > 0U ? (u32)VTSS_PTP_PIN_1_SYNC_EV : 0U);
+
+    mask = VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1U << 2);
+    e |= ((sticky & mask) > 0U ? (u32)VTSS_PTP_PIN_2_SYNC_EV : 0U);
+
+    mask = VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1U << 3);
+    e |= ((sticky & mask) > 0U ? (u32)VTSS_PTP_PIN_3_SYNC_EV : 0U);
+
+    mask = VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1U << 4);
+    e |= ((sticky & mask) > 0U ? (u32)VTSS_PTP_PIN_4_SYNC_EV : 0U);
+
+    mask = VTSS_X_DEVCPU_PTP_PTP_PIN_INTR_INTR_PTP(1U << 5);
+    e |= ((sticky & mask) > 0U ? (u32)VTSS_PTP_PIN_5_SYNC_EV : 0U);
+
+    *ev_mask = (vtss_ptp_event_type_t)e;
     VTSS_D("sticky: 0x%x, ev_mask 0x%x", sticky, *ev_mask);
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_ptp_event_enable(vtss_state_t         *vtss_state,
+vtss_rc vtss_cil_misc_ptp_event_enable(struct vtss_state_s  *vtss_state,
                                        vtss_ptp_event_type_t ev_mask,
                                        BOOL                  enable)
 {
+    u32 e = (u32)ev_mask, msk = 0;
+
     /* PTP masks */
     VTSS_D("ev_mask 0x%x, enable: %d", ev_mask, enable);
 
-    if (ev_mask & VTSS_PTP_PIN_0_SYNC_EV) {
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 0 : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 0));
+    if ((e & (u32)VTSS_PTP_PIN_0_SYNC_EV) > 0U) {
+        msk |= VTSS_BIT(0);
     }
-    if (ev_mask & VTSS_PTP_PIN_1_SYNC_EV) {
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 1 : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 1));
+    if ((e & (u32)VTSS_PTP_PIN_1_SYNC_EV) > 0U) {
+        msk |= VTSS_BIT(1);
     }
-    if (ev_mask & VTSS_PTP_PIN_2_SYNC_EV) {
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 2 : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 2));
+    if ((e & (u32)VTSS_PTP_PIN_2_SYNC_EV) > 0U) {
+        msk |= VTSS_BIT(2);
     }
-    if (ev_mask & VTSS_PTP_PIN_3_SYNC_EV) {
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 3 : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 3));
+    if ((e & (u32)VTSS_PTP_PIN_3_SYNC_EV) > 0U) {
+        msk |= VTSS_BIT(3);
     }
-    if (ev_mask & VTSS_PTP_PIN_4_SYNC_EV) {
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 4 : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 4));
+    if ((e & (u32)VTSS_PTP_PIN_4_SYNC_EV) > 0U) {
+        msk |= VTSS_BIT(4);
     }
-    if (ev_mask & VTSS_PTP_PIN_5_SYNC_EV) {
-        REG_WRM(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA,
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(enable ? 1 << 5 : 0),
-                VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(1 << 5));
+    if ((e & (u32)VTSS_PTP_PIN_5_SYNC_EV) > 0U) {
+        msk |= VTSS_BIT(5);
+    }
+    if (msk > 0U) {
+        REG_WRM_CTL(VTSS_DEVCPU_PTP_PTP_PIN_INTR_ENA, enable,
+                    VTSS_F_DEVCPU_PTP_PTP_PIN_INTR_ENA_INTR_PTP_ENA(msk));
     }
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_dev_all_event_poll(vtss_state_t              *vtss_state,
-                                         vtss_dev_all_event_poll_t  poll_type,
-                                         vtss_dev_all_event_type_t *ev_mask)
+vtss_rc vtss_cil_misc_dev_all_event_poll(struct vtss_state_s             *vtss_state,
+                                         vtss_dev_all_event_poll_t        poll_type,
+                                         vtss_dev_all_event_type_t *const ev_mask)
 {
     VTSS_E("Not implemented");
     return VTSS_RC_ERROR;
 }
 
-vtss_rc vtss_cil_misc_dev_all_event_enable(vtss_state_t             *vtss_state,
-                                           vtss_port_no_t            port_no,
+vtss_rc vtss_cil_misc_dev_all_event_enable(struct vtss_state_s      *vtss_state,
+                                           vtss_port_no_t            port,
                                            vtss_dev_all_event_type_t ev_mask,
                                            BOOL                      enable)
 {
@@ -650,33 +652,29 @@ vtss_rc vtss_cil_misc_irq_enable(vtss_state_t *vtss_state, const vtss_irq_t irq,
 }
 #endif /* VTSS_FEATURE_IRQ_CONTROL */
 
-vtss_rc vtss_cil_misc_poll_1sec(vtss_state_t *vtss_state)
+vtss_rc vtss_cil_misc_poll_1sec(struct vtss_state_s *vtss_state)
 {
     return vtss_fa_init_groups(vtss_state, VTSS_INIT_CMD_POLL);
 }
 
-vtss_rc vtss_cil_misc_mdio_conf_set(vtss_state_t                 *vtss_state,
-                                    u8                            ctrl_id,
+vtss_rc vtss_cil_misc_mdio_conf_set(struct vtss_state_s          *vtss_state,
+                                    const u8                      ctrl_id,
                                     const vtss_mdio_conf_t *const conf)
 {
-    u32 val;
-    u32 clk = vtss_state->init_conf.core_clock.freq;
+    u32 val, clk;
 
-    if (ctrl_id >= VTSS_MIIM_CONTROLLERS) {
+    if (ctrl_id >= (u8)VTSS_MIIM_CONTROLLERS) {
         VTSS_E("controller id not supported");
         return VTSS_RC_ERROR;
     }
 
-    if (clk == VTSS_CORE_CLOCK_180MHZ) {
-        clk = 180000000U;
-    } else if (clk == VTSS_CORE_CLOCK_250MHZ) {
-        clk = 250000000U;
-    } else if (clk == VTSS_CORE_CLOCK_328MHZ) {
-        clk = 328000000U;
-    } else if (clk == VTSS_CORE_CLOCK_500MHZ) {
-        clk = 500000000U;
-    } else if (clk == VTSS_CORE_CLOCK_625MHZ) {
-        clk = 625000000U;
+    switch (vtss_state->init_conf.core_clock.freq) {
+    case VTSS_CORE_CLOCK_180MHZ: clk = 180000000U; break;
+    case VTSS_CORE_CLOCK_250MHZ: clk = 250000000U; break;
+    case VTSS_CORE_CLOCK_328MHZ: clk = 328000000U; break;
+    case VTSS_CORE_CLOCK_500MHZ: clk = 500000000U; break;
+    case VTSS_CORE_CLOCK_625MHZ: clk = 625000000U; break;
+    default:                     clk = 0U; break;
     }
 
     val = clk / (conf->miim_freq * 2U) - 1U;
@@ -695,15 +693,16 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t          *vtss_state,
                           const vtss_gpio_no_t   gpio_no,
                           const vtss_gpio_mode_t mode)
 {
-    u32 mask, alt_0 = 0U, alt_1 = 0U;
+    vtss_rc rc = VTSS_RC_OK;
+    u32     mask, alt_0 = 0U, alt_1 = 0U;
 #if defined(VTSS_ARCH_LAN969X)
     u32 alt_2 = 0U;
 #endif
 
     if (gpio_no >= 64U) {
-        mask = VTSS_BIT(gpio_no - 64);
+        mask = VTSS_BIT(gpio_no - 64U);
     } else if (gpio_no >= 32U) {
-        mask = VTSS_BIT(gpio_no - 32);
+        mask = VTSS_BIT(gpio_no - 32U);
     } else {
         mask = VTSS_BIT(gpio_no);
     }
@@ -743,11 +742,15 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t          *vtss_state,
         alt_2 = mask;
 #else
         VTSS_E("illegal mode");
-        return VTSS_RC_ERROR;
+        rc = VTSS_RC_ERROR;
 #endif
         break;
-    default: VTSS_E("illegal mode"); return VTSS_RC_ERROR;
+    default:
+        VTSS_E("illegal mode");
+        rc = VTSS_RC_ERROR;
+        break;
     }
+    VTSS_RC(rc);
     if (gpio_no >= 64U) {
 #if defined(VTSS_ARCH_LAN969X)
         REG_WRM(VTSS_DEVCPU_GCB_GPIO_ALT2(0), alt_0, mask);
@@ -782,7 +785,7 @@ vtss_rc vtss_fa_gpio_mode(vtss_state_t          *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_gpio_mode(vtss_state_t          *vtss_state,
+vtss_rc vtss_cil_misc_gpio_mode(struct vtss_state_s   *vtss_state,
                                 const vtss_chip_no_t   chip_no,
                                 const vtss_gpio_no_t   gpio_no,
                                 const vtss_gpio_mode_t mode)
@@ -790,7 +793,7 @@ vtss_rc vtss_cil_misc_gpio_mode(vtss_state_t          *vtss_state,
     return vtss_fa_gpio_mode(vtss_state, chip_no, gpio_no, mode);
 }
 
-vtss_rc vtss_cil_misc_gpio_read(vtss_state_t        *vtss_state,
+vtss_rc vtss_cil_misc_gpio_read(struct vtss_state_s *vtss_state,
                                 const vtss_chip_no_t chip_no,
                                 const vtss_gpio_no_t gpio_no,
                                 BOOL *const          value)
@@ -799,11 +802,11 @@ vtss_rc vtss_cil_misc_gpio_read(vtss_state_t        *vtss_state,
 
     if (gpio_no >= 64U) {
 #if defined(VTSS_ARCH_LAN969X)
-        mask = VTSS_BIT(gpio_no - 64);
+        mask = VTSS_BIT(gpio_no - 64U);
         REG_RD(VTSS_DEVCPU_GCB_GPIO_IN2, &val);
 #endif
     } else if (gpio_no >= 32U) {
-        mask = VTSS_BIT(gpio_no - 32);
+        mask = VTSS_BIT(gpio_no - 32U);
         REG_RD(VTSS_DEVCPU_GCB_GPIO_IN1, &val);
     } else {
         mask = VTSS_BIT(gpio_no);
@@ -815,7 +818,7 @@ vtss_rc vtss_cil_misc_gpio_read(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_gpio_write(vtss_state_t        *vtss_state,
+vtss_rc vtss_cil_misc_gpio_write(struct vtss_state_s *vtss_state,
                                  const vtss_chip_no_t chip_no,
                                  const vtss_gpio_no_t gpio_no,
                                  const BOOL           value)
@@ -824,7 +827,7 @@ vtss_rc vtss_cil_misc_gpio_write(vtss_state_t        *vtss_state,
 
     if (gpio_no >= 64U) {
 #if defined(VTSS_ARCH_LAN969X)
-        mask = VTSS_BIT(gpio_no - 64);
+        mask = VTSS_BIT(gpio_no - 64U);
         if (value) {
             REG_WR(VTSS_DEVCPU_GCB_GPIO_OUT_SET2, mask);
         } else {
@@ -832,7 +835,7 @@ vtss_rc vtss_cil_misc_gpio_write(vtss_state_t        *vtss_state,
         }
 #endif
     } else if (gpio_no >= 32U) {
-        mask = VTSS_BIT(gpio_no - 32);
+        mask = VTSS_BIT(gpio_no - 32U);
         if (value) {
             REG_WR(VTSS_DEVCPU_GCB_GPIO_OUT_SET1, mask);
         } else {
@@ -850,7 +853,7 @@ vtss_rc vtss_cil_misc_gpio_write(vtss_state_t        *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_gpio_event_poll(vtss_state_t        *vtss_state,
+vtss_rc vtss_cil_misc_gpio_event_poll(struct vtss_state_s *vtss_state,
                                       const vtss_chip_no_t chip_no,
                                       BOOL *const          events)
 {
@@ -862,7 +865,7 @@ vtss_rc vtss_cil_misc_gpio_event_poll(vtss_state_t        *vtss_state,
     REG_WR(VTSS_DEVCPU_GCB_GPIO_INTR, pending);
 
     for (i = 0U; i < 32U; i++) {
-        events[i] = (pending & 1U << i) ? TRUE : FALSE;
+        events[i] = ((pending & VTSS_BIT(i)) > 0U);
     }
 
     REG_RD(VTSS_DEVCPU_GCB_GPIO_INTR1, &pending);
@@ -871,7 +874,7 @@ vtss_rc vtss_cil_misc_gpio_event_poll(vtss_state_t        *vtss_state,
     REG_WR(VTSS_DEVCPU_GCB_GPIO_INTR1, pending);
 
     for (i = 32U; i < 64U; i++) {
-        events[i] = (pending & 1U << (i - 32U)) ? TRUE : FALSE;
+        events[i] = ((pending & VTSS_BIT(i - 32U)) > 0U);
     }
 
 #if defined(VTSS_ARCH_LAN969X)
@@ -881,14 +884,14 @@ vtss_rc vtss_cil_misc_gpio_event_poll(vtss_state_t        *vtss_state,
     REG_WR(VTSS_DEVCPU_GCB_GPIO_INTR2, pending);
 
     for (i = 64U; i < VTSS_GPIOS; i++) {
-        events[i] = (pending & 1U << (i - 64U)) ? TRUE : FALSE;
+        events[i] = ((pending & VTSS_BIT(i - 64U)) > 0U);
     }
 #endif
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_gpio_event_enable(vtss_state_t        *vtss_state,
+vtss_rc vtss_cil_misc_gpio_event_enable(struct vtss_state_s *vtss_state,
                                         const vtss_chip_no_t chip_no,
                                         const vtss_gpio_no_t gpio_no,
                                         const BOOL           enable)
@@ -896,14 +899,16 @@ vtss_rc vtss_cil_misc_gpio_event_enable(vtss_state_t        *vtss_state,
     u32 mask;
 
     if (gpio_no >= 64U) {
-        mask = VTSS_BIT(gpio_no - 64);
-        REG_WRM(VTSS_DEVCPU_GCB_GPIO_INTR_ENA1, enable << (gpio_no - 64), mask);
+#if defined(VTSS_ARCH_LAN969X)
+        mask = VTSS_BIT(gpio_no - 64U);
+        REG_WRM_CTL(VTSS_DEVCPU_GCB_GPIO_INTR_ENA2, enable, mask);
+#endif
     } else if (gpio_no >= 32U) {
-        mask = VTSS_BIT(gpio_no - 32);
-        REG_WRM(VTSS_DEVCPU_GCB_GPIO_INTR_ENA1, enable << (gpio_no - 32), mask);
+        mask = VTSS_BIT(gpio_no - 32U);
+        REG_WRM_CTL(VTSS_DEVCPU_GCB_GPIO_INTR_ENA1, enable, mask);
     } else {
         mask = VTSS_BIT(gpio_no);
-        REG_WRM(VTSS_DEVCPU_GCB_GPIO_INTR_ENA, enable << gpio_no, mask);
+        REG_WRM_CTL(VTSS_DEVCPU_GCB_GPIO_INTR_ENA, enable, mask);
     }
 
     return VTSS_RC_OK;
@@ -928,8 +933,8 @@ static vtss_rc fa_sgpio_init(vtss_state_t *vtss_state)
 #else
     for (bit = 0U; bit < 4U; bit++) {
         // Enable rising edge triggered interrupt
-        REG_WR(VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(bit), 0xFFFFFFFF);
-        REG_WR(VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(bit), 0xFFFFFFFF);
+        REG_WR(VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER0(bit), 0xFFFFFFFFU);
+        REG_WR(VTSS_DEVCPU_GCB_SIO_INTR_TRIGGER1(bit), 0xFFFFFFFFU);
     }
 #endif
     return VTSS_RC_OK;
@@ -974,10 +979,12 @@ static vtss_rc fa_sgpio_sd_map_set(vtss_state_t *vtss_state)
 #else
         if (sd_map->action == VTSS_SD_SGPIO_MAP_IGNORE) {
             // Igonore means default, SD is bit 0 for each SGPIO port
-            bit_index = VTSS_CHIP_PORT(port_no) * 4;
+            bit_index = VTSS_CHIP_PORT(port_no) * 4U;
         } else if (bit_index > 128U) {
             VTSS_E("sgpio index %d out of bounds", bit_index);
             return VTSS_RC_ERROR;
+        } else {
+            // Empty on purpose
         }
 #endif
         REG_WR(VTSS_DEVCPU_GCB_HW_SGPIO_TO_SD_MAP_CFG(VTSS_CHIP_PORT(port_no)), bit_index);
@@ -999,7 +1006,7 @@ static vtss_rc fa_gpio_sd_map_set(vtss_state_t *vtss_state)
         if (!sd_map->enable) {
             continue;
         }
-        port = vtss_state->port.map[port_no].chip_port;
+        port = VTSS_CHIP_PORT(port_no);
 #if defined(VTSS_ARCH_SPARX5)
         if (sd_map->sfp_sd > 31) {
             VTSS_E("SD index %d not supported", sd_map->sfp_sd);
@@ -1007,7 +1014,7 @@ static vtss_rc fa_gpio_sd_map_set(vtss_state_t *vtss_state)
         }
         REG_WR(VTSS_DEVCPU_GCB_GPIO_SD_MAP(sd_map->sfp_sd), port);
 #else // Laguna
-        if (sd_map->sfp_sd > 9) {
+        if (sd_map->sfp_sd > 9U) {
             VTSS_E("SD index %d not supported", sd_map->sfp_sd);
             return VTSS_RC_ERROR;
         }
@@ -1018,7 +1025,7 @@ static vtss_rc fa_gpio_sd_map_set(vtss_state_t *vtss_state)
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_sgpio_event_poll(vtss_state_t            *vtss_state,
+vtss_rc vtss_cil_misc_sgpio_event_poll(struct vtss_state_s     *vtss_state,
                                        const vtss_chip_no_t     chip_no,
                                        const vtss_sgpio_group_t group,
                                        const u32                bit,
@@ -1038,20 +1045,20 @@ vtss_rc vtss_cil_misc_sgpio_event_poll(vtss_state_t            *vtss_state,
 
     /* Setup serial IO port enable register */
     for (i = 0U; i < VTSS_SGPIO_PORTS; i++) {
-        events[i] = VTSS_BOOL(val & (1 << i));
+        events[i] = ((val & VTSS_BIT(i)) > 0U);
     }
 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_sgpio_event_enable(vtss_state_t            *vtss_state,
+vtss_rc vtss_cil_misc_sgpio_event_enable(struct vtss_state_s     *vtss_state,
                                          const vtss_chip_no_t     chip_no,
                                          const vtss_sgpio_group_t group,
                                          const u32                port,
                                          const u32                bit,
                                          const BOOL               enable)
 {
-    u32 mask = (1U << port);
+    u32 mask = VTSS_BIT(port);
 
     if (enable) {
         VTSS_D("group:%d mask:0x%X, bit:0x%X, 0x%X", group, mask, bit,
@@ -1078,13 +1085,14 @@ vtss_rc vtss_cil_misc_sgpio_event_enable(vtss_state_t            *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_sgpio_conf_set(vtss_state_t                  *vtss_state,
+vtss_rc vtss_cil_misc_sgpio_conf_set(struct vtss_state_s           *vtss_state,
                                      const vtss_chip_no_t           chip_no,
                                      const vtss_sgpio_group_t       group,
                                      const vtss_sgpio_conf_t *const conf)
 {
-    u32  i, port, val = 0U, pol = 0U, bmode[2], bit_idx, value, mask;
-    BOOL pol_high;
+    vtss_rc rc = VTSS_RC_OK;
+    u32     i, port, val = 0U, pol = 0U, bmode[2], bit_idx, value, mask, offs, width;
+    BOOL    pol_high;
 
     /* Setup serial IO port enable register */
     for (port = 0U; port < 32U; port++) {
@@ -1120,14 +1128,15 @@ vtss_rc vtss_cil_misc_sgpio_conf_set(vtss_state_t                  *vtss_state,
         case VTSS_SGPIO_BMODE_1_25: bmode[i] = 2U; break;
         case VTSS_SGPIO_BMODE_2_5:  bmode[i] = 1U; break;
         case VTSS_SGPIO_BMODE_5:    bmode[i] = 0U; break;
-        default:                    return VTSS_RC_ERROR;
+        default:                    rc = VTSS_RC_ERROR; break;
         }
+        VTSS_RC(rc);
     }
 
     value = (VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0(bmode[0]) |
              VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1(bmode[1]) |
              VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP(0) |
-             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH(conf->bit_count - 1) |
+             VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH((u32)conf->bit_count - 1U) |
              VTSS_F_DEVCPU_GCB_SIO_CFG_SIO_AUTO_REPEAT(1));
     mask = (VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_0 | VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BMODE_1 |
             VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_BURST_GAP | VTSS_M_DEVCPU_GCB_SIO_CFG_SIO_PORT_WIDTH |
@@ -1164,25 +1173,28 @@ vtss_rc vtss_cil_misc_sgpio_conf_set(vtss_state_t                  *vtss_state,
     /* Instead, the INV can be accomplished through the polarity bit */
 
     for (port = 0U; port < 32U; port++) {
-        mask = (1U << port);
+        mask = VTSS_BIT(port);
 #if defined(VTSS_ARCH_SPARX5)
         REG_RD(VTSS_DEVCPU_GCB_SIO_PORT_CFG(group, port), &val);
 #else
         REG_RD(VTSS_DEVCPU_GCB_SIO_PORT_CFG(port), &val);
 #endif
-        for (pol = 0U, bit_idx = 0U; bit_idx < 4U; bit_idx++) {
+        pol = 0U;
+        for (bit_idx = 0U; bit_idx < 4U; bit_idx++) {
             if (conf->port_conf[port].mode[bit_idx] == VTSS_SGPIO_MODE_NO_CHANGE) {
                 continue;
             }
             /* Set output bit n */
+            offs = (bit_idx * 3U);
+            width = 3U;
             if (conf->port_conf[port].mode[bit_idx] == VTSS_SGPIO_MODE_0_ACTIVITY_INV) {
-                val |= VTSS_ENCODE_BITFIELD(VTSS_SGPIO_MODE_0_ACTIVITY, (bit_idx * 3), 3);
-                pol |= (1U << bit_idx); // Inversed polarity
+                val |= VTSS_ENCODE_BITFIELD(VTSS_SGPIO_MODE_0_ACTIVITY, offs, width);
+                pol |= VTSS_BIT(bit_idx); // Inversed polarity
             } else if (conf->port_conf[port].mode[bit_idx] == VTSS_SGPIO_MODE_1_ACTIVITY_INV) {
-                val |= VTSS_ENCODE_BITFIELD(VTSS_SGPIO_MODE_1_ACTIVITY, (bit_idx * 3), 3);
-                pol |= (1U << bit_idx); // Inversed polarity
+                val |= VTSS_ENCODE_BITFIELD(VTSS_SGPIO_MODE_1_ACTIVITY, offs, width);
+                pol |= VTSS_BIT(bit_idx); // Inversed polarity
             } else {
-                val |= VTSS_ENCODE_BITFIELD(conf->port_conf[port].mode[bit_idx], (bit_idx * 3), 3);
+                val |= VTSS_ENCODE_BITFIELD(conf->port_conf[port].mode[bit_idx], offs, width);
             }
 
             // Setup the interrupt polarity
@@ -1213,7 +1225,7 @@ vtss_rc vtss_cil_misc_sgpio_conf_set(vtss_state_t                  *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_misc_sgpio_read(vtss_state_t            *vtss_state,
+vtss_rc vtss_cil_misc_sgpio_read(struct vtss_state_s     *vtss_state,
                                  const vtss_chip_no_t     chip_no,
                                  const vtss_sgpio_group_t group,
                                  vtss_sgpio_port_data_t   data[VTSS_SGPIO_PORTS])
@@ -1227,7 +1239,7 @@ vtss_rc vtss_cil_misc_sgpio_read(vtss_state_t            *vtss_state,
         REG_RD(VTSS_DEVCPU_GCB_SIO_INPUT_DATA(i), &value);
 #endif
         for (port = 0U; port < 32U; port++) {
-            data[port].value[i] = VTSS_BOOL(value & (1 << port));
+            data[port].value[i] = ((value & VTSS_BIT(port)) > 0U);
         }
     }
     return VTSS_RC_OK;
@@ -1344,6 +1356,8 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd)
         VTSS_RC(fa_sgpio_sd_map_set(vtss_state));
         VTSS_RC(fa_gpio_sd_map_set(vtss_state));
         VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 20);
+    } else {
+        // Empty on purpose
     }
     return VTSS_RC_OK;
 }
