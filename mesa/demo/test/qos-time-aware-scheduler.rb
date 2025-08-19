@@ -728,7 +728,7 @@ def jira_appl_3433_test
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/8],       [5],           true,              [2])
     else
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/8],       [5],           true,              [2],    [cycle_time])
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/7.5],       [5],           true,              [2],    [cycle_time])
     end
 
     t_i ("Enable Frame Preemption")
