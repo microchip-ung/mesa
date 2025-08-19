@@ -5,6 +5,8 @@
 #include "vtss_api.h"
 #include "vtss_state.h"
 #include "vtss_common.h"
+#include "vtss_util.h"
+
 #if defined(VTSS_FEATURE_PORT_CONTROL)
 
 /* - Port mapping -------------------------------------------------- */
@@ -68,7 +70,7 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
              * (unicast) */
             for (pgid = 0U; pgid < vtss_state->port_count; pgid++) {
                 pgid_entry = &vtss_state->l2.pgid_table[pgid];
-                pgid_entry->member[pgid] = 1;
+                pgid_entry->member[pgid] = TRUE;
                 pgid_entry->references = 1U;
             }
 
@@ -82,7 +84,7 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
             pgid_entry = &vtss_state->l2.pgid_table[pgid];
             pgid_entry->references = 1U;
             for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-                pgid_entry->member[port_no] = 1;
+                pgid_entry->member[port_no] = TRUE;
             }
         }
 #endif /* VTSS_FEATURE_LAYER2 */
@@ -90,7 +92,7 @@ vtss_rc vtss_port_map_set(const vtss_inst_t     inst,
 #if defined(VTSS_FEATURE_LAYER2)
         VTSS_PROF_ENTER(LM_PROF_ID_MESA_PMAP, 2);
         if (rc == VTSS_RC_OK) { /* Update destination masks */
-            rc = vtss_update_masks(vtss_state, 0, 1, 0);
+            rc = vtss_update_masks(vtss_state, FALSE, TRUE, FALSE);
         }
         vtss_state->l2.pmap_done = TRUE;
         VTSS_PROF_EXIT(LM_PROF_ID_MESA_PMAP, 2);
@@ -171,7 +173,7 @@ vtss_rc vtss_port_conf_set_private(struct vtss_state_s          *vtss_state,
         // state down in H/W or we might get flush errors if conf->power_down
         // is false and a lot of traffic wants to go out on the port we are
         // currently powering up.
-        (void)vtss_update_masks(vtss_state, 1, 0, 1);
+        (void)vtss_update_masks(vtss_state, TRUE, FALSE, TRUE);
     }
 
 #if defined(VTSS_FEATURE_AFI_SWC)
@@ -298,7 +300,7 @@ static vtss_rc vtss_port_usxgmii_status_get(vtss_state_t             *vtss_state
         VTSS_RC_OK) {
         return rc;
     }
-    status->link_down = (clause_37_status.link ? 0 : 1);
+    status->link_down = (clause_37_status.link ? FALSE : TRUE);
     status->aneg_complete = clause_37_status.autoneg.complete;
     status->link = clause_37_status.autoneg.partner.usxgmii.link;
     status->fdx = clause_37_status.autoneg.partner.usxgmii.fdx;
@@ -321,7 +323,7 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t             *vtss_sta
         VTSS_RC_OK) {
         return rc;
     }
-    status->link_down = (clause_37_status.link ? 0 : 1);
+    status->link_down = (clause_37_status.link ? FALSE : TRUE);
     status->aneg_complete = clause_37_status.autoneg.complete;
 
     if (status->link_down) {
@@ -333,10 +335,10 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t             *vtss_sta
         status->link = clause_37_status.link;
     } else {
         /* Link is still up */
-        status->link = 1;
+        status->link = TRUE;
     }
     /* Link is down */
-    if (status->link == 0) {
+    if (status->link == FALSE) {
         return VTSS_RC_OK;
     }
 
@@ -353,10 +355,10 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t             *vtss_sta
             }
             status->fdx = clause_37_status.autoneg.partner.sgmii.fdx;
             /* Flow control is not supported by SGMII aneg. */
-            status->aneg.obey_pause = 0;
-            status->aneg.generate_pause = 0;
+            status->aneg.obey_pause = FALSE;
+            status->aneg.generate_pause = FALSE;
         } else {
-            status->link = 0;
+            status->link = FALSE;
         }
     } else {
         control = &vtss_state->port.clause_37[port_no];
@@ -367,40 +369,40 @@ static vtss_rc vtss_port_clause_37_status_get(vtss_state_t             *vtss_sta
             if (clause_37_status.autoneg.complete) {
                 /* Speed and duplex mode auto negotiation result */
                 if (adv->fdx && lp->fdx) {
-                    status->fdx = 1;
+                    status->fdx = TRUE;
                 } else if (adv->hdx && lp->hdx) {
-                    status->fdx = 0;
+                    status->fdx = FALSE;
                 } else {
-                    status->link = 0;
+                    status->link = FALSE;
                 }
 
                 /* Flow control auto negotiation result */
                 status->aneg.obey_pause =
                     (adv->symmetric_pause && (lp->symmetric_pause ||
                                               (adv->asymmetric_pause && lp->asymmetric_pause))
-                         ? 1
-                         : 0);
+                         ? TRUE
+                         : FALSE);
                 status->aneg.generate_pause =
                     (lp->symmetric_pause && (adv->symmetric_pause ||
                                              (adv->asymmetric_pause && lp->asymmetric_pause))
-                         ? 1
-                         : 0);
+                         ? TRUE
+                         : FALSE);
 
                 /* Remote fault */
                 if (lp->remote_fault != VTSS_PORT_CLAUSE_37_RF_LINK_OK) {
-                    status->remote_fault = 1;
+                    status->remote_fault = TRUE;
                 }
 
                 /* The speed is fixed */
                 status->speed = vtss_state->port.conf[port_no].speed;
             } else {
                 /* Autoneg says that the link partner is not OK */
-                status->link = 0;
+                status->link = FALSE;
             }
         } else {
             /* Forced speed */
             status->speed = vtss_state->port.conf[port_no].speed;
-            status->fdx = 1;
+            status->fdx = TRUE;
         }
     }
 
@@ -565,7 +567,7 @@ vtss_rc vtss_port_forward_state_set(const vtss_inst_t         inst,
         rc = vtss_cil_port_forward_set(vtss_state, port_no);
 #if defined(VTSS_FEATURE_LAYER2)
         if (rc == VTSS_RC_OK) {
-            rc = vtss_update_masks(vtss_state, 1, 0, 1);
+            rc = vtss_update_masks(vtss_state, TRUE, FALSE, TRUE);
         }
 #endif /* VTSS_FEATURE_LAYER2 */
     }
@@ -584,19 +586,19 @@ static vtss_rc vtss_miim_check(vtss_state_t           *vtss_state,
     vtss_port_map_t *port_map;
 
     VTSS_RC(vtss_port_no_check(vtss_state, port_no));
-    if (addr > 31) {
+    if (addr > 31U) {
         VTSS_E("illegal addr: %u on port_no: %u", addr, port_no);
         return VTSS_RC_ERROR;
     }
     port_map = &vtss_state->port.map[port_no];
     *miim_controller = port_map->miim_controller;
     *miim_addr = port_map->miim_addr;
-    if (*miim_controller < 0 || *miim_controller >= VTSS_MIIM_CONTROLLERS) {
+    if (*miim_controller < VTSS_MIIM_CONTROLLER_0 || *miim_controller >= VTSS_MIIM_CONTROLLERS) {
         VTSS_E("illegal miim_controller:%d on port_no:%u, addr:0x%X, miim_addr:0x%X",
                *miim_controller, port_no, addr, *miim_addr);
         return VTSS_RC_ERROR;
     }
-    if (*miim_addr > 31) {
+    if (*miim_addr > 31U) {
         VTSS_E("illegal miim_addr:%u on port_no:%u, controller:%d, addr:0x%X", *miim_addr, port_no,
                *miim_controller, addr);
         return VTSS_RC_ERROR;
@@ -678,7 +680,7 @@ vtss_rc vtss_port_miim_write(const vtss_inst_t    inst,
 }
 
 /* Internal feature: Access MII directly without lock */
-#define VTSS_MIIM_ADDR_MASK 0x7f
+#define VTSS_MIIM_ADDR_MASK 0x7fU
 
 /* MII management read function (direct - not via port map) */
 vtss_rc vtss_miim_read(const vtss_inst_t            inst,
@@ -739,18 +741,18 @@ static vtss_rc vtss_mmd_check(vtss_state_t           *vtss_state,
     vtss_port_map_t *port_map;
 
     VTSS_RC(vtss_port_no_check(vtss_state, port_no));
-    if (addr > 31) {
+    if (addr > 31U) {
         VTSS_E("illegal addr: %u on port_no: %u", addr, port_no);
         return VTSS_RC_ERROR;
     }
     port_map = &vtss_state->port.map[port_no];
     *miim_controller = port_map->miim_controller;
     *miim_addr = port_map->miim_addr;
-    if (*miim_controller < 0 || *miim_controller >= VTSS_MIIM_CONTROLLERS) {
+    if (*miim_controller < VTSS_MIIM_CONTROLLER_0 || *miim_controller >= VTSS_MIIM_CONTROLLERS) {
         VTSS_E("illegal miim_controller: %d on port_no: %u", *miim_controller, port_no);
         return VTSS_RC_ERROR;
     }
-    if (*miim_addr > 31) {
+    if (*miim_addr > 31U) {
         VTSS_E("illegal miim_addr: %u on port_no: %u", *miim_addr, port_no);
         return VTSS_RC_ERROR;
     }
@@ -782,24 +784,23 @@ static vtss_rc vtss_mmd_reg_read_inc(const vtss_inst_t    inst,
                                      const vtss_port_no_t port_no,
                                      const u8             mmd,
                                      const u16            addr,
-                                     u16                 *buf,
+                                     u16 *const           buf,
                                      u8                   count)
 {
     vtss_state_t          *vtss_state;
     vtss_rc                rc;
     vtss_miim_controller_t mdio_controller;
     u8                     mdio_addr;
-    u8                     buf_count = count;
+    u8                     i = count;
 
     VTSS_RC(vtss_inst_check(inst, &vtss_state));
     VTSS_RC(vtss_mmd_check(vtss_state, port_no, 0, &mdio_controller, &mdio_addr));
     rc = vtss_cil_mmd_read_inc(vtss_state, mdio_controller, mdio_addr, mmd, addr, buf, count, TRUE);
     if (rc == VTSS_RC_OK) {
         VTSS_N("port_no: %u, mmd: %u, addr: 0x%04x", port_no, mmd, addr);
-        while (buf_count) {
-            VTSS_N(" value[%d]: 0x%04x", count, *buf);
-            buf++;
-            buf_count--;
+        while (i > 0U) {
+            i--;
+            VTSS_N(" value[%d]: 0x%04x", i, buf[i]);
         }
     }
     return rc;
@@ -888,16 +889,18 @@ vtss_rc vtss_port_mmd_masked_write(const vtss_inst_t    inst,
     vtss_rc                rc;
     vtss_miim_controller_t miim_controller;
     u8                     miim_addr;
-    u16                    val = 0; /* Please Lint */
+    u16                    val = 0;
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
-        (rc = vtss_miim_check(vtss_state, port_no, 0, &miim_controller, &miim_addr)) ==
-            VTSS_RC_OK &&
-        (rc = vtss_cil_mmd_read(vtss_state, miim_controller, miim_addr, mmd, addr, &val, TRUE)) ==
-            VTSS_RC_OK) {
-        val = ((val & ~mask) | (value & mask));
-        rc = vtss_cil_mmd_write(vtss_state, miim_controller, miim_addr, mmd, addr, val, TRUE);
+    if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
+        rc = vtss_miim_check(vtss_state, port_no, 0, &miim_controller, &miim_addr);
+        if (rc == VTSS_RC_OK) {
+            rc = vtss_cil_mmd_read(vtss_state, miim_controller, miim_addr, mmd, addr, &val, TRUE);
+        }
+        if (rc == VTSS_RC_OK) {
+            val = ((val & ~mask) | (value & mask));
+            rc = vtss_cil_mmd_write(vtss_state, miim_controller, miim_addr, mmd, addr, val, TRUE);
+        }
         if (rc == VTSS_RC_OK) {
             VTSS_N("port_no: %u, mmd: %u, addr: 0x%04x, val: 0x%04x", port_no, mmd, addr, val);
         }
@@ -957,7 +960,10 @@ vtss_rc vtss_mmd_read(const vtss_inst_t            inst,
 /* - Warm start synchronization ------------------------------------ */
 
 #if defined(VTSS_FEATURE_WARM_START)
-static BOOL vtss_bool_changed(BOOL old, BOOL new) { return ((old == new) || (old && new) ? 0 : 1); }
+static BOOL vtss_bool_changed(BOOL old, BOOL new)
+{
+    return ((old == new) || (old && new) ? FALSE : TRUE);
+}
 
 /* Synchronize port configuration */
 static vtss_rc vtss_port_conf_sync(vtss_state_t *vtss_state, vtss_port_no_t port_no)
@@ -994,29 +1000,33 @@ static vtss_rc vtss_port_clause_37_sync(vtss_state_t *vtss_state, vtss_port_no_t
     old = &old_ctrl.advertisement;
     new = &new_ctrl->advertisement;
 
-    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES &&
-        (rc = vtss_cil_port_clause_37_control_get(vtss_state, port_no, &old_ctrl)) == VTSS_RC_OK &&
-        (vtss_bool_changed(old_ctrl.enable, new_ctrl->enable) ||
-         (new_ctrl->enable &&
-          (vtss_bool_changed(old->next_page, new->next_page) ||
-           vtss_bool_changed(old->acknowledge, new->acknowledge) ||
-           old->remote_fault != new->remote_fault ||
-           vtss_bool_changed(old->asymmetric_pause, new->asymmetric_pause) ||
-           vtss_bool_changed(old->symmetric_pause, new->symmetric_pause) ||
-           vtss_bool_changed(old->hdx, new->hdx) || vtss_bool_changed(old->fdx, new->fdx))))) {
-        VTSS_I("port_no %u changed, apply clause 37 conf", port_no);
-        VTSS_I("old conf, ena: %u, next: %u, ack: %u, rem: %u, assym: %u, sym: %u. hdx: %u, fdx: %u",
-               old_ctrl.enable, old->next_page, old->acknowledge, old->remote_fault,
-               old->asymmetric_pause, old->symmetric_pause, old->hdx, old->fdx);
-        VTSS_I("new conf, ena: %u, next: %u, ack: %u, rem: %u, assym: %u, sym: %u. hdx: %u, fdx: %u",
-               new_ctrl->enable, new->next_page, new->acknowledge, new->remote_fault,
-               new->asymmetric_pause, new->symmetric_pause, new->hdx, new->fdx);
-        rc = vtss_cil_port_clause_37_control_set(vtss_state, port_no);
+    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES) {
+        rc = vtss_cil_port_clause_37_control_get(vtss_state, port_no, &old_ctrl);
+        if (rc == VTSS_RC_OK &&
+            (vtss_bool_changed(old_ctrl.enable, new_ctrl->enable) ||
+             (new_ctrl->enable &&
+              (vtss_bool_changed(old->next_page, new->next_page) ||
+               vtss_bool_changed(old->acknowledge, new->acknowledge) ||
+               old->remote_fault != new->remote_fault ||
+               vtss_bool_changed(old->asymmetric_pause, new->asymmetric_pause) ||
+               vtss_bool_changed(old->symmetric_pause, new->symmetric_pause) ||
+               vtss_bool_changed(old->hdx, new->hdx) || vtss_bool_changed(old->fdx, new->fdx))))) {
+            VTSS_I("port_no %u changed, apply clause 37 conf", port_no);
+            VTSS_I(
+                "old conf, ena: %u, next: %u, ack: %u, rem: %u, assym: %u, sym: %u. hdx: %u, fdx: %u",
+                old_ctrl.enable, old->next_page, old->acknowledge, old->remote_fault,
+                old->asymmetric_pause, old->symmetric_pause, old->hdx, old->fdx);
+            VTSS_I(
+                "new conf, ena: %u, next: %u, ack: %u, rem: %u, assym: %u, sym: %u. hdx: %u, fdx: %u",
+                new_ctrl->enable, new->next_page, new->acknowledge, new->remote_fault,
+                new->asymmetric_pause, new->symmetric_pause, new->hdx, new->fdx);
+            rc = vtss_cil_port_clause_37_control_set(vtss_state, port_no);
+        }
     }
     return rc;
 }
 
-vtss_rc vtss_port_restart_sync(vtss_state_t *vtss_state)
+vtss_rc vtss_port_restart_sync(struct vtss_state_s *vtss_state)
 {
     vtss_port_no_t port_no;
 
@@ -1033,7 +1043,7 @@ vtss_rc vtss_port_restart_sync(vtss_state_t *vtss_state)
 
 /* - Instance create and initialization ---------------------------- */
 
-vtss_rc vtss_port_inst_create(vtss_state_t *vtss_state)
+vtss_rc vtss_port_inst_create(struct vtss_state_s *vtss_state)
 {
     vtss_port_no_t    port_no;
     vtss_init_conf_t *init_conf = &vtss_state->init_conf;
@@ -1092,46 +1102,46 @@ vtss_rc vtss_port_inst_create(vtss_state_t *vtss_state)
 /* Decode advertisement word */
 vtss_rc vtss_cmn_port_clause_37_adv_get(u32 value, vtss_port_clause_37_adv_t *adv)
 {
-    adv->fdx = VTSS_BOOL(value & (1 << 5));
-    adv->hdx = VTSS_BOOL(value & (1 << 6));
-    adv->symmetric_pause = VTSS_BOOL(value & (1 << 7));
-    adv->asymmetric_pause = VTSS_BOOL(value & (1 << 8));
+    adv->fdx = VTSS_BOOL(value & VTSS_BIT(5));
+    adv->hdx = VTSS_BOOL(value & VTSS_BIT(6));
+    adv->symmetric_pause = VTSS_BOOL(value & VTSS_BIT(7));
+    adv->asymmetric_pause = VTSS_BOOL(value & VTSS_BIT(8));
     switch ((value >> 12U) & 3U) {
     case 0:  adv->remote_fault = VTSS_PORT_CLAUSE_37_RF_LINK_OK; break;
     case 1:  adv->remote_fault = VTSS_PORT_CLAUSE_37_RF_LINK_FAILURE; break;
     case 2:  adv->remote_fault = VTSS_PORT_CLAUSE_37_RF_OFFLINE; break;
     default: adv->remote_fault = VTSS_PORT_CLAUSE_37_RF_AUTONEG_ERROR; break;
     }
-    adv->acknowledge = VTSS_BOOL(value & (1 << 14));
-    adv->next_page = VTSS_BOOL(value & (1 << 15));
+    adv->acknowledge = VTSS_BOOL(value & VTSS_BIT(14));
+    adv->next_page = VTSS_BOOL(value & VTSS_BIT(15));
 
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_cmn_port_sgmii_cisco_aneg_get(u32 value, vtss_port_sgmii_aneg_t *sgmii_adv)
 {
-    sgmii_adv->link = ((value >> 15U) == 1U) ? 1 : 0;
-    sgmii_adv->fdx = (((value >> 12U) & 0x1U) == 1U) ? 1 : 0;
+    sgmii_adv->link = ((value >> 15U) == 1U);
+    sgmii_adv->fdx = (((value >> 12U) & 0x1U) == 1U);
     sgmii_adv->hdx = !sgmii_adv->fdx;
     value = ((value >> 10U) & 3U);
-    sgmii_adv->speed_10M = (value == 0U ? 1 : 0);
-    sgmii_adv->speed_100M = (value == 1U ? 1 : 0);
-    sgmii_adv->speed_1G = (value == 2U ? 1 : 0);
+    sgmii_adv->speed_10M = (value == 0U);
+    sgmii_adv->speed_100M = (value == 1U);
+    sgmii_adv->speed_1G = (value == 2U);
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cmn_port_usxgmii_aneg_get(u32 lp_adv, vtss_port_usxgmii_aneg_t *usxgmii)
+vtss_rc vtss_cmn_port_usxgmii_aneg_get(u32 value, vtss_port_usxgmii_aneg_t *usxgmii)
 {
-    usxgmii->link = ((lp_adv >> 15U) == 1U) ? 1 : 0;
-    usxgmii->fdx = (((lp_adv >> 12U) & 0x1U) == 1U) ? 1 : 0;
-    switch ((lp_adv >> 9U) & 7U) {
+    usxgmii->link = ((value >> 15U) == 1U);
+    usxgmii->fdx = (((value >> 12U) & 0x1U) == 1U);
+    switch ((value >> 9U) & 7U) {
     case 0:  usxgmii->speed = VTSS_SPEED_10M; break;
     case 1:  usxgmii->speed = VTSS_SPEED_100M; break;
     case 2:  usxgmii->speed = VTSS_SPEED_1G; break;
     case 3:  usxgmii->speed = VTSS_SPEED_10G; break;
     case 4:  usxgmii->speed = VTSS_SPEED_2500M; break;
     case 5:  usxgmii->speed = VTSS_SPEED_5G; break;
-    default: VTSS_E("Unknown speed '%d' after usxgmii aneg", ((lp_adv >> 9) & 7)); break;
+    default: VTSS_E("Unknown speed '%d' after usxgmii aneg", ((value >> 9) & 7)); break;
     }
     return VTSS_RC_OK;
 }
@@ -1142,8 +1152,8 @@ vtss_rc vtss_cmn_port_clause_37_adv_set(u32                       *value,
 {
     u32 rf;
 
+    *value = 0U;
     if (!aneg_enable) {
-        *value = 0U;
         return VTSS_RC_OK;
     }
     switch (adv->remote_fault) {
@@ -1153,16 +1163,20 @@ vtss_rc vtss_cmn_port_clause_37_adv_set(u32                       *value,
     default:                                  rf = 3U; break;
     }
 
-    *value =
-        (((adv->next_page ? 1 : 0) << 15U) | ((adv->acknowledge ? 1 : 0) << 14U) | (rf << 12U) |
-         ((adv->asymmetric_pause ? 1 : 0) << 8U) | ((adv->symmetric_pause ? 1 : 0) << 7U) |
-         ((adv->hdx ? 1 : 0) << 6U) | ((adv->fdx ? 1 : 0) << 5U));
+    *value |= (adv->next_page ? VTSS_BIT(15) : 0U);
+    *value |= (adv->acknowledge ? VTSS_BIT(14) : 0U);
+    *value |= (rf << 12U);
+    *value |= (adv->asymmetric_pause ? VTSS_BIT(8) : 0U);
+    *value |= (adv->symmetric_pause ? VTSS_BIT(7) : 0U);
+    *value |= (adv->hdx ? VTSS_BIT(6) : 0U);
+    *value |= (adv->fdx ? VTSS_BIT(5) : 0U);
+
     return VTSS_RC_OK;
 }
 
 /* Get first port_no in port_list or CPU port */
-vtss_port_no_t vtss_cmn_first_port_no_get(vtss_state_t *vtss_state,
-                                          const BOOL    port_list[VTSS_PORT_ARRAY_SIZE])
+vtss_port_no_t vtss_cmn_first_port_no_get(struct vtss_state_s *vtss_state,
+                                          const BOOL           port_list[VTSS_PORT_ARRAY_SIZE])
 {
     vtss_port_no_t port_no;
 
@@ -1174,14 +1188,14 @@ vtss_port_no_t vtss_cmn_first_port_no_get(vtss_state_t *vtss_state,
     return VTSS_PORT_NO_NONE;
 }
 
-vtss_port_no_t vtss_cmn_port2port_no(vtss_state_t                  *vtss_state,
+vtss_port_no_t vtss_cmn_port2port_no(struct vtss_state_s           *vtss_state,
                                      const vtss_debug_info_t *const info,
-                                     u32                            chip_port)
+                                     u32                            port)
 {
     vtss_port_no_t port_no;
 
     for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
-        if (VTSS_CHIP_PORT(port_no) == chip_port && VTSS_PORT_CHIP_SELECTED(port_no)) {
+        if (VTSS_CHIP_PORT(port_no) == port && VTSS_PORT_CHIP_SELECTED(port_no)) {
             if (info->port_list[port_no]) {
                 return port_no;
             }
@@ -1191,7 +1205,7 @@ vtss_port_no_t vtss_cmn_port2port_no(vtss_state_t                  *vtss_state,
     return VTSS_PORT_NO_NONE;
 }
 
-vtss_port_no_t vtss_api_port(vtss_state_t *vtss_state, u32 chip_port)
+vtss_port_no_t vtss_api_port(struct vtss_state_s *vtss_state, u32 chip_port)
 {
     vtss_port_no_t port_no;
 
@@ -2343,7 +2357,7 @@ static void vtss_debug_port_cnt(lmu_ss_t           *ss,
     VTSS_FMT(buf, "Rx %s:", col1);
     pr("%-19s%19" PRIu64 "   ", &buf, c1);
     if (col2 != NULL) {
-        VTSS_FMT(buf, "Tx %s:", VTSS_STRLEN(col2) ? col2 : col1);
+        VTSS_FMT(buf, "Tx %s:", VTSS_STRLEN(col2) > 0 ? col2 : col1);
         pr("%-19s%19" PRIu64, &buf, c2);
     }
     pr("\n");
@@ -2473,7 +2487,7 @@ static void vtss_port_debug_print_counters(vtss_state_t                  *vtss_s
     }
 }
 
-void vtss_port_debug_print(vtss_state_t                  *vtss_state,
+void vtss_port_debug_print(struct vtss_state_s           *vtss_state,
                            lmu_ss_t                      *ss,
                            const vtss_debug_info_t *const info)
 {

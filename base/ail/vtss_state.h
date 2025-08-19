@@ -284,7 +284,7 @@ vtss_rc vtss_cil_register_access_mode_set(struct vtss_state_s *vtss_state);
  * ================================================================= */
 
 /* State cookie */
-#define VTSS_STATE_COOKIE 0x53727910
+#define VTSS_STATE_COOKIE 0x53727910U
 
 /* State structure */
 typedef struct vtss_state_s {

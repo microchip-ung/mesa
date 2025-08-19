@@ -221,6 +221,7 @@ static vtss_rc vtss_ail_create(vtss_state_t *vtss_state, BOOL create_pre)
 
 vtss_rc vtss_inst_create(const vtss_inst_create_t *const create, vtss_inst_t *const inst)
 {
+    vtss_rc       rc = VTSS_RC_OK;
     vtss_state_t *vtss_state;
     vtss_arch_t   arch;
     VTSS_D("enter, sizeof(*vtss_state): %zu", sizeof(*vtss_state));
@@ -235,7 +236,7 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create, vtss_inst_t *co
     vtss_state->chip_count = 1U;
 
     // Create AIL, preprocessing
-    VTSS_RC(vtss_ail_create(vtss_state, 1));
+    VTSS_RC(vtss_ail_create(vtss_state, TRUE));
 
     // Create CIL
     switch (create->target) {
@@ -318,13 +319,17 @@ vtss_rc vtss_inst_create(const vtss_inst_create_t *const create, vtss_inst_t *co
         VTSS_RC(vtss_lan966x_inst_create(vtss_state));
         break;
 #endif
-    default: VTSS_E("unknown target: 0x%05x", create->target); return VTSS_RC_ERROR;
+    default:
+        VTSS_E("unknown target: 0x%05x", create->target);
+        rc = VTSS_RC_ERROR;
+        break;
     }
+    VTSS_RC(rc);
 
     vtss_state->arch = arch;
 
     // Create AIL, postprocessing
-    VTSS_RC(vtss_ail_create(vtss_state, 0));
+    VTSS_RC(vtss_ail_create(vtss_state, FALSE));
 
     /* Setup default instance */
     if (vtss_default_inst == NULL) {
@@ -480,18 +485,19 @@ vtss_rc vtss_spi_slave_init(const vtss_spi_slave_init_t *const conf)
         if_ctrl |= 0x02U;
     }
 
-    if_cfgstat = conf->padding & 0xfU;
+    if_cfgstat = conf->padding;
+    if_cfgstat &= 0xfU;
 
-    VTSS_RC(conf->reg_write(0, base_addr + 0, if_ctrl));
-    VTSS_RC(conf->reg_write(0, base_addr + 1, if_cfgstat));
+    VTSS_RC(conf->reg_write(0, base_addr + 0U, if_ctrl));
+    VTSS_RC(conf->reg_write(0, base_addr + 1U, if_cfgstat));
 
-    VTSS_RC(conf->reg_read(0, base_addr + 0, &value));
+    VTSS_RC(conf->reg_read(0, base_addr + 0U, &value));
     if (if_ctrl != value) {
         VTSS_E("Wrong if_ctrl 0x%08x |= 0x%08x", if_ctrl, value);
         return VTSS_RC_ERROR;
     }
 
-    VTSS_RC(conf->reg_read(0, base_addr + 1, &value));
+    VTSS_RC(conf->reg_read(0, base_addr + 1U, &value));
     if (if_cfgstat != (value & 0x0000000fU)) {
         VTSS_E("Wrong if_cfgstat 0x%08x |= 0x%08x", if_cfgstat, value);
         return VTSS_RC_ERROR;
@@ -572,109 +578,121 @@ vtss_rc vtss_trace_conf_set(const vtss_trace_group_t group, const vtss_trace_con
 
 const char *vtss_port_if_txt(vtss_port_interface_t if_type)
 {
+    const char *txt;
+
     switch (if_type) {
-    case VTSS_PORT_INTERFACE_NO_CONNECTION: return "N/C";
-    case VTSS_PORT_INTERFACE_LOOPBACK:      return "LOOPBACK";
-    case VTSS_PORT_INTERFACE_INTERNAL:      return "INTERNAL";
-    case VTSS_PORT_INTERFACE_MII:           return "MII";
-    case VTSS_PORT_INTERFACE_GMII:          return "GMII";
-    case VTSS_PORT_INTERFACE_RGMII:         return "RGMII";
-    case VTSS_PORT_INTERFACE_RGMII_ID:      return "RGMII_ID";
-    case VTSS_PORT_INTERFACE_RGMII_RXID:    return "RGMII_RXID";
-    case VTSS_PORT_INTERFACE_RGMII_TXID:    return "RGMII_TXID";
-    case VTSS_PORT_INTERFACE_TBI:           return "TBI";
-    case VTSS_PORT_INTERFACE_RTBI:          return "RTBI";
-    case VTSS_PORT_INTERFACE_SGMII:         return "SGMII";
-    case VTSS_PORT_INTERFACE_SGMII_2G5:     return "SGMII_2G5";
-    case VTSS_PORT_INTERFACE_SERDES:        return "SERDES";
-    case VTSS_PORT_INTERFACE_VAUI:          return "VAUI";
-    case VTSS_PORT_INTERFACE_100FX:         return "100FX";
-    case VTSS_PORT_INTERFACE_XAUI:          return "XAUI";
-    case VTSS_PORT_INTERFACE_RXAUI:         return "RXAUI";
-    case VTSS_PORT_INTERFACE_XGMII:         return "XGMII";
-    case VTSS_PORT_INTERFACE_SPI4:          return "SPI4";
-    case VTSS_PORT_INTERFACE_SGMII_CISCO:   return "SGMII_CISCO";
-    case VTSS_PORT_INTERFACE_QSGMII:        return "QSGMII";
-    case VTSS_PORT_INTERFACE_SFI:           return "SFI";
-    case VTSS_PORT_INTERFACE_USGMII:        return "USGMII";
-    case VTSS_PORT_INTERFACE_USXGMII:       return "USXGMII";
-    case VTSS_PORT_INTERFACE_QXGMII:        return "USX_QXGMII";
-    case VTSS_PORT_INTERFACE_DXGMII_10G:    return "DXGMII_10G";
-    case VTSS_PORT_INTERFACE_DXGMII_5G:     return "DXGMII_5G";
-    case VTSS_PORT_INTERFACE_CPU:           return "CPU";
-    case VTSS_PORT_INTERFACE_MASQUERADING:  return "MASQUERADING";
+    case VTSS_PORT_INTERFACE_NO_CONNECTION: txt = "N/C"; break;
+    case VTSS_PORT_INTERFACE_LOOPBACK:      txt = "LOOPBACK"; break;
+    case VTSS_PORT_INTERFACE_INTERNAL:      txt = "INTERNAL"; break;
+    case VTSS_PORT_INTERFACE_MII:           txt = "MII"; break;
+    case VTSS_PORT_INTERFACE_GMII:          txt = "GMII"; break;
+    case VTSS_PORT_INTERFACE_RGMII:         txt = "RGMII"; break;
+    case VTSS_PORT_INTERFACE_RGMII_ID:      txt = "RGMII_ID"; break;
+    case VTSS_PORT_INTERFACE_RGMII_RXID:    txt = "RGMII_RXID"; break;
+    case VTSS_PORT_INTERFACE_RGMII_TXID:    txt = "RGMII_TXID"; break;
+    case VTSS_PORT_INTERFACE_TBI:           txt = "TBI"; break;
+    case VTSS_PORT_INTERFACE_RTBI:          txt = "RTBI"; break;
+    case VTSS_PORT_INTERFACE_SGMII:         txt = "SGMII"; break;
+    case VTSS_PORT_INTERFACE_SGMII_2G5:     txt = "SGMII_2G5"; break;
+    case VTSS_PORT_INTERFACE_SERDES:        txt = "SERDES"; break;
+    case VTSS_PORT_INTERFACE_VAUI:          txt = "VAUI"; break;
+    case VTSS_PORT_INTERFACE_100FX:         txt = "100FX"; break;
+    case VTSS_PORT_INTERFACE_XAUI:          txt = "XAUI"; break;
+    case VTSS_PORT_INTERFACE_RXAUI:         txt = "RXAUI"; break;
+    case VTSS_PORT_INTERFACE_XGMII:         txt = "XGMII"; break;
+    case VTSS_PORT_INTERFACE_SPI4:          txt = "SPI4"; break;
+    case VTSS_PORT_INTERFACE_SGMII_CISCO:   txt = "SGMII_CISCO"; break;
+    case VTSS_PORT_INTERFACE_QSGMII:        txt = "QSGMII"; break;
+    case VTSS_PORT_INTERFACE_SFI:           txt = "SFI"; break;
+    case VTSS_PORT_INTERFACE_USGMII:        txt = "USGMII"; break;
+    case VTSS_PORT_INTERFACE_USXGMII:       txt = "USXGMII"; break;
+    case VTSS_PORT_INTERFACE_QXGMII:        txt = "USX_QXGMII"; break;
+    case VTSS_PORT_INTERFACE_DXGMII_10G:    txt = "DXGMII_10G"; break;
+    case VTSS_PORT_INTERFACE_DXGMII_5G:     txt = "DXGMII_5G"; break;
+    case VTSS_PORT_INTERFACE_CPU:           txt = "CPU"; break;
+    case VTSS_PORT_INTERFACE_MASQUERADING:  txt = "MASQUERADING"; break;
+    default:                                txt = "?   "; break;
     }
-    return "?   ";
+    return txt;
 }
 
 const char *vtss_port_spd_txt(vtss_port_speed_t speed)
 {
+    const char *txt;
+
     switch (speed) {
-    case VTSS_SPEED_UNDEFINED: return "Undefined";
-    case VTSS_SPEED_10M:       return "10M";
-    case VTSS_SPEED_100M:      return "100M";
-    case VTSS_SPEED_1G:        return "1G";
-    case VTSS_SPEED_2500M:     return "2G5";
-    case VTSS_SPEED_5G:        return "5G";
-    case VTSS_SPEED_10G:       return "10G";
-    case VTSS_SPEED_12G:       return "12G";
-    case VTSS_SPEED_25G:       return "25G";
-    case VTSS_SPEED_AUTO:      return "Auto";
+    case VTSS_SPEED_UNDEFINED: txt = "Undefined"; break;
+    case VTSS_SPEED_10M:       txt = "10M"; break;
+    case VTSS_SPEED_100M:      txt = "100M"; break;
+    case VTSS_SPEED_1G:        txt = "1G"; break;
+    case VTSS_SPEED_2500M:     txt = "2G5"; break;
+    case VTSS_SPEED_5G:        txt = "5G"; break;
+    case VTSS_SPEED_10G:       txt = "10G"; break;
+    case VTSS_SPEED_12G:       txt = "12G"; break;
+    case VTSS_SPEED_25G:       txt = "25G"; break;
+    case VTSS_SPEED_AUTO:      txt = "Auto"; break;
+    default:                   txt = "?   "; break;
     }
-    return "?   ";
+    return txt;
 }
 
 #if defined(VTSS_FEATURE_PORT_CONTROL)
 
 const char *vtss_serdes_if_txt(vtss_serdes_mode_t serdes)
 {
+    const char *txt;
+
     switch (serdes) {
-    case VTSS_SERDES_MODE_DISABLE:     return "Disabled";
-    case VTSS_SERDES_MODE_NONE:        return "None";
-    case VTSS_SERDES_MODE_XAUI_12G:    return "XAUI_12G";
-    case VTSS_SERDES_MODE_XAUI:        return "XAUI";
-    case VTSS_SERDES_MODE_RXAUI:       return "RXAUI";
-    case VTSS_SERDES_MODE_RXAUI_12G:   return "RXAUI_12G";
-    case VTSS_SERDES_MODE_2G5:         return "2G5";
-    case VTSS_SERDES_MODE_QSGMII:      return "QSGMII";
-    case VTSS_SERDES_MODE_SGMII:       return "SGMII";
-    case VTSS_SERDES_MODE_100FX:       return "100FX";
-    case VTSS_SERDES_MODE_1000BaseX:   return "1000BaseX";
-    case VTSS_SERDES_MODE_SFI:         return "SFI";
-    case VTSS_SERDES_MODE_SFI_SR:      return "SFI_SR";
-    case VTSS_SERDES_MODE_SFI_DAC:     return "SFI_DAC";
-    case VTSS_SERDES_MODE_SFI_ZR:      return "SFI_ZR";
-    case VTSS_SERDES_MODE_SFI_BP:      return "SFI_BP";
-    case VTSS_SERDES_MODE_SFI_B2B:     return "SFI_B2B";
-    case VTSS_SERDES_MODE_SFI_KR:      return "SFI_KR";
-    case VTSS_SERDES_MODE_SFI_PR_NONE: return "SFI_PR_NONE";
-    case VTSS_SERDES_MODE_IDLE:        return "IDLE";
-    case VTSS_SERDES_MODE_TEST_MODE:   return "TEST";
-    case VTSS_SERDES_MODE_USXGMII:     return "USXGMII";
-    case VTSS_SERDES_MODE_USGMII:      return "USGMII";
-    case VTSS_SERDES_MODE_QXGMII:      return "QXGMII";
-    case VTSS_SERDES_MODE_DXGMII_10G:  return "DXGMII_10G";
-    case VTSS_SERDES_MODE_DXGMII_5G:   return "DXGMII_5G";
+    case VTSS_SERDES_MODE_DISABLE:     txt = "Disabled"; break;
+    case VTSS_SERDES_MODE_NONE:        txt = "None"; break;
+    case VTSS_SERDES_MODE_XAUI_12G:    txt = "XAUI_12G"; break;
+    case VTSS_SERDES_MODE_XAUI:        txt = "XAUI"; break;
+    case VTSS_SERDES_MODE_RXAUI:       txt = "RXAUI"; break;
+    case VTSS_SERDES_MODE_RXAUI_12G:   txt = "RXAUI_12G"; break;
+    case VTSS_SERDES_MODE_2G5:         txt = "2G5"; break;
+    case VTSS_SERDES_MODE_QSGMII:      txt = "QSGMII"; break;
+    case VTSS_SERDES_MODE_SGMII:       txt = "SGMII"; break;
+    case VTSS_SERDES_MODE_100FX:       txt = "100FX"; break;
+    case VTSS_SERDES_MODE_1000BaseX:   txt = "1000BaseX"; break;
+    case VTSS_SERDES_MODE_SFI:         txt = "SFI"; break;
+    case VTSS_SERDES_MODE_SFI_SR:      txt = "SFI_SR"; break;
+    case VTSS_SERDES_MODE_SFI_DAC:     txt = "SFI_DAC"; break;
+    case VTSS_SERDES_MODE_SFI_ZR:      txt = "SFI_ZR"; break;
+    case VTSS_SERDES_MODE_SFI_BP:      txt = "SFI_BP"; break;
+    case VTSS_SERDES_MODE_SFI_B2B:     txt = "SFI_B2B"; break;
+    case VTSS_SERDES_MODE_SFI_KR:      txt = "SFI_KR"; break;
+    case VTSS_SERDES_MODE_SFI_PR_NONE: txt = "SFI_PR_NONE"; break;
+    case VTSS_SERDES_MODE_IDLE:        txt = "IDLE"; break;
+    case VTSS_SERDES_MODE_TEST_MODE:   txt = "TEST"; break;
+    case VTSS_SERDES_MODE_USXGMII:     txt = "USXGMII"; break;
+    case VTSS_SERDES_MODE_USGMII:      txt = "USGMII"; break;
+    case VTSS_SERDES_MODE_QXGMII:      txt = "QXGMII"; break;
+    case VTSS_SERDES_MODE_DXGMII_10G:  txt = "DXGMII_10G"; break;
+    case VTSS_SERDES_MODE_DXGMII_5G:   txt = "DXGMII_5G"; break;
+    default:                           txt = "?   "; break;
     }
-    return "?   ";
+    return txt;
 }
 
 const char *vtss_media_type_if_txt(vtss_sd10g_media_type_t mt)
 {
+    const char *txt;
+
     switch (mt) {
-    case VTSS_SD10G_MEDIA_SR:      return "SR";
-    case VTSS_SD10G_MEDIA_ZR:      return "ZR";
-    case VTSS_SD10G_MEDIA_DAC:     return "DAC";
-    case VTSS_SD10G_MEDIA_DAC_1M:  return "DAC1m";
-    case VTSS_SD10G_MEDIA_DAC_2M:  return "DAC2m";
-    case VTSS_SD10G_MEDIA_DAC_3M:  return "DAC3m";
-    case VTSS_SD10G_MEDIA_DAC_5M:  return "DAC5m";
-    case VTSS_SD10G_MEDIA_BP:      return "BP";
-    case VTSS_SD10G_MEDIA_B2B:     return "B2B";
-    case VTSS_SD10G_MEDIA_10G_KR:  return "KR";
-    case VTSS_SD10G_MEDIA_PR_NONE: return "None";
+    case VTSS_SD10G_MEDIA_SR:      txt = "SR"; break;
+    case VTSS_SD10G_MEDIA_ZR:      txt = "ZR"; break;
+    case VTSS_SD10G_MEDIA_DAC:     txt = "DAC"; break;
+    case VTSS_SD10G_MEDIA_DAC_1M:  txt = "DAC1m"; break;
+    case VTSS_SD10G_MEDIA_DAC_2M:  txt = "DAC2m"; break;
+    case VTSS_SD10G_MEDIA_DAC_3M:  txt = "DAC3m"; break;
+    case VTSS_SD10G_MEDIA_DAC_5M:  txt = "DAC5m"; break;
+    case VTSS_SD10G_MEDIA_BP:      txt = "BP"; break;
+    case VTSS_SD10G_MEDIA_B2B:     txt = "B2B"; break;
+    case VTSS_SD10G_MEDIA_10G_KR:  txt = "KR"; break;
+    case VTSS_SD10G_MEDIA_PR_NONE: txt = "None"; break;
+    default:                       txt = "?   "; break;
     }
-    return "?   ";
+    return txt;
 }
 
 #endif
@@ -699,7 +717,7 @@ const char *vtss_cpu_masquerade_txt(vtss_cpu_masquerade_t cpu)
  * If an external ns read function must be called, this variable holds a pointer
  * to the function, otherwise it is NULL.
  */
-static tod_get_ns_cnt_cb_t hw_get_ns_callout = 0;
+static tod_get_ns_cnt_cb_t hw_get_ns_callout = NULL;
 
 void vtss_tod_set_ns_cnt_cb(tod_get_ns_cnt_cb_t cb) { hw_get_ns_callout = cb; }
 
@@ -896,7 +914,7 @@ vtss_rc vtss_restart_conf_end(const vtss_inst_t inst)
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
         if (vtss_state->warm_start_cur) {
             /* Leave warm start mode */
-            vtss_state->warm_start_cur = 0;
+            vtss_state->warm_start_cur = FALSE;
 
             /* Apply configuration */
             VTSS_I("warm start sync start");
@@ -952,7 +970,7 @@ vtss_rc vtss_restart_conf_set(const vtss_inst_t inst, const vtss_restart_t resta
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK &&
-        vtss_state->warm_start_cur == 0) {
+        vtss_state->warm_start_cur == FALSE) {
         rc = vtss_restart_cur_set(vtss_state, restart);
     }
     VTSS_EXIT();
@@ -970,7 +988,7 @@ vtss_rc vtss_debug_info_get(vtss_debug_info_t *const info)
     VTSS_MEMSET(info, 0, sizeof(*info));
     info->chip_no = VTSS_CHIP_NO_ALL;
     for (port_no = VTSS_PORT_NO_START; port_no < VTSS_PORT_NO_END; port_no++) {
-        info->port_list[port_no] = 1;
+        info->port_list[port_no] = TRUE;
     }
     return VTSS_RC_OK;
 }
@@ -981,13 +999,13 @@ vtss_rc vtss_debug_info_print(const vtss_inst_t              inst,
 {
     vtss_rc rc;
     int     i = 0, j = 0, len = (1024 * 1024);
-    char    c, *buf = VTSS_OS_MALLOC(len, VTSS_MEM_FLAGS_NONE);
+    char    c, *buf = VTSS_OS_MALLOC((size_t)len, VTSS_MEM_FLAGS_NONE);
 
     if (buf == NULL) {
         return VTSS_RC_ERROR;
     }
 
-    *buf = 0;
+    *buf = '\0';
     len--;
     rc = vtss_debug_info_print_buf(inst, info, len, buf);
     // Print in chunks for backward compatibility
@@ -995,22 +1013,24 @@ vtss_rc vtss_debug_info_print(const vtss_inst_t              inst,
         c = buf[i++];
         if (c == '\0') {
             VTSS_ENTER();
-            prntf(buf + j);
+            (void)prntf(buf + j);
             VTSS_EXIT();
             break;
         } else if (i == (j + 128)) {
             c = buf[i];
             buf[i] = '\0';
             VTSS_ENTER();
-            prntf(buf + j);
+            (void)prntf(buf + j);
             VTSS_EXIT();
             buf[i] = c;
             j = i;
+        } else {
+            // Empty on purpose
         }
     }
     if (i >= len) {
         VTSS_ENTER();
-        prntf("\n--- Truncated due to buffer size ---\n");
+        (void)prntf("\n--- Truncated due to buffer size ---\n");
         VTSS_EXIT();
     }
     VTSS_OS_FREE(buf, VTSS_MEM_FLAGS_NONE);
