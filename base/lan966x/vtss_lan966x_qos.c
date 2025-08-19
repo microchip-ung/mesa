@@ -1891,6 +1891,7 @@ vtss_rc vtss_cil_qos_fp_port_conf_set(vtss_state_t *vtss_state, const vtss_port_
     REG_WR(QSYS_PREEMPT_CFG(port),
            QSYS_PREEMPT_CFG_P_QUEUES(mask) | QSYS_PREEMPT_CFG_STRICT_IPG(mask ? 0 : 2));
 
+    (void)lan966x_qos_tas_frag_size_update(vtss_state, port_no);
     return VTSS_RC_OK;
 }
 
