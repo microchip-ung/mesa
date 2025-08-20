@@ -143,13 +143,11 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
 
     if ((tPoe_init_params->poe_type_from_tag == 1) || (tPoe_init_params->poe_type_from_tag == 2)) {
         poe_default_parameters.eMeba_poe_firmware_type = tPoe_init_params->poe_type_from_tag;
-        printf("\n\rpoe firmware type from tag=%d\n\r",
-               poe_default_parameters.eMeba_poe_firmware_type);
+        T_I(inst, "poe firmware type from tag=%d", poe_default_parameters.eMeba_poe_firmware_type);
     } else {
         // poe firmware type - TYPE_PREBT , GEN6_BT
         // poe_default_parameters.eMeba_poe_firmware_type = PDS408G_POE_FIRMWARE_TYPE_DEFAULT;
-        printf("\n\rpoe firmware type default=%d\n\r",
-               poe_default_parameters.eMeba_poe_firmware_type);
+        T_I(inst, "poe firmware type default=%d", poe_default_parameters.eMeba_poe_firmware_type);
     }
 
     switch (inst->props.board_type) {
@@ -172,6 +170,13 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
                 tPoe_init_params->eMeba_poe_firmware_type;
         }
 
+        inst->iface.debug(
+            MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+            "power supplies using: def_w=%d ,max_w=%d ,system_pwr_usage_w=%d, eMeba_poe_firmware_type=%d",
+            pds408g_power_supplies->def_w, pds408g_power_supplies->max_w,
+            pds408g_power_supplies->system_pwr_usage_w,
+            poe_default_parameters.eMeba_poe_firmware_type);
+
         if (poe_default_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
             // overide tMeba_poe_init_params params if using H file parameters
             if (tPoe_init_params->use_poe_static_parameters) {
@@ -179,11 +184,8 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
                     sizeof(pds408g_pd69200_4pairs_port_map) / sizeof(meba_poe_port_properties_t);
             }
 
-            inst->iface.debug(
-                MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                "using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                poe_default_parameters.max_poe_ports, pds408g_power_supplies->max_w,
-                poe_default_parameters.eMeba_poe_firmware_type);
+            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+                              "using: max_poe_ports=%d", poe_default_parameters.max_poe_ports);
 
             caracal_pd69200_system.controllers[0].index = 0;
             meba_pd_bt_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00bt",
@@ -209,11 +211,8 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
                     sizeof(pds408g_pd69200_4pairs_port_map) / sizeof(meba_poe_port_properties_t);
             }
 
-            inst->iface.debug(
-                MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                "using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                poe_default_parameters.max_poe_ports, pds408g_power_supplies->max_w,
-                poe_default_parameters.eMeba_poe_firmware_type);
+            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+                              "using: max_poe_ports=%d", poe_default_parameters.max_poe_ports);
 
             caracal_pd69200_system.controllers[0].index = 0;
             meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00at",
@@ -254,6 +253,13 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
                 tPoe_init_params->eMeba_poe_firmware_type;
         }
 
+        inst->iface.debug(
+            MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+            "power supplies using: def_w=%d ,max_w=%d ,system_pwr_usage_w=%d, eMeba_poe_firmware_type=%d",
+            caracal_power_supplies->def_w, caracal_power_supplies->max_w,
+            caracal_power_supplies->system_pwr_usage_w,
+            poe_default_parameters.eMeba_poe_firmware_type);
+
         if (poe_default_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
             // overide tMeba_poe_init_params params if using H file parameters
             if (tPoe_init_params->use_poe_static_parameters) {
@@ -261,11 +267,8 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
                     sizeof(caracal_pd69200_4pairs_port_map) / sizeof(meba_poe_port_properties_t);
             }
 
-            inst->iface.debug(
-                MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                "using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                poe_default_parameters.max_poe_ports, caracal_power_supplies->max_w,
-                poe_default_parameters.eMeba_poe_firmware_type);
+            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+                              "using: max_poe_ports=%d", poe_default_parameters.max_poe_ports);
 
             caracal_pd69200_system.controllers[0].index = 0;
             meba_pd_bt_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00bt",
@@ -291,11 +294,8 @@ mesa_rc meba_poe_caracal_system_initialize(meba_inst_t             inst,
                     sizeof(caracal_pd69200_2pairs_port_map) / sizeof(meba_poe_port_properties_t);
             }
 
-            inst->iface.debug(
-                MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                "using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                poe_default_parameters.max_poe_ports, caracal_power_supplies->max_w,
-                poe_default_parameters.eMeba_poe_firmware_type);
+            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+                              "using: max_poe_ports=%d", poe_default_parameters.max_poe_ports);
 
             caracal_pd69200_system.controllers[0].index = 0;
             meba_pd69200_driver_init(&caracal_pd69200_system.controllers[0], "pd69x00at",

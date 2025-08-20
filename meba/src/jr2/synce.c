@@ -1314,7 +1314,8 @@ mesa_rc meba_synce_graph_get(meba_inst_t inst, const meba_synce_graph_t **const 
             synce_graph.attr_length = MEBA_ARRSZ(attr_serval2_board);
         }
     } else {
-        printf("ERROR: Board type not yet implemented.\n");
+        inst->iface.debug(MEBA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__,
+                          "ERROR: Board type not yet implemented.");
         synce_graph.graph_length = 0;
         synce_graph.graph = NULL;
         synce_graph.attr = NULL;

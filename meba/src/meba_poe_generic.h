@@ -6,9 +6,10 @@
 
 #include <stdio.h>
 #include "microchip/ethernet/board/api.h"
+#include "meba_generic.h"
 
-#define MEBA_POE_ONE_CONTROLLER  0
-#define MEBA_POE_TWO_CONTROLLERS 1
+#define MEBA_POE_ONE_CONTROLLER  1
+#define MEBA_POE_TWO_CONTROLLERS 2
 
 #define MEBA_POE_FIRMWARE_TYPE_NONE       0
 #define MEBA_POE_FIRMWARE_TYPE_GEN6_PREBT 1

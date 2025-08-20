@@ -138,11 +138,11 @@ meba_poe_port_properties_t ocelot_pd69200_4pairs_port_map[] = {
 
 //--- special legacy operation modes (applicable for 60w and 90w) ---//
 
-// Lagacy + PoH 45/90W + BT. No demotion in class 4 or 4,4
+// Legacy + PoH 45/90W + BT. No demotion in class 4 or 4,4
 #define OCELOT_BT_OPERATION_MODE_LEGACY_90W_POH_DEFAULT 0x25
-// Lagacy + IGNORE_PD_CLASS 60W
+// Legacy + IGNORE_PD_CLASS 60W
 #define OCELOT_BT_OPERATION_MODE_LEGACY_60W_IGNORE_PD_CLASS_DEFAULT 0x21
-// Lagacy + IGNORE_PD_CLASS 90W
+// Legacy + IGNORE_PD_CLASS 90W
 #define OCELOT_BT_OPERATION_MODE_LEGACY_90W_IGNORE_PD_CLASS_DEFAULT 0x26
 
 //-- BT individual masks --//

@@ -145,20 +145,20 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
 
     if ((tPoe_init_params->poe_type_from_tag >= 1) && (tPoe_init_params->poe_type_from_tag <= 2)) {
         poe_default_parameters.eMeba_poe_firmware_type = tPoe_init_params->poe_type_from_tag;
-        printf("\n\rpoe firmware type from tag=%d\n\r", tPoe_init_params->eMeba_poe_firmware_type);
+        T_I(inst, "poe firmware type from tag=%d\n\r", tPoe_init_params->eMeba_poe_firmware_type);
     } else {
         // poe firmware type - TYPE_PREBT , GEN6_BT
         poe_default_parameters.eMeba_poe_firmware_type = JR2_POE_FIRMWARE_TYPE_DEFAULT;
-        printf("\n\rpoe firmware type default=%d\n\r", tPoe_init_params->eMeba_poe_firmware_type);
+        T_I(inst, "poe firmware type default=%d\n\r", tPoe_init_params->eMeba_poe_firmware_type);
     }
 
     if ((tPoe_init_params->poe_controllers_count_from_tag == 1) ||
         (tPoe_init_params->poe_controllers_count_from_tag == 2)) {
         jr2_pd69200_system.controller_count = tPoe_init_params->poe_controllers_count_from_tag;
-        printf("controllers count from tag=%d\n\r", jr2_pd69200_system.controller_count);
+        T_I(inst, "controllers count from tag=%d\n\r", jr2_pd69200_system.controller_count);
     } else {
         jr2_pd69200_system.controller_count = JR2_POE_CONTROLLERS_COUNT_DEFAULT;
-        printf("controllers count default=%d\n\r", jr2_pd69200_system.controller_count);
+        T_I(inst, "controllers count default=%d\n\r", jr2_pd69200_system.controller_count);
     }
 
     jr2_pd69200_system.controllers =
@@ -174,6 +174,12 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
 
     set_jr2_parameters(poe_default_parameters.eMeba_poe_firmware_type);
 
+    inst->iface.debug(
+        MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+        "power supplies using: def_w=%d ,max_w=%d ,system_pwr_usage_w=%d, eMeba_poe_firmware_type=%d",
+        jr2_power_supplies->def_w, jr2_power_supplies->max_w,
+        jr2_power_supplies->system_pwr_usage_w, poe_default_parameters.eMeba_poe_firmware_type);
+
     if (poe_default_parameters.eMeba_poe_firmware_type == MEBA_POE_FIRMWARE_TYPE_GEN6_BT) {
         // overide tMeba_poe_init_params params if using H file parameters
         if (tPoe_init_params->use_poe_static_parameters) {
@@ -181,11 +187,8 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
                 sizeof(jr2_pd69200_4pairs_port_map_1) / sizeof(meba_poe_port_properties_t);
         }
 
-        inst->iface.debug(
-            MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-            "dev1 using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-            poe_default_parameters.max_poe_ports, jr2_power_supplies->max_w,
-            poe_default_parameters.eMeba_poe_firmware_type);
+        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, "using: max_poe_ports=%d",
+                          poe_default_parameters.max_poe_ports);
 
         jr2_pd69200_system.controllers[0].index = 0;
         meba_pd_bt_driver_init(&jr2_pd69200_system.controllers[0], "pd69x00bt",
@@ -210,11 +213,8 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
                     sizeof(jr2_pd69200_4pairs_port_map_2) / sizeof(meba_poe_port_properties_t);
             }
 
-            inst->iface.debug(
-                MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                "dev2 using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                poe_default_parameters.max_poe_ports, jr2_power_supplies->max_w,
-                poe_default_parameters.eMeba_poe_firmware_type);
+            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+                              "using: max_poe_ports=%d", poe_default_parameters.max_poe_ports);
 
             jr2_pd69200_system.controllers[1].index = 1;
             meba_pd_bt_driver_init(&jr2_pd69200_system.controllers[1], "pd69x00bt-2",
@@ -240,11 +240,8 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
                 sizeof(jr2_pd69200_2pairs_port_map_1) / sizeof(meba_poe_port_properties_t);
         }
 
-        inst->iface
-            .debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                   "using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                   poe_default_parameters.max_poe_ports, jr2_power_supplies->max_w,
-                   poe_default_parameters.eMeba_poe_firmware_type);
+        inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, "using: max_poe_ports=%d",
+                          poe_default_parameters.max_poe_ports);
 
         jr2_pd69200_system.controllers[0].index = 0;
         meba_pd69200_driver_init(&jr2_pd69200_system.controllers[0], "pd69x00at",
@@ -267,11 +264,8 @@ mesa_rc meba_poe_jr2_system_initialize(meba_inst_t inst, meba_poe_init_params_t 
                     sizeof(jr2_pd69200_2pairs_port_map_2) / sizeof(meba_poe_port_properties_t);
             }
 
-            inst->iface.debug(
-                MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
-                "dev2 using: max_poe_ports=%d ,power_supply_max_power_w=%d ,eMeba_poe_firmware_type=%d",
-                poe_default_parameters.max_poe_ports, jr2_power_supplies->max_w,
-                poe_default_parameters.eMeba_poe_firmware_type);
+            inst->iface.debug(MEBA_TRACE_LVL_INFO, __FUNCTION__, __LINE__,
+                              "using: max_poe_ports=%d", poe_default_parameters.max_poe_ports);
 
             jr2_pd69200_system.controllers[1].index = 1;
             meba_pd69200_driver_init(&jr2_pd69200_system.controllers[1], "pd69x00at-2",
