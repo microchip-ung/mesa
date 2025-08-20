@@ -1452,6 +1452,7 @@ vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *table,
                            vtss_vcap_vr_t              *vr);
 vtss_rc vtss_vcap_range_commit(struct vtss_state_s         *vtss_state,
                                vtss_vcap_range_chk_table_t *range_new);
+int     vtss_vcap_range_cmp(vtss_vcap_range_chk_table_t *a, vtss_vcap_range_chk_table_t *b);
 u32     vtss_vcap_key_rule_count(vtss_vcap_key_size_t key_size);
 char   *vtss_vcap_id_txt(struct vtss_state_s *vtss_state, vtss_vcap_id_t id);
 vtss_rc vtss_vcap_lookup(struct vtss_state_s *vtss_state,

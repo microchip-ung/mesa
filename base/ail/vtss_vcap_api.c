@@ -351,10 +351,28 @@ vtss_rc vtss_vcap_vr_alloc(vtss_vcap_range_chk_table_t *table,
     return vtss_vcap_range_alloc(table, range, type, vr->vr.r.low, vr->vr.r.high);
 }
 
+int vtss_vcap_range_cmp(vtss_vcap_range_chk_table_t *a, vtss_vcap_range_chk_table_t *b)
+{
+    u32                    i;
+    vtss_vcap_range_chk_t *c, *d;
+
+    if (a->max != b->max) {
+        return 1;
+    }
+    for (i = 0; i < a->max; i++) {
+        c = &a->entry[i];
+        d = &b->entry[i];
+        if (c->type != d->type || c->count != d->count || c->min != d->min || c->max != d->max) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 vtss_rc vtss_vcap_range_commit(struct vtss_state_s         *vtss_state,
                                vtss_vcap_range_chk_table_t *range_new)
 {
-    if (VTSS_MEMCMP(&vtss_state->vcap.range, range_new, sizeof(*range_new)) != 0) {
+    if (vtss_vcap_range_cmp(&vtss_state->vcap.range, range_new) != 0) {
         /* The temporary working copy has changed - Save it and commit */
         vtss_state->vcap.range = *range_new;
         return vtss_cil_vcap_range_commit(vtss_state);

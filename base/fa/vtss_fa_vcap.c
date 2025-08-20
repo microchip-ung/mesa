@@ -786,7 +786,7 @@ static vtss_rc fa_vcap_range_commit(vtss_state_t                *vtss_state,
     vtss_vcap_range_chk_table_t *table = fa_vcap_range_get(vtss_state, vcap_type);
 
     if (new_table != NULL) {
-        if (VTSS_MEMCMP(table, new_table, sizeof(*table)) == 0) {
+        if (vtss_vcap_range_cmp(table, new_table) == 0) {
             /* Table unchanged */
             return VTSS_RC_OK;
         }
