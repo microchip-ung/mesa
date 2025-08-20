@@ -256,7 +256,7 @@ void    vtss_fa_reg_error(const char *file, int line, char *txt);
 // @param gc  - group repl count
 // @param rc  - register repl count
 
-static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, u32 rc)
+static inline u32 fa_ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, u32 rc)
 {
 #if VTSS_OPT_TRACE
     if ((gi >= gc) || (ri >= rc)) {
@@ -267,7 +267,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
     return (t + (o) + ((gi) * (gw)) + (ri) + (rw));
 }
 
-#define IOREG(t, o, gi, gw, ri, rw, gc, rc) __ioreg(t, o, gi, gw, ri, rw, gc, rc)
+#define IOREG(t, o, gi, gw, ri, rw, gc, rc) fa_ioreg(t, o, gi, gw, ri, rw, gc, rc)
 
 #define REG_ADDR(p) IOREG(p)
 
@@ -275,7 +275,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 #if VTSS_OPT_TRACE
 #define REG_RD_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
     do {                                                                                           \
-        u32     o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                      \
+        u32     o = fa_ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                     \
         vtss_rc __rc = vtss_fa_rd(vtss_state, o, value);                                           \
         if (__rc != VTSS_RC_OK)                                                                    \
             return __rc;                                                                           \
@@ -283,7 +283,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 #else
 #define REG_RD_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
     do {                                                                                           \
-        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                          \
+        u32 o = fa_ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                         \
         (void)vtss_fa_rd(vtss_state, o, value);                                                    \
     } while (0 == 1)
 #endif
@@ -292,7 +292,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 #if VTSS_OPT_TRACE
 #define REG_WR_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
     do {                                                                                           \
-        u32     o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                      \
+        u32     o = fa_ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                     \
         vtss_rc __rc = vtss_fa_wr(vtss_state, o, value);                                           \
         if (__rc != VTSS_RC_OK)                                                                    \
             return __rc;                                                                           \
@@ -300,7 +300,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 #else
 #define REG_WR_(tgt, off, gr, gw, r, ro, gc, rc, value)                                            \
     do {                                                                                           \
-        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                          \
+        u32 o = fa_ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                         \
         (void)vtss_fa_wr(vtss_state, o, value);                                                    \
     } while (0 == 1)
 #endif
@@ -309,7 +309,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 #if VTSS_OPT_TRACE
 #define REG_WRM_(tgt, off, gr, gw, r, ro, gc, rc, value, mask)                                     \
     do {                                                                                           \
-        u32     o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                      \
+        u32     o = fa_ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                     \
         vtss_rc __rc = vtss_fa_wrm(vtss_state, o, value, mask);                                    \
         if (__rc != VTSS_RC_OK)                                                                    \
             return __rc;                                                                           \
@@ -317,7 +317,7 @@ static inline u32 __ioreg(u32 t, u32 o, u32 gi, u32 gw, u32 ri, u32 rw, u32 gc, 
 #else
 #define REG_WRM_(tgt, off, gr, gw, r, ro, gc, rc, value, mask)                                     \
     do {                                                                                           \
-        u32 o = __ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                          \
+        u32 o = fa_ioreg(tgt, off, gr, gw, r, ro, gc, rc);                                         \
         (void)vtss_fa_wrm(vtss_state, o, value, mask);                                             \
     } while (0 == 1)
 #endif
@@ -536,26 +536,27 @@ vtss_rc lk_port_masquerading_set(vtss_state_t *vtss_state);
 #endif
 
 /* Port functions for index to address target */
-u32     vtss_port_dev_index(vtss_state_t *vtss_state, u32 port);
-BOOL    fla_port_is_2G5(vtss_state_t *vtss_state, u32 port);
-BOOL    fla_port_is_5G(vtss_state_t *vtss_state, u32 port);
-BOOL    fla_port_is_10G(vtss_state_t *vtss_state, u32 port);
-BOOL    fla_port_is_25G(vtss_state_t *vtss_state, u32 port);
-u32     vtss_to_dev2g5(vtss_state_t *vtss_state, u32 port);
-u32     vtss_to_dev5g(vtss_state_t *vtss_state, u32 port);
-u32     vtss_to_dev10g(vtss_state_t *vtss_state, u32 port);
-u32     vtss_to_sd10g_lane(vtss_state_t *vtss_state, u32 indx);
-u32     vtss_to_sd_cmu(vtss_state_t *vtss_state, u32 indx);
-u32     vtss_to_sd_cmu_cfg(vtss_state_t *vtss_state, u32 indx);
-u32     vtss_to_sd_lane(vtss_state_t *vtss_state, u32 indx);
-u32     vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no);
-u32     vtss_to_sd6g_lane(vtss_state_t *vtss_state, u32 indx);
-u32     vtss_to_dev25g(vtss_state_t *vtss_state, u32 port);
-u32     vtss_to_sd25g_lane(vtss_state_t *vtss_state, u32 indx);
-vtss_rc vtss_fa_sd25g_init(vtss_state_t *vtss_state, u32 sd_id);
-u32     vtss_to_pcs5g(vtss_state_t *vtss_state, u32 port);
-u32     vtss_to_pcs10g(vtss_state_t *vtss_state, u32 port);
-u32     vtss_to_pcs25g(vtss_state_t *vtss_state, u32 port);
+u32  vtss_port_dev_index(vtss_state_t *vtss_state, u32 port);
+BOOL fla_port_is_2G5(vtss_state_t *vtss_state, u32 port);
+BOOL fla_port_is_5G(vtss_state_t *vtss_state, u32 port);
+BOOL fla_port_is_10G(vtss_state_t *vtss_state, u32 port);
+BOOL fla_port_is_25G(vtss_state_t *vtss_state, u32 port);
+u32  vtss_to_dev2g5(vtss_state_t *vtss_state, u32 port);
+u32  vtss_to_dev5g(vtss_state_t *vtss_state, u32 port);
+u32  vtss_to_dev10g(vtss_state_t *vtss_state, u32 port);
+u32  vtss_to_sd10g_lane(vtss_state_t *vtss_state, u32 indx);
+u32  vtss_to_sd_cmu(vtss_state_t *vtss_state, u32 indx);
+u32  vtss_to_sd_cmu_cfg(vtss_state_t *vtss_state, u32 indx);
+u32  vtss_to_sd_lane(vtss_state_t *vtss_state, u32 indx);
+u32  vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no);
+u32  vtss_to_sd6g_lane(vtss_state_t *vtss_state, u32 indx);
+u32  vtss_to_dev25g(vtss_state_t *vtss_state, u32 port);
+#if defined(VTSS_FEATURE_SD_25G)
+u32 vtss_to_sd25g_lane(vtss_state_t *vtss_state, u32 indx);
+#endif
+u32 vtss_to_pcs5g(vtss_state_t *vtss_state, u32 port);
+u32 vtss_to_pcs10g(vtss_state_t *vtss_state, u32 port);
+u32 vtss_to_pcs25g(vtss_state_t *vtss_state, u32 port);
 
 /* Serdes functions */
 #define FA_SERDES_TYPE_UNKNOWN 0U
@@ -573,9 +574,7 @@ vtss_rc vtss_fa_cmu_cfg_wrm(vtss_state_t *vtss_state, u32 cmu, u32 value, u32 ma
 u32     vtss_fa_sd10g28_get_cmu(vtss_state_t *vtss_state, u8 cmu_type, vtss_port_no_t port_no);
 u32     vtss_fa_port2sd_indx(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc vtss_fa_serdes_init(vtss_state_t *vtss_state);
-vtss_rc vtss_fa_cmu_init(vtss_state_t *vtss_state);
-vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num);
-vtss_rc vtss_laguna_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_num);
+vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask);
 vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
                              lmu_ss_t                      *ss,
                              const vtss_debug_info_t *const info,
@@ -617,7 +616,6 @@ vtss_rc vtss_fa_misc_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_misc_debug_print(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);
-vtss_rc vtss_fa_chip_id_get(vtss_state_t *vtss_state, vtss_chip_id_t *const chip_id);
 vtss_rc vtss_fa_gpio_mode(vtss_state_t          *vtss_state,
                           const vtss_chip_no_t   chip_no,
                           const vtss_gpio_no_t   gpio_no,
@@ -628,9 +626,6 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss);
 u32     vtss_get_fifo_size(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force);
 vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state);
-#if defined(VTSS_SDX_CNT)
-vtss_rc vtss_fa_isdx_update(vtss_state_t *vtss_state, vtss_sdx_entry_t *sdx);
-#endif
 #if defined(VTSS_EVC_STAT_CNT)
 vtss_rc vtss_fa_sdx_counters_update(vtss_state_t              *vtss_state,
                                     vtss_stat_idx_t           *stat_idx,
@@ -644,10 +639,12 @@ BOOL fa_is_high_speed_device(vtss_state_t *vtss_state, vtss_port_no_t port_no);
 vtss_rc fa_share_config(vtss_state_t *vtss_state, u32 share, u32 percent);
 #if defined(VTSS_FEATURE_QOS)
 vtss_rc vtss_fa_qos_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
+#if defined(VTSS_FEATURE_QOS_OT) || defined(VTSS_FEATURE_HQOS)
 vtss_rc vtss_fa_qos_se_queue_shaper_conf_set(vtss_state_t        *vtss_state,
                                              const vtss_port_no_t port_no,
                                              u32                  se,
                                              const vtss_shaper_t *shapers);
+#endif
 vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t        *vtss_state,
                                     const vtss_shaper_t *shaper,
                                     u32                  layer,
@@ -666,7 +663,9 @@ vtss_rc vtss_fa_policer_conf_set(vtss_state_t            *vtss_state,
                                  u32                      lb_set_idx,
                                  vtss_dlb_policer_conf_t *conf);
 #endif
-u32     vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag);
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
+u32 vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag);
+#endif
 vtss_rc vtss_fa_qos_debug_print(vtss_state_t                  *vtss_state,
                                 lmu_ss_t                      *ss,
                                 const vtss_debug_info_t *const info);
@@ -709,11 +708,6 @@ vtss_rc vtss_fa_packet_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_packet_debug_print(vtss_state_t                  *vtss_state,
                                    lmu_ss_t                      *ss,
                                    const vtss_debug_info_t *const info);
-
-vtss_rc vtss_fa_l2cp_conf_set(vtss_state_t        *vtss_state,
-                              u32                  profile,
-                              u32                  l2cp,
-                              vtss_fa_l2cp_conf_t *conf);
 
 #if defined(VTSS_FEATURE_AFI_SWC)
 vtss_rc vtss_fa_afi_debug_print(vtss_state_t                  *vtss_state,
@@ -770,20 +764,12 @@ vtss_rc vtss_fa_debug_lpm(vtss_state_t                  *vtss_state,
                           const vtss_debug_info_t *const info);
 #endif /* VTSS_FEATURE_VCAP */
 
-void fla_init_regs(vtss_state_t *vtss_state, BOOL fa);
-void fla_init_const(vtss_state_t *vtss_state, BOOL fa);
-
 #if defined(VTSS_FEATURE_TIMESTAMP)
 /* Timestamp functions */
 vtss_rc vtss_fa_ts_init(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_ts_debug_print(vtss_state_t                  *vtss_state,
                                lmu_ss_t                      *ss,
                                const vtss_debug_info_t *const info);
-vtss_rc vtss_timestampSub(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_sub);
-vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano);
-vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano);
-BOOL    vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2);
-
 #endif /* VTSS_FEATURE_TIMESTAMP */
 
 #if defined(VTSS_FEATURE_VOP)

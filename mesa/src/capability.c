@@ -663,7 +663,7 @@ uint32_t mesa_capability(mesa_inst_t inst, mesa_cap_t cap)
 #endif
         break;
 
-    case MESA_CAP_L2_AGGR_CNT: c = (VTSS_PORTS / 2); break;
+    case MESA_CAP_L2_AGGR_CNT: c = (VTSS_PORTS / 2U); break;
 
     case MESA_CAP_L2_PVLAN_CNT: c = VTSS_PORTS; break;
 

@@ -21,6 +21,7 @@
 #include <vtss/api/options.h> // To get the ARCH define
 #if defined(VTSS_ARCH_SPARX5) || defined(VTSS_ARCH_LAN969X)
 #include "vtss_fa_inc.h"
+#include "vtss_fa_sd10g28_setup.h"
 
 vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask)
 {
@@ -35,12 +36,12 @@ vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask)
     }
 
     for (cmu_num = 0U; cmu_num < RT_CMU_CNT; cmu_num++) {
-        if (!(VTSS_BIT(cmu_num) & cmu_mask)) {
+        if ((VTSS_BIT(cmu_num) & cmu_mask) == 0U) {
             continue;
         }
         cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
 
-        if (cmu_num == 1U || cmu_num == 4U || cmu_num == 7U || cmu_num == 10U || cmu_num == 13U) {
+        if ((cmu_num % 3U) == 1U) {
             spd10g = 0U;
         }
 
@@ -124,7 +125,7 @@ vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask)
     VTSS_MSLEEP(1);
 
     for (cmu_num = 0U; cmu_num < RT_CMU_CNT; cmu_num++) {
-        if (!(VTSS_BIT(cmu_num) & cmu_mask)) {
+        if ((VTSS_BIT(cmu_num) & cmu_mask) == 0U) {
             continue;
         }
         cmu_tgt = VTSS_TO_SD_CMU(cmu_num);
@@ -139,7 +140,7 @@ vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask)
     VTSS_MSLEEP(15);
 
     for (cmu_num = 0U; cmu_num < RT_CMU_CNT; cmu_num++) {
-        if (!(VTSS_BIT(cmu_num) & cmu_mask)) {
+        if ((VTSS_BIT(cmu_num) & cmu_mask) == 0U) {
             continue;
         }
 
@@ -147,7 +148,7 @@ vtss_rc vtss_ant_sd10g28_cmu_reg_cfg(vtss_state_t *vtss_state, u32 cmu_mask)
 
         REG_RD(VTSS_SD10G_CMU_TARGET_CMU_E0(cmu_tgt), &value);
         value = VTSS_X_SD10G_CMU_TARGET_CMU_E0_PLL_LOL_UDL(value);
-        value = (value > 0U) ? 1 : 0;
+        value = (value > 0U ? 1U : 0U);
         if (value != 0x0U) {
             VTSS_E("The expected value for CMU_E0 pll_lol_udl was 0x0 but is 0x%x\n", value);
             rc = VTSS_RC_ERROR;
@@ -175,12 +176,12 @@ static vtss_rc vtss_ant_sd10g28_reg_cfg(vtss_state_t                      *vtss_
     u32     indx;
 
     for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
-        if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+        if ((VTSS_BIT64(p) & vtss_state->port.bulk_port_mask) == 0U) {
             continue;
         }
 
         indx = vtss_fa_port2sd_indx(vtss_state, p);
-        if (res_struct->is_6g[0] == 1) {
+        if (res_struct->is_6g[0] == 1U) {
             sd_tgt = VTSS_TO_SD6G_LANE(indx);
             sd_lane_tgt = VTSS_TO_SD_LANE(indx);
         } else {
@@ -200,13 +201,13 @@ static vtss_rc vtss_ant_sd10g28_reg_cfg(vtss_state_t                      *vtss_
     VTSS_MSLEEP(1);
 
     for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
-        if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+        if ((VTSS_BIT64(p) & vtss_state->port.bulk_port_mask) == 0U) {
             continue;
         }
 
         indx = vtss_fa_port2sd_indx(vtss_state, p);
 
-        if (res_struct->is_6g[0] == 1) {
+        if (res_struct->is_6g[0] == 1U) {
             sd_tgt = VTSS_TO_SD6G_LANE(indx);
             sd_lane_tgt = VTSS_TO_SD_LANE(indx);
         } else {
@@ -537,13 +538,13 @@ static vtss_rc vtss_ant_sd10g28_reg_cfg(vtss_state_t                      *vtss_
     VTSS_MSLEEP(3);
 
     for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
-        if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+        if ((VTSS_BIT64(p) & vtss_state->port.bulk_port_mask) == 0U) {
             continue;
         }
 
         indx = vtss_fa_port2sd_indx(vtss_state, p);
 
-        if (res_struct->is_6g[0] == 1) {
+        if (res_struct->is_6g[0] == 1U) {
             sd_lane_tgt = VTSS_TO_SD_LANE(indx);
         } else {
             sd_lane_tgt = VTSS_TO_SD_LANE(indx + RT_SERDES_10G_START);
@@ -551,7 +552,7 @@ static vtss_rc vtss_ant_sd10g28_reg_cfg(vtss_state_t                      *vtss_
 
         REG_RD(VTSS_SD_LANE_TARGET_SD_LANE_STAT(sd_lane_tgt), &value);
         value = VTSS_X_SD_LANE_TARGET_SD_LANE_STAT_PMA_RST_DONE(value);
-        value = (value > 0U) ? 1 : 0;
+        value = (value > 0U ? 1U : 0U);
         if (value != 0x1U) {
             VTSS_E("The expected value for sd_lane_stat pma_rst_done was 0x1 but is 0x%x\n", value);
             rc = VTSS_RC_ERROR;
@@ -575,24 +576,33 @@ vtss_rc vtss_ant_sd10g28_setup_lane(vtss_state_t                   *vtss_state,
                                     vtss_port_no_t                  port_no)
 {
     vtss_sd10g28_setup_struct_t calc_results = {};
-    vtss_rc                     rc = 0;
+    vtss_rc                     rc = VTSS_RC_OK, rc2;
     u32                         cmu_mask = 0U, p;
 
     VTSS_D("This function is generated with UTE based on TAG: temp");
 
     vtss_state->port.bulk_port_mask |= VTSS_BIT64(port_no);
     for (p = VTSS_PORT_NO_START; p < vtss_state->port_count; p++) {
-        if (!(VTSS_BIT64(p) & vtss_state->port.bulk_port_mask)) {
+        if ((VTSS_BIT64(p) & vtss_state->port.bulk_port_mask) == 0U) {
             continue;
         }
-        rc |= vtss_calc_sd10g28_setup_lane(config, &calc_results);
+        rc2 = vtss_calc_sd10g28_setup_lane(config, &calc_results);
+        if (rc2 != VTSS_RC_OK) {
+            rc = rc2;
+        }
         cmu_mask |= VTSS_BIT(vtss_fa_sd10g28_get_cmu(vtss_state, calc_results.cmu_sel[0], p));
     }
-    rc |= vtss_ant_sd10g28_cmu_reg_cfg(vtss_state, cmu_mask);
+    rc2 = vtss_ant_sd10g28_cmu_reg_cfg(vtss_state, cmu_mask);
+    if (rc2 != VTSS_RC_OK) {
+        rc = rc2;
+    }
 
     if (rc == VTSS_RC_OK) {
-        rc |= vtss_calc_sd10g28_setup_lane(config, &calc_results);
-        rc |= vtss_ant_sd10g28_reg_cfg(vtss_state, &calc_results, port_no);
+        rc = vtss_calc_sd10g28_setup_lane(config, &calc_results);
+        rc2 = vtss_ant_sd10g28_reg_cfg(vtss_state, &calc_results, port_no);
+        if (rc2 != VTSS_RC_OK) {
+            rc = rc2;
+        }
     }
 
     return rc;

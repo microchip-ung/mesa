@@ -1055,13 +1055,13 @@ vtss_rc vtss_cil_l2_icnt_get(struct vtss_state_s     *vtss_state,
                 counters->rx_yellow.bytes = 0;
                 counters->rx_sdu_discard = counters->rx_red.bytes;
                 counters->rx_red.bytes = 0;
-                if (LA_TGT) {
-                    counters->rx_sdu_pass = (counters->rx_match - counters->rx_sdu_discard);
-                    counters->rx_gate_pass = (counters->rx_sdu_pass - counters->rx_gate_discard);
-                } else {
-                    counters->rx_gate_pass = (counters->rx_match - counters->rx_gate_discard);
-                    counters->rx_sdu_pass = (counters->rx_gate_pass - counters->rx_sdu_discard);
-                }
+#if defined(VTSS_ARCH_LAN969X)
+                counters->rx_sdu_pass = (counters->rx_match - counters->rx_sdu_discard);
+                counters->rx_gate_pass = (counters->rx_sdu_pass - counters->rx_gate_discard);
+#else
+                counters->rx_gate_pass = (counters->rx_match - counters->rx_gate_discard);
+                counters->rx_sdu_pass = (counters->rx_gate_pass - counters->rx_sdu_discard);
+#endif
             }
         }
 #endif
@@ -1409,7 +1409,7 @@ vtss_rc vtss_cil_l2_sflow_sampling_rate_convert(struct vtss_state_s *const state
 
 // Note that Jaguar2 has a sFlow-related bug, ref bug#12246
 vtss_rc vtss_cil_l2_sflow_port_conf_set(struct vtss_state_s                *vtss_state,
-                                        const vtss_port_no_t                port_no,
+                                        vtss_port_no_t                      port_no,
                                         const vtss_sflow_port_conf_t *const conf)
 {
 #define FA_SFLOW_ENABLED(_conf_)                                                                   \

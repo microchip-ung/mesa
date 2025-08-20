@@ -1249,12 +1249,12 @@ static vtss_rc fa_tx_frame_ifh_vid(struct vtss_state_s              *vtss_state,
     }
 
     REG_RD(VTSS_DEVCPU_QS_INJ_STATUS, &val);
-    if (!(VTSS_X_DEVCPU_QS_INJ_STATUS_FIFO_RDY(val) & VTSS_BIT(grp))) {
+    if ((VTSS_X_DEVCPU_QS_INJ_STATUS_FIFO_RDY(val) & VTSS_BIT(grp)) == 0U) {
         VTSS_E("Not ready");
         return VTSS_RC_ERROR;
     }
 
-    if ((VTSS_X_DEVCPU_QS_INJ_STATUS_WMARK_REACHED(val) & VTSS_BIT(grp)) != 0u) {
+    if ((VTSS_X_DEVCPU_QS_INJ_STATUS_WMARK_REACHED(val) & VTSS_BIT(grp)) != 0U) {
         VTSS_E("Watermark reached");
         return VTSS_RC_ERROR;
     }

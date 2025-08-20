@@ -191,7 +191,7 @@ vtss_rc lan969x_tas_current_port_conf_calc(vtss_state_t             *vtss_state,
 
         /* Read the gate state */
         REG_RD(VTSS_HSCH_TAS_GCL_CTRL_CFG, &value);
-        gate_state = VTSS_X_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(value);
+        gate_state = (u8)VTSS_X_HSCH_TAS_GCL_CTRL_CFG_GATE_STATE(value);
         vtss_u8_to_bool8(gate_state, current_port_conf->gcl[gcl_idx].gate_open);
 
         /* Read time interval */

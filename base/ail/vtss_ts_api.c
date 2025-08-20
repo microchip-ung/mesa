@@ -91,9 +91,9 @@ vtss_rc vtss_timestampAdd(vtss_timestamp_t *ts, const vtss_timestamp_t *ts_add)
 vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano)
 {
     u64 seconds = nano / HW_NS_PR_SEC;
-    u32 nano_30 = nano % HW_NS_PR_SEC;
+    u32 nano_30 = (u32)(nano % HW_NS_PR_SEC);
     u32 sec_32 = (u32)seconds;
-    u16 sec_msb = seconds >> 32U;
+    u16 sec_msb = (u16)(seconds >> 32U);
 
     ts->nanoseconds += nano_30;
     if (ts->nanoseconds >= HW_NS_PR_SEC) {
@@ -116,9 +116,9 @@ vtss_rc vtss_timestampAddNano(vtss_timestamp_t *ts, u64 nano)
 vtss_rc vtss_timestampSubNano(vtss_timestamp_t *ts, u64 nano)
 {
     u64 seconds = nano / HW_NS_PR_SEC;
-    u32 nano_30 = nano % HW_NS_PR_SEC;
+    u32 nano_30 = (u32)(nano % HW_NS_PR_SEC);
     u32 sec_32 = (u32)seconds;
-    u16 sec_msb = seconds >> 32U;
+    u16 sec_msb = (u16)(seconds >> 32U);
 
     if (ts->nanoseconds < nano_30) {
         VTSS_RC(vtss_timestampSubSec(ts));
@@ -325,7 +325,7 @@ vtss_rc vtss_ts_domain_timeofday_next_pps_get(const vtss_inst_t       inst,
 }
 
 /* Set the current time in a Timestamp format */
-vtss_rc vtss_ts_timeofday_set(const vtss_inst_t inst, const vtss_timestamp_t *ts)
+vtss_rc vtss_ts_timeofday_set(const vtss_inst_t inst, const vtss_timestamp_t *const ts)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -339,9 +339,9 @@ vtss_rc vtss_ts_timeofday_set(const vtss_inst_t inst, const vtss_timestamp_t *ts
 }
 
 /* Set the current time in a Timestamp format */
-vtss_rc vtss_ts_domain_timeofday_set(const vtss_inst_t       inst,
-                                     const u32               domain,
-                                     const vtss_timestamp_t *ts)
+vtss_rc vtss_ts_domain_timeofday_set(const vtss_inst_t             inst,
+                                     const u32                     domain,
+                                     const vtss_timestamp_t *const ts)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -948,7 +948,7 @@ vtss_rc vtss_ts_internal_mode_get(const vtss_inst_t inst, vtss_ts_internal_mode_
 /* Flush the timestamp FIFO  */
 static void vtss_timestamp_flush(vtss_state_t *vtss_state)
 {
-    int id;
+    u32 id;
     (void)vtss_cil_ts_timestamp_get(vtss_state);
     VTSS_D("Flushing timestamp fifo");
     for (id = 0; id < VTSS_TS_ID_SIZE; id++) {
@@ -968,8 +968,8 @@ vtss_rc vtss_tx_timestamp_update(const vtss_inst_t inst)
     u64                 port_mask;
     vtss_ts_timestamp_t ts;
     vtss_state_t       *my_vtss_state;
-    int                 port_idx = 0;
-    int                 ts_idx = 0;
+    u32                 port_idx = 0;
+    u32                 ts_idx = 0;
     void (*cb)(void *context, u32 port_no, vtss_ts_timestamp_t *ts);
     void *cx;
 
@@ -979,19 +979,19 @@ vtss_rc vtss_tx_timestamp_update(const vtss_inst_t inst)
         VTSS_D("rc = %d", rc);
         while ((port_idx < VTSS_PORT_ARRAY_SIZE) && (ts_idx < TS_IDS_RESERVED_FOR_SW)) {
             if (vtss_state->ts.status[ts_idx].valid_mask !=
-                0) { /* We just check if any TS on this TS index */
-                port_mask = 1LL << port_idx;
-                if ((vtss_state->ts.status[ts_idx].valid_mask & port_mask) &&
-                    (vtss_state->ts.status[ts_idx].reserved_mask &
-                     port_mask)) { /* There is a TS and this TS index is
-                                      reserved */
+                0U) { /* We just check if any TS on this TS index */
+                port_mask = VTSS_BIT64(port_idx);
+                if ((vtss_state->ts.status[ts_idx].valid_mask & port_mask) > 0U &&
+                    (vtss_state->ts.status[ts_idx].reserved_mask & port_mask) >
+                        0U) { /* There is a TS and this TS index is
+                            reserved */
                     vtss_state->ts.status[ts_idx].valid_mask &= ~port_mask;
                     vtss_state->ts.status[ts_idx].reserved_mask &= ~port_mask;
                     ts.id = vtss_state->ts.status[ts_idx].tx_id[port_idx];
                     ts.ts = vtss_state->ts.status[ts_idx].tx_tc[port_idx];
                     ts.ts_valid = TRUE;
-                    if (vtss_state->ts.status[ts_idx].cb[port_idx] != 0 &&
-                        vtss_state->ts.status[ts_idx].context[port_idx] != 0) {
+                    if (vtss_state->ts.status[ts_idx].cb[port_idx] != NULL &&
+                        vtss_state->ts.status[ts_idx].context[port_idx] != NULL) {
                         my_vtss_state = vtss_state; /* save context */
                         /* avoid using vtss_state while outside the API lock, as
                          * the API may be called from an other thread */
@@ -1044,7 +1044,7 @@ vtss_rc _vtss_rx_timestamp_get(const vtss_inst_t          inst,
             ts->ts_valid = vtss_state->ts.status[ts_id->ts_id].rx_tc_valid;
             if (ts->ts_valid) {
                 vtss_state->ts.status[ts_id->ts_id].rx_tc_valid = FALSE;
-                if (vtss_state->ts.status[ts_id->ts_id].reserved_mask == 0LL) {
+                if (vtss_state->ts.status[ts_id->ts_id].reserved_mask == 0U) {
                     vtss_state->ts.status[ts_id->ts_id].age = 0U;
                     rc = vtss_cil_ts_timestamp_id_release(vtss_state, ts_id->ts_id);
                 }
@@ -1124,7 +1124,7 @@ vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t                      inst,
                                     vtss_ts_id_t *const                    ts_id)
 {
     vtss_state_t *vtss_state;
-    int           port_idx = 0;
+    u32           port_idx = 0;
     vtss_rc       rc = VTSS_RC_ERROR;
     u32           id;
 
@@ -1133,10 +1133,10 @@ vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t                      inst,
         rc = VTSS_RC_ERROR;
         /* Find a free ts_id */
         for (id = 0U; id < TS_IDS_RESERVED_FOR_SW; id++) {
-            if ((vtss_state->ts.status[id].reserved_mask & alloc_parm->port_mask) == 0) {
+            if ((vtss_state->ts.status[id].reserved_mask & alloc_parm->port_mask) == 0U) {
                 vtss_state->ts.status[id].reserved_mask |= alloc_parm->port_mask;
                 for (port_idx = 0; port_idx < VTSS_PORT_ARRAY_SIZE; port_idx++) {
-                    if (alloc_parm->port_mask & (1LL << port_idx)) {
+                    if ((alloc_parm->port_mask & VTSS_BIT64(port_idx)) > 0U) {
                         vtss_state->ts.status[id].context[port_idx] = alloc_parm->context;
                         vtss_state->ts.status[id].cb[port_idx] = alloc_parm->cb;
                     }
@@ -1161,7 +1161,7 @@ vtss_rc vtss_tx_timestamp_idx_alloc(const vtss_inst_t                      inst,
 vtss_rc vtss_timestamp_age(const vtss_inst_t inst)
 {
     vtss_state_t       *vtss_state;
-    int                 id;
+    u32                 id;
     u64                 port_mask;
     vtss_ts_timestamp_t ts;
     vtss_state_t       *my_vtss_state;
@@ -1184,13 +1184,13 @@ vtss_rc vtss_timestamp_age(const vtss_inst_t inst)
     for (id = 0; id < VTSS_TS_ID_SIZE; id++) {
         vtss_ts_timestamp_status_t *status = &vtss_state->ts.status[id];
         u32                         max_age;
-        int                         port_idx;
+        u32                         port_idx;
 
-        if (status->reserved_mask == 0LL && !status->rx_tc_valid) {
+        if (status->reserved_mask == 0U && !status->rx_tc_valid) {
             continue;
         }
 
-        if (status->reserved_mask != 0LL) {
+        if (status->reserved_mask != 0U) {
             max_age = TSID_TX_MAX_TIMETICKS;
         } else {
             max_age = TSID_RX_MAX_TIMETICKS;
@@ -1204,15 +1204,15 @@ vtss_rc vtss_timestamp_age(const vtss_inst_t inst)
                status->reserved_mask);
         port_idx = 0;
 
-        while (status->reserved_mask && port_idx < VTSS_PORT_ARRAY_SIZE) {
-            port_mask = 1LL << port_idx;
+        while (status->reserved_mask > 0U && port_idx < VTSS_PORT_ARRAY_SIZE) {
+            port_mask = VTSS_BIT64(port_idx);
 
-            if ((status->reserved_mask & port_mask)) {
+            if ((status->reserved_mask & port_mask) > 0U) {
                 status->reserved_mask &= ~port_mask;
                 ts.id = id;
                 ts.ts = 0;
                 ts.ts_valid = FALSE;
-                if (status->cb[port_idx] != 0 && status->context[port_idx] != 0) {
+                if (status->cb[port_idx] != NULL && status->context[port_idx] != NULL) {
                     // Avoid using vtss_state while outside the API lock, as the
                     // API may be called from an other thread
                     my_vtss_state = vtss_state;
@@ -1371,7 +1371,7 @@ vtss_rc vtss_ts_seq_cnt_get(const vtss_inst_t inst, const u32 sec_cntr, u16 *con
 
 /* - Instance create and initialization ---------------------------- */
 
-vtss_rc vtss_ts_inst_create(vtss_state_t *vtss_state)
+vtss_rc vtss_ts_inst_create(struct vtss_state_s *vtss_state)
 {
 #if defined(VTSS_FEATURE_DELAY_REQ_AUTO_RESP)
     u32 i;
@@ -1388,15 +1388,18 @@ vtss_rc vtss_ts_inst_create(vtss_state_t *vtss_state)
 
 static const char *one_pps_mode_disp(vtss_ts_ext_clock_one_pps_mode_t m)
 {
+    const char *txt;
+
     switch (m) {
-    case TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE: return "Disable";
-    case TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT:  return "Output";
-    case TS_EXT_CLOCK_MODE_ONE_PPS_INPUT:   return "Input";
-    default:                                return "unknown";
+    case TS_EXT_CLOCK_MODE_ONE_PPS_DISABLE: txt = "Disable"; break;
+    case TS_EXT_CLOCK_MODE_ONE_PPS_OUTPUT:  txt = "Output"; break;
+    case TS_EXT_CLOCK_MODE_ONE_PPS_INPUT:   txt = "Input"; break;
+    default:                                txt = "unknown"; break;
     }
+    return txt;
 }
 
-void vtss_ts_debug_print(vtss_state_t                  *vtss_state,
+void vtss_ts_debug_print(struct vtss_state_s           *vtss_state,
                          lmu_ss_t                      *ss,
                          const vtss_debug_info_t *const info)
 {

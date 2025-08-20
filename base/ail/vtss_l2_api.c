@@ -4604,7 +4604,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
     vtss_vcap_user_t   user = VTSS_ES0_USER_TCL;
     vtss_res_t         res;
     vtss_vcap_data_t   data;
-    vtss_es0_entry_t   entry;
+    vtss_es0_entry_t   entry, *e = &entry;
     vtss_es0_data_t   *es0 = &data.u.es0;
     vtss_vcap_entry_t *cur;
     vtss_tce_id_t      cur_id;
@@ -4684,35 +4684,35 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
     /* Add/update resources */
     vtss_vcap_es0_init(&data, &entry);
     if (tce->key.vid == VTSS_VID_NULL) {
-        entry.key.vid_any = TRUE;
+        e->key.vid_any = TRUE;
     } else {
-        entry.key.data.vid.vid = tce->key.vid;
+        e->key.data.vid.vid = tce->key.vid;
         es0->vid = tce->key.vid;
     }
 #if defined(VTSS_FEATURE_XFLOW)
     if (tce->key.flow_enable) {
-        entry.key.type = VTSS_ES0_TYPE_ISDX;
-        entry.key.data.isdx.isdx_enable = TRUE;
-        entry.key.data.isdx.isdx = tce->key.flow_id;
+        e->key.type = VTSS_ES0_TYPE_ISDX;
+        e->key.data.isdx.isdx_enable = TRUE;
+        e->key.data.isdx.isdx = tce->key.flow_id;
     }
     es0->flow_id = tce->action.flow_id;
     if (eflow != NULL) {
 #if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
 #if defined(VTSS_FEATURE_VOP)
         if (eflow->conf.voe_idx < VTSS_PORT_VOE_BASE_IDX) { /* Do not point to a Port VOE */
-            entry.action.mep_idx_enable = 1;
-            entry.action.mep_idx = eflow->conf.voe_idx;
+            e->action.mep_idx_enable = 1;
+            e->action.mep_idx = eflow->conf.voe_idx;
         }
 #endif
 #endif
 #if defined(VTSS_FEATURE_VOP_V2)
         if (eflow->conf.voi_idx != VTSS_VOI_IDX_NONE) {
-            entry.action.voi_idx = eflow->conf.voi_idx;
+            e->action.voi_idx = eflow->conf.voi_idx;
         }
 #endif
     }
 #if defined(VTSS_FEATURE_VOP_V2)
-    entry.action.independent_mel =
+    e->action.independent_mel =
         (eflow == NULL) || (eflow->conf.voe_idx == VTSS_VOE_IDX_NONE) ? TRUE : FALSE;
 #endif
 #if defined(VTSS_FEATURE_XSTAT)
@@ -4731,7 +4731,7 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
                 offs--;
             }
             offs <<= (cosid * 3U);
-            entry.action.esdx_cosid_offset |= offs;
+            e->action.esdx_cosid_offset |= offs;
         }
     }
 #endif
@@ -4740,17 +4740,17 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
 #if !defined(VTSS_ARCH_LUTON26)
     vtss_tce2tag(vtss_state, &tce->action.inner_tag, es0, FALSE);
 #endif
-    entry.action.pop_cnt = tce->action.pop_cnt;
+    e->action.pop_cnt = tce->action.pop_cnt;
 #if defined(VTSS_FEATURE_FRER)
-    entry.action.rtag = tce->action.rtag;
-    if (entry.action.rtag.sel != VTSS_RTAG_SEL_NONE) {
+    e->action.rtag = tce->action.rtag;
+    if (e->action.rtag.sel != VTSS_RTAG_SEL_NONE) {
         /* Always pop R-tag when pushing R-tag */
-        entry.action.rtag.pop = TRUE;
+        e->action.rtag.pop = TRUE;
     }
 #endif
     for (port_no = 0U; port_no < port_cnt; port_no++) {
         if (tce->key.port_list[port_no]) {
-            entry.key.port_no = port_no;
+            e->key.port_no = port_no;
             es0->port_no = port_no;
             id = vtss_tce2id(tce->id, port_no);
             VTSS_RC(vtss_vcap_add(vtss_state, obj, user, id, id_next, &data, FALSE));

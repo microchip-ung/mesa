@@ -1197,8 +1197,10 @@ typedef struct {
 
 /* IS2 information */
 typedef struct {
-    vtss_vcap_obj_t   obj;                 /* Object */
+    vtss_vcap_obj_t obj; /* Object */
+#if VTSS_IS2_CNT > 0
     vtss_vcap_entry_t table[VTSS_IS2_CNT]; /* Table */
+#endif
 #if defined(VTSS_OPT_WARM_START)
     vtss_is2_entry_t copy[VTSS_IS2_CNT]; /* Copy of entries */
 #endif                                   /* VTSS_OPT_WARM_START */
@@ -1288,11 +1290,13 @@ vtss_rc vtss_cil_vcap_clm_entry_update(struct vtss_state_s *vtss_state,
                                        vtss_vcap_type_t     type,
                                        vtss_vcap_idx_t     *idx,
                                        vtss_is1_data_t     *is1);
+#if defined(VTSS_ARCH_JAGUAR_2)
 vtss_rc vtss_cil_vcap_clm_entry_update_masq_hit_ena(struct vtss_state_s *vtss_state,
                                                     vtss_vcap_type_t     type,
                                                     vtss_vcap_idx_t     *idx,
                                                     vtss_vcap_data_t    *vcap_data,
                                                     BOOL                 enable);
+#endif
 #endif /* VTSS_FEATURE_CLM */
 #if defined(VTSS_FEATURE_IS1)
 vtss_rc vtss_cil_vcap_is1_entry_update(struct vtss_state_s *vtss_state,
@@ -1488,24 +1492,30 @@ void             vtss_vcap_is1_init(vtss_vcap_data_t *data, vtss_is1_entry_t *en
 void             vtss_vcap_debug_print_is1(struct vtss_state_s           *vtss_state,
                                            lmu_ss_t                      *ss,
                                            const vtss_debug_info_t *const info);
-vtss_rc          vtss_vcap_is1_update(struct vtss_state_s *vtss_state, vtss_is1_action_t *act);
+#if defined(VTSS_ARCH_LAN966X)
+vtss_rc vtss_vcap_is1_update(struct vtss_state_s *vtss_state, vtss_is1_action_t *act);
+#endif
 #endif /* VTSS_FEATURE_IS1/CLM */
 #if defined(VTSS_FEATURE_CLM)
-void    vtss_vcap_debug_print_clm_a(struct vtss_state_s           *vtss_state,
-                                    lmu_ss_t                      *ss,
-                                    const vtss_debug_info_t *const info);
-void    vtss_vcap_debug_print_clm_b(struct vtss_state_s           *vtss_state,
-                                    lmu_ss_t                      *ss,
-                                    const vtss_debug_info_t *const info);
-void    vtss_vcap_debug_print_clm_c(struct vtss_state_s           *vtss_state,
-                                    lmu_ss_t                      *ss,
-                                    const vtss_debug_info_t *const info);
+void vtss_vcap_debug_print_clm_a(struct vtss_state_s           *vtss_state,
+                                 lmu_ss_t                      *ss,
+                                 const vtss_debug_info_t *const info);
+void vtss_vcap_debug_print_clm_b(struct vtss_state_s           *vtss_state,
+                                 lmu_ss_t                      *ss,
+                                 const vtss_debug_info_t *const info);
+void vtss_vcap_debug_print_clm_c(struct vtss_state_s           *vtss_state,
+                                 lmu_ss_t                      *ss,
+                                 const vtss_debug_info_t *const info);
+#if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
 vtss_rc vtss_vcap_clm_update(struct vtss_state_s *vtss_state, const vtss_qos_egress_map_id_t id);
+#endif
+#if defined(VTSS_ARCH_JAGUAR_2)
 vtss_rc vtss_vcap_clm_update_masq_hit_ena(struct vtss_state_s *vtss_state,
                                           vtss_vcap_obj_t     *obj,
                                           int                  user,
                                           vtss_vcap_id_t       id,
                                           BOOL                 enable);
+#endif
 #endif /* VTSS_FEATURE_CLM */
 #if defined(VTSS_FEATURE_IS2)
 void    vtss_vcap_is2_init(vtss_vcap_data_t *data, vtss_is2_entry_t *entry);

@@ -110,7 +110,7 @@ extern "C" {
 
 /** \brief This is the max time offset adjustment that os done without setting
  * ports in disabled state */
-#define VTSS_HW_TIME_MAX_FINE_ADJ 25U
+#define VTSS_HW_TIME_MAX_FINE_ADJ 25
 
 // TSN global configuration
 typedef struct {

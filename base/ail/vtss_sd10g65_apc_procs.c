@@ -142,7 +142,7 @@ vtss_rc vtss_sd10g65_setup_apc_args_init(vtss_sd10g65_setup_apc_args_t *const in
 
     init_val->chip_name = VTSS_SD10G65_CHIP_ES65XX;
     init_val->is_malibu_f2df_or_df2f = FALSE;
-    init_val->f_pll.f_pll_khz = 10e6;
+    init_val->f_pll.f_pll_khz = 10000000U;
     init_val->f_pll.ratio_num = 66U;
     ;
     init_val->f_pll.ratio_den = 64U;
@@ -170,34 +170,32 @@ vtss_rc vtss_sd10g65_setup_apc_args_init(vtss_sd10g65_setup_apc_args_t *const in
     return VTSS_RC_OK;
 } /* vtss_sd10g65_setup_apc_args_init */
 
+typedef struct {
+    u8 max;
+    u8 ini;
+    u8 min;
+    u8 range_sel;
+    u8 chg_mode;
+} vtss_apc_param_set_t;
+
+typedef enum {
+    VTSS_SD10G65_APC_PARAM_OFFS,
+    VTSS_SD10G65_APC_PARAM_C,
+    VTSS_SD10G65_APC_PARAM_L,
+    VTSS_SD10G65_APC_PARAM_AGC,
+    VTSS_SD10G65_APC_PARAM_DFE1,
+    VTSS_SD10G65_APC_PARAM_DFE2,
+    VTSS_SD10G65_APC_PARAM_DFE3,
+    VTSS_SD10G65_APC_PARAM_DFE4,
+    VTSS_SD10G65_APC_PARAM_LAST,
+} vtss_apc_param_t;
+
 vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    config,
                                     vtss_sd10g65_setup_apc_struct_t *const ret_val)
 {
-
-    typedef struct {
-        u8 max;
-        u8 ini;
-        u8 min;
-        u8 range_sel;
-        u8 chg_mode;
-    } vtss_apc_param_set_t;
-
-    typedef enum {
-        VTSS_SD10G65_APC_PARAM_OFFS,
-        VTSS_SD10G65_APC_PARAM_C,
-        VTSS_SD10G65_APC_PARAM_L,
-        VTSS_SD10G65_APC_PARAM_AGC,
-        VTSS_SD10G65_APC_PARAM_DFE1,
-        VTSS_SD10G65_APC_PARAM_DFE2,
-        VTSS_SD10G65_APC_PARAM_DFE3,
-        VTSS_SD10G65_APC_PARAM_DFE4,
-        VTSS_SD10G65_APC_PARAM_LAST,
-    } vtss_apc_param_t;
-
     vtss_rc                          rc;
-    vtss_apc_param_t                 apc_param = VTSS_SD10G65_APC_PARAM_LAST;
     vtss_sd10g65_apc_preset_struct_t preset;
-    vtss_apc_param_set_t             apc_set[apc_param];
+    vtss_apc_param_set_t             apc_set[VTSS_SD10G65_APC_PARAM_LAST];
     vtss_sd10g65_f_pll_t             cfg_f_pll = config.f_pll;
     u32                              f_pll_khz_plain;
     BOOL                             optimize_for_1g = FALSE;
@@ -207,7 +205,7 @@ vtss_rc vtss_calc_sd10g65_setup_apc(const vtss_sd10g65_setup_apc_args_t    confi
                                        (u64)cfg_f_pll.ratio_den));
     rc = vtss_sd10g65_apc_set_default_preset_values(config.chip_name, &preset);
 
-    if (cfg_f_pll.f_pll_khz <= 2.5e6 && config.chip_name != VTSS_SD10G65_CHIP_VENICE) {
+    if (cfg_f_pll.f_pll_khz <= 2500000U && config.chip_name != VTSS_SD10G65_CHIP_VENICE) {
         optimize_for_1g = TRUE;
         preset.dfe1_max = 68; // 1G optimization
     }

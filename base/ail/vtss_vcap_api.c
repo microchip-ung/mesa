@@ -2042,12 +2042,14 @@ vtss_rc vtss_vcap_inst_create(struct vtss_state_s *vtss_state)
             obj->max_rule_count = obj->max_count;
         }
         for (i = 0U; i < obj->max_rule_count; i++) {
+#if VTSS_IS2_CNT > 0
             entry = &is2->table[i];
             entry->next = obj->free_list;
             obj->free_list = entry;
 #if defined(VTSS_OPT_WARM_START)
             entry->copy = &is2->copy[i];
 #endif /* VTSS_OPT_WARM_START */
+#endif
         }
     }
 #endif /* VTSS_FEATURE_IS2 */

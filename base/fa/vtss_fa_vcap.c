@@ -3040,7 +3040,7 @@ static vtss_rc fa_is2_entry_add(vtss_state_t     *vtss_state,
     u32                      type = IS2_X6_TYPE_MAC_ETYPE;
     u32                      mask = fa_u32_mask(IS2_KL_X6_TYPE);
     u16                      vid_mask = (key->vlan.vid.mask & 0xfffU);
-    u8                       m;
+    u8                       m, u;
     vtss_vcap_bit_t          oam, udp_tcp;
     BOOL                     tcp, found = FALSE, smac_dmac = FALSE;
 
@@ -3410,8 +3410,8 @@ apply:
     data->vcap_type = vcap_type;
     VTSS_RC(fa_is2_action_set(vtss_state, data, &ace->action, is2->cnt_id, counter));
     if (vcap_type == VTSS_VCAP_TYPE_IS2_B && !entry->ipmc) {
-        FA_ACT_SET(IS2, BASE_TYPE_RLEG_STAT_IDX,
-                   (entry->first ? FA_RLEG_STAT_IRACL : FA_RLEG_STAT_ERACL) + 1U);
+        u = ((entry->first ? FA_RLEG_STAT_IRACL : FA_RLEG_STAT_ERACL) + 1U);
+        FA_ACT_SET(IS2, BASE_TYPE_RLEG_STAT_IDX, u);
         if (entry->first) {
             FA_ACT_SET(IS2, BASE_TYPE_IGR_ACL_ENA, 1);
         } else {
