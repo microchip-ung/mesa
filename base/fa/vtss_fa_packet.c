@@ -96,7 +96,7 @@ vtss_rc vtss_cil_packet_phy_cnt_to_ts_cnt(struct vtss_state_s *vtss_state, u32 p
 
     /* The time of day is sampled 2 or more times pr sec, assumed frame stamping
      * belong to domain 0 */
-    (void)_vtss_ts_domain_timeofday_get(NULL, 0U, &ts, &tc);
+    (void)vtss_ts_domain_timeofday_get_private(NULL, 0U, &ts, &tc);
     tod_cnt = ts.nanoseconds + (VTSS_ONE_MIA * ts.seconds); /* tod_cnt is now a TOD 32 bit
                                                                wrapping nano second counter */
 
@@ -128,7 +128,7 @@ vtss_rc vtss_cil_packet_ns_to_ts_cnt(struct vtss_state_s *vtss_state, u32 ns, u6
 
     /* The time of day is sampled 2 or more times pr sec, assumed frame stamping
      * belong to domain 0 */
-    (void)_vtss_ts_domain_timeofday_get(NULL, 0U, &ts, &tc);
+    (void)vtss_ts_domain_timeofday_get_private(NULL, 0U, &ts, &tc);
     if (ts.nanoseconds < frame_ns) {
         tod_ns = ts.nanoseconds + VTSS_ONE_MIA; /* TOD nanoseconds is smaller than the frame_ns
                                                    from the frame. TOD nanoseconds has wrapped */

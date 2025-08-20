@@ -110,10 +110,10 @@ vtss_rc vtss_cil_packet_phy_cnt_to_ts_cnt(vtss_state_t *vtss_state, u32 phy_cnt,
 
     /* in Jaguar 2 the timeofday is sampled 2 or more times pr sec, phy's are
      * assumed to belong to domain 0 */
-    _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc_64);
+    vtss_ts_domain_timeofday_get_private(NULL, 0, &ts, &tc_64);
     phy_tc = ts.nanoseconds + VTSS_ONE_MIA * ts.seconds;
 
-    tc = tc_64 >> 16; /* The tc_64 returned by _vtss_ts_domain_timeofday_get()
+    tc = tc_64 >> 16; /* The tc_64 returned by vtss_ts_domain_timeofday_get_private()
                          is in 16 bit fractions of nanoseconds */
     tc += (phy_cnt - phy_tc);
     tc_64 = (u64)tc << 16; /* Must return in 16 bit fractions of nanoseconds */
@@ -137,8 +137,8 @@ vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_c
         VTSS_I("decrement ns value (%d)", ns);
     }
     /* in Jaguar 2 the timeofday is sampled 2 times pr sec */
-    _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc_64);
-    tc = tc_64 >> 16;          /* The tc_64 returned by _vtss_ts_domain_timeofday_get()
+    vtss_ts_domain_timeofday_get_private(NULL, 0, &ts, &tc_64);
+    tc = tc_64 >> 16;          /* The tc_64 returned by vtss_ts_domain_timeofday_get_private()
                                   is in 16 bit fractions of nanoseconds */
     if (ts.nanoseconds < ns) { // ns has not wrapped
         if ((ts.nanoseconds <= VTSS_ONE_MIA / 2 && ns <= (VTSS_ONE_MIA / 4) * 3) ||

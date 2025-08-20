@@ -225,10 +225,10 @@ vtss_rc vtss_ts_timeofday_raw(const vtss_inst_t inst, vtss_timestamp_t *const ts
 
 /* Get the current time in a Timestamp format, and the corresponding time
  * counter - only to be called from within another API function */
-vtss_rc _vtss_ts_domain_timeofday_get(const vtss_inst_t       inst,
-                                      const u32               domain,
-                                      vtss_timestamp_t *const ts,
-                                      u64 *const              tc)
+vtss_rc vtss_ts_domain_timeofday_get_private(const vtss_inst_t       inst,
+                                             const u32               domain,
+                                             vtss_timestamp_t *const ts,
+                                             u64 *const              tc)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -250,7 +250,7 @@ vtss_rc vtss_ts_domain_timeofday_get(const vtss_inst_t       inst,
     vtss_rc rc;
 
     VTSS_ENTER();
-    rc = _vtss_ts_domain_timeofday_get(inst, domain, ts, tc);
+    rc = vtss_ts_domain_timeofday_get_private(inst, domain, ts, tc);
     VTSS_EXIT();
 
     return rc;
@@ -1026,9 +1026,9 @@ vtss_rc vtss_tx_timestamp_update(const vtss_inst_t inst)
 
 /* Get the FIFO rx timestamp for a {timestampId} - only to be called from within
  * another API function */
-vtss_rc _vtss_rx_timestamp_get(const vtss_inst_t          inst,
-                               const vtss_ts_id_t *const  ts_id,
-                               vtss_ts_timestamp_t *const ts)
+vtss_rc vtss_rx_timestamp_get_private(const vtss_inst_t          inst,
+                                      const vtss_ts_id_t *const  ts_id,
+                                      vtss_ts_timestamp_t *const ts)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -1062,14 +1062,15 @@ vtss_rc vtss_rx_timestamp_get(const vtss_inst_t          inst,
     vtss_rc rc;
 
     VTSS_ENTER();
-    rc = _vtss_rx_timestamp_get(inst, ts_id, ts);
+    rc = vtss_rx_timestamp_get_private(inst, ts_id, ts);
     VTSS_EXIT();
 
     return rc;
 }
 
 /* Release the FIFO rx timestamp id  */
-vtss_rc _vtss_rx_timestamp_id_release(const vtss_inst_t inst, const vtss_ts_id_t *const ts_id)
+vtss_rc vtss_rx_timestamp_id_release_private(const vtss_inst_t         inst,
+                                             const vtss_ts_id_t *const ts_id)
 {
     vtss_state_t *vtss_state;
     vtss_rc       rc;
@@ -1092,7 +1093,7 @@ vtss_rc vtss_rx_timestamp_id_release(const vtss_inst_t inst, const vtss_ts_id_t 
     vtss_rc rc;
 
     VTSS_ENTER();
-    rc = _vtss_rx_timestamp_id_release(inst, ts_id);
+    rc = vtss_rx_timestamp_id_release_private(inst, ts_id);
     VTSS_EXIT();
     return rc;
 }

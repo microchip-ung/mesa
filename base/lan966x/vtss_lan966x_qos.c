@@ -1429,7 +1429,8 @@ static int tas_base_time_in_future(vtss_state_t     *vtss_state,
     vtss_timestamp_t tod_time, distance_time;
 
     /* Get current time */
-    _vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain, &tod_time, &tc);
+    vtss_ts_domain_timeofday_get_private(vtss_state, vtss_state->ts.conf.tsn_domain, &tod_time,
+                                         &tc);
 
     /* Check if base time is in the past */
     if (vtss_timestampLarger(&tod_time, base_time)) {
@@ -1756,8 +1757,8 @@ vtss_rc vtss_cil_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_port
         if (gcl_state->curr_list_idx != TAS_LIST_IDX_NONE) {
             /* Calculate first possible base time of stop list. This is TOD plus
              * two times the current cycle time */
-            _vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain,
-                                          &stop_base_time, &tc);
+            vtss_ts_domain_timeofday_get_private(vtss_state, vtss_state->ts.conf.tsn_domain,
+                                                 &stop_base_time, &tc);
             /* Add 1 ms to assure start in the future */
             (void)vtss_timestampAddNano(&stop_base_time, 1 * 1000 * 1000);
 
@@ -2561,10 +2562,10 @@ static vtss_rc lan966x_qos_debug(vtss_state_t                  *vtss_state,
             vtss_timestamp_t ts;
         } buffer[1000];
 
-        _vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
+        vtss_ts_domain_timeofday_get_private(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
         REG_WR(QSYS_TAS_GS_CTRL, (5040 + 64 + chip_port));
         while (1) {
-            _vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts1, &tc);
+            vtss_ts_domain_timeofday_get_private(NULL, vtss_state->ts.conf.tsn_domain, &ts1, &tc);
             REG_RD(QSYS_TAS_GATE_STATE, &gate_state);
             gate_state &= PRIO_MASK;
             if ((index == 0) || (gate_state != buffer[index - 1].gate_state)) {
@@ -2600,13 +2601,13 @@ static vtss_rc lan966x_qos_debug(vtss_state_t                  *vtss_state,
 //            vtss_timestamp_t ts;
 //        } buffer[1000];
 //
-//        _vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain,
+//        vtss_ts_domain_timeofday_get_private(NULL, vtss_state->ts.conf.tsn_domain,
 //        &ts0, &tc); REG_RD(VTSS_ASM_RX_UC_CNT(chip_port), &old_count);
 //        interval_start = FALSE;
 //        equal_count = 0;
 //        index = 0;
 //        while (1) {
-//            _vtss_ts_domain_timeofday_get(NULL,
+//            vtss_ts_domain_timeofday_get_private(NULL,
 //            vtss_state->ts.conf.tsn_domain, &ts1, &tc);
 //            REG_RD(VTSS_ASM_TX_UC_CNT(chip_port), &count); equal_count =
 //            (count == old_count) ? (equal_count + 1) : 0; if ((equal_count ==

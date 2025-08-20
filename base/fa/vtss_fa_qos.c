@@ -3619,9 +3619,9 @@ static int tas_base_time_in_future(vtss_state_t     *vtss_state,
     vtss_timestamp_t tod_time, distance_time;
 
     /* Get current time */
-    if (_vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain, &tod_time, &tc) !=
-        VTSS_RC_OK) {
-        VTSS_D("_vtss_ts_domain_timeofday_get failed");
+    if (vtss_ts_domain_timeofday_get_private(vtss_state, vtss_state->ts.conf.tsn_domain, &tod_time,
+                                             &tc) != VTSS_RC_OK) {
+        VTSS_D("vtss_ts_domain_timeofday_get_private failed");
         return 0;
     }
 
@@ -4011,9 +4011,9 @@ vtss_rc vtss_cil_qos_tas_port_conf_set(struct vtss_state_s *vtss_state,
         if (gcl_state->curr_list_idx != TAS_LIST_IDX_NONE) {
             /* Calculate first possible base time of stop list. This is TOD plus
              * two times the current cycle time */
-            if (_vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain,
-                                              &stop_base_time, &tc) != VTSS_RC_OK) {
-                VTSS_D("_vtss_ts_domain_timeofday_get failed");
+            if (vtss_ts_domain_timeofday_get_private(vtss_state, vtss_state->ts.conf.tsn_domain,
+                                                     &stop_base_time, &tc) != VTSS_RC_OK) {
+                VTSS_D("vtss_ts_domain_timeofday_get_private failed");
                 return VTSS_RC_ERROR;
             }
 
@@ -5457,7 +5457,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 
         chip_port = VTSS_CHIP_PORT(tas_port - 1U);
 
-        (void)_vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
+        (void)vtss_ts_domain_timeofday_get_private(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
 #if defined(VTSS_FEATURE_QOS_OT)
         if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
             rc = (vtss_fa_wr(vtss_state, REG_ADDR(VTSS_HSCH_TAS_GATE_STATE_CTRL),
@@ -5474,7 +5474,8 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                  : rc;
 #endif
         while (1 != 0) {
-            (void)_vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts1, &tc);
+            (void)vtss_ts_domain_timeofday_get_private(NULL, vtss_state->ts.conf.tsn_domain, &ts1,
+                                                       &tc);
             rc = (vtss_fa_rd(vtss_state, REG_ADDR(VTSS_HSCH_TAS_GATE_STATE), &gate_state) !=
                   VTSS_RC_OK)
                      ? (rc + 1U)
@@ -5514,13 +5515,14 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
 
         chip_port = VTSS_CHIP_PORT(tas_port - 1U);
 
-        (void)_vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
+        (void)vtss_ts_domain_timeofday_get_private(NULL, vtss_state->ts.conf.tsn_domain, &ts0, &tc);
         REG_RD(VTSS_ASM_RX_UC_CNT(chip_port), &old_count);
         interval_start = FALSE;
         equal_count = 0U;
         index = 0U;
         while (1 != 0) {
-            (void)_vtss_ts_domain_timeofday_get(NULL, vtss_state->ts.conf.tsn_domain, &ts1, &tc);
+            (void)vtss_ts_domain_timeofday_get_private(NULL, vtss_state->ts.conf.tsn_domain, &ts1,
+                                                       &tc);
             REG_RD(VTSS_ASM_TX_UC_CNT(chip_port), &count);
             equal_count = (count == old_count) ? (equal_count + 1U) : 0U;
             if ((equal_count == 0U) && (interval_start == TRUE)) { // Start of interval

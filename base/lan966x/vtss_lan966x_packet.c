@@ -80,7 +80,7 @@ vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 frame_ns, u64
 
     /* The time of day is sampled 2 or more times pr sec, assumed frame stamping
      * belong to domain 0 */
-    _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc);
+    vtss_ts_domain_timeofday_get_private(NULL, 0, &ts, &tc);
     if (ts.nanoseconds < frame_ns) {
         tod_ns = ts.nanoseconds + VTSS_ONE_MIA; /* TOD nanoseconds is smaller than the frame_ns
                                                    from the frame. TOD nanoseconds has wrapped */

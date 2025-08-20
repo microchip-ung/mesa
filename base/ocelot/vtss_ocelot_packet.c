@@ -729,8 +729,8 @@ vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_c
     if (ns >= VTSS_ONE_MIA) {
         VTSS_I("Invalid ns value (%d)", ns);
     }
-    _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc_64);
-    tc = tc_64 >> 16;          /* The tc_64 returned by _vtss_ts_domain_timeofday_get()
+    vtss_ts_domain_timeofday_get_private(NULL, 0, &ts, &tc_64);
+    tc = tc_64 >> 16;          /* The tc_64 returned by vtss_ts_domain_timeofday_get_private()
                                   is in 16 bit fractions of nanoseconds */
     if (ts.nanoseconds < ns) { // ns has wrapped
         ts.nanoseconds += VTSS_ONE_MIA;
@@ -772,7 +772,7 @@ vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vts
     VTSS_D("Raw timestamp %" PRIu64 ", hw_tstamp_decoded %u", *rxTime, *timestamp_ok);
     ts_id.ts_id = rx_info->tstamp_id;
     if (rx_info->tstamp_id_decoded) {
-        (void)_vtss_rx_timestamp_id_release(0, &ts_id);
+        (void)vtss_rx_timestamp_id_release_private(0, &ts_id);
         VTSS_D("Timestamp %" PRIu64 ", ts decoded %d, Ts id %d", *rxTime,
                rx_info->tstamp_id_decoded, ts_id.ts_id);
     }

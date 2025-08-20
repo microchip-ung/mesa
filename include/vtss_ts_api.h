@@ -280,28 +280,6 @@ vtss_rc vtss_ts_timeofday_raw(const vtss_inst_t inst, vtss_timestamp_t *const ts
  *  Same as vtss_ts_timeofday_get
  *
  * \return Return code.
- *
- * Note: This is the same function as vtss_ts_domain_timeofday_get except for no
- *       locking/unlocking of API critical region. This variant of the function
- *       assumes that locking has already been done and that the function is
- *       called from within another API function.
- */
-vtss_rc _vtss_ts_domain_timeofday_get(const vtss_inst_t       inst,
-                                      const u32               domain,
-                                      vtss_timestamp_t *const ts,
-                                      u64 *const              tc);
-
-/**
- * \brief Get the current time in a Timestamp format, and the corresponding
- *        time counter.
- * \param inst   [IN]   handle to an API instance
- * \param domain [IN]   Clock domain.
- * \param ts     [OUT]  pointer to a TimeStamp structure
- * \param tc     [OUT]  pointer to a time counter (internal hw format)
- * Architecture:
- *  Same as vtss_ts_timeofday_get
- *
- * \return Return code.
  */
 vtss_rc vtss_ts_domain_timeofday_get(const vtss_inst_t       inst,
                                      const u32               domain,
@@ -960,26 +938,6 @@ vtss_rc vtss_tx_timestamp_update(const vtss_inst_t inst);
 vtss_rc vtss_rx_timestamp_get(const vtss_inst_t          inst,
                               const vtss_ts_id_t *const  ts_id,
                               vtss_ts_timestamp_t *const ts);
-
-/**
- * \brief Get the rx FIFO timestamp for a {timestampId}
- * Architecture:
- *   Luton26
- *
- * \param inst    [IN]          handle to an API instance
- * \param ts_id   [IN]          timestamp id
- * \param ts     [OUT]          pointer to a struct holding the fifo timestamp
- *
- * \return Return code.
- *
- * Note: This is the same function as vtss_rx_timestamp_get except for no
- *       locking/unlocking of API critical region. This variant of the function
- *       assumes that locking has already been done and that the function is
- *       called from within another API function.
- */
-vtss_rc _vtss_rx_timestamp_get(const vtss_inst_t          inst,
-                               const vtss_ts_id_t *const  ts_id,
-                               vtss_ts_timestamp_t *const ts);
 
 /**
  * \brief Release the FIFO rx timestamp id

@@ -238,7 +238,15 @@ vtss_rc vtss_timestampAddSec(vtss_timestamp_t *ts);
 vtss_rc vtss_timestampSubSec(vtss_timestamp_t *ts);
 BOOL    vtss_timestampLarger(const vtss_timestamp_t *ts1, const vtss_timestamp_t *ts2);
 
-vtss_rc _vtss_rx_timestamp_id_release(const vtss_inst_t inst, const vtss_ts_id_t *const ts_id);
+vtss_rc vtss_ts_domain_timeofday_get_private(const vtss_inst_t       inst,
+                                             const u32               domain,
+                                             vtss_timestamp_t *const ts,
+                                             u64 *const              tc);
+vtss_rc vtss_rx_timestamp_id_release_private(const vtss_inst_t         inst,
+                                             const vtss_ts_id_t *const ts_id);
+vtss_rc vtss_rx_timestamp_get_private(const vtss_inst_t          inst,
+                                      const vtss_ts_id_t *const  ts_id,
+                                      vtss_ts_timestamp_t *const ts);
 
 vtss_rc vtss_ts_inst_create(struct vtss_state_s *vtss_state);
 

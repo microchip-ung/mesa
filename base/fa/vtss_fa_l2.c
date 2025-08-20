@@ -1697,8 +1697,8 @@ vtss_rc vtss_cil_l2_psfp_gate_status_get(struct vtss_state_s           *vtss_sta
     status->close_invalid_rx = (VTSS_X_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3_INVALID_RX(value) > 0U);
     status->close_octets_exceeded =
         (VTSS_X_ANA_AC_SG_CONFIG_SG_CONFIG_REG_3_OCTETS_EXCEEDED(value) > 0U);
-    return _vtss_ts_domain_timeofday_get(vtss_state, vtss_state->ts.conf.tsn_domain,
-                                         &status->current_time, &tc);
+    return vtss_ts_domain_timeofday_get_private(vtss_state, vtss_state->ts.conf.tsn_domain,
+                                                &status->current_time, &tc);
 }
 
 vtss_rc vtss_cil_l2_psfp_filter_conf_set(struct vtss_state_s        *vtss_state,

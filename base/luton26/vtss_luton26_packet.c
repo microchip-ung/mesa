@@ -91,8 +91,8 @@ vtss_rc vtss_cil_packet_ns_to_ts_cnt(vtss_state_t *vtss_state, u32 ns, u64 *ts_c
     if (ns >= VTSS_ONE_MIA) {
         VTSS_I("Invalid ns value (%d)", ns);
     }
-    _vtss_ts_domain_timeofday_get(NULL, 0, &ts, &tc_64);
-    tc = tc_64 >> 16;          /* The tc_64 returned by _vtss_ts_domain_timeofday_get()
+    vtss_ts_domain_timeofday_get_private(NULL, 0, &ts, &tc_64);
+    tc = tc_64 >> 16;          /* The tc_64 returned by vtss_ts_domain_timeofday_get_private()
                                   is in 16 bit fractions of nanoseconds */
     if (ts.nanoseconds < ns) { // ns has wrapped
         ts.nanoseconds += VTSS_ONE_MIA;
@@ -138,7 +138,7 @@ vtss_rc vtss_cil_packet_ptp_get_timestamp(vtss_state_t                      *vts
     ts_id.ts_id = rx_info->tstamp_id;
     *timestamp_ok = rx_info->tstamp_id_decoded;
     VTSS_I("Timestamp_id %d, Timestamp_decoded %d", ts_id.ts_id, *timestamp_ok);
-    if (VTSS_RC_OK == _vtss_rx_timestamp_get(0, &ts_id, &ts) && ts.ts_valid) {
+    if (VTSS_RC_OK == vtss_rx_timestamp_get_private(0, &ts_id, &ts) && ts.ts_valid) {
         ns_32 = ts.ts;
     } else {
         VTSS_I("No valid timestamp detected for id: %d", ts_id.ts_id);
