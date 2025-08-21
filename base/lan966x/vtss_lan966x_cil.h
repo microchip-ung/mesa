@@ -12,15 +12,7 @@
 #include "../ail/vtss_common.h"
 #include "../ail/vtss_util.h"
 #include "vtss_lan966x.h"
-#if defined(VTSS_OPT_FPGA)
-#if (VTSS_OPT_FPGA == 1)
-#include "vtss_lan966x_regs_sr.h"
-#else
-#include "vtss_lan966x_regs_ad.h"
-#endif
-#else
 #include "vtss_lan966x_regs.h"
-#endif
 #include "vtss_lan966x_ifh.h"
 
 /* ================================================================= *
@@ -55,10 +47,8 @@ static inline u32 vtss_lan966x_target_id_to_addr(int target_id)
     case (TARGET_VCAP + 0): return LAN966X_TARGET_VCAP_0_OFFSET;
     case (TARGET_VCAP + 1): return LAN966X_TARGET_VCAP_1_OFFSET;
     case (TARGET_VCAP + 2): return LAN966X_TARGET_VCAP_2_OFFSET;
-#if !defined(VTSS_OPT_FPGA)
-    case TARGET_CHIP_TOP: return LAN966X_TARGET_CHIP_TOP_OFFSET;
-    case TARGET_HSIO:     return LAN966X_TARGET_HSIO_OFFSET;
-#endif
+    case TARGET_CHIP_TOP:   return LAN966X_TARGET_CHIP_TOP_OFFSET;
+    case TARGET_HSIO:       return LAN966X_TARGET_HSIO_OFFSET;
 #if defined(LAN966X_TARGET_CPU_OFFSET)
     case TARGET_CPU: return LAN966X_TARGET_CPU_OFFSET;
 #endif
@@ -178,14 +168,9 @@ static inline u32 __ioreg(const char *file,
 #define PGID_AGGR   (VTSS_PGIDS)
 #define PGID_SRC    (PGID_AGGR + LAN966X_ACS)
 
-#if defined(VTSS_ARCH_LAN966X_FPGA)
-#define LAN966X_BUFFER_MEMORY    (32 * 1024)
-#define LAN966X_BUFFER_REFERENCE 255
-#else
 #define LAN966X_BUFFER_MEMORY    (160 * 1024)
 #define LAN966X_BUFFER_REFERENCE 1280
-#endif
-#define LAN966X_BUFFER_CELL_SZ 64
+#define LAN966X_BUFFER_CELL_SZ   64
 
 // Policers
 #define LAN966X_POLICER_PORT  0   // 0-8   : Port policers (9)

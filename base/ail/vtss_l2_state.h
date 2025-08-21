@@ -93,8 +93,6 @@ void vtss_mach_macl_set(vtss_vid_mac_t *vid_mac, u32 mach, u32 macl);
 #define VTSS_MAC_INDEX_VID_CNT 4
 #if defined(VTSS_ARCH_LAN969X)
 #define VTSS_MAC_INDEX_CNT 4096
-#elif defined(VTSS_ARCH_LAN966X_FPGA)
-#define VTSS_MAC_INDEX_CNT 512
 #else
 #define VTSS_MAC_INDEX_CNT 2048
 #endif

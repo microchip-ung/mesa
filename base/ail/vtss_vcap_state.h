@@ -1132,8 +1132,6 @@ typedef struct {
 #elif defined(VTSS_ARCH_LAN966X)
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_LAN966X_IS1_CNT (VTSS_STREAM_CNT * 4)
-#elif defined(VTSS_ARCH_LAN966X_FPGA)
-#define VTSS_LAN966X_IS1_CNT (16 * 4)
 #else
 #define VTSS_LAN966X_IS1_CNT (192 * 4)
 #endif
@@ -1180,12 +1178,8 @@ typedef struct {
 #elif defined(VTSS_ARCH_LUTON26)
 #define VTSS_IS2_CNT VTSS_L26_IS2_CNT
 #elif defined(VTSS_ARCH_LAN966X)
-#if defined(VTSS_ARCH_LAN966X_FPGA)
-#define VTSS_LAN966X_IS2_CNT (16 * 4)
-#else
 #define VTSS_LAN966X_IS2_CNT (64 * 4)
-#endif
-#define VTSS_IS2_CNT VTSS_LAN966X_IS2_CNT
+#define VTSS_IS2_CNT         VTSS_LAN966X_IS2_CNT
 #elif defined(VTSS_ARCH_JAGUAR_2)
 #define VTSS_IS2_CNT      0 /* VCAP_SUPER is used */
 #define VTSS_ACL_CNT_SIZE 4096
@@ -1225,8 +1219,6 @@ typedef struct {
 #elif defined(VTSS_ARCH_LAN966X)
 #if defined(VTSS_STREAM_CNT)
 #define VTSS_LAN966X_ES0_CNT VTSS_STREAM_CNT
-#elif defined(VTSS_ARCH_LAN966X_FPGA)
-#define VTSS_LAN966X_ES0_CNT 16
 #else
 #define VTSS_LAN966X_ES0_CNT 256
 #endif

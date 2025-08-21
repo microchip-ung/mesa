@@ -6,11 +6,7 @@
 
 #if defined(VTSS_ARCH_LAN966X)
 
-#if defined(VTSS_ARCH_LAN966X_FPGA)
-#define MULTIPLIER_BIT VTSS_BIT(5)
-#else
 #define MULTIPLIER_BIT VTSS_BIT(8)
-#endif
 
 static u32 wm_enc(u32 value, BOOL bytes)
 {
@@ -272,7 +268,6 @@ vtss_rc vtss_cil_synce_station_clk_out_set(vtss_state_t               *vtss_stat
 }
 #endif
 
-#if !defined(VTSS_OPT_FPGA)
 typedef enum { PORT_TYPE_NONE, PORT_TYPE_CUPHY, PORT_TYPE_SD, PORT_TYPE_RGMII } port_type_t;
 
 static vtss_rc lan966x_port_type_calc(vtss_state_t       *vtss_state,
@@ -363,12 +358,10 @@ static vtss_rc lan966x_port_type_calc(vtss_state_t       *vtss_state,
     }
     return VTSS_RC_OK;
 }
-#endif
 
 #if defined(VTSS_FEATURE_SYNCE)
 vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_port)
 {
-#if !defined(VTSS_OPT_FPGA)
     vtss_synce_clock_in_t *conf;
     u32                    idx = VTSS_SD6G_40_CNT;
     vtss_serdes_mode_t     mode_req = VTSS_SERDES_MODE_DISABLE;
@@ -437,7 +430,6 @@ vtss_rc vtss_cil_synce_clock_in_set(vtss_state_t *vtss_state, const u32 clk_port
                 CHIP_TOP_CUPHY_PORT_CFG_AUTO_SQUELCH_ENA(conf->squelsh),
                 CHIP_TOP_CUPHY_PORT_CFG_AUTO_SQUELCH_ENA_M);
     }
-#endif
 
     return VTSS_RC_OK;
 }
@@ -596,7 +588,6 @@ vtss_rc lan966x_rgmii_setup(vtss_state_t         *vtss_state,
                             vtss_port_interface_t mode,
                             int                   speed)
 {
-#if !defined(VTSS_OPT_FPGA)
     bool tx_delay = FALSE;
     bool rx_delay = FALSE;
     int  inst;
@@ -649,7 +640,6 @@ vtss_rc lan966x_rgmii_setup(vtss_state_t         *vtss_state,
     REG_WRM(HSIO_DLL_CFG(inst == 0 ? 0x1 : 0x3), HSIO_DLL_CFG_DELAY_ENA(tx_delay),
             HSIO_DLL_CFG_DELAY_ENA_M);
 
-#endif // !defined(VTSS_OPT_FPGA)
     return VTSS_RC_OK;
 }
 
@@ -781,7 +771,6 @@ vtss_rc vtss_cil_port_conf_get(vtss_state_t           *vtss_state,
     return VTSS_RC_OK;
 }
 
-#if !defined(VTSS_OPT_FPGA)
 static vtss_rc lan966x_serdes_conf_set(vtss_state_t            *vtss_state,
                                        u32                      idx,
                                        vtss_serdes_mode_t       mode,
@@ -882,13 +871,12 @@ static vtss_rc lan966x_serdes_conf_set(vtss_state_t            *vtss_state,
             HSIO_SD_CFG_TX_DATA_EN_M | HSIO_SD_CFG_RX_DATA_EN_M);
     return VTSS_RC_OK;
 }
-#endif
+
 static vtss_rc lan966x_serdes_cfg(vtss_state_t      *vtss_state,
                                   vtss_port_no_t     port_no,
                                   vtss_serdes_mode_t mode)
 {
     vtss_rc rc = VTSS_RC_OK;
-#if !defined(VTSS_OPT_FPGA)
 #if VTSS_OPT_TRACE
     u32 port = VTSS_CHIP_PORT(port_no);
 #endif
@@ -917,7 +905,6 @@ static vtss_rc lan966x_serdes_cfg(vtss_state_t      *vtss_state,
         rc = lan966x_serdes_conf_set(vtss_state, idx, mode, conf);
     }
     vtss_state->port.serdes_mode[port_no] = mode;
-#endif
     return rc;
 }
 
@@ -1003,11 +990,9 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     vtss_port_frame_gaps_t gaps;
     vtss_serdes_mode_t     mode = VTSS_SERDES_MODE_SGMII;
     BOOL                   sgmii_mode_ena;
-#if !defined(VTSS_OPT_FPGA)
-    u32                idx = VTSS_SD6G_40_CNT;
-    vtss_serdes_mode_t mode_req = VTSS_SERDES_MODE_DISABLE;
-    port_type_t        port_type = PORT_TYPE_NONE;
-#endif
+    u32                    idx = VTSS_SD6G_40_CNT;
+    vtss_serdes_mode_t     mode_req = VTSS_SERDES_MODE_DISABLE;
+    port_type_t            port_type = PORT_TYPE_NONE;
 
     /* Verify speed and interface type */
     switch (speed) {
@@ -1026,9 +1011,6 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 
     switch (conf->if_type) {
     case VTSS_PORT_INTERFACE_NO_CONNECTION: disable = 1; break;
-#if defined(VTSS_OPT_FPGA)
-    case VTSS_PORT_INTERFACE_GMII:
-#endif
     case VTSS_PORT_INTERFACE_SGMII:
         sgmii = 1;
         if (is_internal_cu(vtss_state, port) && vtss_state->port.current_pd[port_no]) {
@@ -1099,21 +1081,15 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         value = (conf->flow_control.obey ? DEV_MAC_MODE_CFG_FC_WORD_SYNC_ENA_M : 0);
     }
 
-#if !defined(VTSS_OPT_FPGA)
     VTSS_RC(lan966x_port_type_calc(vtss_state, port_no, &port_type, &idx, &mode_req));
     if (port_type != PORT_TYPE_SD && link_speed != 1) {
         /* RGMII or Internal phy in 10/100 mode = GIG mode disabled */
         giga = 0;
     }
-#endif
-#if defined(VTSS_OPT_FPGA)
-    giga = link_speed == 1 ? 1 : 0;
-#endif
     if (giga) {
         value |= DEV_MAC_MODE_CFG_GIGA_MODE_ENA_M;
     }
     REG_WR(DEV_MAC_MODE_CFG(port), value);
-#if !defined(VTSS_OPT_FPGA)
     // Internal PHYs
     if (port < 2) {
         REG_WRM_CTL(CHIP_TOP_CUPHY_PORT_CFG(port), giga, CHIP_TOP_CUPHY_PORT_CFG_GTX_CLK_ENA_M);
@@ -1123,7 +1099,6 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
         REG_WRM_CTL(HSIO_HW_CFG, conf->if_type == VTSS_PORT_INTERFACE_SGMII,
                     HSIO_HW_CFG_GMII_ENA(VTSS_BIT(port)));
     }
-#endif
 
     /* Default gaps */
     gaps.fdx_gap = (conf->fdx ? 6 : 5);
@@ -1189,14 +1164,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     vtss_cil_port_clause_37_control_get(vtss_state, port_no, &vtss_state->port.clause_37[port_no]);
 
     // Loopback mode
-#if defined(VTSS_OPT_FPGA)
-    REG_WRM(DEV_PORT_MISC(port), DEV_PORT_MISC_DEV_LOOP_ENA(loop ? 2 : 0),
-            DEV_PORT_MISC_DEV_LOOP_ENA_M);
-    REG_WRM(SYS_FRONT_PORT_MODE(port), SYS_FRONT_PORT_MODE_DONT_WAIT_FOR_TS(loop ? 1 : 0),
-            SYS_FRONT_PORT_MODE_DONT_WAIT_FOR_TS_M);
-#else
     REG_WR(DEV_PCS1G_LB_CFG(port), DEV_PCS1G_LB_CFG_TBI_HOST_LB_ENA(loop));
-#endif
 
     /* Set Max Length and maximum tags allowed */
     REG_WR(DEV_MAC_MAXLEN_CFG(port), conf->max_frame_length);
@@ -1292,7 +1260,6 @@ vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t por
 
 static vtss_rc lan966x_sd_rx_rst(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-#if !defined(VTSS_OPT_FPGA)
     port_type_t        pt;
     u32                id;
     vtss_serdes_mode_t m = 0;
@@ -1305,7 +1272,6 @@ static vtss_rc lan966x_sd_rx_rst(vtss_state_t *vtss_state, const vtss_port_no_t 
     VTSS_MSLEEP(3); // reset time
     REG_WRM(HSIO_SD_CFG(id), HSIO_SD_CFG_RX_RESET(0), HSIO_SD_CFG_RX_RESET_M);
     VTSS_MSLEEP(3); // wait to clear the stickies
-#endif
     return VTSS_RC_OK;
 }
 
@@ -1759,8 +1725,7 @@ static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
     vtss_port_no_t port_no;
     u32            port;
     lmu_fmt_buf_t  buf;
-#if !defined(VTSS_OPT_FPGA)
-    u32 i;
+    u32            i;
 
     VTSS_FMT(buf, "Mux Mode %u", vtss_state->init_conf.mux_mode);
     vtss_lan966x_debug_reg_header(ss, buf.s);
@@ -1776,7 +1741,6 @@ static vtss_rc lan966x_debug_port(vtss_state_t                  *vtss_state,
         vtss_lan966x_debug_reg(vtss_state, ss, REG_ADDR(HSIO_SD_STAT(i)), "SD_STAT");
         pr("\n");
     }
-#endif
     for (port = 0; port < VTSS_CHIP_PORTS; port++) {
         port_no = vtss_cmn_port2port_no(vtss_state, info, port);
         if (port_no == VTSS_PORT_NO_NONE) {

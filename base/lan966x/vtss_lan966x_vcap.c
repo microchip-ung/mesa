@@ -6,11 +6,7 @@
 
 #if defined(VTSS_ARCH_LAN966X) && defined(VTSS_FEATURE_VCAP)
 
-#if defined(VTSS_OPT_FPGA)
-#include "vtss_lan966x_vcap_ag_api_fpga.h"
-#else
 #include "vtss_lan966x_vcap_ag_api.h"
-#endif
 
 // VCAP data selection
 #define LAN966X_VCAP_SEL_ENTRY   0x01 // Select entry

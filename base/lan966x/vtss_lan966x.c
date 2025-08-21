@@ -44,7 +44,6 @@ vtss_rc vtss_lan966x_wrm(vtss_state_t *vtss_state, u32 reg, u32 value, u32 mask)
     return rc;
 }
 
-#if !defined(VTSS_OPT_FPGA)
 // Read or write register indirectly
 static vtss_rc lan966x_reg_indirect_access(vtss_state_t *vs, u32 addr, u32 *value, BOOL is_read)
 {
@@ -86,18 +85,13 @@ static vtss_rc lan966x_wr_indirect(vtss_state_t *vtss_state, u32 reg, u32 value)
 {
     return lan966x_reg_indirect_access(vtss_state, reg, &value, FALSE);
 }
-#endif
 
 /* ================================================================= *
  *  Utility functions
  * ================================================================= */
 u32 vtss_lan966x_clk_period_ps(vtss_state_t *vtss_state)
 {
-#if defined(VTSS_ARCH_LAN966X_FPGA)
-    return 15125;
-#else
     return 6038; // 165.625 MHz
-#endif
 }
 
 u32 vtss_lan966x_port_mask(vtss_state_t *vtss_state, const BOOL member[])
@@ -272,7 +266,6 @@ vtss_rc vtss_cil_restart_conf_set(vtss_state_t *vtss_state) { return VTSS_RC_OK;
 
 static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
 {
-#if !defined(VTSS_OPT_FPGA)
     BOOL cu_phy = TRUE;
     u32  rgmii = 0, sd0 = 0, sd1 = 0, gmii = 0, qsgmii = 0;
 
@@ -316,37 +309,12 @@ static vtss_rc lan966x_mux_mode_set(vtss_state_t *vtss_state)
                                               CHIP_TOP_CUPHY_COMMON_CFG_MDC_SEL(1) |
                                               CHIP_TOP_CUPHY_COMMON_CFG_RESET_N(1));
     }
-#endif
     return VTSS_RC_OK;
 }
 
 vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
 {
-    u32 val;
-#if defined(VTSS_OPT_FPGA)
-    u32 diff, err;
-
-    REG_RD(GCB_BUILDID, &val);
-    if (val > LAN966X_BUILD_ID) {
-        diff = (val - LAN966X_BUILD_ID);
-    } else {
-        diff = (LAN966X_BUILD_ID - val);
-    }
-#if (VTSS_OPT_FPGA == 1)
-    // Sunrise
-    err = (diff > 1000);
-#else
-    // Adaro
-    vtss_state->sys_config.using_pcie = 1; // Indicate external CPU
-    err = (diff != 0);
-#endif
-    if (err) {
-        VTSS_E("Unexpected build id. Got: 0x%08x, Expected 0x%08x, diff: %u", val, LAN966X_BUILD_ID,
-               diff);
-        return VTSS_RC_ERROR;
-    }
-#else
-    u32 addr;
+    u32 val, addr;
 
     // Reset switch core if using SPI from external CPU
     if (vtss_state->init_conf.spi_bus) {
@@ -360,7 +328,6 @@ vtss_rc vtss_cil_init_conf_set(vtss_state_t *vtss_state)
         val &= ~CPU_GENERAL_CTRL_IF_MIIM_SLV_ENA_M;
         lan966x_wr_indirect(vtss_state, addr, val);
     }
-#endif
 
     VTSS_RC(lan966x_mux_mode_set(vtss_state));
 

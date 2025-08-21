@@ -24,9 +24,6 @@
 
 #if defined(VTSS_CHIP_966X)
 #define VTSS_ARCH_LAN966X /**< LAN966X architecture */
-#if defined(VTSS_OPT_FPGA)
-#define VTSS_ARCH_LAN966X_FPGA /**< LAN966X FPGA */
-#endif
 #endif
 
 #if defined(VTSS_ARCH_LAN966X)
@@ -97,12 +94,10 @@
 #define VTSS_FEATURE_QOS_TAS_LIST_LINKED             /**< QoS: Time Aware Scheduling list          \
                                                         elements are linked */
 #define VTSS_FEATURE_VLAN_SVL                        /**< Shared VLAN Learning */
-#if !defined(VTSS_OPT_FPGA)
-#define VTSS_FEATURE_TEMP_SENSOR /**< Temperature Sensor */
-#endif
-#define VTSS_FEATURE_ACL          /**< Access Control Lists */
-#define VTSS_FEATURE_ACL_EXT_DIP  /**< ACL extended IPv6 rule with DIP matching                    \
-                                   */
+#define VTSS_FEATURE_TEMP_SENSOR                     /**< Temperature Sensor */
+#define VTSS_FEATURE_ACL                             /**< Access Control Lists */
+#define VTSS_FEATURE_ACL_EXT_DIP                     /**< ACL extended IPv6 rule with DIP matching \
+                                                      */
 #if !VTSS_OPT_LIGHT
 #define VTSS_FEATURE_QCL                           /**< QoS: QoS Control Lists */
 #define VTSS_FEATURE_QCL_DMAC_DIP                  /**< QoS: QoS Control Lists, match on either    \
@@ -126,24 +121,22 @@
 #define VTSS_FEATURE_INTERRUPTS                    /**< Port Interrupt support */
 #define VTSS_FEATURE_SERDES_MACRO_SETTINGS         /**< Hooks for Serdes Macro                     \
                                                       configuration */
-#if !defined(VTSS_OPT_FPGA)
-#define VTSS_FEATURE_SYNCE /**< SYNCE - L1 syncronization feature */
-#endif
-#define VTSS_FEATURE_FAN            /**< Fan control */
-#define VTSS_FEATURE_VOP            /**< Y.1731/IEEE802.1ag OAM */
-#define VTSS_FEATURE_MRP            /**< IEC 62439-2 MRP */
-#define VTSS_FEATURE_MRP_V0         /**< Version 0 MRP implementation. */
-#define VTSS_FEATURE_AFI_SWC        /**< Switch-core-based Automatic Frame Injection */
-#define VTSS_AFI_V2                 /**< AFI API version 2 */
-#define VTSS_FEATURE_RCL            /**< Real-time Control List */
-#define VTSS_FEATURE_VOP_V0         /**< Version 0 OAM implementation. VOP is                      \
-                                       inheritet from Serval-1 (version 1) platform                \
-                                       but not compleately */
-#define VTSS_FEATURE_VOP_TAGGING    /**< VOE can handle different tagging by                       \
-                                       configuration of the VOE residence port */
-#define VTSS_FEATURE_TIMESTAMP_PCH  /**< TS PCH hardware support */
-#endif                              // !VTSS_OPT_LIGHT
-#endif                              /* VTSS_ARCH_LAN966X */
+#define VTSS_FEATURE_SYNCE                         /**< SYNCE - L1 syncronization feature */
+#define VTSS_FEATURE_FAN                           /**< Fan control */
+#define VTSS_FEATURE_VOP                           /**< Y.1731/IEEE802.1ag OAM */
+#define VTSS_FEATURE_MRP                           /**< IEC 62439-2 MRP */
+#define VTSS_FEATURE_MRP_V0                        /**< Version 0 MRP implementation. */
+#define VTSS_FEATURE_AFI_SWC                       /**< Switch-core-based Automatic Frame Injection */
+#define VTSS_AFI_V2                                /**< AFI API version 2 */
+#define VTSS_FEATURE_RCL                           /**< Real-time Control List */
+#define VTSS_FEATURE_VOP_V0                        /**< Version 0 OAM implementation. VOP is       \
+                                                      inheritet from Serval-1 (version 1) platform \
+                                                      but not compleately */
+#define VTSS_FEATURE_VOP_TAGGING                   /**< VOE can handle different tagging by        \
+                                                      configuration of the VOE residence port */
+#define VTSS_FEATURE_TIMESTAMP_PCH                 /**< TS PCH hardware support */
+#endif                                             // !VTSS_OPT_LIGHT
+#endif                                             /* VTSS_ARCH_LAN966X */
 
 #if defined(VTSS_CHIP_7546) || defined(VTSS_CHIP_7549) || defined(VTSS_CHIP_7552) ||               \
     defined(VTSS_CHIP_7556) || defined(VTSS_CHIP_7558)
@@ -871,11 +864,7 @@
 
 #if VTSS_OPT_LIGHT
 // Number of entries for IS1/CLM, ES0, filters, gates, meters, counters etc.
-#if defined(VTSS_OPT_FPGA)
-#define VTSS_STREAM_CNT 16U // Maximum for FPGA
-#else
 #define VTSS_STREAM_CNT 64U
-#endif
 // Number of ACEs
 #define VTSS_ACE_CNT 68U
 #endif
