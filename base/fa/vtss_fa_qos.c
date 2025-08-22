@@ -648,8 +648,8 @@ static vtss_rc lb_group_lb_set_add(vtss_state_t            *vtss_state,
         vtss_state->l2.pol_status[lb_set_idx].mark_all_red = (sum != 0U);
     }
     REG_WR(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR,
-           VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR_MARK_ALL_FRMS_RED_CLR_LBSET(lb_set_idx) |
-               VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR_MARK_ALL_FRMS_RED_CLR_VLD(1U));
+           VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR_LBSET(lb_set_idx) |
+               VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR_VLD(1U));
 #endif
     /* Configure the LB */
     /* Configure the per CIR and EIR related */

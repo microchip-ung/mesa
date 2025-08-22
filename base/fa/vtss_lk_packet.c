@@ -40,7 +40,7 @@
 
 #define VTSS_TO_PIE   (0x04200000)
 #define PIE_CHANNEL   0
-#define PIE_REG(addr) __REG(VTSS_TO_PIE >> 2, addr >> 2, PIE_CHANNEL, 0x1000 >> 2, 0, 0, 32, 1)
+#define PIE_REG(addr) FA_REG(VTSS_TO_PIE >> 2, addr >> 2, PIE_CHANNEL, 0x1000 >> 2, 0, 0, 32, 1)
 
 #define PI_CB_DESC_CFG0 (0x000000c8)
 #define PI_CB_DESC_CFG1 (0x000000cc)

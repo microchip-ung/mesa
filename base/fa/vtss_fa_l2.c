@@ -4088,15 +4088,15 @@ static vtss_rc fa_l2_poll(vtss_state_t *vtss_state)
             u32 value;
 
             REG_RD(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET, &value);
-            if (VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_VLD(value) > 0U) {
-                idx = VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_LBSET(value);
+            if (VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_VLD(value) > 0U) {
+                idx = VTSS_X_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_LBSET(value);
                 if (idx < VTSS_EVC_POL_CNT) {
                     vtss_state->l2.pol_status[idx].mark_all_red = TRUE;
                 }
                 VTSS_I("policer %u mark_all_red", idx);
                 REG_WR(VTSS_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET,
-                       VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_LBSET(idx) |
-                           VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_MARK_ALL_FRMS_RED_SET_VLD(0));
+                       VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_LBSET(idx) |
+                           VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_SET_VLD(0));
             }
         }
     }
