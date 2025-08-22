@@ -1918,7 +1918,7 @@ static vtss_rc macsec_sa_flow_set(vtss_state_t *vtss_state, vtss_port_no_t p, BO
     } else {
         VTSS_D("Ingress (sa:%d): rp:%d validate:%d, offset:%d action:%s", record, rp, validate, offset,
                flow_type == 0 ? "Bypass" : flow_type == 1 ? "Drop" : flow_type == 2 ? "Ingress" : flow_type == 3 ? "Egress" : "");
-        chk_mask = VTSS_F_MACSEC_EGR_SA_MATCH_FLOW_CONTROL_PARAMS_EGR_SAM_FLOW_CTRL_EGR_SA_IN_USE ^ 0xFFFFFFFF;
+        chk_mask = VTSS_F_MACSEC_INGR_SA_MATCH_FLOW_CONTROL_PARAMS_IGR_SAM_FLOW_CTRL_IGR_SA_IN_USE ^ 0xFFFFFFFF;
         CSR_WARM_WRM_CHK_MASK(p, VTSS_MACSEC_INGR_SA_MATCH_FLOW_CONTROL_PARAMS_IGR_SAM_FLOW_CTRL_IGR(record),
                               VTSS_F_MACSEC_INGR_SA_MATCH_FLOW_CONTROL_PARAMS_IGR_SAM_FLOW_CTRL_IGR_DROP_ACTION(2) |                  // Drop action=Drop
                               VTSS_F_MACSEC_INGR_SA_MATCH_FLOW_CONTROL_PARAMS_IGR_SAM_FLOW_CTRL_IGR_FLOW_TYPE(flow_type) |            // MacSec ingress
@@ -5371,10 +5371,10 @@ static vtss_rc vtss_macsec_event_seq_threshold_get_priv(vtss_state_t         *vt
 }
 
 #define VTSS_MACSEC_THRESHOLD_EVENT_ENABLE_BIT 20 //See vtss_venice_reg_macsec_egr.h "Sequence Number Threshold"
-#define VTSS_MACSEC_ROLLOVER_EVENT_ENABLE_BIT 21 //See vtss_venice_reg_macsec_egr.h "Sequence Number roll-over" 
+#define VTSS_MACSEC_ROLLOVER_EVENT_ENABLE_BIT 21 //See vtss_venice_reg_macsec_egr.h "Sequence Number roll-over"
 
 #define VTSS_MACSEC_THRESHOLD_EVENT_STATUS_BIT 4 //See vtss_venice_reg_macsec_egr.h "Sequence Number Threshold"
-#define VTSS_MACSEC_ROLLOVER_EVENT_STATUS_BIT 5 //See vtss_venice_reg_macsec_egr.h "Sequence Number roll-over" 
+#define VTSS_MACSEC_ROLLOVER_EVENT_STATUS_BIT 5 //See vtss_venice_reg_macsec_egr.h "Sequence Number roll-over"
 
 #ifdef VTSS_CHIP_10G_PHY
 #define MALIBU_MAX_CHANNEL_ID 4
@@ -10034,22 +10034,61 @@ static vtss_rc vtss_debug_print_macsec_counters(vtss_state_t              *vtss_
     return VTSS_RC_OK;
 }
 
+static const char *validate_frames_to_str(vtss_validate_frames_t validate_frames)
+{
+    switch (validate_frames) {
+    case MEPA_MACSEC_VALIDATE_FRAMES_DISABLED:
+        return "Disabled";
+
+    case MEPA_MACSEC_VALIDATE_FRAMES_CHECK:
+        return "Check";
+
+    case MEPA_MACSEC_VALIDATE_FRAMES_STRICT:
+        return "Strict";
+
+    default:
+        return "Unknown";
+    }
+}
+
+static const char *cipher_suite_to_str(vtss_macsec_ciphersuite_t cipher_suite)
+{
+    switch (cipher_suite) {
+    case VTSS_MACSEC_CIPHER_SUITE_GCM_AES_128:
+        return "GCM-AES-128";
+
+    case VTSS_MACSEC_CIPHER_SUITE_GCM_AES_256:
+        return "GCM-AES-256";
+
+    case VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128:
+        return "GCM-AES-XPN-128";
+
+    case VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256:
+        return "GCM-AES-XPN-256";
+
+    default:
+        return "Unknown";
+    }
+}
+
+
 static vtss_rc vtss_debug_print_macsec_conf(vtss_state_t              *vtss_state,
                                             const vtss_debug_printf_t pr,
                                             const vtss_debug_info_t   *const info,
                                             const vtss_port_no_t      port_no)
 {
-    u32                                 an, sc;
-
-    vtss_macsec_internal_secy_t *secy;
-    u32 secy_id, i;
-    u32 max_secy, max_sc_rx;
-    u32 max_sa_rx;
+    vtss_macsec_internal_secy_t  *secy;
+    vtss_macsec_internal_tx_sa_t *tx_sa;
+    vtss_macsec_internal_rx_sc_t *rx_sc;
+    vtss_macsec_internal_rx_sa_t *rx_sa;
+    u32                          an, sc, secy_id, i;
+    u32                          max_secy, max_sc_rx, max_sa_rx;
 
     if (!vtss_debug_group_enabled(pr, info, VTSS_DEBUG_GROUP_MACSEC)) {
         return VTSS_RC_OK;
     }
-    max_secy = vtss_state->macsec_capability[port_no].max_secy_cnt;
+
+    max_secy  = vtss_state->macsec_capability[port_no].max_secy_cnt;
     max_sc_rx = vtss_state->macsec_capability[port_no].max_sc_cnt;
     max_sa_rx = vtss_state->macsec_capability[port_no].max_sa_cnt;
 
@@ -10057,31 +10096,61 @@ static vtss_rc vtss_debug_print_macsec_conf(vtss_state_t              *vtss_stat
         secy = &vtss_state->macsec_conf[port_no].secy[secy_id];
         if (secy != NULL && secy->in_use) {
             pr("************** API internals ************* \n");
-            pr("SecY SCI: %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx - %d\n", MACADDRESS_ARG(secy->sci.mac_addr), secy->sci.port_id);
+            pr("SecY #%u:\n", secy_id);
+            pr("  SCI:                         %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx - %d\n", MACADDRESS_ARG(secy->sci.mac_addr), secy->sci.port_id);
+            pr("  Service ID:                  %u\n", secy->service_id);
+            pr("  Controlled Port Enabled:     %d\n", secy->controlled_port_enabled);
+            pr("  conf.validate_frames:        %s\n", validate_frames_to_str(secy->conf.validate_frames));
+            pr("  conf.replay_protect:         %d\n", secy->conf.replay_protect);
+            pr("  conf.replay_window:          %u\n", secy->conf.replay_window);
+            pr("  conf.protect_frames:         %d\n", secy->conf.protect_frames);
+            pr("  conf.always_include_sci:     %d\n", secy->conf.always_include_sci);
+            pr("  conf.use_es:                 %d\n", secy->conf.use_es);
+            pr("  conf.use_scb:                %d\n", secy->conf.use_scb);
+            pr("  conf.current_cipher_suite:   %s\n", cipher_suite_to_str(secy->conf.current_cipher_suite));
+            pr("  conf.confidentiality_offset: %u\n", secy->conf.confidentiality_offset);
+
             for (an = 0; an < VTSS_MACSEC_SA_PER_SC_MAX; an++) {
                 if (secy->tx_sc.sa[an] == NULL || !secy->tx_sc.sa[an]->in_use) {
                     continue;
-                } else {
-                    pr(" Tx an:%u in use (record:%d)\n", an, secy->tx_sc.sa[an]->record);
                 }
+
+                tx_sa = secy->tx_sc.sa[an];
+                pr("  Tx AN#%d:\n", an);
+                pr("    enabled:         %d\n", tx_sa->enabled);
+                pr("    record:          %u\n", tx_sa->record);
+                pr("    confidentiality: %d\n", tx_sa->confidentiality);
+                pr("    ssci:            %02x-%02x-%02x-%02x\n", tx_sa->ssci.buf[0], tx_sa->ssci.buf[1], tx_sa->ssci.buf[2], tx_sa->ssci.buf[3]);
             }
 
             for (sc = 0; sc < max_sc_rx; sc++) {
                 if (secy->rx_sc[sc] == NULL || !secy->rx_sc[sc]->in_use) {
                     continue;
                 }
-                pr("  Rx SC SCI: %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx - %d\n",
-                   MACADDRESS_ARG(secy->rx_sc[sc]->sci.mac_addr), secy->rx_sc[sc]->sci.port_id);
+
+                rx_sc = secy->rx_sc[sc];
+
+                pr("  Rx SC#%d:\n", sc);
+                pr("    SCI:                         %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx - %d\n", MACADDRESS_ARG(rx_sc->sci.mac_addr), rx_sc->sci.port_id);
+                pr("    conf.validate_frames:        %s\n", validate_frames_to_str(rx_sc->conf.validate_frames));
+                pr("    conf.replay_protect:         %d\n", rx_sc->conf.replay_protect);
+                pr("    conf.replay_window:          %u\n", rx_sc->conf.replay_window);
+                pr("    conf.confidentiality_offset: %u\n", rx_sc->conf.confidentiality_offset);
+
                 for (an = 0; an < VTSS_MACSEC_SA_PER_SC_MAX; an++) {
                     if (secy->rx_sc[sc]->sa[an] == NULL || !secy->rx_sc[sc]->sa[an]->in_use) {
                         continue;
-                    } else {
-                        pr("    an:%u, in use (record:%d)\n", an, secy->rx_sc[sc]->sa[an]->record);
                     }
+
+                    rx_sa = secy->rx_sc[sc]->sa[an];
+                    pr("    Rx AN#%d:\n", an);
+                    pr("      enabled: %d\n", rx_sa->enabled);
+                    pr("      record:  %u\n", rx_sa->record);
                 }
             }
         }
     }
+
     for (i = 0; i < max_sa_rx; i++) {
         if (vtss_state->macsec_conf[port_no].tx_sa[i].in_use) {
             pr("Tx Record in use:%d\n", vtss_state->macsec_conf[port_no].tx_sa[i].record);
@@ -10090,6 +10159,7 @@ static vtss_rc vtss_debug_print_macsec_conf(vtss_state_t              *vtss_stat
             pr("Rx Record in use:%d\n", vtss_state->macsec_conf[port_no].rx_sa[i].record);
         }
     }
+
     return VTSS_RC_OK;
 }
 
@@ -10302,247 +10372,290 @@ static void pr_dbg(vtss_debug_printf_t pr, const char *reg_name, uint16_t addr, 
 
     // The address multiplied by 4 matches the one from the datasheet, which can
     // be used for easy lookup.
-    pr("%-22s 0x%04x 0x%05x 0x%08x %10u ", reg_name, addr, 4 * addr, v, v);
+    pr("%-25s 0x%04x 0x%05x 0x%08x %10u ", reg_name, addr, 4 * addr, v, v);
     for (j = 31; j >= 0; j--) {
         pr("%d%s", v & (1 << j) ? 1 : 0, j == 0 ? "\n" : (j % 4) ? "" : ".");
     }
 }
 
-static void pr_dbg_hdr(vtss_debug_printf_t pr, const char *txt, mepa_port_no_t port_no)
+static void pr_dbg_hdr(vtss_debug_printf_t pr, const char *txt, mepa_port_no_t port_no, BOOL egr)
 {
-    pr("\nPort #%u: %s\n", port_no, txt);
-    pr("%-22s WAddr  BAddr   Value      Decimal    31     24 23     16 15      8 7       0\n", "Register");
+    pr("\nPort #%u: %s%s\n", port_no, egr ? "Egress " : "Ingress ", txt);
+    pr("%-25s WAddr  BAddr   Value      Decimal    31     24 23     16 15      8 7       0\n", "Register");
 }
 
 #define VTSS_PHY_MS_DISP_CSR(p, d, a, v) \
                       csr_rd(vtss_state, p, 31, TRUE, a, v); \
                       pr_dbg(pr, d, a, *v);
- 
-static vtss_rc vtss_macsec_dbg_ms_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
-                                                     const vtss_port_no_t port_no,
-                                                     const vtss_debug_printf_t pr)
+
+ #define VTSS_PHY_MS_DISP_CSR_WITH_INDEX(p, d, a, v, i)      \
+                      csr_rd(vtss_state, p, 31, TRUE, a, v); \
+                      sprintf(buf, "%s_%u", d, i);           \
+                      pr_dbg(pr, buf, a, *v);
+
+static void vtss_macsec_dbg_ms_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
+                                                  const vtss_port_no_t port_no,
+                                                  const vtss_debug_printf_t pr)
 {
-    u32             value;
+    u32 offset, i, value;
 
-    pr_dbg_hdr(pr, "Ingress Control", port_no);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_ENA_CFG",           (u16)(0x800), &value);
-    if (!(value && 1)) {
-        csr_wr(vtss_state, port_no, 31, TRUE, (u16)(0x800), (value || 1));
+    for (i = 0; i < 2; i++) {
+        pr_dbg_hdr(pr, "Control", port_no, i);
+
+        offset = i == 0 ? MACSEC_INGR : MACSEC_EGR;
+
+        VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_ENA_CFG",     offset + 0x0800, &value);
+
+        if (!(value && 1)) {
+            csr_wr(vtss_state, port_no, 31, TRUE, offset + 0x0800, (value || 1));
+        }
+
+        VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_CTL_CFG",     offset + 0x0801, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_STICKY",      offset + 0x0802, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_STICKY_MASK", offset + 0x0803, &value);
+
+        if (i == 0) {
+            VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_IGR_LATENCY_CFG", offset + 0x0804, &value);
+        }
     }
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_CTL_CFG",           (u16)(0x801), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_STICKY",            (u16)(0x802), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_STICKY_MASK",       (u16)(0x803), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_IGR_LATENCY_CFG",   (u16)(0x804), &value);
-
-    pr_dbg_hdr(pr, "Egress Control", port_no);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_ENA_CFG",           (u16)(0x8800), &value);
-    if (!(value && 1)) {
-        csr_wr(vtss_state, port_no, 31, TRUE, (u16)(0x8800), (value || 1));
-    }
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_CTL_CFG",           (u16)(0x8801), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_STICKY",            (u16)(0x8802), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MACSEC_STICKY_MASK",       (u16)(0x8803), &value);
-
-    return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_macsec_dbg_sa_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
-                                                     const vtss_port_no_t port_no,
-                                                     const vtss_debug_printf_t pr)
+static void vtss_macsec_dbg_sa_ctrl_reg_dump_priv(vtss_state_t        *vtss_state,
+                                                  vtss_port_no_t      port_no,
+                                                  vtss_debug_printf_t pr)
 {
-    u32             value;
+    u32 offset, i, value;
 
-    pr_dbg_hdr(pr, "Ingress SA Match Control", port_no);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE1",    (u16)(0x1800), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE2",    (u16)(0x1801), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_TOGGLE1",    (u16)(0x1804), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_TOGGLE2",    (u16)(0x1805), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_SET1",       (u16)(0x1808), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_SET2",       (u16)(0x1809), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_CLEAR1",     (u16)(0x180C), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_CLEAR2",     (u16)(0x180D), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_IN_FLIGHT",        (u16)(0x1810), &value);
+    for (i = 0; i < 2; i++) {
+        pr_dbg_hdr(pr, "SA Match Control", port_no, i);
 
-    pr_dbg_hdr(pr, "Egress SA Match Control", port_no);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE1",    (u16)(0x9800), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE2",    (u16)(0x9801), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_TOGGLE1",    (u16)(0x9804), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_TOGGLE2",    (u16)(0x9805), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_SET1",       (u16)(0x9808), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_SET2",       (u16)(0x9809), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_CLEAR1",     (u16)(0x980C), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_CLEAR2",     (u16)(0x980D), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_IN_FLIGHT",        (u16)(0x9810), &value);
+        offset = i == 0 ? MACSEC_INGR : MACSEC_EGR;
 
-    return VTSS_RC_OK;
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE1", offset + 0x1800, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_ENABLE2", offset + 0x1801, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_TOGGLE1", offset + 0x1804, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_TOGGLE2", offset + 0x1805, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_SET1",    offset + 0x1808, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_SET2",    offset + 0x1809, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_CLEAR1",  offset + 0x180C, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_ENTRY_CLEAR2",  offset + 0x180D, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_IN_FLIGHT",     offset + 0x1810, &value);
+    }
 }
 
-static vtss_rc vtss_macsec_dbg_sa_flow_ctrl_reg_dump_priv(vtss_state_t *vtss_state,
-                                                          const vtss_port_no_t port_no,
-                                                          const vtss_debug_printf_t pr)
+static void vtss_macsec_dbg_sa_flow_ctrl_reg_dump_priv(vtss_state_t        *vtss_state,
+                                                       vtss_port_no_t      port_no,
+                                                       vtss_debug_printf_t pr)
 {
-    u16             i;
-    u32             value;
-    u8   no_entries = 0;
-    no_entries = vtss_state->macsec_capability[port_no].max_sa_cnt;
+    vtss_macsec_internal_rx_sa_t *rx_sa;
+    vtss_macsec_internal_tx_sa_t *tx_sa;
+    u16                          sa;
+    u32                          offset, i, value;
+    u8                           cnt, sa_max = vtss_state->macsec_capability[port_no].max_sa_cnt;
+    char                         buf[100];
 
-    pr_dbg_hdr(pr, "Ingress SA Flow Control Words", port_no);
-    for (i = 0; i < no_entries; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_FLOW_CTRL",  (u16)(0x1C00 + i), &value);
+    rx_sa = vtss_state->macsec_conf[port_no].rx_sa;
+    tx_sa = vtss_state->macsec_conf[port_no].tx_sa;
+
+    for (i = 0; i < 2; i++) {
+        pr_dbg_hdr(pr, "SA Flow Control Words", port_no, i);
+
+        cnt = 0;
+        offset = i == 0 ? MACSEC_INGR : MACSEC_EGR;
+        for (sa = 0; sa < sa_max; sa++) {
+            if ((i == 0 && !rx_sa[sa].in_use) || (i == 1 && !tx_sa[sa].in_use)) {
+                continue;
+            }
+
+            cnt++;
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_FLOW_CTRL", offset + 0x1C00 + sa, &value, sa);
+        }
+
+        if (cnt == 0) {
+            pr("<No SAs in use>\n");
+        }
     }
-
-    pr_dbg_hdr(pr, "Egress SA Flow Control Words", port_no);
-    for (i = 0; i < no_entries; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_FLOW_CTRL",  (u16)(0x9C00 + i), &value);
-    }
-
-    return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_macsec_dbg_ctrl_pkt_class_reg_dump_priv(vtss_state_t *vtss_state,
-                                                            const vtss_port_no_t port_no,
-                                                            const vtss_debug_printf_t pr)
+static void vtss_macsec_dbg_ctrl_pkt_class_reg_dump_priv(vtss_state_t        *vtss_state,
+                                                         vtss_port_no_t      port_no,
+                                                         vtss_debug_printf_t pr)
 {
-    u16             i;
-    u32             value;
+    u32  offset, i, value, cnt;
+    char buf[100];
 
-    pr_dbg_hdr(pr, "Ingress Control Packet Classifier (Individual)", port_no);
-    for (i = 0; i < 10; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_MATCH",  (u16)(0x1E00 + (2 * i)), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_ET_MATCH",  (u16)(0x1E01 + (2 * i)), &value);
+    for (i = 0; i < 2; i++) {
+        pr_dbg_hdr(pr, "Control Packet Classifier (Individual)", port_no, i);
+
+        offset = i == 0 ? MACSEC_INGR : MACSEC_EGR;
+
+        for (cnt = 0; cnt < 10; cnt++) {
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "CP_MAC_DA_MATCH",    offset + 0x1E00 + 2 * cnt, &value, cnt);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "CP_MAC_DA_ET_MATCH", offset + 0x1E01 + 2 * cnt, &value, cnt);
+        }
+
+        for (cnt = 0; cnt < 8; cnt++) {
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "CP_MAC_ET_MATCH",    offset + 0x1E14 + cnt, &value, cnt);
+        }
     }
-
-    for (i = 0; i < 8; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_ET_MATCH",  (u16)(0x1E14 + i ), &value);
-    }
-
-    pr_dbg_hdr(pr, "Egress Control Packet Classifier (Individual)", port_no);
-    for (i = 0; i < 10; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_MATCH",  (u16)(0x9E00 + (2 * i)), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_ET_MATCH",  (u16)(0x9E01 + (2 * i)), &value);
-    }
-
-    for (i = 0; i < 8; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_ET_MATCH",  (u16)(0x9E14 + i ), &value);
-    }
-
-    return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_macsec_dbg_ctrl_pkt_class2_reg_dump_priv(vtss_state_t *vtss_state,
-                                                             const vtss_port_no_t port_no,
-                                                             const vtss_debug_printf_t pr)
+static void vtss_macsec_dbg_ctrl_pkt_class2_reg_dump_priv(vtss_state_t        *vtss_state,
+                                                          vtss_port_no_t      port_no,
+                                                          vtss_debug_printf_t pr)
 {
-    u32             value;
+    u32 offset, i, value;
 
-    pr_dbg_hdr(pr, "Ingress Control Packet Classifier (Range)", port_no);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_LO",      (u16)(0x1E20), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_HI",      (u16)(0x1E21), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_END_LO",        (u16)(0x1E22), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_END_HI",        (u16)(0x1E23), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_44_BITS_LO",    (u16)(0x1E24), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_44_BITS_HI",    (u16)(0x1E25), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_48_BITS_LO",    (u16)(0x1E26), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_48_BITS_HI",    (u16)(0x1E27), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MATCH_MODE",           (u16)(0x1E3E), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MATCH_ENABLE",         (u16)(0x1E3F), &value);
+    for (i = 0; i < 2; i++) {
+        pr_dbg_hdr(pr, "Control Packet Classifier (Range)", port_no, i);
 
-    pr_dbg_hdr(pr, "Egress Control Packet Classifier (Range)", port_no);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_LO",      (u16)(0x9E20), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_HI",      (u16)(0x9E21), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_END_LO",        (u16)(0x9E22), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_END_HI",        (u16)(0x9E23), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_44_BITS_LO",    (u16)(0x9E24), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_44_BITS_HI",    (u16)(0x9E25), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_48_BITS_LO",    (u16)(0x9E26), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_48_BITS_HI",    (u16)(0x9E27), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MATCH_MODE",           (u16)(0x9E3E), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CP_MATCH_ENABLE",         (u16)(0x9E3F), &value);
+        offset = i == 0 ? MACSEC_INGR : MACSEC_EGR;
 
-    return VTSS_RC_OK;
-}
-
-static vtss_rc vtss_macsec_dbg_ctrl_frm_reg_dump_priv(vtss_state_t *vtss_state,
-                                                      const vtss_port_no_t port_no,
-                                                      const vtss_debug_printf_t pr)
-{
-    u32             value;
-
-    pr_dbg_hdr(pr, "Ingress Frame Match Handling", port_no);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_CP_TAG",          (u16)(0x1E40), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS",         (u16)(0x1E41), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS2",        (u16)(0x1E42), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_CP_TAG2",         (u16)(0x1E43), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_NM_PARAMS",       (u16)(0x1E50), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_NM_FLOW_NCP",     (u16)(0x1E51), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_NM_FLOW_CP",      (u16)(0x1E52), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MISC_CONTROL",        (u16)(0x1E5F), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "HDR_EXT_CTRL",        (u16)(0x1E60), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CRYPT_AUTH_CTRL",     (u16)(0x1E61), &value);
-
-    pr_dbg_hdr(pr, "Egress Frame Match Handling", port_no);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_CP_TAG",          (u16)(0x9E40), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS",         (u16)(0x9E41), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS2",        (u16)(0x9E42), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_CP_TAG2",         (u16)(0x9E43), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_NM_PARAMS",       (u16)(0x9E50), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_NM_FLOW_NCP",     (u16)(0x9E51), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "SAM_NM_FLOW_CP",      (u16)(0x9E52), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "MISC_CONTROL",        (u16)(0x9E5F), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "HDR_EXT_CTRL",        (u16)(0x9E60), &value);
-    VTSS_PHY_MS_DISP_CSR(port_no, "CRYPT_AUTH_CTRL",     (u16)(0x9E61), &value);
-
-    return VTSS_RC_OK;
-}
-
-static vtss_rc vtss_macsec_dbg_sa_reg_dump_priv(vtss_state_t *vtss_state,
-                                                const vtss_port_no_t port_no,
-                                                const vtss_debug_printf_t pr)
-{
-    u16  i;
-    u32  value;
-    u8   no_entries = 0;
-    no_entries = vtss_state->macsec_capability[port_no].max_sa_cnt;
-
-    pr_dbg_hdr(pr, "Ingress SA Match Parameter Sets", port_no);
-    for (i = 0; i < no_entries; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_SA_MATCH_LO",  (u16)(0x1000 + (0x10 * i)), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_SA_MATCH_HI",  (u16)(0x1000 + (0x10 * i) + 1), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_DA_MATCH_LO",  (u16)(0x1000 + (0x10 * i) + 2), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_DA_MATCH_HI",  (u16)(0x1000 + (0x10 * i) + 3), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MISC_MATCH",       (u16)(0x1000 + (0x10 * i) + 4), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_SCI_MATCH_LO",     (u16)(0x1000 + (0x10 * i) + 5), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_SCI_MATCH_HI",     (u16)(0x1000 + (0x10 * i) + 6), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MASK",             (u16)(0x1000 + (0x10 * i) + 7), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_EXT_MATCH",        (u16)(0x1000 + (0x10 * i) + 8), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_HDR_BYPASS_MATCH1", (u16)(0x1000 + (0x10 * i) + 9), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_HDR_BYPASS_MATCH2", (u16)(0x1000 + (0x10 * i) + 0xA), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_HDR_BYPASS_MASK1", (u16)(0x1000 + (0x10 * i) + 0xB), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_HDR_BYPASS_MASK2", (u16)(0x1000 + (0x10 * i) + 0xC), &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_LO",      offset + 0x1E20, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_START_HI",      offset + 0x1E21, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_END_LO",        offset + 0x1E22, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_END_HI",        offset + 0x1E23, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_44_BITS_LO",    offset + 0x1E24, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_44_BITS_HI",    offset + 0x1E25, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_48_BITS_LO",    offset + 0x1E26, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MAC_DA_48_BITS_HI",    offset + 0x1E27, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MATCH_MODE",           offset + 0x1E3E, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MATCH_ENABLE",         offset + 0x1E3F, &value);
     }
-
-    pr_dbg_hdr(pr, "Egress SA Match Parameter Sets", port_no);
-    for (i = 0; i < no_entries; i++) {
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_SA_MATCH_LO",  (u16)(0x9000 + (0x10 * i)), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_SA_MATCH_HI",  (u16)(0x9000 + (0x10 * i) + 1), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_DA_MATCH_LO",  (u16)(0x9000 + (0x10 * i) + 2), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MAC_DA_MATCH_HI",  (u16)(0x9000 + (0x10 * i) + 3), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MISC_MATCH",       (u16)(0x9000 + (0x10 * i) + 4), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_SCI_MATCH_LO",     (u16)(0x9000 + (0x10 * i) + 5), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_SCI_MATCH_HI",     (u16)(0x9000 + (0x10 * i) + 6), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MASK",             (u16)(0x9000 + (0x10 * i) + 7), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_EXT_MATCH",        (u16)(0x9000 + (0x10 * i) + 8), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_HDR_BYPASS_MATCH1", (u16)(0x9000 + (0x10 * i) + 9), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_HDR_BYPASS_MATCH2", (u16)(0x9000 + (0x10 * i) + 0xA), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_HDR_BYPASS_MASK1", (u16)(0x9000 + (0x10 * i) + 0xB), &value);
-        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_HDR_BYPASS_MASK2", (u16)(0x9000 + (0x10 * i) + 0xC), &value);
-    }
-    return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_macsec_dbg_xform_reg_dump_priv(vtss_state_t *vtss_state,
-                                                   const vtss_port_no_t port_no,
-                                                   const vtss_debug_printf_t pr)
+static void vtss_macsec_dbg_ctrl_frm_reg_dump_priv(vtss_state_t        *vtss_state,
+                                                   vtss_port_no_t      port_no,
+                                                   vtss_debug_printf_t pr)
+{
+    u32  offset, i, value;
+
+    for (i = 0; i < 2; i++) {
+        pr_dbg_hdr(pr, "Frame Match Handling", port_no, i);
+
+        offset = i == 0 ? MACSEC_INGR : MACSEC_EGR;
+
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_CP_TAG",          offset + 0x1E40, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS",         offset + 0x1E41, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_TAGS2",        offset + 0x1E42, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_CP_TAG2",         offset + 0x1E43, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_NM_PARAMS",       offset + 0x1E50, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_NM_FLOW_NCP",     offset + 0x1E51, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_NM_FLOW_CP",      offset + 0x1E52, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "MISC_CONTROL",        offset + 0x1E5F, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "HDR_EXT_CTRL",        offset + 0x1E60, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CRYPT_AUTH_CTRL",     offset + 0x1E61, &value);
+    }
+}
+
+static void vtss_macsec_dbg_sa_reg_dump_priv(vtss_state_t        *vtss_state,
+                                             vtss_port_no_t      port_no,
+                                             vtss_debug_printf_t pr)
+{
+    vtss_macsec_internal_rx_sa_t *rx_sa;
+    vtss_macsec_internal_tx_sa_t *tx_sa;
+    u16                          sa;
+    u32                          offset, i, value;
+    u8                           cnt, sa_max = vtss_state->macsec_capability[port_no].max_sa_cnt;
+    char                         buf[100];
+
+    rx_sa = vtss_state->macsec_conf[port_no].rx_sa;
+    tx_sa = vtss_state->macsec_conf[port_no].tx_sa;
+
+    for (i = 0; i < 2; i++) {
+        pr_dbg_hdr(pr, "SA Match Parameter Sets", port_no, i);
+
+        cnt = 0;
+        offset = i == 0 ? MACSEC_INGR : MACSEC_EGR;
+        for (sa = 0; sa < sa_max; sa++) {
+            if ((i == 0 && !rx_sa[sa].in_use) || (i == 1 && !tx_sa[sa].in_use)) {
+                continue;
+            }
+
+            cnt++;
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_MAC_SA_MATCH_LO",   offset + 0x1000 + 0x10 * sa + 0x0, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_MAC_SA_MATCH_HI",   offset + 0x1000 + 0x10 * sa + 0x1, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_MAC_DA_MATCH_LO",   offset + 0x1000 + 0x10 * sa + 0x2, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_MAC_DA_MATCH_HI",   offset + 0x1000 + 0x10 * sa + 0x3, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_MISC_MATCH",        offset + 0x1000 + 0x10 * sa + 0x4, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_SCI_MATCH_LO",      offset + 0x1000 + 0x10 * sa + 0x5, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_SCI_MATCH_HI",      offset + 0x1000 + 0x10 * sa + 0x6, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_MASK",              offset + 0x1000 + 0x10 * sa + 0x7, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_EXT_MATCH",         offset + 0x1000 + 0x10 * sa + 0x8, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_HDR_BYPASS_MATCH1", offset + 0x1000 + 0x10 * sa + 0x9, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_HDR_BYPASS_MATCH2", offset + 0x1000 + 0x10 * sa + 0xA, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_HDR_BYPASS_MASK1",  offset + 0x1000 + 0x10 * sa + 0xB, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "SAM_HDR_BYPASS_MASK2",  offset + 0x1000 + 0x10 * sa + 0xC, &value, sa);
+        }
+
+        if (cnt == 0) {
+            pr("<No SAs in use>\n");
+        }
+    }
+}
+
+static void vtss_macsec_dbg_debug_reg_dump_priv(vtss_state_t        *vtss_state,
+                                                vtss_port_no_t      port_no,
+                                                vtss_debug_printf_t pr)
+{
+    vtss_macsec_internal_rx_sa_t *rx_sa;
+    vtss_macsec_internal_tx_sa_t *tx_sa;
+    u16                          sa;
+    u32                          offset, i, value;
+    u8                           cnt, sa_max = vtss_state->macsec_capability[port_no].max_sa_cnt;
+    char                         buf[100];
+
+    rx_sa = vtss_state->macsec_conf[port_no].rx_sa;
+    tx_sa = vtss_state->macsec_conf[port_no].tx_sa;
+
+    for (i = 0; i < 2; i++) {
+        pr_dbg_hdr(pr, "Classifier Debug Registers", port_no, i);
+
+        // In order to be able to recognize the registers in the datasheet,
+        // let's use the byte addresses rather than the word addresses (which
+        // are the byte addresses divided by 4).
+        offset = i == 0 ? (MACSEC_INGR << 2) : (MACSEC_EGR << 2);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CP_MATCH_DEBUG",       (offset + 0x7C00) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_DEBUG",            (offset + 0x7C20) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MATCH_DEBUG1",     (offset + 0x7C40) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_MATCH_DEBUG2",     (offset + 0x7C44) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_DEBUG1",        (offset + 0x7C80) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_DEBUG2",        (offset + 0x7C84) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "SAM_PP_DEBUG3",        (offset + 0x7C88) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "DBG_PARSED_DA_LO",     (offset + 0x7D00) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "DBG_PARSED_DA_HI",     (offset + 0x7D04) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "DBG_PARSED_SA_LO",     (offset + 0x7D08) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "DBG_PARSED_SA_HI",     (offset + 0x7D0C) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "DBG_PARSED_SECTAG_LO", (offset + 0x7D10) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "DBG_PARSED_SECTAG_HI", (offset + 0x7D14) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "DBG_PARSED_SCI_LO",    (offset + 0x7D18) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "DBG_PARSED_SCI_HI",    (offset + 0x7D1C) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "DBG_FLOW_LOOKUP",      (offset + 0x7D20) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CRYPTO_CMMD_DEBUG_0",  (offset + 0x7D30) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CRYPTO_CMMD_DEBUG_1",  (offset + 0x7D34) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CRYPTO_CMMD_DEBUG_2",  (offset + 0x7D38) >> 2, &value);
+        VTSS_PHY_MS_DISP_CSR(port_no, "CRYPTO_CMMD_DEBUG_3",  (offset + 0x7D3C) >> 2, &value);
+
+        cnt = 0;
+        for (sa = 0; sa < sa_max; sa++) {
+            if ((i == 0 && !rx_sa[sa].in_use) || (i == 1 && !tx_sa[sa].in_use)) {
+                continue;
+            }
+
+            cnt++;
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "DBG_SA_MATCHES1", (offset + 0x7E00 + sa * 0x08) >> 2, &value, sa);
+            VTSS_PHY_MS_DISP_CSR_WITH_INDEX(port_no, "DBG_SA_MATCHES2", (offset + 0x7E04 + sa * 0x08) >> 2, &value, sa);
+        }
+
+        if (cnt == 0) {
+            pr("<No SAs in use, so no DBG_SA_MATCHES to display>\n");
+        }
+    }
+}
+
+static vtss_rc vtss_macsec_dbg_xform_reg_dump_priv(vtss_state_t        *vtss_state,
+                                                   vtss_port_no_t      port_no,
+                                                   vtss_debug_printf_t pr)
 {
     u16             i, j;
     u32             value1, value2, value3, value4;
@@ -10584,6 +10697,7 @@ static vtss_rc vtss_macsec_dbg_xform_reg_dump_priv(vtss_state_t *vtss_state,
             pr("[ \t0x%-6x - 0x%-6x ] 0x%-12x  0x%-12x  0x%-12x  0x%-12x \n", addr, addr + 3, value1, value2, value3, value4);
         }
     }
+
     return VTSS_RC_OK;
 }
 
@@ -10591,7 +10705,6 @@ static vtss_rc vtss_macsec_dbg_reg_dump_priv(vtss_state_t *vtss_state,
                                              const vtss_port_no_t port_no,
                                              const vtss_debug_printf_t pr)
 {
-
     vtss_macsec_dbg_ms_ctrl_reg_dump_priv(vtss_state, port_no, pr);
     vtss_macsec_dbg_sa_ctrl_reg_dump_priv(vtss_state, port_no, pr);
     vtss_macsec_dbg_sa_flow_ctrl_reg_dump_priv(vtss_state, port_no, pr);
@@ -10599,9 +10712,8 @@ static vtss_rc vtss_macsec_dbg_reg_dump_priv(vtss_state_t *vtss_state,
     vtss_macsec_dbg_ctrl_pkt_class2_reg_dump_priv(vtss_state, port_no, pr);
     vtss_macsec_dbg_ctrl_frm_reg_dump_priv(vtss_state, port_no, pr);
     vtss_macsec_dbg_sa_reg_dump_priv(vtss_state, port_no, pr);
-    vtss_macsec_dbg_xform_reg_dump_priv(vtss_state, port_no, pr);
-
-    return VTSS_RC_OK;
+    vtss_macsec_dbg_debug_reg_dump_priv(vtss_state, port_no, pr);
+    return vtss_macsec_dbg_xform_reg_dump_priv(vtss_state, port_no, pr);
 }
 
 static vtss_rc vtss_macsec_dbg_update_seq_set_priv(vtss_state_t             *vtss_state,
@@ -10662,7 +10774,7 @@ vtss_rc vtss_macsec_dbg_reg_dump(const vtss_inst_t             inst,
             return __rc;                  \
     } \
     pr("%s                   [0x%x] : 0x%x\n", txt,io_reg->addr, *value); \
- 
+
 static vtss_rc vtss_macsec_dbg_fcb_block_reg_dump_priv(vtss_state_t *vtss_state,
                                                        const vtss_port_no_t port_no,
                                                        const vtss_debug_printf_t pr)
@@ -10730,7 +10842,7 @@ vtss_rc vtss_macsec_dbg_frm_match_handling_ctrl_reg_dump(const vtss_inst_t      
     vtss_rc rc = VTSS_RC_ERROR;
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        rc = vtss_macsec_dbg_ctrl_frm_reg_dump_priv(vtss_state, port_no, pr);
+        vtss_macsec_dbg_ctrl_frm_reg_dump_priv(vtss_state, port_no, pr);
     }
     VTSS_EXIT();
     return rc;
