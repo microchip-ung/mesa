@@ -12,6 +12,8 @@ require 'pathname'
 require "json_schemer"
 require 'thread'
 
+VERSION = "1"
+
 INLINE_SCHEMA = {
   "$id" => "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/schemas/unge-artifact-generic-manifest-schema-1.json",
   "$schema" => "https://json-schema.org/draft/2020-12/schema",
@@ -915,7 +917,22 @@ def clear_path base, url
   end
 end
 
-VERSION = "0.0.1"
+def check_version
+  begin
+    body = http_get_prop "https://artifacts-aws.devops.microchip.com/artifactory/api/storage/ung-generic-dev-local/ci"
+    m = JSON.parse(body)
+
+    ci_v = m["properties"]["version"][0]
+    if ci_v.to_i > VERSION.to_i
+      return false
+    end
+
+    return true
+  rescue
+    return false
+  end
+end
+
 NR_THREADS = 100
 $err = 0
 $root = "ci"
@@ -1105,6 +1122,11 @@ end
 
 opt_parser.summary_width = 30
 opt_parser.parse!(ARGV)
+
+if check_version == false
+  puts "The version of the script is too old, please update this before you can run"
+  exit
+end
 
 $upload_list = ARGV.clone
 
