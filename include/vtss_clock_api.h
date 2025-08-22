@@ -1022,11 +1022,6 @@ vtss_rc vtss_clock_input_event_enable(const vtss_inst_t                   inst,
  *dpll's.
  *
  **/
-//    VTSS_CLOCK_DPLL_FREQ_LOCK_EV =      (1 << 0), /**< Loss Of Frequency lock
-//    event */ VTSS_CLOCK_DPLL_PH_LOCK_EV   =      (1 << 1), /**< Loss Of Phase
-//    lock event */ VTSS_CLOCK_DPLL_LOSX         =      (1 << 2), /**< PLL the
-//    currently selected reference input fails event */ VTSS_CLOCK_DPLL_LOL = (1
-//    << 3), /**< PLL loss of lock event */
 #define VTSS_CLOCK_DPLL_STATE_CHANGE_EV (1 << 0) /**< State change event in EEC FSM */
 typedef u32 vtss_clock_dpll_event_type_t;        /**< Int events: Currently only Single
                                                     event */

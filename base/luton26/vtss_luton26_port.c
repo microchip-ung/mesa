@@ -8,9 +8,9 @@
 
 /* - CIL functions ------------------------------------------------- */
 
-vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        *vtss_state,
-                                            const vtss_port_no_t                 port_no,
-                                            vtss_port_clause_37_control_t *const control)
+vtss_rc vtss_cil_port_clause_37_ctrl_get(vtss_state_t                        *vtss_state,
+                                         const vtss_port_no_t                 port_no,
+                                         vtss_port_clause_37_control_t *const control)
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
     if (port < 12) {
@@ -29,7 +29,7 @@ vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        
 }
 
 /* Set 1000Base-X Fiber Auto-negotiation (Clause 37) */
-vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_ctrl_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
     u32 value, tgt = VTSS_TO_DEV(vtss_state->port.map[port_no].chip_port);
@@ -110,7 +110,7 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *v
                             VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
                 L26_WRM_SET(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
                             VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-                (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no); /* Restart
+                (void)vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no); /* Restart
                                                                                    Aneg */
                 VTSS_MSLEEP(50);
                 L26_RD(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
@@ -1532,8 +1532,8 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
                 L26_WR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_STICKY(tgt), value);
             }
             // Update vtss_state database accordingly
-            vtss_cil_port_clause_37_control_get(vtss_state, port_no,
-                                                &(vtss_state->port.clause_37[port_no]));
+            vtss_cil_port_clause_37_ctrl_get(vtss_state, port_no,
+                                             &(vtss_state->port.clause_37[port_no]));
         }
     }
 

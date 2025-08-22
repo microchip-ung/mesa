@@ -12,9 +12,9 @@
 
 vtss_rc vtss_cil_port_counters_clear(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
 
-vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        *vtss_state,
-                                            const vtss_port_no_t                 port_no,
-                                            vtss_port_clause_37_control_t *const control)
+vtss_rc vtss_cil_port_clause_37_ctrl_get(vtss_state_t                        *vtss_state,
+                                         const vtss_port_no_t                 port_no,
+                                         vtss_port_clause_37_control_t *const control)
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
     u32 tgt = VTSS_TO_DEV1G(port);
@@ -27,7 +27,7 @@ vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_ctrl_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
     u32                            value;
@@ -98,7 +98,7 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *v
                             VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
                 JR2_WRM_SET(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
                             VTSS_M_DEV1G_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-                (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no); /* Restart
+                (void)vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no); /* Restart
                                                                                    Aneg */
                 VTSS_MSLEEP(50);
                 JR2_RD(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
@@ -1915,8 +1915,8 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
                VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_ENA(1) |
                    VTSS_F_DEV1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG_ANEG_RESTART_ONE_SHOT(1));
         // Update vtss_state database accordingly
-        vtss_cil_port_clause_37_control_get(vtss_state, port_no,
-                                            &(vtss_state->port.clause_37[port_no]));
+        vtss_cil_port_clause_37_ctrl_get(vtss_state, port_no,
+                                         &(vtss_state->port.clause_37[port_no]));
 
         // Disable 100fx and 1000BaseX PCS
         JR2_WRM(VTSS_DEV1G_DEV_CFG_STATUS_DEV_RST_CTRL(tgt),
@@ -2048,8 +2048,7 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
         }
     }
     // Update vtss_state database accordingly
-    vtss_cil_port_clause_37_control_get(vtss_state, port_no,
-                                        &(vtss_state->port.clause_37[port_no]));
+    vtss_cil_port_clause_37_ctrl_get(vtss_state, port_no, &(vtss_state->port.clause_37[port_no]));
 
     JR2_WRM_CTL(VTSS_DEV1G_PCS1G_CFG_STATUS_PCS1G_LB_CFG(tgt),
                 conf->loop == VTSS_PORT_LOOP_PCS_HOST,

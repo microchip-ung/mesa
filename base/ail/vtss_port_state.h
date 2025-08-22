@@ -532,11 +532,11 @@ vtss_rc vtss_cil_mmd_write(struct vtss_state_s   *vtss_state,
                            u16                    addr,
                            u16                    data,
                            BOOL                   report_errors);
-vtss_rc vtss_cil_port_clause_37_control_get(struct vtss_state_s                 *vtss_state,
-                                            const vtss_port_no_t                 port_no,
-                                            vtss_port_clause_37_control_t *const control);
-vtss_rc vtss_cil_port_clause_37_control_set(struct vtss_state_s *vtss_state,
-                                            const vtss_port_no_t port_no);
+vtss_rc vtss_cil_port_clause_37_ctrl_get(struct vtss_state_s                 *vtss_state,
+                                         const vtss_port_no_t                 port_no,
+                                         vtss_port_clause_37_control_t *const control);
+vtss_rc vtss_cil_port_clause_37_ctrl_set(struct vtss_state_s *vtss_state,
+                                         const vtss_port_no_t port_no);
 vtss_rc vtss_cil_port_clause_37_status_get(struct vtss_state_s                *vtss_state,
                                            const vtss_port_no_t                port_no,
                                            vtss_port_clause_37_status_t *const status);

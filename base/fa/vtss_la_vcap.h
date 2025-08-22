@@ -1,6 +1,9 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifndef VTSS_LA_VCAP_H
+#define VTSS_LA_VCAP_H
+
 /* ================================================================= *
     Start: Auto-generated content, do not edit.
 
@@ -2721,3 +2724,5 @@
 /* ================================================================= *
     End: Auto-generated content, do not edit.
  * ================================================================= */
+
+#endif

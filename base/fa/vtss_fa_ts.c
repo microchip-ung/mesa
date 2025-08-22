@@ -1794,7 +1794,7 @@ static vtss_rc fa_ts_init(vtss_state_t *vtss_state)
             VTSS_M_DEVCPU_PTP_PTP_PIN_CFG_PTP_PIN_SELECT);
 
     for (i = 0U; i < RT_CHIP_PORTS_ALL; i++) {
-        if ((VTSS_PORT_IS_5G(i) != 0U) || (VTSS_PORT_IS_10G(i) != 0U)) {
+        if (VTSS_PORT_IS_5G(i) || VTSS_PORT_IS_10G(i)) {
             REG_WR(VTSS_DEV10G_PTP_STAMPER_CFG(VTSS_TO_HIGH_DEV(i)), 5U);
         }
     }

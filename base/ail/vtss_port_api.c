@@ -117,7 +117,7 @@ vtss_rc vtss_port_clause_37_control_set(const vtss_inst_t                       
     VTSS_ENTER();
     if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         vtss_state->port.clause_37[port_no] = *control;
-        rc = vtss_cil_port_clause_37_control_set(vtss_state, port_no);
+        rc = vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no);
     }
     VTSS_EXIT();
     return rc;
@@ -995,7 +995,7 @@ static vtss_rc vtss_port_clause_37_sync(vtss_state_t *vtss_state, vtss_port_no_t
     new = &new_ctrl->advertisement;
 
     if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES) {
-        rc = vtss_cil_port_clause_37_control_get(vtss_state, port_no, &old_ctrl);
+        rc = vtss_cil_port_clause_37_ctrl_get(vtss_state, port_no, &old_ctrl);
         if (rc == VTSS_RC_OK &&
             (vtss_bool_changed(old_ctrl.enable, new_ctrl->enable) ||
              (new_ctrl->enable &&
@@ -1014,7 +1014,7 @@ static vtss_rc vtss_port_clause_37_sync(vtss_state_t *vtss_state, vtss_port_no_t
                 "new conf, ena: %u, next: %u, ack: %u, rem: %u, assym: %u, sym: %u. hdx: %u, fdx: %u",
                 new_ctrl->enable, new->next_page, new->acknowledge, new->remote_fault,
                 new->asymmetric_pause, new->symmetric_pause, new->hdx, new->fdx);
-            rc = vtss_cil_port_clause_37_control_set(vtss_state, port_no);
+            rc = vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no);
         }
     }
     return rc;

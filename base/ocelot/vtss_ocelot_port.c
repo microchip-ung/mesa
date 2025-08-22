@@ -10,9 +10,9 @@
 
 static BOOL srvl_port_is_internal_phy(u32 chip_port);
 
-vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        *vtss_state,
-                                            const vtss_port_no_t                 port_no,
-                                            vtss_port_clause_37_control_t *const control)
+vtss_rc vtss_cil_port_clause_37_ctrl_get(vtss_state_t                        *vtss_state,
+                                         const vtss_port_no_t                 port_no,
+                                         vtss_port_clause_37_control_t *const control)
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
 
@@ -24,7 +24,7 @@ vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_ctrl_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
     u32                            value, port = VTSS_CHIP_PORT(port_no);
@@ -88,7 +88,7 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *v
                          VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
             SRVL_WRM_SET(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
                          VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-            (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no); /* Restart Aneg */
+            (void)vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no); /* Restart Aneg */
             VTSS_MSLEEP(50);
             SRVL_RD(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
             status->autoneg.complete =
@@ -1710,7 +1710,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
                      VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_LB_CFG_TBI_HOST_LB_ENA);
 
         // Notify link partner
-        vtss_cil_port_clause_37_control_set(vtss_state, port_no);
+        vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no);
 
         if (conf->if_type != VTSS_PORT_INTERFACE_QSGMII) {
             VTSS_RC(srvl_serdes_cfg(vtss_state, port_no, VTSS_SERDES_MODE_IDLE));
@@ -1938,8 +1938,8 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
             SRVL_WR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_STICKY(tgt), value);
         }
         // Update vtss_state database accordingly
-        vtss_cil_port_clause_37_control_get(vtss_state, port_no,
-                                            &(vtss_state->port.clause_37[port_no]));
+        vtss_cil_port_clause_37_ctrl_get(vtss_state, port_no,
+                                         &(vtss_state->port.clause_37[port_no]));
     }
 
     SRVL_WRM_CTL(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_LB_CFG(tgt), conf->loop == VTSS_PORT_LOOP_PCS_HOST,

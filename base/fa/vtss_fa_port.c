@@ -491,9 +491,9 @@ static BOOL port_is_rgmii(vtss_state_t *vtss_state, vtss_port_no_t port_no)
     return FALSE;
 }
 
-vtss_rc vtss_cil_port_clause_37_control_get(struct vtss_state_s                 *vtss_state,
-                                            const vtss_port_no_t                 port_no,
-                                            vtss_port_clause_37_control_t *const control)
+vtss_rc vtss_cil_port_clause_37_ctrl_get(struct vtss_state_s                 *vtss_state,
+                                         const vtss_port_no_t                 port_no,
+                                         vtss_port_clause_37_control_t *const control)
 {
     u32 value;
     u32 tgt = VTSS_TO_DEV2G5(VTSS_CHIP_PORT(port_no));
@@ -506,8 +506,8 @@ vtss_rc vtss_cil_port_clause_37_control_get(struct vtss_state_s                 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_control_set(struct vtss_state_s *vtss_state,
-                                            const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_ctrl_set(struct vtss_state_s *vtss_state,
+                                         const vtss_port_no_t port_no)
 {
 
     vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
@@ -624,7 +624,7 @@ vtss_rc vtss_cil_port_clause_37_status_get(struct vtss_state_s                *v
             /* Reset PCS and restart Aneg */
             REG_WRM_CLR(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
             REG_WRM_SET(VTSS_DEV1G_PCS1G_CFG(tgt), VTSS_M_DEV1G_PCS1G_CFG_PCS_ENA);
-            (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no);
+            (void)vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no);
             VTSS_MSLEEP(50);
             REG_RD(VTSS_DEV1G_PCS1G_ANEG_STATUS(tgt), &value);
             status->autoneg.complete = REG_BF(DEV1G_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
@@ -3340,8 +3340,8 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     }
 
     /* Update vtss_state database accordingly */
-    (void)vtss_cil_port_clause_37_control_get(vtss_state, port_no,
-                                              &vtss_state->port.clause_37[port_no]);
+    (void)vtss_cil_port_clause_37_ctrl_get(vtss_state, port_no,
+                                           &vtss_state->port.clause_37[port_no]);
     if (!rgmii) {
         REG_WRM_CTL(VTSS_DEV1G_PCS1G_LB_CFG(tgt), conf->loop == VTSS_PORT_LOOP_PCS_HOST,
                     VTSS_M_DEV1G_PCS1G_LB_CFG_TBI_HOST_LB_ENA);

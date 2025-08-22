@@ -116,9 +116,9 @@ vtss_rc vtss_lan966x_port_max_tags_set(vtss_state_t *vtss_state, vtss_port_no_t 
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        *vtss_state,
-                                            const vtss_port_no_t                 port_no,
-                                            vtss_port_clause_37_control_t *const control)
+vtss_rc vtss_cil_port_clause_37_ctrl_get(vtss_state_t                        *vtss_state,
+                                         const vtss_port_no_t                 port_no,
+                                         vtss_port_clause_37_control_t *const control)
 {
     u32 value, port = VTSS_CHIP_PORT(port_no);
 
@@ -129,7 +129,7 @@ vtss_rc vtss_cil_port_clause_37_control_get(vtss_state_t                        
     return VTSS_RC_OK;
 }
 
-vtss_rc vtss_cil_port_clause_37_control_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
+vtss_rc vtss_cil_port_clause_37_ctrl_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_clause_37_control_t *control = &vtss_state->port.clause_37[port_no];
     u32                            value, port = VTSS_CHIP_PORT(port_no);
@@ -184,7 +184,7 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *v
             (synced_status && !status->autoneg.complete)) {
             REG_WRM_CLR(DEV_PCS1G_CFG(port), DEV_PCS1G_CFG_PCS_ENA_M);
             REG_WRM_SET(DEV_PCS1G_CFG(port), DEV_PCS1G_CFG_PCS_ENA_M);
-            (void)vtss_cil_port_clause_37_control_set(vtss_state, port_no); /* Restart Aneg */
+            (void)vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no); /* Restart Aneg */
             VTSS_MSLEEP(50);
             REG_RD(DEV_PCS1G_ANEG_STATUS(port), &value);
             status->autoneg.complete = (value & DEV_PCS1G_ANEG_STATUS_ANEG_COMPLETE_M ? 1 : 0);
@@ -1161,7 +1161,7 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
     }
 
     // Update vtss_state database accordingly
-    vtss_cil_port_clause_37_control_get(vtss_state, port_no, &vtss_state->port.clause_37[port_no]);
+    vtss_cil_port_clause_37_ctrl_get(vtss_state, port_no, &vtss_state->port.clause_37[port_no]);
 
     // Loopback mode
     REG_WR(DEV_PCS1G_LB_CFG(port), DEV_PCS1G_LB_CFG_TBI_HOST_LB_ENA(loop));
