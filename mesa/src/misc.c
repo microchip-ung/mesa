@@ -1,7 +1,6 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#include <stdarg.h>
 #include <vtss_api.h>
 #include <mesa.h>
 
@@ -61,6 +60,7 @@ mesa_rc mesa_fan_rotation_get(const mesa_inst_t inst, uint32_t *rotation_count)
 #endif
 }
 
+#if !defined(VTSS_OPSYS_VELOCITYSP)
 void vtss_callout_trace_printf(const vtss_trace_layer_t layer,
                                const vtss_trace_group_t group,
                                const vtss_trace_level_t level,
@@ -82,6 +82,7 @@ void vtss_callout_trace_printf(const vtss_trace_layer_t layer,
     mesa_callout_trace_printf(m_layer, m_group, m_level, file, line, function, format, args);
     va_end(args);
 }
+#endif
 
 void vtss_callout_trace_hex_dump(const vtss_trace_layer_t layer,
                                  const vtss_trace_group_t group,

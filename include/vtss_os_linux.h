@@ -16,6 +16,7 @@
 #include <asm/byteorder.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <stdarg.h>
 
 /** \brief C99 Integer types */
 typedef signed char i8;  /**<  8-bit signed */
