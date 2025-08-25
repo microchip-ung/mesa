@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _VTSS_OS_VELOCITYSP_H_
-#define _VTSS_OS_VELOCITYSP_H_
+#ifndef VTSS_OS_VELOCITYSP_H
+#define VTSS_OS_VELOCITYSP_H
 
 #include "lm_utils.h"
 #include "lm_switch.h"
@@ -116,4 +116,4 @@ void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
 #define VTSS_PROF_ENTER(id, sub) lm_os_prof_enter(id, sub)
 #define VTSS_PROF_EXIT(id, sub)  lm_os_prof_exit(id, sub)
 
-#endif //  _VTSS_OS_VELOCITYSP_H_
+#endif //  VTSS_OS_VELOCITYSP_H
