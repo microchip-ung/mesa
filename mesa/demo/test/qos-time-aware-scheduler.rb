@@ -1413,6 +1413,139 @@ def jira_mesa_1013_test
     end
 end
 
+def jira_mesa_1047_test
+    ig = 0
+    eg = $loop_port0
+    eg_measure = 1
+    frame_size = 500
+    frame_tx_time_nano = (frame_size+20)*8    # One bit takes one nano sec to transmit at 1G
+    interval1 = 50*frame_tx_time_nano
+    interval2 = 50*frame_tx_time_nano
+    cycle_time = 100*frame_tx_time_nano
+
+    test "Time aware scheduling JIRA MESA_1047" do
+
+    oper_up0 = $ts.dut.call("mesa_port_state_get", $loop_port0)
+    oper_up1 = $ts.dut.call("mesa_port_state_get", $loop_port1)
+    if ((oper_up0 == false) || (oper_up1 == false))
+        t_e ("Loop ports are not up. oper_up0 #{oper_up0} oper_up1 #{oper_up1}")
+    end
+
+    # Port-to-port forwarding via loop ports
+    $ts.dut.call("mesa_vlan_port_members_set", 1, "#{$ts.dut.port_list[1]},#{$ts.dut.port_list[0]},#{$loop_port0},#{$loop_port1}")
+    pvlan = $ts.dut.call("mesa_pvlan_port_members_get", 0)
+    $ts.dut.call("mesa_pvlan_port_members_set", 0, "#{$ts.dut.port_list[0]},#{$loop_port0}")
+    $ts.dut.call("mesa_pvlan_port_members_set", 1, "#{$ts.dut.port_list[1]},#{$loop_port1}")
+
+    t_i ("Measure initially")
+    $ts.dut.run("mesa-cmd mac flush")
+   #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1.9],          true,              [2])
+
+    t_i ("Enable Frame preemption")
+    fp = $ts.dut.call("mesa_qos_fp_port_conf_get", $loop_port0)
+    fp["admin_status"].each_index {|i| fp["admin_status"][i] = false}
+    fp["admin_status"][0] = true
+    fp["admin_status"][1] = true
+    fp["admin_status"][2] = true
+    fp["admin_status"][3] = true
+    fp["enable_tx"] = true
+    fp["verify_disable_tx"] = false
+    fp["add_frag_size"] = 1
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
+    sleep 1
+    port_status = $ts.dut.call("mesa_qos_fp_port_status_get", $loop_port0)
+
+    t_i ("Create GCL")
+    gcl = [{"gate_operation":"MESA_QOS_TAS_GCO_SET_AND_RELEASE_MAC",
+            "gate_open":[true,true,true,true,false,false,false,false],
+            "time_interval":interval1},
+           {"gate_operation":"MESA_QOS_TAS_GCO_SET_AND_HOLD_MAC",
+            "gate_open":[false,false,false,false,true,true,true,true],
+            "time_interval":interval2}]
+    $ts.dut.call("mesa_qos_tas_port_gcl_conf_set", $loop_port0, 2, gcl)
+
+    t_i ("Get TOD of domain 0")
+    tod = $ts.dut.call("mesa_ts_timeofday_get")
+    tod[0]["seconds"] = 0
+    tod[0]["nanoseconds"] = 0
+    $ts.dut.call("mesa_ts_timeofday_set", tod[0])
+    base_time = tod[0].dup
+
+    for iter in 1..10 do
+                  
+      t_i ("Start GCL")
+      tod = $ts.dut.call("mesa_ts_timeofday_get")
+      conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $loop_port0)
+      conf["max_sdu"].each_index {|i| conf["max_sdu"][i] = 1536}     # Note that the MAXSDU size is very high
+      conf["gate_enabled"] = true
+      conf["gate_open"].each_index {|i| conf["gate_open"][i] = true}
+      conf["cycle_time"] = cycle_time
+      conf["cycle_time_ext"] = 256
+      conf["base_time"]["nanoseconds"] = 303697500
+      conf["base_time"]["seconds"] = tod[0]["seconds"] + 4
+      conf["base_time"]["sec_msb"] = 0
+      conf["gate_enabled"] = true
+      conf["config_change"] = true
+      $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
+
+      t_i ("Check GCL is pending")
+      status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
+      if (status["config_pending"] != true)
+          t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+      end
+
+      t_i ("Wait for GCL to start")
+      sleep 5
+
+      t_i ("Check GCL is started")
+      status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
+      if (status["config_pending"] == true)
+          t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+      end
+
+      t_i ("Measure preemptable traffic after TAS created  pcb #{$ts.dut.pcb}")
+         #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+      if ($ts.dut.pcb == 135)
+          measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/2],       [3.5],          true,              [2])
+      else
+          measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/2],       [1.2],          true,              [2])
+      end
+
+
+      t_i ("Stop GCL")
+      conf["gate_enabled"] = false
+      conf["config_change"] = false
+      conf = $ts.dut.call("mesa_qos_tas_port_conf_set", $loop_port0, conf)
+
+      t_i ("Wait for GCL to stop")
+      sleep 2
+
+      t_i ("Check GCL is stopped")
+      status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
+      if (status["config_pending"] == true)
+          t_e("GCL unexpected config_pending = #{status["config_pending"]}")
+      end
+
+      t_i ("Measure after stopping TAS")
+     #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+      measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1.8],          true,              [2])
+
+    end
+    t_i ("Disable Frame Preemption")
+    fp["enable_tx"] = false
+    $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
+
+    $ts.dut.call("mesa_pvlan_port_members_set", 0, pvlan)
+    $ts.dut.call("mesa_pvlan_port_members_set", 1, "")
+    if ($ts.dut.port_list.length == 4)
+        t_i ("Only forward on relevant ports ")
+        port_list = "#{$ts.dut.port_list[0]},#{$ts.dut.port_list[1]},#{$ts.dut.port_list[2]},#{$ts.dut.port_list[3]}"
+        $ts.dut.call("mesa_vlan_port_members_set", 1, port_list)
+    end
+    end
+end
+
 test "test_run" do
     eg = rand(3)    # Get a random egress port between 0 and 3
     ig = [0,1,2,3] - [eg]  # Calculate ingress list as all other ports
@@ -1457,6 +1590,7 @@ test "test_run" do
     jira_appl_3396_test
     if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
         jira_appl_3433_test
+        jira_mesa_1047_test
     end
 
     if ($ts.dut.port_list.length == 4)
