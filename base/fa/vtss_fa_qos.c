@@ -29,7 +29,7 @@
 #define CFGRATIO 4
 #endif
 
-#define RT_QUEUE_POL_IDX(port, queue) (VTSS_EVC_POL_CNT + (port * 8U) + queue)
+#define RT_QUEUE_POL_IDX(port, queue) (VTSS_EVC_POL_CNT + ((port) * 8U) + (queue))
 
 static u64 lb_clk_in_hz;
 static u64 lb_clk_in_hz_get(vtss_state_t *vtss_state)
