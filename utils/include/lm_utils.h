@@ -605,7 +605,7 @@ void lmu_ss_append_char(lmu_ss_t *ss, char c);
 #define LMU_SS_FMT1(SS, fmt_str, ...)                                          \
     do {                                                                       \
         lmu_fmt_state_t lmu_fmt_state__ = {                                    \
-            .fmt_offset = 0, .fmt = fmt_str, .ss = SS};                        \
+            .fmt_offset = 0, .fmt = (fmt_str), .ss = (SS)};                    \
         LMU_PP_FOREACH_1ARG(LMU_FMT_GENERIC_INNER, &lmu_fmt_state__,           \
                             ##__VA_ARGS__);                                    \
         lmu_ss_fmt_last(&lmu_fmt_state__);                                     \
