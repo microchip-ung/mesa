@@ -84,6 +84,17 @@ pipeline {
                     }
                 }
 
+                stage("misra-lan969x_lm") {
+                    agent { kubernetes { yamlFile '.cmake/pod-build.yaml' } }
+                    steps {
+                        container('pod-mesa-build') {
+                            unstash name: "src"
+                                    sh "tar -xf ws.tar && rm ws.tar"
+                                    sh "./.cmake/misra-lan969x_lm"
+                        }
+                    }
+                }
+
                 stage("misc") {
                     stages {
                         stage('Style') {
