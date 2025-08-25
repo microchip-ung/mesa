@@ -93,7 +93,15 @@ end
 if not File.exist? "misra-lan969x-lm"
   run "./.cmake/create_cmake_project.rb -n arm64 misra-lan969x-lm", [:allow_std_err]
   cd "misra-lan969x-lm"
-  run "./cmake .. -Dlan969x_lm_static=on", [:allow_std_err]
+  args = [
+    "-Dlan969x_lm_static=on",
+    "-DMESA_OPSYS_LINUX=off",
+    "-DMESA_OPSYS_VELOCITYSP=on",
+    "-DBUILD_MESA_DEMO=off",
+    "-DBUILD_MEPA_ALL=off",
+  ]
+
+  run "./cmake .. #{args.join(" ")}", [:allow_std_err]
   cd ".."
 end
 
