@@ -709,12 +709,21 @@ def jira_appl_3433_test
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
 
-    t_i ("Measure after TAS created  pcb #{$ts.dut.pcb}")
+    t_i ("Measure preemptable traffic after TAS created  pcb #{$ts.dut.pcb}")
        #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
     if ($ts.dut.pcb == 135)
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [3.5],          true,              [2])
     else
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [1.2],          true,              [2])
+    end
+
+    t_i ("Measure non-preemptable traffic after TAS created  pcb #{$ts.dut.pcb}")
+       #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    if ($ts.dut.pcb == 135)
+        # Why is is a tolerance of 15% needed? Is the queue system able to hold 47000 frames?
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000*0.73],       [15.0],          true,              [4])
+    else
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000*0.73],       [2.0],          true,              [4])
     end
 
     t_i ("Disable Frame Preemption")
@@ -729,6 +738,16 @@ def jira_appl_3433_test
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/8],       [5],           true,              [2])
     else
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/7.5],       [5],           true,              [2],    [cycle_time])
+    end
+
+    # Throughput of non-preemptable traffic should not be affected by enabling/disabling preemption
+    t_i ("Measure non-preemptable traffic after Frame Preemption disabled pcb #{$ts.dut.pcb}")
+       #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    if ($ts.dut.pcb == 135)
+        # Why is is a tolerance of 15% needed? Is the queue system able to hold 47000 frames?
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000*0.73],       [15.0],          true,              [4])
+    else
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000*0.73],       [2.0],          true,              [4])
     end
 
     t_i ("Enable Frame Preemption")
@@ -756,6 +775,11 @@ def jira_appl_3433_test
     if (status["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
+
+    t_i ("Measure after stopping TAS")
+   #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1.8],          true,              [2])
+
 
     t_i ("Disable Frame Preemption")
     fp["enable_tx"] = false
