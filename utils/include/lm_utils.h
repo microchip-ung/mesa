@@ -26,8 +26,8 @@ extern "C" {
 
 #if defined(LMU_BOOL_IS_UINT8)
 typedef uint8_t lmu_bool_t;
-#define LMU_FALSE 0
-#define LMU_TRUE  1
+#define LMU_FALSE (0 == 1)
+#define LMU_TRUE  (1 == 1)
 #else
 typedef bool lmu_bool_t;
 #define LMU_FALSE false
