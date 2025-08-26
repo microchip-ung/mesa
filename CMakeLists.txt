@@ -309,7 +309,7 @@ API_TARGET(LIB p64h_lm               CHIP P64H          DEFS -DVTSS_OPT_LIGHT=1)
 API_TARGET(LIB p64h                  CHIP P64H)
 
 mesa_export_compile_commands_recursive(${mesa_active_target})
-mesa_export_targets_recursive("${CMAKE_BINARY_DIR}/cmake_target_db.txt" ${mesa_active_target})
+mesa_export_targets_recursive("${CMAKE_CURRENT_BINARY_DIR}/cmake_target_db.txt" ${mesa_active_target})
 
 option(BUILD_MESA_CAPABILITY_DUMPER "Build all the mesa capability dumper function" OFF)
 mark_as_advanced(BUILD_MESA_CAPABILITY_DUMPER)
