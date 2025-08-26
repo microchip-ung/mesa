@@ -503,7 +503,7 @@ void vtss_fa_debug_cnt(lmu_ss_t            *ss,
 
 #define QFWD_FRAME_COPY_CFG_CPU_QU(qu)              (qu)
 #define QFWD_FRAME_COPY_CFG_LRN_ALL                 8
-#define QFWD_FRAME_COPY_CFG_MIRROR_PROBE(probe_idx) (probe_idx + 9U)
+#define QFWD_FRAME_COPY_CFG_MIRROR_PROBE(probe_idx) ((probe_idx) + 9U)
 
 /* sFlow H/W-related min/max */
 #define FA_SFLOW_MIN_SAMPLE_RATE 1U     /**< Minimum allowable sampling rate for sFlow */

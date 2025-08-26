@@ -82,14 +82,14 @@ void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
 
 #define VTSS_MSLEEP(msec)                                                                          \
     {                                                                                              \
-        lm_os_nssleep(msec * 1000000);                                                             \
+        lm_os_nssleep((msec) * 1000000);                                                           \
     }
 #define VTSS_NSLEEP(nsec)                                                                          \
     {                                                                                              \
-        lm_os_nssleep(nsec);                                                                       \
+        lm_os_nssleep((nsec));                                                                     \
     }
 
-#define VTSS_TIMERCMP(time_a, time_b, cmp) ((time_a.tv_sec cmp time_b.tv_sec) ? TRUE : FALSE)
+#define VTSS_TIMERCMP(time_a, time_b, cmp) (((time_a).tv_sec cmp(time_b).tv_sec) ? TRUE : FALSE)
 
 #define VTSS_MTIMER_START(timer, msec)                                                             \
     {                                                                                              \
