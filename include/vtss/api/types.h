@@ -380,7 +380,7 @@ typedef enum {
     VTSS_PORT_INTERFACE_NO_CONNECTION, /**< No connection */
     VTSS_PORT_INTERFACE_LOOPBACK,      /**< Internal loopback in MAC */
     VTSS_PORT_INTERFACE_INTERNAL,      /**< Internal interface */
-    VTSS_PORT_INTERFACE_MII,           /**< MII (RMII does not exist) */
+    VTSS_PORT_INTERFACE_MII,           /**< MII */
     VTSS_PORT_INTERFACE_GMII,          /**< GMII */
     VTSS_PORT_INTERFACE_RGMII,         /**< RGMII with no internal delay */
     VTSS_PORT_INTERFACE_RGMII_ID,      /**< RGMII with 2ns internal RX+TX delay */
@@ -411,6 +411,7 @@ typedef enum {
                                           device. Experimental unsupported mode! */
     VTSS_PORT_INTERFACE_CPU,           /**< Exposed CPU port. Not connected to switch */
     VTSS_PORT_INTERFACE_MASQUERADING,  /**< Physical port used for masquerading by a CPU port */
+    VTSS_PORT_INTERFACE_RMII,          /**< RMII */
 } vtss_port_interface_t;
 
 /** \brief Auto negotiation struct */

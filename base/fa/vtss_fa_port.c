@@ -482,7 +482,8 @@ u32 vtss_fa_dev_tgt(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 
 static BOOL port_is_rgmii(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
-    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII) ||
+    if ((vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RMII) ||
+        (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII_ID) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII_RXID) ||
         (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_RGMII_TXID)) {
@@ -2174,6 +2175,12 @@ static BOOL fa_vrfy_spd_iface(vtss_state_t         *vtss_state,
             // Empty on purpose
         }
         break;
+    case VTSS_PORT_INTERFACE_RMII:
+        if (speed != VTSS_SPEED_100M && speed != VTSS_SPEED_10M) {
+            VTSS_E("RMII port interface only supports 10/100 speeds (port:%u)", port);
+            return FALSE;
+        }
+        break;
     case VTSS_PORT_INTERFACE_SGMII:
     case VTSS_PORT_INTERFACE_RGMII:
     case VTSS_PORT_INTERFACE_RGMII_ID:
@@ -3058,51 +3065,72 @@ static vtss_rc fa_usxgmii_enable(vtss_state_t        *vtss_state,
 static vtss_rc fa_rgmii_setup(vtss_state_t         *vtss_state,
                               vtss_port_no_t        port_no,
                               vtss_port_interface_t mode,
-                              vtss_port_speed_t     speed)
+                              vtss_port_speed_t     speed,
+                              BOOL                  fdx)
 {
     bool tx_delay = FALSE;
     bool rx_delay = FALSE;
-    u32  inst, spd, port = VTSS_CHIP_PORT(port_no);
+    u32  inst, spd, i, base, port = VTSS_CHIP_PORT(port_no);
+    BOOL rmii = (mode == VTSS_PORT_INTERFACE_RMII);
 
     if (port == 28U) {
         inst = 0U;
+        base = 18; // GPIO 60-65 are at index 18-23
     } else if (port == 29U) {
         inst = 1U;
+        base = 6; // GPIO 48-53 are at index 6-11
     } else {
         VTSS_E("illegal rgmii port %d", port);
         return VTSS_RC_ERROR;
     }
 
-    spd = (speed == VTSS_SPEED_10M ? 3U : speed == VTSS_SPEED_100M ? 2U : 1U);
+    if (rmii) {
+        // Drive strength
+        for (i = 0; i < 6U; i++) {
+            REG_WRM(VTSS_HSIOWRAP_GPIO_CFG(base + i), VTSS_F_HSIOWRAP_GPIO_CFG_DS(1),
+                    VTSS_M_HSIOWRAP_GPIO_CFG_DS);
+        }
+        REG_WR(VTSS_HSIOWRAP_RMII_CFG(inst),
+               VTSS_F_HSIOWRAP_RMII_CFG_RMII_REF_CLK_SEL(0) |
+                   VTSS_F_HSIOWRAP_RMII_CFG_RMII_CFG_TX_EDGE(0) |
+                   VTSS_F_HSIOWRAP_RMII_CFG_RMII_FDX_CFG(fdx) |
+                   VTSS_F_HSIOWRAP_RMII_CFG_RMII_SPEED_CFG(speed == VTSS_SPEED_100M ? 1 : 0) |
+                   VTSS_F_HSIOWRAP_RMII_CFG_RMII_TX_RST(0) |
+                   VTSS_F_HSIOWRAP_RMII_CFG_RMII_RX_RST(0) | VTSS_F_HSIOWRAP_RMII_CFG_RMII_ENA(1));
+    } else {
+        spd = (speed == VTSS_SPEED_10M ? 3U : speed == VTSS_SPEED_100M ? 2U : 1U);
 
-    REG_WRM(VTSS_HSIOWRAP_RGMII_CFG(inst),
-            VTSS_F_HSIOWRAP_RGMII_CFG_TX_CLK_CFG(spd) | VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_TX_RST(0) |
-                VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_RX_RST(0),
-            VTSS_M_HSIOWRAP_RGMII_CFG_TX_CLK_CFG | VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_TX_RST |
-                VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_RX_RST);
+        REG_WRM(VTSS_HSIOWRAP_RGMII_CFG(inst),
+                VTSS_F_HSIOWRAP_RGMII_CFG_TX_CLK_CFG(spd) |
+                    VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_TX_RST(0) |
+                    VTSS_F_HSIOWRAP_RGMII_CFG_RGMII_RX_RST(0),
+                VTSS_M_HSIOWRAP_RGMII_CFG_TX_CLK_CFG | VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_TX_RST |
+                    VTSS_M_HSIOWRAP_RGMII_CFG_RGMII_RX_RST);
 
-    if (mode == VTSS_PORT_INTERFACE_RGMII || mode == VTSS_PORT_INTERFACE_RGMII_ID ||
-        mode == VTSS_PORT_INTERFACE_RGMII_TXID) {
-        tx_delay = TRUE;
+        if (mode == VTSS_PORT_INTERFACE_RGMII || mode == VTSS_PORT_INTERFACE_RGMII_ID ||
+            mode == VTSS_PORT_INTERFACE_RGMII_TXID) {
+            tx_delay = TRUE;
+        }
+
+        if (mode == VTSS_PORT_INTERFACE_RGMII_ID || mode == VTSS_PORT_INTERFACE_RGMII_RXID) {
+            rx_delay = TRUE;
+        }
+        // RX:
+        REG_WRM(VTSS_HSIOWRAP_DLL_CFG(inst, 0),
+                VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_SEL(3) | VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(1) |
+                    VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(0) |
+                    VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(rx_delay),
+                VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_SEL | VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA |
+                    VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST | VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA);
+
+        // TX:
+        REG_WRM(VTSS_HSIOWRAP_DLL_CFG(inst, 1),
+                VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_SEL(3) | VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(1) |
+                    VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(0) |
+                    VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(tx_delay),
+                VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_SEL | VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA |
+                    VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST | VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA);
     }
-
-    if (mode == VTSS_PORT_INTERFACE_RGMII_ID || mode == VTSS_PORT_INTERFACE_RGMII_RXID) {
-        rx_delay = TRUE;
-    }
-    // RX:
-    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(inst, 0),
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_SEL(3) | VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(1) |
-                VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(0) | VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(rx_delay),
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_SEL | VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA |
-                VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST | VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA);
-
-    // TX:
-    REG_WRM(VTSS_HSIOWRAP_DLL_CFG(inst, 1),
-            VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_SEL(3) | VTSS_F_HSIOWRAP_DLL_CFG_DLL_ENA(1) |
-                VTSS_F_HSIOWRAP_DLL_CFG_DLL_RST(0) | VTSS_F_HSIOWRAP_DLL_CFG_DLL_CLK_ENA(tx_delay),
-            VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_SEL | VTSS_M_HSIOWRAP_DLL_CFG_DLL_ENA |
-                VTSS_M_HSIOWRAP_DLL_CFG_DLL_RST | VTSS_M_HSIOWRAP_DLL_CFG_DLL_CLK_ENA);
-
     REG_WRM(VTSS_HSIOWRAP_XMII_CFG(inst == 0U ? 1U : 0U), // XMII_CFG index is swapped
             VTSS_F_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG(1), VTSS_M_HSIOWRAP_XMII_CFG_GPIO_XMII_CFG);
 
@@ -3134,6 +3162,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
         serdes_mode = (speed == VTSS_SPEED_2500M ? VTSS_SERDES_MODE_2G5 : VTSS_SERDES_MODE_SGMII);
         sgmii = TRUE;
         break;
+    case VTSS_PORT_INTERFACE_RMII:
     case VTSS_PORT_INTERFACE_RGMII:
     case VTSS_PORT_INTERFACE_RGMII_RXID:
     case VTSS_PORT_INTERFACE_RGMII_TXID:
@@ -3402,7 +3431,7 @@ static vtss_rc fa_port_conf_2g5_set(vtss_state_t *vtss_state, const vtss_port_no
     if (rgmii) {
 #if defined(VTSS_ARCH_LAN969X)
         /* Enable RGMII mode */
-        VTSS_RC(fa_rgmii_setup(vtss_state, port_no, conf->if_type, speed));
+        VTSS_RC(fa_rgmii_setup(vtss_state, port_no, conf->if_type, speed, fdx));
         /* Enable MAC module */
         REG_WR(VTSS_DEVRGMII_MAC_ENA_CFG(tgt),
                VTSS_M_DEVRGMII_MAC_ENA_CFG_RX_ENA | VTSS_M_DEVRGMII_MAC_ENA_CFG_TX_ENA);

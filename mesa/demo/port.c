@@ -74,6 +74,7 @@ const char *mesa_port_if2txt(mesa_port_interface_t if_type)
     case MESA_PORT_INTERFACE_DXGMII_10G:    return "DXGMII_10G";
     case MESA_PORT_INTERFACE_CPU:           return "CPU";
     case MESA_PORT_INTERFACE_MASQUERADING:  return "MASQUERADING";
+    case MESA_PORT_INTERFACE_RMII:          return "RMII";
     }
     return "?   ";
 }

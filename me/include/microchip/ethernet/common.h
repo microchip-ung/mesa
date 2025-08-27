@@ -168,7 +168,7 @@ typedef enum {
     MESA_PORT_INTERFACE_NO_CONNECTION, // No connection
     MESA_PORT_INTERFACE_LOOPBACK,      // Internal loopback in MAC
     MESA_PORT_INTERFACE_INTERNAL,      // Internal interface
-    MESA_PORT_INTERFACE_MII,           // MII (RMII does not exist)
+    MESA_PORT_INTERFACE_MII,           // MII
     MESA_PORT_INTERFACE_GMII,          // GMII
     MESA_PORT_INTERFACE_RGMII,         // RGMII with no internal delay
     MESA_PORT_INTERFACE_RGMII_ID,      // RGMII with 2ns internal RX+TX delay
@@ -197,6 +197,7 @@ typedef enum {
                                        // device. */
     MESA_PORT_INTERFACE_CPU,           // Exposed CPU port. */
     MESA_PORT_INTERFACE_MASQUERADING,  // Physical port used for masquerading by a CPU port
+    MESA_PORT_INTERFACE_RMII,          // RMII
 } mesa_port_interface_t;
 
 /** \brief PHY reset structure */

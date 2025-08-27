@@ -611,6 +611,7 @@ const char *vtss_port_if_txt(vtss_port_interface_t if_type)
     case VTSS_PORT_INTERFACE_DXGMII_5G:     txt = "DXGMII_5G"; break;
     case VTSS_PORT_INTERFACE_CPU:           txt = "CPU"; break;
     case VTSS_PORT_INTERFACE_MASQUERADING:  txt = "MASQUERADING"; break;
+    case VTSS_PORT_INTERFACE_RMII:          txt = "RMII"; break;
     default:                                txt = "?   "; break;
     }
     return txt;

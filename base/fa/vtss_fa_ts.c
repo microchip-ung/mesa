@@ -1074,6 +1074,7 @@ vtss_rc vtss_cil_ts_status_change(struct vtss_state_s *vtss_state, vtss_port_no_
                         65536U; /* Add the variable TX delay in the SERDES */
         }
         break;
+    case VTSS_PORT_INTERFACE_RMII:
     case VTSS_PORT_INTERFACE_RGMII:
     case VTSS_PORT_INTERFACE_RGMII_ID:
     case VTSS_PORT_INTERFACE_RGMII_RXID:
