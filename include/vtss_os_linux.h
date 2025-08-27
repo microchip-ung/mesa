@@ -145,7 +145,6 @@ typedef struct {
  * VTSS_LABS - perform abs() on long
  */
 #define VTSS_LABS(arg) labs(arg)
-#define VTSS_ABS(arg)  (((arg) >= -2147483647) ? abs(arg) : 2147483647)
 
 /**
  * VTSS_LLABS - perform abs() on long long

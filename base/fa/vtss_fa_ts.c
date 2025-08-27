@@ -277,7 +277,7 @@ vtss_rc vtss_cil_ts_timeofday_set_delta(struct vtss_state_s    *vtss_state,
 
 vtss_rc vtss_cil_ts_domain_adjtimer_set(struct vtss_state_s *vtss_state, u32 domain)
 {
-    i32 adj;
+    i32 adj, i;
     u32 adj_abs, dom_mask = (u32)0x01U << domain;
     u64 tod_inc, one_pico, tod_delta, tod_trunk;
 
@@ -290,7 +290,14 @@ vtss_rc vtss_cil_ts_domain_adjtimer_set(struct vtss_state_s *vtss_state, u32 dom
         return VTSS_RC_ERROR;
     }
     adj = vtss_state->ts.conf.adj[domain];
-    adj_abs = (u32)VTSS_ABS(adj);
+    if (adj == INT32_MIN) {
+        i = INT32_MAX;
+    } else if (adj < 0) {
+        i = -adj;
+    } else {
+        i = adj;
+    }
+    adj_abs = (u32)i;
 
     tod_inc = nominal_tod_increment; /* Fetch the nominal TOD increment as a
                                         baseline */
