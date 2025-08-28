@@ -179,6 +179,8 @@ enum {
 typedef u32 vtss_chip_no_t;
 
 /** \brief Instance identifier */
+#pragma coverity compliance deviate "MISRA C-2023 Rule 5.6"                                        \
+                                    "Type 'vtss_inst_t' defined in both MESA and MEPA."
 typedef struct vtss_state_s *vtss_inst_t;
 
 /**

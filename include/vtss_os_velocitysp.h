@@ -9,6 +9,8 @@
 #include "lm_os.h"
 #include "lm_os_drv.h"
 
+#pragma coverity compliance block(deviate "MISRA C-2023 Rule 5.6"                                  \
+                                          "Integer types defined in both MESA and MEPA.")
 /** \brief Fallback Integer types */
 typedef signed char  i8;  /**<  8-bit signed */
 typedef signed short i16; /**< 16-bit signed */
@@ -29,6 +31,7 @@ typedef unsigned long long u64; /**< 64-bit unsigned */
 #endif
 
 typedef unsigned char BOOL; /**< Boolean implemented as 8-bit unsigned */
+#pragma coverity compliance end_block "MISRA C-2023 Rule 5.6"
 
 typedef struct {
     long int tv_sec;

@@ -837,6 +837,7 @@ def handle_pp ast
     when /^\s*#\s*error /
     when /^\s*#\s*include/
     when /^\s*#\s*undef/
+    when /^\s*#\s*pragma/
     else
         pp ast
         #puts ">#{p}<"

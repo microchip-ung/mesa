@@ -504,6 +504,9 @@ typedef enum {
  * Most parameters don't have a decoded field, and in that case, they are
  * always decoded.
  */
+#pragma coverity compliance block(deviate                                                          \
+                                  "MISRA C-2023 Rule 21.2"                                         \
+                                  "Field 'cos' does not conflict with 'cos()' math function.")
 typedef struct {
     u32               hints;
     u32               length;
@@ -528,6 +531,7 @@ typedef struct {
     u8                rb_path_id;
     u16               rb_seq_no;
 } vtss_packet_rx_info_t;
+#pragma coverity compliance end_block "MISRA C-2023 Rule 21.2"
 
 #if defined(VTSS_FEATURE_PACKET_PIPELINE_PT)
 /**
@@ -584,6 +588,9 @@ typedef enum {
  * This structure must be initialized with vtss_packet_tx_info_init()
  * prior to calling vtss_packet_tx_hdr_encode().
  */
+#pragma coverity compliance block(deviate                                                          \
+                                  "MISRA C-2023 Rule 21.2"                                         \
+                                  "Field 'cos' does not conflict with 'cos()' math function.")
 typedef struct {
     BOOL                     switch_frm;
     u64                      dst_port_mask;
@@ -623,6 +630,7 @@ typedef struct {
                                  // than its configured NetId in HSR tag
     vtss_packet_rb_fwd_t rb_fwd; // RedBox forwarding selection
 } vtss_packet_tx_info_t;
+#pragma coverity compliance end_block "MISRA C-2023 Rule 21.2"
 
 /**
  * \brief Decode binary extraction/Rx header.
