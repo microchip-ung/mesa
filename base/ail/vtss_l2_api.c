@@ -7073,7 +7073,7 @@ static char *vtss_ts_str(vtss_timestamp_t *ts, lmu_fmt_buf_t *buf)
     struct tm *t = localtime_r(&tm, &timeinfo);
     (void)strftime(str, sizeof(str), "%Y-%m-%d %H:%M:%S", t);
 #else
-    str[0] = 0;
+    str[0] = '\0';
 #endif
 
     lmu_fmt_buf_init(buf);
@@ -9529,7 +9529,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
         }
 
         VTSS_MEMSET(&node, 0, sizeof(node));
-        while (1) {
+        while (TRUE) {
             rc =
                 (info->action > 0U ? vtss_cil_l2_rb_node_id_get_next(vtss_state, i, node.id, &node)
                                    : vtss_cil_l2_rb_node_get_next(vtss_state, i, &node.mac, &node));
@@ -9564,7 +9564,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
         }
 
         VTSS_MEMSET(&pnode, 0, sizeof(pnode));
-        while (1) {
+        while (TRUE) {
             rc = (info->action > 0U
                       ? vtss_cil_l2_rb_proxy_node_id_get_next(vtss_state, i, pnode.id, &pnode)
                       : vtss_cil_l2_rb_proxy_node_get_next(vtss_state, i, &pnode.mac, &pnode));

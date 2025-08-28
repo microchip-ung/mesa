@@ -1254,6 +1254,7 @@ vtss_rc vtss_misc_appdata_set(const vtss_inst_t inst, void *data);
  * ============================================================================
  **/
 
+#ifdef VTSS_OPT_SYMREG
 /** \brief Symbolic descriptiopn of a register. */
 typedef struct {
     const char   *name;       /**< Name of register */
@@ -1300,6 +1301,7 @@ typedef struct {
  *
  **/
 vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data);
+#endif
 
 typedef enum {
     VTSS_VSCOPE_FAST_SCAN,

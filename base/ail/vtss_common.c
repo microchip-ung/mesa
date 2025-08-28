@@ -727,7 +727,7 @@ vtss_rc vtss_cmn_bit_from_one_hot_mask64(u64 mask, u32 *bit_pos)
             goto err;
         }
     } else {
-        *bit_pos = VTSS_OS_CTZ(msw);
+        *bit_pos = (u32)VTSS_OS_CTZ(msw);
         msw &= ~VTSS_BIT(*bit_pos);
         if (msw != 0U) {
             // Two or more bits set in msw

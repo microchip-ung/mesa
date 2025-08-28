@@ -573,7 +573,7 @@ vtss_rc vtss_cmn_logical_to_chip_port_mask(const vtss_state_t *const state,
     for (i = 0U; i < 64U; i += 32U) {
         w = (u32)(logical_port_mask >> i);
 
-        while ((p = VTSS_OS_CTZ(w)) < 32U) {
+        while ((p = (u32)VTSS_OS_CTZ(w)) < 32U) {
             w &= ~VTSS_BIT(p);
             p += i;
 

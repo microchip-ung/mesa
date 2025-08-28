@@ -44,7 +44,7 @@ uint8_t lm_mesa_timeval_init(vtss_timeval_t *timeval);
 void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
 
 #define VTSS_OS_RAND()             lmu_pseudo_rand()
-#define VTSS_OS_MALLOC(s, f)       lm_mesa_pseudo_malloc(s, f)
+#define VTSS_OS_MALLOC(s, f)       lm_mesa_pseudo_malloc((uint32_t)s, f)
 #define VTSS_OS_CPU_TO_DMA_ADDR(a) lm_os_drv_to_dma_addr(a)
 
 #define VTSS_OS_FREE(s, f)
@@ -78,7 +78,7 @@ void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
  *
  * Note: __builtin_ctz() is undefined for zero input values.
  */
-#define VTSS_OS_CTZ(val32) ((val32) == 0 ? 32 : __builtin_ctz(val32))
+#define VTSS_OS_CTZ(val32) ((val32) == 0U ? 32U : (u32)__builtin_ctz(val32))
 
 #define VTSS_MSLEEP(msec)                                                                          \
     {                                                                                              \
@@ -93,7 +93,7 @@ void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
 
 #define VTSS_MTIMER_START(timer, msec)                                                             \
     {                                                                                              \
-        lm_mesa_timeval_init(&((timer)->timeout));                                                 \
+        (void)lm_mesa_timeval_init(&((timer)->timeout));                                           \
         (timer)->timeout.tv_usec += (msec) * 1000;                                                 \
         if ((timer)->timeout.tv_usec >= 1000000) {                                                 \
             (timer)->timeout.tv_sec += (timer)->timeout.tv_usec / 1000000;                         \
@@ -102,7 +102,7 @@ void   *lm_mesa_pseudo_malloc(uint32_t size, vtss_mem_flags_t f);
     }
 
 #define VTSS_MTIMER_TIMEOUT(timer)                                                                 \
-    (lm_mesa_timeval_init(&((timer)->now)) && VTSS_TIMERCMP((timer)->now, (timer)->timeout, >))
+    (lm_mesa_timeval_init(&((timer)->now)) > 0U && VTSS_TIMERCMP((timer)->now, (timer)->timeout, >))
 
 #define VTSS_TIME_OF_DAY(time)                                                                     \
     {                                                                                              \

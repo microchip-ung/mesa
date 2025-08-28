@@ -796,8 +796,8 @@ typedef u32 vtss_packet_tx_grp_t;
 #endif                            /* VTSS_ARCH_LAN966X */
 
 #define VTSS_PACKET_RX_QUEUE_NONE                                                                  \
-    (0xffffffffU)                      /**< Rx queue not selected for a particular type of frames */
-#define VTSS_PACKET_RX_QUEUE_START (0) /**< Rx queue start number */
+    (0xffffffffU) /**< Rx queue not selected for a particular type of frames */
+#define VTSS_PACKET_RX_QUEUE_START (0U) /**< Rx queue start number */
 #define VTSS_PACKET_RX_QUEUE_END                                                                   \
     (VTSS_PACKET_RX_QUEUE_START + VTSS_PACKET_RX_QUEUE_CNT) /**< Rx queue end number */
 #endif                                                      // _VTSS_MAIN_TYPES_H_
