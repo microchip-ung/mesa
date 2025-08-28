@@ -2093,7 +2093,7 @@ static vtss_rc fa_serdes_dfe_read(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 po
     return VTSS_RC_OK;
 }
 
-#define CTLE_PRM_RANGE   15U
+#define CTLE_PRM_RANGE   16U
 #define EYE_NUM_MEASURES 3U
 
 static u32 fa_get_best_eye_indx(u16 *array, u32 len)
@@ -2257,7 +2257,7 @@ static vtss_rc fa_serdes_eqr_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
            cfg_vga_ctrl);
     }
 
-    while (cfg_vga_ctrl <= CTLE_PRM_RANGE) {
+    while (cfg_vga_ctrl < CTLE_PRM_RANGE) {
         if (type == FA_SERDES_TYPE_6G || type == FA_SERDES_TYPE_10G) {
             REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_2F(sd_tgt),
                     VTSS_F_SD10G_LANE_TARGET_LANE_2F_CFG_VGA_CTRL_3_0(cfg_vga_ctrl),
@@ -2322,7 +2322,7 @@ static vtss_rc fa_serdes_eqc_adjust(vtss_state_t *vtss_state, lmu_ss_t *ss, u32 
            cfg_eqc_force);
     }
 
-    while (cfg_eqc_force <= CTLE_PRM_RANGE) {
+    while (cfg_eqc_force < CTLE_PRM_RANGE) {
         if (type == FA_SERDES_TYPE_6G || type == FA_SERDES_TYPE_10G) {
             REG_WRM(VTSS_SD10G_LANE_TARGET_LANE_0E(sd_tgt),
                     VTSS_F_SD10G_LANE_TARGET_LANE_0E_CFG_EQC_FORCE_3_0(cfg_eqc_force),
@@ -2525,9 +2525,14 @@ static vtss_rc fa_serdes_10g_eye_dimension(vtss_state_t  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss_t *ss)
+static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state,
+                                        u32 sd_tgt,
+                                        lmu_ss_t *ss)
 {
-    u32  indx, vref, val, cnt = 0U;
+    u32  indx;
+    u32  vref;
+    u32  val;
+    u32  cnt = 0U;
     u32  eye_res[140][10] = {0U};
     u32  vref_cnt = 0U;
     char buf[100];
@@ -2546,12 +2551,14 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, lm
             VTSS_MSLEEP(1);
             cnt++;
         }
+
         if (VTSS_X_SD10G_LANE_TARGET_LANE_D0_ISCAN_DONE(val) == 0U) {
             REG_WRM_CLR(VTSS_SD10G_LANE_TARGET_LANE_2B(sd_tgt),
                         VTSS_M_SD10G_LANE_TARGET_LANE_2B_CFG_ISCAN_EN);
             VTSS_E("Timed out after %d ms - bailing out", cnt);
             return VTSS_RC_ERROR;
         }
+
         indx = 0U;
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D1(sd_tgt), &eye_res[vref_cnt][indx++]);
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D2(sd_tgt), &eye_res[vref_cnt][indx++]);
@@ -2563,26 +2570,26 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, lm
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D8(sd_tgt), &eye_res[vref_cnt][indx++]);
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D9(sd_tgt), &eye_res[vref_cnt][indx]);
 
-        if ((!bottom_found || !top_found) && vref_cnt > 1U) {
+        if (vref_cnt > 1U) {
             u32 sum = 0U;
-            for (u16 a = 0; a < 8U; a++) {
+            u16 a;
+            for (a = 0U; a < 8U; a++) {
                 sum += eye_res[vref_cnt][a];
             }
-            //            printf("vref:%d bott:%d top:%d
-            //            sum:%d\n",vref_cnt,bottom_found, top_found, sum);
-            if (!bottom_found && (sum != 2040U)) {
-                bottom = vref_cnt;
+
+            if ((bottom_found == FALSE) && (sum != 2040U)) {
+                bottom       = vref_cnt;
                 bottom_found = TRUE;
             }
 
-            if (!top_found && bottom_found && (sum == 2040U)) {
-                if (vref_cnt - bottom > 5U) {
+            if ((top_found == FALSE) && (bottom_found == TRUE) && (sum == 2040U)) {
+                if ((vref_cnt - bottom) > 5U) {
                     top_found = TRUE;
                 }
             }
         }
 
-        // EYE scan enable
+        /* EYE scan enable */
         REG_WRM_CLR(VTSS_SD10G_LANE_TARGET_LANE_2B(sd_tgt),
                     VTSS_M_SD10G_LANE_TARGET_LANE_2B_CFG_ADD_VOLT);
         REG_WRM_SET(VTSS_SD10G_LANE_TARGET_LANE_2B(sd_tgt),
@@ -2594,16 +2601,19 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, lm
         }
         vref_cnt++;
     }
+
     if (ss != NULL) {
         for (int i = (int)vref_cnt; i >= 0; i--) {
-            if ((i % 4) == 0 || i == 127) {
+            if (((u32)i % 4U) == 0U || ((u32)i == 127U)) {
                 (void)buf_set(buf, eye_res[i]);
                 pr("%-5d %s\n", i, buf);
             }
         }
     }
+
     return VTSS_RC_OK;
 }
+
 
 static vtss_rc fa_10g_kr_vref_incr(vtss_state_t *vtss_state, u32 sd_tgt, u32 inc)
 {
@@ -2637,8 +2647,8 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss
     u32  vref_cnt = 0U;
     u32  top = 0U;
     u32  bottom = 0U;
-    BOOL top_found = FALSE;
     BOOL bottom_found = FALSE;
+    BOOL top_found = FALSE;
     BOOL first = TRUE;
     u32  repeat;
 
@@ -2646,7 +2656,7 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss
         eye_res[y] = 0xffU;
     }
 
-    while (TRUE) {
+    for (;;) {
         cnt = 0U;
         while (cnt <= 500U) {
             REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D0(sd_tgt), &val);
@@ -2678,29 +2688,37 @@ static vtss_rc fa_serdes_10g_kr_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss
         }
         REG_RD(VTSS_SD10G_LANE_TARGET_LANE_D4(sd_tgt), &eye_res[3]);
 
-        if (!bottom_found || !top_found) {
+        if (!bottom_found) {
             u32 sum = 0U;
             for (u16 a = 0; a < 8U; a++) {
                 sum += eye_res[a];
             }
 
-            if (!bottom_found && (sum != 2040U)) {
+            if (sum != 2040U) {
                 bottom = vref_cnt;
                 bottom_found = TRUE;
             }
+        }
 
-            if (!top_found && bottom_found && (sum == 2040U)) {
+        if (!top_found) {
+            u32 sum = 0U;
+            for (u16 a = 0; a < 8U; a++) {
+                sum += eye_res[a];
+            }
+
+            if (sum == 2040U) {
                 if (vref_cnt - bottom > 3U) {
                     top = vref_cnt;
                     top_found = TRUE;
                 }
             }
-
-            if (top_found && bottom_found) {
-                *height = top - bottom;
-                break;
-            }
         }
+
+        if (top_found && bottom_found) {
+            *height = top - bottom;
+            break;
+        }
+
         if (vref_cnt < 40U) {
             (void)fa_10g_kr_vref_incr(vtss_state, sd_tgt, 40U);
             vref_cnt += 40U;
@@ -3461,8 +3479,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
         VTSS_RC(fa_serdes_dump(vtss_state, ss, port_no));
     } else if (info->action >= 2U && info->action <= 4U) {
         if (sd_type == FA_SERDES_TYPE_10G || sd_type == FA_SERDES_TYPE_6G) {
-            VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val,
-                                            FALSE));
+            VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val, FALSE));
         } else if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
 #if defined(VTSS_FEATURE_SD_25G)
             VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val,
@@ -3481,8 +3498,7 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
         VTSS_RC(fa_serdes_oscal_ena(vtss_state, ss, port_no));
 #endif
     } else if (info->action == 8U) {
-        VTSS_RC(fa_serdes_dfe_set(vtss_state, ss, port_no,
-                                  FALSE)); // DFE Disable
+        VTSS_RC(fa_serdes_dfe_set(vtss_state, ss, port_no, FALSE)); // DFE Disable
     } else if (info->action == 9U) {
         VTSS_RC(fa_serdes_dfe_set(vtss_state, ss, port_no, TRUE)); // DFE Enable
 #if defined(VTSS_FEATURE_PORT_KR_IRQ)
