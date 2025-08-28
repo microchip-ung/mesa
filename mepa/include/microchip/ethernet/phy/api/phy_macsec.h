@@ -42,9 +42,9 @@ typedef union {
 } mepa_macsec_pkt_num_t;
 
 typedef enum {
-    MEPA_MACSEC_VALIDATE_FRAMES_DISABLED,                     /**< Do not perform integrity check */
-    MEPA_MACSEC_VALIDATE_FRAMES_CHECK,                        /**< Perform integrity check do not drop failed frames */
-    MEPA_MACSEC_VALIDATE_FRAMES_STRICT                        /**< Perform integrity check and drop failed frames */
+    MEPA_MACSEC_VALIDATE_FRAMES_DISABLED,                     /**< Integrity check is not performed, but SecTAG and ICV are removed if present */
+    MEPA_MACSEC_VALIDATE_FRAMES_CHECK,                        /**< Validation is enabled, but invalid frames are not discarded */
+    MEPA_MACSEC_VALIDATE_FRAMES_STRICT                        /**< Validation is enabled and invalid frames are discarded */
 } mepa_validate_frames_t;
 
 /** \brief Values of the CipherSuite control */
@@ -794,6 +794,7 @@ mepa_rc mepa_macsec_rx_sa_counters_get(struct mepa_device *dev,
 #define MEPA_MACSEC_MATCH_SMAC           0x0200           /**< Source MAC address  */
 #define MEPA_MACSEC_MATCH_BPDU           0x0400           /**< For control frames: Match 01-80-c2-00-00-0x */
 #define MEPA_MACSEC_MATCH_CDP_UDLD       0x0800           /**< For control frames: Match 01-00-0c-cc-cc-cc */
+#define MEPA_MACSEC_MATCH_SCI            0x1000           /**< Require SCI in SecTAG. For ingress frames directed to controlled port, only */
 
 #define MEPA_MACSEC_MATCH_PRIORITY_LOWEST 15              /**< Lowest possible matching priority */
 #define MEPA_MACSEC_MATCH_PRIORITY_LOW    12              /**< Low matching priority */
@@ -910,8 +911,16 @@ mepa_rc mepa_macsec_control_frame_match_conf_get(struct mepa_device *dev,
 typedef struct {
     /** This field is used to specify which part of the matching pattern is
      * active. If multiple fields are active, they must all match if the
-     * pattern is to match.  */
-    uint32_t          match;
+     * pattern is to match.
+     *
+     * Note on MEPA_MACSEC_MATCH_SCI:
+     *   This can only be used in mepa_macsec_pattern_set() calls with direction
+     *   set to MEPA_MACSEC_DIRECTION_INGRESS and action set to
+     *   MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT. When used, ingressing
+     *   MACsec-encapsulated frames must include the Rx SC's SCI in the SecTAG,
+     *   or they will not match the SC.
+     */
+    uint32_t match;
 
     /** Signals if the frame has been classified as a control frame. This allow
      * to match if a frame must be classified as a control frame, or if it has

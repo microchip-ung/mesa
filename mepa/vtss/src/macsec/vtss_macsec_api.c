@@ -1983,7 +1983,9 @@ static vtss_rc macsec_sa_match_set(vtss_state_t *vtss_state, vtss_port_no_t p, B
         CSR_WARM_WR(p, VTSS_MACSEC_INGR_SA_MATCH_PARAMS_SAM_SCI_MATCH_HI(record), secy->rx_sc[sc]->sci.mac_addr.addr[4] |
                     (secy->rx_sc[sc]->sci.mac_addr.addr[5] << 8) | (MACSEC_BS(secy->rx_sc[sc]->sci.port_id) << 16));
 
-        if (secy->conf.always_include_sci) {
+        if (pattern->match & VTSS_MACSEC_MATCH_SCI) {
+            VTSS_I("Matching on Rx SCI");
+
             /* Enable SCI mask */
             CSR_WARM_WRM(p, VTSS_MACSEC_INGR_SA_MATCH_PARAMS_SAM_MASK(record),
                          VTSS_F_MACSEC_INGR_SA_MATCH_PARAMS_SAM_MASK_MACSEC_SCI_MASK,
@@ -8841,6 +8843,15 @@ vtss_rc vtss_macsec_pattern_set(const vtss_inst_t                  inst,
                port.port_no, action == VTSS_MACSEC_MATCH_ACTION_DROP ? "drop"
                : action == VTSS_MACSEC_MATCH_ACTION_CONTROLLED_PORT ? "ctrl" : "unctrl",
                direction == VTSS_MACSEC_DIRECTION_INGRESS ? "ingr" : "egr", buf);
+    }
+
+    if ((pattern->match & VTSS_MACSEC_MATCH_SCI) != 0 &&
+        (direction != VTSS_MACSEC_DIRECTION_INGRESS ||
+         action    != VTSS_MACSEC_MATCH_ACTION_CONTROLLED_PORT)) {
+        VTSS_E("port_no: %u: VTSS_MACSEC_MATCH_SCI can only be used with"
+               " direction set to ingress and action set to controlled port",
+               port.port_no);
+        return VTSS_RC_ERROR;
     }
 
     VTSS_ENTER();
