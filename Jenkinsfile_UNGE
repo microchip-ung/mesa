@@ -84,13 +84,13 @@ pipeline {
                     }
                 }
 
-                stage("misra-lan969x_lm") {
-                    agent { kubernetes { yamlFile '.cmake/pod-build.yaml' } }
+                stage("lmstax-check") {
+                    agent { kubernetes { yamlFile '.cmake/pod-misra-lmstax.yaml' } }
                     steps {
-                        container('pod-mesa-build') {
+                        container('velocitysp-builder') {
                             unstash name: "src"
-                                    sh "tar -xf ws.tar && rm ws.tar"
-                                    sh "./.cmake/misra-lan969x_lm"
+                            sh "tar -xf ws.tar"
+                            sh "./.cmake/misra-lan969x_lm"
                         }
                     }
                 }

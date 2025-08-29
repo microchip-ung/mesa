@@ -1,0 +1,73 @@
+#!/usr/bin/env ruby
+
+# Copyright (c) 2021-2022 Microchip Technology Inc. and its subsidiaries.
+# SPDX-License-Identifier: MIT
+
+require 'pp'
+require 'open3'
+require 'optparse'
+
+$top = File.dirname(File.dirname(File.dirname(File.expand_path(__FILE__))))
+
+opt_parser = OptionParser.new do |opts|
+    opts.banner = """Usage: chenv [options] -- command-to-run
+
+Options:"""
+    opts.on("-p", "--home path", "New home to run in") do |p|
+        $new_path = p
+    end
+
+    opts.on("-l", "--local-path path", "Local path in new env") do |s|
+        $local_path = s
+    end
+
+    opts.on("-v", "--verbose", "Be more verbose") do
+        $opt_verbose = 1
+    end
+
+    opts.on("-h", "--help", "Show this message") do
+        puts opts
+        exit
+    end
+end
+
+opt_parser.parse!(ARGV)
+
+$new_env = {}
+$new_path = File.expand_path($new_path)
+
+ENV.each do |k, v|
+  case k
+  when "PATH"
+    paths = []
+
+    if $local_path
+      $local_path.split(":").each do |e|
+        paths << File.expand_path("#{$new_path}/#{e}")
+      end
+    end
+
+    v.split(":").each do |e|
+      if e.start_with? $top
+         if $local_path.nil?
+           paths << File.expand_path("#{$new_path}/#{e[$top.size..-1]}")
+         end
+      else
+         paths << e
+      end
+    end
+    $new_env[k] = paths.join(":")
+
+  when "top"
+    $new_env[k] = $new_path
+  else
+    $new_env[k] = v
+  end
+end
+
+Dir.chdir($new_path)
+
+system($new_env, *ARGV)
+puts $?
+exit $?.exitstatus
+

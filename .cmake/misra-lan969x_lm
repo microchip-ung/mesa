@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 require 'pp'
+require 'json'
 require 'open3'
 require 'pathname'
 require 'optparse'
@@ -43,6 +44,7 @@ end
 def cd path
   puts "cd #{path}  (was: #{Dir.pwd})" if $verbose
   Dir.chdir(path)
+  puts "# new path: #{Dir.pwd}" if $verbose
 end
 
 def sys cmd, flags = []
@@ -86,24 +88,29 @@ global = OptionParser.new do |opts|
 
 end.order!
 
+$verbose = true
+
 if $clean
   run "rm -rf misra-lan969x-lm"
 end
 
-if not File.exist? "misra-lan969x-lm"
-  run "./.cmake/create_cmake_project.rb -n arm64 misra-lan969x-lm", [:allow_std_err]
-  cd "misra-lan969x-lm"
-  args = [
-    "-Dlan969x_lm_static=on",
-    "-DMESA_OPSYS_LINUX=off",
-    "-DMESA_OPSYS_VELOCITYSP=on",
-    "-DBUILD_MESA_DEMO=off",
-    "-DBUILD_MEPA_ALL=off",
-  ]
+u = JSON.load_file(".cmake/deps-lmstax.json").first["generic-file-url"]
 
-  run "./cmake .. #{args.join(" ")}", [:allow_std_err]
-  cd ".."
-end
+puts "org env"
+puts run "env"
 
-sys "./.cmake/cov-runner -b misra-lan969x-lm -t lan969x_lm_static", [:allow_non_zero_return]
+puts "Using: #{u}"
+sys "curl --show-error --fail \"#{u}\" -o lm.tar.gz"
+run "mkdir lm"
+run "tar -C lm -xf lm.tar.gz"
+run "rm -rf lm/third-party/mesa"
+run "mkdir lm/third-party/mesa"
+run "tar -C lm/third-party/mesa -xf ws.tar"
+
+puts "new env"
+sys ".cmake/chenv -l support/scripts -p lm -- env"
+sys ".cmake/chenv -l support/scripts -p lm -- pwd"
+sys ".cmake/chenv -l support/scripts -p lm -- bc2cbor --help"
+sys ".cmake/chenv -l support/scripts -p lm -- cmake --workflow --preset lan969x"
+sys ".cmake/chenv -l support/scripts -p lm -- lm-cov-runner -b build-lan969x -t VDSP_BIN_LAN969x_AUTO_elf"
 

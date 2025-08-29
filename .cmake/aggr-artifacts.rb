@@ -115,12 +115,21 @@ if File.exist? "./images"
 end
 run "rm -rf #{$out_name}"
 
+days = 10
+if git_branch == "master"
+  days = 90
+elsif git_branch =~ /^\d\d\d\d.\d\d-soak$/
+  days = 180
+end
+
 if $do_upload
   cmd = [".cmake/artifactory-ci"]
   cmd << "-vvv"
+  cmd << "--days #{days}"
   cmd << "--dep-file .cmake/deps-bsp.json"
   cmd << "--dep-file .cmake/deps-docker.json"
   cmd << "--dep-file .cmake/deps-toolchain.json"
+  cmd << "--dep-file .cmake/deps-lmstax.json"
   cmd << "#{$out_name}.tar.gz"
   sys cmd.join(" ")
 end

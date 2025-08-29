@@ -73,8 +73,10 @@ end
   next if /mepa.microchip.lan80xx.src.sha256/ =~ f
   next if /.cmake\/docker\/SimpleGridClient/ =~ f
 
+  next if "misra-lan969x_lm.readme" == f
   next if ".cmake/pod-base.yaml" == f
   next if ".cmake/pod-build.yaml" == f
+  next if ".cmake/pod-misra-lmstax.yaml" == f
 
   next if [".vsd", ".svg", ".png", ".graphml", ".xls", ".txt", ".json", ".cer"].include? ext
   next if [".gitattributes", ".gitignore", "Gemfile.lock", "catch.hpp", "TODO"].include? base

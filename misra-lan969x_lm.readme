@@ -1,0 +1,72 @@
+misra-lan969x_lm README
+=======================
+
+This script will check if the current (HEAD) version of MESA is compatible with
+a fixed version of LMSTAX. When doing the compatibility check, it will also run
+the MISRA check in LMSTAX, which covers MESA in a specific context.
+
+IMPORTANT: This script is only designed to run on Jenkins.
+IMPORTANT: This script shall run in LMSTAX Docker container
+
+Here is what the script does
+============================
+
+1. It uses the current HEAD of MESA
+2. It will when download an internal soruce release of the LMSTAX sources. The
+   URL is specified in .cmake/deps-lmstax.json
+3. This file is extracted in a folder call 'lm'
+4. The MESA sources from the same folder is now copied into lm/third-party/mesa
+5. The script will change folder to 'lm'
+6. The LMSTAX build system now build the lan969x target, usign just updated
+   'mesa' source.
+7. The LMSTAX build system now runs the MISRA check on the lan969x target
+
+
+Configuration files involved
+============================
+
+./.cmake/deps-lmstax.json: This is the URL of the LMSTAX sources to check
+compatibility against.
+
+./.cmake/pod-misra-lmstax.yaml: This is the docker container used when invoking
+the LMSTAX build system.
+
+
+How to update LMSTAX version to check compatibility against
+===========================================================
+
+If you break compatibility and need to fix it, do the following steps:
+
+1. Prepare:
+   a. Enter an existing or new LMSTAX clone.
+   b. Do a new clone of MESA in the third-party/mesa-git folder to allow
+      local build and checks.
+
+      CMD: (cd third-party/ && git clone git@bitbucket.microchip.com:unge/sw-mesa.git mesa-git)
+
+   c. Delete your old build-lan969x to ensure the mesa-git folder is being used
+
+      CMD: rm -rf build-lan969x
+
+   d. Do a new build:
+
+      CMD: dr cmake --workflow --preset lan969x
+
+2. Fix issues
+   a. Run the MISRA check local on with latest version of MESA
+
+      CMD: dr lm-cov-runner -b build-lan969x -t VDSP_BIN_LAN969x_AUTO_elf
+
+   b. Fix essies, and repeat
+
+3. Commit changes in LMSTAX (if any - remember to do a pr-branch)
+
+4. Generate a new LMSTAX source release to check compatibility against
+
+   CMD: ./support/scripts/internal-src-rel
+
+5. Update the LMSTAX version in MESA
+   a. Update ./.cmake/deps-lmstax.json with the URL from the above step.
+
+6. Commit change in MESA, check status on Jenkins
+

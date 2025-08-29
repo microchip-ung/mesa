@@ -1,0 +1,24 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ungsw-mesa-misra-lmstax-env
+spec:
+  containers:
+  - name: velocitysp-builder
+    image: artifacts-aws.devops.microchip.com:7996/ung/lmstax/build-env-mchp@sha256:7cc36b9736ec932db2f37b50a0755edfc40e465646a620b0a42b26f1a6ff5594
+    imagePullPolicy: IfNotPresent
+    command:
+    - cat
+    tty: true
+    resources:
+      requests:
+        cpu: '8'
+        memory: 16Gi
+      limits:
+        cpu: '8'
+        memory: 16Gi
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      runAsGroup: 1000
