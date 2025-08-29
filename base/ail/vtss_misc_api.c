@@ -783,7 +783,7 @@ vtss_rc vtss_misc_appdata_set(const vtss_inst_t inst, void *data)
     return rc;
 }
 
-#if defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_ARCH_LAN966X) && defined(VTSS_OPT_SYMREG)
 vtss_rc vtss_symreg_data_get(const vtss_inst_t inst, vtss_symreg_data_t *const data)
 {
     return VTSS_RC_OK;
