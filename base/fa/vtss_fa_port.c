@@ -4412,12 +4412,11 @@ vtss_rc vtss_cil_port_basic_counters_get(struct vtss_state_s         *vtss_state
 {
     vtss_port_fa_counters_t *c = &vtss_state->port.counters[port_no].counter.fa;
 
-    VTSS_RC(vtss_cil_port_counters_update(vtss_state, port_no));
+    VTSS_RC(fa_port_counters(vtss_state, port_no, NULL, VTSS_COUNTER_CMD_UPDATE));
     counters->rx_frames =
         (u32)(CNT_SUM(c->rx_unicast) + CNT_SUM(c->rx_multicast) + CNT_SUM(c->rx_broadcast));
     counters->tx_frames = (u32)(CNT_SUM(c->tx_unicast) + CNT_SUM(c->tx_multicast) +
                                 CNT_SUM(c->tx_broadcast) + c->tx_late_coll.value);
-
     return VTSS_RC_OK;
 }
 

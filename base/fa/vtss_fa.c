@@ -1121,10 +1121,12 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t  *vtss_state,
 {
     fa_cal_speed_t     spd;
     vtss_internal_bw_t max_port_bw;
+    u32                p;
 
     if (port_no >= RT_CHIP_PORTS) {
         // Internal ports
-        *port = (RT_CHIP_PORT_CPU + port_no - RT_CHIP_PORTS);
+        p = (RT_CHIP_PORT_CPU + port_no - RT_CHIP_PORTS);
+        *port = (i32)p;
         if (port_no == RT_CHIP_PORT_CPU_0 || port_no == RT_CHIP_PORT_CPU_1) {
 #if defined(VTSS_ARCH_LAIKA)
             return FA_CAL_SPEED_MAX;
@@ -1174,13 +1176,14 @@ static fa_cal_speed_t fa_cal_speed_get(vtss_state_t  *vtss_state,
 
     max_port_bw = vtss_state->port.map[port_no].max_bw;
 
-    VTSS_D("port = %u (chip_port = %u): max_bw = %u", port_no, *port, max_bw);
+    p = (u32)(*port);
+    VTSS_D("port = %u (chip_port = %u): max_bw = %u", port_no, p, max_bw);
     switch (max_port_bw) {
     case VTSS_BW_DEFAULT:
-        spd = (VTSS_PORT_IS_2G5(*port)   ? FA_CAL_SPEED_2G5
-               : VTSS_PORT_IS_5G(*port)  ? FA_CAL_SPEED_5G
-               : VTSS_PORT_IS_10G(*port) ? FA_CAL_SPEED_10G
-                                         : FA_CAL_SPEED_MAX);
+        spd = (VTSS_PORT_IS_2G5(p)   ? FA_CAL_SPEED_2G5
+               : VTSS_PORT_IS_5G(p)  ? FA_CAL_SPEED_5G
+               : VTSS_PORT_IS_10G(p) ? FA_CAL_SPEED_10G
+                                     : FA_CAL_SPEED_MAX);
         break;
     case VTSS_BW_1G:   spd = FA_CAL_SPEED_1G; break;
     case VTSS_BW_2G5:  spd = FA_CAL_SPEED_2G5; break;
@@ -1286,7 +1289,7 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
 {
     u32            cal[7], value;
     fa_cal_speed_t spd;
-    u32            i;
+    u32            i, p;
     vtss_port_no_t port_no;
     i32            port, this_bw, max_core_bw, bw = 0, port_bw = 0;
     u32            replicator = (fa_is_target(vtss_state) ? 7U : 4U);
@@ -1300,22 +1303,23 @@ vtss_rc fa_cell_calendar_auto(vtss_state_t *vtss_state)
         if (port == CHIP_PORT_UNUSED || spd == FA_CAL_SPEED_NONE) {
             continue;
         }
-        this_bw = calspd2int(spd, port_no);
+        this_bw = (i32)calspd2int(spd, port_no);
 
-        if (port < RT_CHIP_PORTS) {
+        p = (u32)port;
+        if (p < RT_CHIP_PORTS) {
             port_bw += this_bw;
         }
 
         bw += this_bw;
-        VTSS_D("chip_port = %u, this_bw = %u, summed bw = %u", port, this_bw, bw);
-        cal[port / 10] += (spd << ((port % 10U) * 3U));
+        VTSS_D("chip_port = %u, this_bw = %u, summed bw = %u", p, this_bw, bw);
+        cal[p / 10U] += (spd << ((p % 10U) * 3U));
 
         if (port_no < VTSS_PORTS) {
             vtss_state->port.map[port_no].max_bw = cal2bw(spd); // Update with the actual given BW.
         }
     }
 
-    if (port_bw > fa_target_bw(vtss_state)) {
+    if ((u32)port_bw > fa_target_bw(vtss_state)) {
         VTSS_E("The configured port BW (%d) is above BW supported by target (d%x / %d Mbps)",
                port_bw, vtss_state->create.target, fa_target_bw(vtss_state));
         return VTSS_RC_ERROR;
@@ -1906,7 +1910,7 @@ vtss_rc vtss_fa_cell_cal_debug(vtss_state_t *vtss_state, lmu_ss_t *ss)
     fa_cal_speed_t spd;
 
     for (u32 port = 0U; port < RT_CHIP_PORTS_ALL; port++) {
-        REG_RD(VTSS_QSYS_CAL_AUTO(port / 10), &cal);
+        REG_RD(VTSS_QSYS_CAL_AUTO(port / 10U), &cal);
         spd = (cal >> ((port % 10U) * 3U)) & 0x7U;
         if (spd == 0U) {
             continue;

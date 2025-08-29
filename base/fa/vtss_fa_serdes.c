@@ -2525,9 +2525,7 @@ static vtss_rc fa_serdes_10g_eye_dimension(vtss_state_t  *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state,
-                                        u32 sd_tgt,
-                                        lmu_ss_t *ss)
+static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state, u32 sd_tgt, lmu_ss_t *ss)
 {
     u32  indx;
     u32  vref;
@@ -2578,7 +2576,7 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state,
             }
 
             if ((bottom_found == FALSE) && (sum != 2040U)) {
-                bottom       = vref_cnt;
+                bottom = vref_cnt;
                 bottom_found = TRUE;
             }
 
@@ -2613,7 +2611,6 @@ static vtss_rc fa_serdes_10g_normal_eye(vtss_state_t *vtss_state,
 
     return VTSS_RC_OK;
 }
-
 
 static vtss_rc fa_10g_kr_vref_incr(vtss_state_t *vtss_state, u32 sd_tgt, u32 inc)
 {
@@ -3479,7 +3476,8 @@ vtss_rc fa_debug_chip_serdes(vtss_state_t                  *vtss_state,
         VTSS_RC(fa_serdes_dump(vtss_state, ss, port_no));
     } else if (info->action >= 2U && info->action <= 4U) {
         if (sd_type == FA_SERDES_TYPE_10G || sd_type == FA_SERDES_TYPE_6G) {
-            VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val, FALSE));
+            VTSS_RC(fa_serdes_10g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val,
+                                            FALSE));
         } else if (VTSS_PORT_IS_25G(VTSS_CHIP_PORT(port_no))) {
 #if defined(VTSS_FEATURE_SD_25G)
             VTSS_RC(fa_serdes_25g_eye_setup(vtss_state, ss, info->action, port_no, &ret_val,
