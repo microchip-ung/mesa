@@ -1,6 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#include <string.h>
+
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>
 #include <mepa_ts_driver.h>
