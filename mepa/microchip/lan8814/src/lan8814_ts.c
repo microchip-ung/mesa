@@ -15,7 +15,7 @@
 
 static  uint16_t lan8814_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
     // 1000,  100,    10 speeds
-    [MEPA_TS_CLOCK_FREQ_25M] =    {  415, 1447, 8377 }, // Internal clock is 250 MHz
+    [MEPA_TS_CLOCK_FREQ_25M] =    {  415, 144, 8377 }, // Internal clock is 250 MHz
     [MEPA_TS_CLOCK_FREQ_125M] =   {  000, 0000, 00000 },
     [MEPA_TS_CLOCK_FREQ_15625M] = {  000, 0000, 00000 },
     [MEPA_TS_CLOCK_FREQ_200M] =   {  417, 1441, 8380 },
@@ -33,7 +33,7 @@ static  uint16_t lan8814_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
 
 static uint16_t lan8814_twostep_egr_lat_adj[MEPA_TS_CLOCK_FREQ_MAX][4] = {
     //     10M,100M, 1G
-    [MEPA_TS_CLOCK_FREQ_25M] =    {0, 11198, 1120, 115}, // Internal clock is 250 MHz
+    [MEPA_TS_CLOCK_FREQ_25M] =    {0, 11198, 112, 115}, // Internal clock is 250 MHz
     [MEPA_TS_CLOCK_FREQ_125M] =   {0,     0,    0,   0},
     [MEPA_TS_CLOCK_FREQ_15625M] = {0,     0,    0,   0},
     [MEPA_TS_CLOCK_FREQ_200M] =   {0, 11197, 1125, 120}, //200Mhz
