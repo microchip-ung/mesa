@@ -1,10 +1,10 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN80XX_MALIBU25G_REGS_PKT_BIST_H_
-#define _LAN80XX_MALIBU25G_REGS_PKT_BIST_H_
+#ifndef LAN80XX_MALIBU25G_REGS_PKT_BIST_H_
+#define LAN80XX_MALIBU25G_REGS_PKT_BIST_H_
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
 /***********************************************************************
  *
@@ -27,7 +27,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_CFG:GEN_CFG
  */
-#define LAN80XX_PKT_BIST_GEN_CFG                LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe900)
+#define LAN80XX_PKT_BIST_GEN_CFG                                                                    (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe900))
 
 /**
  * \brief
@@ -36,9 +36,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_CFG . LENOFS
  */
-#define  LAN80XX_F_PKT_BIST_GEN_CFG_LENOFS(x)    LAN80XX_ENCODE_BITFIELD(x,12,3)
-#define  LAN80XX_M_PKT_BIST_GEN_CFG_LENOFS       LAN80XX_ENCODE_BITMASK(12,3)
-#define  LAN80XX_X_PKT_BIST_GEN_CFG_LENOFS(x)    LAN80XX_EXTRACT_BITFIELD(x,12,3)
+#define  LAN80XX_F_PKT_BIST_GEN_CFG_LENOFS(x)                                                       (LAN80XX_ENCODE_BITFIELD(x,12,3))
+#define  LAN80XX_M_PKT_BIST_GEN_CFG_LENOFS                                                          (LAN80XX_ENCODE_BITMASK(12,3))
+#define  LAN80XX_X_PKT_BIST_GEN_CFG_LENOFS(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,12,3))
 
 /**
  * \brief
@@ -47,9 +47,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_CFG . SRATE
  */
-#define  LAN80XX_F_PKT_BIST_GEN_CFG_SRATE(x)     LAN80XX_ENCODE_BITFIELD(x,4,8)
-#define  LAN80XX_M_PKT_BIST_GEN_CFG_SRATE        LAN80XX_ENCODE_BITMASK(4,8)
-#define  LAN80XX_X_PKT_BIST_GEN_CFG_SRATE(x)     LAN80XX_EXTRACT_BITFIELD(x,4,8)
+#define  LAN80XX_F_PKT_BIST_GEN_CFG_SRATE(x)                                                        (LAN80XX_ENCODE_BITFIELD(x,4,8))
+#define  LAN80XX_M_PKT_BIST_GEN_CFG_SRATE                                                           (LAN80XX_ENCODE_BITMASK(4,8))
+#define  LAN80XX_X_PKT_BIST_GEN_CFG_SRATE(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,4,8))
 
 /**
  * \brief
@@ -58,9 +58,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_CFG . SINGLE
  */
-#define  LAN80XX_F_PKT_BIST_GEN_CFG_SINGLE(x)    LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_PKT_BIST_GEN_CFG_SINGLE       LAN80XX_BIT(3)
-#define  LAN80XX_X_PKT_BIST_GEN_CFG_SINGLE(x)    LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_PKT_BIST_GEN_CFG_SINGLE(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_PKT_BIST_GEN_CFG_SINGLE                                                          (LAN80XX_BIT(3))
+#define  LAN80XX_X_PKT_BIST_GEN_CFG_SINGLE(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -72,9 +72,9 @@
  *
  * Field: ::LAN80XX_PKT_BIST_GEN_CFG . IDLES
  */
-#define  LAN80XX_F_PKT_BIST_GEN_CFG_IDLES(x)     LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_PKT_BIST_GEN_CFG_IDLES        LAN80XX_BIT(2)
-#define  LAN80XX_X_PKT_BIST_GEN_CFG_IDLES(x)     LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_PKT_BIST_GEN_CFG_IDLES(x)                                                        (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_PKT_BIST_GEN_CFG_IDLES                                                           (LAN80XX_BIT(2))
+#define  LAN80XX_X_PKT_BIST_GEN_CFG_IDLES(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -86,9 +86,9 @@
  *
  * Field: ::LAN80XX_PKT_BIST_GEN_CFG . PTP_ENABLE
  */
-#define  LAN80XX_F_PKT_BIST_GEN_CFG_PTP_ENABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_PKT_BIST_GEN_CFG_PTP_ENABLE   LAN80XX_BIT(1)
-#define  LAN80XX_X_PKT_BIST_GEN_CFG_PTP_ENABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_PKT_BIST_GEN_CFG_PTP_ENABLE(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_PKT_BIST_GEN_CFG_PTP_ENABLE                                                      (LAN80XX_BIT(1))
+#define  LAN80XX_X_PKT_BIST_GEN_CFG_PTP_ENABLE(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -105,9 +105,9 @@
  *
  * Field: ::LAN80XX_PKT_BIST_GEN_CFG . ENABLE
  */
-#define  LAN80XX_F_PKT_BIST_GEN_CFG_ENABLE(x)    LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_PKT_BIST_GEN_CFG_ENABLE       LAN80XX_BIT(0)
-#define  LAN80XX_X_PKT_BIST_GEN_CFG_ENABLE(x)    LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PKT_BIST_GEN_CFG_ENABLE(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_PKT_BIST_GEN_CFG_ENABLE                                                          (LAN80XX_BIT(0))
+#define  LAN80XX_X_PKT_BIST_GEN_CFG_ENABLE(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a PKT_BIST:UPDATE
@@ -122,7 +122,7 @@
  * \details
  * Register: \a PKT_BIST:UPDATE:UPDATE
  */
-#define LAN80XX_PKT_BIST_UPDATE                 LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe901)
+#define LAN80XX_PKT_BIST_UPDATE                                                                     (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe901))
 
 /**
  * \brief
@@ -134,9 +134,9 @@
  *
  * Field: ::LAN80XX_PKT_BIST_UPDATE . TS_HOLD
  */
-#define  LAN80XX_F_PKT_BIST_UPDATE_TS_HOLD(x)    LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_PKT_BIST_UPDATE_TS_HOLD       LAN80XX_BIT(1)
-#define  LAN80XX_X_PKT_BIST_UPDATE_TS_HOLD(x)    LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_PKT_BIST_UPDATE_TS_HOLD(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_PKT_BIST_UPDATE_TS_HOLD                                                          (LAN80XX_BIT(1))
+#define  LAN80XX_X_PKT_BIST_UPDATE_TS_HOLD(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -145,9 +145,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_UPDATE . CNTR_UPDATE
  */
-#define  LAN80XX_F_PKT_BIST_UPDATE_CNTR_UPDATE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_PKT_BIST_UPDATE_CNTR_UPDATE   LAN80XX_BIT(0)
-#define  LAN80XX_X_PKT_BIST_UPDATE_CNTR_UPDATE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PKT_BIST_UPDATE_CNTR_UPDATE(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_PKT_BIST_UPDATE_CNTR_UPDATE                                                      (LAN80XX_BIT(0))
+#define  LAN80XX_X_PKT_BIST_UPDATE_CNTR_UPDATE(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a PKT_BIST:GEN_PKTLEN
@@ -162,7 +162,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_PKTLEN:GEN_PKTLEN
  */
-#define LAN80XX_PKT_BIST_GEN_PKTLEN             LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe902)
+#define LAN80XX_PKT_BIST_GEN_PKTLEN                                                                 (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe902))
 
 /**
  * \brief
@@ -174,9 +174,9 @@
  *
  * Field: ::LAN80XX_PKT_BIST_GEN_PKTLEN . PKTLEN
  */
-#define  LAN80XX_F_PKT_BIST_GEN_PKTLEN_PKTLEN(x)  LAN80XX_ENCODE_BITFIELD(x,0,8)
-#define  LAN80XX_M_PKT_BIST_GEN_PKTLEN_PKTLEN     LAN80XX_ENCODE_BITMASK(0,8)
-#define  LAN80XX_X_PKT_BIST_GEN_PKTLEN_PKTLEN(x)  LAN80XX_EXTRACT_BITFIELD(x,0,8)
+#define  LAN80XX_F_PKT_BIST_GEN_PKTLEN_PKTLEN(x)                                                    (LAN80XX_ENCODE_BITFIELD(x,0,8))
+#define  LAN80XX_M_PKT_BIST_GEN_PKTLEN_PKTLEN                                                       (LAN80XX_ENCODE_BITMASK(0,8))
+#define  LAN80XX_X_PKT_BIST_GEN_PKTLEN_PKTLEN(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,0,8))
 
 /**
  * Register Group: \a PKT_BIST:GEN_IPGLEN
@@ -191,7 +191,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_IPGLEN:GEN_IPGLEN_LSW
  */
-#define LAN80XX_PKT_BIST_GEN_IPGLEN_LSW         LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe903)
+#define LAN80XX_PKT_BIST_GEN_IPGLEN_LSW                                                             (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe903))
 
 /**
  * \brief
@@ -200,9 +200,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_IPGLEN_LSW . IPGLEN_LSW
  */
-#define  LAN80XX_F_PKT_BIST_GEN_IPGLEN_LSW_IPGLEN_LSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_IPGLEN_LSW_IPGLEN_LSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_IPGLEN_LSW_IPGLEN_LSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_IPGLEN_LSW_IPGLEN_LSW(x)                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_IPGLEN_LSW_IPGLEN_LSW                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_IPGLEN_LSW_IPGLEN_LSW(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -211,7 +211,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_IPGLEN:GEN_IPGLEN_MSW
  */
-#define LAN80XX_PKT_BIST_GEN_IPGLEN_MSW         LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe904)
+#define LAN80XX_PKT_BIST_GEN_IPGLEN_MSW                                                             (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe904))
 
 /**
  * \brief
@@ -220,9 +220,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_IPGLEN_MSW . IPGLEN_MSW
  */
-#define  LAN80XX_F_PKT_BIST_GEN_IPGLEN_MSW_IPGLEN_MSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_IPGLEN_MSW_IPGLEN_MSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_IPGLEN_MSW_IPGLEN_MSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_IPGLEN_MSW_IPGLEN_MSW(x)                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_IPGLEN_MSW_IPGLEN_MSW                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_IPGLEN_MSW_IPGLEN_MSW(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:GEN_TIME
@@ -237,7 +237,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_TIME:GEN_TIME
  */
-#define LAN80XX_PKT_BIST_GEN_TIME               LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe905)
+#define LAN80XX_PKT_BIST_GEN_TIME                                                                   (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe905))
 
 /**
  * \brief
@@ -246,9 +246,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_TIME . PTPTIME
  */
-#define  LAN80XX_F_PKT_BIST_GEN_TIME_PTPTIME(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_TIME_PTPTIME     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_TIME_PTPTIME(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_TIME_PTPTIME(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_TIME_PTPTIME                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_TIME_PTPTIME(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:GEN_ETYPE
@@ -263,7 +263,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_ETYPE:GEN_ETYPE
  */
-#define LAN80XX_PKT_BIST_GEN_ETYPE              LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe906)
+#define LAN80XX_PKT_BIST_GEN_ETYPE                                                                  (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe906))
 
 /**
  * \brief
@@ -272,9 +272,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_ETYPE . ETYPE
  */
-#define  LAN80XX_F_PKT_BIST_GEN_ETYPE_ETYPE(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_ETYPE_ETYPE      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_ETYPE_ETYPE(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_ETYPE_ETYPE(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_ETYPE_ETYPE                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_ETYPE_ETYPE(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:GEN_SA
@@ -289,7 +289,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_SA:GEN_SA0
  */
-#define LAN80XX_PKT_BIST_GEN_SA0                LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe907)
+#define LAN80XX_PKT_BIST_GEN_SA0                                                                    (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe907))
 
 /**
  * \brief
@@ -298,9 +298,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_SA0 . SA0
  */
-#define  LAN80XX_F_PKT_BIST_GEN_SA0_SA0(x)       LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_SA0_SA0          LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_SA0_SA0(x)       LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_SA0_SA0(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_SA0_SA0                                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_SA0_SA0(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -309,7 +309,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_SA:GEN_SA1
  */
-#define LAN80XX_PKT_BIST_GEN_SA1                LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe908)
+#define LAN80XX_PKT_BIST_GEN_SA1                                                                    (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe908))
 
 /**
  * \brief
@@ -318,9 +318,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_SA1 . SA1
  */
-#define  LAN80XX_F_PKT_BIST_GEN_SA1_SA1(x)       LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_SA1_SA1          LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_SA1_SA1(x)       LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_SA1_SA1(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_SA1_SA1                                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_SA1_SA1(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -329,7 +329,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_SA:GEN_SA2
  */
-#define LAN80XX_PKT_BIST_GEN_SA2                LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe909)
+#define LAN80XX_PKT_BIST_GEN_SA2                                                                    (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe909))
 
 /**
  * \brief
@@ -338,9 +338,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_SA2 . SA2
  */
-#define  LAN80XX_F_PKT_BIST_GEN_SA2_SA2(x)       LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_SA2_SA2          LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_SA2_SA2(x)       LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_SA2_SA2(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_SA2_SA2                                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_SA2_SA2(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:GEN_DA
@@ -355,7 +355,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_DA:GEN_DA0
  */
-#define LAN80XX_PKT_BIST_GEN_DA0                LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe90a)
+#define LAN80XX_PKT_BIST_GEN_DA0                                                                    (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe90a))
 
 /**
  * \brief
@@ -364,9 +364,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_DA0 . DA0
  */
-#define  LAN80XX_F_PKT_BIST_GEN_DA0_DA0(x)       LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_DA0_DA0          LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_DA0_DA0(x)       LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_DA0_DA0(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_DA0_DA0                                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_DA0_DA0(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -375,7 +375,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_DA:GEN_DA1
  */
-#define LAN80XX_PKT_BIST_GEN_DA1                LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe90b)
+#define LAN80XX_PKT_BIST_GEN_DA1                                                                    (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe90b))
 
 /**
  * \brief
@@ -384,9 +384,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_DA1 . DA1
  */
-#define  LAN80XX_F_PKT_BIST_GEN_DA1_DA1(x)       LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_DA1_DA1          LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_DA1_DA1(x)       LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_DA1_DA1(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_DA1_DA1                                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_DA1_DA1(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -395,7 +395,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_DA:GEN_DA2
  */
-#define LAN80XX_PKT_BIST_GEN_DA2                LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe90c)
+#define LAN80XX_PKT_BIST_GEN_DA2                                                                    (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe90c))
 
 /**
  * \brief
@@ -404,9 +404,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_DA2 . DA2
  */
-#define  LAN80XX_F_PKT_BIST_GEN_DA2_DA2(x)       LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_DA2_DA2          LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_DA2_DA2(x)       LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_DA2_DA2(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_DA2_DA2                                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_DA2_DA2(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:GEN_SENT
@@ -421,7 +421,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_SENT:GEN_SENT_LSW
  */
-#define LAN80XX_PKT_BIST_GEN_SENT_LSW           LAN80XX_IOREG(LAN80XX_TO_PKT_BIST,0xe90d)
+#define LAN80XX_PKT_BIST_GEN_SENT_LSW                                                               (LAN80XX_IOREG(LAN80XX_TO_PKT_BIST,0xe90d))
 
 /**
  * \brief
@@ -431,9 +431,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_SENT_LSW . SENT_LSW
  */
-#define  LAN80XX_F_PKT_BIST_GEN_SENT_LSW_SENT_LSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_SENT_LSW_SENT_LSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_SENT_LSW_SENT_LSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_SENT_LSW_SENT_LSW(x)                                                (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_SENT_LSW_SENT_LSW                                                   (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_SENT_LSW_SENT_LSW(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -442,7 +442,7 @@
  * \details
  * Register: \a PKT_BIST:GEN_SENT:GEN_SENT_MSW
  */
-#define LAN80XX_PKT_BIST_GEN_SENT_MSW           LAN80XX_IOREG(LAN80XX_TO_PKT_BIST,0xe90e)
+#define LAN80XX_PKT_BIST_GEN_SENT_MSW                                                               (LAN80XX_IOREG(LAN80XX_TO_PKT_BIST,0xe90e))
 
 /**
  * \brief
@@ -452,9 +452,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_GEN_SENT_MSW . SENT_MSW
  */
-#define  LAN80XX_F_PKT_BIST_GEN_SENT_MSW_SENT_MSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_GEN_SENT_MSW_SENT_MSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_GEN_SENT_MSW_SENT_MSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_GEN_SENT_MSW_SENT_MSW(x)                                                (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_GEN_SENT_MSW_SENT_MSW                                                   (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_GEN_SENT_MSW_SENT_MSW(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:TRANSPORT_SPECIFIC_MAJOR_SDOID
@@ -469,7 +469,7 @@
  * \details
  * Register: \a PKT_BIST:TRANSPORT_SPECIFIC_MAJOR_SDOID:TRANSPORT_SPECIFIC_MAJOR_SDOID
  */
-#define LAN80XX_PKT_BIST_TRANSPORT_SPECIFIC_MAJOR_SDOID  LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe90f)
+#define LAN80XX_PKT_BIST_TRANSPORT_SPECIFIC_MAJOR_SDOID                                             (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe90f))
 
 /**
  * \brief
@@ -481,9 +481,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_TRANSPORT_SPECIFIC_MAJOR_SDOID . TRANSPORT_SPECIFIC_MAJOR_SDOID
  */
-#define  LAN80XX_F_PKT_BIST_TRANSPORT_SPECIFIC_MAJOR_SDOID_TRANSPORT_SPECIFIC_MAJOR_SDOID(x)  LAN80XX_ENCODE_BITFIELD(x,0,4)
-#define  LAN80XX_M_PKT_BIST_TRANSPORT_SPECIFIC_MAJOR_SDOID_TRANSPORT_SPECIFIC_MAJOR_SDOID     LAN80XX_ENCODE_BITMASK(0,4)
-#define  LAN80XX_X_PKT_BIST_TRANSPORT_SPECIFIC_MAJOR_SDOID_TRANSPORT_SPECIFIC_MAJOR_SDOID(x)  LAN80XX_EXTRACT_BITFIELD(x,0,4)
+#define  LAN80XX_F_PKT_BIST_TRANSPORT_SPECIFIC_MAJOR_SDOID_TRANSPORT_SPECIFIC_MAJOR_SDOID(x)        (LAN80XX_ENCODE_BITFIELD(x,0,4))
+#define  LAN80XX_M_PKT_BIST_TRANSPORT_SPECIFIC_MAJOR_SDOID_TRANSPORT_SPECIFIC_MAJOR_SDOID           (LAN80XX_ENCODE_BITMASK(0,4))
+#define  LAN80XX_X_PKT_BIST_TRANSPORT_SPECIFIC_MAJOR_SDOID_TRANSPORT_SPECIFIC_MAJOR_SDOID(x)        (LAN80XX_EXTRACT_BITFIELD(x,0,4))
 
 /**
  * Register Group: \a PKT_BIST:MINOR_VERSION_PTP
@@ -498,7 +498,7 @@
  * \details
  * Register: \a PKT_BIST:MINOR_VERSION_PTP:MINOR_VERSION
  */
-#define LAN80XX_PKT_BIST_MINOR_VERSION          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe910)
+#define LAN80XX_PKT_BIST_MINOR_VERSION                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe910))
 
 /**
  * \brief
@@ -511,9 +511,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MINOR_VERSION . MINOR_VERSION
  */
-#define  LAN80XX_F_PKT_BIST_MINOR_VERSION_MINOR_VERSION(x)  LAN80XX_ENCODE_BITFIELD(x,0,4)
-#define  LAN80XX_M_PKT_BIST_MINOR_VERSION_MINOR_VERSION     LAN80XX_ENCODE_BITMASK(0,4)
-#define  LAN80XX_X_PKT_BIST_MINOR_VERSION_MINOR_VERSION(x)  LAN80XX_EXTRACT_BITFIELD(x,0,4)
+#define  LAN80XX_F_PKT_BIST_MINOR_VERSION_MINOR_VERSION(x)                                          (LAN80XX_ENCODE_BITFIELD(x,0,4))
+#define  LAN80XX_M_PKT_BIST_MINOR_VERSION_MINOR_VERSION                                             (LAN80XX_ENCODE_BITMASK(0,4))
+#define  LAN80XX_X_PKT_BIST_MINOR_VERSION_MINOR_VERSION(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,0,4))
 
 /**
  * Register Group: \a PKT_BIST:MINOR_SDOID
@@ -528,7 +528,7 @@
  * \details
  * Register: \a PKT_BIST:MINOR_SDOID:MINOR_SDOID
  */
-#define LAN80XX_PKT_BIST_MINOR_SDOID            LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe911)
+#define LAN80XX_PKT_BIST_MINOR_SDOID                                                                (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe911))
 
 /**
  * \brief
@@ -539,9 +539,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MINOR_SDOID . MINOR_SDOID
  */
-#define  LAN80XX_F_PKT_BIST_MINOR_SDOID_MINOR_SDOID(x)  LAN80XX_ENCODE_BITFIELD(x,0,8)
-#define  LAN80XX_M_PKT_BIST_MINOR_SDOID_MINOR_SDOID     LAN80XX_ENCODE_BITMASK(0,8)
-#define  LAN80XX_X_PKT_BIST_MINOR_SDOID_MINOR_SDOID(x)  LAN80XX_EXTRACT_BITFIELD(x,0,8)
+#define  LAN80XX_F_PKT_BIST_MINOR_SDOID_MINOR_SDOID(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,8))
+#define  LAN80XX_M_PKT_BIST_MINOR_SDOID_MINOR_SDOID                                                 (LAN80XX_ENCODE_BITMASK(0,8))
+#define  LAN80XX_X_PKT_BIST_MINOR_SDOID_MINOR_SDOID(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,8))
 
 /**
  * Register Group: \a PKT_BIST:MESSAGE_TYPE_SPECIFIC
@@ -556,7 +556,7 @@
  * \details
  * Register: \a PKT_BIST:MESSAGE_TYPE_SPECIFIC:MESSAGE_TYPE_SPECIFIC_HI
  */
-#define LAN80XX_PKT_BIST_MESSAGE_TYPE_SPECIFIC_HI  LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe912)
+#define LAN80XX_PKT_BIST_MESSAGE_TYPE_SPECIFIC_HI                                                   (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe912))
 
 /**
  * \brief
@@ -566,9 +566,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MESSAGE_TYPE_SPECIFIC_HI . MESSAGE_TYPE_SPECIFIC_HI
  */
-#define  LAN80XX_F_PKT_BIST_MESSAGE_TYPE_SPECIFIC_HI_MESSAGE_TYPE_SPECIFIC_HI(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MESSAGE_TYPE_SPECIFIC_HI_MESSAGE_TYPE_SPECIFIC_HI     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MESSAGE_TYPE_SPECIFIC_HI_MESSAGE_TYPE_SPECIFIC_HI(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MESSAGE_TYPE_SPECIFIC_HI_MESSAGE_TYPE_SPECIFIC_HI(x)                    (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MESSAGE_TYPE_SPECIFIC_HI_MESSAGE_TYPE_SPECIFIC_HI                       (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MESSAGE_TYPE_SPECIFIC_HI_MESSAGE_TYPE_SPECIFIC_HI(x)                    (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -577,7 +577,7 @@
  * \details
  * Register: \a PKT_BIST:MESSAGE_TYPE_SPECIFIC:MESSAGE_TYPE_SPECIFIC_LO
  */
-#define LAN80XX_PKT_BIST_MESSAGE_TYPE_SPECIFIC_LO  LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe913)
+#define LAN80XX_PKT_BIST_MESSAGE_TYPE_SPECIFIC_LO                                                   (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe913))
 
 /**
  * \brief
@@ -587,9 +587,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MESSAGE_TYPE_SPECIFIC_LO . MESSAGE_TYPE_SPECIFIC_LO
  */
-#define  LAN80XX_F_PKT_BIST_MESSAGE_TYPE_SPECIFIC_LO_MESSAGE_TYPE_SPECIFIC_LO(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MESSAGE_TYPE_SPECIFIC_LO_MESSAGE_TYPE_SPECIFIC_LO     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MESSAGE_TYPE_SPECIFIC_LO_MESSAGE_TYPE_SPECIFIC_LO(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MESSAGE_TYPE_SPECIFIC_LO_MESSAGE_TYPE_SPECIFIC_LO(x)                    (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MESSAGE_TYPE_SPECIFIC_LO_MESSAGE_TYPE_SPECIFIC_LO                       (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MESSAGE_TYPE_SPECIFIC_LO_MESSAGE_TYPE_SPECIFIC_LO(x)                    (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_CFG
@@ -604,7 +604,7 @@
  * \details
  * Register: \a PKT_BIST:MON_CFG:MON_CFG
  */
-#define LAN80XX_PKT_BIST_MON_CFG                LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe914)
+#define LAN80XX_PKT_BIST_MON_CFG                                                                    (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe914))
 
 /**
  * \brief
@@ -617,9 +617,9 @@
  *
  * Field: ::LAN80XX_PKT_BIST_MON_CFG . ENABLE
  */
-#define  LAN80XX_F_PKT_BIST_MON_CFG_ENABLE(x)    LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_PKT_BIST_MON_CFG_ENABLE       LAN80XX_BIT(0)
-#define  LAN80XX_X_PKT_BIST_MON_CFG_ENABLE(x)    LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PKT_BIST_MON_CFG_ENABLE(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_PKT_BIST_MON_CFG_ENABLE                                                          (LAN80XX_BIT(0))
+#define  LAN80XX_X_PKT_BIST_MON_CFG_ENABLE(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a PKT_BIST:MON_RST
@@ -634,7 +634,7 @@
  * \details
  * Register: \a PKT_BIST:MON_RST:MON_RST
  */
-#define LAN80XX_PKT_BIST_MON_RST                LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe915)
+#define LAN80XX_PKT_BIST_MON_RST                                                                    (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe915))
 
 /**
  * \brief
@@ -643,9 +643,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_RST . BER_RST
  */
-#define  LAN80XX_F_PKT_BIST_MON_RST_BER_RST(x)   LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_PKT_BIST_MON_RST_BER_RST      LAN80XX_BIT(5)
-#define  LAN80XX_X_PKT_BIST_MON_RST_BER_RST(x)   LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_PKT_BIST_MON_RST_BER_RST(x)                                                      (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_PKT_BIST_MON_RST_BER_RST                                                         (LAN80XX_BIT(5))
+#define  LAN80XX_X_PKT_BIST_MON_RST_BER_RST(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -654,9 +654,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_RST . LFAULT_RST
  */
-#define  LAN80XX_F_PKT_BIST_MON_RST_LFAULT_RST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_PKT_BIST_MON_RST_LFAULT_RST   LAN80XX_BIT(4)
-#define  LAN80XX_X_PKT_BIST_MON_RST_LFAULT_RST(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_PKT_BIST_MON_RST_LFAULT_RST(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_PKT_BIST_MON_RST_LFAULT_RST                                                      (LAN80XX_BIT(4))
+#define  LAN80XX_X_PKT_BIST_MON_RST_LFAULT_RST(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -665,9 +665,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_RST . FRAG_RST
  */
-#define  LAN80XX_F_PKT_BIST_MON_RST_FRAG_RST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_PKT_BIST_MON_RST_FRAG_RST     LAN80XX_BIT(3)
-#define  LAN80XX_X_PKT_BIST_MON_RST_FRAG_RST(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_PKT_BIST_MON_RST_FRAG_RST(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_PKT_BIST_MON_RST_FRAG_RST                                                        (LAN80XX_BIT(3))
+#define  LAN80XX_X_PKT_BIST_MON_RST_FRAG_RST(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -676,9 +676,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_RST . BAD_RST
  */
-#define  LAN80XX_F_PKT_BIST_MON_RST_BAD_RST(x)   LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_PKT_BIST_MON_RST_BAD_RST      LAN80XX_BIT(2)
-#define  LAN80XX_X_PKT_BIST_MON_RST_BAD_RST(x)   LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_PKT_BIST_MON_RST_BAD_RST(x)                                                      (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_PKT_BIST_MON_RST_BAD_RST                                                         (LAN80XX_BIT(2))
+#define  LAN80XX_X_PKT_BIST_MON_RST_BAD_RST(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -687,9 +687,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_RST . GOOD_RST
  */
-#define  LAN80XX_F_PKT_BIST_MON_RST_GOOD_RST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_PKT_BIST_MON_RST_GOOD_RST     LAN80XX_BIT(1)
-#define  LAN80XX_X_PKT_BIST_MON_RST_GOOD_RST(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_PKT_BIST_MON_RST_GOOD_RST(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_PKT_BIST_MON_RST_GOOD_RST                                                        (LAN80XX_BIT(1))
+#define  LAN80XX_X_PKT_BIST_MON_RST_GOOD_RST(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -698,9 +698,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_RST . ALL_RST
  */
-#define  LAN80XX_F_PKT_BIST_MON_RST_ALL_RST(x)   LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_PKT_BIST_MON_RST_ALL_RST      LAN80XX_BIT(0)
-#define  LAN80XX_X_PKT_BIST_MON_RST_ALL_RST(x)   LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PKT_BIST_MON_RST_ALL_RST(x)                                                      (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_PKT_BIST_MON_RST_ALL_RST                                                         (LAN80XX_BIT(0))
+#define  LAN80XX_X_PKT_BIST_MON_RST_ALL_RST(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a PKT_BIST:MON_GOODCRC
@@ -715,7 +715,7 @@
  * \details
  * Register: \a PKT_BIST:MON_GOODCRC:MON_GOOD_LSW
  */
-#define LAN80XX_PKT_BIST_MON_GOOD_LSW           LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe916)
+#define LAN80XX_PKT_BIST_MON_GOOD_LSW                                                               (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe916))
 
 /**
  * \brief
@@ -725,9 +725,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_GOOD_LSW . GOOD_LSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_GOOD_LSW_GOOD_LSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_GOOD_LSW_GOOD_LSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_GOOD_LSW_GOOD_LSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_GOOD_LSW_GOOD_LSW(x)                                                (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_GOOD_LSW_GOOD_LSW                                                   (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_GOOD_LSW_GOOD_LSW(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -736,7 +736,7 @@
  * \details
  * Register: \a PKT_BIST:MON_GOODCRC:MON_GOOD_MSW
  */
-#define LAN80XX_PKT_BIST_MON_GOOD_MSW           LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe917)
+#define LAN80XX_PKT_BIST_MON_GOOD_MSW                                                               (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe917))
 
 /**
  * \brief
@@ -746,9 +746,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_GOOD_MSW . GOOD_MSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_GOOD_MSW_GOOD_MSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_GOOD_MSW_GOOD_MSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_GOOD_MSW_GOOD_MSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_GOOD_MSW_GOOD_MSW(x)                                                (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_GOOD_MSW_GOOD_MSW                                                   (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_GOOD_MSW_GOOD_MSW(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_BADCRC
@@ -763,7 +763,7 @@
  * \details
  * Register: \a PKT_BIST:MON_BADCRC:MON_BAD_LSW
  */
-#define LAN80XX_PKT_BIST_MON_BAD_LSW            LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe918)
+#define LAN80XX_PKT_BIST_MON_BAD_LSW                                                                (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe918))
 
 /**
  * \brief
@@ -773,9 +773,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_BAD_LSW . BAD_LSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_BAD_LSW_BAD_LSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_BAD_LSW_BAD_LSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_BAD_LSW_BAD_LSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_BAD_LSW_BAD_LSW(x)                                                  (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_BAD_LSW_BAD_LSW                                                     (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_BAD_LSW_BAD_LSW(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -784,7 +784,7 @@
  * \details
  * Register: \a PKT_BIST:MON_BADCRC:MON_BAD_MSW
  */
-#define LAN80XX_PKT_BIST_MON_BAD_MSW            LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe919)
+#define LAN80XX_PKT_BIST_MON_BAD_MSW                                                                (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe919))
 
 /**
  * \brief
@@ -794,9 +794,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_BAD_MSW . BAD_MSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_BAD_MSW_BAD_MSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_BAD_MSW_BAD_MSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_BAD_MSW_BAD_MSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_BAD_MSW_BAD_MSW(x)                                                  (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_BAD_MSW_BAD_MSW                                                     (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_BAD_MSW_BAD_MSW(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_FRAG
@@ -811,7 +811,7 @@
  * \details
  * Register: \a PKT_BIST:MON_FRAG:MON_FRAG_LSW
  */
-#define LAN80XX_PKT_BIST_MON_FRAG_LSW           LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91a)
+#define LAN80XX_PKT_BIST_MON_FRAG_LSW                                                               (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91a))
 
 /**
  * \brief
@@ -822,9 +822,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_FRAG_LSW . FRAG_LSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_FRAG_LSW_FRAG_LSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_FRAG_LSW_FRAG_LSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_FRAG_LSW_FRAG_LSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_FRAG_LSW_FRAG_LSW(x)                                                (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_FRAG_LSW_FRAG_LSW                                                   (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_FRAG_LSW_FRAG_LSW(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -833,7 +833,7 @@
  * \details
  * Register: \a PKT_BIST:MON_FRAG:MON_FRAG_MSW
  */
-#define LAN80XX_PKT_BIST_MON_FRAG_MSW           LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91b)
+#define LAN80XX_PKT_BIST_MON_FRAG_MSW                                                               (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91b))
 
 /**
  * \brief
@@ -844,9 +844,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_FRAG_MSW . FRAG_MSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_FRAG_MSW_FRAG_MSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_FRAG_MSW_FRAG_MSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_FRAG_MSW_FRAG_MSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_FRAG_MSW_FRAG_MSW(x)                                                (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_FRAG_MSW_FRAG_MSW                                                   (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_FRAG_MSW_FRAG_MSW(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_LFAULT
@@ -861,7 +861,7 @@
  * \details
  * Register: \a PKT_BIST:MON_LFAULT:MON_LFAULT_LSW
  */
-#define LAN80XX_PKT_BIST_MON_LFAULT_LSW         LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91c)
+#define LAN80XX_PKT_BIST_MON_LFAULT_LSW                                                             (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91c))
 
 /**
  * \brief
@@ -871,9 +871,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_LFAULT_LSW . LFAULT_LSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_LFAULT_LSW_LFAULT_LSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_LFAULT_LSW_LFAULT_LSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_LFAULT_LSW_LFAULT_LSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_LFAULT_LSW_LFAULT_LSW(x)                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_LFAULT_LSW_LFAULT_LSW                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_LFAULT_LSW_LFAULT_LSW(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -882,7 +882,7 @@
  * \details
  * Register: \a PKT_BIST:MON_LFAULT:MON_LFAULT_MSW
  */
-#define LAN80XX_PKT_BIST_MON_LFAULT_MSW         LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91d)
+#define LAN80XX_PKT_BIST_MON_LFAULT_MSW                                                             (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91d))
 
 /**
  * \brief
@@ -892,9 +892,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_LFAULT_MSW . LFAULT_MSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_LFAULT_MSW_LFAULT_MSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_LFAULT_MSW_LFAULT_MSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_LFAULT_MSW_LFAULT_MSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_LFAULT_MSW_LFAULT_MSW(x)                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_LFAULT_MSW_LFAULT_MSW                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_LFAULT_MSW_LFAULT_MSW(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_BER
@@ -909,7 +909,7 @@
  * \details
  * Register: \a PKT_BIST:MON_BER:MON_BER_LSW
  */
-#define LAN80XX_PKT_BIST_MON_BER_LSW            LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91e)
+#define LAN80XX_PKT_BIST_MON_BER_LSW                                                                (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91e))
 
 /**
  * \brief
@@ -919,9 +919,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_BER_LSW . BER_LSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_BER_LSW_BER_LSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_BER_LSW_BER_LSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_BER_LSW_BER_LSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_BER_LSW_BER_LSW(x)                                                  (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_BER_LSW_BER_LSW                                                     (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_BER_LSW_BER_LSW(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -930,7 +930,7 @@
  * \details
  * Register: \a PKT_BIST:MON_BER:MON_BER_MSW
  */
-#define LAN80XX_PKT_BIST_MON_BER_MSW            LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91f)
+#define LAN80XX_PKT_BIST_MON_BER_MSW                                                                (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe91f))
 
 /**
  * \brief
@@ -940,9 +940,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_BER_MSW . BER_MSW
  */
-#define  LAN80XX_F_PKT_BIST_MON_BER_MSW_BER_MSW(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_BER_MSW_BER_MSW     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_BER_MSW_BER_MSW(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_BER_MSW_BER_MSW(x)                                                  (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_BER_MSW_BER_MSW                                                     (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_BER_MSW_BER_MSW(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP0
@@ -957,7 +957,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP0:MON_TSTAMP0_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP0_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe920)
+#define LAN80XX_PKT_BIST_MON_TSTAMP0_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe920))
 
 /**
  * \brief
@@ -966,9 +966,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP0_0 . TSTAMP0_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_0_TSTAMP0_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_0_TSTAMP0_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_0_TSTAMP0_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_0_TSTAMP0_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_0_TSTAMP0_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_0_TSTAMP0_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -977,7 +977,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP0:MON_TSTAMP0_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP0_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe921)
+#define LAN80XX_PKT_BIST_MON_TSTAMP0_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe921))
 
 /**
  * \brief
@@ -986,9 +986,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP0_1 . TSTAMP0_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_1_TSTAMP0_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_1_TSTAMP0_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_1_TSTAMP0_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_1_TSTAMP0_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_1_TSTAMP0_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_1_TSTAMP0_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -997,7 +997,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP0:MON_TSTAMP0_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP0_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe922)
+#define LAN80XX_PKT_BIST_MON_TSTAMP0_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe922))
 
 /**
  * \brief
@@ -1006,9 +1006,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP0_2 . TSTAMP0_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_2_TSTAMP0_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_2_TSTAMP0_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_2_TSTAMP0_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_2_TSTAMP0_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_2_TSTAMP0_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_2_TSTAMP0_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1017,7 +1017,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP0:MON_TSTAMP0_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP0_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe923)
+#define LAN80XX_PKT_BIST_MON_TSTAMP0_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe923))
 
 /**
  * \brief
@@ -1026,9 +1026,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP0_3 . TSTAMP0_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_3_TSTAMP0_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_3_TSTAMP0_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_3_TSTAMP0_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_3_TSTAMP0_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_3_TSTAMP0_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_3_TSTAMP0_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1037,7 +1037,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP0:MON_TSTAMP0_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP0_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe924)
+#define LAN80XX_PKT_BIST_MON_TSTAMP0_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe924))
 
 /**
  * \brief
@@ -1046,9 +1046,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP0_4 . TSTAMP0_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_4_TSTAMP0_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_4_TSTAMP0_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_4_TSTAMP0_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP0_4_TSTAMP0_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP0_4_TSTAMP0_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP0_4_TSTAMP0_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP1
@@ -1063,7 +1063,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP1:MON_TSTAMP1_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP1_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe925)
+#define LAN80XX_PKT_BIST_MON_TSTAMP1_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe925))
 
 /**
  * \brief
@@ -1072,9 +1072,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP1_0 . TSTAMP1_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_0_TSTAMP1_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_0_TSTAMP1_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_0_TSTAMP1_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_0_TSTAMP1_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_0_TSTAMP1_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_0_TSTAMP1_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1083,7 +1083,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP1:MON_TSTAMP1_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP1_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe926)
+#define LAN80XX_PKT_BIST_MON_TSTAMP1_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0, 0xe926))
 
 /**
  * \brief
@@ -1092,9 +1092,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP1_1 . TSTAMP1_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_1_TSTAMP1_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_1_TSTAMP1_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_1_TSTAMP1_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_1_TSTAMP1_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_1_TSTAMP1_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_1_TSTAMP1_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1103,7 +1103,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP1:MON_TSTAMP1_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP1_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe927)
+#define LAN80XX_PKT_BIST_MON_TSTAMP1_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe927))
 
 /**
  * \brief
@@ -1112,9 +1112,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP1_2 . TSTAMP1_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_2_TSTAMP1_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_2_TSTAMP1_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_2_TSTAMP1_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_2_TSTAMP1_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_2_TSTAMP1_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_2_TSTAMP1_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1123,7 +1123,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP1:MON_TSTAMP1_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP1_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe928)
+#define LAN80XX_PKT_BIST_MON_TSTAMP1_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe928))
 
 /**
  * \brief
@@ -1132,9 +1132,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP1_3 . TSTAMP1_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_3_TSTAMP1_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_3_TSTAMP1_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_3_TSTAMP1_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_3_TSTAMP1_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_3_TSTAMP1_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_3_TSTAMP1_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1143,7 +1143,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP1:MON_TSTAMP1_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP1_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe929)
+#define LAN80XX_PKT_BIST_MON_TSTAMP1_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe929))
 
 /**
  * \brief
@@ -1152,9 +1152,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP1_4 . TSTAMP1_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_4_TSTAMP1_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_4_TSTAMP1_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_4_TSTAMP1_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP1_4_TSTAMP1_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP1_4_TSTAMP1_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP1_4_TSTAMP1_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP2
@@ -1169,7 +1169,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP2:MON_TSTAMP2_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP2_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92a)
+#define LAN80XX_PKT_BIST_MON_TSTAMP2_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92a))
 
 /**
  * \brief
@@ -1178,9 +1178,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP2_0 . TSTAMP2_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_0_TSTAMP2_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_0_TSTAMP2_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_0_TSTAMP2_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_0_TSTAMP2_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_0_TSTAMP2_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_0_TSTAMP2_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1189,7 +1189,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP2:MON_TSTAMP2_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP2_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92b)
+#define LAN80XX_PKT_BIST_MON_TSTAMP2_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92b))
 
 /**
  * \brief
@@ -1198,9 +1198,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP2_1 . TSTAMP2_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_1_TSTAMP2_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_1_TSTAMP2_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_1_TSTAMP2_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_1_TSTAMP2_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_1_TSTAMP2_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_1_TSTAMP2_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1209,7 +1209,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP2:MON_TSTAMP2_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP2_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92c)
+#define LAN80XX_PKT_BIST_MON_TSTAMP2_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92c))
 
 /**
  * \brief
@@ -1218,9 +1218,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP2_2 . TSTAMP2_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_2_TSTAMP2_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_2_TSTAMP2_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_2_TSTAMP2_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_2_TSTAMP2_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_2_TSTAMP2_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_2_TSTAMP2_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1229,7 +1229,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP2:MON_TSTAMP2_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP2_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92d)
+#define LAN80XX_PKT_BIST_MON_TSTAMP2_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92d))
 
 /**
  * \brief
@@ -1238,9 +1238,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP2_3 . TSTAMP2_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_3_TSTAMP2_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_3_TSTAMP2_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_3_TSTAMP2_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_3_TSTAMP2_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_3_TSTAMP2_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_3_TSTAMP2_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1249,7 +1249,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP2:MON_TSTAMP2_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP2_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92e)
+#define LAN80XX_PKT_BIST_MON_TSTAMP2_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92e))
 
 /**
  * \brief
@@ -1258,9 +1258,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP2_4 . TSTAMP2_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_4_TSTAMP2_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_4_TSTAMP2_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_4_TSTAMP2_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP2_4_TSTAMP2_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP2_4_TSTAMP2_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP2_4_TSTAMP2_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP3
@@ -1275,7 +1275,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP3:MON_TSTAMP3_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP3_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92f)
+#define LAN80XX_PKT_BIST_MON_TSTAMP3_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe92f))
 
 /**
  * \brief
@@ -1284,9 +1284,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP3_0 . TSTAMP3_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_0_TSTAMP3_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_0_TSTAMP3_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_0_TSTAMP3_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_0_TSTAMP3_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_0_TSTAMP3_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_0_TSTAMP3_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1295,7 +1295,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP3:MON_TSTAMP3_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP3_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe930)
+#define LAN80XX_PKT_BIST_MON_TSTAMP3_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe930))
 
 /**
  * \brief
@@ -1304,9 +1304,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP3_1 . TSTAMP3_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_1_TSTAMP3_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_1_TSTAMP3_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_1_TSTAMP3_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_1_TSTAMP3_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_1_TSTAMP3_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_1_TSTAMP3_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1315,7 +1315,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP3:MON_TSTAMP3_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP3_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe931)
+#define LAN80XX_PKT_BIST_MON_TSTAMP3_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe931))
 
 /**
  * \brief
@@ -1324,9 +1324,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP3_2 . TSTAMP3_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_2_TSTAMP3_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_2_TSTAMP3_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_2_TSTAMP3_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_2_TSTAMP3_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_2_TSTAMP3_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_2_TSTAMP3_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1335,7 +1335,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP3:MON_TSTAMP3_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP3_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe932)
+#define LAN80XX_PKT_BIST_MON_TSTAMP3_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe932))
 
 /**
  * \brief
@@ -1344,9 +1344,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP3_3 . TSTAMP3_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_3_TSTAMP3_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_3_TSTAMP3_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_3_TSTAMP3_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_3_TSTAMP3_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_3_TSTAMP3_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_3_TSTAMP3_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1355,7 +1355,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP3:MON_TSTAMP3_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP3_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe933)
+#define LAN80XX_PKT_BIST_MON_TSTAMP3_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe933))
 
 /**
  * \brief
@@ -1364,9 +1364,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP3_4 . TSTAMP3_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_4_TSTAMP3_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_4_TSTAMP3_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_4_TSTAMP3_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP3_4_TSTAMP3_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP3_4_TSTAMP3_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP3_4_TSTAMP3_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP4
@@ -1381,7 +1381,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP4:MON_TSTAMP4_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP4_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe934)
+#define LAN80XX_PKT_BIST_MON_TSTAMP4_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe934))
 
 /**
  * \brief
@@ -1390,9 +1390,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP4_0 . TSTAMP4_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_0_TSTAMP4_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_0_TSTAMP4_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_0_TSTAMP4_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_0_TSTAMP4_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_0_TSTAMP4_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_0_TSTAMP4_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1401,7 +1401,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP4:MON_TSTAMP4_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP4_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe935)
+#define LAN80XX_PKT_BIST_MON_TSTAMP4_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe935))
 
 /**
  * \brief
@@ -1410,9 +1410,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP4_1 . TSTAMP4_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_1_TSTAMP4_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_1_TSTAMP4_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_1_TSTAMP4_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_1_TSTAMP4_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_1_TSTAMP4_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_1_TSTAMP4_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1421,7 +1421,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP4:MON_TSTAMP4_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP4_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe936)
+#define LAN80XX_PKT_BIST_MON_TSTAMP4_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe936))
 
 /**
  * \brief
@@ -1430,9 +1430,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP4_2 . TSTAMP4_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_2_TSTAMP4_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_2_TSTAMP4_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_2_TSTAMP4_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_2_TSTAMP4_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_2_TSTAMP4_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_2_TSTAMP4_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1441,7 +1441,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP4:MON_TSTAMP4_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP4_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe937)
+#define LAN80XX_PKT_BIST_MON_TSTAMP4_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe937))
 
 /**
  * \brief
@@ -1450,9 +1450,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP4_3 . TSTAMP4_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_3_TSTAMP4_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_3_TSTAMP4_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_3_TSTAMP4_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_3_TSTAMP4_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_3_TSTAMP4_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_3_TSTAMP4_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1461,7 +1461,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP4:MON_TSTAMP4_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP4_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe938)
+#define LAN80XX_PKT_BIST_MON_TSTAMP4_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe938))
 
 /**
  * \brief
@@ -1470,9 +1470,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP4_4 . TSTAMP4_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_4_TSTAMP4_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_4_TSTAMP4_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_4_TSTAMP4_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP4_4_TSTAMP4_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP4_4_TSTAMP4_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP4_4_TSTAMP4_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP5
@@ -1487,7 +1487,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP5:MON_TSTAMP5_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP5_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe939)
+#define LAN80XX_PKT_BIST_MON_TSTAMP5_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe939))
 
 /**
  * \brief
@@ -1496,9 +1496,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP5_0 . TSTAMP5_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_0_TSTAMP5_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_0_TSTAMP5_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_0_TSTAMP5_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_0_TSTAMP5_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_0_TSTAMP5_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_0_TSTAMP5_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1507,7 +1507,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP5:MON_TSTAMP5_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP5_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93a)
+#define LAN80XX_PKT_BIST_MON_TSTAMP5_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93a))
 
 /**
  * \brief
@@ -1516,9 +1516,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP5_1 . TSTAMP5_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_1_TSTAMP5_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_1_TSTAMP5_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_1_TSTAMP5_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_1_TSTAMP5_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_1_TSTAMP5_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_1_TSTAMP5_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1527,7 +1527,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP5:MON_TSTAMP5_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP5_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93b)
+#define LAN80XX_PKT_BIST_MON_TSTAMP5_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93b))
 
 /**
  * \brief
@@ -1536,9 +1536,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP5_2 . TSTAMP5_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_2_TSTAMP5_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_2_TSTAMP5_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_2_TSTAMP5_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_2_TSTAMP5_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_2_TSTAMP5_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_2_TSTAMP5_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1547,7 +1547,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP5:MON_TSTAMP5_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP5_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93c)
+#define LAN80XX_PKT_BIST_MON_TSTAMP5_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93c))
 
 /**
  * \brief
@@ -1556,9 +1556,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP5_3 . TSTAMP5_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_3_TSTAMP5_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_3_TSTAMP5_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_3_TSTAMP5_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_3_TSTAMP5_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_3_TSTAMP5_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_3_TSTAMP5_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1567,7 +1567,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP5:MON_TSTAMP5_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP5_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93d)
+#define LAN80XX_PKT_BIST_MON_TSTAMP5_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93d))
 
 /**
  * \brief
@@ -1576,9 +1576,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP5_4 . TSTAMP5_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_4_TSTAMP5_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_4_TSTAMP5_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_4_TSTAMP5_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP5_4_TSTAMP5_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP5_4_TSTAMP5_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP5_4_TSTAMP5_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP6
@@ -1593,7 +1593,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP6:MON_TSTAMP6_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP6_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93e)
+#define LAN80XX_PKT_BIST_MON_TSTAMP6_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93e))
 
 /**
  * \brief
@@ -1602,9 +1602,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP6_0 . TSTAMP6_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_0_TSTAMP6_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_0_TSTAMP6_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_0_TSTAMP6_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_0_TSTAMP6_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_0_TSTAMP6_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_0_TSTAMP6_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1613,7 +1613,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP6:MON_TSTAMP6_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP6_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93f)
+#define LAN80XX_PKT_BIST_MON_TSTAMP6_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe93f))
 
 /**
  * \brief
@@ -1622,9 +1622,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP6_1 . TSTAMP6_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_1_TSTAMP6_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_1_TSTAMP6_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_1_TSTAMP6_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_1_TSTAMP6_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_1_TSTAMP6_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_1_TSTAMP6_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1633,7 +1633,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP6:MON_TSTAMP6_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP6_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe940)
+#define LAN80XX_PKT_BIST_MON_TSTAMP6_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe940))
 
 /**
  * \brief
@@ -1642,9 +1642,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP6_2 . TSTAMP6_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_2_TSTAMP6_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_2_TSTAMP6_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_2_TSTAMP6_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_2_TSTAMP6_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_2_TSTAMP6_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_2_TSTAMP6_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1653,7 +1653,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP6:MON_TSTAMP6_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP6_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe941)
+#define LAN80XX_PKT_BIST_MON_TSTAMP6_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe941))
 
 /**
  * \brief
@@ -1662,9 +1662,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP6_3 . TSTAMP6_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_3_TSTAMP6_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_3_TSTAMP6_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_3_TSTAMP6_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_3_TSTAMP6_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_3_TSTAMP6_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_3_TSTAMP6_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1673,7 +1673,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP6:MON_TSTAMP6_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP6_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe942)
+#define LAN80XX_PKT_BIST_MON_TSTAMP6_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe942))
 
 /**
  * \brief
@@ -1682,9 +1682,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP6_4 . TSTAMP6_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_4_TSTAMP6_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_4_TSTAMP6_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_4_TSTAMP6_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP6_4_TSTAMP6_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP6_4_TSTAMP6_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP6_4_TSTAMP6_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP7
@@ -1699,7 +1699,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP7:MON_TSTAMP7_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP7_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe943)
+#define LAN80XX_PKT_BIST_MON_TSTAMP7_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe943))
 
 /**
  * \brief
@@ -1708,9 +1708,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP7_0 . TSTAMP7_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_0_TSTAMP7_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_0_TSTAMP7_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_0_TSTAMP7_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_0_TSTAMP7_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_0_TSTAMP7_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_0_TSTAMP7_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1719,7 +1719,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP7:MON_TSTAMP7_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP7_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe944)
+#define LAN80XX_PKT_BIST_MON_TSTAMP7_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe944))
 
 /**
  * \brief
@@ -1728,9 +1728,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP7_1 . TSTAMP7_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_1_TSTAMP7_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_1_TSTAMP7_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_1_TSTAMP7_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_1_TSTAMP7_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_1_TSTAMP7_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_1_TSTAMP7_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1739,7 +1739,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP7:MON_TSTAMP7_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP7_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe945)
+#define LAN80XX_PKT_BIST_MON_TSTAMP7_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe945))
 
 /**
  * \brief
@@ -1748,9 +1748,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP7_2 . TSTAMP7_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_2_TSTAMP7_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_2_TSTAMP7_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_2_TSTAMP7_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_2_TSTAMP7_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_2_TSTAMP7_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_2_TSTAMP7_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1759,7 +1759,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP7:MON_TSTAMP7_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP7_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe946)
+#define LAN80XX_PKT_BIST_MON_TSTAMP7_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe946))
 
 /**
  * \brief
@@ -1768,9 +1768,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP7_3 . TSTAMP7_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_3_TSTAMP7_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_3_TSTAMP7_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_3_TSTAMP7_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_3_TSTAMP7_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_3_TSTAMP7_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_3_TSTAMP7_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1779,7 +1779,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP7:MON_TSTAMP7_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP7_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe947)
+#define LAN80XX_PKT_BIST_MON_TSTAMP7_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe947))
 
 /**
  * \brief
@@ -1788,9 +1788,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP7_4 . TSTAMP7_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_4_TSTAMP7_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_4_TSTAMP7_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_4_TSTAMP7_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP7_4_TSTAMP7_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP7_4_TSTAMP7_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP7_4_TSTAMP7_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP8
@@ -1805,7 +1805,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP8:MON_TSTAMP8_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP8_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe948)
+#define LAN80XX_PKT_BIST_MON_TSTAMP8_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe948))
 
 /**
  * \brief
@@ -1814,9 +1814,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP8_0 . TSTAMP8_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_0_TSTAMP8_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_0_TSTAMP8_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_0_TSTAMP8_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_0_TSTAMP8_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_0_TSTAMP8_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_0_TSTAMP8_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1825,7 +1825,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP8:MON_TSTAMP8_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP8_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe949)
+#define LAN80XX_PKT_BIST_MON_TSTAMP8_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe949))
 
 /**
  * \brief
@@ -1834,9 +1834,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP8_1 . TSTAMP8_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_1_TSTAMP8_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_1_TSTAMP8_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_1_TSTAMP8_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_1_TSTAMP8_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_1_TSTAMP8_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_1_TSTAMP8_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1845,7 +1845,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP8:MON_TSTAMP8_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP8_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94a)
+#define LAN80XX_PKT_BIST_MON_TSTAMP8_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94a))
 
 /**
  * \brief
@@ -1854,9 +1854,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP8_2 . TSTAMP8_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_2_TSTAMP8_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_2_TSTAMP8_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_2_TSTAMP8_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_2_TSTAMP8_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_2_TSTAMP8_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_2_TSTAMP8_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1865,7 +1865,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP8:MON_TSTAMP8_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP8_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94b)
+#define LAN80XX_PKT_BIST_MON_TSTAMP8_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94b))
 
 /**
  * \brief
@@ -1874,9 +1874,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP8_3 . TSTAMP8_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_3_TSTAMP8_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_3_TSTAMP8_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_3_TSTAMP8_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_3_TSTAMP8_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_3_TSTAMP8_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_3_TSTAMP8_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1885,7 +1885,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP8:MON_TSTAMP8_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP8_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94c)
+#define LAN80XX_PKT_BIST_MON_TSTAMP8_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94c))
 
 /**
  * \brief
@@ -1894,9 +1894,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP8_4 . TSTAMP8_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_4_TSTAMP8_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_4_TSTAMP8_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_4_TSTAMP8_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP8_4_TSTAMP8_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP8_4_TSTAMP8_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP8_4_TSTAMP8_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PKT_BIST:MON_TSTAMP9
@@ -1911,7 +1911,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP9:MON_TSTAMP9_0
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP9_0          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94d)
+#define LAN80XX_PKT_BIST_MON_TSTAMP9_0                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94d))
 
 /**
  * \brief
@@ -1920,9 +1920,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP9_0 . TSTAMP9_0
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_0_TSTAMP9_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_0_TSTAMP9_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_0_TSTAMP9_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_0_TSTAMP9_0(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_0_TSTAMP9_0                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_0_TSTAMP9_0(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1931,7 +1931,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP9:MON_TSTAMP9_1
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP9_1          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94e)
+#define LAN80XX_PKT_BIST_MON_TSTAMP9_1                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94e))
 
 /**
  * \brief
@@ -1940,9 +1940,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP9_1 . TSTAMP9_1
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_1_TSTAMP9_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_1_TSTAMP9_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_1_TSTAMP9_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_1_TSTAMP9_1(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_1_TSTAMP9_1                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_1_TSTAMP9_1(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1951,7 +1951,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP9:MON_TSTAMP9_2
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP9_2          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94f)
+#define LAN80XX_PKT_BIST_MON_TSTAMP9_2                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe94f))
 
 /**
  * \brief
@@ -1960,9 +1960,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP9_2 . TSTAMP9_2
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_2_TSTAMP9_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_2_TSTAMP9_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_2_TSTAMP9_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_2_TSTAMP9_2(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_2_TSTAMP9_2                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_2_TSTAMP9_2(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1971,7 +1971,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP9:MON_TSTAMP9_3
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP9_3          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe950)
+#define LAN80XX_PKT_BIST_MON_TSTAMP9_3                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe950))
 
 /**
  * \brief
@@ -1980,9 +1980,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP9_3 . TSTAMP9_3
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_3_TSTAMP9_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_3_TSTAMP9_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_3_TSTAMP9_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_3_TSTAMP9_3(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_3_TSTAMP9_3                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_3_TSTAMP9_3(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1991,7 +1991,7 @@
  * \details
  * Register: \a PKT_BIST:MON_TSTAMP9:MON_TSTAMP9_4
  */
-#define LAN80XX_PKT_BIST_MON_TSTAMP9_4          LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe951)
+#define LAN80XX_PKT_BIST_MON_TSTAMP9_4                                                              (LAN80XX_IOREG(MMD_ID_PKT_BIST, 0,0xe951))
 
 /**
  * \brief
@@ -2000,9 +2000,9 @@
  * \details
  * Field: ::LAN80XX_PKT_BIST_MON_TSTAMP9_4 . TSTAMP9_4
  */
-#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_4_TSTAMP9_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_4_TSTAMP9_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_4_TSTAMP9_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PKT_BIST_MON_TSTAMP9_4_TSTAMP9_4(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PKT_BIST_MON_TSTAMP9_4_TSTAMP9_4                                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PKT_BIST_MON_TSTAMP9_4_TSTAMP9_4(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 #endif /* _LAN80XX_MALIBU25G_REGS_PKT_BIST_H_ */

@@ -54,23 +54,67 @@ In other words the en/decrypting port.
 SecY. Typically used for EAPOL frames.
 |===
 
+=== MACsec Capability
+
+Microchip provides multiple PHY SKUs, where some SKUs supports MACsec, to check whether the PHY connected
+on the port supports MACsec or not, the MEPA API `mepa_macsec_is_capable()` returns `TRUE` if PHY supports MACsec else
+it will return `FALSE`
+
+MACsec Block supports multiple virtual ports in single physical port of the PHY, each virtual port can have multiple Secure Channels
+and Secure Associations to encrypt/decrypt, this depends on the Hardware.
+
+MEPA API `mepa_macsec_secy_cap_get()` is used to get the Maximum number of Secy, SC and SA supported on each physical port of PHY.
+
+----
+
+mepa_rc mepa_macsec_is_capable(struct mepa_device       *dev,
+                               const mepa_port_no_t     port_no,
+                               mepa_bool_t              *capable);
+
+
+mepa_rc mepa_macsec_secy_cap_get(struct mepa_device       *dev,
+                                 const mepa_port_no_t     port_no,
+                                 mepa_macsec_secy_cap_t   *const cap);
+----
+
 
 === MACSec block initialization
 
-`mepa_macsec_init_set()`:  is used for enabling, initializing, and setting bypass for the MACSEC block.
+* `mepa_macsec_init_set()`:  is used for enabling, initializing, and setting bypass for the MACSEC block.
 
-When the MACsec block is Disabled, all frames are passed through unchanged.
+When the MACsec block is disabled/bypassed, all frames are passed through unchanged.
 
 The default state of the MACSEC Block, after Phy initialization, is MACsec block is Disabled.
-When the MACsec block is enabled, API `mepa_macsec_init_set()` is called with enable=TRUE, and
-all frames are dropped until SecY (CA) is created and configured. To initialize the MACSEC block,
-the block must be enabled and the bypass param must be set to: `MEPA_MACSEC_INIT_BYPASS_NONE`, ie. the
-Application must ensure that `mepa_macsec_init_set()` has been called once with bypass param set
+When the MACsec block is enabled, API `mepa_macsec_init_set()` is called with `enable=TRUE`, and 
+all frames are dropped until SecY (CA) is created and configured. To initialize the MACSEC block, 
+the block must be enabled and the bypass param must be set to: `MEPA_MACSEC_INIT_BYPASS_NONE`, ie. the 
+Application must ensure that `mepa_macsec_init_set()` has been called once with bypass param set 
 to `MEPA_MACSEC_INIT_BYPASS_NONE` in order for the MACSEC initialization to be completed for the port.
-To place the MACSEC block into bypass, the API `mepa_macsec_init_set()` must be called again with
-the bypass param set to: `MEPA_MACSEC_INIT_BYPASS_ENABLE` and to remove the bypass, the API
+
+To place the MACSEC block into bypass, the API `mepa_macsec_init_set()` must be called again with 
+the bypass param set to: `MEPA_MACSEC_INIT_BYPASS_ENABLE` and to remove the bypass, the API 
 `mepa_macsec_init_set()` must be called with the bypass param set to:
 `MEPA_MACSEC_INIT_BYPASS_DISABLE`.
+
+----
+
+mepa_rc mepa_macsec_init_set(struct mepa_device          *dev, 
+                             const mepa_macsec_init_t    *const macsec_init);
+
+
+mepa_rc mepa_macsec_init_get(struct mepa_device          *dev,
+                             mepa_macsec_init_t          *const macsec_init);
+----
+
+
+[cols="1,1,1", options="header"]
+|===
+|enable	 | bypass	                           | Description
+|1	     | MEPA_MACSEC_INIT_BYPASS_NONE	       | Enables MACsec Block and its clock
+|1	     | MEPA_MACSEC_INIT_BYPASS_ENABLE	   | Enables MACsec Block Clock, but it will be in Bypass Mode, packet will bypass MACsec Crypto Engine, the MACsec Configurations will not be Erased.
+|1	     | MEPA_MACSEC_INIT_BYPASS_DISABLE	   | Enable MACsec Block from Bypass, so block and crypto will be operational
+|0	     | MEPA_MACSEC_INIT_BYPASS_NONE	       | Disable MACsec Block and its clock, the MACsec and resets the MACsec Configurations
+|===
 
 NOTE: To enable the MACsec block this API needs to be called with "enable"=TRUE and "bypass"= MEPA_MACSEC_INIT_BYPASS_NONE,
 to completely Disable MACsec Block API needs to be called with "enable"=FALSE and "bypass"= MEPA_MACSEC_INIT_BYPASS_NONE.
@@ -152,12 +196,70 @@ The controlled port is disabled by default.
 Use NULL pointer to get the first port and use found ports as a search port in the next round.
 |===
 
+----
+
+mepa_rc mepa_macsec_secy_conf_add (struct mepa_device                *dev,
+                                   const mepa_macsec_port_t          port,
+                                   const mepa_macsec_secy_conf_t     *const conf);
+
+
+mepa_rc mepa_macsec_secy_conf_get(struct mepa_device               *dev,
+                                  const mepa_macsec_port_t         port,
+                                  mepa_macsec_secy_conf_t          *const conf);
+
+
+mepa_rc mepa_macsec_secy_conf_update(struct mepa_device              *dev,
+                                     const mepa_macsec_port_t        port,
+                                     const mepa_macsec_secy_conf_t   *const conf);
+
+
+mepa_rc mepa_macsec_secy_conf_del(struct mepa_device             *dev,
+                                  const mepa_macsec_port_t       port);
+
+
+mepa_rc mepa_macsec_secy_controlled_set(struct mepa_device          *dev,
+                                        const mepa_macsec_port_t    port,
+                                        const mepa_bool_t           enable);
+
+
+mepa_rc mepa_macsec_secy_controlled_get(struct mepa_device          *dev,
+                                        const mepa_macsec_port_t    port,
+                                        mepa_bool_t                 *const enable);
+----
+
+Following are the arguments of structure `mepa_macsec_port_t`
+
+* `port_no`       : Port Number of the PHY, A reference to the physical port
+
+* `service_id`    : A reference to a given encapsulation service. The user of the API may choose 
+                    any number, this is not used in hardware, but in cases where external-virtual ports
+                    are used this is required to have a unique identifier to a given SecY.
+
+* `port_id`       : The port ID used in the SCI tag, each SecY is identified by this port_id
+
+
+Following are the arguments of structure `mepa_macsec_secy_conf_t` and its description
+
+[cols="1,1,1", options="header"]
+|===
+| Arguments	           | Description
+| mac_addr	           | Mac address of the Tx SecY (SCI = mac_addr + port_id)
+| validate_frames	   | Frame Validation control(Disable/Strict/check)
+| replay_protect	   | Enable/Disable Replay Window
+| replay_window	       | Replay Window size
+| protect_frames	   | Enable/Disable frame protection
+| always_include_sci   | Explicit or Implicit SCI
+| use_es	           | End Station bit in TCI
+| use_scb	           | SCB bit in TCI
+| current_cipher_suite | Cipher Suit and key length selection  (XPN or NON-XPN)
+|===
+
 === Classification and Pattern Matching
 
 ==== Matching patterns
 
 When traffic passes through the MACsec processing block, it will be matched
-against a set of rules/policies, Each SecY(Virtual Port) can be configured with a set of Pattern matching Rules.
+against a set of rules/policies, each SecY(Virtual Port) can be configured with a set of Pattern matching Rules using MEPA API `mepa_macsec_pattern_set()`.
 If none of these rules/policies match, the traffic will be matched against the default rules/policies.
 
 Note:: There will one and only one of the default rules/policies for a MACsec block and this is defined
@@ -165,7 +267,7 @@ in `mepa_macsec_default_action_policy_t` which can be configured through `mepa_m
 
 The classification rules/policies are associated with a MACsec port and an action. The
 action is defined in `mepa_macsec_match_action_t` and defines frame drop and frame forwarding
-Requirements.  If the frame should be forwarded, it will be forwarded to the controlled(`MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT`)
+requirements.  If the frame should be forwarded, it will be forwarded to the controlled(`MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT`)
 or the uncontrolled port (`MEPA_MACSEC_MATCH_ACTION_UNCONTROLLED_PORT`) of the given virtual MACsec port.
 
 These classification rules are used for both the ingress and the egress traffic.
@@ -175,7 +277,7 @@ These rules are a limited resource, and the HW is limited to allow the same
 amount of classification rules as concurrent SA streams. Therefore, to utilize
 the hardware 100%, the rules should only be used to associate traffic with the
 controlled port (encryption/decryption) of a MACsec port.  If these rules are not being matched,
-then the traffic matching falls to the default rules/policies.
+then the traffic matching falls to the default rules/policies matching.
 
 In simple scenarios where a single peer is connected to a single PHY port,
 there are more than sufficient resources to use this mechanism for associating traffic
@@ -183,6 +285,60 @@ with the controlled and the uncontrolled port, but the user should be aware that
 It is recommended that resources are always optimized and this is accomplished by
 configuring the classification rules for the control port and configuring the default rules/policies
 for the uncontrolled port.
+
+Followings are the different Pattern Matching rules:
+
+* Destination MAC Address(match = `MEPA_MACSEC_MATCH_DMAC`) +
+* Ether-type (match = `MEPA_MACSEC_MATCH_ETYPE`) +
+* 2 VLAN IDs (match = `MEPA_MACSEC_MATCH_HAS_VLAN` or `MEPA_MACSEC_MATCH_HAS_VLAN_INNER`) +
+
+----
+
+mepa_rc mepa_macsec_pattern_set(struct mepa_device                  *dev,
+                                const mepa_macsec_port_t            port,
+                                const mepa_macsec_direction_t       direction,
+                                const mepa_macsec_match_action_t    action,
+                                const mepa_macsec_match_pattern_t   *const pattern);
+
+mepa_rc mepa_macsec_pattern_get(struct mepa_device                  *dev,
+                                const mepa_macsec_port_t            port,
+                                const mepa_macsec_direction_t       direction,
+                                const mepa_macsec_match_action_t    action,
+                                mepa_macsec_match_pattern_t         *const pattern);
+
+
+mepa_rc mepa_macsec_pattern_del(struct mepa_device                  *dev,
+                                const mepa_macsec_port_t            port,
+                                const mepa_macsec_direction_t       direction,
+                                const mepa_macsec_match_action_t    action);
+
+----
+
+Note:: Argument `match` of structure `mepa_macsec_match_pattern_t` is of type uin32_t, so we can match for multiple match rules by doing OR operation will all matches
+
+NOTE: This MEPA API `mepa_macsec_pattern_set` doesn't do any chip-level register configuration when `action == MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT`, instead it will store
+the values in software and use it when creating the next Secure Association, so whenever SA is created these stored values will be used to configure.
+If User wants to change the pattern matching rule for next SA, then user needs to call `mepa_macsec_pattern_set()` API before creating Tx or Rx SA
+When `action = UNCONTROLLED_PORT` or `action = DROP` this `mepa_macsec_pattern_set()` API will do chip-level register configuration.
+
+[%autowidth.stretch]
+|===
+| *match_conf.match* | *Parameters of struct `mepa_macsec_match_pattern_t` used*
+
+| MEPA_MACSEC_MATCH_ETYPE
+| match_conf.etype =  value of Ether-type to match
+
+| MEPA_MACSEC_MATCH_DMAC
+| match_conf.dest_mac = value of DMAC to match
+
+| MEPA_MACSEC_MATCH_VLAN_ID
+| match_conf.vid = value of VLAN Tag
+match_conf.has_vlan_tag = 1
+
+| MEPA_MACSEC_MATCH_HAS_VLAN_INNER
+| match_conf . vid_inner = value of Inner VLAN Tag
+match_conf . has_vlan_inner_tag = 1
+|===
 
 Instead of using this method to forward control frames to the uncontrolled port,
 `mepa_macsec_control_frame_match_conf_set()` can be used to configure the Pattern to Consider the Packet as Control
@@ -194,23 +350,35 @@ the controlled frames will not be included in uncontrolled port counters. To get
 the application will need to gather all the control frames, calculate the statistics and use this to
 Compensate/recalculate the uncontrolled port counters.
 
-All frames which are classified as control frames are passed through. If
-the control frame matches against the ether-type, it will evaluate to true in the following three cases:
+Following are different matching rules that `mepa_macsec_control_frame_match_conf_set()` supports:
 
-  1) If the ether-type located directly after the source MAC address matches
-  2) If the ether-type located the first VLAN tag matches
-  3) If the ether-type located a double VLAN tag matches
+* Destination MAC Address (DMAC) +
+* Ether-type +
+* DMAC and Ether-type +
 
-. `mepa_macsec_control_frame_match_conf_set()`: Set the control frame matching rules.
+The number of matching rules that each MACsec port supports through `mepa_macsec_control_frame_match_conf_set()` API depends on hardware.
 
-. `mepa_macsec_control_frame_match_conf_get()`: Get the control frame matching rules.
+----
 
-. `mepa_macsec_pattern_set()`: Configure the Matching pattern for a given MACsec port, for a given
-                              action. Only one action may be associated with each actions. One matching
-                              slot will be acquired immediately when this is called for the `DROP` or the
-                              `UNCONTROLLED_PORT` actions. When matching pattern is configured for the
-                              `CONTROLLED_PORT` action, HW a matching resource will be acquired for every
-                              SA added.
+mepa_rc mepa_macsec_control_frame_match_conf_set(struct mepa_device                              *dev,
+                                                 const mepa_port_no_t                            port_no,
+                                                 const mepa_macsec_control_frame_match_conf_t    *const conf,
+                                                 uint32_t                                        *const rule_id);
+
+Note : Pass 'rule_id' argument as NULL for this SET api
+
+mepa_rc mepa_macsec_control_frame_match_conf_get(struct mepa_device                              *dev,
+                                                 const mepa_port_no_t                            port_no,
+                                                 mepa_macsec_control_frame_match_conf_t          *const conf,
+                                                 uint32_t                                        rule_id);
+
+
+mepa_rc mepa_macsec_control_frame_match_conf_del(struct mepa_device             *dev,
+                                                 const mepa_port_no_t           port_no,
+                                                 const uint32_t                 rule_id);
+
+----
+
 
 === Secure Channel Management
 
@@ -246,12 +414,17 @@ as compare with existing Rx SA Status.
 
 | `mepa_macsec_rx_sc_del()`
 | Delete the Rx SC and the associated SAs
+
+| `mepa_macsec_rx_sc_status_get()`
+|API used to get the current status of Rx SC, this will give the SC Created time and stop time, these timing values are used to perform key rollover after specific time
 |===
 
 
 ==== Transmit Secure Channel (SC) management
 
 Following are the List of APIs which is Used to Create, Configure Tx Secure Channel and to get the Status of Tx SC.
+
+Note:: Maximum number of Tx SC in each SecY is 1
 
 [%autowidth.stretch]
 |===
@@ -272,8 +445,11 @@ as compare with existing Tx SA Status.
 
 | `mepa_macsec_tx_sc_del()`
 | Delete the Tx SC object and the associated SAs
-|===
 
+| `mepa_macsec_tx_sc_status_get()`
+| API is used to get the current status of Tx Secure Channel, it gives the SCI of the channel and the created time, started time and stop time of this Tx Secure Channel
+The start time and stop time are used for the application to perform MACsec key rollover, if user application is changing the key based on the time
+|===
 
 
 === Secure Association (SA) management
@@ -330,6 +506,19 @@ the value obtained from API to get the actual value. Updating parameters like Re
 | Update the lowest_pn packet number in 64-bit or 32-bit for Rx SA which is the Next Expected packet Number
 |===
 
+Following table provides the short description about the each arguments of API `mepa_macsec_rx_sa_set()` or `mepa_macsec_rx_seca_set()`
+
+[cols="1,1,1", options="header"]
+|===
+| Argument           | Description
+| dev                | Port Instance
+| port               | SecY Identifier
+| sci                | Secure Channel Identifier
+| an                 | Association Number (Secure Association Identifier)
+| lowest_pn          | Expected packet number value of first incoming packet of this SA to be decrypted
+| sak                | Secure Association Key (Key and Hash key and salt key)
+| ssci               | Shot Secure Channel identifier in case of XPN else pass NULL
+|===
 
 ==== Transmit Secure Association (SA) management
 
@@ -370,6 +559,20 @@ This SA is not in use until `mepa_macsec_tx_sa_activate()` is performed.
 
 | `mepa_macsec_tx_seca_get()`
 | Get the Tx SA configuration supporting 64-bit and 32-bit PN
+|===
+
+Following table provides the short description about the each arguments of API `mepa_macsec_tx_sa_set()` or `mepa_macsec_tx_seca_set()`
+
+[cols="1,1,1", options="header"]
+|===
+| Argument           | Description
+| dev                | Port Instance
+| port               | SecY Identifier
+| an                 | Association Number (Secure Association Identifier)
+| next_pn            | Packet number field value of first encrypted packet of this SA
+| confidentiality    | Enable Payload Encryption  (if 0 then only ICV added without payload encryption)
+| sak                | Secure Association Key (Key and Hash key and salt key)
+| ssci               | Shot Secure Channel identifier in case of XPN else pass NULL
 |===
 
 === Header / TAG Bypass
@@ -413,9 +616,10 @@ checksum. If this frame is received on the PHY, it will find the VLAN tag,
 parse it and use this information to associate the MACsec frame with the
 given virtual MACsec port.
 
-. `mepa_macsec_bypass_mode_set()`: Set header bypass mode globally for the port
+. `mepa_macsec_bypass_mode_set()`: Set Tag bypass mode `MEPA_MACSEC_BYPASS_TAG`
 
-. `mepa_macsec_bypass_tag_set()`: Set the bypass tag mode i.e. number of Tags to bypass: 0(disable), 1 or 2 tags.
+. `mepa_macsec_bypass_tag_set()`: Set the bypass tag mode i.e. number of Tags to bypass: 0(disable), 1 or 2  or 3 or 4 tags.
+
 
 To bypass VLAN Tag the `mepa_macsec_bypass_mode_set()` needs to be called with bypass mode `MEPA_MACSEC_BYPASS_TAG`  and
 `mepa_macsec_bypass_tag_set()` needs to be called consecutively in same order to configure number of VLAN tags to be bypassed.
@@ -424,79 +628,48 @@ To bypass header `mepa_macsec_bypass_mode_set()` needs to be called with bypass 
 to be bypassed and header length.
 
 NOTE: To bypass VLAN tag/Header the `mepa_macsec_bypass_mode_set()` and `mepa_macsec_bypass_tag_set()` APIs needs to be called before creating the
-      secure channel.
+      secure channel.The Bypass configuration will reflect only in the upcoming Tx SA to be created it will not change the configuration of any existing Tx SA
 
 If a MACsec Port is having Multiple SecYs (Virtual Ports) where the Number of Tags to be Bypassed is different for each SecY, then call API
 `mepa_macsec_bypass_tag_set()` with Number of Tags to be Bypassed before Creating the Secure Channel of the corresponding SecY.
 
+----
 
-== MACsec Counters
+mepa_rc mepa_macsec_bypass_mode_set(struct mepa_device                *dev,
+                                    const mepa_port_no_t              port_no,
+                                    const mepa_macsec_bypass_mode_t   *const bypass);
+
+
+mepa_rc mepa_macsec_bypass_mode_get(struct mepa_device                 *dev,
+                                    const mepa_port_no_t               port_no,
+                                    mepa_macsec_bypass_mode_t          *const bypass);
+
+
+mepa_rc mepa_macsec_bypass_tag_set(struct mepa_device                 *dev,
+                                   const mepa_macsec_port_t           port,
+                                   const mepa_macsec_tag_bypass_t     tag);
+
+
+mepa_rc mepa_macsec_bypass_tag_get(struct mepa_device                 *dev,
+                                   const mepa_macsec_port_t           port,
+                                   mepa_macsec_tag_bypass_t           *const tag);
+
+----
+
+=== MACsec Counters
 
 MACsec counters are supported as per the 802.1AE MACsec standards. The three classes of statistics
 counters are as follows:
 
-SecY statistics: The MACsec block maintains statistics of each SecY in the per physical port.
+* `SecY statistics` : The MACsec block maintains statistics of each SecY in the per physical port.
 
-Per-SA statistics: The software on the MACsec block maintains all the per-SA statistics for the ingress
+* `Per-SA statistics` : The software on the MACsec block maintains all the per-SA statistics for the ingress
 and egress MACsec operations. It maintains the statistics for all the four SAs that may belong to an
 SC. Thus, it keeps the per-SA statistics, even for the deleted SAs from the SA flow table. Whenever
 an SA flow is deleted, its final SA statistics must be collected and added into the per-SA and per-SC
 statistics.
 
-Per-SC statistics: The MACsec block does not maintain any per-SC statistics. However, the per-SC
-statistics are the sum of per-SA statistics of the SAs belonging to that SC. Whenever the software
-reads per-SA statistics from the hardware, it will add them to SC statistics.
-
-`mepa_macsec_tx_sa_counters_get()` : Gets the statistics of particular Transmit secure assosiation
-
-`mepa_macsec_tx_sc_counters_get()` : Gets the statics of particular transmit secure channel it contains the statistics of all the SA's
-                                     belong to the particular secure channel
-
-`mepa_macsec_rx_sa_counters_get()` : Gets the statistics of particular Receiving secure assosiation.
-
-`mepa_macsec_rx_sc_counters_get()` : Gets the statics of particular receive secure channel.
-
-`mepa_macsec_secy_counters_get()` : Gets the statistics of particular SecY in the physical port.
-
-`mepa_macsec_controlled_counters_get()` : Gets the statistics of the packets passing through the controlled port of the MACsec.
-
-`mepa_macsec_uncontrolled_counters_get()` : Gets the statistics of the packets passing through the uncontrolled port
-
-
-
-== List of APIs for Ecryption/decryption configuration
-
-'mepa_macsec_init_set()'
-'mepa_macsec_default_action_set()'
-'mepa_macsec_secy_conf_add()'
-'mepa_macsec_pattern_set()'
-'mepa_macsec_secy_cotrolled_set()'
-
-== Encryption
-'mepa_macsec_tx_sc_set()'
-'mepa_macsec_tx_sa_set()'
-'mepa_macsec_tx_sa_activate()'
-
-== Decryption
-'mepa_macsec_rx_sc_add()'
-'mepa_macsec_rx_sc_set()'
-'mepa_macsec_rx_sa_activate()'
-
-
-== MACsec Counters
-
-MACsec counters are supported as per the 802.1AE MACsec standards. The three classes of statistics
-counters are as follows:
-
-`SecY statistics` : The MACsec block maintains statistics of each SecY in the per physical port.
-
-`Per-SA statistics` : The software on the MACsec block maintains all the per-SA statistics for the ingress
-and egress MACsec operations. It maintains the statistics for all the four SAs that may belong to an
-SC. Thus, it keeps the per-SA statistics, even for the deleted SAs from the SA flow table. Whenever
-an SA flow is deleted, its final SA statistics must be collected and added into the per-SA and per-SC
-statistics.
-
-`Per-SC statistics` : The MACsec block does not maintain any per-SC statistics. However, the per-SC
+* `Per-SC statistics` : The MACsec block does not maintain any per-SC statistics. However, the per-SC
 statistics are the sum of per-SA statistics of the SAs belonging to that SC. Whenever the software
 reads per-SA statistics from the hardware, it will add them to SC statistics.
 
@@ -539,7 +712,7 @@ reads per-SA statistics from the hardware, it will add them to SC statistics.
 For all the above Listed Counters API, we provide a Seperate MEPA API which is used to clear the Statistics of
 each of this Counters.
 
-== MACsec Events Configuration
+=== MACsec Events Configuration
 
 MACsec Supports two events Rollover and sequence threshold event.
 
@@ -567,6 +740,8 @@ once it is identified.
 . `mepa_macsec_tx_sa_set()` or `mepa_macsec_tx_seca_set()` - Create Tx Secure Association (NON-XPN or XPN)
 . `mepa_macsec_tx_sa_activate()` - Activates Tx SA
 
+image::macsec_encryption_flow.png[align="center"]
+
 == Sequence of API for Basic MACsec Decryption
 
 . `mepa_macsec_init_set()` - Enable MACsec Block
@@ -579,13 +754,32 @@ once it is identified.
 . `mepa_macsec_rx_sa_activate()` - Activates Rx SA
 
 
-== Sample Application Refference
+Note::
+----
+SecY configuration for Decryption should be done based on expected Encrypted frame passing through this virtual port.
+
+mepa_macsec_secy_conf_t  secy_conf = {0};
+
+secy_conf.always_include_sci = If Incoming encrypted packet includes SCI, then set this to 1 else 0
+secy_conf.use_es = Should be same to that of expected encrypted packet
+secy_conf.use_scb = Should be same to that of expected encrypted packet
+secy_conf.current_cipher_suite = Should be same to that of expected encrypted packet
+
+In Case of Implicit SCI (always_include_sci = 0), then the argument `secy_conf.mac_addr` should be equal to source MAC Address of incoming encrypted packet, if not decryption fails.
+
+The value of `Rx SCI ID` should be same to that of the value of  `Port identifier` value in SECTAG of the Incoming Encrypted packet.
+----
+
+image::macsec_decryption_flow.png[align="center"]
+
+== Sample Application Reference
 
 Reffer Sample Application available in the following path as Refference to Use MACsec MEPA APIs
 
 * `sw-mepa/mepa_demo/mepa_apps/phy_macsec_demo.c` - Source File for MACsec Demo Application
 
 Reffer link:mepa-app-doc.html#mepa_demo/docs/macsec-demo[MACsec-Demo App User Guide] to know how to use the MACsec Demo Application
+
 
 == MEPA MACSec functions
 

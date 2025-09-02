@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MEPA_LAN80XX_REGS_COMMON_H_
-#define _MEPA_LAN80XX_REGS_COMMON_H_
+#ifndef MEPA_LAN80XX_REGS_COMMON_H_
+#define MEPA_LAN80XX_REGS_COMMON_H_
 
 #define LAN80XX_BIT(x)                   (1U << (x))
 #define LAN80XX_BITMASK(x)               ((1U << (x)) - 1)
@@ -20,20 +20,19 @@
 #define LAN80XX_WORD_MASK        (0xFU)
 #define LAN80XX_WORD(msb, lsb)   ((msb << 8U) | lsb)
 #define LAN80XX_MASK_THIRD_BYTE  (0xFF0000U)
-#define LAN80XX_32BIT_REG_MASK   (0xFFFFFFFF)
+#define LAN80XX_32BIT_REG_MASK   (0xFFFFFFFFU)
 
 #define LAN80XX_HOST_LINE_REG(front,h_l,back) \
-	(((h_l) != 0U) ? (front##_LINE_##back) : (front##_HOST_##back))
+    (((h_l) != 0U) ? (front##_LINE_##back) : (front##_HOST_##back))
 
 #define LAN80XX_LINE_HOST_MAC_REG_EXPAN(front, is_host, back) \
-	(((is_host) != 0U) ? (front##_HOST_MAC_HOST_MAC_##back) : (front##_LINE_MAC_LINE_MAC_##back))
+    (((is_host) != 0U) ? (front##_HOST_MAC_HOST_MAC_##back) : (front##_LINE_MAC_LINE_MAC_##back))
 
 
 #define LAN80XX_HOST_LINE_INTR_REG(front, h_l, back) \
-	(((h_l) != 0U) ? (front##_LINE_INTR_CTRL_LINE_##back) : (front##_HOST_INTR_CTRL_HOST_##back))
+    (((h_l) != 0U) ? (front##_LINE_INTR_CTRL_LINE_##back) : (front##_HOST_INTR_CTRL_HOST_##back))
 
 
-#define VTSS_IO_OFFSET0(x) (x)
 
 /*
  * @param dev  - device id
@@ -107,6 +106,8 @@
 #define MMD_ID_PTP_BLOCK          (0xAU)
 /* Device ID for PTP LTC */
 #define MMD_ID_PTP_LTC            (0x1EU)
+/* Device ID for PTP STI */
+#define MMD_ID_PTP_STI            (0x1EU)
 /* Device ID for PTP ANAx_EGR and ANAx_INGR */
 #define MMD_ID_PTP_ANAx           (0xAU)
 /* Device ID for MACSEC INGR */

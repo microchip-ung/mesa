@@ -69,16 +69,20 @@ MEPA_LIB(LIB_NAME mepa_ocelot_pcb121 ADVANCED
          DRVS     mepa_drv_vtss_ts)
 
 MEPA_LIB(LIB_NAME mepa_sparx5 ADVANCED
-         DEFS     -DMEPA_HAS_VTSS       -DMEPA_HAS_AQR  -DMEPA_HAS_GPY2211  -DMEPA_HAS_LAN8814 -DMEPA_HAS_LAN884x  -DMEPA_HAS_LAN80XX
-         DRVS     mepa_drv_vtss_10g_ts  mepa_drv_aqr    mepa_drv_intel      mepa_drv_lan8814    mepa_drv_lan884x  mepa_drv_lan80xx_ts)
+         DEFS     -DMEPA_HAS_VTSS       -DMEPA_HAS_AQR  -DMEPA_HAS_GPY2211  -DMEPA_HAS_LAN8814 -DMEPA_HAS_LAN884x
+         DRVS     mepa_drv_vtss_10g_ts  mepa_drv_aqr    mepa_drv_intel      mepa_drv_lan8814    mepa_drv_lan884x)
 
 MEPA_LIB(LIB_NAME mepa_sparx5_macsec ADVANCED
-         DEFS     -DMEPA_HAS_VTSS       -DMEPA_HAS_AQR  -DMEPA_HAS_GPY2211  -DMEPA_HAS_LAN8814       -DMEPA_HAS_LAN80XX
-         DRVS     mepa_drv_vtss_10g_macsec_ts  mepa_drv_aqr    mepa_drv_intel      mepa_drv_lan8814  mepa_drv_lan80xx_ts_msec)
+         DEFS     -DMEPA_HAS_VTSS       -DMEPA_HAS_AQR  -DMEPA_HAS_GPY2211  -DMEPA_HAS_LAN8814
+         DRVS     mepa_drv_vtss_10g_macsec_ts  mepa_drv_aqr    mepa_drv_intel      mepa_drv_lan8814)
 
 MEPA_LIB(LIB_NAME mepa_sparx5_bringup ADVANCED
          DEFS     -DMEPA_HAS_VTSS
          DRVS     mepa_drv_vtss_10g_ts)
+
+MEPA_LIB(LIB_NAME mepa_edsx ADVANCED
+         DEFS     -DMEPA_HAS_VTSS              -DMEPA_HAS_AQR      -DMEPA_HAS_GPY2211   -DMEPA_HAS_LAN8814       -DMEPA_HAS_LAN80XX
+         DRVS     mepa_drv_vtss_10g_macsec_ts   mepa_drv_aqr       mepa_drv_intel        mepa_drv_lan8814         mepa_drv_lan80xx_ts_msec)
 
 MEPA_LIB(LIB_NAME mepa_lan966x ADVANCED
          DEFS     -DMEPA_HAS_VTSS  -DMEPA_HAS_KSZ9031  -D MEPA_HAS_LAN8814 -DMEPA_HAS_LAN884x
@@ -97,8 +101,8 @@ MEPA_LIB(LIB_NAME mepa_velocitysp_lan969x ADVANCED
          DRVS     mepa_drv_lan8814_light mepa_drv_lan884x)
 
 MEPA_LIB(LIB_NAME mepa_velocitysp_lan969x_auto ADVANCED
-         DEFS     -DMEPA_HAS_LAN887X -DMEPA_HAS_LAN884x
-         DRVS     mepa_drv_lan887x mepa_drv_lan884x)
+         DEFS     -DMEPA_HAS_LAN887X -DMEPA_HAS_LAN884x -DMEPA_HAS_LAN867X
+         DRVS     mepa_drv_lan887x mepa_drv_lan884x mepa_drv_lan867x)
 
 MEPA_LIB(LIB_NAME mepa_p64h ADVANCED
          DEFS     -DMEPA_HAS_VTSS       -DMEPA_HAS_DUMMY_PHY

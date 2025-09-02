@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MEPA_LAN80XX_PRIVATE_H_
-#define _MEPA_LAN80XX_PRIVATE_H_
+#ifndef MEPA_LAN80XX_PRIVATE_H_
+#define MEPA_LAN80XX_PRIVATE_H_
 
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api.h>
@@ -16,6 +16,30 @@
 #define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+
+#define T_DM(format, ...) \
+    do { \
+        uint32_t val = 0; \
+        LAN80XX_CSR_RD(dev, 0, \
+                        LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
+        T_D(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
+    } while (0)
+
+#define T_EM(format, ...) \
+    do { \
+        uint32_t val = 0; \
+        LAN80XX_CSR_RD(dev, 0, \
+                        LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
+        T_E(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
+    } while (0)
+
+#define T_IM(format, ...) \
+    do { \
+        uint32_t val = 0; \
+        LAN80XX_CSR_RD(dev, 0, \
+                        LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
+        T_I(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
+    } while (0)
 
 #define LAN80XX_UINT_8_MAX_VALUE                (255U)
 
@@ -59,6 +83,14 @@
 #define LAN80XX_GPIO_37                         (37U)
 #define LAN80XX_GPIO_38                         (38U)
 #define LAN80XX_GPIO_39                         (39U)
+#define LAN80XX_GPIO_2                          (2U)
+#define LAN80XX_GPIO_3                          (3U)
+#define LAN80XX_GPIO_10                         (10U)
+#define LAN80XX_GPIO_11                         (11U)
+#define LAN80XX_GPIO_18                         (18U)
+#define LAN80XX_GPIO_19                         (19U)
+#define LAN80XX_GPIO_26                         (26U)
+#define LAN80XX_GPIO_27                         (27U)
 
 
 /* MAC block Config values */
@@ -99,6 +131,8 @@
 #define LAN80XX_POST1_SLICE0_BIST_RESULT_ADDR  (0x85U)
 #define LAN80XX_POST1_STATUS_P1_POST_DONE      (0x1U)
 
+extern mepa_ts_driver_t lan80xx_ts_drivers;
+extern mepa_macsec_driver_t lan80xx_macsec_drivers;
 
 typedef struct {
     u8     r_dwidthctrl_from_hwt;
@@ -243,14 +277,14 @@ mepa_rc _lan80xx_csr_warm_wr(const mepa_device_t *dev,
         base_dev = data->base_dev; \
         base_data =  (phy25g_phy_state_t *)base_dev->data; \
      }\
-
+ 
 #define LAN80XX_CSR_RD(dev,port, io_reg, value)                      \
     {                                                                \
        mepa_rc __rc = lan80xx_csr_rd(dev,port, io_reg->mmd, io_reg->is32, io_reg->addr, value);\
         if (__rc != MEPA_RC_OK)                                       \
             return __rc;                                               \
     }                                                           \
-
+ 
 #define LAN80XX_CSR_WR(dev,port, io_reg, value)                 \
     {                                                              \
       mepa_rc __rc = lan80xx_csr_wr(dev, port, io_reg->mmd, io_reg->is32, io_reg->addr, value); \

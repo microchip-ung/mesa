@@ -14603,9 +14603,10 @@ static void vtss_phy_malibu_register_dump( struct vtss_state_s *vtss_state,
     PHY_MALIBU_DISP_REG(port_no, EXP_CFG, &val, l);
     pr("\n");
 
+#if defined(VTSS_FEATURE_MACSEC)
     pr("\n\n\t:-:-:-:  MACSEC  :-:-:-:");
-    vtss_macsec_dbg_reg_dump(vtss_state, port_no, pr);
-
+    vtss_macsec_dbg_reg_dump_priv(vtss_state, port_no, pr);
+#endif
 }
 static void prnt_reg(char *reg_name,u32 value,const vtss_debug_printf_t pr) {
     int tcount = 0;
@@ -14925,9 +14926,17 @@ vtss_rc malibu_10g_debug_reg_dump(vtss_state_t *vtss_state,
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_PCS_Status_2_PCS_Status_2, "PCS_STATUS_2", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_PCS_Status_2_PCS_Status_2, "PCS_STATUS_2", &value);
 
+        malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_PCS_Status_1_PCS_Status_1, "PCS_STATUS_1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_PCS_Status_1_PCS_Status_1, "PCS_STATUS_1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_PCS_Status_1_PCS_Status_1, "PCS_STATUS_1", &value);
+
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_Eth_10GBASE_R_PCS_Status_2_Eth_10GBASE_R_PCS_Status_2, "10GBASE_R_PCS_Status_2", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_Eth_10GBASE_R_PCS_Status_2_Eth_10GBASE_R_PCS_Status_2, "10GBASE_R_PCS_Status_2", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_Eth_10GBASE_R_PCS_Status_2_Eth_10GBASE_R_PCS_Status_2, "10GBASE_R_PCS_Status_2", &value);
+
+        malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_Eth_10GBASE_R_PCS_Status_1_Eth_10GBASE_R_PCS_Status_1, "10GBASE_R_PCS_Status_1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_Eth_10GBASE_R_PCS_Status_1_Eth_10GBASE_R_PCS_Status_1, "10GBASE_R_PCS_Status_1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_Eth_10GBASE_R_PCS_Status_1_Eth_10GBASE_R_PCS_Status_1, "10GBASE_R_PCS_Status_1", &value);
 
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_PCS_TX_SEQ_ERR_CNT_PCS_TX_SEQ_ERR_CNT, "PCS_Tx_Sequencing_Error_Count", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_PCS_RX_SEQ_ERR_CNT_PCS_RX_SEQ_ERR_CNT, "PCS_Rx_Sequencing_Error_Count", &value);
@@ -14936,6 +14945,22 @@ vtss_rc malibu_10g_debug_reg_dump(vtss_state_t *vtss_state,
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_PCS_TX_CHAR_ENC_ERR_CNT_PCS_TX_CHAR_ENC_ERR_CNT, "PCS_Tx_Char_Encode_Error_Count", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_LINE_PCS10G_PCS_RX_CHAR_DEC_ERR_CNT_PCS_RX_CHAR_DEC_ERR_CNT, "PCS_Rx_Char_Encode_Error_Count", &value);
 
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, "LINE pcs1g_sticky", &value);
+        CSR_WR(port_no, VTSS_LINE_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, 0x11);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, "LINE pcs1g_sticky", &value);
+        CSR_WR(port_no, VTSS_LINE_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, 0x11);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, "LINE pcs1g_sticky", &value);
+
+        //LINE LCPLLs
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PLL5G_L_PLL5G_L_PLL5G_STATUS0, "LINE LCPLL status0", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PLL5G_L_PLL5G_L_PLL5G_STATUS1A, "LINE LCPLL status1A", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PLL5G_L_PLL5G_L_PLL5G_STATUS1B, "LINE LCPLL status1B", &value);
+
+        //LINE RCPLLs
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0, "LINE RX_RCPLL_STAT0", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1, "LINE RX_RCPLL_STAT1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0, "LINE TX_RCPLL_STAT0", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1, "LINE TX_RCPLL_STAT1", &value);
 
         //APC REGISTERS
         malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_APC_APC_EQZ_L_CTRL, "APC_EQZ_L_CTRL", &value);
@@ -14961,7 +14986,8 @@ vtss_rc malibu_10g_debug_reg_dump(vtss_state_t *vtss_state,
 
         //10G Serdes output buffer
         malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0, "SD10G65_OB_CFG0", &value);
-        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG1, "SD10G65_OB_CFG1", &value);                                       malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG2, "SD10G65_OB_CFG2", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG1, "SD10G65_OB_CFG1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG2, "SD10G65_OB_CFG2", &value);
 
 
         //HOST REGISTERS
@@ -14972,9 +14998,17 @@ vtss_rc malibu_10g_debug_reg_dump(vtss_state_t *vtss_state,
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_Status_2_PCS_Status_2, "PCS_STATUS_2", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_Status_2_PCS_Status_2, "PCS_STATUS_2", &value);
 
+        malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_Status_1_PCS_Status_1, "PCS_STATUS_1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_Status_1_PCS_Status_1, "PCS_STATUS_1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_Status_1_PCS_Status_1, "PCS_STATUS_1", &value);
+
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_Eth_10GBASE_R_PCS_Status_2_Eth_10GBASE_R_PCS_Status_2, "10GBASE_R_PCS_Status_2", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_Eth_10GBASE_R_PCS_Status_2_Eth_10GBASE_R_PCS_Status_2, "10GBASE_R_PCS_Status_2", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_Eth_10GBASE_R_PCS_Status_2_Eth_10GBASE_R_PCS_Status_2, "10GBASE_R_PCS_Status_2", &value);
+
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS10G_Eth_10GBASE_R_PCS_Status_1_Eth_10GBASE_R_PCS_Status_1, "10GBASE_R_PCS_Status_1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS10G_Eth_10GBASE_R_PCS_Status_1_Eth_10GBASE_R_PCS_Status_1, "10GBASE_R_PCS_Status_1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS10G_Eth_10GBASE_R_PCS_Status_1_Eth_10GBASE_R_PCS_Status_1, "10GBASE_R_PCS_Status_1", &value);
 
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_TX_SEQ_ERR_CNT_PCS_TX_SEQ_ERR_CNT, "PCS_Tx_Sequencing_Error_Count", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_RX_SEQ_ERR_CNT_PCS_RX_SEQ_ERR_CNT, "PCS_Rx_Sequencing_Error_Count", &value);
@@ -14982,6 +15016,30 @@ vtss_rc malibu_10g_debug_reg_dump(vtss_state_t *vtss_state,
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_PCS_RX_BLK_DEC_ERR_CNT_PCS_PCS_RX_BLK_DEC_ERR_CNT, "PCS_Rx_Block_Encode_Error_Count", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_TX_CHAR_ENC_ERR_CNT_PCS_TX_CHAR_ENC_ERR_CNT, "PCS_Tx_Char_Encode_Error_Count", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no,VTSS_HOST_PCS10G_PCS_RX_CHAR_DEC_ERR_CNT_PCS_RX_CHAR_DEC_ERR_CNT, "PCS_Rx_Char_Encode_Error_Count", &value);
+
+        //Host 1G PCS
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_CFG, "HOSt pcs1g_cfg", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_MODE_CFG, "HOST pcs1g_mode_cfg", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_SD_CFG, "HOST pcs1g_sd_cfg", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_ANEG_CFG, "HOST pcs1g_aneg_cfg", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS, "HOST pcs1g_link_status", &value);
+
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, "HOST pcs1g_sticky", &value);
+        CSR_WR(port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, 0x11);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, "HOST pcs1g_sticky", &value);
+        CSR_WR(port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, 0x11);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PCS1G_PCS1G_CFG_STATUS_PCS1G_STICKY, "HOST pcs1g_sticky", &value);
+
+        //HOST LCPLL
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PLL5G_H_PLL5G_H_PLL5G_STATUS0, "HOST LCPLL status0", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PLL5G_H_PLL5G_H_PLL5G_STATUS1A, "HOST LCPLL status1A", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PLL5G_H_PLL5G_H_PLL5G_STATUS1B, "HOST LCPLL status1B", &value);
+
+        //HOST RCPLL
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PMA_32BIT_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT0, "HOST RX_RCPLL_STAT0", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PMA_32BIT_SD10G65_RX_RCPLL_SD10G65_RX_RCPLL_STAT1, "HOST RX_RCPLL_STAT1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PMA_32BIT_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT0, "HOST TX_RCPLL_STAT0", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PMA_32BIT_SD10G65_TX_RCPLL_SD10G65_TX_RCPLL_STAT1, "HOST TX_RCPLL_STAT1", &value);
 
 
         //APC REGISTERS
@@ -15008,7 +15066,8 @@ vtss_rc malibu_10g_debug_reg_dump(vtss_state_t *vtss_state,
 
         //10G Serdes output buffer
         malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG0, "SD10G65_OB_CFG0", &value);
-        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG1, "SD10G65_OB_CFG1", &value);                                       malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG2, "SD10G65_OB_CFG2", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG1, "SD10G65_OB_CFG1", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_PMA_32BIT_SD10G65_OB_SD10G65_OB_CFG2, "SD10G65_OB_CFG2", &value);
 
 
 
@@ -15035,6 +15094,45 @@ vtss_rc malibu_10g_debug_reg_dump(vtss_state_t *vtss_state,
         malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_FIFO_BIST_MON_LFAULT_MON_LFAULT_MSW, "MON_LFAULT_MSW", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_FIFO_BIST_MON_BER_MON_BER_LSW, "MON_BER_LSW", &value);
         malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_FIFO_BIST_MON_BER_MON_BER_MSW, "MON_BER_MSW", &value);
+
+        /* Flow Control - CFG */
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_CONFIG_FC_ENA_CFG, "FC_BUFF_CFG_FC_ENA_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_CONFIG_FC_MODE_CFG, "FC_BUFF_CFG_FC_MODE_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_CONFIG_PPM_RATE_ADAPT_THRESH_CFG, "FC_BUFF_CFG_PPM_RATE_ADAPT_THRESH_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_CONFIG_TX_CTRL_QUEUE_CFG, "FC_BUFF_CFG_TX_CTRLQ_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_CONFIG_TX_DATA_QUEUE_CFG, "FC_BUFF_CFG_TX_DATAQ_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_CONFIG_RX_DATA_QUEUE_CFG, "FC_BUFF_CFG_RX_DATAQ_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_CONFIG_TX_BUFF_XON_XOFF_THRESH_CFG, "FC_BUFF_CFG_TX_XON_XOFF_THRESH_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_CONFIG_FC_READ_THRESH_CFG, "FC_BUFF_CFG_FC_READ_THRESH_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_CONFIG_TX_FRM_GAP_COMP, "FC_BUFF_CFG_TX_FRM_GAP_COMP_CFG", &value);
+
+        /* Flow Control - Status */
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_STICKY, "FC_BUFF_STAT_STICKY", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_STICKY_MASK, "FC_BUFF_STAT_STICKY_MASK", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_TX_CTRL_QUEUE_OVERFLOW_DROP_CNT, "FC_BUFF_STAT_TX_CTRLQ_OVRFL_DROP_CNT", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_TX_CTRL_QUEUE_UNDERFLOW_DROP_CNT, "FC_BUFF_STAT_TX_CTRLQ_UNDERFL_DROP_CNT", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_TX_CTRL_UNCORRECTED_FRM_DROP_CNT, "FC_BUFF_STAT_TX_CTRLQ_UNCORR_FRM_DROP_CNT", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_TX_DATA_QUEUE_OVERFLOW_DROP_CNT, "FC_BUFF_STAT_TX_DATAQ_OVRFL_DROP_CNT", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_TX_DATA_QUEUE_UNDERFLOW_DROP_CNT, "FC_BUFF_STAT_TX_DATAQ_UNDERFL_DROP_CNT", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_TX_DATA_UNCORRECTED_FRM_DROP_CNT, "FC_BUFF_STAT_TX_DATAQ_UNCORR_FRM_DROP_CNT", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_RX_OVERFLOW_DROP_CNT, "FC_BUFF_STAT_RX_OVRFL_DROP_CNT", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_RX_UNDERFLOW_DROP_CNT, "FC_BUFF_STAT_RX_UNDERFL_DROP_CNT", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_MAC_FC_BUFFER_STATUS_RX_UNCORRECTED_FRM_DROP_CNT, "FC_BUFF_STAT_RX_UNCORR_FRM_DROP_CNT", &value);
+
+        /* HOST MAC */
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_MAC_CONFIG_MAC_ENA_CFG, "HMAC_CFG_MAC_ENA_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_MAC_CONFIG_MAC_MODE_CFG, "HMAC_CFG_MAC_MODE_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_MAC_CONFIG_MAC_PKTINF_CFG, "HMAC_CFG_MAC_PKTINF_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_MAC_PAUSE_CFG_PAUSE_TX_FRAME_CONTROL, "HMAC_PAUSE_CFG_TX_FRM_CTL", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_HOST_MAC_PAUSE_CFG_PAUSE_RX_FRAME_CONTROL, "HMAC_PAUSE_CFG_RX_FRM_CTL", &value);
+
+        /* LINE MAC */
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_MAC_CONFIG_MAC_ENA_CFG, "LMAC_CFG_MAC_ENA_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_MAC_CONFIG_MAC_MODE_CFG, "LMAC_CFG_MAC_MODE_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_MAC_CONFIG_MAC_PKTINF_CFG, "LMAC_CFG_MAC_PKTINF_CFG", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_MAC_PAUSE_CFG_PAUSE_TX_FRAME_CONTROL, "LMAC_PAUSE_CFG_TX_FRM_CTL", &value);
+        malibu_deb_pr_reg(vtss_state, pr, port_no, VTSS_LINE_MAC_PAUSE_CFG_PAUSE_RX_FRAME_CONTROL, "LMAC_PAUSE_CFG_RX_FRM_CTL", &value);
+
     }
     return (VTSS_RC_OK);
 }

@@ -61,7 +61,7 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     const uint16_t special[] = { 0x8484, 0x8487, 0x8488, 0x8489, 0x8490, 0x8491,
                                  0x8254, 0x8256, 0x8257, 0x8258, 0x8044, 0x8043,
                                  0x8042, 0x8024, 0x8023, 0x8022, 0x8268, 0x8267,
-                                 0x8264
+                                 0x8264, 0x8263, 0x8262
                                };
 
 
@@ -70,7 +70,7 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     if (callout->spi_read) {
         callout->spi_read(callout_ctx,  port_no, MEPA_GLOBAL_REG_DEV_ID, MEPA_REG_ADDR_0, &reg3);
     } else if (callout->mmd_read) {
-        callout->mmd_read(callout_ctx, MEPA_GLOBAL_REG_DEV_ID, MEPA_REG_ADDR_0, (uint16_t*)&reg3);
+        callout->mmd_read(callout_ctx, MEPA_GLOBAL_REG_DEV_ID, MEPA_REG_ADDR_0, (uint16_t *)&reg3);
     }
     reg3 = (uint32_t)(reg3 & 0xFFFF);
     for (i = 0; i < sizeof(special) / sizeof(special[0]); i++) {
@@ -85,7 +85,7 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     if (callout->spi_read) {
         callout->spi_read(callout_ctx,  port_no, MEPA_GLOBAL_REG_DEV_ID, MEPA_SILICON_REVISION_REG, &reg2);
     } else if (callout->mmd_read) {
-        callout->mmd_read(callout_ctx, MEPA_GLOBAL_REG_DEV_ID, MEPA_SILICON_REVISION_REG, (uint16_t*)&reg2);
+        callout->mmd_read(callout_ctx, MEPA_GLOBAL_REG_DEV_ID, MEPA_SILICON_REVISION_REG, (uint16_t *)&reg2);
     }
     reg2 = (uint32_t)(reg2 & 0xFFFF);
     if ((reg3 == 0) && (reg2 == 0xA0)) {
@@ -96,14 +96,14 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     reg3 = 0;
 
     if (callout->miim_read) {
-        callout->miim_read(callout_ctx, MEPA_REG_ADDR_2, (uint16_t*)&reg2);
-        callout->miim_read(callout_ctx, MEPA_REG_ADDR_3, (uint16_t*)&reg3);
+        callout->miim_read(callout_ctx, MEPA_REG_ADDR_2, (uint16_t *)&reg2);
+        callout->miim_read(callout_ctx, MEPA_REG_ADDR_3, (uint16_t *)&reg3);
     }
 
     // Maybe it is a PHY responding to MMD and not MIIM
     if (callout->mmd_read && reg2 == 0 && reg3 == 0) {
-        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_2, (uint16_t*)&reg2);
-        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_3, (uint16_t*)&reg3);
+        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_2, (uint16_t *)&reg2);
+        callout->mmd_read(callout_ctx, MEPA_REG_DEV_ID_1, MEPA_REG_ADDR_3, (uint16_t *)&reg3);
     }
     reg2 = (uint32_t)(reg2 & 0xFFFF);
     reg3 = (uint32_t)(reg3 & 0xFFFF);
@@ -600,12 +600,12 @@ mepa_rc mepa_isolate_mode_conf(struct mepa_device *dev,
 }
 
 mepa_rc mepa_i2c_read(struct mepa_device  *dev,
-                        const uint8_t      i2c_mux,
-                        const uint8_t      i2c_reg_addr,
-                        const uint8_t      i2c_dev_addr,
-                        const mepa_bool_t  word_access,
-                        uint8_t            cnt,
-                        uint8_t  *const    value)
+                      const uint8_t      i2c_mux,
+                      const uint8_t      i2c_reg_addr,
+                      const uint8_t      i2c_dev_addr,
+                      const mepa_bool_t  word_access,
+                      uint8_t            cnt,
+                      uint8_t  *const    value)
 {
     if (!dev || !dev->drv->mepa_driver_phy_i2c_read) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -615,12 +615,12 @@ mepa_rc mepa_i2c_read(struct mepa_device  *dev,
 }
 
 mepa_rc mepa_i2c_write(struct mepa_device *dev,
-                        const uint8_t      i2c_mux,
-                        const uint8_t      i2c_reg_addr,
-                        const uint8_t      i2c_dev_addr,
-                        const mepa_bool_t  word_access,
-                        uint8_t            cnt,
-                        const uint8_t           *value)
+                       const uint8_t      i2c_mux,
+                       const uint8_t      i2c_reg_addr,
+                       const uint8_t      i2c_dev_addr,
+                       const mepa_bool_t  word_access,
+                       uint8_t            cnt,
+                       const uint8_t           *value)
 {
     if (!dev || !dev->drv->mepa_driver_phy_i2c_write) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -639,7 +639,7 @@ mepa_rc mepa_i2c_clock_select(struct mepa_device *dev, mepa_i2c_clk_select_t con
     return dev->drv->mepa_driver_phy_i2c_clock_select(dev, clk_value);
 }
 
-mepa_rc mepa_fefi_set(struct mepa_device *dev,const mepa_fefi_mode_t *fefi_conf)
+mepa_rc mepa_fefi_set(struct mepa_device *dev, const mepa_fefi_mode_t *fefi_conf)
 {
     if (!dev || !dev->drv->mepa_driver_phy_fefi_get) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -689,10 +689,10 @@ mepa_rc mepa_eee_mode_conf_get(struct mepa_device *dev,  mepa_phy_eee_conf_t *co
 
 mepa_rc mepa_eee_status_get(struct mepa_device *dev, uint8_t *const advertisement, mepa_bool_t *const rx_in_power_save_state, mepa_bool_t *const tx_in_power_save_state)
 {
-    if(!dev || !dev->drv->mepa_driver_eee_status_get) {
-       return MESA_RC_NOT_IMPLEMENTED;
-     }
-     return dev->drv->mepa_driver_eee_status_get(dev, advertisement, rx_in_power_save_state, tx_in_power_save_state);
+    if (!dev || !dev->drv->mepa_driver_eee_status_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+    return dev->drv->mepa_driver_eee_status_get(dev, advertisement, rx_in_power_save_state, tx_in_power_save_state);
 }
 
 mepa_rc mepa_ts_mode_set(struct mepa_device *dev,
@@ -1337,8 +1337,8 @@ mepa_rc mepa_macsec_init_get(struct mepa_device *dev,
 }
 
 mepa_rc mepa_macsec_secy_conf_add(struct mepa_device *dev,
-                             const mepa_macsec_port_t port,
-                             const mepa_macsec_secy_conf_t *const conf)
+                                  const mepa_macsec_port_t port,
+                                  const mepa_macsec_secy_conf_t *const conf)
 {
     if (!dev->drv->mepa_macsec) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -2043,7 +2043,7 @@ mepa_rc mepa_macsec_counters_clear(struct mepa_device *dev,
 
 mepa_rc mepa_macsec_rx_sc_counters_get(struct mepa_device *dev,
                                        const mepa_macsec_port_t port,
-				       const mepa_macsec_sci_t *const sci,
+                                       const mepa_macsec_sci_t *const sci,
                                        mepa_macsec_rx_sc_counters_t *const counters)
 {
     if (!dev->drv->mepa_macsec) {
@@ -2059,7 +2059,7 @@ mepa_rc mepa_macsec_rx_sc_counters_get(struct mepa_device *dev,
 
 mepa_rc mepa_macsec_tx_sc_counters_get(struct mepa_device *dev,
                                        const mepa_macsec_port_t port,
-				       mepa_macsec_tx_sc_counters_t *const counters)
+                                       mepa_macsec_tx_sc_counters_t *const counters)
 {
     if (!dev->drv->mepa_macsec) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -2074,8 +2074,8 @@ mepa_rc mepa_macsec_tx_sc_counters_get(struct mepa_device *dev,
 
 mepa_rc mepa_macsec_tx_sa_counters_get(struct mepa_device *dev,
                                        const mepa_macsec_port_t port,
-				       const uint16_t an,
-				       mepa_macsec_tx_sa_counters_t *const counters)
+                                       const uint16_t an,
+                                       mepa_macsec_tx_sa_counters_t *const counters)
 {
     if (!dev->drv->mepa_macsec) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -2090,9 +2090,9 @@ mepa_rc mepa_macsec_tx_sa_counters_get(struct mepa_device *dev,
 
 mepa_rc mepa_macsec_rx_sa_counters_get(struct mepa_device *dev,
                                        const mepa_macsec_port_t port,
-	                               const mepa_macsec_sci_t *const sci,
-				       const uint16_t an,
-				       mepa_macsec_rx_sa_counters_t *const counters)
+                                       const mepa_macsec_sci_t *const sci,
+                                       const uint16_t an,
+                                       mepa_macsec_rx_sa_counters_t *const counters)
 {
     if (!dev->drv->mepa_macsec) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -3120,7 +3120,8 @@ mepa_rc mepa_tc10_send_sleep_request(struct mepa_device                     *dev
 }
 
 mepa_rc mepa_tc10_get_state(struct mepa_device      *dev,
-                            mepa_tc10_state_t       *const state)
+                            mepa_tc10_state_t       *const state,
+                            uint16_t            *const indication)
 {
     if (!dev->drv->mepa_tc10) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -3130,7 +3131,7 @@ mepa_rc mepa_tc10_get_state(struct mepa_device      *dev,
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_tc10->mepa_tc10_get_state(dev, state);
+    return dev->drv->mepa_tc10->mepa_tc10_get_state(dev, state, indication);
 }
 
 mepa_rc mepa_tc10_send_wake_request(struct mepa_device *dev)
@@ -3144,20 +3145,6 @@ mepa_rc mepa_tc10_send_wake_request(struct mepa_device *dev)
     }
 
     return dev->drv->mepa_tc10->mepa_tc10_send_wake_request(dev);
-}
-
-mepa_rc mepa_tc10_get_indication(struct mepa_device      *dev,
-        uint16_t                *const indication)
-{
-    if (!dev->drv->mepa_tc10) {
-        return MESA_RC_NOT_IMPLEMENTED;
-    }
-
-    if (!dev->drv->mepa_tc10->mepa_tc10_get_indication) {
-        return MESA_RC_NOT_IMPLEMENTED;
-    }
-
-    return dev->drv->mepa_tc10->mepa_tc10_get_indication(dev, indication);
 }
 
 mepa_rc mepa_warmstart_conf_end(struct mepa_device *dev)
@@ -3201,7 +3188,7 @@ mepa_rc mepa_phy_qsgmii_sync(struct mepa_device *dev)
 }
 
 mepa_rc mepa_t1s_set_plca_config (struct mepa_device *dev,
-                                                 const mepa_t1s_plca_cfg_t cfg)
+                                  const mepa_t1s_plca_cfg_t cfg)
 {
     if (!dev->drv->mepa_t1s) {
         return MESA_RC_NOT_IMPLEMENTED;
@@ -3215,7 +3202,7 @@ mepa_rc mepa_t1s_set_plca_config (struct mepa_device *dev,
 }
 
 mepa_rc mepa_t1s_get_plca_config (struct mepa_device *dev,
-                                                 mepa_t1s_plca_cfg_t *const cfg)
+                                  mepa_t1s_plca_cfg_t *const cfg)
 {
     if (!dev->drv->mepa_t1s) {
         return MESA_RC_NOT_IMPLEMENTED;

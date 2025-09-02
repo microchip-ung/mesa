@@ -1,0 +1,47 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MEPA-2025.06
+
+== MEPA-2025.06
+|===
+|Version:          |MEPA-2025.06
+|Previous Version: |MEPA-2025.03
+|Date:             |2025-06-26
+|Description:      |Release Notes
+|===
+
+=== Release Status
+
+==== Bugs Fixed:
+
+  * MEPA-794  : Adding support QSGMII synchronization in VSC8574 family and VTSS PHYs
+  * MEPA-1004 : Fixed, Link Status for VSC8584 and VSC8574 Family
+  * MEPA-1095 : Added Reg Dump of LMAC and HMAC Registers for VSC MACSec PHY's
+
+==== New features:
+
+  * MEPA-627  : Added EDS2 Support with MIIM PHY detection in sw-mepa
+  * MLX-577   : tc10 indication API support added
+  * MEPA-1086 : Support to select MDIO or SPI as Management Bus through Uboot variable and added Image Info command
+  * MEPA-1144 : Integrated MISRA-2023 check in Jenkins Pipeline for MEPA driver
+  * MEPA-1159 : Fixed High and Medium Impact MISRA-2023 violations in MEPA driver
+  * MEPA-1161 : Added build support for EDS2 in jenkins
+  * MEPA-1170 : Updated CMake version to 3.15
+
+==== New PHY Support
+
+  * MEPA-1160 : LAN80XX PHY MEPA API driver and sample application support added
+
+==== Known Bugs:
+
+  * MEPA-966 : LAN8814 QSGMII Serdes Loopback Broken
+  * MEPA-124 : [Viper] vtss_phy_sd6g_patch_private() corrections and enhancement - NOKIA QSGMII killer patterns
+  * MEPA-506 : BC/TC 1-step E2E: Reserved field, CF values and origin timestamp is not updating in some of the delay request and Sync packets
+  * MEPA-644 : SyncE Disable not working in Malibu10G
+  * MEPA-793 : When MACSec+1588 Enabled using VSC8584, after oos_mitigation there is very large PTP Offsets
+  * MEPA-741 : VSC8258 L1 Loopback Fails
+  * MEPA-1158: PKT BIST BER counter increments in LAN80XX PHY
+  * MEPA-1152: PTP: Reserved field is not cleared when packet egresses in LAN80XX PHYs
+  * MEPA-1151: PTP: Negative Correction field value is observed when Ingress is configured in LAN80XX PHYs
+

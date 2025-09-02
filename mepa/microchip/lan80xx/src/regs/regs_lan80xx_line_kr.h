@@ -1,10 +1,10 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN80XX_MALIBU25G_REGS_LINE_KR_H_
-#define _LAN80XX_MALIBU25G_REGS_LINE_KR_H_
+#ifndef LAN80XX_MALIBU25G_REGS_LINE_KR_H_
+#define LAN80XX_MALIBU25G_REGS_LINE_KR_H_
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
 /***********************************************************************
  *
@@ -27,7 +27,7 @@
  * \details
  * Register: \a LINE_KR:KR_PMD_CTRL:KR_PMD_CTRL
  */
-#define LAN80XX_LINE_KR_KR_PMD_CTRL             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x96)
+#define LAN80XX_LINE_KR_KR_PMD_CTRL                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x96))
 
 /**
  * \brief
@@ -40,9 +40,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_KR_PMD_CTRL . TR_ENABLE
  */
-#define  LAN80XX_F_LINE_KR_KR_PMD_CTRL_TR_ENABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_LINE_KR_KR_PMD_CTRL_TR_ENABLE  LAN80XX_BIT(1)
-#define  LAN80XX_X_LINE_KR_KR_PMD_CTRL_TR_ENABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_LINE_KR_KR_PMD_CTRL_TR_ENABLE(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_LINE_KR_KR_PMD_CTRL_TR_ENABLE                                                    (LAN80XX_BIT(1))
+#define  LAN80XX_X_LINE_KR_KR_PMD_CTRL_TR_ENABLE(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -55,9 +55,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_KR_PMD_CTRL . TR_RESTART
  */
-#define  LAN80XX_F_LINE_KR_KR_PMD_CTRL_TR_RESTART(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_LINE_KR_KR_PMD_CTRL_TR_RESTART  LAN80XX_BIT(0)
-#define  LAN80XX_X_LINE_KR_KR_PMD_CTRL_TR_RESTART(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_LINE_KR_KR_PMD_CTRL_TR_RESTART(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_LINE_KR_KR_PMD_CTRL_TR_RESTART                                                   (LAN80XX_BIT(0))
+#define  LAN80XX_X_LINE_KR_KR_PMD_CTRL_TR_RESTART(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a LINE_KR:KR_PMD_STS
@@ -72,7 +72,7 @@
  * \details
  * Register: \a LINE_KR:KR_PMD_STS:KR_PMD_STS
  */
-#define LAN80XX_LINE_KR_KR_PMD_STS              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x97)
+#define LAN80XX_LINE_KR_KR_PMD_STS                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x97))
 
 /**
  * \brief
@@ -85,9 +85,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_KR_PMD_STS . TR_FAIL
  */
-#define  LAN80XX_F_LINE_KR_KR_PMD_STS_TR_FAIL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_LINE_KR_KR_PMD_STS_TR_FAIL    LAN80XX_BIT(3)
-#define  LAN80XX_X_LINE_KR_KR_PMD_STS_TR_FAIL(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_LINE_KR_KR_PMD_STS_TR_FAIL(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_LINE_KR_KR_PMD_STS_TR_FAIL                                                       (LAN80XX_BIT(3))
+#define  LAN80XX_X_LINE_KR_KR_PMD_STS_TR_FAIL(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -100,9 +100,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_KR_PMD_STS . STPROT
  */
-#define  LAN80XX_F_LINE_KR_KR_PMD_STS_STPROT(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_LINE_KR_KR_PMD_STS_STPROT     LAN80XX_BIT(2)
-#define  LAN80XX_X_LINE_KR_KR_PMD_STS_STPROT(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_LINE_KR_KR_PMD_STS_STPROT(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_LINE_KR_KR_PMD_STS_STPROT                                                        (LAN80XX_BIT(2))
+#define  LAN80XX_X_LINE_KR_KR_PMD_STS_STPROT(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -115,9 +115,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_KR_PMD_STS . FRLOCK
  */
-#define  LAN80XX_F_LINE_KR_KR_PMD_STS_FRLOCK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_LINE_KR_KR_PMD_STS_FRLOCK     LAN80XX_BIT(1)
-#define  LAN80XX_X_LINE_KR_KR_PMD_STS_FRLOCK(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_LINE_KR_KR_PMD_STS_FRLOCK(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_LINE_KR_KR_PMD_STS_FRLOCK                                                        (LAN80XX_BIT(1))
+#define  LAN80XX_X_LINE_KR_KR_PMD_STS_FRLOCK(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -130,9 +130,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_KR_PMD_STS . RCVR_RDY
  */
-#define  LAN80XX_F_LINE_KR_KR_PMD_STS_RCVR_RDY(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_LINE_KR_KR_PMD_STS_RCVR_RDY   LAN80XX_BIT(0)
-#define  LAN80XX_X_LINE_KR_KR_PMD_STS_RCVR_RDY(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_LINE_KR_KR_PMD_STS_RCVR_RDY(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_LINE_KR_KR_PMD_STS_RCVR_RDY                                                      (LAN80XX_BIT(0))
+#define  LAN80XX_X_LINE_KR_KR_PMD_STS_RCVR_RDY(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a LINE_KR:LP_COEF_UPD
@@ -147,7 +147,7 @@
  * \details
  * Register: \a LINE_KR:LP_COEF_UPD:LP_COEF_UPD
  */
-#define LAN80XX_LINE_KR_LP_COEF_UPD             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x98)
+#define LAN80XX_LINE_KR_LP_COEF_UPD                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x98))
 
 /**
  * \brief
@@ -156,9 +156,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_COEF_UPD . LPCOEF
  */
-#define  LAN80XX_F_LINE_KR_LP_COEF_UPD_LPCOEF(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_COEF_UPD_LPCOEF     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_COEF_UPD_LPCOEF(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_COEF_UPD_LPCOEF(x)                                                    (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_COEF_UPD_LPCOEF                                                       (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_COEF_UPD_LPCOEF(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:LP_STS_RPT
@@ -173,7 +173,7 @@
  * \details
  * Register: \a LINE_KR:LP_STS_RPT:LP_STS_RPT
  */
-#define LAN80XX_LINE_KR_LP_STS_RPT              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x99)
+#define LAN80XX_LINE_KR_LP_STS_RPT                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x99))
 
 /**
  * \brief
@@ -182,9 +182,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_STS_RPT . LPSTAT
  */
-#define  LAN80XX_F_LINE_KR_LP_STS_RPT_LPSTAT(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_STS_RPT_LPSTAT     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_STS_RPT_LPSTAT(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_STS_RPT_LPSTAT(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_STS_RPT_LPSTAT                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_STS_RPT_LPSTAT(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:LD_COEF_UPD
@@ -199,7 +199,7 @@
  * \details
  * Register: \a LINE_KR:LD_COEF_UPD:LD_COEF_UPD
  */
-#define LAN80XX_LINE_KR_LD_COEF_UPD             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9a)
+#define LAN80XX_LINE_KR_LD_COEF_UPD                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9a))
 
 /**
  * \brief
@@ -208,9 +208,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LD_COEF_UPD . LDCOEF
  */
-#define  LAN80XX_F_LINE_KR_LD_COEF_UPD_LDCOEF(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LD_COEF_UPD_LDCOEF     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LD_COEF_UPD_LDCOEF(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LD_COEF_UPD_LDCOEF(x)                                                    (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LD_COEF_UPD_LDCOEF                                                       (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LD_COEF_UPD_LDCOEF(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:LD_STS_RPT
@@ -225,7 +225,7 @@
  * \details
  * Register: \a LINE_KR:LD_STS_RPT:LD_STS_RPT
  */
-#define LAN80XX_LINE_KR_LD_STS_RPT              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9b)
+#define LAN80XX_LINE_KR_LD_STS_RPT                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9b))
 
 /**
  * \brief
@@ -234,9 +234,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LD_STS_RPT . LDSTAT
  */
-#define  LAN80XX_F_LINE_KR_LD_STS_RPT_LDSTAT(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LD_STS_RPT_LDSTAT     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LD_STS_RPT_LDSTAT(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LD_STS_RPT_LDSTAT(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LD_STS_RPT_LDSTAT                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LD_STS_RPT_LDSTAT(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:CLK_EN
@@ -251,7 +251,7 @@
  * \details
  * Register: \a LINE_KR:CLK_EN:CLK_EN
  */
-#define LAN80XX_LINE_KR_CLK_EN                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9100)
+#define LAN80XX_LINE_KR_CLK_EN                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9100))
 
 /**
  * \brief
@@ -260,9 +260,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_CLK_EN . CLK_GBOX_ENABLE
  */
-#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_GBOX_ENABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_GBOX_ENABLE  LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_GBOX_ENABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_GBOX_ENABLE(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_GBOX_ENABLE                                                   (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_GBOX_ENABLE(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -271,9 +271,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_CLK_EN . CLK_CSR_ENABLE
  */
-#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_CSR_ENABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_CSR_ENABLE  LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_CSR_ENABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_CSR_ENABLE(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_CSR_ENABLE                                                    (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_CSR_ENABLE(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -282,9 +282,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_CLK_EN . CLK_TX64_ENABLE
  */
-#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_TX64_ENABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_TX64_ENABLE  LAN80XX_BIT(3)
-#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_TX64_ENABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_TX64_ENABLE(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_TX64_ENABLE                                                   (LAN80XX_BIT(3))
+#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_TX64_ENABLE(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -293,9 +293,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_CLK_EN . CLK_RX64_ENABLE
  */
-#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_RX64_ENABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_RX64_ENABLE  LAN80XX_BIT(2)
-#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_RX64_ENABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_RX64_ENABLE(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_RX64_ENABLE                                                   (LAN80XX_BIT(2))
+#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_RX64_ENABLE(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -304,9 +304,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_CLK_EN . CLK_SYNC8B10B_ENABLE
  */
-#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_SYNC8B10B_ENABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_SYNC8B10B_ENABLE  LAN80XX_BIT(1)
-#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_SYNC8B10B_ENABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_SYNC8B10B_ENABLE(x)                                           (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_SYNC8B10B_ENABLE                                              (LAN80XX_BIT(1))
+#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_SYNC8B10B_ENABLE(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -315,9 +315,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_CLK_EN . CLK_SYNC10G_ENABLE
  */
-#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_SYNC10G_ENABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_SYNC10G_ENABLE  LAN80XX_BIT(0)
-#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_SYNC10G_ENABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_LINE_KR_CLK_EN_CLK_SYNC10G_ENABLE(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_LINE_KR_CLK_EN_CLK_SYNC10G_ENABLE                                                (LAN80XX_BIT(0))
+#define  LAN80XX_X_LINE_KR_CLK_EN_CLK_SYNC10G_ENABLE(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a LINE_KR:TMR_HOLD
@@ -332,7 +332,7 @@
  * \details
  * Register: \a LINE_KR:TMR_HOLD:TMR_HOLD
  */
-#define LAN80XX_LINE_KR_TMR_HOLD                LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9101)
+#define LAN80XX_LINE_KR_TMR_HOLD                                                                    (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9101))
 
 /**
  * \brief
@@ -354,9 +354,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_TMR_HOLD . TMR_HOLD
  */
-#define  LAN80XX_F_LINE_KR_TMR_HOLD_TMR_HOLD(x)  LAN80XX_ENCODE_BITFIELD(x,0,11)
-#define  LAN80XX_M_LINE_KR_TMR_HOLD_TMR_HOLD     LAN80XX_ENCODE_BITMASK(0,11)
-#define  LAN80XX_X_LINE_KR_TMR_HOLD_TMR_HOLD(x)  LAN80XX_EXTRACT_BITFIELD(x,0,11)
+#define  LAN80XX_F_LINE_KR_TMR_HOLD_TMR_HOLD(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,11))
+#define  LAN80XX_M_LINE_KR_TMR_HOLD_TMR_HOLD                                                        (LAN80XX_ENCODE_BITMASK(0,11))
+#define  LAN80XX_X_LINE_KR_TMR_HOLD_TMR_HOLD(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,11))
 
 /**
  * Register Group: \a LINE_KR:TR_CFG0
@@ -371,7 +371,7 @@
  * \details
  * Register: \a LINE_KR:TR_CFG0:TR_CFG0
  */
-#define LAN80XX_LINE_KR_TR_CFG0                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9102)
+#define LAN80XX_LINE_KR_TR_CFG0                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9102))
 
 /**
  * \brief
@@ -387,9 +387,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_TR_CFG0 . PRBS_SEL
  */
-#define  LAN80XX_F_LINE_KR_TR_CFG0_PRBS_SEL(x)   LAN80XX_ENCODE_BITFIELD(x,13,3)
-#define  LAN80XX_M_LINE_KR_TR_CFG0_PRBS_SEL      LAN80XX_ENCODE_BITMASK(13,3)
-#define  LAN80XX_X_LINE_KR_TR_CFG0_PRBS_SEL(x)   LAN80XX_EXTRACT_BITFIELD(x,13,3)
+#define  LAN80XX_F_LINE_KR_TR_CFG0_PRBS_SEL(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,13,3))
+#define  LAN80XX_M_LINE_KR_TR_CFG0_PRBS_SEL                                                         (LAN80XX_ENCODE_BITMASK(13,3))
+#define  LAN80XX_X_LINE_KR_TR_CFG0_PRBS_SEL(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,13,3))
 
 /**
  * \brief
@@ -398,9 +398,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_TR_CFG0 . PRBS_SEED
  */
-#define  LAN80XX_F_LINE_KR_TR_CFG0_PRBS_SEED(x)  LAN80XX_ENCODE_BITFIELD(x,2,11)
-#define  LAN80XX_M_LINE_KR_TR_CFG0_PRBS_SEED     LAN80XX_ENCODE_BITMASK(2,11)
-#define  LAN80XX_X_LINE_KR_TR_CFG0_PRBS_SEED(x)  LAN80XX_EXTRACT_BITFIELD(x,2,11)
+#define  LAN80XX_F_LINE_KR_TR_CFG0_PRBS_SEED(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,2,11))
+#define  LAN80XX_M_LINE_KR_TR_CFG0_PRBS_SEED                                                        (LAN80XX_ENCODE_BITMASK(2,11))
+#define  LAN80XX_X_LINE_KR_TR_CFG0_PRBS_SEED(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,2,11))
 
 /**
  * \brief
@@ -409,9 +409,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_TR_CFG0 . RX_INV
  */
-#define  LAN80XX_F_LINE_KR_TR_CFG0_RX_INV(x)     LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_LINE_KR_TR_CFG0_RX_INV        LAN80XX_BIT(1)
-#define  LAN80XX_X_LINE_KR_TR_CFG0_RX_INV(x)     LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_LINE_KR_TR_CFG0_RX_INV(x)                                                        (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_LINE_KR_TR_CFG0_RX_INV                                                           (LAN80XX_BIT(1))
+#define  LAN80XX_X_LINE_KR_TR_CFG0_RX_INV(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -420,9 +420,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_TR_CFG0 . TX_INV
  */
-#define  LAN80XX_F_LINE_KR_TR_CFG0_TX_INV(x)     LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_LINE_KR_TR_CFG0_TX_INV        LAN80XX_BIT(0)
-#define  LAN80XX_X_LINE_KR_TR_CFG0_TX_INV(x)     LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_LINE_KR_TR_CFG0_TX_INV(x)                                                        (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_LINE_KR_TR_CFG0_TX_INV                                                           (LAN80XX_BIT(0))
+#define  LAN80XX_X_LINE_KR_TR_CFG0_TX_INV(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a LINE_KR:TR_CFG1
@@ -437,7 +437,7 @@
  * \details
  * Register: \a LINE_KR:TR_CFG1:TR_CFG1
  */
-#define LAN80XX_LINE_KR_TR_CFG1                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9103)
+#define LAN80XX_LINE_KR_TR_CFG1                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9103))
 
 /**
  * \brief
@@ -448,9 +448,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_TR_CFG1 . REM_RDY_THRESH
  */
-#define  LAN80XX_F_LINE_KR_TR_CFG1_REM_RDY_THRESH(x)  LAN80XX_ENCODE_BITFIELD(x,8,4)
-#define  LAN80XX_M_LINE_KR_TR_CFG1_REM_RDY_THRESH     LAN80XX_ENCODE_BITMASK(8,4)
-#define  LAN80XX_X_LINE_KR_TR_CFG1_REM_RDY_THRESH(x)  LAN80XX_EXTRACT_BITFIELD(x,8,4)
+#define  LAN80XX_F_LINE_KR_TR_CFG1_REM_RDY_THRESH(x)                                                (LAN80XX_ENCODE_BITFIELD(x,8,4))
+#define  LAN80XX_M_LINE_KR_TR_CFG1_REM_RDY_THRESH                                                   (LAN80XX_ENCODE_BITMASK(8,4))
+#define  LAN80XX_X_LINE_KR_TR_CFG1_REM_RDY_THRESH(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,8,4))
 
 /**
  * \brief
@@ -466,9 +466,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_TR_CFG1 . LPSVLD_INT_CFG
  */
-#define  LAN80XX_F_LINE_KR_TR_CFG1_LPSVLD_INT_CFG(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_TR_CFG1_LPSVLD_INT_CFG  LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_TR_CFG1_LPSVLD_INT_CFG(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_TR_CFG1_LPSVLD_INT_CFG(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_TR_CFG1_LPSVLD_INT_CFG                                                   (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_TR_CFG1_LPSVLD_INT_CFG(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * Register Group: \a LINE_KR:FRCNT_BER
@@ -483,7 +483,7 @@
  * \details
  * Register: \a LINE_KR:FRCNT_BER:FRCNT_BER
  */
-#define LAN80XX_LINE_KR_FRCNT_BER               LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9104)
+#define LAN80XX_LINE_KR_FRCNT_BER                                                                   (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9104))
 
 /**
  * \brief
@@ -492,9 +492,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FRCNT_BER . FRCNT_BER
  */
-#define  LAN80XX_F_LINE_KR_FRCNT_BER_FRCNT_BER(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_FRCNT_BER_FRCNT_BER     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_FRCNT_BER_FRCNT_BER(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_FRCNT_BER_FRCNT_BER(x)                                                   (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_FRCNT_BER_FRCNT_BER                                                      (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_FRCNT_BER_FRCNT_BER(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:TR_FRSENT
@@ -509,7 +509,7 @@
  * \details
  * Register: \a LINE_KR:TR_FRSENT:TR_FRSENT_L
  */
-#define LAN80XX_LINE_KR_TR_FRSENT_L             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9105)
+#define LAN80XX_LINE_KR_TR_FRSENT_L                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9105))
 
 /**
  * \brief
@@ -523,9 +523,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_TR_FRSENT_L . FRSENT_L
  */
-#define  LAN80XX_F_LINE_KR_TR_FRSENT_L_FRSENT_L(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_TR_FRSENT_L_FRSENT_L     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_TR_FRSENT_L_FRSENT_L(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_TR_FRSENT_L_FRSENT_L(x)                                                  (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_TR_FRSENT_L_FRSENT_L                                                     (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_TR_FRSENT_L_FRSENT_L(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -534,7 +534,7 @@
  * \details
  * Register: \a LINE_KR:TR_FRSENT:TR_FRSENT_H
  */
-#define LAN80XX_LINE_KR_TR_FRSENT_H             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9106)
+#define LAN80XX_LINE_KR_TR_FRSENT_H                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9106))
 
 /**
  * \brief
@@ -548,9 +548,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_TR_FRSENT_H . FRSENT_H
  */
-#define  LAN80XX_F_LINE_KR_TR_FRSENT_H_FRSENT_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_TR_FRSENT_H_FRSENT_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_TR_FRSENT_H_FRSENT_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_TR_FRSENT_H_FRSENT_H(x)                                                  (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_TR_FRSENT_H_FRSENT_H                                                     (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_TR_FRSENT_H_FRSENT_H(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:TR_ERRCNT
@@ -565,7 +565,7 @@
  * \details
  * Register: \a LINE_KR:TR_ERRCNT:TR_ERRCNT
  */
-#define LAN80XX_LINE_KR_TR_ERRCNT               LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9107)
+#define LAN80XX_LINE_KR_TR_ERRCNT                                                                   (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x9107))
 
 /**
  * \brief
@@ -576,9 +576,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_TR_ERRCNT . ERRCNT
  */
-#define  LAN80XX_F_LINE_KR_TR_ERRCNT_ERRCNT(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_TR_ERRCNT_ERRCNT      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_TR_ERRCNT_ERRCNT(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_TR_ERRCNT_ERRCNT(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_TR_ERRCNT_ERRCNT                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_TR_ERRCNT_ERRCNT(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:AN_CFG0
@@ -593,7 +593,7 @@
  * \details
  * Register: \a LINE_KR:AN_CFG0:AN_CFG0
  */
-#define LAN80XX_LINE_KR_AN_CFG0                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x0)
+#define LAN80XX_LINE_KR_AN_CFG0                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x0))
 
 /**
  * \brief
@@ -602,9 +602,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_CFG0 . AN_RESET
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG0_AN_RESET(x)   LAN80XX_ENCODE_BITFIELD(!!(x),15,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG0_AN_RESET      LAN80XX_BIT(15)
-#define  LAN80XX_X_LINE_KR_AN_CFG0_AN_RESET(x)   LAN80XX_EXTRACT_BITFIELD(x,15,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG0_AN_RESET(x)                                                      (LAN80XX_ENCODE_BITFIELD(!!(x),15,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG0_AN_RESET                                                         (LAN80XX_BIT(15))
+#define  LAN80XX_X_LINE_KR_AN_CFG0_AN_RESET(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,15,1))
 
 /**
  * \brief
@@ -613,9 +613,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_CFG0 . NPCTL
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG0_NPCTL(x)      LAN80XX_ENCODE_BITFIELD(!!(x),13,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG0_NPCTL         LAN80XX_BIT(13)
-#define  LAN80XX_X_LINE_KR_AN_CFG0_NPCTL(x)      LAN80XX_EXTRACT_BITFIELD(x,13,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG0_NPCTL(x)                                                         (LAN80XX_ENCODE_BITFIELD(!!(x),13,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG0_NPCTL                                                            (LAN80XX_BIT(13))
+#define  LAN80XX_X_LINE_KR_AN_CFG0_NPCTL(x)                                                         (LAN80XX_EXTRACT_BITFIELD(x,13,1))
 
 /**
  * \brief
@@ -624,9 +624,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_CFG0 . AN_ENABLE
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG0_AN_ENABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),12,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG0_AN_ENABLE     LAN80XX_BIT(12)
-#define  LAN80XX_X_LINE_KR_AN_CFG0_AN_ENABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,12,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG0_AN_ENABLE(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),12,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG0_AN_ENABLE                                                        (LAN80XX_BIT(12))
+#define  LAN80XX_X_LINE_KR_AN_CFG0_AN_ENABLE(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,12,1))
 
 /**
  * \brief
@@ -635,9 +635,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_CFG0 . AN_RESTART
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG0_AN_RESTART(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG0_AN_RESTART    LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_AN_CFG0_AN_RESTART(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG0_AN_RESTART(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG0_AN_RESTART                                                       (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_AN_CFG0_AN_RESTART(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * Register Group: \a LINE_KR:AN_STS0
@@ -652,7 +652,7 @@
  * \details
  * Register: \a LINE_KR:AN_STS0:AN_STS0
  */
-#define LAN80XX_LINE_KR_AN_STS0                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x1)
+#define LAN80XX_LINE_KR_AN_STS0                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x1))
 
 /**
  * \brief
@@ -661,9 +661,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS0 . PARDETFLT
  */
-#define  LAN80XX_F_LINE_KR_AN_STS0_PARDETFLT(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_AN_STS0_PARDETFLT     LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_AN_STS0_PARDETFLT(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_AN_STS0_PARDETFLT(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_AN_STS0_PARDETFLT                                                        (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_AN_STS0_PARDETFLT(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -672,9 +672,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS0 . NPSTAT
  */
-#define  LAN80XX_F_LINE_KR_AN_STS0_NPSTAT(x)     LAN80XX_ENCODE_BITFIELD(!!(x),7,1)
-#define  LAN80XX_M_LINE_KR_AN_STS0_NPSTAT        LAN80XX_BIT(7)
-#define  LAN80XX_X_LINE_KR_AN_STS0_NPSTAT(x)     LAN80XX_EXTRACT_BITFIELD(x,7,1)
+#define  LAN80XX_F_LINE_KR_AN_STS0_NPSTAT(x)                                                        (LAN80XX_ENCODE_BITFIELD(!!(x),7,1))
+#define  LAN80XX_M_LINE_KR_AN_STS0_NPSTAT                                                           (LAN80XX_BIT(7))
+#define  LAN80XX_X_LINE_KR_AN_STS0_NPSTAT(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,7,1))
 
 /**
  * \brief
@@ -683,9 +683,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS0 . PG_RCVD
  */
-#define  LAN80XX_F_LINE_KR_AN_STS0_PG_RCVD(x)    LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_LINE_KR_AN_STS0_PG_RCVD       LAN80XX_BIT(6)
-#define  LAN80XX_X_LINE_KR_AN_STS0_PG_RCVD(x)    LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_LINE_KR_AN_STS0_PG_RCVD(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_LINE_KR_AN_STS0_PG_RCVD                                                          (LAN80XX_BIT(6))
+#define  LAN80XX_X_LINE_KR_AN_STS0_PG_RCVD(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -694,9 +694,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS0 . AN_COMPLETE
  */
-#define  LAN80XX_F_LINE_KR_AN_STS0_AN_COMPLETE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_AN_STS0_AN_COMPLETE   LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_AN_STS0_AN_COMPLETE(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_AN_STS0_AN_COMPLETE(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_AN_STS0_AN_COMPLETE                                                      (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_AN_STS0_AN_COMPLETE(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -705,9 +705,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS0 . REM_FLT
  */
-#define  LAN80XX_F_LINE_KR_AN_STS0_REM_FLT(x)    LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_AN_STS0_REM_FLT       LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_AN_STS0_REM_FLT(x)    LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_AN_STS0_REM_FLT(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_AN_STS0_REM_FLT                                                          (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_AN_STS0_REM_FLT(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -716,9 +716,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS0 . AN_ABLE
  */
-#define  LAN80XX_F_LINE_KR_AN_STS0_AN_ABLE(x)    LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_LINE_KR_AN_STS0_AN_ABLE       LAN80XX_BIT(3)
-#define  LAN80XX_X_LINE_KR_AN_STS0_AN_ABLE(x)    LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_LINE_KR_AN_STS0_AN_ABLE(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_LINE_KR_AN_STS0_AN_ABLE                                                          (LAN80XX_BIT(3))
+#define  LAN80XX_X_LINE_KR_AN_STS0_AN_ABLE(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -727,9 +727,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS0 . LINKSTAT
  */
-#define  LAN80XX_F_LINE_KR_AN_STS0_LINKSTAT(x)   LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_LINE_KR_AN_STS0_LINKSTAT      LAN80XX_BIT(2)
-#define  LAN80XX_X_LINE_KR_AN_STS0_LINKSTAT(x)   LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_LINE_KR_AN_STS0_LINKSTAT(x)                                                      (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_LINE_KR_AN_STS0_LINKSTAT                                                         (LAN80XX_BIT(2))
+#define  LAN80XX_X_LINE_KR_AN_STS0_LINKSTAT(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -738,9 +738,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS0 . AN_LP_ABLE
  */
-#define  LAN80XX_F_LINE_KR_AN_STS0_AN_LP_ABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_LINE_KR_AN_STS0_AN_LP_ABLE    LAN80XX_BIT(0)
-#define  LAN80XX_X_LINE_KR_AN_STS0_AN_LP_ABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_LINE_KR_AN_STS0_AN_LP_ABLE(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_LINE_KR_AN_STS0_AN_LP_ABLE                                                       (LAN80XX_BIT(0))
+#define  LAN80XX_X_LINE_KR_AN_STS0_AN_LP_ABLE(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a LINE_KR:LD_ADV
@@ -755,7 +755,7 @@
  * \details
  * Register: \a LINE_KR:LD_ADV:LD_ADV0
  */
-#define LAN80XX_LINE_KR_LD_ADV0                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x10)
+#define LAN80XX_LINE_KR_LD_ADV0                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x10))
 
 /**
  * \brief
@@ -764,9 +764,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LD_ADV0 . ADV0
  */
-#define  LAN80XX_F_LINE_KR_LD_ADV0_ADV0(x)       LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LD_ADV0_ADV0          LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LD_ADV0_ADV0(x)       LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LD_ADV0_ADV0(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LD_ADV0_ADV0                                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LD_ADV0_ADV0(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -775,7 +775,7 @@
  * \details
  * Register: \a LINE_KR:LD_ADV:LD_ADV1
  */
-#define LAN80XX_LINE_KR_LD_ADV1                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x11)
+#define LAN80XX_LINE_KR_LD_ADV1                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x11))
 
 /**
  * \brief
@@ -784,9 +784,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LD_ADV1 . ADV1
  */
-#define  LAN80XX_F_LINE_KR_LD_ADV1_ADV1(x)       LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LD_ADV1_ADV1          LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LD_ADV1_ADV1(x)       LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LD_ADV1_ADV1(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LD_ADV1_ADV1                                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LD_ADV1_ADV1(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -795,7 +795,7 @@
  * \details
  * Register: \a LINE_KR:LD_ADV:LD_ADV2
  */
-#define LAN80XX_LINE_KR_LD_ADV2                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x12)
+#define LAN80XX_LINE_KR_LD_ADV2                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x12))
 
 /**
  * \brief
@@ -804,9 +804,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LD_ADV2 . ADV2
  */
-#define  LAN80XX_F_LINE_KR_LD_ADV2_ADV2(x)       LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LD_ADV2_ADV2          LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LD_ADV2_ADV2(x)       LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LD_ADV2_ADV2(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LD_ADV2_ADV2                                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LD_ADV2_ADV2(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:LP_BP
@@ -821,7 +821,7 @@
  * \details
  * Register: \a LINE_KR:LP_BP:LP_BP0
  */
-#define LAN80XX_LINE_KR_LP_BP0                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x13)
+#define LAN80XX_LINE_KR_LP_BP0                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x13))
 
 /**
  * \brief
@@ -832,9 +832,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_BP0 . ADV0
  */
-#define  LAN80XX_F_LINE_KR_LP_BP0_ADV0(x)        LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_BP0_ADV0           LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_BP0_ADV0(x)        LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_BP0_ADV0(x)                                                           (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_BP0_ADV0                                                              (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_BP0_ADV0(x)                                                           (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -843,7 +843,7 @@
  * \details
  * Register: \a LINE_KR:LP_BP:LP_BP1
  */
-#define LAN80XX_LINE_KR_LP_BP1                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x14)
+#define LAN80XX_LINE_KR_LP_BP1                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x14))
 
 /**
  * \brief
@@ -854,9 +854,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_BP1 . ADV1
  */
-#define  LAN80XX_F_LINE_KR_LP_BP1_ADV1(x)        LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_BP1_ADV1           LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_BP1_ADV1(x)        LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_BP1_ADV1(x)                                                           (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_BP1_ADV1                                                              (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_BP1_ADV1(x)                                                           (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -865,7 +865,7 @@
  * \details
  * Register: \a LINE_KR:LP_BP:LP_BP2
  */
-#define LAN80XX_LINE_KR_LP_BP2                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x15)
+#define LAN80XX_LINE_KR_LP_BP2                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x15))
 
 /**
  * \brief
@@ -876,9 +876,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_BP2 . ADV2
  */
-#define  LAN80XX_F_LINE_KR_LP_BP2_ADV2(x)        LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_BP2_ADV2           LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_BP2_ADV2(x)        LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_BP2_ADV2(x)                                                           (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_BP2_ADV2                                                              (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_BP2_ADV2(x)                                                           (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:LD_NP
@@ -893,7 +893,7 @@
  * \details
  * Register: \a LINE_KR:LD_NP:LD_NP0
  */
-#define LAN80XX_LINE_KR_LD_NP0                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x16)
+#define LAN80XX_LINE_KR_LD_NP0                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x16))
 
 /**
  * \brief
@@ -903,9 +903,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LD_NP0 . NP0
  */
-#define  LAN80XX_F_LINE_KR_LD_NP0_NP0(x)         LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LD_NP0_NP0            LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LD_NP0_NP0(x)         LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LD_NP0_NP0(x)                                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LD_NP0_NP0                                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LD_NP0_NP0(x)                                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -914,7 +914,7 @@
  * \details
  * Register: \a LINE_KR:LD_NP:LD_NP1
  */
-#define LAN80XX_LINE_KR_LD_NP1                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x17)
+#define LAN80XX_LINE_KR_LD_NP1                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x17))
 
 /**
  * \brief
@@ -924,9 +924,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LD_NP1 . NP1
  */
-#define  LAN80XX_F_LINE_KR_LD_NP1_NP1(x)         LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LD_NP1_NP1            LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LD_NP1_NP1(x)         LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LD_NP1_NP1(x)                                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LD_NP1_NP1                                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LD_NP1_NP1(x)                                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -935,7 +935,7 @@
  * \details
  * Register: \a LINE_KR:LD_NP:LD_NP2
  */
-#define LAN80XX_LINE_KR_LD_NP2                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x18)
+#define LAN80XX_LINE_KR_LD_NP2                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x18))
 
 /**
  * \brief
@@ -945,9 +945,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LD_NP2 . NP2
  */
-#define  LAN80XX_F_LINE_KR_LD_NP2_NP2(x)         LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LD_NP2_NP2            LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LD_NP2_NP2(x)         LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LD_NP2_NP2(x)                                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LD_NP2_NP2                                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LD_NP2_NP2(x)                                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:LP_NP
@@ -962,7 +962,7 @@
  * \details
  * Register: \a LINE_KR:LP_NP:LP_NP0
  */
-#define LAN80XX_LINE_KR_LP_NP0                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x19)
+#define LAN80XX_LINE_KR_LP_NP0                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x19))
 
 /**
  * \brief
@@ -973,9 +973,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_NP0 . NP0
  */
-#define  LAN80XX_F_LINE_KR_LP_NP0_NP0(x)         LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_NP0_NP0            LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_NP0_NP0(x)         LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_NP0_NP0(x)                                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_NP0_NP0                                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_NP0_NP0(x)                                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -984,7 +984,7 @@
  * \details
  * Register: \a LINE_KR:LP_NP:LP_NP1
  */
-#define LAN80XX_LINE_KR_LP_NP1                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x1a)
+#define LAN80XX_LINE_KR_LP_NP1                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x1a))
 
 /**
  * \brief
@@ -995,9 +995,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_NP1 . NP1
  */
-#define  LAN80XX_F_LINE_KR_LP_NP1_NP1(x)         LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_NP1_NP1            LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_NP1_NP1(x)         LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_NP1_NP1(x)                                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_NP1_NP1                                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_NP1_NP1(x)                                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1006,7 +1006,7 @@
  * \details
  * Register: \a LINE_KR:LP_NP:LP_NP2
  */
-#define LAN80XX_LINE_KR_LP_NP2                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x1b)
+#define LAN80XX_LINE_KR_LP_NP2                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x1b))
 
 /**
  * \brief
@@ -1017,9 +1017,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_NP2 . NP2
  */
-#define  LAN80XX_F_LINE_KR_LP_NP2_NP2(x)         LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_NP2_NP2            LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_NP2_NP2(x)         LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_NP2_NP2(x)                                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_NP2_NP2                                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_NP2_NP2(x)                                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:BP_ETH_STS
@@ -1034,7 +1034,7 @@
  * \details
  * Register: \a LINE_KR:BP_ETH_STS:BP_ETH_STS
  */
-#define LAN80XX_LINE_KR_BP_ETH_STS              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x30)
+#define LAN80XX_LINE_KR_BP_ETH_STS                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x30))
 
 /**
  * \brief
@@ -1043,9 +1043,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_5G_KR
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_5G_KR(x)  LAN80XX_ENCODE_BITFIELD(!!(x),15,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_5G_KR  LAN80XX_BIT(15)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_5G_KR(x)  LAN80XX_EXTRACT_BITFIELD(x,15,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_5G_KR(x)                                               (LAN80XX_ENCODE_BITFIELD(!!(x),15,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_5G_KR                                                  (LAN80XX_BIT(15))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_5G_KR(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,15,1))
 
 /**
  * \brief
@@ -1054,9 +1054,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_2P5G_KX
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_2P5G_KX(x)  LAN80XX_ENCODE_BITFIELD(!!(x),14,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_2P5G_KX  LAN80XX_BIT(14)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_2P5G_KX(x)  LAN80XX_EXTRACT_BITFIELD(x,14,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_2P5G_KX(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),14,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_2P5G_KX                                                (LAN80XX_BIT(14))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_2P5G_KX(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,14,1))
 
 /**
  * \brief
@@ -1065,9 +1065,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_25G_KR
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR(x)  LAN80XX_ENCODE_BITFIELD(!!(x),13,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR  LAN80XX_BIT(13)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR(x)  LAN80XX_EXTRACT_BITFIELD(x,13,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR(x)                                              (LAN80XX_ENCODE_BITFIELD(!!(x),13,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR                                                 (LAN80XX_BIT(13))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,13,1))
 
 /**
  * \brief
@@ -1076,9 +1076,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_25G_KR_S
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR_S(x)  LAN80XX_ENCODE_BITFIELD(!!(x),12,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR_S  LAN80XX_BIT(12)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR_S(x)  LAN80XX_EXTRACT_BITFIELD(x,12,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR_S(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),12,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR_S                                               (LAN80XX_BIT(12))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_25G_KR_S(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,12,1))
 
 /**
  * \brief
@@ -1087,9 +1087,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_100G_CR4
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR4(x)  LAN80XX_ENCODE_BITFIELD(!!(x),11,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR4  LAN80XX_BIT(11)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR4(x)  LAN80XX_EXTRACT_BITFIELD(x,11,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR4(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),11,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR4                                               (LAN80XX_BIT(11))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR4(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,11,1))
 
 /**
  * \brief
@@ -1098,9 +1098,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_100G_KR4
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_100G_KR4(x)  LAN80XX_ENCODE_BITFIELD(!!(x),10,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_100G_KR4  LAN80XX_BIT(10)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_100G_KR4(x)  LAN80XX_EXTRACT_BITFIELD(x,10,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_100G_KR4(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),10,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_100G_KR4                                               (LAN80XX_BIT(10))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_100G_KR4(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,10,1))
 
 /**
  * \brief
@@ -1109,9 +1109,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_100G_KP4
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_100G_KP4(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_100G_KP4  LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_100G_KP4(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_100G_KP4(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_100G_KP4                                               (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_100G_KP4(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -1120,9 +1120,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_100G_CR10
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR10(x)  LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR10  LAN80XX_BIT(8)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR10(x)  LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR10(x)                                           (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR10                                              (LAN80XX_BIT(8))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_100G_CR10(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -1131,9 +1131,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_RS_FEC
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_RS_FEC(x)  LAN80XX_ENCODE_BITFIELD(!!(x),7,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_RS_FEC  LAN80XX_BIT(7)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_RS_FEC(x)  LAN80XX_EXTRACT_BITFIELD(x,7,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_RS_FEC(x)                                              (LAN80XX_ENCODE_BITFIELD(!!(x),7,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_RS_FEC                                                 (LAN80XX_BIT(7))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_RS_FEC(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,7,1))
 
 /**
  * \brief
@@ -1142,9 +1142,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_40G_CR4
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_40G_CR4(x)  LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_40G_CR4  LAN80XX_BIT(6)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_40G_CR4(x)  LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_40G_CR4(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_40G_CR4                                                (LAN80XX_BIT(6))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_40G_CR4(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -1153,9 +1153,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_40G_KR4
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_40G_KR4(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_40G_KR4  LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_40G_KR4(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_40G_KR4(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_40G_KR4                                                (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_40G_KR4(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -1164,9 +1164,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_R_FEC
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_R_FEC(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_R_FEC  LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_R_FEC(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_R_FEC(x)                                               (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_R_FEC                                                  (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_R_FEC(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -1175,9 +1175,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_10G_KR
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_10G_KR(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_10G_KR  LAN80XX_BIT(3)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_10G_KR(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_10G_KR(x)                                              (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_10G_KR                                                 (LAN80XX_BIT(3))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_10G_KR(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -1186,9 +1186,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_10G_KX4
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_10G_KX4(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_10G_KX4  LAN80XX_BIT(2)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_10G_KX4(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_10G_KX4(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_10G_KX4                                                (LAN80XX_BIT(2))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_10G_KX4(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -1197,9 +1197,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_NEG_1G_KX
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_1G_KX(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_1G_KX  LAN80XX_BIT(1)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_1G_KX(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_NEG_1G_KX(x)                                               (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_NEG_1G_KX                                                  (LAN80XX_BIT(1))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_NEG_1G_KX(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -1208,9 +1208,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BP_ETH_STS . AN_BP_ABLE
  */
-#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_BP_ABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_BP_ABLE  LAN80XX_BIT(0)
-#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_BP_ABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_LINE_KR_BP_ETH_STS_AN_BP_ABLE(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_LINE_KR_BP_ETH_STS_AN_BP_ABLE                                                    (LAN80XX_BIT(0))
+#define  LAN80XX_X_LINE_KR_BP_ETH_STS_AN_BP_ABLE(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a LINE_KR:AN_CFG1
@@ -1225,7 +1225,7 @@
  * \details
  * Register: \a LINE_KR:AN_CFG1:AN_CFG1
  */
-#define LAN80XX_LINE_KR_AN_CFG1                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8000)
+#define LAN80XX_LINE_KR_AN_CFG1                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8000))
 
 /**
  * \brief
@@ -1234,9 +1234,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_CFG1 . RCV_16B_FOR_5G
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG1_RCV_16B_FOR_5G(x)  LAN80XX_ENCODE_BITFIELD(!!(x),14,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG1_RCV_16B_FOR_5G  LAN80XX_BIT(14)
-#define  LAN80XX_X_LINE_KR_AN_CFG1_RCV_16B_FOR_5G(x)  LAN80XX_EXTRACT_BITFIELD(x,14,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG1_RCV_16B_FOR_5G(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),14,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG1_RCV_16B_FOR_5G                                                   (LAN80XX_BIT(14))
+#define  LAN80XX_X_LINE_KR_AN_CFG1_RCV_16B_FOR_5G(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,14,1))
 
 /**
  * \brief
@@ -1245,9 +1245,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_CFG1 . TMR_DVDR
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG1_TMR_DVDR(x)   LAN80XX_ENCODE_BITFIELD(x,10,4)
-#define  LAN80XX_M_LINE_KR_AN_CFG1_TMR_DVDR      LAN80XX_ENCODE_BITMASK(10,4)
-#define  LAN80XX_X_LINE_KR_AN_CFG1_TMR_DVDR(x)   LAN80XX_EXTRACT_BITFIELD(x,10,4)
+#define  LAN80XX_F_LINE_KR_AN_CFG1_TMR_DVDR(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,10,4))
+#define  LAN80XX_M_LINE_KR_AN_CFG1_TMR_DVDR                                                         (LAN80XX_ENCODE_BITMASK(10,4))
+#define  LAN80XX_X_LINE_KR_AN_CFG1_TMR_DVDR(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,10,4))
 
 /**
  * \brief
@@ -1256,9 +1256,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_CFG1 . ABDET_CLR
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG1_ABDET_CLR(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG1_ABDET_CLR     LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_AN_CFG1_ABDET_CLR(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG1_ABDET_CLR(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG1_ABDET_CLR                                                        (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_AN_CFG1_ABDET_CLR(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -1267,9 +1267,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_CFG1 . AN_SM_HIST_CLR
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG1_AN_SM_HIST_CLR(x)  LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG1_AN_SM_HIST_CLR  LAN80XX_BIT(8)
-#define  LAN80XX_X_LINE_KR_AN_CFG1_AN_SM_HIST_CLR(x)  LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG1_AN_SM_HIST_CLR(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG1_AN_SM_HIST_CLR                                                   (LAN80XX_BIT(8))
+#define  LAN80XX_X_LINE_KR_AN_CFG1_AN_SM_HIST_CLR(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -1278,9 +1278,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_CFG1 . TR_DISABLE
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG1_TR_DISABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG1_TR_DISABLE    LAN80XX_BIT(6)
-#define  LAN80XX_X_LINE_KR_AN_CFG1_TR_DISABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG1_TR_DISABLE(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG1_TR_DISABLE                                                       (LAN80XX_BIT(6))
+#define  LAN80XX_X_LINE_KR_AN_CFG1_TR_DISABLE(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -1294,9 +1294,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_CFG1 . SYNC10G_SEL
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG1_SYNC10G_SEL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG1_SYNC10G_SEL   LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_AN_CFG1_SYNC10G_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG1_SYNC10G_SEL(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG1_SYNC10G_SEL                                                      (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_AN_CFG1_SYNC10G_SEL(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -1310,9 +1310,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_CFG1 . SYNC8B10B_SEL
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG1_SYNC8B10B_SEL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG1_SYNC8B10B_SEL  LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_AN_CFG1_SYNC8B10B_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG1_SYNC8B10B_SEL(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG1_SYNC8B10B_SEL                                                    (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_AN_CFG1_SYNC8B10B_SEL(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -1336,9 +1336,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_CFG1 . RATE
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG1_RATE(x)       LAN80XX_ENCODE_BITFIELD(x,0,4)
-#define  LAN80XX_M_LINE_KR_AN_CFG1_RATE          LAN80XX_ENCODE_BITMASK(0,4)
-#define  LAN80XX_X_LINE_KR_AN_CFG1_RATE(x)       LAN80XX_EXTRACT_BITFIELD(x,0,4)
+#define  LAN80XX_F_LINE_KR_AN_CFG1_RATE(x)                                                          (LAN80XX_ENCODE_BITFIELD(x,0,4))
+#define  LAN80XX_M_LINE_KR_AN_CFG1_RATE                                                             (LAN80XX_ENCODE_BITMASK(0,4))
+#define  LAN80XX_X_LINE_KR_AN_CFG1_RATE(x)                                                          (LAN80XX_EXTRACT_BITFIELD(x,0,4))
 
 /**
  * Register Group: \a LINE_KR:AN_CFG2
@@ -1353,7 +1353,7 @@
  * \details
  * Register: \a LINE_KR:AN_CFG2:AN_CFG2
  */
-#define LAN80XX_LINE_KR_AN_CFG2                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8002)
+#define LAN80XX_LINE_KR_AN_CFG2                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8002))
 
 /**
  * \brief
@@ -1368,9 +1368,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_CFG2 . FW_RSFEC_ENA
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG2_FW_RSFEC_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG2_FW_RSFEC_ENA  LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_AN_CFG2_FW_RSFEC_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG2_FW_RSFEC_ENA(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG2_FW_RSFEC_ENA                                                     (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_AN_CFG2_FW_RSFEC_ENA(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -1385,9 +1385,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_CFG2 . FW_RFEC_ENA
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG2_FW_RFEC_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG2_FW_RFEC_ENA   LAN80XX_BIT(8)
-#define  LAN80XX_X_LINE_KR_AN_CFG2_FW_RFEC_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG2_FW_RFEC_ENA(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG2_FW_RFEC_ENA                                                      (LAN80XX_BIT(8))
+#define  LAN80XX_X_LINE_KR_AN_CFG2_FW_RFEC_ENA(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -1412,9 +1412,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_CFG2 . FW_HCD
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG2_FW_HCD(x)     LAN80XX_ENCODE_BITFIELD(x,4,4)
-#define  LAN80XX_M_LINE_KR_AN_CFG2_FW_HCD        LAN80XX_ENCODE_BITMASK(4,4)
-#define  LAN80XX_X_LINE_KR_AN_CFG2_FW_HCD(x)     LAN80XX_EXTRACT_BITFIELD(x,4,4)
+#define  LAN80XX_F_LINE_KR_AN_CFG2_FW_HCD(x)                                                        (LAN80XX_ENCODE_BITFIELD(x,4,4))
+#define  LAN80XX_M_LINE_KR_AN_CFG2_FW_HCD                                                           (LAN80XX_ENCODE_BITMASK(4,4))
+#define  LAN80XX_X_LINE_KR_AN_CFG2_FW_HCD(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,4,4))
 
 /**
  * \brief
@@ -1426,9 +1426,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_CFG2 . FW_RESOLVE_ENA
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG2_FW_RESOLVE_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_LINE_KR_AN_CFG2_FW_RESOLVE_ENA  LAN80XX_BIT(3)
-#define  LAN80XX_X_LINE_KR_AN_CFG2_FW_RESOLVE_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_LINE_KR_AN_CFG2_FW_RESOLVE_ENA(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_LINE_KR_AN_CFG2_FW_RESOLVE_ENA                                                   (LAN80XX_BIT(3))
+#define  LAN80XX_X_LINE_KR_AN_CFG2_FW_RESOLVE_ENA(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -1446,9 +1446,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_CFG2 . ACK_FIN_PAGE_CNT
  */
-#define  LAN80XX_F_LINE_KR_AN_CFG2_ACK_FIN_PAGE_CNT(x)  LAN80XX_ENCODE_BITFIELD(x,0,3)
-#define  LAN80XX_M_LINE_KR_AN_CFG2_ACK_FIN_PAGE_CNT     LAN80XX_ENCODE_BITMASK(0,3)
-#define  LAN80XX_X_LINE_KR_AN_CFG2_ACK_FIN_PAGE_CNT(x)  LAN80XX_EXTRACT_BITFIELD(x,0,3)
+#define  LAN80XX_F_LINE_KR_AN_CFG2_ACK_FIN_PAGE_CNT(x)                                              (LAN80XX_ENCODE_BITFIELD(x,0,3))
+#define  LAN80XX_M_LINE_KR_AN_CFG2_ACK_FIN_PAGE_CNT                                                 (LAN80XX_ENCODE_BITMASK(0,3))
+#define  LAN80XX_X_LINE_KR_AN_CFG2_ACK_FIN_PAGE_CNT(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,3))
 
 /**
  * Register Group: \a LINE_KR:BL_TMR
@@ -1463,7 +1463,7 @@
  * \details
  * Register: \a LINE_KR:BL_TMR:BL_TMR_LOW
  */
-#define LAN80XX_LINE_KR_BL_TMR_LOW              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8010)
+#define LAN80XX_LINE_KR_BL_TMR_LOW                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8010))
 
 /**
  * \brief
@@ -1473,9 +1473,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BL_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_BL_TMR_LOW_TMR_L(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_BL_TMR_LOW_TMR_L      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_BL_TMR_LOW_TMR_L(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_BL_TMR_LOW_TMR_L(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_BL_TMR_LOW_TMR_L                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_BL_TMR_LOW_TMR_L(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1484,7 +1484,7 @@
  * \details
  * Register: \a LINE_KR:BL_TMR:BL_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_BL_TMR_HIGH             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8011)
+#define LAN80XX_LINE_KR_BL_TMR_HIGH                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8011))
 
 /**
  * \brief
@@ -1494,9 +1494,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_BL_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_BL_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_BL_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_BL_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_BL_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_BL_TMR_HIGH_TMR_H                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_BL_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:AW_TMR
@@ -1511,7 +1511,7 @@
  * \details
  * Register: \a LINE_KR:AW_TMR:AW_TMR_LOW
  */
-#define LAN80XX_LINE_KR_AW_TMR_LOW              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8012)
+#define LAN80XX_LINE_KR_AW_TMR_LOW                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8012))
 
 /**
  * \brief
@@ -1521,9 +1521,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AW_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_AW_TMR_LOW_TMR_L(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_AW_TMR_LOW_TMR_L      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_AW_TMR_LOW_TMR_L(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_AW_TMR_LOW_TMR_L(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_AW_TMR_LOW_TMR_L                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_AW_TMR_LOW_TMR_L(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1532,7 +1532,7 @@
  * \details
  * Register: \a LINE_KR:AW_TMR:AW_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_AW_TMR_HIGH             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8013)
+#define LAN80XX_LINE_KR_AW_TMR_HIGH                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8013))
 
 /**
  * \brief
@@ -1542,9 +1542,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AW_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_AW_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_AW_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_AW_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_AW_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_AW_TMR_HIGH_TMR_H                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_AW_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:LF_TMR
@@ -1559,7 +1559,7 @@
  * \details
  * Register: \a LINE_KR:LF_TMR:LF_TMR_LOW
  */
-#define LAN80XX_LINE_KR_LF_TMR_LOW              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8014)
+#define LAN80XX_LINE_KR_LF_TMR_LOW                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8014))
 
 /**
  * \brief
@@ -1571,9 +1571,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LF_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_LF_TMR_LOW_TMR_L(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LF_TMR_LOW_TMR_L      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LF_TMR_LOW_TMR_L(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LF_TMR_LOW_TMR_L(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LF_TMR_LOW_TMR_L                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LF_TMR_LOW_TMR_L(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1582,7 +1582,7 @@
  * \details
  * Register: \a LINE_KR:LF_TMR:LF_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_LF_TMR_HIGH             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8015)
+#define LAN80XX_LINE_KR_LF_TMR_HIGH                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8015))
 
 /**
  * \brief
@@ -1594,9 +1594,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LF_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_LF_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LF_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LF_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LF_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LF_TMR_HIGH_TMR_H                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LF_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:FR_TMR
@@ -1611,7 +1611,7 @@
  * \details
  * Register: \a LINE_KR:FR_TMR:FR_TMR_LOW
  */
-#define LAN80XX_LINE_KR_FR_TMR_LOW              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8016)
+#define LAN80XX_LINE_KR_FR_TMR_LOW                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8016))
 
 /**
  * \brief
@@ -1622,9 +1622,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FR_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_FR_TMR_LOW_TMR_L(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_FR_TMR_LOW_TMR_L      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_FR_TMR_LOW_TMR_L(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_FR_TMR_LOW_TMR_L(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_FR_TMR_LOW_TMR_L                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_FR_TMR_LOW_TMR_L(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1633,7 +1633,7 @@
  * \details
  * Register: \a LINE_KR:FR_TMR:FR_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_FR_TMR_HIGH             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8017)
+#define LAN80XX_LINE_KR_FR_TMR_HIGH                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8017))
 
 /**
  * \brief
@@ -1644,9 +1644,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FR_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_FR_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_FR_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_FR_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_FR_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_FR_TMR_HIGH_TMR_H                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_FR_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:LP_TMR
@@ -1661,7 +1661,7 @@
  * \details
  * Register: \a LINE_KR:LP_TMR:LP_TMR_LOW
  */
-#define LAN80XX_LINE_KR_LP_TMR_LOW              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8018)
+#define LAN80XX_LINE_KR_LP_TMR_LOW                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8018))
 
 /**
  * \brief
@@ -1670,9 +1670,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_LP_TMR_LOW_TMR_L(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_TMR_LOW_TMR_L      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_TMR_LOW_TMR_L(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_TMR_LOW_TMR_L(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_TMR_LOW_TMR_L                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_TMR_LOW_TMR_L(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1681,7 +1681,7 @@
  * \details
  * Register: \a LINE_KR:LP_TMR:LP_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_LP_TMR_HIGH             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8019)
+#define LAN80XX_LINE_KR_LP_TMR_HIGH                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8019))
 
 /**
  * \brief
@@ -1690,9 +1690,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_LP_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_LP_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_LP_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_LP_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_LP_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_LP_TMR_HIGH_TMR_H                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_LP_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:TR_TMR
@@ -1707,7 +1707,7 @@
  * \details
  * Register: \a LINE_KR:TR_TMR:TR_TMR_LOW
  */
-#define LAN80XX_LINE_KR_TR_TMR_LOW              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801a)
+#define LAN80XX_LINE_KR_TR_TMR_LOW                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801a))
 
 /**
  * \brief
@@ -1717,9 +1717,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_TR_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_TR_TMR_LOW_TMR_L(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_TR_TMR_LOW_TMR_L      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_TR_TMR_LOW_TMR_L(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_TR_TMR_LOW_TMR_L(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_TR_TMR_LOW_TMR_L                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_TR_TMR_LOW_TMR_L(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1728,7 +1728,7 @@
  * \details
  * Register: \a LINE_KR:TR_TMR:TR_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_TR_TMR_HIGH             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801b)
+#define LAN80XX_LINE_KR_TR_TMR_HIGH                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801b))
 
 /**
  * \brief
@@ -1738,9 +1738,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_TR_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_TR_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_TR_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_TR_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_TR_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_TR_TMR_HIGH_TMR_H                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_TR_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:PD_TMR
@@ -1755,7 +1755,7 @@
  * \details
  * Register: \a LINE_KR:PD_TMR:PD_TMR_LOW
  */
-#define LAN80XX_LINE_KR_PD_TMR_LOW              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801c)
+#define LAN80XX_LINE_KR_PD_TMR_LOW                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801c))
 
 /**
  * \brief
@@ -1767,9 +1767,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_PD_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_PD_TMR_LOW_TMR_L(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_PD_TMR_LOW_TMR_L      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_PD_TMR_LOW_TMR_L(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_PD_TMR_LOW_TMR_L(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_PD_TMR_LOW_TMR_L                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_PD_TMR_LOW_TMR_L(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1778,7 +1778,7 @@
  * \details
  * Register: \a LINE_KR:PD_TMR:PD_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_PD_TMR_HIGH             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801d)
+#define LAN80XX_LINE_KR_PD_TMR_HIGH                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801d))
 
 /**
  * \brief
@@ -1790,9 +1790,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_PD_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_PD_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_PD_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_PD_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_PD_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_PD_TMR_HIGH_TMR_H                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_PD_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:RD_TMR
@@ -1807,7 +1807,7 @@
  * \details
  * Register: \a LINE_KR:RD_TMR:RD_TMR_LOW
  */
-#define LAN80XX_LINE_KR_RD_TMR_LOW              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801e)
+#define LAN80XX_LINE_KR_RD_TMR_LOW                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801e))
 
 /**
  * \brief
@@ -1818,9 +1818,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_RD_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_RD_TMR_LOW_TMR_L(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_RD_TMR_LOW_TMR_L      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_RD_TMR_LOW_TMR_L(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_RD_TMR_LOW_TMR_L(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_RD_TMR_LOW_TMR_L                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_RD_TMR_LOW_TMR_L(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1829,7 +1829,7 @@
  * \details
  * Register: \a LINE_KR:RD_TMR:RD_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_RD_TMR_HIGH             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801f)
+#define LAN80XX_LINE_KR_RD_TMR_HIGH                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x801f))
 
 /**
  * \brief
@@ -1840,9 +1840,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_RD_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_RD_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_RD_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_RD_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_RD_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_RD_TMR_HIGH_TMR_H                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_RD_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:WT_TMR
@@ -1857,7 +1857,7 @@
  * \details
  * Register: \a LINE_KR:WT_TMR:WT_TMR
  */
-#define LAN80XX_LINE_KR_WT_TMR                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8024)
+#define LAN80XX_LINE_KR_WT_TMR                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8024))
 
 /**
  * \brief
@@ -1870,9 +1870,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_WT_TMR . TMR
  */
-#define  LAN80XX_F_LINE_KR_WT_TMR_TMR(x)         LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_WT_TMR_TMR            LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_WT_TMR_TMR(x)         LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_WT_TMR_TMR(x)                                                            (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_WT_TMR_TMR                                                               (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_WT_TMR_TMR(x)                                                            (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:MW_TMR
@@ -1887,7 +1887,7 @@
  * \details
  * Register: \a LINE_KR:MW_TMR:MW_TMR_LOW
  */
-#define LAN80XX_LINE_KR_MW_TMR_LOW              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8026)
+#define LAN80XX_LINE_KR_MW_TMR_LOW                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8026))
 
 /**
  * \brief
@@ -1897,9 +1897,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_MW_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_MW_TMR_LOW_TMR_L(x)   LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_MW_TMR_LOW_TMR_L      LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_MW_TMR_LOW_TMR_L(x)   LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_MW_TMR_LOW_TMR_L(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_MW_TMR_LOW_TMR_L                                                         (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_MW_TMR_LOW_TMR_L(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1908,7 +1908,7 @@
  * \details
  * Register: \a LINE_KR:MW_TMR:MW_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_MW_TMR_HIGH             LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8027)
+#define LAN80XX_LINE_KR_MW_TMR_HIGH                                                                 (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8027))
 
 /**
  * \brief
@@ -1918,9 +1918,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_MW_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_MW_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_MW_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_MW_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_MW_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_MW_TMR_HIGH_TMR_H                                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_MW_TMR_HIGH_TMR_H(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:GEN0_TMR
@@ -1935,7 +1935,7 @@
  * \details
  * Register: \a LINE_KR:GEN0_TMR:GEN0_TMR_LOW
  */
-#define LAN80XX_LINE_KR_GEN0_TMR_LOW            LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8028)
+#define LAN80XX_LINE_KR_GEN0_TMR_LOW                                                                (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8028))
 
 /**
  * \brief
@@ -1944,9 +1944,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_GEN0_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_GEN0_TMR_LOW_TMR_L(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_GEN0_TMR_LOW_TMR_L     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_GEN0_TMR_LOW_TMR_L(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_GEN0_TMR_LOW_TMR_L(x)                                                    (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_GEN0_TMR_LOW_TMR_L                                                       (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_GEN0_TMR_LOW_TMR_L(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1955,7 +1955,7 @@
  * \details
  * Register: \a LINE_KR:GEN0_TMR:GEN0_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_GEN0_TMR_HIGH           LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8029)
+#define LAN80XX_LINE_KR_GEN0_TMR_HIGH                                                               (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8029))
 
 /**
  * \brief
@@ -1964,9 +1964,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_GEN0_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_GEN0_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_GEN0_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_GEN0_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_GEN0_TMR_HIGH_TMR_H(x)                                                   (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_GEN0_TMR_HIGH_TMR_H                                                      (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_GEN0_TMR_HIGH_TMR_H(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:GEN1_TMR
@@ -1981,7 +1981,7 @@
  * \details
  * Register: \a LINE_KR:GEN1_TMR:GEN1_TMR_LOW
  */
-#define LAN80XX_LINE_KR_GEN1_TMR_LOW            LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x802a)
+#define LAN80XX_LINE_KR_GEN1_TMR_LOW                                                                (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x802a))
 
 /**
  * \brief
@@ -1990,9 +1990,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_GEN1_TMR_LOW . TMR_L
  */
-#define  LAN80XX_F_LINE_KR_GEN1_TMR_LOW_TMR_L(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_GEN1_TMR_LOW_TMR_L     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_GEN1_TMR_LOW_TMR_L(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_GEN1_TMR_LOW_TMR_L(x)                                                    (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_GEN1_TMR_LOW_TMR_L                                                       (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_GEN1_TMR_LOW_TMR_L(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -2001,7 +2001,7 @@
  * \details
  * Register: \a LINE_KR:GEN1_TMR:GEN1_TMR_HIGH
  */
-#define LAN80XX_LINE_KR_GEN1_TMR_HIGH           LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x802b)
+#define LAN80XX_LINE_KR_GEN1_TMR_HIGH                                                               (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x802b))
 
 /**
  * \brief
@@ -2010,9 +2010,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_GEN1_TMR_HIGH . TMR_H
  */
-#define  LAN80XX_F_LINE_KR_GEN1_TMR_HIGH_TMR_H(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_GEN1_TMR_HIGH_TMR_H     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_GEN1_TMR_HIGH_TMR_H(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_GEN1_TMR_HIGH_TMR_H(x)                                                   (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_GEN1_TMR_HIGH_TMR_H                                                      (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_GEN1_TMR_HIGH_TMR_H(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:AN_HIST
@@ -2027,7 +2027,7 @@
  * \details
  * Register: \a LINE_KR:AN_HIST:AN_HIST
  */
-#define LAN80XX_LINE_KR_AN_HIST                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8030)
+#define LAN80XX_LINE_KR_AN_HIST                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8030))
 
 /**
  * \brief
@@ -2051,9 +2051,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_HIST . AN_SM_HIST
  */
-#define  LAN80XX_F_LINE_KR_AN_HIST_AN_SM_HIST(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_LINE_KR_AN_HIST_AN_SM_HIST     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_LINE_KR_AN_HIST_AN_SM_HIST(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_LINE_KR_AN_HIST_AN_SM_HIST(x)                                                    (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_LINE_KR_AN_HIST_AN_SM_HIST                                                       (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_LINE_KR_AN_HIST_AN_SM_HIST(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a LINE_KR:AN_SM
@@ -2068,7 +2068,7 @@
  * \details
  * Register: \a LINE_KR:AN_SM:AN_SM
  */
-#define LAN80XX_LINE_KR_AN_SM                   LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8031)
+#define LAN80XX_LINE_KR_AN_SM                                                                       (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8031))
 
 /**
  * \brief
@@ -2077,9 +2077,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_SM . ABDET_CNT
  */
-#define  LAN80XX_F_LINE_KR_AN_SM_ABDET_CNT(x)    LAN80XX_ENCODE_BITFIELD(x,4,4)
-#define  LAN80XX_M_LINE_KR_AN_SM_ABDET_CNT       LAN80XX_ENCODE_BITMASK(4,4)
-#define  LAN80XX_X_LINE_KR_AN_SM_ABDET_CNT(x)    LAN80XX_EXTRACT_BITFIELD(x,4,4)
+#define  LAN80XX_F_LINE_KR_AN_SM_ABDET_CNT(x)                                                       (LAN80XX_ENCODE_BITFIELD(x,4,4))
+#define  LAN80XX_M_LINE_KR_AN_SM_ABDET_CNT                                                          (LAN80XX_ENCODE_BITMASK(4,4))
+#define  LAN80XX_X_LINE_KR_AN_SM_ABDET_CNT(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,4,4))
 
 /**
  * \brief
@@ -2103,9 +2103,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_SM . AN_SM
  */
-#define  LAN80XX_F_LINE_KR_AN_SM_AN_SM(x)        LAN80XX_ENCODE_BITFIELD(x,0,4)
-#define  LAN80XX_M_LINE_KR_AN_SM_AN_SM           LAN80XX_ENCODE_BITMASK(0,4)
-#define  LAN80XX_X_LINE_KR_AN_SM_AN_SM(x)        LAN80XX_EXTRACT_BITFIELD(x,0,4)
+#define  LAN80XX_F_LINE_KR_AN_SM_AN_SM(x)                                                           (LAN80XX_ENCODE_BITFIELD(x,0,4))
+#define  LAN80XX_M_LINE_KR_AN_SM_AN_SM                                                              (LAN80XX_ENCODE_BITMASK(0,4))
+#define  LAN80XX_X_LINE_KR_AN_SM_AN_SM(x)                                                           (LAN80XX_EXTRACT_BITFIELD(x,0,4))
 
 /**
  * Register Group: \a LINE_KR:AN_STS1
@@ -2120,7 +2120,7 @@
  * \details
  * Register: \a LINE_KR:AN_STS1:AN_STS1
  */
-#define LAN80XX_LINE_KR_AN_STS1                 LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8032)
+#define LAN80XX_LINE_KR_AN_STS1                                                                     (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8032))
 
 /**
  * \brief
@@ -2133,9 +2133,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_STS1 . KR_ACTV
  */
-#define  LAN80XX_F_LINE_KR_AN_STS1_KR_ACTV(x)    LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_LINE_KR_AN_STS1_KR_ACTV       LAN80XX_BIT(8)
-#define  LAN80XX_X_LINE_KR_AN_STS1_KR_ACTV(x)    LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_LINE_KR_AN_STS1_KR_ACTV(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_LINE_KR_AN_STS1_KR_ACTV                                                          (LAN80XX_BIT(8))
+#define  LAN80XX_X_LINE_KR_AN_STS1_KR_ACTV(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -2144,9 +2144,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS1 . SYNC8B10B
  */
-#define  LAN80XX_F_LINE_KR_AN_STS1_SYNC8B10B(x)  LAN80XX_ENCODE_BITFIELD(!!(x),7,1)
-#define  LAN80XX_M_LINE_KR_AN_STS1_SYNC8B10B     LAN80XX_BIT(7)
-#define  LAN80XX_X_LINE_KR_AN_STS1_SYNC8B10B(x)  LAN80XX_EXTRACT_BITFIELD(x,7,1)
+#define  LAN80XX_F_LINE_KR_AN_STS1_SYNC8B10B(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),7,1))
+#define  LAN80XX_M_LINE_KR_AN_STS1_SYNC8B10B                                                        (LAN80XX_BIT(7))
+#define  LAN80XX_X_LINE_KR_AN_STS1_SYNC8B10B(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,7,1))
 
 /**
  * \brief
@@ -2155,9 +2155,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS1 . SYNC10G
  */
-#define  LAN80XX_F_LINE_KR_AN_STS1_SYNC10G(x)    LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_LINE_KR_AN_STS1_SYNC10G       LAN80XX_BIT(6)
-#define  LAN80XX_X_LINE_KR_AN_STS1_SYNC10G(x)    LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_LINE_KR_AN_STS1_SYNC10G(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_LINE_KR_AN_STS1_SYNC10G                                                          (LAN80XX_BIT(6))
+#define  LAN80XX_X_LINE_KR_AN_STS1_SYNC10G(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -2166,9 +2166,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS1 . NONCE_MATCH
  */
-#define  LAN80XX_F_LINE_KR_AN_STS1_NONCE_MATCH(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_AN_STS1_NONCE_MATCH   LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_AN_STS1_NONCE_MATCH(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_AN_STS1_NONCE_MATCH(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_AN_STS1_NONCE_MATCH                                                      (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_AN_STS1_NONCE_MATCH(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -2177,9 +2177,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_AN_STS1 . INCP_LINK
  */
-#define  LAN80XX_F_LINE_KR_AN_STS1_INCP_LINK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_AN_STS1_INCP_LINK     LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_AN_STS1_INCP_LINK(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_AN_STS1_INCP_LINK(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_AN_STS1_INCP_LINK                                                        (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_AN_STS1_INCP_LINK(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -2203,9 +2203,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_AN_STS1 . LINK_HCD
  */
-#define  LAN80XX_F_LINE_KR_AN_STS1_LINK_HCD(x)   LAN80XX_ENCODE_BITFIELD(x,0,4)
-#define  LAN80XX_M_LINE_KR_AN_STS1_LINK_HCD      LAN80XX_ENCODE_BITMASK(0,4)
-#define  LAN80XX_X_LINE_KR_AN_STS1_LINK_HCD(x)   LAN80XX_EXTRACT_BITFIELD(x,0,4)
+#define  LAN80XX_F_LINE_KR_AN_STS1_LINK_HCD(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,0,4))
+#define  LAN80XX_M_LINE_KR_AN_STS1_LINK_HCD                                                         (LAN80XX_ENCODE_BITMASK(0,4))
+#define  LAN80XX_X_LINE_KR_AN_STS1_LINK_HCD(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,4))
 
 /**
  * Register Group: \a LINE_KR:FW_MSG
@@ -2220,7 +2220,7 @@
  * \details
  * Register: \a LINE_KR:FW_MSG:FW_MSG
  */
-#define LAN80XX_LINE_KR_FW_MSG                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8040)
+#define LAN80XX_LINE_KR_FW_MSG                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8040))
 
 /**
  * \brief
@@ -2232,9 +2232,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_MSG . FW_RESOLVE_DONE
  */
-#define  LAN80XX_F_LINE_KR_FW_MSG_FW_RESOLVE_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_FW_MSG_FW_RESOLVE_DONE  LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_FW_MSG_FW_RESOLVE_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_FW_MSG_FW_RESOLVE_DONE(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_FW_MSG_FW_RESOLVE_DONE                                                   (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_FW_MSG_FW_RESOLVE_DONE(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -2243,9 +2243,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_MSG . TR_DONE
  */
-#define  LAN80XX_F_LINE_KR_FW_MSG_TR_DONE(x)     LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_FW_MSG_TR_DONE        LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_FW_MSG_TR_DONE(x)     LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_FW_MSG_TR_DONE(x)                                                        (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_FW_MSG_TR_DONE                                                           (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_FW_MSG_TR_DONE(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -2254,9 +2254,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_MSG . LDCOEF_VLD
  */
-#define  LAN80XX_F_LINE_KR_FW_MSG_LDCOEF_VLD(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_LINE_KR_FW_MSG_LDCOEF_VLD     LAN80XX_BIT(3)
-#define  LAN80XX_X_LINE_KR_FW_MSG_LDCOEF_VLD(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_LINE_KR_FW_MSG_LDCOEF_VLD(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_LINE_KR_FW_MSG_LDCOEF_VLD                                                        (LAN80XX_BIT(3))
+#define  LAN80XX_X_LINE_KR_FW_MSG_LDCOEF_VLD(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -2265,9 +2265,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_MSG . LDSTAT_VLD
  */
-#define  LAN80XX_F_LINE_KR_FW_MSG_LDSTAT_VLD(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_LINE_KR_FW_MSG_LDSTAT_VLD     LAN80XX_BIT(2)
-#define  LAN80XX_X_LINE_KR_FW_MSG_LDSTAT_VLD(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_LINE_KR_FW_MSG_LDSTAT_VLD(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_LINE_KR_FW_MSG_LDSTAT_VLD                                                        (LAN80XX_BIT(2))
+#define  LAN80XX_X_LINE_KR_FW_MSG_LDSTAT_VLD(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -2276,9 +2276,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_MSG . NP_LOADED
  */
-#define  LAN80XX_F_LINE_KR_FW_MSG_NP_LOADED(x)   LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_LINE_KR_FW_MSG_NP_LOADED      LAN80XX_BIT(1)
-#define  LAN80XX_X_LINE_KR_FW_MSG_NP_LOADED(x)   LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_LINE_KR_FW_MSG_NP_LOADED(x)                                                      (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_LINE_KR_FW_MSG_NP_LOADED                                                         (LAN80XX_BIT(1))
+#define  LAN80XX_X_LINE_KR_FW_MSG_NP_LOADED(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -2287,9 +2287,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_MSG . RATE_DONE
  */
-#define  LAN80XX_F_LINE_KR_FW_MSG_RATE_DONE(x)   LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_LINE_KR_FW_MSG_RATE_DONE      LAN80XX_BIT(0)
-#define  LAN80XX_X_LINE_KR_FW_MSG_RATE_DONE(x)   LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_LINE_KR_FW_MSG_RATE_DONE(x)                                                      (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_LINE_KR_FW_MSG_RATE_DONE                                                         (LAN80XX_BIT(0))
+#define  LAN80XX_X_LINE_KR_FW_MSG_RATE_DONE(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a LINE_KR:FW_REQ
@@ -2304,7 +2304,7 @@
  * \details
  * Register: \a LINE_KR:FW_REQ:FW_REQ
  */
-#define LAN80XX_LINE_KR_FW_REQ                  LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8041)
+#define LAN80XX_LINE_KR_FW_REQ                                                                      (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8041))
 
 /**
  * \brief
@@ -2313,9 +2313,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_REQ . BER_EN
  */
-#define  LAN80XX_F_LINE_KR_FW_REQ_BER_EN(x)      LAN80XX_ENCODE_BITFIELD(!!(x),12,1)
-#define  LAN80XX_M_LINE_KR_FW_REQ_BER_EN         LAN80XX_BIT(12)
-#define  LAN80XX_X_LINE_KR_FW_REQ_BER_EN(x)      LAN80XX_EXTRACT_BITFIELD(x,12,1)
+#define  LAN80XX_F_LINE_KR_FW_REQ_BER_EN(x)                                                         (LAN80XX_ENCODE_BITFIELD(!!(x),12,1))
+#define  LAN80XX_M_LINE_KR_FW_REQ_BER_EN                                                            (LAN80XX_BIT(12))
+#define  LAN80XX_X_LINE_KR_FW_REQ_BER_EN(x)                                                         (LAN80XX_EXTRACT_BITFIELD(x,12,1))
 
 /**
  * \brief
@@ -2324,9 +2324,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_REQ . GEN1_TMR_START
  */
-#define  LAN80XX_F_LINE_KR_FW_REQ_GEN1_TMR_START(x)  LAN80XX_ENCODE_BITFIELD(!!(x),11,1)
-#define  LAN80XX_M_LINE_KR_FW_REQ_GEN1_TMR_START  LAN80XX_BIT(11)
-#define  LAN80XX_X_LINE_KR_FW_REQ_GEN1_TMR_START(x)  LAN80XX_EXTRACT_BITFIELD(x,11,1)
+#define  LAN80XX_F_LINE_KR_FW_REQ_GEN1_TMR_START(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),11,1))
+#define  LAN80XX_M_LINE_KR_FW_REQ_GEN1_TMR_START                                                    (LAN80XX_BIT(11))
+#define  LAN80XX_X_LINE_KR_FW_REQ_GEN1_TMR_START(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,11,1))
 
 /**
  * \brief
@@ -2335,9 +2335,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_REQ . GEN0_TMR_START
  */
-#define  LAN80XX_F_LINE_KR_FW_REQ_GEN0_TMR_START(x)  LAN80XX_ENCODE_BITFIELD(!!(x),10,1)
-#define  LAN80XX_M_LINE_KR_FW_REQ_GEN0_TMR_START  LAN80XX_BIT(10)
-#define  LAN80XX_X_LINE_KR_FW_REQ_GEN0_TMR_START(x)  LAN80XX_EXTRACT_BITFIELD(x,10,1)
+#define  LAN80XX_F_LINE_KR_FW_REQ_GEN0_TMR_START(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),10,1))
+#define  LAN80XX_M_LINE_KR_FW_REQ_GEN0_TMR_START                                                    (LAN80XX_BIT(10))
+#define  LAN80XX_X_LINE_KR_FW_REQ_GEN0_TMR_START(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,10,1))
 
 /**
  * \brief
@@ -2346,9 +2346,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_REQ . WT_START
  */
-#define  LAN80XX_F_LINE_KR_FW_REQ_WT_START(x)    LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_FW_REQ_WT_START       LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_FW_REQ_WT_START(x)    LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_FW_REQ_WT_START(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_FW_REQ_WT_START                                                          (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_FW_REQ_WT_START(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -2357,9 +2357,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_FW_REQ . MW_START
  */
-#define  LAN80XX_F_LINE_KR_FW_REQ_MW_START(x)    LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_LINE_KR_FW_REQ_MW_START       LAN80XX_BIT(8)
-#define  LAN80XX_X_LINE_KR_FW_REQ_MW_START(x)    LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_LINE_KR_FW_REQ_MW_START(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_LINE_KR_FW_REQ_MW_START                                                          (LAN80XX_BIT(8))
+#define  LAN80XX_X_LINE_KR_FW_REQ_MW_START(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * Register Group: \a LINE_KR:IRQ_VEC
@@ -2374,7 +2374,7 @@
  * \details
  * Register: \a LINE_KR:IRQ_VEC:IRQ_VEC_0
  */
-#define LAN80XX_LINE_KR_IRQ_VEC_0               LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8042)
+#define LAN80XX_LINE_KR_IRQ_VEC_0                                                                   (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8042))
 
 /**
  * \brief
@@ -2383,9 +2383,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . AN_TRAIN
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_AN_TRAIN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),15,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_AN_TRAIN    LAN80XX_BIT(15)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_AN_TRAIN(x)  LAN80XX_EXTRACT_BITFIELD(x,15,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_AN_TRAIN(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),15,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_AN_TRAIN                                                       (LAN80XX_BIT(15))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_AN_TRAIN(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,15,1))
 
 /**
  * \brief
@@ -2394,9 +2394,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . AN_RATE_DET
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_AN_RATE_DET(x)  LAN80XX_ENCODE_BITFIELD(!!(x),14,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_AN_RATE_DET  LAN80XX_BIT(14)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_AN_RATE_DET(x)  LAN80XX_EXTRACT_BITFIELD(x,14,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_AN_RATE_DET(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),14,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_AN_RATE_DET                                                    (LAN80XX_BIT(14))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_AN_RATE_DET(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,14,1))
 
 /**
  * \brief
@@ -2405,9 +2405,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . CMPL_ACK
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_CMPL_ACK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),13,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_CMPL_ACK    LAN80XX_BIT(13)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_CMPL_ACK(x)  LAN80XX_EXTRACT_BITFIELD(x,13,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_CMPL_ACK(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),13,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_CMPL_ACK                                                       (LAN80XX_BIT(13))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_CMPL_ACK(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,13,1))
 
 /**
  * \brief
@@ -2416,9 +2416,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . AN_GOOD
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_AN_GOOD(x)  LAN80XX_ENCODE_BITFIELD(!!(x),12,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_AN_GOOD     LAN80XX_BIT(12)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_AN_GOOD(x)  LAN80XX_EXTRACT_BITFIELD(x,12,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_AN_GOOD(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),12,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_AN_GOOD                                                        (LAN80XX_BIT(12))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_AN_GOOD(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,12,1))
 
 /**
  * \brief
@@ -2427,9 +2427,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . LINK_FAIL
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_LINK_FAIL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),11,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_LINK_FAIL   LAN80XX_BIT(11)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_LINK_FAIL(x)  LAN80XX_EXTRACT_BITFIELD(x,11,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_LINK_FAIL(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),11,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_LINK_FAIL                                                      (LAN80XX_BIT(11))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_LINK_FAIL(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,11,1))
 
 /**
  * \brief
@@ -2438,9 +2438,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . ABD_FAIL
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_ABD_FAIL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),10,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_ABD_FAIL    LAN80XX_BIT(10)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_ABD_FAIL(x)  LAN80XX_EXTRACT_BITFIELD(x,10,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_ABD_FAIL(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),10,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_ABD_FAIL                                                       (LAN80XX_BIT(10))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_ABD_FAIL(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,10,1))
 
 /**
  * \brief
@@ -2449,9 +2449,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . ACK_FAIL
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_ACK_FAIL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_ACK_FAIL    LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_ACK_FAIL(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_ACK_FAIL(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_ACK_FAIL                                                       (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_ACK_FAIL(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -2460,9 +2460,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . NP_FAIL
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_NP_FAIL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_NP_FAIL     LAN80XX_BIT(8)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_NP_FAIL(x)  LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_NP_FAIL(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_NP_FAIL                                                        (LAN80XX_BIT(8))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_NP_FAIL(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -2471,9 +2471,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . NP_RX
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_NP_RX(x)    LAN80XX_ENCODE_BITFIELD(!!(x),7,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_NP_RX       LAN80XX_BIT(7)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_NP_RX(x)    LAN80XX_EXTRACT_BITFIELD(x,7,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_NP_RX(x)                                                       (LAN80XX_ENCODE_BITFIELD(!!(x),7,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_NP_RX                                                          (LAN80XX_BIT(7))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_NP_RX(x)                                                       (LAN80XX_EXTRACT_BITFIELD(x,7,1))
 
 /**
  * \brief
@@ -2482,9 +2482,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . INCP_LINK
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_INCP_LINK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_INCP_LINK   LAN80XX_BIT(6)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_INCP_LINK(x)  LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_INCP_LINK(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_INCP_LINK                                                      (LAN80XX_BIT(6))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_INCP_LINK(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -2493,9 +2493,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . GEN0_DONE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_GEN0_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_GEN0_DONE   LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_GEN0_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_GEN0_DONE(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_GEN0_DONE                                                      (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_GEN0_DONE(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -2504,9 +2504,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . GEN1_DONE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_GEN1_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_GEN1_DONE   LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_GEN1_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_GEN1_DONE(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_GEN1_DONE                                                      (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_GEN1_DONE(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -2516,9 +2516,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_0 . AN_RATE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_AN_RATE(x)  LAN80XX_ENCODE_BITFIELD(x,0,4)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_AN_RATE     LAN80XX_ENCODE_BITMASK(0,4)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_AN_RATE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,4)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_0_AN_RATE(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,0,4))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_0_AN_RATE                                                        (LAN80XX_ENCODE_BITMASK(0,4))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_0_AN_RATE(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,0,4))
 
 
 /**
@@ -2527,7 +2527,7 @@
  * \details
  * Register: \a LINE_KR:IRQ_VEC:IRQ_VEC_1
  */
-#define LAN80XX_LINE_KR_IRQ_VEC_1               LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8043)
+#define LAN80XX_LINE_KR_IRQ_VEC_1                                                                   (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8043))
 
 /**
  * \brief
@@ -2543,9 +2543,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . NP_REQ
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_NP_REQ(x)   LAN80XX_ENCODE_BITFIELD(!!(x),15,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_NP_REQ      LAN80XX_BIT(15)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_NP_REQ(x)   LAN80XX_EXTRACT_BITFIELD(x,15,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_NP_REQ(x)                                                      (LAN80XX_ENCODE_BITFIELD(!!(x),15,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_NP_REQ                                                         (LAN80XX_BIT(15))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_NP_REQ(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,15,1))
 
 /**
  * \brief
@@ -2558,9 +2558,9 @@
  *
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . ACK_FIN
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_ACK_FIN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),14,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_ACK_FIN     LAN80XX_BIT(14)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_ACK_FIN(x)  LAN80XX_EXTRACT_BITFIELD(x,14,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_ACK_FIN(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),14,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_ACK_FIN                                                        (LAN80XX_BIT(14))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_ACK_FIN(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,14,1))
 
 /**
  * \brief
@@ -2569,9 +2569,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . KR_ACTV
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_KR_ACTV(x)  LAN80XX_ENCODE_BITFIELD(!!(x),13,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_KR_ACTV     LAN80XX_BIT(13)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_KR_ACTV(x)  LAN80XX_EXTRACT_BITFIELD(x,13,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_KR_ACTV(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),13,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_KR_ACTV                                                        (LAN80XX_BIT(13))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_KR_ACTV(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,13,1))
 
 /**
  * \brief
@@ -2580,9 +2580,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . LPSVALID
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_LPSVALID(x)  LAN80XX_ENCODE_BITFIELD(!!(x),12,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_LPSVALID    LAN80XX_BIT(12)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_LPSVALID(x)  LAN80XX_EXTRACT_BITFIELD(x,12,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_LPSVALID(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),12,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_LPSVALID                                                       (LAN80XX_BIT(12))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_LPSVALID(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,12,1))
 
 /**
  * \brief
@@ -2591,9 +2591,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . LPCVALID
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_LPCVALID(x)  LAN80XX_ENCODE_BITFIELD(!!(x),11,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_LPCVALID    LAN80XX_BIT(11)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_LPCVALID(x)  LAN80XX_EXTRACT_BITFIELD(x,11,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_LPCVALID(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),11,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_LPCVALID                                                       (LAN80XX_BIT(11))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_LPCVALID(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,11,1))
 
 /**
  * \brief
@@ -2602,9 +2602,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . WT_DONE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_WT_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),10,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_WT_DONE     LAN80XX_BIT(10)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_WT_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,10,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_WT_DONE(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),10,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_WT_DONE                                                        (LAN80XX_BIT(10))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_WT_DONE(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,10,1))
 
 /**
  * \brief
@@ -2613,9 +2613,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . MW_DONE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_MW_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_MW_DONE     LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_MW_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_MW_DONE(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_MW_DONE                                                        (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_MW_DONE(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -2624,9 +2624,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . BER_BUSY_0
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_BER_BUSY_0(x)  LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_BER_BUSY_0  LAN80XX_BIT(8)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_BER_BUSY_0(x)  LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_BER_BUSY_0(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_BER_BUSY_0                                                     (LAN80XX_BIT(8))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_BER_BUSY_0(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -2635,9 +2635,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . BER_BUSY_1
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_BER_BUSY_1(x)  LAN80XX_ENCODE_BITFIELD(!!(x),7,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_BER_BUSY_1  LAN80XX_BIT(7)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_BER_BUSY_1(x)  LAN80XX_EXTRACT_BITFIELD(x,7,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_BER_BUSY_1(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),7,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_BER_BUSY_1                                                     (LAN80XX_BIT(7))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_BER_BUSY_1(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,7,1))
 
 /**
  * \brief
@@ -2646,9 +2646,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . REM_RDY_0
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_REM_RDY_0(x)  LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_REM_RDY_0   LAN80XX_BIT(6)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_REM_RDY_0(x)  LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_REM_RDY_0(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_REM_RDY_0                                                      (LAN80XX_BIT(6))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_REM_RDY_0(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -2657,9 +2657,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . REM_RDY_1
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_REM_RDY_1(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_REM_RDY_1   LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_REM_RDY_1(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_REM_RDY_1(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_REM_RDY_1                                                      (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_REM_RDY_1(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -2668,9 +2668,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . FRLOCK_0
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_FRLOCK_0(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_FRLOCK_0    LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_FRLOCK_0(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_FRLOCK_0(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_FRLOCK_0                                                       (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_FRLOCK_0(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -2679,9 +2679,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . FRLOCK_1
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_FRLOCK_1(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_FRLOCK_1    LAN80XX_BIT(3)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_FRLOCK_1(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_FRLOCK_1(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_FRLOCK_1                                                       (LAN80XX_BIT(3))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_FRLOCK_1(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -2690,9 +2690,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . DME_VIOL_0
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_DME_VIOL_0(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_DME_VIOL_0  LAN80XX_BIT(2)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_DME_VIOL_0(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_DME_VIOL_0(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_DME_VIOL_0                                                     (LAN80XX_BIT(2))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_DME_VIOL_0(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -2701,9 +2701,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . DME_VIOL_1
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_DME_VIOL_1(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_DME_VIOL_1  LAN80XX_BIT(1)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_DME_VIOL_1(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_DME_VIOL_1(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_DME_VIOL_1                                                     (LAN80XX_BIT(1))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_DME_VIOL_1(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -2712,9 +2712,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_VEC_1 . AN_XMIT_DISABLE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_AN_XMIT_DISABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_AN_XMIT_DISABLE  LAN80XX_BIT(0)
-#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_AN_XMIT_DISABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_LINE_KR_IRQ_VEC_1_AN_XMIT_DISABLE(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_LINE_KR_IRQ_VEC_1_AN_XMIT_DISABLE                                                (LAN80XX_BIT(0))
+#define  LAN80XX_X_LINE_KR_IRQ_VEC_1_AN_XMIT_DISABLE(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a LINE_KR:IRQ_MASK
@@ -2729,7 +2729,7 @@
  * \details
  * Register: \a LINE_KR:IRQ_MASK:IRQ_MASK_0
  */
-#define LAN80XX_LINE_KR_IRQ_MASK_0              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8044)
+#define LAN80XX_LINE_KR_IRQ_MASK_0                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8044))
 
 /**
  * \brief
@@ -2738,9 +2738,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . AN_TRAIN
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_AN_TRAIN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),15,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_AN_TRAIN   LAN80XX_BIT(15)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_AN_TRAIN(x)  LAN80XX_EXTRACT_BITFIELD(x,15,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_AN_TRAIN(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),15,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_AN_TRAIN                                                      (LAN80XX_BIT(15))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_AN_TRAIN(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,15,1))
 
 /**
  * \brief
@@ -2749,9 +2749,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . AN_RATE_DET
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_AN_RATE_DET(x)  LAN80XX_ENCODE_BITFIELD(!!(x),14,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_AN_RATE_DET  LAN80XX_BIT(14)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_AN_RATE_DET(x)  LAN80XX_EXTRACT_BITFIELD(x,14,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_AN_RATE_DET(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),14,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_AN_RATE_DET                                                   (LAN80XX_BIT(14))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_AN_RATE_DET(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,14,1))
 
 /**
  * \brief
@@ -2760,9 +2760,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . CMPL_ACK
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_CMPL_ACK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),13,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_CMPL_ACK   LAN80XX_BIT(13)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_CMPL_ACK(x)  LAN80XX_EXTRACT_BITFIELD(x,13,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_CMPL_ACK(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),13,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_CMPL_ACK                                                      (LAN80XX_BIT(13))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_CMPL_ACK(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,13,1))
 
 /**
  * \brief
@@ -2771,9 +2771,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . AN_GOOD
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_AN_GOOD(x)  LAN80XX_ENCODE_BITFIELD(!!(x),12,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_AN_GOOD    LAN80XX_BIT(12)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_AN_GOOD(x)  LAN80XX_EXTRACT_BITFIELD(x,12,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_AN_GOOD(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),12,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_AN_GOOD                                                       (LAN80XX_BIT(12))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_AN_GOOD(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,12,1))
 
 /**
  * \brief
@@ -2782,9 +2782,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . LINK_FAIL
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_LINK_FAIL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),11,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_LINK_FAIL  LAN80XX_BIT(11)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_LINK_FAIL(x)  LAN80XX_EXTRACT_BITFIELD(x,11,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_LINK_FAIL(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),11,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_LINK_FAIL                                                     (LAN80XX_BIT(11))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_LINK_FAIL(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,11,1))
 
 /**
  * \brief
@@ -2793,9 +2793,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . ABD_FAIL
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_ABD_FAIL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),10,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_ABD_FAIL   LAN80XX_BIT(10)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_ABD_FAIL(x)  LAN80XX_EXTRACT_BITFIELD(x,10,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_ABD_FAIL(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),10,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_ABD_FAIL                                                      (LAN80XX_BIT(10))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_ABD_FAIL(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,10,1))
 
 /**
  * \brief
@@ -2804,9 +2804,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . ACK_FAIL
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_ACK_FAIL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_ACK_FAIL   LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_ACK_FAIL(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_ACK_FAIL(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_ACK_FAIL                                                      (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_ACK_FAIL(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -2815,9 +2815,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . NP_FAIL
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_NP_FAIL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_NP_FAIL    LAN80XX_BIT(8)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_NP_FAIL(x)  LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_NP_FAIL(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_NP_FAIL                                                       (LAN80XX_BIT(8))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_NP_FAIL(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -2826,9 +2826,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . NP_RX
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_NP_RX(x)   LAN80XX_ENCODE_BITFIELD(!!(x),7,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_NP_RX      LAN80XX_BIT(7)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_NP_RX(x)   LAN80XX_EXTRACT_BITFIELD(x,7,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_NP_RX(x)                                                      (LAN80XX_ENCODE_BITFIELD(!!(x),7,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_NP_RX                                                         (LAN80XX_BIT(7))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_NP_RX(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,7,1))
 
 /**
  * \brief
@@ -2837,9 +2837,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . INCP_LINK
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_INCP_LINK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_INCP_LINK  LAN80XX_BIT(6)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_INCP_LINK(x)  LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_INCP_LINK(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_INCP_LINK                                                     (LAN80XX_BIT(6))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_INCP_LINK(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -2848,9 +2848,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . GEN0_DONE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_GEN0_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_GEN0_DONE  LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_GEN0_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_GEN0_DONE(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_GEN0_DONE                                                     (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_GEN0_DONE(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -2859,9 +2859,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . GEN1_DONE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_GEN1_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_GEN1_DONE  LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_GEN1_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_GEN1_DONE(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_GEN1_DONE                                                     (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_GEN1_DONE(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -2870,9 +2870,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_0 . AN_RATE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_AN_RATE(x)  LAN80XX_ENCODE_BITFIELD(x,0,4)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_AN_RATE     LAN80XX_ENCODE_BITMASK(0,4)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_AN_RATE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,4)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_0_AN_RATE(x)                                                    (LAN80XX_ENCODE_BITFIELD(x,0,4))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_0_AN_RATE                                                       (LAN80XX_ENCODE_BITMASK(0,4))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_0_AN_RATE(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,0,4))
 
 
 /**
@@ -2881,7 +2881,7 @@
  * \details
  * Register: \a LINE_KR:IRQ_MASK:IRQ_MASK_1
  */
-#define LAN80XX_LINE_KR_IRQ_MASK_1              LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8045)
+#define LAN80XX_LINE_KR_IRQ_MASK_1                                                                  (LAN80XX_IOREG(MMD_ID_LINE_KR, 0, 0x8045))
 
 /**
  * \brief
@@ -2890,9 +2890,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . NP_REQ
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_NP_REQ(x)  LAN80XX_ENCODE_BITFIELD(!!(x),15,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_NP_REQ     LAN80XX_BIT(15)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_NP_REQ(x)  LAN80XX_EXTRACT_BITFIELD(x,15,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_NP_REQ(x)                                                     (LAN80XX_ENCODE_BITFIELD(!!(x),15,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_NP_REQ                                                        (LAN80XX_BIT(15))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_NP_REQ(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,15,1))
 
 /**
  * \brief
@@ -2901,9 +2901,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . ACK_FIN
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_ACK_FIN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),14,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_ACK_FIN    LAN80XX_BIT(14)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_ACK_FIN(x)  LAN80XX_EXTRACT_BITFIELD(x,14,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_ACK_FIN(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),14,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_ACK_FIN                                                       (LAN80XX_BIT(14))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_ACK_FIN(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,14,1))
 
 /**
  * \brief
@@ -2912,9 +2912,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . KR_ACTV
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_KR_ACTV(x)  LAN80XX_ENCODE_BITFIELD(!!(x),13,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_KR_ACTV    LAN80XX_BIT(13)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_KR_ACTV(x)  LAN80XX_EXTRACT_BITFIELD(x,13,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_KR_ACTV(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),13,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_KR_ACTV                                                       (LAN80XX_BIT(13))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_KR_ACTV(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,13,1))
 
 /**
  * \brief
@@ -2923,9 +2923,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . LPSVALID
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_LPSVALID(x)  LAN80XX_ENCODE_BITFIELD(!!(x),12,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_LPSVALID   LAN80XX_BIT(12)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_LPSVALID(x)  LAN80XX_EXTRACT_BITFIELD(x,12,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_LPSVALID(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),12,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_LPSVALID                                                      (LAN80XX_BIT(12))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_LPSVALID(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,12,1))
 
 /**
  * \brief
@@ -2934,9 +2934,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . LPCVALID
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_LPCVALID(x)  LAN80XX_ENCODE_BITFIELD(!!(x),11,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_LPCVALID   LAN80XX_BIT(11)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_LPCVALID(x)  LAN80XX_EXTRACT_BITFIELD(x,11,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_LPCVALID(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),11,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_LPCVALID                                                      (LAN80XX_BIT(11))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_LPCVALID(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,11,1))
 
 /**
  * \brief
@@ -2945,9 +2945,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . WT_DONE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_WT_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),10,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_WT_DONE    LAN80XX_BIT(10)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_WT_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,10,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_WT_DONE(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),10,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_WT_DONE                                                       (LAN80XX_BIT(10))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_WT_DONE(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,10,1))
 
 /**
  * \brief
@@ -2956,9 +2956,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . MW_DONE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_MW_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_MW_DONE    LAN80XX_BIT(9)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_MW_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_MW_DONE(x)                                                    (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_MW_DONE                                                       (LAN80XX_BIT(9))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_MW_DONE(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -2967,9 +2967,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . BER_BUSY_0
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_BER_BUSY_0(x)  LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_BER_BUSY_0  LAN80XX_BIT(8)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_BER_BUSY_0(x)  LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_BER_BUSY_0(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_BER_BUSY_0                                                    (LAN80XX_BIT(8))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_BER_BUSY_0(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -2978,9 +2978,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . BER_BUSY_1
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_BER_BUSY_1(x)  LAN80XX_ENCODE_BITFIELD(!!(x),7,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_BER_BUSY_1  LAN80XX_BIT(7)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_BER_BUSY_1(x)  LAN80XX_EXTRACT_BITFIELD(x,7,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_BER_BUSY_1(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),7,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_BER_BUSY_1                                                    (LAN80XX_BIT(7))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_BER_BUSY_1(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,7,1))
 
 /**
  * \brief
@@ -2989,9 +2989,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . REM_RDY_0
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_REM_RDY_0(x)  LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_REM_RDY_0  LAN80XX_BIT(6)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_REM_RDY_0(x)  LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_REM_RDY_0(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_REM_RDY_0                                                     (LAN80XX_BIT(6))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_REM_RDY_0(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -3000,9 +3000,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . REM_RDY_1
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_REM_RDY_1(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_REM_RDY_1  LAN80XX_BIT(5)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_REM_RDY_1(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_REM_RDY_1(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_REM_RDY_1                                                     (LAN80XX_BIT(5))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_REM_RDY_1(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -3011,9 +3011,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . FRLOCK_0
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_FRLOCK_0(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_FRLOCK_0   LAN80XX_BIT(4)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_FRLOCK_0(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_FRLOCK_0(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_FRLOCK_0                                                      (LAN80XX_BIT(4))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_FRLOCK_0(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -3022,9 +3022,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . FRLOCK_1
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_FRLOCK_1(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_FRLOCK_1   LAN80XX_BIT(3)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_FRLOCK_1(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_FRLOCK_1(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_FRLOCK_1                                                      (LAN80XX_BIT(3))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_FRLOCK_1(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -3033,9 +3033,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . DME_VIOL_0
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_DME_VIOL_0(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_DME_VIOL_0  LAN80XX_BIT(2)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_DME_VIOL_0(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_DME_VIOL_0(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_DME_VIOL_0                                                    (LAN80XX_BIT(2))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_DME_VIOL_0(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -3044,9 +3044,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . DME_VIOL_1
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_DME_VIOL_1(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_DME_VIOL_1  LAN80XX_BIT(1)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_DME_VIOL_1(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_DME_VIOL_1(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_DME_VIOL_1                                                    (LAN80XX_BIT(1))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_DME_VIOL_1(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -3055,9 +3055,9 @@
  * \details
  * Field: ::LAN80XX_LINE_KR_IRQ_MASK_1 . AN_XMIT_DISABLE
  */
-#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_AN_XMIT_DISABLE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_AN_XMIT_DISABLE  LAN80XX_BIT(0)
-#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_AN_XMIT_DISABLE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_LINE_KR_IRQ_MASK_1_AN_XMIT_DISABLE(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_LINE_KR_IRQ_MASK_1_AN_XMIT_DISABLE                                               (LAN80XX_BIT(0))
+#define  LAN80XX_X_LINE_KR_IRQ_MASK_1_AN_XMIT_DISABLE(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 #endif /* _LAN80XX_MALIBU25G_REGS_LINE_KR_H_ */

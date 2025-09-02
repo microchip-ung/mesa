@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MEPA_LAN80XX_TYPES_H_
-#define _MEPA_LAN80XX_TYPES_H_
+#ifndef MEPA_LAN80XX_TYPES_H_
+#define MEPA_LAN80XX_TYPES_H_
 
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api.h>
@@ -51,6 +51,8 @@ typedef enum {
     LAN80XX_DEV_ID_8268 = 0x8268,      /* Quad 1G/10G PHY with 1588 and MACSEC*/
     LAN80XX_DEV_ID_8267 = 0x8267,      /* Quad 1G/10G PHY with 1588 */
     LAN80XX_DEV_ID_8264 = 0x8264,      /* Dual 1G/10G PHY with 1588 and MACSEC*/
+    LAN80XX_DEV_ID_8263 = 0x8263,      /* Dual 1G/10G PHY with 1588 */
+    LAN80XX_DEV_ID_8262 = 0x8262,      /* Dual 1G/10G PHY with MACSEC*/
 } phy25g_device_id_type_t;
 
 /* PHY Revision */
@@ -130,43 +132,6 @@ typedef struct {
     phy25g_polarity_inv_t polarity;            /**< polarity inversion configuration */
 } phy25g_port_mode_t;
 
-/**
- * Advertisement Word (Refer to IEEE 802.3 Clause 37):
- *  MSB                                                                         LSB
- *  D15  D14  D13  D12  D11  D10   D9   D8   D7   D6   D5   D4   D3   D2   D1   D0
- * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
- * | NP | Ack| RF2| RF1|rsvd|rsvd|rsvd| PS2| PS1| HD | FD |rsvd|rsvd|rsvd|rsvd|rsvd|
- * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
- **/
-
-/** \brief Auto-negotiation remote fault type */
-typedef enum {
-    LAN80XX_PHY_10G_CLAUSE_37_RF_LINK_OK,        /**< Link OK */
-    LAN80XX_PHY_10G_CLAUSE_37_RF_OFFLINE,        /**< Off line */
-    LAN80XX_PHY_10G_CLAUSE_37_RF_LINK_FAILURE,   /**< Link failure */
-    LAN80XX_PHY_10G_CLAUSE_37_RF_AUTONEG_ERROR   /**< Autoneg error */
-} phy25g_clause_37_remote_fault_t;
-
-/** \brief Advertisement control data for Clause 37 aneg */
-typedef struct {
-    mepa_bool_t                        fdx;               /**< (FD) */
-    mepa_bool_t                        hdx;               /**< (HD) ,Not supported */
-    mepa_bool_t                        symmetric_pause;   /**< (PS1) */
-    mepa_bool_t                        asymmetric_pause;  /**< (PS2) */
-    phy25g_clause_37_remote_fault_t    remote_fault;      /**< (RF1) + (RF2) , would be generated according to condition*/
-    mepa_bool_t                        acknowledge;       /**< (Ack) , would be generated according to condition*/
-    mepa_bool_t                        next_page;         /**< (NP) ,Not supported */
-} phy25g_clause_37_adv_t;
-
-
-/** \brief Clause 37 control struct */
-typedef struct {
-    mepa_bool_t           enable;        /**< Enable of Autoneg */
-    phy25g_clause_37_adv_t advertisement; /**< Clause 37 Advertisement data */
-    mepa_bool_t           enable_pass_thru; /**< Enables pass through mode in VENICE/MALIBU */
-    mepa_bool_t           line;           /**< Line:TRUE for line side */
-    mepa_bool_t           host;           /**< Host:True for host side */
-} phy25g_clause_37_control_t;
 
 /** \brief Serdes Configuration based on media */
 typedef struct {
@@ -193,11 +158,8 @@ typedef struct {
 typedef struct {
     mepa_port_no_t                  alt_port_no;
     phy25g_power_t                  power;               /* Power */
-    phy25g_clause_37_control_t      line_clause_37;      /* line 1g pcs clause 37*/
-    phy25g_clause_37_control_t      host_clause_37;      /* host 1g pcs clause 37*/
     phy25g_port_mode_t              port_mode;           /* Operating mode  */
     phy25g_oper_speed_mode_t        speed;               /* Operating Speed */
-    mepa_bool_t                     warm_start_reg_changed;
     phy25g_lp_get_t                 loopback_conf;
     uint16_t                        gpio_count;          /* Number of gpios for this Phy.  Note that multiple phy channels shares GPIOs */
     phy25g_eye_backup_t             eye_reg_backup;      /* Backup of DFE configuration while enabling the EYE Scan */
@@ -210,6 +172,15 @@ typedef struct {
     mepa_bool_t                 an_rem_fault;
 } phy25g_aneg_status;
 
+typedef struct {
+    mepa_bool_t      macsec_disable;
+    mepa_bool_t      ptp_1588_disable;
+    mepa_bool_t      speed_25g_disable;
+    mepa_bool_t      quad_disable;
+    mepa_bool_t      cleartags_disable;
+    mepa_bool_t      mpls_disable;
+} phy25g_features_t;
+
 
 typedef uint8_t(*phy25g_gpio_read_t)();
 //
@@ -219,13 +190,12 @@ typedef struct phy25g_state_s {
     mepa_bool_t                     reset_done;
     mepa_bool_t                     channel_id_lock;     /* Lock Channel ID Config */
     mepa_bool_t                     warm_start_cur;      /* Current warm start status */
-    mepa_bool_t                     warm_start_prev;     /* Previous warm start status */
     mepa_restart_t                  restart_cur;         /* Current restart configuration */
     mepa_restart_t                  restart_prev;        /* Previous restart configuration */
     mepa_bool_t                     sync_calling_private; /* Used by PHY APIs */
     uint8_t                         packet_idx;
     uint8_t                         channel_id;
-    uint8_t                         lsc_select;
+    uint8_t                         lsc_select;          /* LOAD or STORE LSC Pin */
     phy25g_aneg_status              host_aneg_status;
     phy25g_aneg_status              line_aneg_status;
     mepa_port_no_t                  port_no;
@@ -271,6 +241,8 @@ typedef struct phy25g_state_s {
     lan80xx_phy_ts_fifo_read        ts_fifo_cb;
     void                            *cntxt;
     phy25g_gpio_read_t              ft_gpio_read;
+    mepa_port_no_t                  krlog_en_ports;
+    phy25g_features_t               features;
 } phy25g_phy_state_t;
 
 

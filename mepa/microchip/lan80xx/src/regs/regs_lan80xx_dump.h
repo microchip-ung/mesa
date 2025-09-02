@@ -1,44 +1,40 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN80XX_REG_DUMP_H_
-#define _LAN80XX_REG_DUMP_H_
+#ifndef LAN80XX_REG_DUMP_H_
+#define LAN80XX_REG_DUMP_H_
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
-#define LAN80XX_GLOBAL_REG_NUM           26
-#define LAN80XX_GPIO_CTRL_REG_NUM        26
-#define LAN80XX_PMA_REG_NUM              30
-#define LAN80XX_LINE_PMA_REG_NUM         10
-#define LAN80XX_PCS_CFG_RSFEC_REG_NUM    44
-#define LAN80XX_PCS_CFG_REG_NUM          36
-#define LAN80XX_PCS25G_REG_NUM           34
-#define LAN80XX_XC_REG_NUM               48
-#define LAN80XX_INTR_CTRL_REG_NUM        4
-#define LAN80XX_HOST_SLICE_REG_NUM       16
-#define LAN80XX_LINE_SLICE_REG_NUM       54
-#define LAN80XX_MAC_REG_NUM              36
-#define LAN80XX_FC_BUFFER_RG_NUM         54
-#define LAN80XX_MCU_MISC_REG_NUM         26
+#define LAN80XX_GLOBAL_REG_NUM                                                                      (26)
+#define LAN80XX_GPIO_CTRL_REG_NUM                                                                   (26)
+#define LAN80XX_PMA_REG_NUM                                                                         (30)
+#define LAN80XX_LINE_PMA_REG_NUM                                                                    (10)
+#define LAN80XX_PCS_CFG_RSFEC_REG_NUM                                                               (44)
+#define LAN80XX_PCS_CFG_REG_NUM                                                                     (36)
+#define LAN80XX_PCS25G_REG_NUM                                                                      (34)
+#define LAN80XX_XC_REG_NUM                                                                          (48)
+#define LAN80XX_INTR_CTRL_REG_NUM                                                                   (4)
+#define LAN80XX_HOST_SLICE_REG_NUM                                                                  (16)
+#define LAN80XX_LINE_SLICE_REG_NUM                                                                  (54)
+#define LAN80XX_MAC_REG_NUM                                                                         (36)
+#define LAN80XX_FC_BUFFER_RG_NUM                                                                    (54)
+#define LAN80XX_MCU_MISC_REG_NUM                                                                    (26)
 
-#define LAN80XX_GPIO_PAD_REG_NUM         80
-#define LAN80XX_GPIO_PAD_CTRL_BASE_ADDR  0x280
+#define LAN80XX_GPIO_PAD_REG_NUM                                                                    (80)
+#define LAN80XX_GPIO_PAD_CTRL_BASE_ADDR                                                             (0x280)
 
 /* PMA Registers CMU and LANE */
-phy25g_pma_reg_dump_t dump_cmu_grp_0 = {"PMA_CMU_", 0xF000, 0x00, 0x1F};
-phy25g_pma_reg_dump_t dump_cmu_grp_1 = {"PMA_CMU_", 0xF000, 0x21, 0x32};
-phy25g_pma_reg_dump_t dump_cmu_grp_2 = {"PMA_CMU_", 0xF000, 0x40, 0x4C};
-phy25g_reg_dump_t dump_cmu_grp_3_4[2] = {
-    {"CMU_C0",    0xF0C0},
-    {"CMU_FF",    0xF0FF},
-};
+static phy25g_pma_reg_dump_t dump_cmu_grp_0 = {"PMA_CMU_", 0xF000, 0x00, 0x1F};
+static phy25g_pma_reg_dump_t dump_cmu_grp_1 = {"PMA_CMU_", 0xF000, 0x21, 0x32};
+static phy25g_pma_reg_dump_t dump_cmu_grp_2 = {"PMA_CMU_", 0xF000, 0x40, 0x4C};
 
-phy25g_pma_reg_dump_t dump_lane_grp_0 = {"PMA_LANE_", 0xF100, 0x00, 0x47};
-phy25g_pma_reg_dump_t dump_lane_grp_1 = {"PMA_LANE_", 0xF100, 0xC0, 0xDE};
-phy25g_pma_reg_dump_t dump_lane_grp_2 = {"PMA_LANE_", 0xF100, 0xE0, 0xE4};
+static phy25g_pma_reg_dump_t dump_lane_grp_0 = {"PMA_LANE_", 0xF100, 0x00, 0x47};
+static phy25g_pma_reg_dump_t dump_lane_grp_1 = {"PMA_LANE_", 0xF100, 0xC0, 0xDE};
+static phy25g_pma_reg_dump_t dump_lane_grp_2 = {"PMA_LANE_", 0xF100, 0xE0, 0xE4};
 
 /* MAC Block Registers */
-phy25g_reg_dump_t dump_host_mac[LAN80XX_MAC_REG_NUM] = {
+static phy25g_reg_dump_t dump_host_mac[LAN80XX_MAC_REG_NUM] = {
     {"MAC_ENA_CFG",                0xF100},
     {"MAC_MODE_CFG",               0xF101},
     {"MAC_MAXLEN_CFG",             0xF102},
@@ -78,7 +74,7 @@ phy25g_reg_dump_t dump_host_mac[LAN80XX_MAC_REG_NUM] = {
 };
 
 /* Line MAC Registers */
-phy25g_reg_dump_t dump_line_mac[LAN80XX_MAC_REG_NUM] = {
+static phy25g_reg_dump_t dump_line_mac[LAN80XX_MAC_REG_NUM] = {
     {"MAC_ENA_CFG",                0xF300},
     {"MAC_MODE_CFG",               0xF301},
     {"MAC_MAXLEN_CFG",             0xF302},
@@ -118,7 +114,7 @@ phy25g_reg_dump_t dump_line_mac[LAN80XX_MAC_REG_NUM] = {
 };
 
 //mmd 0xF for HOST and mmd 0x7 for LINE
-phy25g_reg_dump_t dump_kr[10] = {
+static phy25g_reg_dump_t dump_kr[10] = {
     {"AN_CFG0",  0x0},
     {"AN_STS0",  0x1},
     {"LD_ADV0",  0x10},
@@ -132,7 +128,7 @@ phy25g_reg_dump_t dump_kr[10] = {
 };
 
 /* MAC Flow Control Buffer Registers */
-phy25g_reg_dump_t dump_fc_buf[LAN80XX_FC_BUFFER_RG_NUM] = {
+static phy25g_reg_dump_t dump_fc_buf[LAN80XX_FC_BUFFER_RG_NUM] = {
     {"FC_ENA_CFG",                              0xF000},
     {"FC_MODE_CFG",                             0xF001},
     {"PPM_RATE_ADAPT_THRESH_CFG",               0xF002},
@@ -191,7 +187,7 @@ phy25g_reg_dump_t dump_fc_buf[LAN80XX_FC_BUFFER_RG_NUM] = {
 
 
 /* HOST Slice Registers */
-phy25g_reg_dump_t dump_host_slice[LAN80XX_HOST_SLICE_REG_NUM] = {
+static phy25g_reg_dump_t dump_host_slice[LAN80XX_HOST_SLICE_REG_NUM] = {
     {"HOST_SD25G_RESET",     0x8100},
     {"HOST_KR_RESET",        0x8101},
     {"HOST_PCS1G_RESET",     0x8102},
@@ -211,7 +207,7 @@ phy25g_reg_dump_t dump_host_slice[LAN80XX_HOST_SLICE_REG_NUM] = {
 };
 
 /* Line Slice Registers */
-phy25g_reg_dump_t dump_line_slice[LAN80XX_LINE_SLICE_REG_NUM] = {
+static phy25g_reg_dump_t dump_line_slice[LAN80XX_LINE_SLICE_REG_NUM] = {
     {"LINE_SD25G_RESET",           0x8100},
     {"LINE_KR_RESET",              0x8101},
     {"LINE_PCS1G_RESET",           0x8102},
@@ -270,7 +266,7 @@ phy25g_reg_dump_t dump_line_slice[LAN80XX_LINE_SLICE_REG_NUM] = {
 
 
 /* HOST and LINE Interrupt Control Registers */
-phy25g_reg_dump_t dump_intr_ctrl[LAN80XX_INTR_CTRL_REG_NUM] = {
+static phy25g_reg_dump_t dump_intr_ctrl[LAN80XX_INTR_CTRL_REG_NUM] = {
     {"INTR_EN_0",                0xC010},
     {"INTR_EN_1",                0xC011},
     {"INTR_STAT_0",              0xC012},
@@ -278,7 +274,7 @@ phy25g_reg_dump_t dump_intr_ctrl[LAN80XX_INTR_CTRL_REG_NUM] = {
 };
 
 /* Cross Connect Registers */
-phy25g_reg_dump_t dump_cross_cnt[LAN80XX_XC_REG_NUM] = {
+static phy25g_reg_dump_t dump_cross_cnt[LAN80XX_XC_REG_NUM] = {
     {"CFG1",                     0xF100},
     {"COND_CFG",                 0xF101},
     {"RESET",                    0xF102},
@@ -329,7 +325,7 @@ phy25g_reg_dump_t dump_cross_cnt[LAN80XX_XC_REG_NUM] = {
     {"EXP_DEBUG7",               0xF17F},
 };
 
-phy25g_reg_dump_t dump_mcu_misc[LAN80XX_MCU_MISC_REG_NUM] = {
+static phy25g_reg_dump_t dump_mcu_misc[LAN80XX_MCU_MISC_REG_NUM] = {
     {"DEVICE_ID_REG",                      0x0},
     {"DEVICE_OTP_REVISION",                0x1},
     {"DEVICE_SILICON_REVISION",            0x2},
@@ -359,7 +355,7 @@ phy25g_reg_dump_t dump_mcu_misc[LAN80XX_MCU_MISC_REG_NUM] = {
 };
 
 /* Global Registers */
-phy25g_reg_dump_t dump_global[LAN80XX_GLOBAL_REG_NUM] = {
+static phy25g_reg_dump_t dump_global[LAN80XX_GLOBAL_REG_NUM] = {
     {"STRAP_READ_REG",                0x0200},
     {"STRAP_OVERRIDE_REG",            0x0201},
     {"BL_SOFTWARE_RESET1",            0x0202},
@@ -389,7 +385,7 @@ phy25g_reg_dump_t dump_global[LAN80XX_GLOBAL_REG_NUM] = {
 };
 
 
-phy25g_reg_dump_t dump_gpio_ctrl[LAN80XX_GPIO_CTRL_REG_NUM] = {
+static phy25g_reg_dump_t dump_gpio_ctrl[LAN80XX_GPIO_CTRL_REG_NUM] = {
     {"GPIO_CFG1",             0xF200},
     {"GPIO_CFG0",             0xF201},
     {"GPIO_OUT_INV_CFG1",     0xF202},
@@ -419,7 +415,7 @@ phy25g_reg_dump_t dump_gpio_ctrl[LAN80XX_GPIO_CTRL_REG_NUM] = {
 };
 
 /* LINE PMA */
-phy25g_reg_dump_t host_line_pma[LAN80XX_PMA_REG_NUM] = {
+static phy25g_reg_dump_t host_line_pma[LAN80XX_PMA_REG_NUM] = {
     {"SD_SER_RST",             0x8000},
     {"SD_DES_RST",             0x8001},
     {"SD_LANE_CFG_0",          0x8002},
@@ -453,7 +449,7 @@ phy25g_reg_dump_t host_line_pma[LAN80XX_PMA_REG_NUM] = {
 };
 
 
-phy25g_reg_dump_t line_pma[LAN80XX_LINE_PMA_REG_NUM] = {
+static phy25g_reg_dump_t line_pma[LAN80XX_LINE_PMA_REG_NUM] = {
     {"PMA_PMD_CONTROL_1",         0x0000},
     {"PMA_PMD_STATUS_1",          0x0001},
     {"PMA_PMD_DEVICE_ID_1",       0x0002},
@@ -468,7 +464,7 @@ phy25g_reg_dump_t line_pma[LAN80XX_LINE_PMA_REG_NUM] = {
 
 
 
-phy25g_reg_dump_t host_line_pcs[LAN80XX_PCS_CFG_RSFEC_REG_NUM] = {
+static phy25g_reg_dump_t host_line_pcs[LAN80XX_PCS_CFG_RSFEC_REG_NUM] = {
     {"PCS_1G_CFG",                   0xE002},
     {"PCS1G_MODE_CFG",               0xE003},
     {"PCS1G_SD_CFG",                 0xE004},
@@ -516,7 +512,7 @@ phy25g_reg_dump_t host_line_pcs[LAN80XX_PCS_CFG_RSFEC_REG_NUM] = {
 };
 
 
-phy25g_reg_dump_t host_line_pcs25g[LAN80XX_PCS25G_REG_NUM] = {
+static phy25g_reg_dump_t host_line_pcs25g[LAN80XX_PCS25G_REG_NUM] = {
     {"CONTROL1",               0x0000},
     {"STATUS1",                0x0001},
     {"DEVICE_ID0",             0x0002},

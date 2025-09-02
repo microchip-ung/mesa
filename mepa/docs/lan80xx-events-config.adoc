@@ -317,3 +317,53 @@ Cleared by the API.
 |===
 
 NOTE: User Application is expected to call `lan80xx_ext_event_poll()` in background of application to know whether Interrupt gets Triggered or not.
+
+== Sample Source code to configure and Poll HOST Interrupts of LAN80XX PHY
+
+Following is the expected sequence of API calls to enable following Interrupts
+
+. Line PCS 1G Link down Interrupt
+. Host PCS 1G Link down Interrupt
+. Line PMA Reset done Interrupt
+
+
+----
+
+/*Call MEPA GPIO API */
+
+mepa_gpio_conf_t gpio_conf;
+gpio_conf.gpio_no = 34;
+gpio_conf.mode = MEPA_GPIO_MODE_ALT;
+gpio_conf.pp_enable = 1;
+gpio_conf.gpio_intrpt = MEPA_GPIO_INTR_NONE;
+
+mepa_gpio_mode_set(dev, &gpio_conf);
+
+/* Event Configuration */
+phy25g_event_conf_t   evt;
+evt.evt_set = LAN80XX_LINE_PCS1G_LINK_DOWN_INTR | LAN80XX_HOST_PCS1G_LINK_DOWN_INTR;
+evt.enable = TRUE;
+evt.intr_sel = LAN80XX_EVT_INTR_A;
+
+lan80xx_event_conf_set(dev, port_no, &evt);
+
+/* Extended Event configuration */
+phy25g_ext_event_conf_t   ext_evt;
+ext_evt.evt_set = LAN80XX_LINE_PMA_RESET_DONE_INTR;
+ext_evt.enable = TRUE;
+ext_evt.intr_sel = LAN80XX_EVT_INTR_A;
+ 
+lan80xx_ext_event_conf_set(dev, port_no, &ext_evt);
+
+/* Poll the Interrupt Status */
+phy25g_events_t          evt_poll;
+phy25g_ext_events_t   ext_evt_poll;
+
+While(1) {
+    lan80xx_event_poll(dev, port_no, &evt_poll);
+    lan80xx_ext_event_poll(dev, port_no, &ext_evt_poll);
+
+    /* If Interrupt triggered `evt_poll` and `ext_evt_poll` will be updated */
+}
+
+----

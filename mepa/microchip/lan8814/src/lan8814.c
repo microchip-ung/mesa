@@ -10,7 +10,6 @@
 #include "lan8814_ts_registers.h"
 
 #include "lan8814_private.h"
-#include <string.h>
 
 extern mepa_ts_driver_t lan8814_ts_drivers;
 
@@ -1541,6 +1540,7 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
 {
     uint16_t val, val2, val3 = 0;
     phy_data_t *data = (phy_data_t *) dev->data;
+    uint8_t speed;
 
     MEPA_ENTER(dev);
 
@@ -1563,6 +1563,15 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
     if (data->loopback.near_end_ena == TRUE) {
         // loops back to Mac. Ignore Line side status to Link partner.
         status->link = 1;
+    } else if (data->loopback.connector_ena == TRUE) {
+        RD(dev, LAN8814_BASIC_CONTROL, &val2);
+        speed = (!!(val2 & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0)) |
+                (!!(val2 & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1) << 1);
+        status->speed = (speed == 0) ? MEPA_SPEED_10M :
+                        (speed == 1) ? MEPA_SPEED_100M :
+                        (speed == 2) ? MEPA_SPEED_1G : MEPA_SPEED_UNDEFINED;
+        status->fdx = !!(val2 & LAN8814_F_BASIC_CTRL_DUP_MODE);
+        goto end;
     }
 
     if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
@@ -1669,7 +1678,6 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
         status->aneg.obey_pause = data->conf.flow_control && (lp_sym_pause || lp_asym_pause);
         status->aneg.generate_pause = data->conf.flow_control && lp_sym_pause;
     } else {
-        uint8_t speed;
         // Forced speed
         RD(dev, LAN8814_BASIC_CONTROL, &val2);
         speed = (!!(val2 & LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0)) |
@@ -2164,8 +2172,31 @@ static mepa_rc lan8814_loopback_set(mepa_device_t *dev, const mepa_loopback_t *l
         }
     }
     if (loopback->connector_ena == TRUE) {
+        // Disable auto-negotiation
+        if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
+            // Set 1000mbps speed for loopback when there is auto-negotiation mode. While removing loopback, restore the original mode.
+            WRM(dev, LAN8814_BASIC_CONTROL, 0, LAN8814_F_BASIC_CTRL_ANEG_ENA);
+            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1, LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1 | LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0);
+            // Set Master slave configuration to master
+            WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, (LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_ENA), (LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL | LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_ENA));
+        } else if (data->conf.speed == MEPA_SPEED_100M) {
+            // Set Speed to 100M in Basic Control Register
+            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0, LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1 | LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0);
+        } else if (data->conf.speed == MEPA_SPEED_10M) {
+            // Set Speed to 10M in Basic Control Register
+            WRM(dev, LAN8814_BASIC_CONTROL, 0, LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_1 | LAN8814_F_BASIC_CTRL_SPEED_SEL_BIT_0);
+        }
+        // Set Connector Loopback
         WR(dev, LAN8814_RESV_CON_LOOP, 0xfc08);
-    } else if (data->loopback.connector_ena == TRUE) {
+    } else if (data->loopback.connector_ena == TRUE) { //Revert the Settings when connector loopback is disabled
+        if (data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
+            // Remove 1000mbps config applied while setting loopback.
+            WRM(dev, LAN8814_ANEG_MSTR_SLV_CTRL, 0, LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_ENA |
+                LAN8814_F_ANEG_MSTR_SLV_CTRL_CFG_VAL);
+            // Enable aneg
+            WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_RESTART_ANEG,
+                LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_RESTART_ANEG);
+        }
         WR(dev, LAN8814_RESV_CON_LOOP, 0xfc00);
     }
     if (loopback->qsgmii_pcs_tbi_ena == TRUE) { // Enable tbi loopback

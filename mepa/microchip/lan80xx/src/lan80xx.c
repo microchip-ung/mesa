@@ -3,17 +3,16 @@
 
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>
-#include <string.h>
-#include <stdio.h>
 #include "lan80xx_types.h"
 #include "lan80xx_private.h"
-#include "lan80xx_ts_private.h"
-#include "lan80xx_mcu.h"
-
-extern mepa_ts_driver_t lan80xx_ts_drivers;
-extern mepa_macsec_driver_t lan80xx_macsec_drivers;
 
 ////////  MEPA API Implementation  /////
+
+static uint32_t lan80xx_ids[] = {LAN80XX_DEV_ID_8044, LAN80XX_DEV_ID_8043, LAN80XX_DEV_ID_8042, LAN80XX_DEV_ID_8024, LAN80XX_DEV_ID_8023,
+                                 LAN80XX_DEV_ID_8022, LAN80XX_DEV_ID_8268, LAN80XX_DEV_ID_8267, LAN80XX_DEV_ID_8264, LAN80XX_DEV_ID_8263,
+                                 LAN80XX_DEV_ID_8262};
+
+#define LAN80XX_DRIVERS_COUNT (sizeof(lan80xx_ids)/(sizeof(lan80xx_ids[0])))
 
 static mepa_rc lan80xx_delete(mepa_device_t *dev)
 {
@@ -390,6 +389,11 @@ static mepa_rc lan80xx_phy_info_get(mepa_device_t *dev, mepa_phy_info_t *const p
     phy_info->part_number = data->dev.devid;
     phy_info->revision = data->dev.rev;
 
+    if (base_data == NULL) {
+        T_E(MEPA_TRACE_GRP_GEN, "\n Base Port not linked for port : %d\n", data->port_no);
+        return MEPA_RC_ERROR;
+    }
+
     /* 1588 Capability */
     if ((data->dev.devid == LAN80XX_DEV_ID_8022) || (data->dev.devid == LAN80XX_DEV_ID_8042)) {
         phy_info->cap = MEPA_CAP_TS_MASK_NONE;
@@ -397,12 +401,12 @@ static mepa_rc lan80xx_phy_info_get(mepa_device_t *dev, mepa_phy_info_t *const p
         phy_info->cap = MEPA_CAP_TS_MASK_GEN_2;
     }
     /* Speed Capability */
-    if (phy_info->part_number == LAN80XX_DEV_ID_8267 || phy_info->part_number == LAN80XX_DEV_ID_8268 || phy_info->part_number == LAN80XX_DEV_ID_8264) {
+    if (base_data->features.speed_25g_disable) {
         phy_info->cap |= MEPA_CAP_SPEED_MASK_10G;
     } else {
         phy_info->cap |= MEPA_CAP_SPEED_MASK_25G;
     }
-    phy_info->ts_base_port = base_data ? base_data->port_no : 0;
+    phy_info->ts_base_port = base_data->port_no;
     T_I(MEPA_TRACE_GRP_GEN, "Port no : %d Part number : %x Revision : %d Capability : %d ts_base_port : %d", data->port_no, phy_info->part_number, phy_info->revision,
         phy_info->cap, phy_info->ts_base_port);
     MEPA_EXIT(dev);
@@ -518,288 +522,84 @@ static mepa_rc lan80xx_framepreempt_get(mepa_device_t *dev, mepa_bool_t *const e
 //  //////////////  MEPA driver_init_structure//////
 mepa_bool_t lan80xx_driver_check(const mepa_device_t   *dev)
 {
-    if (dev->drv->id == 0x8004 || dev->drv->id == 0x8003 || dev->drv->id == 0x8002 || dev->drv->id == 0x8268 || dev->drv->id == 0x8267 || dev->drv->id == 0x8264) {
-        return TRUE;
+    for (uint8_t indx = 0; indx < LAN80XX_DRIVERS_COUNT; indx++) {
+        if (dev->drv->id == lan80xx_ids[indx]) {
+            return TRUE;
+        }
     }
     return FALSE;
 }
 
+static void lan80xx_driver_create(uint32_t id, mepa_driver_t *drv)
+{
+    T_D(MEPA_TRACE_GRP_GEN, "\n Driver assign for phy id : 0x%x", id);
+    mepa_bool_t macsec_supported = TRUE;
+    mepa_bool_t ts_supported = TRUE;
+
+    if (id == LAN80XX_DEV_ID_8263 || id == LAN80XX_DEV_ID_8267 || id == LAN80XX_DEV_ID_8023 || id == LAN80XX_DEV_ID_8043) {
+        macsec_supported = FALSE;
+    }
+
+    if (id == LAN80XX_DEV_ID_8262 || id == LAN80XX_DEV_ID_8022 || id == LAN80XX_DEV_ID_8042) {
+        ts_supported = FALSE;
+    }
+    memset(drv, 0, sizeof(mepa_driver_t));
+
+    drv->id                               = id;
+    drv->mask                             = 0x00FFFF;
+    drv->mepa_driver_delete               = lan80xx_delete;
+    drv->mepa_driver_reset                = lan80xx_reset;
+    drv->mepa_driver_poll                 = lan80xx_poll;
+    drv->mepa_driver_probe                = lan80xx_probe;
+    drv->mepa_driver_conf_set             = lan80xx_conf_set;
+    drv->mepa_driver_conf_get             = lan80xx_conf_get;
+    drv->mepa_driver_if_get               = lan80xx_if_get;
+    drv->mepa_driver_if_set               = lan80xx_if_set;
+    drv->mepa_driver_power_set            = lan80xx_power_set;
+    drv->mepa_driver_clause45_read        = lan80xx_clause45_read;
+    drv->mepa_driver_clause45_write       = lan80xx_clause45_write;
+    drv->mepa_driver_loopback_set         = lan80xx_loopback_set;
+    drv->mepa_driver_loopback_get         = lan80xx_loopback_get;
+    drv->mepa_driver_gpio_mode_set        = lan80xx_gpio_mode_set;
+    drv->mepa_driver_gpio_out_set         = lan80xx_gpio_write;
+    drv->mepa_driver_gpio_in_get          = lan80xx_gpio_read;
+    drv->mepa_driver_link_base_port       = lan80xx_link_base_port;
+    drv->mepa_driver_phy_i2c_read         = lan80xx_phy_i2c_read;
+    drv->mepa_driver_phy_i2c_write        = lan80xx_phy_i2c_write;
+    drv->mepa_driver_phy_info_get         = lan80xx_phy_info_get;
+    drv->mepa_driver_prbs_set             = lan80xx_prbs_set;
+    drv->mepa_driver_prbs_get             = lan80xx_prbs_get;
+    drv->mepa_driver_prbs_monitor_set     = lan80xx_prbs_monitor_set;
+    drv->mepa_driver_prbs_monitor_get     = lan80xx_prbs_monitor_get;
+    drv->mepa_driver_chip_temp_get        = lan80xx_chip_temp_get;
+    drv->mepa_driver_warmrestart_conf_get = lan80xx_restart_conf_get;
+    drv->mepa_driver_warmrestart_conf_set = lan80xx_restart_conf_set;
+    drv->mepa_capability                  = lan80xx_phy_capability;
+    drv->mepa_debug_info_dump             = lan80xx_debug_info_dump;
+    drv->mepa_driver_framepreempt_set     = lan80xx_framepreempt_set;
+    drv->mepa_driver_framepreempt_get     = lan80xx_framepreempt_get;
+
+    if (ts_supported == TRUE) {
+        drv->mepa_ts                      = &lan80xx_ts_drivers;
+    }
+    if (macsec_supported == TRUE) {
+        drv->mepa_macsec                  = &lan80xx_macsec_drivers;
+    }
+}
+
+
 mepa_drivers_t mepa_lan80xx_driver_init()
 {
-    static const int nr_lan80xx_drivers = 6;
-    static mepa_driver_t lan80xx_drivers[] = {
-        {
-            /* LAN8044 and LAN8024*/
-            .id = 0x008004,
-            .mask = 0x00FF0F,
-            .mepa_driver_delete = lan80xx_delete,
-            .mepa_driver_reset = lan80xx_reset,
-            .mepa_driver_poll = lan80xx_poll,
-            .mepa_driver_probe = lan80xx_probe,
-            .mepa_driver_conf_set = lan80xx_conf_set,
-            .mepa_driver_conf_get = lan80xx_conf_get,
-            .mepa_driver_if_get = lan80xx_if_get,
-            .mepa_driver_if_set = lan80xx_if_set,
-            .mepa_driver_power_set = lan80xx_power_set,
-            .mepa_driver_media_set = NULL,
-            .mepa_driver_media_get = NULL,
-            .mepa_driver_aneg_status_get = NULL,
-            .mepa_driver_clause45_read  = lan80xx_clause45_read,
-            .mepa_driver_clause45_write = lan80xx_clause45_write,
-            .mepa_driver_event_enable_set = NULL,
-            .mepa_driver_event_enable_get = NULL,
-            .mepa_driver_event_poll = NULL,
-            .mepa_driver_loopback_set = lan80xx_loopback_set,
-            .mepa_driver_loopback_get = lan80xx_loopback_get,
-            .mepa_driver_gpio_mode_set = lan80xx_gpio_mode_set,
-            .mepa_driver_gpio_out_set = lan80xx_gpio_write,
-            .mepa_driver_gpio_in_get = lan80xx_gpio_read,
-            .mepa_driver_link_base_port = lan80xx_link_base_port,
-            .mepa_driver_synce_clock_conf_set = NULL,
-            .mepa_driver_phy_i2c_read   = lan80xx_phy_i2c_read,
-            .mepa_driver_phy_i2c_write   = lan80xx_phy_i2c_write,
-            .mepa_driver_phy_info_get  = lan80xx_phy_info_get,
-            .mepa_driver_prbs_set = lan80xx_prbs_set,
-            .mepa_driver_prbs_get = lan80xx_prbs_get,
-            .mepa_driver_prbs_monitor_set = lan80xx_prbs_monitor_set,
-            .mepa_driver_prbs_monitor_get = lan80xx_prbs_monitor_get,
-            .mepa_driver_chip_temp_get = lan80xx_chip_temp_get,
-            .mepa_driver_warmrestart_conf_get = lan80xx_restart_conf_get,
-            .mepa_driver_warmrestart_conf_set = lan80xx_restart_conf_set,
-            .mepa_capability = lan80xx_phy_capability,
-            .mepa_debug_info_dump   = lan80xx_debug_info_dump,
-            .mepa_driver_framepreempt_set = lan80xx_framepreempt_set,
-            .mepa_driver_framepreempt_get = lan80xx_framepreempt_get,
-            .mepa_ts = &lan80xx_ts_drivers,
-            .mepa_macsec = &lan80xx_macsec_drivers,
-        },
-        {
-            /* LAN8043 and LAN8023 */
-            .id = 0x008003,
-            .mask = 0x00FF0F,
-            .mepa_driver_delete = lan80xx_delete,
-            .mepa_driver_reset = lan80xx_reset,
-            .mepa_driver_poll = lan80xx_poll,
-            .mepa_driver_probe = lan80xx_probe,
-            .mepa_driver_conf_set = lan80xx_conf_set,
-            .mepa_driver_conf_get = lan80xx_conf_get,
-            .mepa_driver_if_get = lan80xx_if_get,
-            .mepa_driver_if_set = lan80xx_if_set,
-            .mepa_driver_power_set = lan80xx_power_set,
-            .mepa_driver_media_set = NULL,
-            .mepa_driver_media_get = NULL,
-            .mepa_driver_aneg_status_get = NULL,
-            .mepa_driver_clause45_read  = lan80xx_clause45_read,
-            .mepa_driver_clause45_write = lan80xx_clause45_write,
-            .mepa_driver_event_enable_set = NULL,
-            .mepa_driver_event_enable_get = NULL,
-            .mepa_driver_event_poll = NULL,
-            .mepa_driver_loopback_set = lan80xx_loopback_set,
-            .mepa_driver_loopback_get = lan80xx_loopback_get,
-            .mepa_driver_gpio_mode_set = lan80xx_gpio_mode_set,
-            .mepa_driver_gpio_out_set = lan80xx_gpio_write,
-            .mepa_driver_gpio_in_get = lan80xx_gpio_read,
-            .mepa_driver_link_base_port = lan80xx_link_base_port,
-            .mepa_driver_synce_clock_conf_set = NULL,
-            .mepa_driver_phy_i2c_read   = lan80xx_phy_i2c_read,
-            .mepa_driver_phy_i2c_write   = lan80xx_phy_i2c_write,
-            .mepa_driver_phy_info_get  = lan80xx_phy_info_get,
-            .mepa_driver_prbs_set = lan80xx_prbs_set,
-            .mepa_driver_prbs_get = lan80xx_prbs_get,
-            .mepa_driver_prbs_monitor_set = lan80xx_prbs_monitor_set,
-            .mepa_driver_prbs_monitor_get = lan80xx_prbs_monitor_get,
-            .mepa_driver_warmrestart_conf_get = lan80xx_restart_conf_get,
-            .mepa_driver_warmrestart_conf_set = lan80xx_restart_conf_set,
-            .mepa_driver_chip_temp_get = lan80xx_chip_temp_get,
-            .mepa_capability = lan80xx_phy_capability,
-            .mepa_debug_info_dump    = lan80xx_debug_info_dump,
-            .mepa_driver_framepreempt_set = lan80xx_framepreempt_set,
-            .mepa_driver_framepreempt_get = lan80xx_framepreempt_get,
-            .mepa_ts = &lan80xx_ts_drivers,
-        },
-        {
-            /* LAN8042 and LAN8022 */
-            .id = 0x008002,
-            .mask = 0x00FF0F,
-            .mepa_driver_delete = lan80xx_delete,
-            .mepa_driver_reset = lan80xx_reset,
-            .mepa_driver_poll = lan80xx_poll,
-            .mepa_driver_probe = lan80xx_probe,
-            .mepa_driver_conf_set = lan80xx_conf_set,
-            .mepa_driver_conf_get = lan80xx_conf_get,
-            .mepa_driver_if_get = lan80xx_if_get,
-            .mepa_driver_if_set = lan80xx_if_set,
-            .mepa_driver_power_set = lan80xx_power_set,
-            .mepa_driver_media_set = NULL,
-            .mepa_driver_media_get = NULL,
-            .mepa_driver_aneg_status_get = NULL,
-            .mepa_driver_clause45_read  = lan80xx_clause45_read,
-            .mepa_driver_clause45_write = lan80xx_clause45_write,
-            .mepa_driver_event_enable_set = NULL,
-            .mepa_driver_event_enable_get = NULL,
-            .mepa_driver_event_poll = NULL,
-            .mepa_driver_loopback_set = lan80xx_loopback_set,
-            .mepa_driver_loopback_get = lan80xx_loopback_get,
-            .mepa_driver_gpio_mode_set = lan80xx_gpio_mode_set,
-            .mepa_driver_gpio_out_set = lan80xx_gpio_write,
-            .mepa_driver_gpio_in_get = lan80xx_gpio_read,
-            .mepa_driver_link_base_port = lan80xx_link_base_port,
-            .mepa_driver_synce_clock_conf_set = NULL,
-            .mepa_driver_phy_i2c_read   = lan80xx_phy_i2c_read,
-            .mepa_driver_phy_i2c_write   = lan80xx_phy_i2c_write,
-            .mepa_driver_phy_info_get  = lan80xx_phy_info_get,
-            .mepa_driver_prbs_set = lan80xx_prbs_set,
-            .mepa_driver_prbs_get = lan80xx_prbs_get,
-            .mepa_driver_prbs_monitor_set = lan80xx_prbs_monitor_set,
-            .mepa_driver_prbs_monitor_get = lan80xx_prbs_monitor_get,
-            .mepa_driver_warmrestart_conf_get = lan80xx_restart_conf_get,
-            .mepa_driver_warmrestart_conf_set = lan80xx_restart_conf_set,
-            .mepa_driver_chip_temp_get = lan80xx_chip_temp_get,
-            .mepa_capability = lan80xx_phy_capability,
-            .mepa_debug_info_dump    = lan80xx_debug_info_dump,
-            .mepa_driver_framepreempt_set = lan80xx_framepreempt_set,
-            .mepa_driver_framepreempt_get = lan80xx_framepreempt_get,
-            .mepa_macsec = &lan80xx_macsec_drivers,
-        },
-        {
-            /* LAN8268 */
-            .id = 0x008268,
-            .mask = 0x00FFFF,
-            .mepa_driver_delete = lan80xx_delete,
-            .mepa_driver_reset = lan80xx_reset,
-            .mepa_driver_poll = lan80xx_poll,
-            .mepa_driver_probe = lan80xx_probe,
-            .mepa_driver_conf_set = lan80xx_conf_set,
-            .mepa_driver_conf_get = lan80xx_conf_get,
-            .mepa_driver_if_get = lan80xx_if_get,
-            .mepa_driver_if_set = lan80xx_if_set,
-            .mepa_driver_power_set = lan80xx_power_set,
-            .mepa_driver_media_set = NULL,
-            .mepa_driver_media_get = NULL,
-            .mepa_driver_aneg_status_get = NULL,
-            .mepa_driver_clause45_read  = lan80xx_clause45_read,
-            .mepa_driver_clause45_write = lan80xx_clause45_write,
-            .mepa_driver_event_enable_set = NULL,
-            .mepa_driver_event_enable_get = NULL,
-            .mepa_driver_event_poll = NULL,
-            .mepa_driver_loopback_set = lan80xx_loopback_set,
-            .mepa_driver_loopback_get = lan80xx_loopback_get,
-            .mepa_driver_gpio_mode_set = lan80xx_gpio_mode_set,
-            .mepa_driver_gpio_out_set = lan80xx_gpio_write,
-            .mepa_driver_gpio_in_get = lan80xx_gpio_read,
-            .mepa_driver_link_base_port = lan80xx_link_base_port,
-            .mepa_driver_synce_clock_conf_set = NULL,
-            .mepa_driver_phy_i2c_read   = lan80xx_phy_i2c_read,
-            .mepa_driver_phy_i2c_write   = lan80xx_phy_i2c_write,
-            .mepa_driver_phy_info_get  = lan80xx_phy_info_get,
-            .mepa_driver_prbs_set = lan80xx_prbs_set,
-            .mepa_driver_prbs_get = lan80xx_prbs_get,
-            .mepa_driver_prbs_monitor_set = lan80xx_prbs_monitor_set,
-            .mepa_driver_prbs_monitor_get = lan80xx_prbs_monitor_get,
-            .mepa_driver_warmrestart_conf_get = lan80xx_restart_conf_get,
-            .mepa_driver_warmrestart_conf_set = lan80xx_restart_conf_set,
-            .mepa_driver_chip_temp_get = lan80xx_chip_temp_get,
-            .mepa_capability = lan80xx_phy_capability,
-            .mepa_debug_info_dump    = lan80xx_debug_info_dump,
-            .mepa_driver_framepreempt_set = lan80xx_framepreempt_set,
-            .mepa_driver_framepreempt_get = lan80xx_framepreempt_get,
-            .mepa_ts = &lan80xx_ts_drivers,
-            .mepa_macsec = &lan80xx_macsec_drivers,
-        },
-        {
-            /* LAN8267 */
-            .id = 0x008267,
-            .mask = 0x00FFFF,
-            .mepa_driver_delete = lan80xx_delete,
-            .mepa_driver_reset = lan80xx_reset,
-            .mepa_driver_poll = lan80xx_poll,
-            .mepa_driver_probe = lan80xx_probe,
-            .mepa_driver_conf_set = lan80xx_conf_set,
-            .mepa_driver_conf_get = lan80xx_conf_get,
-            .mepa_driver_if_get = lan80xx_if_get,
-            .mepa_driver_if_set = lan80xx_if_set,
-            .mepa_driver_power_set = lan80xx_power_set,
-            .mepa_driver_media_set = NULL,
-            .mepa_driver_media_get = NULL,
-            .mepa_driver_aneg_status_get = NULL,
-            .mepa_driver_clause45_read  = lan80xx_clause45_read,
-            .mepa_driver_clause45_write = lan80xx_clause45_write,
-            .mepa_driver_event_enable_set = NULL,
-            .mepa_driver_event_enable_get = NULL,
-            .mepa_driver_event_poll = NULL,
-            .mepa_driver_loopback_set = lan80xx_loopback_set,
-            .mepa_driver_loopback_get = lan80xx_loopback_get,
-            .mepa_driver_gpio_mode_set = lan80xx_gpio_mode_set,
-            .mepa_driver_gpio_out_set = lan80xx_gpio_write,
-            .mepa_driver_gpio_in_get = lan80xx_gpio_read,
-            .mepa_driver_link_base_port = lan80xx_link_base_port,
-            .mepa_driver_synce_clock_conf_set = NULL,
-            .mepa_driver_phy_i2c_read   = lan80xx_phy_i2c_read,
-            .mepa_driver_phy_i2c_write   = lan80xx_phy_i2c_write,
-            .mepa_driver_phy_info_get  = lan80xx_phy_info_get,
-            .mepa_driver_prbs_set = lan80xx_prbs_set,
-            .mepa_driver_prbs_get = lan80xx_prbs_get,
-            .mepa_driver_prbs_monitor_set = lan80xx_prbs_monitor_set,
-            .mepa_driver_prbs_monitor_get = lan80xx_prbs_monitor_get,
-            .mepa_driver_warmrestart_conf_get = lan80xx_restart_conf_get,
-            .mepa_driver_warmrestart_conf_set = lan80xx_restart_conf_set,
-            .mepa_driver_chip_temp_get = lan80xx_chip_temp_get,
-            .mepa_capability = lan80xx_phy_capability,
-            .mepa_debug_info_dump    = lan80xx_debug_info_dump,
-            .mepa_driver_framepreempt_set = lan80xx_framepreempt_set,
-            .mepa_driver_framepreempt_get = lan80xx_framepreempt_get,
-            .mepa_ts = &lan80xx_ts_drivers,
-        },
-        {
-            /* LAN8264 */
-            .id = 0x008264,
-            .mask = 0x00FFFF,
-            .mepa_driver_delete = lan80xx_delete,
-            .mepa_driver_reset = lan80xx_reset,
-            .mepa_driver_poll = lan80xx_poll,
-            .mepa_driver_probe = lan80xx_probe,
-            .mepa_driver_conf_set = lan80xx_conf_set,
-            .mepa_driver_conf_get = lan80xx_conf_get,
-            .mepa_driver_if_get = lan80xx_if_get,
-            .mepa_driver_if_set = lan80xx_if_set,
-            .mepa_driver_power_set = lan80xx_power_set,
-            .mepa_driver_media_set = NULL,
-            .mepa_driver_media_get = NULL,
-            .mepa_driver_aneg_status_get = NULL,
-            .mepa_driver_clause45_read  = lan80xx_clause45_read,
-            .mepa_driver_clause45_write = lan80xx_clause45_write,
-            .mepa_driver_event_enable_set = NULL,
-            .mepa_driver_event_enable_get = NULL,
-            .mepa_driver_event_poll = NULL,
-            .mepa_driver_loopback_set = lan80xx_loopback_set,
-            .mepa_driver_loopback_get = lan80xx_loopback_get,
-            .mepa_driver_gpio_mode_set = lan80xx_gpio_mode_set,
-            .mepa_driver_gpio_out_set = lan80xx_gpio_write,
-            .mepa_driver_gpio_in_get = lan80xx_gpio_read,
-            .mepa_driver_link_base_port = lan80xx_link_base_port,
-            .mepa_driver_synce_clock_conf_set = NULL,
-            .mepa_driver_phy_i2c_read   = lan80xx_phy_i2c_read,
-            .mepa_driver_phy_i2c_write   = lan80xx_phy_i2c_write,
-            .mepa_driver_phy_info_get  = lan80xx_phy_info_get,
-            .mepa_driver_prbs_set = lan80xx_prbs_set,
-            .mepa_driver_prbs_get = lan80xx_prbs_get,
-            .mepa_driver_prbs_monitor_set = lan80xx_prbs_monitor_set,
-            .mepa_driver_prbs_monitor_get = lan80xx_prbs_monitor_get,
-            .mepa_driver_warmrestart_conf_get = lan80xx_restart_conf_get,
-            .mepa_driver_warmrestart_conf_set = lan80xx_restart_conf_set,
-            .mepa_driver_chip_temp_get = lan80xx_chip_temp_get,
-            .mepa_capability = lan80xx_phy_capability,
-            .mepa_debug_info_dump    = lan80xx_debug_info_dump,
-            .mepa_driver_framepreempt_set = lan80xx_framepreempt_set,
-            .mepa_driver_framepreempt_get = lan80xx_framepreempt_get,
-            .mepa_ts = &lan80xx_ts_drivers,
-            .mepa_macsec = &lan80xx_macsec_drivers,
-        },
-    };
+    static mepa_driver_t lan80xx_drivers[LAN80XX_DRIVERS_COUNT];
+    uint8_t index = 0;
+
+    for (index = 0; index < LAN80XX_DRIVERS_COUNT; index++) {
+        lan80xx_driver_create(lan80xx_ids[index], &lan80xx_drivers[index]);
+    }
 
     mepa_drivers_t result;
     result.phy_drv = lan80xx_drivers;
-    result.count = nr_lan80xx_drivers;
+    result.count = LAN80XX_DRIVERS_COUNT;
 
     return result;
 }

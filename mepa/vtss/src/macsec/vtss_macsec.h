@@ -126,4 +126,7 @@ vtss_rc vtss_macsec_preamble_shrink_set_priv(struct vtss_state_s        *vtss_st
                                              const vtss_port_no_t   port_no,
                                              const BOOL             enable);
 
+vtss_rc vtss_macsec_dbg_reg_dump_priv(struct vtss_state_s *vtss_state,
+                                      const vtss_port_no_t port_no,
+                                      const vtss_debug_printf_t pr);
 #endif /* _VTSS_MACSEC_H_ */

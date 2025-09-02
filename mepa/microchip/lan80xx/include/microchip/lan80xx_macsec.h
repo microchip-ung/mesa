@@ -1,20 +1,22 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN80XX_MACSEC_H_
-#define _LAN80XX_MACSEC_H_
+#ifndef LAN80XX_MACSEC_H_
+#define LAN80XX_MACSEC_H_
 
 // The following .h file needed
 #include <microchip/ethernet/phy/api.h>
 
 
 /* Cleartags TCAM Match values */
-#define LAN80XX_MACSEC_MATCH_DISABLE             0x0000 /* Disable the TCAM Matching */
-#define LAN80XX_MACSEC_MATCH_BVLAN_TAG           0x0001 /* Match the B-Tag in PBB packet */
-#define LAN80XX_MACSEC_MATCH_IVLAN_TAG           0x0002 /* Match the I-Tag in PBB Packet */
-#define LAN80XX_MACSEC_MATCH_CVLAN               0x0004 /* Match the Outer customer VLAN ID */
-#define LAN80XX_MACSEC_MATCH_MPLS_1              0x0008 /* Match the MPLS label 1 */
-#define LAN80XX_MACSEC_MATCH_MPLS_2              0x0010 /* match the MPLS Label 2 */
+#define LAN80XX_MACSEC_MATCH_DISABLE         (0x0000U)  /* Disable the TCAM Matching */
+#define LAN80XX_MACSEC_MATCH_BVLAN_TAG       (0x0001U)  /* Match the B-Tag in PBB packet */
+#define LAN80XX_MACSEC_MATCH_IVLAN_TAG       (0x0002U)  /* Match the I-Tag in PBB Packet */
+#define LAN80XX_MACSEC_MATCH_CVLAN           (0x0004U)  /* Match the Outer customer VLAN ID */
+#define LAN80XX_MACSEC_MATCH_MPLS_1          (0x0008U)  /* Match the MPLS label 1 */
+#define LAN80XX_MACSEC_MATCH_MPLS_2          (0x0010U)  /* Match the MPLS Label 2 */
+
+
 
 /* TCAM Policy Mode */
 typedef enum {

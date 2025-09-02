@@ -1,24 +1,24 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN80XX_TS_REG_DUMP_H_
-#define _LAN80XX_TS_REG_DUMP_H_
+#ifndef LAN80XX_TS_REG_DUMP_H_
+#define LAN80XX_TS_REG_DUMP_H_
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
-#define LAN80XX_PTP_PROC_LTC_REG_NUM     18
-#define LAN80XX_PTP_PROC_REG_NUM         38
-#define LAN80XX_PTP_ANA_REG_NUM          417
-#define LAN80XX_PTP_PROC_INGR_BASE       0x9020
-#define LAN80XX_PTP_PROC_EGR_BASE        0x9057
-#define LAN80XX_PTP_ANA0_INGR_BASE       0xA000
-#define LAN80XX_PTP_ANA0_EGR_BASE        0xA800
-#define LAN80XX_PTP_ANA1_INGR_BASE       0xB000
-#define LAN80XX_PTP_ANA1_EGR_BASE        0xB800
-#define LAN80XX_PTP_ANA2_INGR_BASE       0xC000
-#define LAN80XX_PTP_ANA2_EGR_BASE        0xC800
+#define LAN80XX_PTP_PROC_LTC_REG_NUM     (18)
+#define LAN80XX_PTP_PROC_REG_NUM         (38)
+#define LAN80XX_PTP_ANA_REG_NUM          (417)
+#define LAN80XX_PTP_PROC_INGR_BASE       (0x9020)
+#define LAN80XX_PTP_PROC_EGR_BASE        (0x9057)
+#define LAN80XX_PTP_ANA0_INGR_BASE       (0xA000)
+#define LAN80XX_PTP_ANA0_EGR_BASE        (0xA800)
+#define LAN80XX_PTP_ANA1_INGR_BASE       (0xB000)
+#define LAN80XX_PTP_ANA1_EGR_BASE        (0xB800)
+#define LAN80XX_PTP_ANA2_INGR_BASE       (0xC000)
+#define LAN80XX_PTP_ANA2_EGR_BASE        (0xC800)
 
-phy25g_reg_dump_t dump_ptp_proc_ltc[LAN80XX_PTP_PROC_LTC_REG_NUM] = {
+static phy25g_reg_dump_t dump_ptp_proc_ltc[LAN80XX_PTP_PROC_LTC_REG_NUM] = {
     {"INTERFACE_CTL",                       0x9000},
     {"ANALYZER_MODE",                       0x9001},
     {"MODE_CTL",                            0x9002},
@@ -40,7 +40,7 @@ phy25g_reg_dump_t dump_ptp_proc_ltc[LAN80XX_PTP_PROC_LTC_REG_NUM] = {
 };
 
 
-phy25g_reg_dump_t dump_ptp_proc[LAN80XX_PTP_PROC_REG_NUM] = {
+static phy25g_reg_dump_t dump_ptp_proc[LAN80XX_PTP_PROC_REG_NUM] = {
     {"CFG_OPERATION_MODE",             0x0},
     {"INT_STATUS",                     0x1},
     {"INT_MASK",                       0x2},
@@ -83,7 +83,7 @@ phy25g_reg_dump_t dump_ptp_proc[LAN80XX_PTP_PROC_REG_NUM] = {
 
 
 
-phy25g_reg_dump_t dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM] = {
+static phy25g_reg_dump_t dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM] = {
     {"ETH1_NXT_PROTOCOL_REG",                  0x0},
     {"ETH1_VLAN_TPID_CFG",                     0x1},
     {"ETH1_TAG_MODE",                          0x2},

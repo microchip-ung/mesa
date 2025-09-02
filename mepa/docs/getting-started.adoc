@@ -26,11 +26,11 @@ to another. Here are the instructions on how to do this on Ubuntu 18:
 sudo apt-get install cmake cmake-curses-gui build-essential ruby ruby-parslet libjson-c-dev
 ----
 
-Next we need a folder called `mscc` in `/opt` where the toolchains
+Next we need a folder called `mchp` in `/opt` where the toolchains
 and BSP will be installed as explained later in the guide.
 
 ----
-sudo mkdir -p /opt/mscc
+sudo mkdir -p /opt/mchp
 ----
 
 == Extracting the sources
@@ -71,39 +71,29 @@ Lets prepare a project for arm64 based targets:
 ./.cmake/create_cmake_project.rb arm64
 ----
 
-Once the script is run the appropriate released package will be extracted in /opt/mscc/ folder.
-The BSP source package will be also be installed automatically if not availbale in /opt/mscc/.
+Once the script is run the appropriate released package will be extracted in /opt/mchp/ folder.
+The BSP source package will be also be installed automatically if not availbale in /opt/mchp/.
 
 ----
 
 Removing old code base...
-sh -c "rm -r sw-mesa"
 Fetching latest copy...
-sudo /usr/local/bin/mscc-install-pkg -t mesa/v2024.03-SOAK-8-g314df891d@2024.03-soak mesa-v2024.03-SOAK-8-g314df891d@2024.03-soak
-mesa-v2024.03-SOAK-8-g314df891d@2024.03-soak seems to be installed already.
-mkdir -p sw-mesa && cp -r /opt/mscc/mesa-v2024.03-SOAK-8-g314df891d@2024.03-soak/* sw-mesa
-sudo /usr/local/bin/mscc-install-pkg -t brsdk/2023.02.8-1052-brsdk mscc-brsdk-arm64-2023.02.8-1052;
-/opt/mscc/.mscc-install-pkg-tmp
-wget -q -O - http://herent-sw-pkg.microsemi.net/jenkins/brsdk/2023.02.8-1052-brsdk/mscc-brsdk-arm64-2023.02.8-1052.tar.gz | tar -C /opt/mscc/.mscc-install-pkg-tmp -xzf -
-Package mscc-brsdk-arm64-2023.02.8-1052 installed
-mkdir -p build-arm64
-ln -s /opt/mscc/mscc-brsdk-arm64-2023.02.8-1052/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/cmake cmake
-./cmake -DCMAKE_TOOLCHAIN_FILE=/opt/mscc/mscc-brsdk-arm64-2023.02.8-1052/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake -DCMAKE_BUILD_TYPE=Release ..
--- The C compiler identification is GNU 10.4.0
--- The CXX compiler identification is GNU 10.4.0
+mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
 -- Detecting C compiler ABI info
 -- Detecting C compiler ABI info - done
--- Check for working C compiler: /opt/mscc/mscc-brsdk-arm64-2023.02.8-1052/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-gcc - skipped
+-- Check for working C compiler: /opt/mchp/mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-gcc - skipped
 -- Detecting C compile features
 -- Detecting C compile features - done
 -- Detecting CXX compiler ABI info
 -- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /opt/mscc/mscc-brsdk-arm64-2023.02.8-1052/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-g++ - skipped
+-- Check for working CXX compiler: /opt/mchp/mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-g++ - skipped
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
--- Project name          = vtss_api
+-- Project name          = mepa_api
 --   Type                = Release
---   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -g0 -Wall -Wno-array-bounds -Wno-stringop-overflow -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -ldl -O3 -DNDEBUG
+--   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -Wall -Wlogical-op -Wno-array-bounds -Wno-stringop-overflow -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -ldl -O3 -DNDEBUG
 --   EXE_LINKER_FLAGS    =
 --   shared_linker_flags =
 -- Build mepa including
@@ -111,10 +101,15 @@ ln -s /opt/mscc/mscc-brsdk-arm64-2023.02.8-1052/arm64-armv8_a-linux-gnu/xstax/re
 -- Looking for include file endian.h - found
 -- Looking for include file asm/byteorder.h
 -- Looking for include file asm/byteorder.h - found
--- Configuring done
--- Generating done
--- Build files have been written to: /home/administrator/sw-mepa/build-arm64
-
+-- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/lan80xx_serdes_config.h
+-- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/sha256/platform_util.h
+-- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/sha256/sha256.c
+-- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/sha256/sha256.h
+-- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/sha256/sha256_config.h
+-- CMAKE_TOOLCHAIN_FILE='/opt/mchp/mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake'
+-- Configuring done (0.5s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/administrator/release/sw-mepa/build-arm64
 ----
 
 == Selecting the Target and Building the SW
@@ -152,7 +147,8 @@ MEPA_vtss_opt_1g                 OFF
 MEPA_vtss_opt_cnt                64
 MEPA_vtss_opt_macsec             OFF
 MEPA_vtss_opt_ts                 OFF
-
+MEPA_lan80xx_ts                  OFF
+MEPA_lan80xx_ts_msec             OFF
 
 
 MEPA_lan8814: Add LAN8814 support in libmeba

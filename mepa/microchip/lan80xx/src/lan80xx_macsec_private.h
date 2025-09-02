@@ -1,17 +1,14 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MEPA_LAN80XX_MACSEC_H_
-#define _MEPA_LAN80XX_MACSEC_H_
+#ifndef MEPA_LAN80XX_MACSEC_H_
+#define MEPA_LAN80XX_MACSEC_H_
 
 #include <mepa_driver.h>
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api/phy_macsec.h>
 #include <microchip/ethernet/phy/api.h>
 #include "lan80xx_macsec.h"
-
-/* Cleartags Disable Bit position */
-#define LAN80XX_CLEARTAGS_DISABLE   (1U << 4)
 
 /* Number of actions supported: drop/forward to control/uncontrol port */
 #define LAN80XX_MACSEC_ACTION_MAX   (3U)
@@ -167,7 +164,6 @@ typedef struct {
     phy25g_macsec_cleartags_conf_t          cleartags_conf;
     mepa_bool_t                             cleartags_init_done;
     mepa_macsec_init_t                      init;
-    mepa_bool_t                             warm_start_reg_changed;  /** Indicates the reg changed during warm start */
     mepa_macsec_mtu_t                       mtu_conf;                /** Configuration of MTU */
     u16                                     mac_block_mtu;           /** MAC Block MTU */
     mepa_bool_t                             rmon_counters_clr;       /** MACsec RMON counters clear flag */

@@ -1,10 +1,10 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN80XX_MALIBU25G_REGS_SFP_TWS_H_
-#define _LAN80XX_MALIBU25G_REGS_SFP_TWS_H_
+#ifndef LAN80XX_MALIBU25G_REGS_SFP_TWS_H_
+#define LAN80XX_MALIBU25G_REGS_SFP_TWS_H_
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
 /***********************************************************************
  *
@@ -29,7 +29,7 @@
  *
  * Register: \a SFP_TWS:TWI_CFG:TWI_CLIENT_ID
  */
-#define LAN80XX_SFP_TWS_TWI_CLIENT_ID           LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc000)
+#define LAN80XX_SFP_TWS_TWI_CLIENT_ID                                                               (LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc000))
 
 /**
  * \brief
@@ -38,9 +38,9 @@
  * \details
  * Field: ::LAN80XX_SFP_TWS_TWI_CLIENT_ID . CLIENT_ID
  */
-#define  LAN80XX_F_SFP_TWS_TWI_CLIENT_ID_CLIENT_ID(x)  LAN80XX_ENCODE_BITFIELD(x,0,7)
-#define  LAN80XX_M_SFP_TWS_TWI_CLIENT_ID_CLIENT_ID     LAN80XX_ENCODE_BITMASK(0,7)
-#define  LAN80XX_X_SFP_TWS_TWI_CLIENT_ID_CLIENT_ID(x)  LAN80XX_EXTRACT_BITFIELD(x,0,7)
+#define  LAN80XX_F_SFP_TWS_TWI_CLIENT_ID_CLIENT_ID(x)                                               (LAN80XX_ENCODE_BITFIELD(x,0,7))
+#define  LAN80XX_M_SFP_TWS_TWI_CLIENT_ID_CLIENT_ID                                                  (LAN80XX_ENCODE_BITMASK(0,7))
+#define  LAN80XX_X_SFP_TWS_TWI_CLIENT_ID_CLIENT_ID(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,0,7))
 
 
 /**
@@ -51,7 +51,7 @@
  *
  * Register: \a SFP_TWS:TWI_CFG:TWI_PRESCALE
  */
-#define LAN80XX_SFP_TWS_TWI_PRESCALE            LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc001)
+#define LAN80XX_SFP_TWS_TWI_PRESCALE                                                                (LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc001))
 
 /**
  * \brief
@@ -60,9 +60,9 @@
  * \details
  * Field: ::LAN80XX_SFP_TWS_TWI_PRESCALE . PRESCALE
  */
-#define  LAN80XX_F_SFP_TWS_TWI_PRESCALE_PRESCALE(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_SFP_TWS_TWI_PRESCALE_PRESCALE     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_SFP_TWS_TWI_PRESCALE_PRESCALE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_SFP_TWS_TWI_PRESCALE_PRESCALE(x)                                                 (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_SFP_TWS_TWI_PRESCALE_PRESCALE                                                    (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_SFP_TWS_TWI_PRESCALE_PRESCALE(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a SFP_TWS:TWI_WRITE
@@ -79,7 +79,7 @@
  *
  * Register: \a SFP_TWS:TWI_WRITE:TWI_WRITE_CTRL
  */
-#define LAN80XX_SFP_TWS_TWI_WRITE_CTRL          LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc002)
+#define LAN80XX_SFP_TWS_TWI_WRITE_CTRL                                                              (LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc002))
 
 /**
  * \brief
@@ -91,9 +91,9 @@
  * \details
  * Field: ::LAN80XX_SFP_TWS_TWI_WRITE_CTRL . WRITE_DATA
  */
-#define  LAN80XX_F_SFP_TWS_TWI_WRITE_CTRL_WRITE_DATA(x)  LAN80XX_ENCODE_BITFIELD(x,8,8)
-#define  LAN80XX_M_SFP_TWS_TWI_WRITE_CTRL_WRITE_DATA     LAN80XX_ENCODE_BITMASK(8,8)
-#define  LAN80XX_X_SFP_TWS_TWI_WRITE_CTRL_WRITE_DATA(x)  LAN80XX_EXTRACT_BITFIELD(x,8,8)
+#define  LAN80XX_F_SFP_TWS_TWI_WRITE_CTRL_WRITE_DATA(x)                                             (LAN80XX_ENCODE_BITFIELD(x,8,8))
+#define  LAN80XX_M_SFP_TWS_TWI_WRITE_CTRL_WRITE_DATA                                                (LAN80XX_ENCODE_BITMASK(8,8))
+#define  LAN80XX_X_SFP_TWS_TWI_WRITE_CTRL_WRITE_DATA(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,8,8))
 
 /**
  * \brief
@@ -105,9 +105,9 @@
  * \details
  * Field: ::LAN80XX_SFP_TWS_TWI_WRITE_CTRL . WRITE_ADDR
  */
-#define  LAN80XX_F_SFP_TWS_TWI_WRITE_CTRL_WRITE_ADDR(x)  LAN80XX_ENCODE_BITFIELD(x,0,8)
-#define  LAN80XX_M_SFP_TWS_TWI_WRITE_CTRL_WRITE_ADDR     LAN80XX_ENCODE_BITMASK(0,8)
-#define  LAN80XX_X_SFP_TWS_TWI_WRITE_CTRL_WRITE_ADDR(x)  LAN80XX_EXTRACT_BITFIELD(x,0,8)
+#define  LAN80XX_F_SFP_TWS_TWI_WRITE_CTRL_WRITE_ADDR(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,8))
+#define  LAN80XX_M_SFP_TWS_TWI_WRITE_CTRL_WRITE_ADDR                                                (LAN80XX_ENCODE_BITMASK(0,8))
+#define  LAN80XX_X_SFP_TWS_TWI_WRITE_CTRL_WRITE_ADDR(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,8))
 
 /**
  * Register Group: \a SFP_TWS:TWI_BUS_STAT
@@ -124,7 +124,7 @@
  *
  * Register: \a SFP_TWS:TWI_BUS_STAT:TWI_BUS_STATUS
  */
-#define LAN80XX_SFP_TWS_TWI_BUS_STATUS          LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc003)
+#define LAN80XX_SFP_TWS_TWI_BUS_STATUS                                                              (LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc003))
 
 /**
  * \brief
@@ -136,9 +136,9 @@
  *
  * Field: ::LAN80XX_SFP_TWS_TWI_BUS_STATUS . TWI_WRITE_ACK
  */
-#define  LAN80XX_F_SFP_TWS_TWI_BUS_STATUS_TWI_WRITE_ACK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_SFP_TWS_TWI_BUS_STATUS_TWI_WRITE_ACK  LAN80XX_BIT(1)
-#define  LAN80XX_X_SFP_TWS_TWI_BUS_STATUS_TWI_WRITE_ACK(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_SFP_TWS_TWI_BUS_STATUS_TWI_WRITE_ACK(x)                                          (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_SFP_TWS_TWI_BUS_STATUS_TWI_WRITE_ACK                                             (LAN80XX_BIT(1))
+#define  LAN80XX_X_SFP_TWS_TWI_BUS_STATUS_TWI_WRITE_ACK(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -150,9 +150,9 @@
  *
  * Field: ::LAN80XX_SFP_TWS_TWI_BUS_STATUS . TWI_BUS_BUSY
  */
-#define  LAN80XX_F_SFP_TWS_TWI_BUS_STATUS_TWI_BUS_BUSY(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_SFP_TWS_TWI_BUS_STATUS_TWI_BUS_BUSY  LAN80XX_BIT(0)
-#define  LAN80XX_X_SFP_TWS_TWI_BUS_STATUS_TWI_BUS_BUSY(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_SFP_TWS_TWI_BUS_STATUS_TWI_BUS_BUSY(x)                                           (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_SFP_TWS_TWI_BUS_STATUS_TWI_BUS_BUSY                                              (LAN80XX_BIT(0))
+#define  LAN80XX_X_SFP_TWS_TWI_BUS_STATUS_TWI_BUS_BUSY(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a SFP_TWS:TWI_READ_ADDRESS
@@ -169,7 +169,7 @@
  *
  * Register: \a SFP_TWS:TWI_READ_ADDRESS:TWI_READ_ADDR
  */
-#define LAN80XX_SFP_TWS_TWI_READ_ADDR           LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc004)
+#define LAN80XX_SFP_TWS_TWI_READ_ADDR                                                               (LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc004))
 
 /**
  * \brief
@@ -181,9 +181,9 @@
  * \details
  * Field: ::LAN80XX_SFP_TWS_TWI_READ_ADDR . READ_ADDR
  */
-#define  LAN80XX_F_SFP_TWS_TWI_READ_ADDR_READ_ADDR(x)  LAN80XX_ENCODE_BITFIELD(x,0,8)
-#define  LAN80XX_M_SFP_TWS_TWI_READ_ADDR_READ_ADDR     LAN80XX_ENCODE_BITMASK(0,8)
-#define  LAN80XX_X_SFP_TWS_TWI_READ_ADDR_READ_ADDR(x)  LAN80XX_EXTRACT_BITFIELD(x,0,8)
+#define  LAN80XX_F_SFP_TWS_TWI_READ_ADDR_READ_ADDR(x)                                               (LAN80XX_ENCODE_BITFIELD(x,0,8))
+#define  LAN80XX_M_SFP_TWS_TWI_READ_ADDR_READ_ADDR                                                  (LAN80XX_ENCODE_BITMASK(0,8))
+#define  LAN80XX_X_SFP_TWS_TWI_READ_ADDR_READ_ADDR(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,0,8))
 
 /**
  * Register Group: \a SFP_TWS:TWI_READ_STATUS_AND_DATA
@@ -200,7 +200,7 @@
  *
  * Register: \a SFP_TWS:TWI_READ_STATUS_AND_DATA:TWI_READ_STATUS_DATA
  */
-#define LAN80XX_SFP_TWS_TWI_READ_STATUS_DATA    LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc005)
+#define LAN80XX_SFP_TWS_TWI_READ_STATUS_DATA                                                        (LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc005))
 
 /**
  * \brief
@@ -212,9 +212,9 @@
  *
  * Field: ::LAN80XX_SFP_TWS_TWI_READ_STATUS_DATA . TWI_BUS_BUSY
  */
-#define  LAN80XX_F_SFP_TWS_TWI_READ_STATUS_DATA_TWI_BUS_BUSY(x)  LAN80XX_ENCODE_BITFIELD(!!(x),15,1)
-#define  LAN80XX_M_SFP_TWS_TWI_READ_STATUS_DATA_TWI_BUS_BUSY  LAN80XX_BIT(15)
-#define  LAN80XX_X_SFP_TWS_TWI_READ_STATUS_DATA_TWI_BUS_BUSY(x)  LAN80XX_EXTRACT_BITFIELD(x,15,1)
+#define  LAN80XX_F_SFP_TWS_TWI_READ_STATUS_DATA_TWI_BUS_BUSY(x)                                     (LAN80XX_ENCODE_BITFIELD(!!(x),15,1))
+#define  LAN80XX_M_SFP_TWS_TWI_READ_STATUS_DATA_TWI_BUS_BUSY                                        (LAN80XX_BIT(15))
+#define  LAN80XX_X_SFP_TWS_TWI_READ_STATUS_DATA_TWI_BUS_BUSY(x)                                     (LAN80XX_EXTRACT_BITFIELD(x,15,1))
 
 /**
  * \brief
@@ -224,9 +224,9 @@
  * \details
  * Field: ::LAN80XX_SFP_TWS_TWI_READ_STATUS_DATA . READ_DATA
  */
-#define  LAN80XX_F_SFP_TWS_TWI_READ_STATUS_DATA_READ_DATA(x)  LAN80XX_ENCODE_BITFIELD(x,0,8)
-#define  LAN80XX_M_SFP_TWS_TWI_READ_STATUS_DATA_READ_DATA     LAN80XX_ENCODE_BITMASK(0,8)
-#define  LAN80XX_X_SFP_TWS_TWI_READ_STATUS_DATA_READ_DATA(x)  LAN80XX_EXTRACT_BITFIELD(x,0,8)
+#define  LAN80XX_F_SFP_TWS_TWI_READ_STATUS_DATA_READ_DATA(x)                                        (LAN80XX_ENCODE_BITFIELD(x,0,8))
+#define  LAN80XX_M_SFP_TWS_TWI_READ_STATUS_DATA_READ_DATA                                           (LAN80XX_ENCODE_BITMASK(0,8))
+#define  LAN80XX_X_SFP_TWS_TWI_READ_STATUS_DATA_READ_DATA(x)                                        (LAN80XX_EXTRACT_BITFIELD(x,0,8))
 
 /**
  * Register Group: \a SFP_TWS:TWI_RESET_SEQUENCE
@@ -243,7 +243,7 @@
  *
  * Register: \a SFP_TWS:TWI_RESET_SEQUENCE:TWI_RESET_SEQ
  */
-#define LAN80XX_SFP_TWS_TWI_RESET_SEQ           LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc006)
+#define LAN80XX_SFP_TWS_TWI_RESET_SEQ                                                               (LAN80XX_IOREG(MMD_ID_SFP_TWS, 0, 0xc006))
 
 /**
  * \brief
@@ -253,9 +253,9 @@
  * \details
  * Field: ::LAN80XX_SFP_TWS_TWI_RESET_SEQ . RESET_SEQ
  */
-#define  LAN80XX_F_SFP_TWS_TWI_RESET_SEQ_RESET_SEQ(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_SFP_TWS_TWI_RESET_SEQ_RESET_SEQ  LAN80XX_BIT(0)
-#define  LAN80XX_X_SFP_TWS_TWI_RESET_SEQ_RESET_SEQ(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_SFP_TWS_TWI_RESET_SEQ_RESET_SEQ(x)                                               (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_SFP_TWS_TWI_RESET_SEQ_RESET_SEQ                                                  (LAN80XX_BIT(0))
+#define  LAN80XX_X_SFP_TWS_TWI_RESET_SEQ_RESET_SEQ(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 #endif /* _LAN80XX_MALIBU25G_REGS_SFP_TWS_H_ */

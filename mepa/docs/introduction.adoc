@@ -12,7 +12,7 @@ The Microchip Ethernet PHY API (MEPA) provides a production quality
 comprehensive C library supporting all the Ethernet PHYs.
 The MEPA library is OS agnostic. The MEPA product is designed as a library, meaning that
 it needs to be integrated with an application which owns the API instance.
-// More on this in the link:#mepa/docs/getting-started[Getting Started] section.
+More on this in the link:#mepa/docs/getting-started[Getting Started] section.
 
 The following is a list of important properties of MEPA:
 
@@ -75,7 +75,6 @@ image::mepa-layers-overview.svg[align="center"]
 access layer.
 . Unified API is intended to cover both PHYs and Switches. PHY only users can
 do one instance to cover all the PHYs on the board.
-//TODO - Add history of Unified API
 . Bus Access functions - Customers need to pass their own board specific
 APIs for register access or miim accessor functions.
 
@@ -91,13 +90,15 @@ A snippet is shown below:
    phy_lib[0] = mepa_mscc_driver_init();     // Legacy VSC Tesla, Viper, etc.
    phy_lib[1] = mepa_lan8814_driver_init();  // LAN8814
 ----
+
 As a minimum, Each PHY driver needs to implement the following methods for
 configuration:
 
-[none]
 * `mepa_create()`
-* `mepa_poll()`
+* `mepa_link_base_port()`
+* `mepa_reset()`
 * `mepa_conf_set()`
+* `mepa_poll()`
 
 At the time of Application Initialization, based on phy id, the application
 will initialize the structure and register/connect the functions to the
@@ -118,10 +119,10 @@ and registration for LAN8814 is found in the `mepa_lan8814_driver_init`.
 To link each port to its corresponding MEPA driver, the phy id needs to be
 detected from IEEE standard registers 2,3.
 
-This detected phy id and corresponding phy id information from the entry point
-function are compared to determine if this is a matching phy driver. Once
-matched, the function registered for `mepa_create()` API will need to be
-called by the application and passing necessary information for access.
+`mepa_create()` API will perform this function it will read the PHY ID from the register
+and compared it with MEPA drivers and match for the corresponding MEPA driver and assign
+it and this will call the corresponding probe function of the driver.
+
 The registered probe function for the LAN8814 PHY is: `lan8814_probe` located
 in: `<mepa/src/microchip/lan8814.c>`. while the corresponding probe function
 for VSC8574 is `mscc_1g_probe` located in: `<mepa/src/vtss.c>`.
@@ -136,7 +137,7 @@ in: `<meba/src/drivers/phy.c>`.
 There is also an additional linking of the base port to the other ports on the
 PHY and this is accomplished using `mepa_driver_link_base_port_t` API.
 
-The Lan8814 API uses miim controller to access registers. As part of
+The LAN8814 API uses miim controller to access registers. As part of
 `mepa_create()` arguments, miim-controller, port miim address, callbacks
  for miim_read and miim_write need to be passed for register access.
 synchronization callbacks for lock_enter and lock_exit need to be passed.
@@ -149,10 +150,11 @@ The MEPA package includes the following sources.
 [none]
 * `./.cmake` build and scripts.
 * `./CMakeLists.txt` CMake project file. Use this to build the sources.
-* `include` The MEPA include path.
-* `./vtss/include` The MEPA unified API include path.
-* `./<phy_family>/<driver>` The MEPA PHY drivers path.
-* `./include/microchip/ethernet/phy/api.h` MEPA top header file. Application
+* `./mepa/include` The MEPA include path.
+* `./mepa/vtss/include` The MEPA unified API include path.
+* `./mepa/vtss/src` Unified API driver source
+* `./mepa/microchip` The MEPA PHY drivers source path.
+* `.mepa/include/microchip/ethernet/phy/api.h` MEPA top header file. Application
   accessing MEPA should include this file.
 
 

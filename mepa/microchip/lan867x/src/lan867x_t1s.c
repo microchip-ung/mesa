@@ -1,6 +1,8 @@
 // Copyright (c) 2004-2025 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#include <string.h>
+
 #include <mepa_driver.h>
 #include <lan867x_private.h>
 

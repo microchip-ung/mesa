@@ -5,46 +5,53 @@
 #include <mepa_driver.h>
 #include "lan80xx_private.h"
 #include "lan80xx_regs_util.h"
-#include "regs_lan8042.h"
+#include "regs_lan80xx.h"
 #include "lan80xx_mcu.h"
 #include "lan80xx.h"
 #include "regs_lan80xx_dump.h"
 #include "lan80xx_serdes_config.h"
 
-#define BLOCK_RESET_1 0xffff
-#define BLOCK_RESET_2 0xffff
+#define BLOCK_RESET_1                                 (0xFFFFU)
+#define BLOCK_RESET_2                                 (0xFFFFU)
 
-#define MAX_SOURCE_EVENTS 31
-#define MAX_ACK_TIMER 15
-#define LAN80XX_IS_BITSET(value, x) ((value & x) ? 1 : 0)
+#define MAX_SOURCE_EVENTS                             (31U)
+#define MAX_ACK_TIMER                                 (15U)
+#define LAN80XX_IS_BITSET(value, x)                   ( (((value) & (x)) != 0U) ? 1U : 0U )
 
 /* Rx Equalizers Coefficients Maximum Values */
-#define LAN80XX_CTLE_VGA_MAX_VAL 31
-#define LAN80XX_CTLE_R_MAX_VAL 15
-#define LAN80XX_CTLE_C_MAX_VAL 15
+#define LAN80XX_CTLE_VGA_MAX_VAL                      (31U)
+#define LAN80XX_CTLE_R_MAX_VAL                        (15U)
+#define LAN80XX_CTLE_C_MAX_VAL                        (15U)
 
-#define LAN80XX_XCONNECT_HOSTx_CFG(x)  LAN80XX_IOREG(MMD_ID_CROSS_CONN, 1, (0xF108 + (x*2)))
-#define LAN80XX_XCONNECT_LINEx_CFG(x)  LAN80XX_IOREG(MMD_ID_CROSS_CONN, 1, (0xF110 + (x*2)))
+#define LAN80XX_XCONNECT_HOSTx_CFG(x)                 (LAN80XX_IOREG(MMD_ID_CROSS_CONN, 1U, (0xF108U + ((x) * 2U))))
+#define LAN80XX_XCONNECT_LINEx_CFG(x)                 (LAN80XX_IOREG(MMD_ID_CROSS_CONN, 1U, (0xF110U + ((x) * 2U))))
 
-#define  LAN80XX_F_CROSS_CONNECT_SRC_SEL_DEFAULT_CH(x)  LAN80XX_ENCODE_BITFIELD(x,0,2)
-#define  LAN80XX_M_CROSS_CONNECT_SRC_SEL_DEFAULT_CH     LAN80XX_ENCODE_BITMASK(0,2)
-#define  LAN80XX_X_CROSS_CONNECT_SRC_SEL_DEFAULT_CH(x)  LAN80XX_EXTRACT_BITFIELD(x,0,2)
+#define LAN80XX_F_CROSS_CONNECT_SRC_SEL_DEFAULT_CH(x) (LAN80XX_ENCODE_BITFIELD((x), 0U, 2U))
+#define LAN80XX_M_CROSS_CONNECT_SRC_SEL_DEFAULT_CH    (LAN80XX_ENCODE_BITMASK(0U, 2U))
+#define LAN80XX_X_CROSS_CONNECT_SRC_SEL_DEFAULT_CH(x) (LAN80XX_EXTRACT_BITFIELD((x), 0U, 2U))
 
-/* Tx Equalizers Coefficients maximum Values */
-#define LAN80XX_TX_AMP_CODE_MAX_VAL 101
-#define LAN80XX_TX_TAP_DLY_MAX_VAL  31
-#define LAN80XX_TX_TAP_ADV_MAX_VAL  15
+/* Tx Equalizers Coefficients Maximum Values */
+#define LAN80XX_TX_AMP_CODE_MAX_VAL                   (101U)
+#define LAN80XX_TX_TAP_DLY_MAX_VAL                    (31U)
+#define LAN80XX_TX_TAP_ADV_MAX_VAL                    (15U)
 
 /* Tx Equalizers Amplitude Control ranges */
-#define LAN80XX_TX_AMP_CODE_RANGE_16  16
-#define LAN80XX_TX_AMP_CODE_RANGE_32  32
-#define LAN80XX_TX_AMP_CODE_RANGE_46  46
-#define LAN80XX_TX_AMP_CODE_RANGE_58  58
-#define LAN80XX_TX_AMP_CODE_RANGE_69  69
-#define LAN80XX_TX_AMP_CODE_RANGE_79  79
-#define LAN80XX_TX_AMP_CODE_RANGE_88  88
-#define LAN80XX_TX_AMP_CODE_RANGE_102  102
+#define LAN80XX_TX_AMP_CODE_RANGE_16                  (16U)
+#define LAN80XX_TX_AMP_CODE_RANGE_32                  (32U)
+#define LAN80XX_TX_AMP_CODE_RANGE_46                  (46U)
+#define LAN80XX_TX_AMP_CODE_RANGE_58                  (58U)
+#define LAN80XX_TX_AMP_CODE_RANGE_69                  (69U)
+#define LAN80XX_TX_AMP_CODE_RANGE_79                  (79U)
+#define LAN80XX_TX_AMP_CODE_RANGE_88                  (88U)
+#define LAN80XX_TX_AMP_CODE_RANGE_102                 (102U)
 
+/* Feature Disable */
+#define LAN80XX_MACSEC_DISABLE     (1 << 0)
+#define LAN80XX_1588_DISABLE       (1 << 1)
+#define LAN80XX_25G_DISABLE        (1 << 2)
+#define LAN80XX_QUAD_DISABLE       (1 << 3)
+#define LAN80XX_CLEARTAGS_DISABLE  (1 << 4)
+#define LAN80XX_MPLS_DISABLE       (1 << 5)
 
 mepa_rc lan80xx_block_reset_priv(mepa_device_t *dev)
 {
@@ -116,6 +123,27 @@ static mepa_rc lan80xx_sku_port_cnt(mepa_device_t *dev)
     return rc;
 }
 
+static mepa_rc lan80xx_feature_supported(mepa_device_t  *dev)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data);
+    mepa_rc rc = MEPA_RC_OK;
+    u32 val = 0U;
+
+    LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_MCU_IO_MNGT_MISC_DEVICE_FEATURE_DISABLE_REG, &val);
+
+    base_data->features.macsec_disable    = (val & LAN80XX_MACSEC_DISABLE);
+    base_data->features.ptp_1588_disable  = (val & LAN80XX_1588_DISABLE);
+    base_data->features.speed_25g_disable = (val & LAN80XX_25G_DISABLE);
+    base_data->features.quad_disable      = (val & LAN80XX_QUAD_DISABLE);
+    base_data->features.cleartags_disable = (val & LAN80XX_CLEARTAGS_DISABLE);
+    base_data->features.mpls_disable      = (val & LAN80XX_MPLS_DISABLE);
+
+    return rc;
+}
+
 /* Sw-Workarround
  * For A0 and A1 silicon revision, default Bootrom code fails so SERDES_INIT strap should be always set to High
  * This function "lan80xx_a0_a1_revision_serd_init_strap_wrkrd" ensures that SERDES INIT strap is high, if it is tied low
@@ -134,19 +162,19 @@ static mepa_rc lan80xx_a0_a1_revision_serd_init_strap_wrkrd(mepa_device_t *dev, 
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), &val);
         val |= SERDES_INIT_STRAP;
         LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), val);
-        T_I(MEPA_TRACE_GRP_GEN, "\n Forcing Serdes Init strap to high for A0 and A1 silicon revison \n");
+        T_IM("Forcing Serdes Init strap to high for A0 and A1 silicon revison\n");
     }
     return MEPA_RC_OK;
 }
 
-mepa_rc lan80xx_get_base_adr(const mepa_device_t *dev,
-                             const mepa_port_no_t port_no,
-                             uint32_t mmd_dev,
-                             uint32_t addr,
-                             uint32_t *phy_base,
-                             uint32_t *target_id,
-                             uint32_t *offset,
-                             mepa_bool_t *use_base_port)
+static mepa_rc lan80xx_get_base_adr(const mepa_device_t *dev,
+                                    const mepa_port_no_t port_no,
+                                    uint32_t mmd_dev,
+                                    uint32_t addr,
+                                    uint32_t *phy_base,
+                                    uint32_t *target_id,
+                                    uint32_t *offset,
+                                    mepa_bool_t *use_base_port)
 {
     *target_id = 0;
     *phy_base = addr;
@@ -427,8 +455,8 @@ mepa_rc lan80xx_xconnect_anylinetoanyhost(mepa_device_t *dev, mepa_port_no_t por
     return MEPA_RC_OK;
 }
 
-mepa_rc lan80xx_hostline_channel_configuration(mepa_device_t *dev, mepa_port_no_t port_no,
-                                               u8 switch_sel, mepa_bool_t is_mac_change, phy25g_host_protect_mode_t mode, u8 act_host)
+static mepa_rc lan80xx_hostline_channel_configuration(mepa_device_t *dev, mepa_port_no_t port_no,
+                                                      u8 switch_sel, mepa_bool_t is_mac_change, phy25g_host_protect_mode_t mode, u8 act_host)
 {
 
     u8 chn, dft_chn, alt_chn = 0;
@@ -598,8 +626,8 @@ mepa_rc lan80xx_xconnect_hostfailover_Protection(mepa_device_t  *dev, mepa_port_
 }
 
 
-mepa_rc lan80xx_xconnect_failover_set_priv(mepa_device_t  *dev,
-                                           const mepa_port_no_t port_no)
+static mepa_rc lan80xx_xconnect_failover_set_priv(mepa_device_t  *dev,
+                                                  const mepa_port_no_t port_no)
 {
 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
@@ -820,13 +848,13 @@ mepa_rc lan80xx_csr_wr(const mepa_device_t         *dev,
 }
 
 
-mepa_rc lan80xx_csr_wrm(const mepa_device_t     *dev,
-                        const mepa_port_no_t    port_no,
-                        const uint16_t          mmd,
-                        const mepa_bool_t       is32,
-                        const uint32_t          addr,
-                        uint32_t                value,
-                        uint32_t                mask)
+static mepa_rc lan80xx_csr_wrm(const mepa_device_t     *dev,
+                               const mepa_port_no_t    port_no,
+                               const uint16_t          mmd,
+                               const mepa_bool_t       is32,
+                               const uint32_t          addr,
+                               uint32_t                value,
+                               uint32_t                mask)
 {
     mepa_rc rc;
     uint32_t     val;
@@ -898,7 +926,7 @@ mepa_rc _lan80xx_csr_warm_wr(const mepa_device_t *dev,
  *   Function definitions starts
 *********************************************/
 
-mepa_rc lan80xx_aneg_status(const mepa_device_t *dev, mepa_port_no_t port_no)
+static mepa_rc lan80xx_aneg_status(const mepa_device_t *dev, mepa_port_no_t port_no)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_oper_speed_mode_t speed = SPEED_NONE;
@@ -995,11 +1023,11 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_SW_RST |
                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_SW_RST);
 
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1, VTSS_PTP_PROC_MODE_CTL), VTSS_F_PTP_PROC_MODE_CTL_PROTOCOL_MODE(0));
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_PTP_PROC_MODE_CTL, LAN80XX_F_PTP_PROC_MODE_CTL_PROTOCOL_MODE(0));
         return MEPA_RC_OK;
     }
     T_I(MEPA_TRACE_GRP_GEN, "Enabling the MAC Block on port : %d\n", port_no);
-    LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1, VTSS_PTP_PROC_MODE_CTL), VTSS_F_PTP_PROC_MODE_CTL_PROTOCOL_MODE(4));
+    LAN80XX_CSR_WR(dev, port_no, LAN80XX_PTP_PROC_MODE_CTL, LAN80XX_F_PTP_PROC_MODE_CTL_PROTOCOL_MODE(4));
 
     /* Tx and Rx threshold values are configured based on the speed selected by user, the values are provided by validation team UNG_MALIBU_25G-2547 */
     u8 rx_read_thresh = 0, tx_read_thresh = 0;
@@ -1212,6 +1240,7 @@ static mepa_rc lan80xx_serdes_data_get(mepa_device_t *dev, phy25g_serdes_data_t 
     case MEPA_MEDIA_TYPE_SR:
     case MEPA_MEDIA_TYPE_LR:
     case MEPA_MEDIA_TYPE_ER:
+    case MEPA_MEDIA_TYPE_1000BASE_T:
         data->ln_cfg_en_adv = 1;
         data->ln_cfg_en_main = 1;
         data->ln_cfg_en_dly = 1;
@@ -1322,8 +1351,8 @@ mepa_bool_t lan80xx_target_reg_width(uint16_t target, uint32_t addr)
     switch (target) {
     case 3:
         if  ((addr <= 0x07FF) ||
-            (addr >= 0x8000 && addr <= 0x8FFF) ||
-            (addr >= 0xE000 && addr <= 0xE0FF)) {
+             (addr >= 0x8000 && addr <= 0x8FFF) ||
+             (addr >= 0xE000 && addr <= 0xE0FF)) {
             return FALSE;
         } else {
             return TRUE;
@@ -2402,7 +2431,7 @@ mepa_rc lan80xx_operating_mode_set_priv(const mepa_device_t *dev, const mepa_por
     return MEPA_RC_OK;
 }
 
-mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no, phy25g_port_mode_t  *mode)
+static mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no, phy25g_port_mode_t  *mode)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
     T_D(MEPA_TRACE_GRP_GEN, "lan80xx_mode_conf_set - %u\n", port_no);
@@ -2449,6 +2478,18 @@ mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no, phy25g
 
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA,
                         LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA);
+
+        /* Enable SGMII for 1000BASE-T Media type */
+        if (data->conf.conf_25g.line_media == MEPA_MEDIA_TYPE_1000BASE_T) {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA,
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
+            T_I(MEPA_TRACE_GRP_GEN, "LINE PCS1G SGMII Enabled \n");
+        } else {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, 0,
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
+        }
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_MODE_CFG, 0, LAN80XX_M_HOST_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
 
         T_I(MEPA_TRACE_GRP_GEN, "PCS1G Enabled \n");
         if (lan80xx_serdes_configuration(dev, port_no, MESA_SPEED_1G, mode) != MEPA_RC_OK) {
@@ -2554,7 +2595,7 @@ mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no, phy25g
 
 
 /* Initial function. Sets the operating mode of the Phy.   */
-mepa_rc lan80xx_mode_set_init(mepa_device_t *dev, const mepa_port_no_t port_no, phy25g_port_mode_t  *mode)
+static mepa_rc lan80xx_mode_set_init(mepa_device_t *dev, const mepa_port_no_t port_no, phy25g_port_mode_t  *mode)
 {
 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
@@ -2563,6 +2604,7 @@ mepa_rc lan80xx_mode_set_init(mepa_device_t *dev, const mepa_port_no_t port_no, 
     data->port_state.gpio_count = LAN80XX_GPIO_COUNT;
     //Mode set enable PCS and PMA
     rc = LAN80XX_RC_COLD(lan80xx_mode_conf_set(dev, port_no, mode));
+
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Error in configuring lan80xx_mode_conf_set on port no : %d", port_no);
         return MEPA_RC_ERROR;
@@ -2680,6 +2722,12 @@ mepa_rc lan80xx_reset_point(mepa_device_t *dev, const mepa_reset_param_t *rst_co
             T_E(MEPA_TRACE_GRP_GEN, "Failed to configure Strap over-ride register\n");
             return MEPA_RC_ERROR;
         }
+
+        if (lan80xx_feature_supported(dev) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "\nError in reading feature supported");
+            return MEPA_RC_ERROR;
+        }
+
         if (lan80xx_mcu_mailbox_init(dev, MAILBOX_INTR_ENABLE, MAILBOX_HOST_INTR_MASK) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "Mailbox init failed");
             return MEPA_RC_ERROR;
@@ -4004,6 +4052,33 @@ mepa_rc lan80xx_phy_tx_rx_equalization_status_get_priv(const mepa_device_t      
     return MEPA_RC_OK;
 }
 
+static mepa_rc lan80xx_gpio_alt_fn_channel_map(mepa_device_t         *dev,
+                                               const uint8_t         gpio_num)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    phy25g_phy_state_t  *data = (phy25g_phy_state_t *)dev->data;
+    uint8_t channel = 0U;
+
+    if (gpio_num <= LAN80XX_GPIO_31) {
+        channel = (uint8_t)(gpio_num / 8U);
+    } else if (gpio_num == LAN80XX_GPIO_36) {
+        channel = 0U;
+    } else if (gpio_num == LAN80XX_GPIO_37) {
+        channel = 1U;
+    } else if (gpio_num == LAN80XX_GPIO_38) {
+        channel = 2U;
+    } else if (gpio_num == LAN80XX_GPIO_39) {
+        channel = 3U;
+    } else {
+        return rc;
+    }
+
+    if (data->channel_id != channel) {
+        rc = MEPA_RC_ERROR;
+    }
+    return rc;
+}
+
 
 mepa_rc lan80xx_gpio_mode_set_priv(mepa_device_t                 *dev,
                                    const mepa_port_no_t            port_no,
@@ -4029,6 +4104,12 @@ mepa_rc lan80xx_gpio_mode_set_priv(mepa_device_t                 *dev,
             T_E(MEPA_TRACE_GRP_GEN, "Alt function is not supported by GPIO# %d", gpio_conf->gpio_no);
             return MEPA_RC_ERROR;
         }
+
+        if (lan80xx_gpio_alt_fn_channel_map(dev, gpio_conf->gpio_no) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "\n Mismatch in Port number and Alt function of GPIO Pin selected");
+            return MEPA_RC_ERROR;
+        }
+
         switch (data->port_state.speed) {
         case SPEED_1G:
             led_rate = 1;
@@ -4048,42 +4129,39 @@ mepa_rc lan80xx_gpio_mode_set_priv(mepa_device_t                 *dev,
         LAN80XX_CSR_WRM(base_data->port_no, LAN80XX_GPIO_CTRL_GPIO_OUT_INV_CFGX_SLOT(is_zero_slt), 0, LAN80XX_BIT(t_gpio_no));
 
         /* Enables the Alternate function */
-        LAN80XX_CSR_WRM(base_data->port_no, LAN80XX_GPIO_CTRL_GPIO_FUN_SELX_SLOT(is_zero_slt), 0, LAN80XX_BIT(t_gpio_no));
+        LAN80XX_CSR_WRM(base_data->port_no, LAN80XX_GPIO_CTRL_GPIO_FUN_SELX_SLOT(is_zero_slt), 0U, LAN80XX_BIT(t_gpio_no));
+
         switch (gpio_conf->gpio_no) {
         case LAN80XX_GPIO_34: /* Aggregate interrupt 0/1 */
-        case LAN80XX_GPIO_35: {
-            intr_b = (gpio_conf->gpio_no == LAN80XX_GPIO_35) ? 1 : 0;
-            LAN80XX_CSR_WRM(base_data->port_no, LAN80XX_GPIO_CTRL_INTR_SRC_EN(intr_b), 0, LAN80XX_MASK_THIRD_BYTE);
+        case LAN80XX_GPIO_35:
+            intr_b = (gpio_conf->gpio_no == LAN80XX_GPIO_35) ? 1U : 0U;
+            LAN80XX_CSR_WRM(base_data->port_no, LAN80XX_GPIO_CTRL_INTR_SRC_EN(intr_b), 0U, LAN80XX_MASK_THIRD_BYTE);
             break;
-        }
         case LAN80XX_GPIO_7:
-        case LAN80XX_GPIO_36: { /* Port 0 LED */
-            LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LED_CONTROL,
-                           ((gpio_conf->led_num == MEPA_LED1) ? LAN80XX_M_LINE_SLICE_LED_CONTROL_LED_ENABLE : 0) |
-                           LAN80XX_F_LINE_SLICE_LED_CONTROL_BLINK_TIME_SET(led_rate));
-            break;
-        }
+        case LAN80XX_GPIO_36:
         case LAN80XX_GPIO_15:
-        case LAN80XX_GPIO_37: { /* Port 1 LED */
-            LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LED_CONTROL,
-                           ((gpio_conf->led_num == MEPA_LED1) ? LAN80XX_M_LINE_SLICE_LED_CONTROL_LED_ENABLE : 0) |
-                           LAN80XX_F_LINE_SLICE_LED_CONTROL_BLINK_TIME_SET(led_rate));
-            break;
-        }
+        case LAN80XX_GPIO_37:
         case LAN80XX_GPIO_23:
-        case LAN80XX_GPIO_38: { /* Port 2 LED */
-            LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LED_CONTROL,
-                           ((gpio_conf->led_num == MEPA_LED1) ? LAN80XX_M_LINE_SLICE_LED_CONTROL_LED_ENABLE : 0) |
-                           LAN80XX_F_LINE_SLICE_LED_CONTROL_BLINK_TIME_SET(led_rate));
-            break;
-        }
+        case LAN80XX_GPIO_38:
         case LAN80XX_GPIO_31:
-        case LAN80XX_GPIO_39: { /* Port 3 LED */
+        case LAN80XX_GPIO_39:
+            /* Port LED Configuration */
             LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LED_CONTROL,
-                           ((gpio_conf->led_num == MEPA_LED1) ? LAN80XX_M_LINE_SLICE_LED_CONTROL_LED_ENABLE : 0) |
+                           ((gpio_conf->led_num == MEPA_LED1) ? LAN80XX_M_LINE_SLICE_LED_CONTROL_LED_ENABLE : 0U) |
                            LAN80XX_F_LINE_SLICE_LED_CONTROL_BLINK_TIME_SET(led_rate));
             break;
-        }
+        case LAN80XX_GPIO_2:
+        case LAN80XX_GPIO_3:
+        case LAN80XX_GPIO_10:
+        case LAN80XX_GPIO_11:
+        case LAN80XX_GPIO_18:
+        case LAN80XX_GPIO_19:
+        case LAN80XX_GPIO_26:
+        case LAN80XX_GPIO_27:
+            /* Reset TWI Host */
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_MISC_BLOCKS_RESET, LAN80XX_M_LINE_SLICE_MISC_BLOCKS_RESET_TWI_HOST_RST, LAN80XX_M_LINE_SLICE_MISC_BLOCKS_RESET_TWI_HOST_RST);
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_MISC_BLOCKS_RESET, 0U, LAN80XX_M_LINE_SLICE_MISC_BLOCKS_RESET_TWI_HOST_RST);
+            break;
         }
     } else if (gpio_conf->mode == MEPA_GPIO_MODE_OUT) {
         /* Configure Pin as GPIO Pin */
@@ -4909,6 +4987,9 @@ mepa_rc lan80xx_conf_set_priv(struct mepa_device *dev, const mepa_conf_t *config
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
     phy25g_port_mode_t mode;
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data);
 
     /* Channel ID Will be configured only Once */
     if (!data->channel_id_lock) {
@@ -4918,6 +4999,11 @@ mepa_rc lan80xx_conf_set_priv(struct mepa_device *dev, const mepa_conf_t *config
         }
         data->channel_id = (config->conf_25g.channel_id - 1);
         data->channel_id_lock = 1;
+    }
+
+    if ((base_data->features.quad_disable != 0) && (data->channel_id >= 2U)) {
+        T_E(MEPA_TRACE_GRP_GEN, "\n PHY on Port %d is Dual SKU\n", data->port_no);
+        return MEPA_RC_ERROR;
     }
 
     if (config->fdx == 0) {
@@ -4937,12 +5023,22 @@ mepa_rc lan80xx_conf_set_priv(struct mepa_device *dev, const mepa_conf_t *config
         return MEPA_RC_ERROR;
     }
 
-    if (config->speed == MESA_SPEED_25G && (data->dev.devid == LAN80XX_DEV_ID_8268 || data->dev.devid == LAN80XX_DEV_ID_8267 || data->dev.devid == LAN80XX_DEV_ID_8264)) {
+    if ((base_data->features.speed_25g_disable != 0U) && (config->speed == MESA_SPEED_25G)) {
         T_E(MEPA_TRACE_GRP_GEN, "The PHY SKU on port %d doesnot support 25G speed\n", data->port_no);
         return MEPA_RC_ERROR;
     }
     if (config->flow_control) {
         T_E(MEPA_TRACE_GRP_GEN, "\n Use API lan80xx_flow_control_set API on Port : %d to configure Flow Control \n", data->port_no);
+    }
+
+    if (config->conf_25g.host_media == MEPA_MEDIA_TYPE_1000BASE_T) {
+        T_E(MEPA_TRACE_GRP_GEN, "\n 1000BASE-T Media not supported on HOST side on port : %d \n", data->port_no);
+        return MEPA_RC_ERROR;
+    }
+
+    if ((config->speed != MESA_SPEED_1G) && (config->conf_25g.line_media == MEPA_MEDIA_TYPE_1000BASE_T)) {
+        T_E(MEPA_TRACE_GRP_GEN, "\n 1000BASE-T Media type is supported only at 1G speed on port : %d\n", data->port_no);
+        return MEPA_RC_ERROR;
     }
 
     memset(&mode, 0, sizeof(phy25g_port_mode_t));

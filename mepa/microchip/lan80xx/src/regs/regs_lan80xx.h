@@ -1,0 +1,48 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+#ifndef LAN80XX_MALIBU25G_REGS_H_
+#define LAN80XX_MALIBU25G_REGS_H_
+
+#include "regs_lan80xx_host_pma.h"
+#include "regs_lan80xx_line_pma.h"
+#include "regs_lan80xx_host_pma_8bit.h"
+#include "regs_lan80xx_line_pma_8bit.h"
+#include "regs_lan80xx_host_pcs_cfg.h"
+#include "regs_lan80xx_line_pcs_cfg.h"
+#include "regs_lan80xx_host_pcs25g.h"
+#include "regs_lan80xx_line_pcs25g.h"
+#include "regs_lan80xx_host_rsfec.h"
+#include "regs_lan80xx_line_rsfec.h"
+#include "regs_lan80xx_host_kr.h"
+#include "regs_lan80xx_line_kr.h"
+#include "regs_lan80xx_host_intr_ctrl.h"
+#include "regs_lan80xx_line_intr_ctrl.h"
+#include "regs_lan80xx_host_slice.h"
+#include "regs_lan80xx_line_slice.h"
+#include "regs_lan80xx_pkt_bist.h"
+#include "regs_lan80xx_sfp_tws.h"
+#include "regs_lan80xx_ptp_proc.h"
+#include "regs_lan80xx_ptp_ana0_ingr_cfg.h"
+#include "regs_lan80xx_ptp_ana0_egr_cfg.h"
+#include "regs_lan80xx_ptp_ana1_ingr_cfg.h"
+#include "regs_lan80xx_ptp_ana1_egr_cfg.h"
+#include "regs_lan80xx_ptp_ana2_ingr_cfg.h"
+#include "regs_lan80xx_ptp_ana2_egr_cfg.h"
+#include "regs_lan80xx_cross_connect.h"
+#include "regs_lan80xx_gpio_ctrl.h"
+#include "regs_lan80xx_mcu_io_mngt_misc.h"
+#include "regs_lan80xx_mcu_mailbox.h"
+#include "regs_lan80xx_global.h"
+#include "regs_lan80xx_clk_cfg.h"
+#include "regs_lan80xx_ptp_ltc.h"
+#include "regs_lan80xx_ptp_sti.h"
+#include "regs_lan80xx_global_fast_reset.h"
+#include "regs_lan80xx_macsec_ingr.h"
+#include "regs_lan80xx_macsec_egr.h"
+#include "regs_lan80xx_mac_fc_buffer.h"
+#include "regs_lan80xx_line_mac.h"
+#include "regs_lan80xx_host_mac.h"
+#include "regs_lan80xx_phy_ts_regs_ana.h"
+
+#endif /* _LAN80XX_MALIBU25G_REGS_H_ */

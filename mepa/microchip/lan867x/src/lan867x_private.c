@@ -36,10 +36,7 @@ mepa_rc lan867x_mmd_reg_rd(mepa_device_t *const dev, uint8_t const devaddr, uint
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
-    if(dev->callout->mmd_read != NULL) {
-        rc = dev->callout->mmd_read(dev->callout_ctx, devaddr, offset, value);
-    }
-    else if((dev->callout->miim_read != NULL) && (dev->callout->miim_write != NULL)) {
+    if((dev->callout->miim_read != NULL) && (dev->callout->miim_write != NULL)) {
         *value = 0;
         MEPA_RC(rc, dev->callout->miim_write(dev->callout_ctx, LAN867X_MMDCTRL_REG, (MMDCTRL_ADDRESS | devaddr)));
         MEPA_RC(rc, dev->callout->miim_write(dev->callout_ctx, LAN867X_MMDAD_REG, offset));
@@ -58,11 +55,7 @@ mepa_rc lan867x_mmd_reg_wr(mepa_device_t *const dev, uint8_t const devaddr, uint
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
-    if(dev->callout->mmd_write != NULL)
-    {
-        rc = dev->callout->mmd_write(dev->callout_ctx, devaddr, offset, value);
-    }
-    else if((dev->callout->miim_read != NULL) && (dev->callout->miim_write != NULL))
+    if((dev->callout->miim_read != NULL) && (dev->callout->miim_write != NULL))
     {
         MEPA_RC(rc, dev->callout->miim_write(dev->callout_ctx, LAN867X_MMDCTRL_REG, (MMDCTRL_ADDRESS | devaddr)));
         MEPA_RC(rc, dev->callout->miim_write(dev->callout_ctx, LAN867X_MMDAD_REG, offset));

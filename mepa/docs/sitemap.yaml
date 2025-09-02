@@ -3,7 +3,7 @@
 
 ---
 conf:
-    rel_name: "MEPA-2024.12"
+    rel_name: "MEPA-2025.06"
 
 pages:
     - name: "README"
@@ -27,6 +27,10 @@ pages:
           src:  "mepa/docs/release-notes/mepa-2024.09.adoc"
         - name: "MEPA-2024.12"
           src:  "mepa/docs/release-notes/mepa-2024.12.adoc"
+        - name: "MEPA-2025.03"
+          src:  "mepa/docs/release-notes/mepa-2025.03.adoc"
+        - name: "MEPA-2025.06"
+          src:  "mepa/docs/release-notes/mepa-2025.06.adoc"
 
     - name: "Introduction"
       src:  "mepa/docs/introduction.adoc"

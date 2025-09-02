@@ -6,110 +6,111 @@
 
 
 
-#ifndef _LAN80XX_MCU_H_
-#define _LAN80XX_MCU_H_
+#ifndef LAN80XX_MCU_H_
+#define LAN80XX_MCU_H_
 
 // The following .h file needed
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>
 
-#define BIT0                                0x00000001UL
-#define BIT1                                0x00000002UL
-#define BIT3                                0x00000008UL
-#define BIT21                               0x00200000UL
+#define BIT0                                   (0x00000001UL)
+#define BIT1                                   (0x00000002UL)
+#define BIT3                                   (0x00000008UL)
+#define BIT21                                  (0x00200000UL)
 
-#define RESERVED_ID                         (0xFFu)
-#define MB_PKT_DATA_OFFSET                  4
-#define MB_MAX_CRC_LEN                      2
-#define CRC_START_CCITT                     0xFFFF
-#define CRC_POLY_CCITT                      0x1021
-#define SPI_CMD_LEN                         7
-#define SPI_VAL_LEN                         4
+#define RESERVED_ID                            (0xFFU)
+#define MB_PKT_DATA_OFFSET                     (4U)
+#define MB_MAX_CRC_LEN                         (2U)
+#define CRC_START_CCITT                        (0xFFFFU)
+#define CRC_POLY_CCITT                         (0x1021U)
+#define SPI_CMD_LEN                            (7U)
+#define SPI_VAL_LEN                            (4U)
 
-#define BLOCK_LVL_SOFT_RESET2               (0x203)
-#define SW_RESET_MCU                        (0x02)
-#define GPIO_INTR_CFG_STAT                  (0xF20E)
-#define INTR_SRC_EN_0                       (GPIO_INTR_CFG_STAT + 0x0)
-#define INTR_SRC_EN_1                       (GPIO_INTR_CFG_STAT + 0x1)
-#define GPIO_MCU_MBOX_INT_EN                (BIT21)
-#define MAILBOX_CMD_ADDR                    0xD800
-#define MAILBOX_RESP_ADDR                   0xD900
-#define MAILBOX_FLAG_REGISTER               0xDA00
-#define MAILBOX_MCU_INTR_MASK_REGISTER      0xDA01
-#define MAILBOX_HOST_INTR_MASK_REGISTER     0xDA02
-#define MAILBOX_FLAG_SET_BIT0               0x00010000
-#define MAILBOX_FLAG_SET_BIT7               0x00800000
-#define MAILBOX_INTR_ENABLE                 0x00000001
-#define MAILBOX_INTR_DISABLE                0x00000000
-#define MAILBOX_HOST_INTR_MASK              0x00000002
-#define MAILBOX_DFU_FIRST_PKT               0x00000040
-#define MAILBOX_DFU_LAST_PKT                0x00000080
-#define MAILBOX_FLAG_CLEAR_BIT0_BIT1        0x03000000
-#define MAILBOX_FLAG_CLEAR_BIT1             0x02000000
-#define MAILBOX_FLAG_CLEAR_BIT0             0x01000000
-#define MAILBOX_FLAG_CLEAR_BIT6             0x40000000
-#define MALIBOX_FALG_CLEAR_ALL              0xFF000000
-#define DFU_INTR_ENABLE                     0x00000080
-#define MAILBOX_INTR_TIMEOUT                50000 /*50 msecs timeout to recv intr*/
-#define MAILBOX_INTR_SIGN_TIMEOUT           2000 /* 2 secs for sign vaerifiction commands*/
-#define MCU_DATA_RAM_OFFSET                 0x00080000
-#define DFU_STATUS_REG_OFFSET               0x04
-#define DFU_SIGN_VERIFY_FAIL_POS            BIT3
+#define BLOCK_LVL_SOFT_RESET2                  (0x0203U)
+#define SW_RESET_MCU                           (0x02U)
+#define GPIO_INTR_CFG_STAT                     (0xF20EU)
+#define INTR_SRC_EN_0                          (GPIO_INTR_CFG_STAT + 0x0U)
+#define INTR_SRC_EN_1                          (GPIO_INTR_CFG_STAT + 0x1U)
+#define GPIO_MCU_MBOX_INT_EN                   (BIT21)
+#define MAILBOX_CMD_ADDR                       (0xD800U)
+#define MAILBOX_RESP_ADDR                      (0xD900U)
+#define MAILBOX_FLAG_REGISTER                  (0xDA00U)
+#define MAILBOX_MCU_INTR_MASK_REGISTER         (0xDA01U)
+#define MAILBOX_HOST_INTR_MASK_REGISTER        (0xDA02U)
+#define MAILBOX_FLAG_SET_BIT0                  (0x00010000UL)
+#define MAILBOX_FLAG_SET_BIT7                  (0x00800000UL)
+#define MAILBOX_INTR_ENABLE                    (0x00000001UL)
+#define MAILBOX_INTR_DISABLE                   (0x00000000UL)
+#define MAILBOX_HOST_INTR_MASK                 (0x00000002UL)
+#define MAILBOX_DFU_FIRST_PKT                  (0x00000040UL)
+#define MAILBOX_DFU_LAST_PKT                   (0x00000080UL)
+#define MAILBOX_FLAG_CLEAR_BIT0_BIT1           (0x03000000UL)
+#define MAILBOX_FLAG_CLEAR_BIT1                (0x02000000UL)
+#define MAILBOX_FLAG_CLEAR_BIT0                (0x01000000UL)
+#define MAILBOX_FLAG_CLEAR_BIT6                (0x40000000UL)
+#define MALIBOX_FALG_CLEAR_ALL                 (0xFF000000UL)
+#define DFU_INTR_ENABLE                        (0x00000080UL)
+#define MAILBOX_INTR_TIMEOUT                   (500U)      /* 500 msecs timeout to recv intr */
+#define MAILBOX_INTR_SIGN_TIMEOUT              (2000U)       /* 2 secs for sign verification commands */
+#define MCU_DATA_RAM_OFFSET                    (0x00080000UL)
+#define DFU_STATUS_REG_OFFSET                  (0x04U)
+#define DFU_SIGN_VERIFY_FAIL_POS               (BIT3)
 
 /* Maximum length of the message data */
-#define MB_MAX_PKT_HEADER_LEN               4
-#define MB_MAX_PAYLOAD_LEN                  1018
-#define MB_MAX_PKT_LEN                      (MB_MAX_PAYLOAD_LEN + MB_MAX_PKT_HEADER_LEN + MB_MAX_CRC_LEN)
+#define MB_MAX_PKT_HEADER_LEN                  (4U)
+#define MB_MAX_PAYLOAD_LEN                     (1018U)
+#define MB_MAX_PKT_LEN                         (MB_MAX_PAYLOAD_LEN + MB_MAX_PKT_HEADER_LEN + MB_MAX_CRC_LEN)
 
-#define STRAP_INFO                          0x200
-#define STRAP_READ_REG                      (STRAP_INFO + 0x00)
-#define STRAP_OVERRIDE_REG                  (STRAP_INFO + 0x01)
+#define STRAP_INFO                             (0x0200U)
+#define STRAP_READ_REG                         (STRAP_INFO + 0x00U)
+#define STRAP_OVERRIDE_REG                     (STRAP_INFO + 0x01U)
 
-#define DFU_STRAP                           (BIT0)
-#define SERDES_INIT_STRAP                   (BIT1)
+#define DFU_STRAP                              (BIT0)
+#define SERDES_INIT_STRAP                      (BIT1)
 
-#define MAX_OTP_CFG_RECORDS                 64
-#define MAX_OTP_SIZE                        (0x4000u)
+#define MAX_OTP_CFG_RECORDS                    (64U)
+#define MAX_OTP_SIZE                           (0x4000U)
 
-#define OTP_CONFIG_REGION_LEN               (0x3000u)
-#define OTP_PRG_CTR_SIZE                    (0x8U)
+#define OTP_CONFIG_REGION_LEN                  (0x3000U)
+#define OTP_PRG_CTR_SIZE                       (0x08U)
 
-#define OTP_CFG_RECORD_LEN                  0x1014
-#define OTP_IDX_RECORD_LEN                  0x08U
-#define OTP_SIGNATURE_LEN                   0X40
+#define OTP_CFG_RECORD_LEN                     (0x1014U)
+#define OTP_IDX_RECORD_LEN                     (0x08U)
+#define OTP_SIGNATURE_LEN                      (0x40U)
 
-#define OTP_REP_KEY_LEN                     0x40
-#define OTP_REP_KEY_SIGN_LEN                0x40
+#define OTP_REP_KEY_LEN                        (0x40U)
+#define OTP_REP_KEY_SIGN_LEN                   (0x40U)
 /* Keeping 16 maximum of buffered updates to RAM OTP */
-#define MAX_RAM_OTP_UPDATES                 (16)
+#define MAX_RAM_OTP_UPDATES                    (16U)
 /* OTP FW Registers */
-#define OTP_PRG_CTR                         0x0100U // 8 Bytes
-#define OTP_MCHP_PUB_KEY                    0x0108U // 64 Bytes
-#define OTP_ROT_KEY                         0x0148U // 64 Bytes
-#define OTP_REPLACEMENT_KEY1                0x0188U // 64 Bytes
-#define OTP_REPLACEMENT_KEY1_SIGN           0x01C8U // 64 Bytes
-#define OTP_REPLACEMENT_KEY2                0x0208U // 64 Bytes
-#define OTP_REPLACEMENT_KEY2_SIGN           0x0248U // 64 Bytes
-#define OTP_REPLACEMENT_KEY3                0x0288U // 64 Bytes
-#define OTP_REPLACEMENT_KEY3_SIGN           0x02C8U // 64 Bytes
-#define OTP_KEY_REVOCATION                  0x0308U // 1 Byte
-#define OTP_REPLACEMENT_KEY_CTR             0x0309U // 1 Byte
+#define OTP_PRG_CTR                            (0x0100U)   /* 8 Bytes */
+#define OTP_MCHP_PUB_KEY                       (0x0108U)   /* 64 Bytes */
+#define OTP_ROT_KEY                            (0x0148U)   /* 64 Bytes */
+#define OTP_REPLACEMENT_KEY1                   (0x0188U)   /* 64 Bytes */
+#define OTP_REPLACEMENT_KEY1_SIGN              (0x01C8U)   /* 64 Bytes */
+#define OTP_REPLACEMENT_KEY2                   (0x0208U)   /* 64 Bytes */
+#define OTP_REPLACEMENT_KEY2_SIGN              (0x0248U)   /* 64 Bytes */
+#define OTP_REPLACEMENT_KEY3                   (0x0288U)   /* 64 Bytes */
+#define OTP_REPLACEMENT_KEY3_SIGN              (0x02C8U)   /* 64 Bytes */
+#define OTP_KEY_REVOCATION                     (0x0308U)   /* 1 Byte */
+#define OTP_REPLACEMENT_KEY_CTR                (0x0309U)   /* 1 Byte */
 
 /* OTP configuration start address */
-#define OTP_CONFIG_START                    0x100U
-#define OTP_HEADER_DATA_OFFSET              0x400U
+#define OTP_CONFIG_START                       (0x0100U)
+#define OTP_HEADER_DATA_OFFSET                 (0x0400U)
 
 /* OTP Key status */
-#define KEY_CTR_MCHP_PUB_KEY_VAL            0x00
-#define KEY_CTR_REPLACEMENT_KEY1_VAL        0x01
-#define KEY_CTR_REPLACEMENT_KEY2_VAL        0x03
-#define KEY_CTR_REPLACEMENT_KEY3_VAL        0x07
-#define KEY_CTR_NONE                        0x0F
+#define KEY_CTR_MCHP_PUB_KEY_VAL               (0x00U)
+#define KEY_CTR_REPLACEMENT_KEY1_VAL           (0x01U)
+#define KEY_CTR_REPLACEMENT_KEY2_VAL           (0x03U)
+#define KEY_CTR_REPLACEMENT_KEY3_VAL           (0x07U)
+#define KEY_CTR_NONE                           (0x0FU)
 
-#define LAN80XX_MCU_CODE_RAM_START_REGION         (0x00040000U)
-#define LAN80XX_MEMORY_SLICE_ONE_OFFSET             0x10000
-#define LAN80XX_MEMORY_SLICE_TWO_OFFSET             0x20000
-#define LAN80XX_MEMORY_SLICE_THREE_OFFSET           0x30000
+#define LAN80XX_MCU_CODE_RAM_START_REGION      (0x00040000U)
+#define LAN80XX_MEMORY_SLICE_ONE_OFFSET        (0x010000U)
+#define LAN80XX_MEMORY_SLICE_TWO_OFFSET        (0x020000U)
+#define LAN80XX_MEMORY_SLICE_THREE_OFFSET      (0x030000U)
+
 
 #define MAKEWORD(a, b)      ((uint16_t)(((uint8_t)(((unsigned long)(a)) & 0xff)) | ((uint16_t)((uint8_t)(((unsigned long)(b)) & 0xff))) << 8))
 
@@ -464,5 +465,10 @@ mepa_rc lan80xx_check_mcu_rdy(mepa_device_t *dev);
 
 mepa_rc lan80xx_get_serdes_config(const mepa_device_t *dev, SD_CFG_SPEED_IDX_t speed, eSERDES_CFG_T cfgType, __SERDES_CONFIG_T *const data);
 mepa_rc lan80xx_set_serdes_config(const mepa_device_t *dev, SD_CFG_SPEED_IDX_t speed, eSERDES_CFG_T cfgType, const __SERDES_CONFIG_T *data);
+
+
+// kr logging
+mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable, mepa_bool_t bline_port_en, mepa_bool_t  bhost_port_en);
+mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32RamAddr, uint16_t u16Len);
 
 #endif //  end of _LAN80XX_MCU_H_

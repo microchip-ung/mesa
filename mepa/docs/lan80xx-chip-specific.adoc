@@ -789,15 +789,18 @@ Here is the basic flow
 Note:: HOST interrupt is mandatory for all other MCU specific APIs
 
 === HOST Interrupt
-The MCU in M25G uses HOST interrupt to intimate Host about specific interrupts. One of the interrupts is Mailbox response ready interrupt.
+`lan80xx_MB_INTR_register_callback()` this function pointer is exposed to customer application which is expected to read the HOST Intrupt line,
+which connects the GPIO34/GPIO35 of LAN80XX GPIO aggregate interrupt pins.
 
-    * `lan80xx_MB_INTR_register_callback()` - Register callback function for the interrupt.
+User needs to register this callback function to read the HOST interrupt line and return the pin status as either TRUE or FALSE.
 
+NOTE: This INTR callback function is applicable only for LAN80XX PHYs and it is expected to register this callback function for the base-port PHY instance.
+	
 [cols="1,1,1", options="header"]
 |===
 | Argument        	| Input/output     | Description
 | dev	          	| Input            | device instance of `mepa_device_t`
-| gpio_cb               | Input	           | callback function of type gpio_callback_t
+| gpio_cb           | Input	           | callback function of type gpio_callback_t
 |===
 
 Prototype for gpio_callback_t:

@@ -1,10 +1,10 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN80XX_MALIBU25G_REGS_HOST_PMA_H_
-#define _LAN80XX_MALIBU25G_REGS_HOST_PMA_H_
+#ifndef LAN80XX_MALIBU25G_REGS_HOST_PMA_H_
+#define LAN80XX_MALIBU25G_REGS_HOST_PMA_H_
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
 /***********************************************************************
  *
@@ -27,7 +27,7 @@
  * \details
  * Register: \a HOST_PMA:SD_RESET:SD_SER_RST
  */
-#define LAN80XX_HOST_PMA_SD_SER_RST             LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x8000)
+#define LAN80XX_HOST_PMA_SD_SER_RST                                                                 (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x8000))
 
 /**
  * \brief
@@ -41,9 +41,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_SER_RST . PCS_KR_TX_RST
  */
-#define  LAN80XX_F_HOST_PMA_SD_SER_RST_PCS_KR_TX_RST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_SD_SER_RST_PCS_KR_TX_RST     LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_SD_SER_RST_PCS_KR_TX_RST(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_SD_SER_RST_PCS_KR_TX_RST(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_SD_SER_RST_PCS_KR_TX_RST                                                (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_SD_SER_RST_PCS_KR_TX_RST(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -52,7 +52,7 @@
  * \details
  * Register: \a HOST_PMA:SD_RESET:SD_DES_RST
  */
-#define LAN80XX_HOST_PMA_SD_DES_RST             LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x8001)
+#define LAN80XX_HOST_PMA_SD_DES_RST                                                                 (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x8001))
 
 /**
  * \brief
@@ -66,9 +66,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_DES_RST . PCS_KR_RX_RST
  */
-#define  LAN80XX_F_HOST_PMA_SD_DES_RST_PCS_KR_RX_RST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_SD_DES_RST_PCS_KR_RX_RST     LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_SD_DES_RST_PCS_KR_RX_RST(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_SD_DES_RST_PCS_KR_RX_RST(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_SD_DES_RST_PCS_KR_RX_RST                                                (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_SD_DES_RST_PCS_KR_RX_RST(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a HOST_PMA:SD_LANE_CFG_STAT
@@ -85,7 +85,7 @@
  *
  * Register: \a HOST_PMA:SD_LANE_CFG_STAT:SD_LANE_CFG_0
  */
-#define LAN80XX_HOST_PMA_SD_LANE_CFG_0          LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8002)
+#define LAN80XX_HOST_PMA_SD_LANE_CFG_0                                                              (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8002))
 
 /**
  * \brief
@@ -97,9 +97,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_0 . MACRO_RST
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_MACRO_RST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_MACRO_RST  LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_MACRO_RST(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_MACRO_RST(x)                                              (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_MACRO_RST                                                 (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_MACRO_RST(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * \brief
@@ -111,17 +111,17 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_0 . EXT_CFG_RST
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_EXT_CFG_RST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_EXT_CFG_RST  LAN80XX_BIT(1)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_EXT_CFG_RST(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_EXT_CFG_RST(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_EXT_CFG_RST                                               (LAN80XX_BIT(1))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_EXT_CFG_RST(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_0 . PCS2PMA_PHYMODE
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS2PMA_PHYMODE(x)  LAN80XX_ENCODE_BITFIELD(x,5,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS2PMA_PHYMODE     LAN80XX_ENCODE_BITMASK(5,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS2PMA_PHYMODE(x)  LAN80XX_EXTRACT_BITFIELD(x,5,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS2PMA_PHYMODE(x)                                        (LAN80XX_ENCODE_BITFIELD(x,5,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS2PMA_PHYMODE                                           (LAN80XX_ENCODE_BITMASK(5,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS2PMA_PHYMODE(x)                                        (LAN80XX_EXTRACT_BITFIELD(x,5,3))
 
 /**
  * \brief
@@ -134,9 +134,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_0 . LANE_RST
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_LANE_RST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_LANE_RST  LAN80XX_BIT(8)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_LANE_RST(x)  LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_LANE_RST(x)                                               (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_LANE_RST                                                  (LAN80XX_BIT(8))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_LANE_RST(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -148,9 +148,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_0 . PCS_EN_ADV
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS_EN_ADV(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS_EN_ADV  LAN80XX_BIT(9)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS_EN_ADV(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS_EN_ADV(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS_EN_ADV                                                (LAN80XX_BIT(9))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS_EN_ADV(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -162,9 +162,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_0 . PCS_EN_MAIN
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS_EN_MAIN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),10,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS_EN_MAIN  LAN80XX_BIT(10)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS_EN_MAIN(x)  LAN80XX_EXTRACT_BITFIELD(x,10,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS_EN_MAIN(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),10,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS_EN_MAIN                                               (LAN80XX_BIT(10))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS_EN_MAIN(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,10,1))
 
 /**
  * \brief
@@ -176,9 +176,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_0 . PCS_EN_DLY
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS_EN_DLY(x)  LAN80XX_ENCODE_BITFIELD(!!(x),11,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS_EN_DLY  LAN80XX_BIT(11)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS_EN_DLY(x)  LAN80XX_EXTRACT_BITFIELD(x,11,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS_EN_DLY(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),11,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS_EN_DLY                                                (LAN80XX_BIT(11))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS_EN_DLY(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,11,1))
 
 /**
  * \brief
@@ -187,9 +187,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_0 . PCS_TAP_ADV
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS_TAP_ADV(x)  LAN80XX_ENCODE_BITFIELD(x,12,4)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS_TAP_ADV     LAN80XX_ENCODE_BITMASK(12,4)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS_TAP_ADV(x)  LAN80XX_EXTRACT_BITFIELD(x,12,4)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_0_PCS_TAP_ADV(x)                                            (LAN80XX_ENCODE_BITFIELD(x,12,4))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_0_PCS_TAP_ADV                                               (LAN80XX_ENCODE_BITMASK(12,4))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_0_PCS_TAP_ADV(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,12,4))
 
 
 /**
@@ -200,7 +200,7 @@
  *
  * Register: \a HOST_PMA:SD_LANE_CFG_STAT:SD_LANE_CFG_1
  */
-#define LAN80XX_HOST_PMA_SD_LANE_CFG_1          LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8003)
+#define LAN80XX_HOST_PMA_SD_LANE_CFG_1                                                              (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8003))
 
 /**
  * \brief
@@ -209,9 +209,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_1 . PCS_TAP_MAIN
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_MAIN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_MAIN  LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_MAIN(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_MAIN(x)                                           (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_MAIN                                              (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_MAIN(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * \brief
@@ -220,9 +220,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_1 . PCS_TAP_DLY
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_DLY(x)  LAN80XX_ENCODE_BITFIELD(x,1,5)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_DLY     LAN80XX_ENCODE_BITMASK(1,5)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_DLY(x)  LAN80XX_EXTRACT_BITFIELD(x,1,5)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_DLY(x)                                            (LAN80XX_ENCODE_BITFIELD(x,1,5))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_DLY                                               (LAN80XX_ENCODE_BITMASK(1,5))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS_TAP_DLY(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,1,5))
 
 /**
  * \brief
@@ -234,9 +234,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_1 . PCS_ISCAN_EN
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS_ISCAN_EN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS_ISCAN_EN  LAN80XX_BIT(6)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS_ISCAN_EN(x)  LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS_ISCAN_EN(x)                                           (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS_ISCAN_EN                                              (LAN80XX_BIT(6))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS_ISCAN_EN(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -248,9 +248,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_1 . PCS_EN_FAST_ISCAN
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS_EN_FAST_ISCAN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),7,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS_EN_FAST_ISCAN  LAN80XX_BIT(7)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS_EN_FAST_ISCAN(x)  LAN80XX_EXTRACT_BITFIELD(x,7,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS_EN_FAST_ISCAN(x)                                      (LAN80XX_ENCODE_BITFIELD(!!(x),7,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS_EN_FAST_ISCAN                                         (LAN80XX_BIT(7))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS_EN_FAST_ISCAN(x)                                      (LAN80XX_EXTRACT_BITFIELD(x,7,1))
 
 /**
  * \brief
@@ -262,9 +262,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_1 . PCS2PMA_TXSWING
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXSWING(x)  LAN80XX_ENCODE_BITFIELD(!!(x),8,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXSWING  LAN80XX_BIT(8)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXSWING(x)  LAN80XX_EXTRACT_BITFIELD(x,8,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXSWING(x)                                        (LAN80XX_ENCODE_BITFIELD(!!(x),8,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXSWING                                           (LAN80XX_BIT(8))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXSWING(x)                                        (LAN80XX_EXTRACT_BITFIELD(x,8,1))
 
 /**
  * \brief
@@ -273,9 +273,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_1 . PCS2PMA_TXEI
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXEI(x)  LAN80XX_ENCODE_BITFIELD(!!(x),9,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXEI  LAN80XX_BIT(9)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXEI(x)  LAN80XX_EXTRACT_BITFIELD(x,9,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXEI(x)                                           (LAN80XX_ENCODE_BITFIELD(!!(x),9,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXEI                                              (LAN80XX_BIT(9))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXEI(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,9,1))
 
 /**
  * \brief
@@ -284,17 +284,17 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_1 . PCS2PMA_TXMARGIN
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXMARGIN(x)  LAN80XX_ENCODE_BITFIELD(x,10,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXMARGIN     LAN80XX_ENCODE_BITMASK(10,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXMARGIN(x)  LAN80XX_EXTRACT_BITFIELD(x,10,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXMARGIN(x)                                       (LAN80XX_ENCODE_BITFIELD(x,10,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXMARGIN                                          (LAN80XX_ENCODE_BITMASK(10,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TXMARGIN(x)                                       (LAN80XX_EXTRACT_BITFIELD(x,10,3))
 
 /**
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_1 . PCS2PMA_TX_SPEED
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TX_SPEED(x)  LAN80XX_ENCODE_BITFIELD(x,13,2)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TX_SPEED     LAN80XX_ENCODE_BITMASK(13,2)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TX_SPEED(x)  LAN80XX_EXTRACT_BITFIELD(x,13,2)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TX_SPEED(x)                                       (LAN80XX_ENCODE_BITFIELD(x,13,2))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TX_SPEED                                          (LAN80XX_ENCODE_BITMASK(13,2))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_1_PCS2PMA_TX_SPEED(x)                                       (LAN80XX_EXTRACT_BITFIELD(x,13,2))
 
 
 /**
@@ -305,7 +305,7 @@
  *
  * Register: \a HOST_PMA:SD_LANE_CFG_STAT:SD_LANE_CFG_2
  */
-#define LAN80XX_HOST_PMA_SD_LANE_CFG_2          LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8004)
+#define LAN80XX_HOST_PMA_SD_LANE_CFG_2                                                              (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8004))
 
 /**
  * \brief
@@ -314,9 +314,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_2 . RXFIFO_CK_DIV
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_RXFIFO_CK_DIV(x)  LAN80XX_ENCODE_BITFIELD(x,0,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_RXFIFO_CK_DIV     LAN80XX_ENCODE_BITMASK(0,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_RXFIFO_CK_DIV(x)  LAN80XX_EXTRACT_BITFIELD(x,0,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_RXFIFO_CK_DIV(x)                                          (LAN80XX_ENCODE_BITFIELD(x,0,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_RXFIFO_CK_DIV                                             (LAN80XX_ENCODE_BITMASK(0,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_RXFIFO_CK_DIV(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,0,3))
 
 /**
  * \brief
@@ -325,9 +325,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_2 . TXFIFO_CK_DIV
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_TXFIFO_CK_DIV(x)  LAN80XX_ENCODE_BITFIELD(x,3,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_TXFIFO_CK_DIV     LAN80XX_ENCODE_BITMASK(3,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_TXFIFO_CK_DIV(x)  LAN80XX_EXTRACT_BITFIELD(x,3,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_TXFIFO_CK_DIV(x)                                          (LAN80XX_ENCODE_BITFIELD(x,3,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_TXFIFO_CK_DIV                                             (LAN80XX_ENCODE_BITMASK(3,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_TXFIFO_CK_DIV(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,3,3))
 
 /**
  * \brief
@@ -336,9 +336,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_2 . PMA_TXCK_SEL
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_PMA_TXCK_SEL(x)  LAN80XX_ENCODE_BITFIELD(x,6,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_PMA_TXCK_SEL     LAN80XX_ENCODE_BITMASK(6,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_PMA_TXCK_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,6,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_PMA_TXCK_SEL(x)                                           (LAN80XX_ENCODE_BITFIELD(x,6,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_PMA_TXCK_SEL                                              (LAN80XX_ENCODE_BITMASK(6,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_PMA_TXCK_SEL(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,6,3))
 
 /**
  * \brief
@@ -347,9 +347,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_2 . PMA_RXDIV_SEL
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_PMA_RXDIV_SEL(x)  LAN80XX_ENCODE_BITFIELD(x,10,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_PMA_RXDIV_SEL     LAN80XX_ENCODE_BITMASK(10,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_PMA_RXDIV_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,10,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_PMA_RXDIV_SEL(x)                                          (LAN80XX_ENCODE_BITFIELD(x,10,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_PMA_RXDIV_SEL                                             (LAN80XX_ENCODE_BITMASK(10,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_PMA_RXDIV_SEL(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,10,3))
 
 /**
  * \brief
@@ -367,9 +367,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_2 . DATA_WIDTH_SEL
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_DATA_WIDTH_SEL(x)  LAN80XX_ENCODE_BITFIELD(x,13,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_DATA_WIDTH_SEL     LAN80XX_ENCODE_BITMASK(13,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_DATA_WIDTH_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,13,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_2_DATA_WIDTH_SEL(x)                                         (LAN80XX_ENCODE_BITFIELD(x,13,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_2_DATA_WIDTH_SEL                                            (LAN80XX_ENCODE_BITMASK(13,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_2_DATA_WIDTH_SEL(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,13,3))
 
 
 /**
@@ -380,15 +380,15 @@
  *
  * Register: \a HOST_PMA:SD_LANE_CFG_STAT:SD_LANE_CFG_3
  */
-#define LAN80XX_HOST_PMA_SD_LANE_CFG_3          LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8005)
+#define LAN80XX_HOST_PMA_SD_LANE_CFG_3                                                              (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8005))
 
 /**
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_3 . HWT_PRE_DIVSEL
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_HWT_PRE_DIVSEL(x)  LAN80XX_ENCODE_BITFIELD(x,0,2)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_HWT_PRE_DIVSEL     LAN80XX_ENCODE_BITMASK(0,2)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_HWT_PRE_DIVSEL(x)  LAN80XX_EXTRACT_BITFIELD(x,0,2)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_HWT_PRE_DIVSEL(x)                                         (LAN80XX_ENCODE_BITFIELD(x,0,2))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_HWT_PRE_DIVSEL                                            (LAN80XX_ENCODE_BITMASK(0,2))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_HWT_PRE_DIVSEL(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,0,2))
 
 /**
  * \brief
@@ -398,9 +398,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_3 . HWT_VCO_DIV_SEL
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_HWT_VCO_DIV_SEL(x)  LAN80XX_ENCODE_BITFIELD(x,2,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_HWT_VCO_DIV_SEL     LAN80XX_ENCODE_BITMASK(2,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_HWT_VCO_DIV_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,2,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_HWT_VCO_DIV_SEL(x)                                        (LAN80XX_ENCODE_BITFIELD(x,2,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_HWT_VCO_DIV_SEL                                           (LAN80XX_ENCODE_BITMASK(2,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_HWT_VCO_DIV_SEL(x)                                        (LAN80XX_EXTRACT_BITFIELD(x,2,3))
 
 /**
  * \brief
@@ -409,9 +409,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_3 . HWT_CFG_SEL_DIV
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_HWT_CFG_SEL_DIV(x)  LAN80XX_ENCODE_BITFIELD(x,5,4)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_HWT_CFG_SEL_DIV     LAN80XX_ENCODE_BITMASK(5,4)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_HWT_CFG_SEL_DIV(x)  LAN80XX_EXTRACT_BITFIELD(x,5,4)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_HWT_CFG_SEL_DIV(x)                                        (LAN80XX_ENCODE_BITFIELD(x,5,4))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_HWT_CFG_SEL_DIV                                           (LAN80XX_ENCODE_BITMASK(5,4))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_HWT_CFG_SEL_DIV(x)                                        (LAN80XX_EXTRACT_BITFIELD(x,5,4))
 
 /**
  * \brief
@@ -425,9 +425,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_3 . TXRATE_SEL
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_TXRATE_SEL(x)  LAN80XX_ENCODE_BITFIELD(x,10,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_TXRATE_SEL     LAN80XX_ENCODE_BITMASK(10,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_TXRATE_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,10,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_TXRATE_SEL(x)                                             (LAN80XX_ENCODE_BITFIELD(x,10,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_TXRATE_SEL                                                (LAN80XX_ENCODE_BITMASK(10,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_TXRATE_SEL(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,10,3))
 
 /**
  * \brief
@@ -441,9 +441,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_CFG_3 . RXRATE_SEL
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_RXRATE_SEL(x)  LAN80XX_ENCODE_BITFIELD(x,13,3)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_RXRATE_SEL     LAN80XX_ENCODE_BITMASK(13,3)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_RXRATE_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,13,3)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_CFG_3_RXRATE_SEL(x)                                             (LAN80XX_ENCODE_BITFIELD(x,13,3))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_CFG_3_RXRATE_SEL                                                (LAN80XX_ENCODE_BITMASK(13,3))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_CFG_3_RXRATE_SEL(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,13,3))
 
 
 /**
@@ -454,7 +454,7 @@
  *
  * Register: \a HOST_PMA:SD_LANE_CFG_STAT:SD_LANE_STAT_0
  */
-#define LAN80XX_HOST_PMA_SD_LANE_STAT_0         LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8006)
+#define LAN80XX_HOST_PMA_SD_LANE_STAT_0                                                             (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8006))
 
 /**
  * \brief
@@ -467,9 +467,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_STAT_0 . PMA_RST_DONE
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_STAT_0_PMA_RST_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_STAT_0_PMA_RST_DONE  LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_STAT_0_PMA_RST_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_STAT_0_PMA_RST_DONE(x)                                          (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_STAT_0_PMA_RST_DONE                                             (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_STAT_0_PMA_RST_DONE(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * \brief
@@ -482,9 +482,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_STAT_0 . LANE_RST_DONE
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_STAT_0_LANE_RST_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_STAT_0_LANE_RST_DONE  LAN80XX_BIT(1)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_STAT_0_LANE_RST_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_STAT_0_LANE_RST_DONE(x)                                         (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_STAT_0_LANE_RST_DONE                                            (LAN80XX_BIT(1))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_STAT_0_LANE_RST_DONE(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 
 /**
@@ -495,7 +495,7 @@
  *
  * Register: \a HOST_PMA:SD_LANE_CFG_STAT:SD_LANE_STAT_1
  */
-#define LAN80XX_HOST_PMA_SD_LANE_STAT_1         LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8007)
+#define LAN80XX_HOST_PMA_SD_LANE_STAT_1                                                             (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8007))
 
 /**
  * \brief
@@ -504,9 +504,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_LANE_STAT_1 . DBG_OBS
  */
-#define  LAN80XX_F_HOST_PMA_SD_LANE_STAT_1_DBG_OBS(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_SD_LANE_STAT_1_DBG_OBS     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_SD_LANE_STAT_1_DBG_OBS(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_SD_LANE_STAT_1_DBG_OBS(x)                                               (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_SD_LANE_STAT_1_DBG_OBS                                                  (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_SD_LANE_STAT_1_DBG_OBS(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a HOST_PMA:SD_CFG
@@ -523,7 +523,7 @@
  *
  * Register: \a HOST_PMA:SD_CFG:SD_CFG
  */
-#define LAN80XX_HOST_PMA_SD_CFG                 LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8008)
+#define LAN80XX_HOST_PMA_SD_CFG                                                                     (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8008))
 
 /**
  * \brief
@@ -537,9 +537,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_CFG . SD_ENA
  */
-#define  LAN80XX_F_HOST_PMA_SD_CFG_SD_ENA(x)     LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_SD_CFG_SD_ENA        LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_SD_CFG_SD_ENA(x)     LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_SD_CFG_SD_ENA(x)                                                        (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_SD_CFG_SD_ENA                                                           (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_SD_CFG_SD_ENA(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * \brief
@@ -552,9 +552,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_CFG . SD_POL
  */
-#define  LAN80XX_F_HOST_PMA_SD_CFG_SD_POL(x)     LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_HOST_PMA_SD_CFG_SD_POL        LAN80XX_BIT(1)
-#define  LAN80XX_X_HOST_PMA_SD_CFG_SD_POL(x)     LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_HOST_PMA_SD_CFG_SD_POL(x)                                                        (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_HOST_PMA_SD_CFG_SD_POL                                                           (LAN80XX_BIT(1))
+#define  LAN80XX_X_HOST_PMA_SD_CFG_SD_POL(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -566,9 +566,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_CFG . SD_SEL
  */
-#define  LAN80XX_F_HOST_PMA_SD_CFG_SD_SEL(x)     LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_HOST_PMA_SD_CFG_SD_SEL        LAN80XX_BIT(2)
-#define  LAN80XX_X_HOST_PMA_SD_CFG_SD_SEL(x)     LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_HOST_PMA_SD_CFG_SD_SEL(x)                                                        (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_HOST_PMA_SD_CFG_SD_SEL                                                           (LAN80XX_BIT(2))
+#define  LAN80XX_X_HOST_PMA_SD_CFG_SD_SEL(x)                                                        (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -581,9 +581,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_CFG . HWT_REFCLK_R_SEL
  */
-#define  LAN80XX_F_HOST_PMA_SD_CFG_HWT_REFCLK_R_SEL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_HOST_PMA_SD_CFG_HWT_REFCLK_R_SEL  LAN80XX_BIT(5)
-#define  LAN80XX_X_HOST_PMA_SD_CFG_HWT_REFCLK_R_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_HOST_PMA_SD_CFG_HWT_REFCLK_R_SEL(x)                                              (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_HOST_PMA_SD_CFG_HWT_REFCLK_R_SEL                                                 (LAN80XX_BIT(5))
+#define  LAN80XX_X_HOST_PMA_SD_CFG_HWT_REFCLK_R_SEL(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * Register Group: \a HOST_PMA:SD_CLK_GATE
@@ -600,7 +600,7 @@
  *
  * Register: \a HOST_PMA:SD_CLK_GATE:SD_CLK_GATE
  */
-#define LAN80XX_HOST_PMA_SD_CLK_GATE            LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x8009)
+#define LAN80XX_HOST_PMA_SD_CLK_GATE                                                                (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x8009))
 
 /**
  * \details
@@ -609,9 +609,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_CLK_GATE . SD_CLK_GATE
  */
-#define  LAN80XX_F_HOST_PMA_SD_CLK_GATE_SD_CLK_GATE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_SD_CLK_GATE_SD_CLK_GATE     LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_SD_CLK_GATE_SD_CLK_GATE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_SD_CLK_GATE_SD_CLK_GATE(x)                                              (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_SD_CLK_GATE_SD_CLK_GATE                                                 (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_SD_CLK_GATE_SD_CLK_GATE(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * Register Group: \a HOST_PMA:SD_PWR_CFG
@@ -626,7 +626,7 @@
  * \details
  * Register: \a HOST_PMA:SD_PWR_CFG:NORMAL_MODE_0
  */
-#define LAN80XX_HOST_PMA_NORMAL_MODE_0          LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x800a)
+#define LAN80XX_HOST_PMA_NORMAL_MODE_0                                                              (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x800a))
 
 /**
  * \brief
@@ -640,9 +640,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_NORMAL_MODE_0 . NORMAL_MODE_0
  */
-#define  LAN80XX_F_HOST_PMA_NORMAL_MODE_0_NORMAL_MODE_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_NORMAL_MODE_0_NORMAL_MODE_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_NORMAL_MODE_0_NORMAL_MODE_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_NORMAL_MODE_0_NORMAL_MODE_0(x)                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_NORMAL_MODE_0_NORMAL_MODE_0                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_NORMAL_MODE_0_NORMAL_MODE_0(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -651,7 +651,7 @@
  * \details
  * Register: \a HOST_PMA:SD_PWR_CFG:NORMAL_MODE_1
  */
-#define LAN80XX_HOST_PMA_NORMAL_MODE_1          LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x800b)
+#define LAN80XX_HOST_PMA_NORMAL_MODE_1                                                              (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x800b))
 
 /**
  * \brief
@@ -666,9 +666,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_NORMAL_MODE_1 . NORMAL_MODE_1
  */
-#define  LAN80XX_F_HOST_PMA_NORMAL_MODE_1_NORMAL_MODE_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,9)
-#define  LAN80XX_M_HOST_PMA_NORMAL_MODE_1_NORMAL_MODE_1     LAN80XX_ENCODE_BITMASK(0,9)
-#define  LAN80XX_X_HOST_PMA_NORMAL_MODE_1_NORMAL_MODE_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,9)
+#define  LAN80XX_F_HOST_PMA_NORMAL_MODE_1_NORMAL_MODE_1(x)                                          (LAN80XX_ENCODE_BITFIELD(x,0,9))
+#define  LAN80XX_M_HOST_PMA_NORMAL_MODE_1_NORMAL_MODE_1                                             (LAN80XX_ENCODE_BITMASK(0,9))
+#define  LAN80XX_X_HOST_PMA_NORMAL_MODE_1_NORMAL_MODE_1(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,0,9))
 
 /**
  * \brief
@@ -681,9 +681,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_NORMAL_MODE_1 . PWR_CTRL_SEL
  */
-#define  LAN80XX_F_HOST_PMA_NORMAL_MODE_1_PWR_CTRL_SEL(x)  LAN80XX_ENCODE_BITFIELD(x,0,9)
-#define  LAN80XX_M_HOST_PMA_NORMAL_MODE_1_PWR_CTRL_SEL     LAN80XX_BIT(15)
-#define  LAN80XX_X_HOST_PMA_NORMAL_MODE_1_PWR_CTRL_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,0,9)
+#define  LAN80XX_F_HOST_PMA_NORMAL_MODE_1_PWR_CTRL_SEL(x)                                           (LAN80XX_ENCODE_BITFIELD(x,0,9))
+#define  LAN80XX_M_HOST_PMA_NORMAL_MODE_1_PWR_CTRL_SEL                                              (LAN80XX_BIT(15))
+#define  LAN80XX_X_HOST_PMA_NORMAL_MODE_1_PWR_CTRL_SEL(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,0,9))
 
 /**
  * \brief Power settings for Low Power mode.
@@ -691,7 +691,7 @@
  * \details
  * Register: \a HOST_PMA:SD_PWR_CFG:LOWPWR_MODE_0
  */
-#define LAN80XX_HOST_PMA_LOWPWR_MODE_0          LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x800c)
+#define LAN80XX_HOST_PMA_LOWPWR_MODE_0                                                              (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x800c))
 
 /**
  * \brief
@@ -702,9 +702,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_LOWPWR_MODE_0 . LOWPWR_MODE_0
  */
-#define  LAN80XX_F_HOST_PMA_LOWPWR_MODE_0_LOWPWR_MODE_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_LOWPWR_MODE_0_LOWPWR_MODE_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_LOWPWR_MODE_0_LOWPWR_MODE_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_LOWPWR_MODE_0_LOWPWR_MODE_0(x)                                          (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_LOWPWR_MODE_0_LOWPWR_MODE_0                                             (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_LOWPWR_MODE_0_LOWPWR_MODE_0(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * \brief Power settings for Low Power mode.
@@ -712,7 +712,7 @@
  * \details
  * Register: \a HOST_PMA:SD_PWR_CFG:LOWPWR_MODE_1
  */
-#define LAN80XX_HOST_PMA_LOWPWR_MODE_1          LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x800d)
+#define LAN80XX_HOST_PMA_LOWPWR_MODE_1                                                              (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0, 0x800d))
 
 /**
  * \brief
@@ -723,9 +723,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_LOWPWR_MODE_1 . LOWPWR_MODE_1
  */
-#define  LAN80XX_F_HOST_PMA_LOWPWR_MODE_1_LOWPWR_MODE_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,9)
-#define  LAN80XX_M_HOST_PMA_LOWPWR_MODE_1_LOWPWR_MODE_1     LAN80XX_ENCODE_BITMASK(0,9)
-#define  LAN80XX_X_HOST_PMA_LOWPWR_MODE_1_LOWPWR_MODE_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,9)
+#define  LAN80XX_F_HOST_PMA_LOWPWR_MODE_1_LOWPWR_MODE_1(x)                                          (LAN80XX_ENCODE_BITFIELD(x,0,9))
+#define  LAN80XX_M_HOST_PMA_LOWPWR_MODE_1_LOWPWR_MODE_1                                             (LAN80XX_ENCODE_BITMASK(0,9))
+#define  LAN80XX_X_HOST_PMA_LOWPWR_MODE_1_LOWPWR_MODE_1(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,0,9))
 
 /**
  * Register Group: \a HOST_PMA:SD_ANEG_CFG
@@ -742,7 +742,7 @@
  *
  * Register: \a HOST_PMA:SD_ANEG_CFG:SD_KR_ANEG_MODE
  */
-#define LAN80XX_HOST_PMA_SD_KR_ANEG_MODE        LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8010)
+#define LAN80XX_HOST_PMA_SD_KR_ANEG_MODE                                                            (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8010))
 
 /**
  * \brief
@@ -756,9 +756,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_KR_ANEG_MODE . TX_ANEG_MODE
  */
-#define  LAN80XX_F_HOST_PMA_SD_KR_ANEG_MODE_TX_ANEG_MODE(x)  LAN80XX_ENCODE_BITFIELD(x,0,2)
-#define  LAN80XX_M_HOST_PMA_SD_KR_ANEG_MODE_TX_ANEG_MODE     LAN80XX_ENCODE_BITMASK(0,2)
-#define  LAN80XX_X_HOST_PMA_SD_KR_ANEG_MODE_TX_ANEG_MODE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,2)
+#define  LAN80XX_F_HOST_PMA_SD_KR_ANEG_MODE_TX_ANEG_MODE(x)                                         (LAN80XX_ENCODE_BITFIELD(x,0,2))
+#define  LAN80XX_M_HOST_PMA_SD_KR_ANEG_MODE_TX_ANEG_MODE                                            (LAN80XX_ENCODE_BITMASK(0,2))
+#define  LAN80XX_X_HOST_PMA_SD_KR_ANEG_MODE_TX_ANEG_MODE(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,0,2))
 
 /**
  * Register Group: \a HOST_PMA:SD_EXTCFG_CFG
@@ -773,7 +773,7 @@
  * \details
  * Register: \a HOST_PMA:SD_EXTCFG_CFG:SD_EXTCFG_CFG
  */
-#define LAN80XX_HOST_PMA_SD_EXTCFG_CFG          LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8011)
+#define LAN80XX_HOST_PMA_SD_EXTCFG_CFG                                                              (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8011))
 
 /**
  * \brief
@@ -786,9 +786,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_EXTCFG_CFG . CLK_DIV
  */
-#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_CLK_DIV(x)  LAN80XX_ENCODE_BITFIELD(x,0,3)
-#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_CLK_DIV     LAN80XX_ENCODE_BITMASK(0,3)
-#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_CLK_DIV(x)  LAN80XX_EXTRACT_BITFIELD(x,0,3)
+#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_CLK_DIV(x)                                                (LAN80XX_ENCODE_BITFIELD(x,0,3))
+#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_CLK_DIV                                                   (LAN80XX_ENCODE_BITMASK(0,3))
+#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_CLK_DIV(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,0,3))
 
 /**
  * \brief
@@ -802,9 +802,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_EXTCFG_CFG . WS_SETUP_WR
  */
-#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_WS_SETUP_WR(x)  LAN80XX_ENCODE_BITFIELD(x,4,2)
-#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_WS_SETUP_WR     LAN80XX_ENCODE_BITMASK(4,2)
-#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_WS_SETUP_WR(x)  LAN80XX_EXTRACT_BITFIELD(x,4,2)
+#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_WS_SETUP_WR(x)                                            (LAN80XX_ENCODE_BITFIELD(x,4,2))
+#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_WS_SETUP_WR                                               (LAN80XX_ENCODE_BITMASK(4,2))
+#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_WS_SETUP_WR(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,4,2))
 
 /**
  * \brief
@@ -818,9 +818,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_EXTCFG_CFG . WS_EXEC_WR
  */
-#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_WR(x)  LAN80XX_ENCODE_BITFIELD(x,8,2)
-#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_WR     LAN80XX_ENCODE_BITMASK(8,2)
-#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_WR(x)  LAN80XX_EXTRACT_BITFIELD(x,8,2)
+#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_WR(x)                                             (LAN80XX_ENCODE_BITFIELD(x,8,2))
+#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_WR                                                (LAN80XX_ENCODE_BITMASK(8,2))
+#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_WR(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,8,2))
 
 /**
  * \brief
@@ -834,9 +834,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_EXTCFG_CFG . WS_HOLD_WR
  */
-#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_WS_HOLD_WR(x)  LAN80XX_ENCODE_BITFIELD(x,12,2)
-#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_WS_HOLD_WR     LAN80XX_ENCODE_BITMASK(12,2)
-#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_WS_HOLD_WR(x)  LAN80XX_EXTRACT_BITFIELD(x,12,2)
+#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_WS_HOLD_WR(x)                                             (LAN80XX_ENCODE_BITFIELD(x,12,2))
+#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_WS_HOLD_WR                                                (LAN80XX_ENCODE_BITMASK(12,2))
+#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_WS_HOLD_WR(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,12,2))
 
 /**
  * \brief
@@ -850,9 +850,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_SD_EXTCFG_CFG . WS_EXEC_RD
  */
-#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_RD(x)  LAN80XX_ENCODE_BITFIELD(x,14,2)
-#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_RD     LAN80XX_ENCODE_BITMASK(14,2)
-#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_RD(x)  LAN80XX_EXTRACT_BITFIELD(x,14,2)
+#define  LAN80XX_F_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_RD(x)                                             (LAN80XX_ENCODE_BITFIELD(x,14,2))
+#define  LAN80XX_M_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_RD                                                (LAN80XX_ENCODE_BITMASK(14,2))
+#define  LAN80XX_X_HOST_PMA_SD_EXTCFG_CFG_WS_EXEC_RD(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,14,2))
 
 /**
  * Register Group: \a HOST_PMA:SD_FIFO_DELAY
@@ -869,7 +869,7 @@
  *
  * Register: \a HOST_PMA:SD_FIFO_DELAY:SD_DELAY_CFG
  */
-#define LAN80XX_HOST_PMA_SD_DELAY_CFG           LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8012)
+#define LAN80XX_HOST_PMA_SD_DELAY_CFG                                                               (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8012))
 
 /**
  * \brief
@@ -879,9 +879,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_DELAY_CFG . SAMPLE_TIME
  */
-#define  LAN80XX_F_HOST_PMA_SD_DELAY_CFG_SAMPLE_TIME(x)  LAN80XX_ENCODE_BITFIELD(x,0,3)
-#define  LAN80XX_M_HOST_PMA_SD_DELAY_CFG_SAMPLE_TIME     LAN80XX_ENCODE_BITMASK(0,3)
-#define  LAN80XX_X_HOST_PMA_SD_DELAY_CFG_SAMPLE_TIME(x)  LAN80XX_EXTRACT_BITFIELD(x,0,3)
+#define  LAN80XX_F_HOST_PMA_SD_DELAY_CFG_SAMPLE_TIME(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,3))
+#define  LAN80XX_M_HOST_PMA_SD_DELAY_CFG_SAMPLE_TIME                                                (LAN80XX_ENCODE_BITMASK(0,3))
+#define  LAN80XX_X_HOST_PMA_SD_DELAY_CFG_SAMPLE_TIME(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,3))
 
 
 /**
@@ -892,7 +892,7 @@
  *
  * Register: \a HOST_PMA:SD_FIFO_DELAY:SD_RX_DELAY_VAR
  */
-#define LAN80XX_HOST_PMA_SD_RX_DELAY_VAR        LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8013)
+#define LAN80XX_HOST_PMA_SD_RX_DELAY_VAR                                                            (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8013))
 
 /**
  * \brief
@@ -904,9 +904,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_RX_DELAY_VAR . RX_DELAY_VAR
  */
-#define  LAN80XX_F_HOST_PMA_SD_RX_DELAY_VAR_RX_DELAY_VAR(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_SD_RX_DELAY_VAR_RX_DELAY_VAR     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_SD_RX_DELAY_VAR_RX_DELAY_VAR(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_SD_RX_DELAY_VAR_RX_DELAY_VAR(x)                                         (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_SD_RX_DELAY_VAR_RX_DELAY_VAR                                            (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_SD_RX_DELAY_VAR_RX_DELAY_VAR(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -917,7 +917,7 @@
  *
  * Register: \a HOST_PMA:SD_FIFO_DELAY:SD_TX_DELAY_VAR
  */
-#define LAN80XX_HOST_PMA_SD_TX_DELAY_VAR        LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8014)
+#define LAN80XX_HOST_PMA_SD_TX_DELAY_VAR                                                            (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8014))
 
 /**
  * \brief
@@ -929,9 +929,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_SD_TX_DELAY_VAR . TX_DELAY_VAR
  */
-#define  LAN80XX_F_HOST_PMA_SD_TX_DELAY_VAR_TX_DELAY_VAR(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_SD_TX_DELAY_VAR_TX_DELAY_VAR     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_SD_TX_DELAY_VAR_TX_DELAY_VAR(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_SD_TX_DELAY_VAR_TX_DELAY_VAR(x)                                         (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_SD_TX_DELAY_VAR_TX_DELAY_VAR                                            (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_SD_TX_DELAY_VAR_TX_DELAY_VAR(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a HOST_PMA:HW_CFG
@@ -948,7 +948,7 @@
  *
  * Register: \a HOST_PMA:HW_CFG:KR_DATA_CFG
  */
-#define LAN80XX_HOST_PMA_KR_DATA_CFG            LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8016)
+#define LAN80XX_HOST_PMA_KR_DATA_CFG                                                                (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8016))
 
 /**
  * \brief
@@ -960,9 +960,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_KR_DATA_CFG . REVERT_10B
  */
-#define  LAN80XX_F_HOST_PMA_KR_DATA_CFG_REVERT_10B(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_KR_DATA_CFG_REVERT_10B  LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_KR_DATA_CFG_REVERT_10B(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_KR_DATA_CFG_REVERT_10B(x)                                               (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_KR_DATA_CFG_REVERT_10B                                                  (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_KR_DATA_CFG_REVERT_10B(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * \brief
@@ -974,9 +974,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_KR_DATA_CFG . REVERT_64B_TX
  */
-#define  LAN80XX_F_HOST_PMA_KR_DATA_CFG_REVERT_64B_TX(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_HOST_PMA_KR_DATA_CFG_REVERT_64B_TX  LAN80XX_BIT(1)
-#define  LAN80XX_X_HOST_PMA_KR_DATA_CFG_REVERT_64B_TX(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_HOST_PMA_KR_DATA_CFG_REVERT_64B_TX(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_HOST_PMA_KR_DATA_CFG_REVERT_64B_TX                                               (LAN80XX_BIT(1))
+#define  LAN80XX_X_HOST_PMA_KR_DATA_CFG_REVERT_64B_TX(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -988,9 +988,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_KR_DATA_CFG . REVERT_64B_RX
  */
-#define  LAN80XX_F_HOST_PMA_KR_DATA_CFG_REVERT_64B_RX(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_HOST_PMA_KR_DATA_CFG_REVERT_64B_RX  LAN80XX_BIT(2)
-#define  LAN80XX_X_HOST_PMA_KR_DATA_CFG_REVERT_64B_RX(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_HOST_PMA_KR_DATA_CFG_REVERT_64B_RX(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_HOST_PMA_KR_DATA_CFG_REVERT_64B_RX                                               (LAN80XX_BIT(2))
+#define  LAN80XX_X_HOST_PMA_KR_DATA_CFG_REVERT_64B_RX(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -1002,9 +1002,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_KR_DATA_CFG . KR_DATA_BUS_MODE
  */
-#define  LAN80XX_F_HOST_PMA_KR_DATA_CFG_KR_DATA_BUS_MODE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_HOST_PMA_KR_DATA_CFG_KR_DATA_BUS_MODE  LAN80XX_BIT(3)
-#define  LAN80XX_X_HOST_PMA_KR_DATA_CFG_KR_DATA_BUS_MODE(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_HOST_PMA_KR_DATA_CFG_KR_DATA_BUS_MODE(x)                                         (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_HOST_PMA_KR_DATA_CFG_KR_DATA_BUS_MODE                                            (LAN80XX_BIT(3))
+#define  LAN80XX_X_HOST_PMA_KR_DATA_CFG_KR_DATA_BUS_MODE(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * Register Group: \a HOST_PMA:PMA_INT
@@ -1019,7 +1019,7 @@
  * \details
  * Register: \a HOST_PMA:PMA_INT:PMA_IRQ_VEC
  */
-#define LAN80XX_HOST_PMA_PMA_IRQ_VEC            LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8018)
+#define LAN80XX_HOST_PMA_PMA_IRQ_VEC                                                                (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8018))
 
 /**
  * \brief
@@ -1031,9 +1031,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_PMA_IRQ_VEC . PMA_RXEI_FILTERED_INT
  */
-#define  LAN80XX_F_HOST_PMA_PMA_IRQ_VEC_PMA_RXEI_FILTERED_INT(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_PMA_IRQ_VEC_PMA_RXEI_FILTERED_INT  LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_PMA_IRQ_VEC_PMA_RXEI_FILTERED_INT(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_PMA_IRQ_VEC_PMA_RXEI_FILTERED_INT(x)                                    (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_PMA_IRQ_VEC_PMA_RXEI_FILTERED_INT                                       (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_PMA_IRQ_VEC_PMA_RXEI_FILTERED_INT(x)                                    (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * \brief
@@ -1045,9 +1045,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_PMA_IRQ_VEC . PMA_RESET_DONE
  */
-#define  LAN80XX_F_HOST_PMA_PMA_IRQ_VEC_PMA_RESET_DONE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_HOST_PMA_PMA_IRQ_VEC_PMA_RESET_DONE  LAN80XX_BIT(1)
-#define  LAN80XX_X_HOST_PMA_PMA_IRQ_VEC_PMA_RESET_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_HOST_PMA_PMA_IRQ_VEC_PMA_RESET_DONE(x)                                           (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_HOST_PMA_PMA_IRQ_VEC_PMA_RESET_DONE                                              (LAN80XX_BIT(1))
+#define  LAN80XX_X_HOST_PMA_PMA_IRQ_VEC_PMA_RESET_DONE(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 
 /**
@@ -1056,7 +1056,7 @@
  * \details
  * Register: \a HOST_PMA:PMA_INT:PMA_IRQ_MASK
  */
-#define LAN80XX_HOST_PMA_PMA_IRQ_MASK           LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8019)
+#define LAN80XX_HOST_PMA_PMA_IRQ_MASK                                                               (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x8019))
 
 /**
  * \brief
@@ -1068,9 +1068,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_PMA_IRQ_MASK . PMA_RXEI_FILTERED_INT_EN
  */
-#define  LAN80XX_F_HOST_PMA_PMA_IRQ_MASK_PMA_RXEI_FILTERED_INT_EN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_HOST_PMA_PMA_IRQ_MASK_PMA_RXEI_FILTERED_INT_EN  LAN80XX_BIT(0)
-#define  LAN80XX_X_HOST_PMA_PMA_IRQ_MASK_PMA_RXEI_FILTERED_INT_EN(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_HOST_PMA_PMA_IRQ_MASK_PMA_RXEI_FILTERED_INT_EN(x)                                (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_HOST_PMA_PMA_IRQ_MASK_PMA_RXEI_FILTERED_INT_EN                                   (LAN80XX_BIT(0))
+#define  LAN80XX_X_HOST_PMA_PMA_IRQ_MASK_PMA_RXEI_FILTERED_INT_EN(x)                                (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * \brief
@@ -1082,9 +1082,9 @@
  *
  * Field: ::LAN80XX_HOST_PMA_PMA_IRQ_MASK . PMA_RESET_DONE_INT_EN
  */
-#define  LAN80XX_F_HOST_PMA_PMA_IRQ_MASK_PMA_RESET_DONE_INT_EN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_HOST_PMA_PMA_IRQ_MASK_PMA_RESET_DONE_INT_EN  LAN80XX_BIT(1)
-#define  LAN80XX_X_HOST_PMA_PMA_IRQ_MASK_PMA_RESET_DONE_INT_EN(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_HOST_PMA_PMA_IRQ_MASK_PMA_RESET_DONE_INT_EN(x)                                   (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_HOST_PMA_PMA_IRQ_MASK_PMA_RESET_DONE_INT_EN                                      (LAN80XX_BIT(1))
+#define  LAN80XX_X_HOST_PMA_PMA_IRQ_MASK_PMA_RESET_DONE_INT_EN(x)                                   (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * Register Group: \a HOST_PMA:HOST_PMA_DEBUG
@@ -1101,7 +1101,7 @@
  *
  * Register: \a HOST_PMA:HOST_PMA_DEBUG:HOST_PMA_DEBUG_REG_7
  */
-#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_7   LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80f8)
+#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_7                                                       (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80f8))
 
 /**
  * \brief
@@ -1110,9 +1110,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_7 . HOST_PMA_DBG_REG_7
  */
-#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_7_HOST_PMA_DBG_REG_7(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_7_HOST_PMA_DBG_REG_7     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_7_HOST_PMA_DBG_REG_7(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_7_HOST_PMA_DBG_REG_7(x)                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_7_HOST_PMA_DBG_REG_7                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_7_HOST_PMA_DBG_REG_7(x)                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1123,7 +1123,7 @@
  *
  * Register: \a HOST_PMA:HOST_PMA_DEBUG:HOST_PMA_DEBUG_REG_6
  */
-#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_6   LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80f9)
+#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_6                                                       (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80f9))
 
 /**
  * \brief
@@ -1132,9 +1132,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_6 . HOST_PMA_DBG_REG_6
  */
-#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_6_HOST_PMA_DBG_REG_6(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_6_HOST_PMA_DBG_REG_6     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_6_HOST_PMA_DBG_REG_6(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_6_HOST_PMA_DBG_REG_6(x)                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_6_HOST_PMA_DBG_REG_6                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_6_HOST_PMA_DBG_REG_6(x)                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1145,7 +1145,7 @@
  *
  * Register: \a HOST_PMA:HOST_PMA_DEBUG:HOST_PMA_DEBUG_REG_5
  */
-#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_5   LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fa)
+#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_5                                                       (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fa))
 
 /**
  * \brief
@@ -1154,9 +1154,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_5 . HOST_PMA_DBG_REG_5
  */
-#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_5_HOST_PMA_DBG_REG_5(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_5_HOST_PMA_DBG_REG_5     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_5_HOST_PMA_DBG_REG_5(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_5_HOST_PMA_DBG_REG_5(x)                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_5_HOST_PMA_DBG_REG_5                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_5_HOST_PMA_DBG_REG_5(x)                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1167,7 +1167,7 @@
  *
  * Register: \a HOST_PMA:HOST_PMA_DEBUG:HOST_PMA_DEBUG_REG_4
  */
-#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_4   LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fb)
+#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_4                                                       (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fb))
 
 /**
  * \brief
@@ -1176,9 +1176,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_4 . HOST_PMA_DBG_REG_4
  */
-#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_4_HOST_PMA_DBG_REG_4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_4_HOST_PMA_DBG_REG_4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_4_HOST_PMA_DBG_REG_4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_4_HOST_PMA_DBG_REG_4(x)                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_4_HOST_PMA_DBG_REG_4                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_4_HOST_PMA_DBG_REG_4(x)                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1189,7 +1189,7 @@
  *
  * Register: \a HOST_PMA:HOST_PMA_DEBUG:HOST_PMA_DEBUG_REG_3
  */
-#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_3   LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fc)
+#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_3                                                       (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fc))
 
 /**
  * \brief
@@ -1198,9 +1198,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_3 . HOST_PMA_DBG_REG_3
  */
-#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_3_HOST_PMA_DBG_REG_3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_3_HOST_PMA_DBG_REG_3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_3_HOST_PMA_DBG_REG_3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_3_HOST_PMA_DBG_REG_3(x)                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_3_HOST_PMA_DBG_REG_3                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_3_HOST_PMA_DBG_REG_3(x)                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1211,7 +1211,7 @@
  *
  * Register: \a HOST_PMA:HOST_PMA_DEBUG:HOST_PMA_DEBUG_REG_2
  */
-#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_2   LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fd)
+#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_2                                                       (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fd))
 
 /**
  * \brief
@@ -1220,9 +1220,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_2 . HOST_PMA_DBG_REG_2
  */
-#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_2_HOST_PMA_DBG_REG_2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_2_HOST_PMA_DBG_REG_2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_2_HOST_PMA_DBG_REG_2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_2_HOST_PMA_DBG_REG_2(x)                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_2_HOST_PMA_DBG_REG_2                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_2_HOST_PMA_DBG_REG_2(x)                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1233,7 +1233,7 @@
  *
  * Register: \a HOST_PMA:HOST_PMA_DEBUG:HOST_PMA_DEBUG_REG_1
  */
-#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_1   LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fe)
+#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_1                                                       (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80fe))
 
 /**
  * \brief
@@ -1242,9 +1242,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_1 . HOST_PMA_DBG_REG_1
  */
-#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_1_HOST_PMA_DBG_REG_1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_1_HOST_PMA_DBG_REG_1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_1_HOST_PMA_DBG_REG_1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_1_HOST_PMA_DBG_REG_1(x)                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_1_HOST_PMA_DBG_REG_1                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_1_HOST_PMA_DBG_REG_1(x)                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1255,7 +1255,7 @@
  *
  * Register: \a HOST_PMA:HOST_PMA_DEBUG:HOST_PMA_DEBUG_REG_0
  */
-#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_0   LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80ff)
+#define LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_0                                                       (LAN80XX_IOREG(MMD_ID_HOST_PMA, 0,0x80ff))
 
 /**
  * \brief
@@ -1264,9 +1264,9 @@
  * \details
  * Field: ::LAN80XX_HOST_PMA_HOST_PMA_DEBUG_REG_0 . HOST_PMA_DBG_REG_0
  */
-#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_0_HOST_PMA_DBG_REG_0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_0_HOST_PMA_DBG_REG_0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_0_HOST_PMA_DBG_REG_0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_HOST_PMA_HOST_PMA_DEBUG_REG_0_HOST_PMA_DBG_REG_0(x)                              (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_HOST_PMA_HOST_PMA_DEBUG_REG_0_HOST_PMA_DBG_REG_0                                 (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_HOST_PMA_HOST_PMA_DEBUG_REG_0_HOST_PMA_DBG_REG_0(x)                              (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 #endif /* _LAN80XX_MALIBU25G_REGS_HOST_PMA_H_ */

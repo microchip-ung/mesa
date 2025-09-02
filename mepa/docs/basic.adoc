@@ -9,6 +9,10 @@ grouped and arranged page wise like general purpose registers in a page,
 extended registers in few pages, GPIO registers in a page, 1588 registers in
 a page, MACSEC registers in a page.
 
+MEPA offers APIs for reading and writing registers via Clause 22 and Clause 45. Some PHYs support Clause 22,
+while others support Clause 45. Depending on the PHY`s capabilities, the appropriate API can be used to
+perform register read or write operations.
+
 The API `mepa_clause22_read()` helps to read register of a PHY, given
 regsiter address and page address embedded in address parameter.
 The API `mepa_clause22_write()` helps to write register of a PHY,
@@ -18,10 +22,20 @@ value to be written.
 Extended page registers can be accessed using `mepa_clause45_read()`
 and `mepa_clause45_write()` APIs.
 
+Format of address argument in clause45: +
+      [15:0]   -> Register address
+      [20:16]  -> Device ID (MMD device id)
+
+NOTE: Clause45 API can read/write 8-bit or 16-bit registers, it cannot read/write 32-bit registers.
+
 == PHY Information Details
 
 The API `mepa_phy_info_get()` allows to get current PHY information
-which includes `mepa_phy_info_t` details.
+which includes `mepa_phy_info_t` details, it provides the Part Number of the PHY,
+revision number of the PHY and PTP capability of the PHY..
+
+NOTE: For this `mepa_phy_info_get()` API to work, `mepa_reset()` API with `reset_point = MEPA_RESET_POINT_PRE` needs to be called 
+at-least once after the Port Instance is created.
 
 == Port Interface
 
@@ -106,6 +120,8 @@ and TS TX/RX settings.
 
 The API `mepa_delete()` is used to delete MEPA instance created for a
 PHY. It clears up the data allocated in `mepa_create()` function.
+
+NOTE: The Base dev of the Port instance needs to be deleted once the other ports instances of the PHY are deleted.
 
 == PHY SQI(Signal Quality Indicator) value
 The API `mepa_sqi_read()` is used to get the signal quality indication
