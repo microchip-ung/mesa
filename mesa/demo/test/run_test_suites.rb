@@ -11,9 +11,7 @@ require_relative './libeasy/utils'
 $systems = [
     # dk-t33, Maserati systems
     { name: "dk-t33-0", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
-    { name: "dk-t33-2", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
     { name: "dk-t33-4", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
-    { name: "dk-t33-5", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "33", started: "no" },
 
     # dk-t34, starting with Fireant systems
     { name: "dk-t34-3", image: "arm64_vsc7558TSN.itb",       branch:"master", parallel: "no", server: "34", started: "no" },
@@ -23,6 +21,7 @@ $systems = [
     # { name: "dk-t34-2", image: "ls1046_vsc7512.itb",         branch:"master", parallel: "no", server: "34", started: "no" },
 
     # dk-t35, MIPS systems
+    { name: "dk-t35-0", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "35", started: "no" },
     { name: "dk-t35-2", image: "mipsel_vsc7437.mfi",         branch:"master", parallel: "no", server: "35", started: "no" },
     { name: "dk-t35-1", image: "mipsel_vsc7514_pcb123.mfi",  branch:"master", parallel: "no", server: "35", started: "no" },
     { name: "dk-t35-4", image: "mipsel_vsc7428.mfi",         branch:"master", parallel: "no", server: "35", started: "no" },

@@ -122,7 +122,7 @@ for platform in $platform_list; do
             ;;
 
         me|m8)
-            ts=dk-t33-5
+            ts=dk-t35-0
             img=armv7_lan966x.itb
             dir=build-arm
             ;;
