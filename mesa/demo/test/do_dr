@@ -110,13 +110,13 @@ for platform in $platform_list; do
             ;;
 
         mr)
-            ts=dk-t33-4
+            ts=dk-t34-6
             img=armv7_lan9662.itb
             dir=build-arm
             ;;
 
         mc)
-            ts=dk-t33-4
+            ts=dk-t36-1
             img=armv7_lan966x.itb
             dir=build-arm
             ;;

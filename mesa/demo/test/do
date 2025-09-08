@@ -76,25 +76,25 @@ case $chip in
      ;;
 
      me)
-     ts=dk-t33-5
+     ts=dk-t35-0
      img=armv7_lan966x.itb
      dir=build-arm
      ;;
 
      mr)
-     ts=dk-t33-4
+     ts=dk-t34-6
      img=armv7_lan9662.itb
      dir=build-arm
      ;;
 
      ml)
-     ts=dk-t33-5
+     ts=dk-t35-0
      img=armv7_lan966x_lm.itb
      dir=build-arm
      ;;
 
      ms8)
-     ts=dk-t33-5
+     ts=dk-t35-0
      img=armv7_lan966x.itb
      dir=build-arm
      ;;
