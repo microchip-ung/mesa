@@ -1,6 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifdef MEPA_OPT_TS
 #ifndef _MEPA_TS_API_H_
 #define _MEPA_TS_API_H_
 
@@ -966,3 +967,4 @@ mepa_rc mepa_ts_pch_mch_error_info_get(struct mepa_device *dev,
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */
+#endif // MEPA_OPT_TS

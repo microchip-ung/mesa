@@ -1,6 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifdef MEPA_OPT_TC10
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>
 #include "lan887x_private.h"
@@ -675,3 +676,4 @@ mepa_tc10_driver_t lan887x_tc10_drivers = {
     .mepa_tc10_get_state                   = lan887x_tc10_get_state,
     .mepa_tc10_send_wake_request           = lan887x_tc10_send_wake_request,
 };
+#endif // MEPA_OPT_TC10

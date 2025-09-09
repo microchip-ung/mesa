@@ -84,6 +84,7 @@ static const struct phy_reg_dbg lan887x_regs[] = {
     { "aneg_regs:ANEG_LP_AB_REG2", MDIO_MMD_AN, 0x206},
     { "aneg_regs:ANEG_LP_AB_REG3", MDIO_MMD_AN, 0x207},
     { "aneg_regs:VEND_DBG_CTRL_STAT_REG", MDIO_MMD_AN, 0x8013},
+#ifdef MEPA_OPT_TC10
     // end - Aneg debugging
     { "tc10_dev30_common:REG15", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_REG_REG15},
     { "tc10_dev30_common:TC10_MISC33", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC33},
@@ -93,6 +94,7 @@ static const struct phy_reg_dbg lan887x_regs[] = {
     { "tc10_dev30_common:TC10_SENDZ_MINWAIT_TMR_CFG", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_SENDZ_MINWAIT_TMR_CFG},
     { "misc_regs:REG16", MDIO_MMD_VEND1, LAN887X_MISC_REGS_REG16},
     { "misc_regs:MISC37", MDIO_MMD_VEND1, LAN887X_MISC_REGS_MISC37},
+#endif // MEPA_OPT_TC10
     { "statistics:TX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG0},
     { "statistics:RX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG1},
     { "statistics:RX ERR Count detected by PCS", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG3},
@@ -528,8 +530,10 @@ static mepa_rc lan887x_phy_setup(mepa_device_t *const dev)
     }
     data->init_done = PHY_TRUE;
 
+#ifdef MEPA_OPT_TC10
     // Initialize TC10 required config
     MEPA_RC_GOTO(rc, lan887x_phy_tc10_set_config(dev, &data->tc10_cfg));
+#endif // MEPA_OPT_TC10
 
     MEPA_RC_GOTO(rc, lan887x_phy_init(dev));
 
@@ -568,11 +572,14 @@ error:
 static mepa_rc lan887x_phy_cfg_clr(mepa_device_t *const dev)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
-    uint16_t reg_val = 0;
     mepa_rc rc = MEPA_RC_OK;
+
+#ifdef MEPA_OPT_TC10
+    uint16_t reg_val = 0;
 
     //clear tc10 interrupt register
     MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0xc22U, &reg_val));
+#endif // MEPA_OPT_TC10
 
     //clear loopback if it is setup in prev. config
     MEPA_RC_GOTO(rc, lan887x_setup_lpbk(dev, NULL));
@@ -1427,59 +1434,24 @@ error:
 static mepa_rc lan887x_aneg_resolve_master_slave(mepa_device_t *dev, uint8_t *mode)
 {
     mepa_rc rc = MEPA_RC_OK;
-    uint16_t forced_ms, forced_ms_lp, forced_master, forced_master_lp;
-    uint16_t lp_l, lp_m, adv_l, adv_m;
-    uint8_t master_slave_state = MASTER_SLAVE_STATE_ERR;
+    uint16_t ms_sts = 0;
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_LP_L, &lp_l));
-    MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_LP_M, &lp_m));
-    MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_ADV_L, &adv_l));
-    MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_ADV_M, &adv_m));
+    /* Fetch resolved mode */
+    MEPA_RC_GOTO(rc,
+                 phy_mmd_reg_rd(dev, MDIO_MMD_AN,
+                                LAN887X_VEND_CTRL_STAT_REG, &ms_sts));
 
-    forced_ms = (adv_l & MDIO_AN_T1_ADV_L_FORCE_MS);
-    forced_ms_lp =  (lp_l & MDIO_AN_T1_LP_L_FORCE_MS);
-    forced_master = (adv_m & MDIO_AN_T1_ADV_M_MST);
-    forced_master_lp = (lp_m & MDIO_AN_T1_LP_M_MST);
-
-    if (forced_ms == ZERO) {
-        if (forced_ms_lp > ZERO ) {
-            master_slave_state = MASTER_SLAVE_STATE_MASTER;
-            if (forced_master_lp > ZERO) {
-                master_slave_state = MASTER_SLAVE_STATE_SLAVE;
-            }
-        } else {
-            /* From 802.3bp-2016 standard
-             * Table 98.4 Master-Slave configuration
-             * Device with higher T[4:0] is master otherwise slave
-             */
-            if ((adv_m & 0x1FU) > (lp_m & 0x1FU)) {
-                master_slave_state = MASTER_SLAVE_STATE_MASTER;
-            } else {
-                master_slave_state = MASTER_SLAVE_STATE_SLAVE;
-            }
-        }
-    } else {
-        if (forced_ms_lp > ZERO) {
-            if (((forced_master > ZERO) && (forced_master_lp > ZERO)) ||
-                (forced_master == ZERO && forced_master_lp == ZERO)) {
-                master_slave_state = MASTER_SLAVE_STATE_ERR;
-            } else  {
-                master_slave_state = MASTER_SLAVE_STATE_MASTER;
-                if (forced_master_lp > ZERO) {
-                    master_slave_state = MASTER_SLAVE_STATE_SLAVE;
-                }
-            }
-        } else {
-            master_slave_state = MASTER_SLAVE_STATE_SLAVE;
-            if (forced_master > ZERO) {
-                master_slave_state = MASTER_SLAVE_STATE_MASTER;
-            }
-        }
+    if ((ms_sts & LAN887X_AN_LOCAL_MASTER) == LAN887X_AN_LOCAL_MASTER) {
+        *mode = MASTER_SLAVE_STATE_MASTER;
+    } else if ((ms_sts & LAN887X_AN_LOCAL_SLAVE) == LAN887X_AN_LOCAL_SLAVE) {
+        *mode = MASTER_SLAVE_STATE_SLAVE;
+    } else if ((ms_sts & LAN887X_AN_LOCAL_CFG_FAULT) == LAN887X_AN_LOCAL_CFG_FAULT) {
+        *mode = MASTER_SLAVE_STATE_ERR;
+    }  else {
+        *mode = MASTER_SLAVE_STATE_UNSUPPORTED;
     }
 
-    *mode = master_slave_state;
-
-    T_I(MEPA_TRACE_GRP_GEN, "aneg status get master_slave_state %u\r\n", master_slave_state);
+    T_I(MEPA_TRACE_GRP_GEN, "aneg status get master_slave_state %u\r\n", *mode);
 
 error:
     return rc;
@@ -1606,6 +1578,7 @@ static void lan887x_fill_probe_data(mepa_driver_t *drv,
 
     data->led_conf[MEPA_LED2].led_num = MEPA_LED2;
     data->led_conf[MEPA_LED2].mode = MEPA_GPIO_MODE_LED_LINK_ACTIVITY;
+#ifdef MEPA_OPT_TC10
     data->tc10_cfg.sleep_enable = PHY_TRUE;
     data->tc10_cfg.wakeup_mode = MEPA_TC10_WAKEUP_WUP_WAKEIN_ENABLE;
     data->tc10_cfg.wakeup_fwd_mode = MEPA_TC10_WAKEUP_FWD_WUP_WAKEOUT_ENABLE;
@@ -1613,6 +1586,7 @@ static void lan887x_fill_probe_data(mepa_driver_t *drv,
     data->tc10_cfg.wake_out_pol = MEPA_GPIO_MODE_ACTIVE_LOW;
     data->tc10_cfg.wake_out_mode = MEPA_GPIO_MODE_PUSH_PULL;
     data->tc10_cfg.inh_mode = MEPA_GPIO_MODE_OPEN_SOURCE;
+#endif // MEPA_OPT_TC10
 
     //Cable diag data reset
     data->cd_res.link = PHY_LINKDOWN;
@@ -2313,52 +2287,50 @@ static mepa_rc lan887x_isolate_mode_set(struct mepa_device *dev, mepa_bool_t con
 
 mepa_drivers_t mepa_lan887x_driver_init(void)
 {
+    static const int nr_lan887x_drivers = 1;
+    static mepa_driver_t lan887x_drivers[] = {
+        {
+            //Device ID & Mask
+            .id = LAN8870_PHY_ID,
+            .mask = LAN887X_PHY_ID_MASK,
+            //.mask = LAN887X_PHY_ID_PRTO_MSK,
+            /* LAN887X Driver APIs */
+            .mepa_driver_delete             = lan887x_delete,
+            .mepa_driver_reset              = lan887x_reset,
+            .mepa_driver_poll               = lan887x_poll,
+            .mepa_driver_probe              = lan887x_probe,
+            .mepa_driver_aneg_status_get    = lan887x_aneg_status_get,
+            .mepa_driver_conf_set           = lan887x_conf_set,
+            .mepa_driver_conf_get           = lan887x_conf_get,
+            .mepa_driver_if_set             = lan887x_if_set,
+            .mepa_driver_if_get             = lan887x_if_get,
+            .mepa_driver_media_set          = lan887x_media_set,
+            .mepa_driver_media_get          = lan887x_media_get,
+            .mepa_driver_event_enable_set   = lan887x_event_enable_set,
+            .mepa_driver_event_enable_get   = lan887x_event_enable_get,
+            .mepa_driver_event_poll         = lan887x_event_status_poll,
+            .mepa_driver_gpio_mode_set      = lan887x_gpio_mode_set,
+            .mepa_driver_gpio_out_set       = lan887x_gpio_out_set,
+            .mepa_driver_gpio_in_get        = lan887x_gpio_in_get,
+            .mepa_driver_loopback_set       = lan887x_loopback_set,
+            .mepa_driver_loopback_get       = lan887x_loopback_get,
+            .mepa_driver_phy_info_get       = lan887x_info_get,
+            .mepa_debug_info_dump           = lan887x_debug_info,
+            .mepa_driver_clause22_read      = lan887x_reg_read,
+            .mepa_driver_clause22_write     = lan887x_reg_write,
+            .mepa_driver_clause45_read      = lan887x_mmd_reg_read,
+            .mepa_driver_clause45_write     = lan887x_mmd_reg_write,
+            .mepa_driver_sqi_read           = lan887x_sqi_read,
+            .mepa_driver_isolate_mode_conf  = lan887x_isolate_mode_set,
+            .mepa_driver_cable_diag_start   = lan887x_cable_diag_start,
+            .mepa_driver_cable_diag_get     = lan887x_cable_diag_get,
+            .mepa_tc10                      = &lan887x_tc10_drivers,
+        },
+    };
     mepa_drivers_t result;
-    static mepa_driver_t lan887x_driver[LAN887X_PHY_MAX];
-    uint8_t idx = 0;
 
-    for (idx = 0; idx < LAN887X_PHY_MAX; idx++) {
-        mepa_driver_t *lan887x_drv = &lan887x_driver[idx];
-
-        //Device ID & Mask
-        lan887x_drv->id = LAN8870_PHY_ID;
-        lan887x_drv->mask = LAN887X_PHY_ID_MASK;
-        //lan887x_drv->mask = LAN887X_PHY_ID_PRTO_MSK;
-        /* LAN887X Driver APIs */
-        lan887x_drv->mepa_driver_delete             = lan887x_delete;
-        lan887x_drv->mepa_driver_reset              = lan887x_reset;
-        lan887x_drv->mepa_driver_poll               = lan887x_poll;
-        lan887x_drv->mepa_driver_probe              = lan887x_probe;
-        lan887x_drv->mepa_driver_aneg_status_get    = lan887x_aneg_status_get;
-        lan887x_drv->mepa_driver_conf_set           = lan887x_conf_set;
-        lan887x_drv->mepa_driver_conf_get           = lan887x_conf_get;
-        lan887x_drv->mepa_driver_if_set             = lan887x_if_set;
-        lan887x_drv->mepa_driver_if_get             = lan887x_if_get;
-        lan887x_drv->mepa_driver_media_set          = lan887x_media_set;
-        lan887x_drv->mepa_driver_media_get          = lan887x_media_get;
-        lan887x_drv->mepa_driver_event_enable_set   = lan887x_event_enable_set;
-        lan887x_drv->mepa_driver_event_enable_get   = lan887x_event_enable_get;
-        lan887x_drv->mepa_driver_event_poll         = lan887x_event_status_poll;
-        lan887x_drv->mepa_driver_gpio_mode_set      = lan887x_gpio_mode_set;
-        lan887x_drv->mepa_driver_gpio_out_set       = lan887x_gpio_out_set;
-        lan887x_drv->mepa_driver_gpio_in_get        = lan887x_gpio_in_get;
-        lan887x_drv->mepa_driver_loopback_set       = lan887x_loopback_set;
-        lan887x_drv->mepa_driver_loopback_get       = lan887x_loopback_get;
-        lan887x_drv->mepa_driver_phy_info_get       = lan887x_info_get;
-        lan887x_drv->mepa_debug_info_dump           = lan887x_debug_info;
-        lan887x_drv->mepa_driver_clause22_read      = lan887x_reg_read;
-        lan887x_drv->mepa_driver_clause22_write     = lan887x_reg_write;
-        lan887x_drv->mepa_driver_clause45_read      = lan887x_mmd_reg_read;
-        lan887x_drv->mepa_driver_clause45_write     = lan887x_mmd_reg_write;
-        lan887x_drv->mepa_driver_sqi_read           = lan887x_sqi_read;
-        lan887x_drv->mepa_driver_isolate_mode_conf  = lan887x_isolate_mode_set;
-        lan887x_drv->mepa_driver_cable_diag_start   = lan887x_cable_diag_start;
-        lan887x_drv->mepa_driver_cable_diag_get     = lan887x_cable_diag_get;
-        lan887x_drv->mepa_tc10                      = &lan887x_tc10_drivers;
-    }
-
-    result.phy_drv = &lan887x_driver[0];
-    result.count = LAN887X_PHY_MAX;
+    result.phy_drv = lan887x_drivers;
+    result.count = nr_lan887x_drivers;
 
     return result;
 }

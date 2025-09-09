@@ -619,9 +619,79 @@ mepa_rc lan80xx_flow_control_set_priv(const mepa_device_t     *dev,
 
 mepa_rc lan80xx_serdes_configuration(mepa_device_t *dev, mepa_port_no_t port_no, mepa_port_speed_t speed, phy25g_port_mode_t  *mode);
 
-mepa_rc lan80xx_post1_init(mepa_device_t   *dev, mepa_port_no_t port_no);
+mepa_rc lan80xx_check_mcu_rdy_priv(mepa_device_t *dev);
+
+mepa_rc lan80xx_post1_init_priv(mepa_device_t   *dev, mepa_port_no_t port_no);
 
 mepa_bool_t lan80xx_driver_check(const mepa_device_t   *dev);
 
 mepa_rc lan80xx_xconnect_conf_get_priv(mepa_device_t  *dev, mepa_port_no_t port_no, phy25g_xconnect_get_conf_t  *const conf);
+
+mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev);
+
+mepa_rc lan80xx_mcu_reset_priv(const mepa_device_t *dev);
+
+mepa_rc lan80xx_mcu_mailbox_init_priv(const mepa_device_t *dev, u32 u32McuIntMask, u32 u32HostIntMask);
+
+typedef struct DeviceInfo DEVICE_INFO;
+
+typedef struct OTPRAMUpdatedDB OTPRAMUpdatedDB_t;
+
+typedef enum OTP_Key_Counter enOTP_ACTIVE_KEY;
+
+typedef enum SD_CFG_SPEED_IDX SD_CFG_SPEED_IDX_t;
+
+typedef enum SERDES_CFG eSERDES_CFG_T;
+
+typedef struct SERDES_CONFIG __SERDES_CONFIG_T;
+
+mepa_rc lan80xx_get_fw_info_priv(const mepa_device_t *dev, DEVICE_INFO *psDevInfo);
+
+uint16_t lan80xx_CreatePacket(uint8_t u8PacketId, uint16_t u16CmdParamLen, uint8_t *pu8PktBuf, uint8_t *pu8CmdData, uint8_t u8Reserved);
+mepa_rc lan80xx_MB_SendRequest(const mepa_device_t *dev, uint8_t *au8CmdPkt, uint16_t u16DataLen);
+mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt, uint16_t *u16PayloadLen, uint16_t u16MailboxTimeout);
+mepa_rc lan80xx_ValidatePacket(uint8_t *u8PktBuf);
+
+mepa_rc lan80xx_memory_read_priv(const mepa_device_t *dev, uint32_t u32Addres, uint8_t *pu8Data, const uint16_t u16Len);
+mepa_rc lan80xx_memory_write_priv(const mepa_device_t *dev, uint32_t u16Addres, uint8_t *pu8Data, const u16 u16Len);
+
+mepa_rc lan80xx_otp_cfg_program_priv(const mepa_device_t  *dev, u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
+
+mepa_rc lan80xx_otp_cfg_read_priv(const mepa_device_t  *dev, u8 u8RecIdx, u8 *pu8Cfg, u16 *pu16Len);
+
+mepa_rc lan80xx_otp_prog_RepKey_priv(const mepa_device_t  *dev, u8 *pu8SignedKey, u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
+
+mepa_rc lan80xx_otp_revoke_ROTKey_priv(const mepa_device_t  *dev, u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
+
+mepa_rc lan80xx_otp_revoke_AllKeys_priv(const mepa_device_t  *dev, u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
+
+mepa_rc lan80xx_otp_getKey_Status_priv(const mepa_device_t  *dev, enOTP_ACTIVE_KEY *pKey);
+
+mepa_rc lan80xx_otp_read_priv(const mepa_device_t  *dev, u8 *pu8Data, u16 u16Offset, const u16 u16Len);
+
+mepa_rc lan80xx_otp_write_priv(const mepa_device_t  *dev,
+                               u8 *pu8Data,
+                               u16 u16Offset,
+                               const u16 u16Len,
+                               u8 u8WriteMode);
+
+mepa_rc lan80xx_get_serdes_config_priv(const mepa_device_t *dev,
+                                       SD_CFG_SPEED_IDX_t speed,
+                                       eSERDES_CFG_T cfgType,
+                                       __SERDES_CONFIG_T *const data);
+
+mepa_rc lan80xx_set_serdes_config_priv(const mepa_device_t *dev,
+                                       SD_CFG_SPEED_IDX_t speed,
+                                       eSERDES_CFG_T cfgType,
+                                       const __SERDES_CONFIG_T *data);
+
+mepa_rc lan80xx_KRLog_Enable_priv(const mepa_device_t *dev,
+                                  mepa_bool_t bkrlog_enable,
+                                  mepa_bool_t bline_port_en,
+                                  mepa_bool_t  bhost_port_en);
+
+mepa_rc lan80xx_KRLog_Reset_priv(const mepa_device_t *dev,
+                                 uint32_t u32KRLogOffset,
+                                 uint16_t u16Len);
+
 #endif //_MEPA_LAN80XX_PRIVATE_H_

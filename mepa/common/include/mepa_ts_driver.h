@@ -1,6 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifdef MEPA_OPT_TS
 #ifndef _MEPA_TS_DRV_API_H_
 #define _MEPA_TS_DRV_API_H_
 
@@ -484,3 +485,4 @@ typedef struct mepa_ts_driver {
 } mepa_ts_driver_t;
 
 #endif
+#endif // MEPA_OPT_TS

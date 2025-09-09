@@ -105,9 +105,9 @@ static mepa_device_t *lan867x_probe(mepa_driver_t *drv,
         {
             continue;
         }
-        pdata = lan867x_data[pidx];
-        pdev = lan867x_data[pidx];
-        pdata->t1s_cfg.node_id = (pidx + 1);
+        pdata = &lan867x_data[pidx];
+        pdev = &lan867x_device[pidx];
+        pdata->t1s_cfg.plca_cfg.node_id = (pidx + 1);
         goto update;
     }
     goto error;
@@ -137,7 +137,6 @@ update:
     pdata->conf.admin.enable = true;
     pdata->conf.speed = MESA_SPEED_10M;
     pdata->conf.fdx = false;
-    pdata->conf.mac_if_aneg_ena = false;
     pdata->t1s_cfg.plca_cfg.node_count = 8;
     pdata->t1s_cfg.plca_cfg.plca_enable = true;
     pdata->t1s_cfg.plca_cfg.tx_oppr_timer = 32;
@@ -222,7 +221,6 @@ static mepa_rc lan867x_reset(mepa_device_t *dev, const mepa_reset_param_t *rst_c
     T_I( MEPA_TRACE_GRP_GEN, "Initializing PHY! \r\n");
 
     MEPA_RC(rc, lan867x_init_conf(dev, data->t1s_cfg.plca_cfg));
-    data->init_done = true;
 
     // Reconfigure the phy after reset
     MEPA_RC(rc, lan867x_phy_conf_set(dev, &data->conf));

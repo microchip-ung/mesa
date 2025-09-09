@@ -10,7 +10,8 @@
 
 static uint32_t lan80xx_ids[] = {LAN80XX_DEV_ID_8044, LAN80XX_DEV_ID_8043, LAN80XX_DEV_ID_8042, LAN80XX_DEV_ID_8024, LAN80XX_DEV_ID_8023,
                                  LAN80XX_DEV_ID_8022, LAN80XX_DEV_ID_8268, LAN80XX_DEV_ID_8267, LAN80XX_DEV_ID_8264, LAN80XX_DEV_ID_8263,
-                                 LAN80XX_DEV_ID_8262};
+                                 LAN80XX_DEV_ID_8262
+                                };
 
 #define LAN80XX_DRIVERS_COUNT (sizeof(lan80xx_ids)/(sizeof(lan80xx_ids[0])))
 

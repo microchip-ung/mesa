@@ -5,9 +5,15 @@
 #define _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_
 
 #include <mepa_os.h>
+#ifdef MEPA_OPT_TS
 #include <mepa_ts_driver.h>
+#endif
+#ifdef MEPA_OPT_MACSEC
 #include <mepa_macsec_driver.h>
+#endif
+#ifdef MEPA_OPT_TC10
 #include <mepa_tc10_driver.h>
+#endif
 #include <mepa_t1s_driver.h>
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */
@@ -880,9 +886,15 @@ typedef struct mepa_driver {
     mepa_driver_warmrestart_conf_set_t mepa_driver_warmrestart_conf_set;
     mepa_driver_serdes_tx_conf_set_t   mepa_driver_serdes_tx_conf_set;
     mepa_driver_phy_qsgmii_sync_t      mepa_driver_phy_qsgmii_sync;
+#ifdef MEPA_OPT_TS
     mepa_ts_driver_t                   *mepa_ts;
+#endif
+#ifdef MEPA_OPT_MACSEC
     mepa_macsec_driver_t               *mepa_macsec;
+#endif
+#ifdef MEPA_OPT_TC10
     mepa_tc10_driver_t                 *mepa_tc10;
+#endif
     mepa_t1s_driver_t                  *mepa_t1s;
     uint32_t id;                  /**< Id of the driver */
     uint32_t mask;                /**< Mask of the driver */

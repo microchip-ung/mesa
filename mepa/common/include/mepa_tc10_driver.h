@@ -1,6 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifdef MEPA_OPT_TC10
 #ifndef _MEPA_TC10_DRV_API_H_
 #define _MEPA_TC10_DRV_API_H_
 
@@ -202,3 +203,4 @@ typedef struct mepa_tc10_driver {
 } mepa_tc10_driver_t;
 
 #endif  /* _MEPA_TC10_DRV_API_H_ */
+#endif // MEPA_OPT_TC10

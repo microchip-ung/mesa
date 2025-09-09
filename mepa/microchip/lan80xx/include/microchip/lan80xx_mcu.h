@@ -404,71 +404,86 @@ typedef struct SERDES_CONFIG {
 
 } __SERDES_CONFIG_T;
 
-typedef uint8_t (*gpio_callback_t) (void);
+typedef uint8_t (*gpio_callback_t) (const mepa_device_t *dev);
 
-mepa_rc lan80xx_MB_INTR_register_callback(const mepa_device_t *dev, gpio_callback_t gpio_cb);
+mepa_rc lan80xx_mcu_mailbox_init(const mepa_device_t *dev,
+                                 u32 u32McuIntMask,
+                                 u32 u32HostIntMask);
 
-mepa_rc lan80xx_mcu_mailbox_init(const mepa_device_t *dev, u32 u32McuIntMask, u32 u32HostIntMask);
+mepa_rc lan80xx_MB_INTR_register_callback(const mepa_device_t *dev,
+                                          gpio_callback_t gpio_cb);
 
-mepa_rc lan80xx_otp_cfg_program(const mepa_device_t  *dev,
-                                u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
+mepa_rc lan80xx_get_fw_info(const mepa_device_t *dev, DEVICE_INFO *psDevInfo);
+
+mepa_rc lan80xx_fw_update(mepa_device_t *dev);
+
+/* lan80xx_mcu_reset - API to reset MCU*/
+mepa_rc lan80xx_mcu_reset(const mepa_device_t *dev);
+
+mepa_rc lan80xx_memory_read(const mepa_device_t *dev, uint32_t u32Addres,
+                            uint8_t *pu8Data, const uint16_t u16Len);
+
+mepa_rc lan80xx_memory_write(const mepa_device_t *dev,
+                             uint32_t u16Addres,
+                             uint8_t *pu8Data,
+                             const u16 u16Len);
 
 mepa_rc lan80xx_otp_cfg_read(const mepa_device_t  *dev,
                              u8 u8RecIdx,
                              u8 *pu8Cfg,
                              u16 *pu16Len);
 
-mepa_rc lan80xx_otp_prog_RepKey(const mepa_device_t  *dev,
-                                u8 *pu8SignedKey,
-                                u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
-
-mepa_rc lan80xx_otp_revoke_ROTKey(const mepa_device_t  *dev,
-                                  u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
-
-mepa_rc lan80xx_otp_revoke_AllKeys(const mepa_device_t  *dev,
-                                   u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
-
-mepa_rc lan80xx_otp_getKey_Status(const mepa_device_t  *dev,
-                                  enOTP_ACTIVE_KEY *pKey);
-
 mepa_rc lan80xx_otp_read(const mepa_device_t  *dev,
                          u8 *pu8Data,
                          u16 u16Offset,
                          const u16 u16Len);
 
-/* lan80xx_mcu_reset - API to reset MCU*/
-mepa_rc lan80xx_mcu_reset(const mepa_device_t *dev);
+mepa_rc lan80xx_otp_write(const mepa_device_t  *dev,
+                          u8 *pu8Data,
+                          u16 u16Offset,
+                          const u16 u16Len,
+                          u8 u8WriteMode);
 
-/* lan80xx_get_fw_info - API to get Firmware info (Part ID, Target ID, Image Type, Firmware Version)*/
-mepa_rc lan80xx_get_fw_info(const mepa_device_t *dev, DEVICE_INFO *psDevInfo);
+mepa_rc lan80xx_otp_getKey_Status(const mepa_device_t  *dev,
+                                  enOTP_ACTIVE_KEY *pKey);
 
-mepa_rc lan80xx_memory_read(const mepa_device_t *dev, uint32_t u32Addres, uint8_t *pu8Data, const uint16_t u16Len);
-mepa_rc lan80xx_memory_write(const mepa_device_t *dev, uint32_t u16Addres, uint8_t *pu8Data, const u16 u16Len);
-mepa_rc lan80xx_fw_update(mepa_device_t *dev);
+mepa_rc lan80xx_otp_revoke_AllKeys(const mepa_device_t  *dev,
+                                   u8 *pu8OTPBuffer,
+                                   OTPRAMUpdatedDB_t *pCfgUpdates,
+                                   u8 u8UpdateCnt);
 
-#if 0
-/* TODO: Below need to add definitions */
-mepa_rc lan80xx_ANEG_GetConfig(const mepa_device_t  *dev, KR_PORT_CONF *psConfig);
-mepa_rc lan80xx_ANEG_SetConfig(const mepa_device_t  *dev, KR_PORT sPort, KR_PORT_CONF sConfig);
-mepa_rc lan80xx_ANEG_Enable(const mepa_device_t  *dev);
-mepa_rc lan80xx_ANEG_Disable(const mepa_device_t  *dev);
+mepa_rc lan80xx_otp_revoke_ROTKey(const mepa_device_t  *dev,
+                                  u8 *pu8OTPBuffer,
+                                  OTPRAMUpdatedDB_t *pCfgUpdates,
+                                  u8 u8UpdateCnt);
 
-mepa_rc lan80xx_KRLog_Enable(const mepa_device_t  *dev, KR_PORT sPort);
-mepa_rc lan80xx_KRLog_Reset(const mepa_device_t  *dev);
-#endif
+mepa_rc lan80xx_otp_prog_RepKey(const mepa_device_t  *dev,
+                                u8 *pu8SignedKey,
+                                u8 *pu8OTPBuffer,
+                                OTPRAMUpdatedDB_t *pCfgUpdates,
+                                u8 u8UpdateCnt);
 
-uint16_t lan80xx_CreatePacket(uint8_t u8PacketId, uint16_t u16CmdParamLen, uint8_t *pu8PktBuf, uint8_t *pu8CmdData, uint8_t u8Reserved);
-mepa_rc lan80xx_MB_SendRequest(const mepa_device_t *dev, uint8_t *au8CmdPkt, uint16_t u16DataLen);
-mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt, uint16_t *u16PayloadLen, uint16_t u16MailboxTimeout);
-mepa_rc lan80xx_ValidatePacket(uint8_t *u8PktBuf);
-mepa_rc lan80xx_check_mcu_rdy(mepa_device_t *dev);
+mepa_rc lan80xx_otp_cfg_program(const mepa_device_t  *dev,
+                                u8 *pu8OTPBuffer,
+                                OTPRAMUpdatedDB_t *pCfgUpdates,
+                                u8 u8UpdateCnt);
 
-mepa_rc lan80xx_get_serdes_config(const mepa_device_t *dev, SD_CFG_SPEED_IDX_t speed, eSERDES_CFG_T cfgType, __SERDES_CONFIG_T *const data);
-mepa_rc lan80xx_set_serdes_config(const mepa_device_t *dev, SD_CFG_SPEED_IDX_t speed, eSERDES_CFG_T cfgType, const __SERDES_CONFIG_T *data);
+mepa_rc lan80xx_get_serdes_config(const mepa_device_t *dev,
+                                  SD_CFG_SPEED_IDX_t speed,
+                                  eSERDES_CFG_T cfgType,
+                                  __SERDES_CONFIG_T *const data);
 
+mepa_rc lan80xx_set_serdes_config(const mepa_device_t *dev,
+                                  SD_CFG_SPEED_IDX_t speed,
+                                  eSERDES_CFG_T cfgType,
+                                  const __SERDES_CONFIG_T *data);
 
-// kr logging
-mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable, mepa_bool_t bline_port_en, mepa_bool_t  bhost_port_en);
-mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32RamAddr, uint16_t u16Len);
+mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev,
+                             mepa_bool_t bkrlog_enable,
+                             mepa_bool_t bline_port_en,
+                             mepa_bool_t  bhost_port_en);
 
+mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev,
+                            uint32_t u32KRLogOffset,
+                            uint16_t u16Len);
 #endif //  end of _LAN80XX_MCU_H_

@@ -695,6 +695,7 @@ mepa_rc mepa_eee_status_get(struct mepa_device *dev, uint8_t *const advertisemen
     return dev->drv->mepa_driver_eee_status_get(dev, advertisement, rx_in_power_save_state, tx_in_power_save_state);
 }
 
+#ifdef MEPA_OPT_TS
 mepa_rc mepa_ts_mode_set(struct mepa_device *dev,
                          const mepa_bool_t enable)
 {
@@ -1233,6 +1234,7 @@ mepa_rc mepa_ts_pch_mch_error_info_get(struct mepa_device *dev, mepa_pch_mch_mis
 
     return dev->drv->mepa_ts->mepa_ts_pch_mch_error_info_get(dev, info);
 }
+#endif //MEPA_OPT_TS
 
 mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
                              const mepa_debug_print_t pr,
@@ -1308,6 +1310,7 @@ mepa_rc mepa_selftest_read(struct mepa_device *dev, mepa_selftest_info_t *const 
     return dev->drv->mepa_driver_selftest_read(dev, inf);
 }
 
+#ifdef MEPA_OPT_MACSEC
 mepa_rc mepa_macsec_init_set(struct mepa_device *dev, const
                              mepa_macsec_init_t *const macsec_init)
 {
@@ -2510,6 +2513,7 @@ mepa_rc mepa_macsec_csr_write(struct mepa_device *dev,
     return dev->drv->mepa_macsec->mepa_macsec_csr_write(dev, port_no, mmd, addr, value);
 }
 
+#ifndef MEPA_OPT_AUTOMOTIVE
 mepa_rc mepa_macsec_dbg_counter_get(struct mepa_device *dev,
                                     const mepa_port_no_t port_no,
                                     mepa_macsec_rc_dbg_counters_t *const counters)
@@ -2524,6 +2528,7 @@ mepa_rc mepa_macsec_dbg_counter_get(struct mepa_device *dev,
 
     return dev->drv->mepa_macsec->mepa_macsec_dbg_counter_get(dev, port_no, counters);
 }
+#endif
 
 mepa_rc mepa_macsec_hmac_counters_get(struct mepa_device *dev,
                                       const mepa_port_no_t port_no,
@@ -2839,6 +2844,7 @@ mepa_rc mepa_macsec_fcbuf_frame_gap_comp_set(struct mepa_device *dev,
     return dev->drv->mepa_macsec->mepa_macsec_fcbuf_frame_gap_comp_set(dev, port_no, frm_gap);
 }
 
+#ifndef MEPA_OPT_AUTOMOTIVE
 mepa_rc mepa_macsec_dbg_fcb_block_reg_dump(struct mepa_device *dev,
                                            const mepa_port_no_t port_no,
                                            const mepa_debug_print_t pr)
@@ -2868,6 +2874,7 @@ mepa_rc mepa_macsec_dbg_frm_match_handling_ctrl_reg_dump(struct mepa_device *dev
 
     return dev->drv->mepa_macsec->mepa_macsec_dbg_frm_match_handling_ctrl_reg_dump(dev, port_no, pr);
 }
+#endif
 
 #ifdef MEPA_MACSEC_FIFO_OVERFLOW_WORKAROUND
 
@@ -2888,6 +2895,7 @@ mepa_rc mepa_macsec_dbg_reconfig(struct mepa_device *dev,
 #endif
 
 
+#ifndef MEPA_OPT_AUTOMOTIVE
 mepa_rc mepa_macsec_dbg_update_seq_set(struct mepa_device *dev,
                                        const mepa_macsec_port_t port,
                                        const mepa_macsec_sci_t *const sci,
@@ -2905,6 +2913,8 @@ mepa_rc mepa_macsec_dbg_update_seq_set(struct mepa_device *dev,
 
     return dev->drv->mepa_macsec->mepa_macsec_dbg_update_seq_set(dev, port, sci, an, egr, disable);
 }
+#endif
+#endif //MEPA_OPT_MACSEC
 
 mepa_rc mepa_prbs_set(struct mepa_device *dev, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, const mepa_phy_prbs_generator_conf_t *const prbs_conf)
 {
@@ -2960,6 +2970,7 @@ uint32_t mepa_capability(struct mepa_device *dev, uint32_t capability)
     return dev->drv->mepa_capability(dev, capability);
 }
 
+#ifdef MEPA_OPT_TC10
 mepa_rc mepa_tc10_set_sleep_support(struct mepa_device          *dev,
                                     const mepa_bool_t           enable)
 {
@@ -3146,6 +3157,7 @@ mepa_rc mepa_tc10_send_wake_request(struct mepa_device *dev)
 
     return dev->drv->mepa_tc10->mepa_tc10_send_wake_request(dev);
 }
+#endif //MEPA_OPT_TC10
 
 mepa_rc mepa_warmstart_conf_end(struct mepa_device *dev)
 {
@@ -3187,30 +3199,30 @@ mepa_rc mepa_phy_qsgmii_sync(struct mepa_device *dev)
 
 }
 
-mepa_rc mepa_t1s_set_plca_config (struct mepa_device *dev,
+mepa_rc mepa_t1s_set_plca_config(struct mepa_device *dev,
                                   const mepa_t1s_plca_cfg_t cfg)
 {
     if (!dev->drv->mepa_t1s) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    if (!dev->drv->mepa_t1s->mepa_t1s_set_plca_config) {
+    if (!dev->drv->mepa_t1s->mepa_driver_t1s_set_plca_config) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_t1s->mepa_t1s_set_plca_config(dev, cfg);
+    return dev->drv->mepa_t1s->mepa_driver_t1s_set_plca_config(dev, cfg);
 }
 
-mepa_rc mepa_t1s_get_plca_config (struct mepa_device *dev,
+mepa_rc mepa_t1s_get_plca_config(struct mepa_device *dev,
                                   mepa_t1s_plca_cfg_t *const cfg)
 {
     if (!dev->drv->mepa_t1s) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    if (!dev->drv->mepa_t1s->mepa_t1s_get_plca_config) {
+    if (!dev->drv->mepa_t1s->mepa_driver_t1s_get_plca_config) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_t1s->mepa_t1s_get_plca_config(dev, cfg);
+    return dev->drv->mepa_t1s->mepa_driver_t1s_get_plca_config(dev, cfg);
 }

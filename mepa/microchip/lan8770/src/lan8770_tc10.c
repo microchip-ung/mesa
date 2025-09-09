@@ -166,12 +166,15 @@ static mepa_rc lan8770_tc10_send_sleep_request(struct mepa_device               
 }
 
 static mepa_rc lan8770_tc10_get_state(struct mepa_device        *dev,
-                                      mepa_tc10_state_t         *const state)
+                                      mepa_tc10_state_t         *const state,
+                                      uint16_t      *const indication)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
     MEPA_ENTER(dev);
 
+    //TC10 pending interrupts if any
+    *indication = 0;
     rc = phy_tc10_get_state(dev, state);
 
     MEPA_EXIT(dev);

@@ -13,7 +13,7 @@ static mepa_rc lan867x_t1s_set_plca_config(struct mepa_device *dev,
 {
     mepa_rc rc = MEPA_RC_ERROR;
     phy_data_t *pdata = dev->data;
-
+    
     MEPA_ENTER(dev);
 
     MEPA_RC(rc, lan867x_init_conf(dev, cfg));
@@ -24,11 +24,10 @@ error:
 
     return rc;
 }
-
+ 
 static mepa_rc lan867x_t1s_get_plca_config(struct mepa_device *dev,
                                                  mepa_t1s_plca_cfg_t *const cfg)
 {
-    mepa_rc rc = MEPA_RC_ERROR;
     phy_data_t *pdata = dev->data;
 
     MEPA_ENTER(dev);
@@ -37,10 +36,10 @@ static mepa_rc lan867x_t1s_get_plca_config(struct mepa_device *dev,
 
     MEPA_EXIT(dev);
 
-    return rc;
-}
+    return MEPA_RC_OK;
+} 
 
 mepa_t1s_driver_t lan867x_t1s_driver = {
-    .mepa_t1s_set_plca_config = lan867x_t1s_set_plca_config,
-    .mepa_t1s_get_plca_config = lan867x_t1s_get_plca_config,
+    .mepa_driver_t1s_set_plca_config = lan867x_t1s_set_plca_config,
+    .mepa_driver_t1s_get_plca_config = lan867x_t1s_get_plca_config,
 };

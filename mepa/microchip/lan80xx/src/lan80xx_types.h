@@ -181,8 +181,8 @@ typedef struct {
     mepa_bool_t      mpls_disable;
 } phy25g_features_t;
 
-
-typedef uint8_t(*phy25g_gpio_read_t)();
+/* MEPA-1226: mepa dev must be passed to callback function */
+typedef uint8_t(*phy25g_gpio_read_t)(const mepa_device_t *dev);
 //
 // This structure is accessed from mepa_device->data member
 // which is info about malibu15g a.k.a private data
@@ -238,7 +238,7 @@ typedef struct phy25g_state_s {
     phy25g_ptp_lsc_input            ptp_lsc_input_config;
     phy25g_ptp_lsc_output           ptp_lsc_output_config;
     phy25g_phy_ts_port_conf_t       phy_ts_port_conf;
-    lan80xx_phy_ts_fifo_read        ts_fifo_cb;
+    mepa_ts_fifo_read_t             ts_fifo_cb;
     void                            *cntxt;
     phy25g_gpio_read_t              ft_gpio_read;
     mepa_port_no_t                  krlog_en_ports;

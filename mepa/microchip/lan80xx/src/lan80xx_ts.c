@@ -11,7 +11,6 @@
 #include "regs_lan80xx.h"
 #include <lan80xx_ts.h>
 
-static mepa_ts_fifo_read_t fifo_cb = NULL;
 
 uint8_t lan80xx_get_vs_addr_type(mepa_ts_mac_match_mode_t mac_match)
 {
@@ -85,10 +84,6 @@ mepa_rc mepa_to_lan80xx_encap(mepa_ts_pkt_encap_t encap, phy25g_ts_encap_t *phy2
 
     case MEPA_TS_ENCAP_ETH_IP_PTP:
         *phy25g_encap = LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP;
-        break;
-
-    case MEPA_TS_ENCAP_ETH_IP_IP_PTP:
-        *phy25g_encap = LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP;
         break;
 
     case MEPA_TS_ENCAP_ETH_ETH_PTP:
@@ -460,81 +455,50 @@ static mepa_rc lan80xx_ts_ltc_set(mepa_device_t *dev, const mepa_timestamp_t *co
     return rc;
 }
 
-static void lan80xx_phy_ts_fifo_read_cb(mepa_device_t  *dev,
-                                        const mepa_port_no_t           port_no,
-                                        const phy25g_phy_timestamp_t     *const fifo_ts,
-                                        const phy25g_ts_fifo_sig_t   *const sig,
-                                        void                           *cntxt,
-                                        const phy25g_ts_fifo_status_t status)
-{
-    mepa_ts_fifo_sig_t mep_sig;
-    mepa_timestamp_t ts;
-    ts.seconds.high = fifo_ts->seconds.high;
-    ts.seconds.low  = fifo_ts->seconds.low;
-    ts.nanoseconds  = fifo_ts->nanoseconds;
-    mep_sig.msg_type = sig->msg_type;
-    mep_sig.domain_num = sig->domain_num;
-    mep_sig.sequence_id = sig->sequence_id;
-    memcpy(mep_sig.src_port_identity, sig->src_port_identity, sizeof(mep_sig.src_port_identity));
-    mep_sig.has_crc_src = FALSE;
-    mep_sig.crc_src_port = 0;
-    if (fifo_cb != NULL) {
-        fifo_cb(port_no, &ts, &mep_sig, (mepa_ts_fifo_status_t)status);
-    }
-}
-
 static void lan80xx_ts_fifo_read_install(mepa_device_t  *dev, mepa_ts_fifo_read_t rd_cb)
 {
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     MEPA_ENTER(dev);
-    fifo_cb = rd_cb ? rd_cb : fifo_cb;
-    (void)lan80xx_phy_ts_fifo_read_install(dev, lan80xx_phy_ts_fifo_read_cb, NULL);
-	MEPA_EXIT(dev);
-	return;
+    data->ts_fifo_cb = rd_cb;
+    MEPA_EXIT(dev);
+    return;
 }
 
 static mepa_rc lan80xx_ts_fifo_empty(mepa_device_t  *dev)
 {
-	mepa_rc rc = MEPA_RC_ERROR;
-	MEPA_ENTER(dev);
+    mepa_rc rc = MEPA_RC_ERROR;
+    MEPA_ENTER(dev);
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     rc = lan80xx_phy_ts_fifo_empty(dev, data->port_no, NULL, NULL, TRUE);
-	MEPA_EXIT(dev);
-	return rc;
+    MEPA_EXIT(dev);
+    return rc;
 }
 
 static mepa_rc lan80xx_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_list[], const size_t size, uint32_t *const num)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    phy25g_ts_fifo_entry_t phy25g_ts_entry[LAN80XX_PHY_TS_FIFO_MAX_ENTRIES];
-    u16 FifoEntryIndex = 0;
-
-    if (num == NULL) {
-        T_E(MEPA_TRACE_GRP_GEN, "Invalid argument\n");
-        return MEPA_RC_ERROR;
-    }
-
-
-    if (size < LAN80XX_PHY_TS_FIFO_MAX_ENTRIES) {
-        T_E(MEPA_TRACE_GRP_GEN, "Size of Input TS list is less than 16\n");
-        return MEPA_RC_ERROR;
-    }
-
-    if (lan80xx_phy_ts_fifo_get(dev, data->port_no, phy25g_ts_entry, LAN80XX_PHY_TS_FIFO_MAX_ENTRIES, num) == MEPA_RC_OK) {
-        for (FifoEntryIndex = 0; FifoEntryIndex < *num; FifoEntryIndex++) {
-            ts_list[FifoEntryIndex].ts.seconds.high = phy25g_ts_entry[FifoEntryIndex].ts.seconds.high;
-            ts_list[FifoEntryIndex].ts.seconds.low = phy25g_ts_entry[FifoEntryIndex].ts.seconds.low;
-            ts_list[FifoEntryIndex].ts.nanoseconds = phy25g_ts_entry[FifoEntryIndex].ts.nanoseconds;
-            ts_list[FifoEntryIndex].sig.msg_type =   phy25g_ts_entry[FifoEntryIndex].sig.msg_type;
-            ts_list[FifoEntryIndex].sig.domain_num = phy25g_ts_entry[FifoEntryIndex].sig.domain_num;
-            memcpy(ts_list[FifoEntryIndex].sig.src_port_identity, phy25g_ts_entry[FifoEntryIndex].sig.src_port_identity, sizeof(ts_list[FifoEntryIndex].sig.src_port_identity));
-            ts_list[FifoEntryIndex].sig.sequence_id = phy25g_ts_entry[FifoEntryIndex].sig.sequence_id;
-            ts_list[FifoEntryIndex].sig.has_crc_src = FALSE;
+    mepa_rc rc = MEPA_RC_OK;
+    MEPA_ENTER(dev);
+    do {
+        if (num == NULL) {
+            T_E(MEPA_TRACE_GRP_GEN, "Invalid argument\n");
+            rc = MEPA_RC_ERROR;
+            break;
         }
-    } else {
-        T_E(MEPA_TRACE_GRP_GEN, "Failed to get FIFO entries!!\n");
-        return MEPA_RC_ERROR;
-    }
-    return MEPA_RC_OK;
+
+        if (size < LAN80XX_PHY_TS_FIFO_MAX_ENTRIES) {
+            T_E(MEPA_TRACE_GRP_GEN, "Size of Input TS list is less than 16\n");
+            rc = MEPA_RC_ERROR;
+            break;
+        }
+
+        if (lan80xx_phy_ts_fifo_get(dev, data->port_no, ts_list, LAN80XX_PHY_TS_FIFO_MAX_ENTRIES, num) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "Failed to get FIFO entries!!\n");
+            rc = MEPA_RC_ERROR;
+        }
+    } while (0);
+    MEPA_EXIT(dev);
+    return rc;
 }
 
 

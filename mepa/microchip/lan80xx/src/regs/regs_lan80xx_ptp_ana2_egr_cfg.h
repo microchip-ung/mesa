@@ -1968,6 +1968,7 @@
  * \details
  * Register: \a PTP_ANA2_EGR_CFG:EGR2_FRAME_SIG_CFG:EGR2_FSB_CFG
  */
+#define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_CFG_OFFSET                                                (0x240)
 #define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_CFG                                                       (LAN80XX_IOREG(MMD_ID_PTP_ANAx, 1,0xca40))
 
 /**
@@ -2022,6 +2023,7 @@
  *
  * Register: \a PTP_ANA2_EGR_CFG:EGR2_FRAME_SIG_CFG:EGR2_FSB_MAP_REG_0
  */
+#define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_0_OFFSET                                          (0x241)
 #define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_0                                                 (LAN80XX_IOREG(MMD_ID_PTP_ANAx, 1,0xca41))
 
 /**
@@ -2086,6 +2088,7 @@
  * \details
  * Register: \a PTP_ANA2_EGR_CFG:EGR2_FRAME_SIG_CFG:EGR2_FSB_MAP_REG_1
  */
+#define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_1_OFFSET                                          (0x242)
 #define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_1                                                 (LAN80XX_IOREG(MMD_ID_PTP_ANAx, 1,0xca42))
 
 /**
@@ -2150,6 +2153,7 @@
  * \details
  * Register: \a PTP_ANA2_EGR_CFG:EGR2_FRAME_SIG_CFG:EGR2_FSB_MAP_REG_2
  */
+#define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_2_OFFSET                                          (0x243)
 #define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_2                                                 (LAN80XX_IOREG(MMD_ID_PTP_ANAx, 1,0xca43))
 
 /**
@@ -2214,6 +2218,7 @@
  * \details
  * Register: \a PTP_ANA2_EGR_CFG:EGR2_FRAME_SIG_CFG:EGR2_FSB_MAP_REG_3
  */
+#define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_3_OFFSET                                          (0x244)
 #define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_3                                                 (LAN80XX_IOREG(MMD_ID_PTP_ANAx, 1,0xca44))
 
 /**
@@ -2278,6 +2283,7 @@
  * \details
  * Register: \a PTP_ANA2_EGR_CFG:EGR2_FRAME_SIG_CFG:EGR2_FSB_MAP_REG_4
  */
+#define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_4_OFFSET                                          (0x245)
 #define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_4                                                 (LAN80XX_IOREG(MMD_ID_PTP_ANAx, 1,0xca45))
 
 /**
@@ -2342,6 +2348,7 @@
  * \details
  * Register: \a PTP_ANA2_EGR_CFG:EGR2_FRAME_SIG_CFG:EGR2_FSB_MAP_REG_5
  */
+#define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_5_OFFSET                                          (0x246)
 #define LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_5                                                 (LAN80XX_IOREG(MMD_ID_PTP_ANAx, 1,0xca46))
 
 /**
