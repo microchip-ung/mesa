@@ -629,6 +629,10 @@ typedef struct {
     BOOL rb_ring_netid_enable;   // RedBox inserts ring_netid (always 0) rather
                                  // than its configured NetId in HSR tag
     vtss_packet_rb_fwd_t rb_fwd; // RedBox forwarding selection
+
+    BOOL rb_tag_ptp; // TC0: Push HSR tag with the following fields
+    u8   rb_path_id; // Path ID
+    u16  rb_seq_no;  // Sequence number
 } vtss_packet_tx_info_t;
 #pragma coverity compliance end_block "MISRA C-2023 Rule 21.2"
 

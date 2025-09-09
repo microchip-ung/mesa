@@ -574,6 +574,15 @@ typedef struct {
 
     // RedBox forwarding selection
     mesa_packet_rb_fwd_t rb_fwd CAP(L2_REDBOX_CNT);
+
+    // RedBox push HSR tag for PTP operation with the following fields
+    mesa_bool_t rb_tag_ptp CAP(L2_REDBOX_CNT);
+
+    // RedBox HSR path ID
+    uint8_t rb_path_id CAP(L2_REDBOX_CNT);
+
+    // RedBox HSR sequence number
+    uint16_t rb_seq_no CAP(L2_REDBOX_CNT);
 } mesa_packet_tx_info_t;
 
 // Decode binary extraction/Rx header.

@@ -987,7 +987,7 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(struct vtss_state_s *const         vtss_st
                                       u32 *const                         bin_hdr_len)
 {
     vtss_prio_t               icos;
-    vtss_phys_port_no_t       chip_port;
+    vtss_phys_port_no_t       chip_port, src_port = RT_CHIP_PORT_CPU_0;
     BOOL                      rewrite = TRUE, setup_cl = FALSE, afi = FALSE;
     u32                       mi_port, pl_act = 0U, vid, pdu_type = 0U, isdx = info->iflow_id;
     vtss_packet_pipeline_pt_t pl_pt = VTSS_PACKET_PIPELINE_PT_NONE;
@@ -1041,23 +1041,16 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(struct vtss_state_s *const         vtss_st
                                 5U); // VSTAX.SRC.SRC_UPSPN = masquerade chip port
             IFH_ENCODE_BITFIELD(bin_hdr, ((u64)chip_port / 32U), VSTAX + 5U,
                                 5U); // VSTAX.SRC.SRC_UPSID = masquerade chip port
-            IFH_ENCODE_BITFIELD(bin_hdr, (u64)chip_port, 46U,
-                                SRC_PORT_WID); // FWD.SRC_PORT = masquerade port
-            setup_cl = TRUE;                   // Setup classified fields later
+            src_port = chip_port;    // FWD.SRC_PORT = masquerade port
+            setup_cl = TRUE;         // Setup classified fields later
             pl_pt = info->pipeline_pt;
             if (info->oam_type != VTSS_PACKET_OAM_TYPE_NONE &&
                 pl_pt != VTSS_PACKET_PIPELINE_PT_NONE && pl_pt != VTSS_PACKET_PIPELINE_PT_ANA_CLM) {
                 pdu_type = 1U; // DST.PDU_TYPE = OAM_Y1731
             }
-        } else {
-            IFH_ENCODE_BITFIELD(bin_hdr, RT_CHIP_PORT_CPU_0, 46U,
-                                SRC_PORT_WID); // FWD.SRC_PORT = CPU
         }
     } else {
         // Not a switched frame.
-        IFH_ENCODE_BITFIELD(bin_hdr, RT_CHIP_PORT_CPU_0, 46U,
-                            SRC_PORT_WID); // FWD.SRC_PORT = CPU
-
         // Add mirror port if CPU ingress mirroring or egress mirroring on
         // dst_port is enabled.
         mi_port = vtss_state->l2.mirror_conf.port_no;
@@ -1200,20 +1193,48 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(struct vtss_state_s *const         vtss_st
 #if defined(VTSS_FEATURE_REDBOX)
     if (vtss_state->vtss_features[FEATURE_REDBOX]) {
         if (info->rb_tag_disable) {
-            IFH_ENCODE_BITFIELD(bin_hdr, 1U, 272U, 1U); // Disable RedBox tagging
+            // RB.RB_TAG: Disable RedBox tagging
+            IFH_ENCODE_BITFIELD(bin_hdr, 1U, 272U, 1U);
         }
-        IFH_ENCODE_BITFIELD(bin_hdr, (u64)info->rb_fwd, 273U, 2U); // RedBox forwarding
+
+        // RB.RB_CMD.FWD_SEL: RedBox forwarding
+        IFH_ENCODE_BITFIELD(bin_hdr, (u64)info->rb_fwd, 273U, 2U);
+
         if (info->rb_dd_disable) {
+            // RB.RB_CMD.DD_DISABLE
             IFH_ENCODE_BITFIELD(bin_hdr, 1U, 275U, 1U); // Disable RedBox Duplicate
                                                         // Discard processing
         }
+
         if (info->rb_ring_netid_enable) {
-            IFH_ENCODE_BITFIELD(bin_hdr, 1U, 276U,
-                                1U); // Enable use of ring_netid rather than
-                                     // netid in HSR tag
+            // RB.RB_CMD.NETID_ENA: Use ring_netid instead of netid in HSR tag
+            IFH_ENCODE_BITFIELD(bin_hdr, 1U, 276U, 1U);
+        }
+
+        if (info->rb_tag_ptp) {
+            u8 path_id = info->rb_path_id;
+
+            // RB.RB_TC0
+            IFH_ENCODE_BITFIELD(bin_hdr, 1U, 271U, 1U);
+
+            if ((path_id & 1U) > 0U) {
+                // DST.MPLS_SBIT: LAN_B flag
+                IFH_ENCODE_BITFIELD(bin_hdr, 1U, 165U, 1U);
+            }
+
+            // DST.MPLS_TC: Net ID
+            path_id >>= 1U;
+            IFH_ENCODE_BITFIELD(bin_hdr, (u64)path_id, 162U, 3U);
+
+            // TAGGING.SEQ_NO: Sequence number
+            IFH_ENCODE_BITFIELD(bin_hdr, (u64)info->rb_seq_no, 8U, 16U);
+            src_port = VTSS_CHIP_PORT_FROM_STATE(vtss_state, info->dst_port);
         }
     }
 #endif
+    // FWD.SRC_PORT: Source port
+    IFH_ENCODE_BITFIELD(bin_hdr, (u64)src_port, 46U, SRC_PORT_WID);
+
     VTSS_IG(VTSS_TRACE_GROUP_PACKET, "IFH:");
     VTSS_IG_HEX(VTSS_TRACE_GROUP_PACKET, &bin_hdr[0], *bin_hdr_len);
     return VTSS_RC_OK;

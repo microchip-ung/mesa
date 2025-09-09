@@ -2126,6 +2126,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(struct vtss_state_s *vtss_state, const vtss_rb_i
         port = VTSS_CHIP_PORT(port_no);
         REG_WRM_CLR(VTSS_ASM_PORT_CFG(port), VTSS_M_ASM_PORT_CFG_RB_ENA);
         REG_WRM_CLR(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
+        REG_WRM_CLR(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ADD_HSR_TC0_ENA);
         REG_WRM_CLR(VTSS_REW_PTP_MISC_CFG(port), VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS);
         VTSS_RC(vtss_fa_rb_port_update(vtss_state, port_no));
         if (!ena) {
@@ -2140,6 +2141,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(struct vtss_state_s *vtss_state, const vtss_rb_i
         port = VTSS_CHIP_PORT(port_no);
         REG_WRM_SET(VTSS_ASM_PORT_CFG(port), VTSS_M_ASM_PORT_CFG_RB_ENA);
         REG_WRM_SET(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ENA);
+        REG_WRM_SET(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_M_REW_RTAG_ETAG_CTRL_RB_ADD_HSR_TC0_ENA);
         if (mode == FA_RB_MODE_PRP_SAN) {
             REG_WRM_SET(VTSS_REW_PTP_MISC_CFG(port), VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS);
         }

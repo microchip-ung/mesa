@@ -428,6 +428,23 @@ test_table =
                      {idx_rx: "b", hsr: {lan_id: 1}}]}]
     },
     {
+        txt: "HSR-tag Tx to LRE",
+        cfg: {mode: "HSR_SAN", npi: "d"},
+        tab: [{fwd: [{idx_tx: "d", ifh_tx: "a", rb_fwd: "B", rb_tag_ptp: true, rb_seq_no: 0x6789, rb_path_id: 9},
+                     {idx_rx: "b", hsr: {net_id: 4, lan_id: 1, seqn: 0x6789}}]}],
+        cnt: [{port: "b", name: "tx_dupl_zero", val: 0},
+              {port: "c", name: "rx_untagged", val: 0},
+              {port: "c", name: "rx_tagged", val: 1}]
+    },
+    {
+        txt: "IGMP frame to CPU",
+        cfg: {mode: "HSR_SAN", npi: "d", igmp: true, bpdu_queue: 0},
+        tab: [{frm: {dmac: "01:00:5e:00:01:00", cmd: "ipv4 proto 2 data pattern cnt 20"},
+               fwd: [{idx_tx: "a", hsr: {seqn: 0x6789}},
+                     {idx_rx: "b", hsr: {seqn: 0x6789}},
+                     {idx_rx: "d", ifh_rx: "a", ifh_seqn: 0x6789}]}]
+    },
+    {
         # PTP frames redirected to interlink, duplicates not discarded
         txt: "PTP untagged Ethernet Rx on LRE",
         cfg: {mode: "HSR_SAN", ptp: "ETHERNET"},
@@ -1512,6 +1529,10 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
             if (ifh_rx != nil)
                 ifh_rx = rb_idx(ifh_rx)
                 cmd += (" " + cmd_rx_ifh_push({port_idx: ifh_rx}))
+                ifh_seqn = fld_get(e, :ifh_seqn, nil)
+                if (ifh_seqn != nil)
+                    cmd += " t-seq-no #{ifh_seqn}"
+                end
             end
             ifh_tx = fld_get(e, :ifh_tx, nil)
             if (ifh_tx != nil)
@@ -1523,6 +1544,14 @@ def rb_frame_test(mode, entry, exp, dupl_incr, index)
                 info[:rb_dd_disable] = rb_tag_dis
                 rb_fwd = fld_get(e, :rb_fwd, "DEFAULT")
                 info[:rb_fwd] = ("MESA_PACKET_RB_FWD_" + rb_fwd)
+                rb_tag_ptp = fld_get(e, :rb_tag_ptp, false)
+                info[:rb_tag_ptp] = rb_tag_ptp
+                if (rb_tag_ptp)
+                    info[:ptp_action] = "MESA_PACKET_PTP_ACTION_TWO_STEP"
+                    info[:pdu_offset] = 20
+                end
+                info[:rb_seq_no] = fld_get(e, :rb_seq_no)
+                info[:rb_path_id] = fld_get(e, :rb_path_id)
                 cmd += (" " + cmd_tx_ifh_push(info))
             end
             cmd += " eth"
@@ -1767,6 +1796,7 @@ def redbox_test(t)
         end
         queue_set(cfg, conf, "bpdu_queue", :bpdu_queue)
         queue_set(cfg, conf, "sv_queue", :sv_queue)
+        conf["reg"]["igmp_cpu_only"] = fld_get(cfg, :igmp, false)
         $ts.dut.call("mesa_packet_rx_conf_set", conf)
 
         # Enable NPI port
