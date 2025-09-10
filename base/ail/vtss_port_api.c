@@ -2090,6 +2090,10 @@ static vtss_rc kr_irq_apply(vtss_state_t        *vtss_state,
 
     // KR_RATE_DET (parallel detect)
     if (irq & KR_RATE_DET) {
+        if (vtss_state->port.conf[port_no].speed == VTSS_SPEED_10G ||
+            vtss_state->port.conf[port_no].speed == VTSS_SPEED_25G) {
+            (void)vtss_cil_port_kr_ctle_adjust(vtss_state, port_no);
+        }
         vtss_port_kr_fw_req_t req_msg = {0};
         req_msg.gen0_tmr_start = TRUE;
         req_msg.rate_done = TRUE;
