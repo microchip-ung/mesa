@@ -81,6 +81,7 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 // driver when an SFP is inserted, rather than attempting to read the SFP's ROM.
 // If (DUAL_)SFP_DETECT is not set on an SFP port, SFP_INACCESSIBLE is a don't
 // care, and a MAC-to-MAC driver should be used right away (copper backplane).
+// See also MEBA_PORT_CAP_CU_BP.
 #define MEBA_PORT_CAP_SFP_INACCESSIBLE 0x200000000
 
 // Port supports dynamic interface changes (run-time) which requires
@@ -96,12 +97,18 @@ typedef mesa_port_admin_state_t meba_port_admin_state_t;
 // Enabled per default and is here for backwards capability
 #define MEBA_PORT_CAP_IN_BAND_STATUS 0x1000000000
 
+// Change to SFP when it has PCS link as opposed to SFP detect
+#define MEBA_PORT_CAP_DUAL_SFP_LINK 0x2000000000
+
 // Out-band-status through phy is requested
 // If in-band is not preferred, out-of-band can be enabled
 #define MEBA_PORT_CAP_OUT_BAND_STATUS 0x4000000000
 
-// Change to SFP when it has PCS link as opposed to SFP detect
-#define MEBA_PORT_CAP_DUAL_SFP_LINK 0x2000000000
+// Set this one without setting any of the MEBA_PORT_CAP_SFP_xxx attributes in
+// order to specify that this is a Copper Backplane port. When doing so, a
+// so-called MAC-to-MAC SFP driver will be installed during boot by the
+// application, and no attempts to read any SFP via I2C will be made.
+#define MEBA_PORT_CAP_CU_BP 0x8000000000
 
 #define MEBA_PORT_CAP_HDX (MEBA_PORT_CAP_10M_HDX | MEBA_PORT_CAP_100M_HDX)
 
