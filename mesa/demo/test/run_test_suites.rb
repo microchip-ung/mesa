@@ -26,7 +26,7 @@ $systems = [
     { name: "dk-t35-4", image: "mipsel_vsc7428.mfi",         branch:"master", parallel: "no", server: "35", started: "no" },
 
     # dk-t36, Laguna systems
-    { name: "dk-t36-0", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "36", started: "no" },
+    { name: "dk-t36-1", image: "armv7_lan966x.itb",          branch:"master", parallel: "no", server: "36", started: "no" },
     { name: "dk-t36-2", image: "arm64_lan9698RED.itb",       branch:"master", parallel: "no", server: "36", started: "no" },
     { name: "dk-t36-6", image: "arm64_lan9698RED.itb",       branch:"master", parallel: "no", server: "36", started: "no" },
     { name: "dk-t37-0", image: "arm64_lan9698RED.itb",       branch:"master", parallel: "no", server: "37", started: "no" },
