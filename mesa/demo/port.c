@@ -413,7 +413,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
         conf.flow_control.obey ? "OBEY" : "", conf.flow_control.generate ? "GENERATE" : "",
         conf.loop);
 
-    if (memcmp(&old_conf, &conf, sizeof(conf)) > 0) {
+    if ((memcmp(&old_conf, &conf, sizeof(conf)) > 0) || init) {
         if (mesa_port_conf_set(NULL, port_no, &conf) != MESA_RC_OK) {
             T_E("mesa_port_conf_set(%u) failed", port_no);
         }
