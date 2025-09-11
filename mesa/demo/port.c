@@ -312,7 +312,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     port_entry_t          *entry = &port_table[port_no];
     mscc_appl_port_conf_t *pc = &entry->conf;
     mesa_port_status_t    *ps = &entry->status;
-    mesa_port_conf_t       conf;
+    mesa_port_conf_t       conf, old_conf;
     mepa_conf_t            phy = {};
     meba_port_cap_t        cap = entry->meba.cap;
 
@@ -320,6 +320,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
         T_E("mesa_port_conf_get(%u) failed", port_no);
         return;
     }
+    memcpy(&old_conf, &conf, sizeof(conf));
     conf.power_down = (pc->admin.enable ? 0 : 1);
     conf.flow_control.smac.addr[5] = port_no;
     conf.max_frame_length = pc->max_length;
@@ -412,8 +413,10 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
         conf.flow_control.obey ? "OBEY" : "", conf.flow_control.generate ? "GENERATE" : "",
         conf.loop);
 
-    if (mesa_port_conf_set(NULL, port_no, &conf) != MESA_RC_OK) {
-        T_E("mesa_port_conf_set(%u) failed", port_no);
+    if (memcmp(&old_conf, &conf, sizeof(conf)) > 0) {
+        if (mesa_port_conf_set(NULL, port_no, &conf) != MESA_RC_OK) {
+            T_E("mesa_port_conf_set(%u) failed", port_no);
+        }
     }
 }
 
