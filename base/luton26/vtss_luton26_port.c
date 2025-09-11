@@ -2858,6 +2858,17 @@ static vtss_rc l26_debug_wm(vtss_state_t                  *vtss_state,
 
 vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
+    u32              port = VTSS_CHIP_PORT(port_no);
+    vtss_port_ifh_t *ifh = &vtss_state->port.ifh_conf[port_no];
+
+    /* Control IFH insertion */
+    L26_WRM_CTL(VTSS_REW_PORT_PORT_CFG(port), ifh->ena_xtr_header,
+                VTSS_F_REW_PORT_PORT_CFG_IFH_INSERT_ENA);
+
+    /* Control IFH parsing  */
+    L26_WRM_CTL(VTSS_SYS_SYSTEM_PORT_MODE(port), ifh->ena_inj_header,
+                VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR);
+
     return VTSS_RC_OK;
 }
 

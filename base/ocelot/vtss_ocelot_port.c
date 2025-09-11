@@ -1999,14 +1999,11 @@ vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t por
     u32              port = VTSS_CHIP_PORT(port_no);
     vtss_port_ifh_t *ifh = &vtss_state->port.ifh_conf[port_no];
 
-    /* Enable/Disable IFH parsing upon injection - expecting to see No Prefix */
+    // Control IFH insertion and parsing
     SRVL_WRM(VTSS_SYS_SYSTEM_PORT_MODE(port),
-             VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR(ifh->ena_inj_header ? 1 : 0),
-             VTSS_M_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR);
-    /* Enable/Disable IFH parsing upon extraction - add long prefix */
-    SRVL_WRM(VTSS_SYS_SYSTEM_PORT_MODE(port),
-             VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_XTR_HDR(ifh->ena_xtr_header ? 3 : 0),
-             VTSS_M_SYS_SYSTEM_PORT_MODE_INCL_XTR_HDR);
+             VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR(ifh->ena_inj_header ? 3 : 0) |
+                 VTSS_F_SYS_SYSTEM_PORT_MODE_INCL_XTR_HDR(ifh->ena_xtr_header ? 3 : 0),
+             VTSS_M_SYS_SYSTEM_PORT_MODE_INCL_INJ_HDR | VTSS_M_SYS_SYSTEM_PORT_MODE_INCL_XTR_HDR);
 
     return VTSS_RC_OK;
 }

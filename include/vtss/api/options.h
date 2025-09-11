@@ -163,6 +163,7 @@
 #define VTSS_FEATURE_MISC                            /**< Miscellaneous */
 #define VTSS_FEATURE_SERIAL_GPIO                     /**< Serial GPIO control */
 #define VTSS_FEATURE_PORT_CONTROL                    /**< Port control */
+#define VTSS_FEATURE_PORT_IFH                        /**< Port IFH control */
 #define VTSS_FEATURE_CLAUSE_37                       /**< IEEE 802.3 clause 37 auto-negotiation */
 #define VTSS_FEATURE_EXC_COL_CONT                    /**< Excessive collision continuation */
 #define VTSS_FEATURE_PORT_CNT_ETHER_LIKE             /**< Ethernet-like counters */
@@ -611,6 +612,7 @@
 #define VTSS_FEATURE_MISC                            /**< Miscellaneous */
 #define VTSS_FEATURE_SERIAL_GPIO                     /**< Serial GPIO control */
 #define VTSS_FEATURE_PORT_CONTROL                    /**< Port control */
+#define VTSS_FEATURE_PORT_IFH                        /**< Port IFH control */
 #define VTSS_FEATURE_CLAUSE_37                       /**< IEEE 802.3 clause 37 auto-negotiation */
 #define VTSS_FEATURE_EXC_COL_CONT                    /**< Excessive collision continuation */
 #define VTSS_FEATURE_PORT_CNT_BRIDGE                 /**< Bridge counters */

@@ -492,23 +492,10 @@ vtss_rc vtss_port_conf_bulk_set(const vtss_inst_t inst, const vtss_port_bulk_t b
 #if defined(VTSS_FEATURE_PORT_IFH)
 /** \brief Port Internal Frame Header structure */
 typedef struct {
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
-    BOOL ena_inj_header; /**< At ingress expect long prefix followed by an
-                            internal frame header */
-    BOOL ena_xtr_header; /**< At egress prepend long prefix followed by the
-                            internal frame header */
-#endif                   /* VTSS_ARCH_OCELOT */
-
+    BOOL ena_inj_header; // Enable injection header
+    BOOL ena_xtr_header; // Enable extraction header
 #if defined(VTSS_ARCH_JAGUAR_2)
-    BOOL ena_inj_header; /**< At ingress expect short prefix:
-                            DMAC:SMAC:0x8880:0007 followed by an internal frame
-                            header and then the frame */
-    BOOL ena_xtr_header; /**< At egress prepend short prefix:
-                            DMAC:SMAC:0x8880:0007  (DMAC:SMAC from frame)
-                            followed by an internal frame header and then the
-                            frame */
-    BOOL ena_ifh_header; /**< Same as ena_xtr_header (for compatability with
-                            JR1) */
+    BOOL ena_ifh_header; // Same as ena_xtr_header (for JR1 compatibility)
 #endif                   /* VTSS_ARCH_JAGUAR_2 */
 } vtss_port_ifh_t;
 

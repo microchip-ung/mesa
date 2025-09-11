@@ -2945,9 +2945,8 @@ vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t por
 
     /* Enable/Disable IFH parsing at ingress DMAC:SMAC:0x8880:0x0007:IFH:Frame */
     JR2_WRM(VTSS_ASM_CFG_PORT_CFG(port),
-            VTSS_F_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG(ifh->ena_inj_header ? 2 : 0) |
-                VTSS_F_ASM_CFG_PORT_CFG_SKIP_PREAMBLE_ENA(ifh->ena_inj_header),
-            VTSS_M_ASM_CFG_PORT_CFG_SKIP_PREAMBLE_ENA | VTSS_M_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG);
+            VTSS_F_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG(ifh->ena_inj_header ? 2 : 0),
+            VTSS_M_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG);
 
     /* Enable/Disable IFH prepend at egress DMAC:SMAC:0x8880:0x0007:IFH:Frame */
     JR2_WRM(VTSS_REW_COMMON_PORT_CTRL(port), VTSS_F_REW_COMMON_PORT_CTRL_KEEP_IFH_SEL(extr ? 2 : 0),

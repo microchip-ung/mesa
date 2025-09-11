@@ -251,12 +251,14 @@ def cmd_rx_ifh_push(ifh={})
     end
 
     if (ifh.key?:vid)
-        cmd += " #{vid_name} #{ifh[:vid]} "
+        cmd += " #{vid_name} #{ifh[:vid]}"
     end
 
     if (ifh.key?:isdx)
-        cmd += " #{isdx_name} #{ifh[:isdx]} "
+        cmd += " #{isdx_name} #{ifh[:isdx]}"
     end
+
+    cmd += " "
 
     cmd
 end

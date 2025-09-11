@@ -21,4 +21,5 @@ run %w{./port_bulk_frames.rb}
 run %w{./port_kr.rb}
 run %w{./port_kr_stress.rb}
 run %w{./port_sfp.rb}
+run %w{./port_ifh.rb}
 

@@ -311,14 +311,9 @@ uint32_t mesa_capability(mesa_inst_t inst, mesa_cap_t cap)
         break;
 
     case MESA_CAP_PORT_IFH:
-#if defined(VTSS_FEATURE_PORT_IFH)
-        c = 1;
-#endif
-        break;
-
     case MESA_CAP_PORT_INJ_HDR:
     case MESA_CAP_PORT_XTR_HDR:
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_LAN966X)
+#if defined(VTSS_FEATURE_PORT_IFH)
         c = 1;
 #endif
         break;
