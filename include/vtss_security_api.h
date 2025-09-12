@@ -505,10 +505,11 @@ typedef struct {
 
 /** \brief Frame data for VTSS_ACE_TYPE_LLC */
 typedef struct {
-    vtss_ace_u48_t dmac; /**< DMAC */
-    vtss_ace_u48_t smac; /**< SMAC */
-    vtss_ace_u32_t llc;  /**< LLC header: DSAP at byte 0, SSAP at byte 1, Control
-                            at byte 2 */
+    vtss_ace_u48_t dmac;    /**< DMAC */
+    vtss_ace_u48_t smac;    /**< SMAC */
+    vtss_ace_u32_t llc;     /**< LLC header: DSAP at byte 0, SSAP at byte 1, Control
+                               at byte 2 */
+    vtss_ace_u32_t llc_ext; /**< LLC header, offset 4-7 */
 } vtss_ace_frame_llc_t;
 
 /** \brief Frame data for VTSS_ACE_TYPE_SNAP */
@@ -756,8 +757,9 @@ typedef struct {
 
 /** \brief Frame data for VTSS_ACE_TYPE_LLC */
 typedef struct {
-    vtss_ace_u32_t llc; /**< LLC header: DSAP at byte 0, SSAP at byte 1, Control
-                           at byte 2 */
+    vtss_ace_u32_t llc;     /**< LLC header: DSAP at byte 0, SSAP at byte 1, Control
+                               at byte 2 */
+    vtss_ace_u32_t llc_ext; /**< LLC header, offset 4-7 */
 } vtss_hace_frame_llc_t;
 
 /** \brief Frame data for VTSS_ACE_TYPE_SNAP */

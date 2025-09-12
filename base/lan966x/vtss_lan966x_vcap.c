@@ -1396,10 +1396,12 @@ static vtss_rc lan966x_is2_entry_add(vtss_state_t     *vtss_state,
             lan966x_vcap_u48_set(&f.u.mac_llc.l2_smac, &ace->frame.llc.smac);
             f.u.mac_llc.l2_llc_1.value = ace->frame.llc.llc.value[0];
             f.u.mac_llc.l2_llc_1.mask = ace->frame.llc.llc.mask[0];
-            for (i = 0; i < 4; i++) {
-                data.value[i] = (i < 3 ? ace->frame.llc.llc.value[i + 1] : 0);
-                data.mask[i] = (i < 3 ? ace->frame.llc.llc.mask[i + 1] : 0);
+            for (i = 0; i < 3; i++) {
+                data.value[i] = ace->frame.llc.llc.value[i + 1];
+                data.mask[i] = ace->frame.llc.llc.mask[i + 1];
             }
+            data.value[3] = ace->frame.llc.llc_ext.value[0];
+            data.mask[3] = ace->frame.llc.llc_ext.mask[0];
             lan966x_vcap_u32_set(&f.u.mac_llc.l2_llc_0, &data);
             break;
         case VTSS_ACE_TYPE_SNAP:

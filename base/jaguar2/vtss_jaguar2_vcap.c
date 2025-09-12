@@ -2996,6 +2996,7 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t     *vtss_state,
         jr2_vcap_key_u48_set(&data, IS2_KO_ETYPE_SMAC, &llc->smac);
         jr2_vcap_key_bit_set(&data, IS2_KO_ETYPE_ETYPE_LEN, VTSS_VCAP_BIT_0);
         jr2_vcap_key_u32_set(&data, IS2_KO_ETYPE_PAYLOAD + 32, &llc->llc);
+        jr2_vcap_key_u32_set(&data, IS2_KO_ETYPE_PAYLOAD, &llc->llc_ext);
         break;
     case VTSS_ACE_TYPE_SNAP:
         jr2_vcap_key_u48_set(&data, IS2_KO_ETYPE_DMAC, &snap->dmac);

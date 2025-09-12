@@ -2469,8 +2469,8 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t     *vtss_state,
             llc.value[i] = ace->frame.llc.llc.value[i];
             llc.mask[i] = ace->frame.llc.llc.mask[i];
         }
-        llc.value[4] = 0;
-        llc.mask[4] = 0;
+        llc.value[4] = ace->frame.llc.llc_ext.value[0];
+        llc.mask[4] = ace->frame.llc.llc_ext.mask[0];
         srvl_vcap_key_u40_set(data, IS2_HKO_MAC_LLC_L2_LLC, &llc);
         break;
     case VTSS_ACE_TYPE_SNAP:

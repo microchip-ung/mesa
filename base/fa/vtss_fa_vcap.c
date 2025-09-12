@@ -3141,6 +3141,7 @@ static vtss_rc fa_is2_entry_add(vtss_state_t     *vtss_state,
             info.ip_snap = VTSS_VCAP_BIT_0;
             info.ip4 = VTSS_VCAP_BIT_0;
             fa_vcap_key_u32_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0 + 32, &llc->llc);
+            fa_vcap_key_u32_set(data, IS2_KO_IP_7TUPLE_L4_PAYLOAD_0, &llc->llc_ext);
             break;
         case VTSS_ACE_TYPE_SNAP:
             info.etype_len = VTSS_VCAP_BIT_0;
@@ -3288,6 +3289,7 @@ static vtss_rc fa_is2_entry_add(vtss_state_t     *vtss_state,
         smac_dmac = TRUE;
         FA_BIT_SET(IS2, MAC_ETYPE_ETYPE_LEN, VTSS_VCAP_BIT_0);
         fa_vcap_key_u32_set(data, IS2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0 + 32, &llc->llc);
+        fa_vcap_key_u32_set(data, IS2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0, &llc->llc_ext);
         break;
     case VTSS_ACE_TYPE_SNAP:
         smac_dmac = TRUE;
@@ -3904,6 +3906,7 @@ static vtss_rc fa_es2_entry_add(vtss_state_t     *vtss_state,
         smac_dmac = 1;
         FA_BIT_SET(ES2, MAC_ETYPE_ETYPE_LEN, VTSS_VCAP_BIT_0);
         fa_vcap_key_u32_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0 + 32, &llc->llc);
+        fa_vcap_key_u32_set(data, ES2_KO_MAC_ETYPE_L2_PAYLOAD_ETYPE_0, &llc->llc_ext);
         break;
     case VTSS_ACE_TYPE_SNAP:
         smac_dmac = 1;
@@ -4954,6 +4957,7 @@ vtss_rc vtss_cil_vcap_ace_add(struct vtss_state_s    *vtss_state,
         key->dmac = llc->dmac;
         key->smac = llc->smac;
         key->llc.llc = llc->llc;
+        key->llc.llc_ext = llc->llc_ext;
         break;
     case VTSS_ACE_TYPE_SNAP:
         key->dmac = snap->dmac;

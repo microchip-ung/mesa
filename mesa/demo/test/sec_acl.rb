@@ -173,6 +173,13 @@ test_table =
          f_1: {cmd: "et 46 data hex 010204"}
      },
      {
+         txt: "llc/llc_ext",
+         ace: {type: "LLC", llc: {v: [1,2,3,4], m: [0xff,0xff,0xff,0xff]}, llc_ext: {v: [5,0,0,0], m: [0xff,0x00,0x00,0x00]}},
+         key: {etype: ["DEFAULT", "EXT"]},
+         f_0: {cmd: "et 46 data hex 0102030405"},
+         f_1: {cmd: "et 46 data hex 0102030406"}
+     },
+     {
          txt: "snap/dmac",
          ace: {type: "SNAP", dmac: {v: [1,2,3,4,5,6], m: [0xff,0xff,0xff,0xff,0xff,0xff]}},
          key: {etype: ["DEFAULT", "EXT"]},
@@ -628,6 +635,7 @@ def ace_test(t, type_ext)
     when "LLC"
         k = f["llc"]
         vcap_vm_set(k, "llc", v, :llc)
+        vcap_vm_set(k, "llc_ext", v, :llc_ext)
     when "SNAP"
         k = f["snap"]
         vcap_vm_set(k, "snap", v, :snap)
@@ -727,11 +735,20 @@ test_table.each do |t|
             next
         end
     end
-    if (epid == 11 or epid == 14)
+    case epid
+    when 11, 14
         # FireAnt/Laguna limitations
         if (v.key?:sip_eq_dip or v.key?:sport_eq_dport or v.key?:seq_zero)
             next
         end
+    when 0
+        # Luton26
+        if (v.key?:llc_ext)
+            # Skip extended LLC
+            next
+        end
+    else
+        # Other platforms
     end
     skip_ext = false
     if (ipv4 or ipv6)
@@ -793,5 +810,5 @@ end
 test_summary
 
 test "dump" do
-    #$ts.dut.run("mesa-cmd deb api ci acl")
+    #$ts.dut.run("mesa-cmd deb api ci acl action 3")
 end

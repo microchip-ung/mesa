@@ -17,20 +17,18 @@ $vid_b  = 11
 
 #---------- Configuration -----------------------------------------------------
 
-test "conf" do
-    test "All ports are C-ports" do
-        $ts.dut.p.each do |port|
-            conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
-            conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
-            $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
-        end
+test("conf", false) do
+    t_i("All ports are C-ports")
+    $ts.dut.p.each do |port|
+        conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
+        conf["port_type"] = "MESA_VLAN_PORT_TYPE_C"
+        $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
     end
     
-    test "Include all ports in VLANs" do
-        port_list = $ts.dut.p.join(",")
-        $ts.dut.call("mesa_vlan_port_members_set", $vid_a, port_list)
-        $ts.dut.call("mesa_vlan_port_members_set", $vid_b, port_list)
-    end
+    t_i("Include all ports in VLANs")
+    port_list = $ts.dut.p.join(",")
+    $ts.dut.call("mesa_vlan_port_members_set", $vid_a, port_list)
+    $ts.dut.call("mesa_vlan_port_members_set", $vid_b, port_list)
 end
 
 #---------- Frame testing -----------------------------------------------------
@@ -146,9 +144,9 @@ test_table =
      },
      {
          txt: "llc/llc",
-         ace: {type: "LLC", llc: {v: [1,2,3,0], m: [0xff,0xff,0xff,0x00]}},
-         f_0: {cmd: "et 46 data hex 010203"},
-         f_1: {cmd: "et 46 data hex 010204"}
+         ace: {type: "LLC", llc: {v: [1,2,3,4], m: [0xff,0xff,0xff,0xff]}, llc_ext: {v: [5,6,7,8], m: [0xff,0xff,0xff,0xff]}},
+         f_0: {cmd: "et 46 data hex 0102030405060708"},
+         f_1: {cmd: "et 46 data hex 0102030905060709"}
      },
      {
          txt: "snap/dmac",
@@ -466,7 +464,9 @@ def ace_test(t, acl)
         vcap_vm_set(k, "etype", v, :etype)
         vcap_vm_set(k, "data", v, :data)
     when "LLC"
-        vcap_vm_set(k["llc"], "llc", v, :llc)
+        k = k["llc"]
+        vcap_vm_set(k, "llc", v, :llc)
+        vcap_vm_set(k, "llc_ext", v, :llc_ext)
     when "SNAP"
         vcap_vm_set(k["snap"], "snap", v, :snap)
     when "ARP"
@@ -571,4 +571,10 @@ test_table.each do |t|
             ace_test(t, acl)
         end
     end
+end
+
+test_summary
+
+test "dump" do
+    #$ts.dut.run("mesa-cmd deb api ci acl action 5")
 end

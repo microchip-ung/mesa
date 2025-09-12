@@ -306,9 +306,10 @@ typedef struct {
 
 // Frame data for MESA_ACE_TYPE_LLC
 typedef struct {
-    mesa_ace_u48_t dmac; // DMAC
-    mesa_ace_u48_t smac; // SMAC
-    mesa_ace_u32_t llc;  // LLC header: DSAP at byte 0, SSAP at byte 1, Control at byte 2
+    mesa_ace_u48_t dmac;    // DMAC
+    mesa_ace_u48_t smac;    // SMAC
+    mesa_ace_u32_t llc;     // LLC header: DSAP at byte 0, SSAP at byte 1, Control at byte 2
+    mesa_ace_u32_t llc_ext; // LLC header, offset 4-7
 } mesa_ace_frame_llc_t;
 
 // Frame data for MESA_ACE_TYPE_SNAP
@@ -496,7 +497,8 @@ typedef struct {
 
 // Frame data for MESA_ACE_TYPE_LLC
 typedef struct {
-    mesa_ace_u32_t llc; // LLC header: DSAP at byte 0, SSAP at byte 1, Control at byte 2
+    mesa_ace_u32_t llc;     // LLC header: DSAP at byte 0, SSAP at byte 1, Control at byte 2
+    mesa_ace_u32_t llc_ext; // LLC header, byte 4-7
 } mesa_hace_frame_llc_t CAP(ACL_HACL);
 
 // Frame data for MESA_ACE_TYPE_SNAP
