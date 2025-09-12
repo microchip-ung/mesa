@@ -333,8 +333,7 @@ typedef struct {
 #if defined(VTSS_ARCH_OCELOT)
     BOOL lm_cnt_disable; /**< Disable OAM LM Tx counting */
 #endif                   /* VTSS_ARCH_OCELOT */
-#if defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA) ||           \
-    defined(VTSS_ARCH_LAN966X)
+#if !defined(VTSS_ARCH_LUTON26)
     BOOL mac_swap; /**< Swap SMAC and DMAC */
     BOOL ifh_flag; /**< Control one target specific bit in IFH */
 #endif
