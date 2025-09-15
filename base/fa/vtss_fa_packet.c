@@ -532,7 +532,8 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
                                         const u32            buf_length,
                                         u32                 *frm_length) /* Including FCS */
 {
-    u32  i, val, bytes_got, bytes_valid, buf_len = buf_length;
+    u32  i, j, val, bytes_got, bytes_valid;
+    i32  buf_len = (i32)buf_length;
     BOOL done = FALSE;
     u8  *buf;
     u32  result;
@@ -551,7 +552,7 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
     buf = frame;
 
     /* Read the rest of the frame */
-    while (!done && buf_len >= 4U) {
+    while (!done && buf_len >= 1) {
         result = fa_rx_frame_word(vtss_state, grp, FALSE, &val, &bytes_valid);
         if (result == 2U) {
             // Error.
@@ -559,18 +560,22 @@ static vtss_rc fa_rx_frame_get_internal(vtss_state_t        *vtss_state,
         }
         // Store the data.
         bytes_got += bytes_valid;
+
+        if (bytes_got > buf_length) {
+            /* Buffer overrun */
+            return VTSS_RC_ERROR;
+        }
+
 #ifdef VTSS_OS_BIG_ENDIAN
-        *buf++ = (u8)(val >> 24);
-        *buf++ = (u8)(val >> 16);
-        *buf++ = (u8)(val >> 8);
-        *buf++ = (u8)(val >> 0);
+        for (j = 0; j < bytes_valid; ++j) {
+            *buf++ = (u8)(val >> ((3U - j) * 8U));
+        }
 #else
-        *buf++ = (u8)(val >> 0U);
-        *buf++ = (u8)(val >> 8U);
-        *buf++ = (u8)(val >> 16U);
-        *buf++ = (u8)(val >> 24U);
+        for (j = 0; j < bytes_valid; ++j) {
+            *buf++ = (u8)(val >> (j * 8U));
+        }
 #endif
-        buf_len -= bytes_valid;
+        buf_len -= (i32)bytes_valid;
         done = result == 1U;
     }
 
