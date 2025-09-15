@@ -2895,7 +2895,8 @@ static vtss_rc fa_is2_action_set(vtss_state_t       *vtss_state,
         match_id = action->match_id;
         match_mask = action->match_mask;
     } else {
-        match_id = (FA_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? FA_IFH_CL_RSLT_ACL_FLAG : 0U));
+        u = (FA_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? FA_IFH_CL_RSLT_ACL_FLAG : 0U));
+        match_id = u;
         match_mask = match_id;
     }
     FA_ACT_SET(IS2, BASE_TYPE_MATCH_ID, match_id);
