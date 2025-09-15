@@ -2,7 +2,7 @@
     {
         "id": "bsp",
         "type": "build-artifact",
-        "build-artifact-url": "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/ci/UNGE/sw-buildroot-layer/brsdk/94",
-        "build-artifact-version-string": "2025.02.3-94"
+        "build-artifact-url": "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/ci/UNGE/sw-buildroot-layer/2025.09-soak/1",
+        "build-artifact-version-string": "2025.02.3-1-2025.09-soak"
     }
 ]
