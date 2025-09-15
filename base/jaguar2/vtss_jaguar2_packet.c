@@ -670,7 +670,8 @@ vtss_rc vtss_cil_packet_rx_hdr_decode(const vtss_state_t *const          state,
 
     // FIXME: Super-prio
 
-    if (VTSS_EXTRACT_BITFIELD64(dst, 19, 16) & JR2_IFH_CL_RSLT_ACL_HIT) {
+    info->match_id = VTSS_EXTRACT_BITFIELD64(dst, 19, 16);
+    if (info->match_id & JR2_IFH_CL_RSLT_ACL_HIT) {
         // ACL hit signalled in CL_RSLT
         info->acl_hit = 1;
     }

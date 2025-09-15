@@ -376,6 +376,9 @@ typedef struct {
     // Set if frame has hit an ACL rule copying the frame to the CPU.
     mesa_bool_t acl_hit;
 
+    // Match ID from VCL/ACL
+    uint16_t match_id CAP(PACKET_RX_MATCH_ID);
+
     // Two-step PTP timestamp identifier (6 bits) for Luton26 and Serval.
     //
     // On Luton26, this field identifies an Rx timestamp and potential Tx

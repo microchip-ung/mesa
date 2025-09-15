@@ -165,7 +165,9 @@ typedef struct {
     mesa_acl_addr_action_t addr          CAP(ACL_SIP_CNT);     // Address update configuration
     mesa_bool_t lm_cnt_disable           CAP(ACL_LM_CNT_CTRL); // Disable OAM LM Tx counting
     mesa_bool_t mac_swap                 CAP(ACL_MAC_SWAP);    // Swap SMAC and DMAC
-    mesa_bool_t ifh_flag CAP(ACL_IFH_FLAG); // Control one target specific bit in IFH
+    mesa_bool_t ifh_flag CAP(ACL_IFH_FLAG);       // Control one target specific bit in IFH
+    uint16_t match_id    CAP(PACKET_RX_MATCH_ID); // Match ID value for CPU frame Rx information
+    uint16_t match_mask  CAP(PACKET_RX_MATCH_ID); // Match ID mask
 } mesa_acl_action_t;
 
 // ACL key generation for ARP/IPv4/IPv6 frames
@@ -595,7 +597,9 @@ typedef struct {
     mesa_acl_ptp_action_t      ptp_action; // PTP action (I-PACL/I-VACL only)
     mesa_acl_ptp_action_conf_t ptp;        // PTP configuration (I-PACL/I-VACL only)
     mesa_acl_addr_action_t     addr;       // Address update configuration (I-PACL/I-VACL only)
-    mesa_bool_t ifh_flag; // Control one target specific bit in IFH (I-PACL/I-VACL only)
+    mesa_bool_t ifh_flag;   // Control one target specific bit in IFH (I-PACL/I-VACL only)
+    uint16_t    match_id;   // Match ID value for CPU frame Rx information (I-PACL/I-VACL only)
+    uint16_t    match_mask; // Match ID mask (I-PACL/I-VACL only)
 } mesa_hacl_action_t CAP(ACL_HACL);
 
 // Hierarchical ACL Entry

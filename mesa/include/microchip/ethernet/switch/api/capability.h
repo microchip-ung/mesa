@@ -106,6 +106,7 @@ typedef enum {
                                            using FDMA */
     MESA_CAP_PACKET_INJ_ENCAP,          /**< Packet Tx supports injection with specific
                                            encapsulation */
+    MESA_CAP_PACKET_RX_MATCH_ID,        /**< Packet Rx match ID from VCL/ACL */
 
     // AFI
     MESA_CAP_AFI_V1 = 300,          /**< AFI version 1 */

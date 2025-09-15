@@ -212,6 +212,7 @@ def cmd_rx_ifh_push(ifh={})
     port_name = "src-port"
     isdx_name = "isdx"
     vid_name = "vid"
+    mid_name = "de-cl-rslt"
 
     case epid
     when 5, 10
@@ -238,6 +239,7 @@ def cmd_rx_ifh_push(ifh={})
         port_name = "f-src-port"
         isdx_name = "vm1-isdx"
         vid_name = "vt-cl-vid"
+        mid_name = "de-match-id"
     else
         # Luton26, no prefix
         cmd = "efh-crcl ign"
@@ -256,6 +258,10 @@ def cmd_rx_ifh_push(ifh={})
 
     if (ifh.key?:isdx)
         cmd += " #{isdx_name} #{ifh[:isdx]}"
+    end
+
+    if (ifh.key?:match_id)
+        cmd += " #{mid_name} #{ifh[:match_id]}"
     end
 
     cmd += " "

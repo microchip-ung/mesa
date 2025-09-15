@@ -491,27 +491,29 @@ typedef enum {
 
 // VCE Action
 typedef struct {
-    mesa_vid_t                vid;        // Classified VLAN ID
-    mesa_acl_policy_no_t      policy_no;  // ACL policy number
-    mesa_bool_t               pop_enable; // Tag pop enable
-    uint8_t                   pop_cnt;    // Tag pop count
-    mesa_imap_sel_t           map_sel;    // Ingress map selection
-    mesa_qos_ingress_map_id_t map_id;     // Ingress map to use for classification
-    mesa_iflow_id_t           flow_id;    // Ingress flow ID.
-                                          // (VOP_V2) If MESA_IFLOW_ID_NONE OAM will be
-                                          // handled by the possibly enabled port-VOE.
-    mesa_oam_detect_t oam_detect;         // OAM detection
-    mesa_bool_t       mrp_enable;         // Enable MRP
-    mesa_bool_t       prio_enable;        // Enable priority classification
-    mesa_prio_t       prio;               // Priority value
-    mesa_bool_t       dp_enable;          // Enable DP classification
-    mesa_dp_level_t   dp;                 // DP value
-    mesa_bool_t       dscp_enable;        // Enable DSCP classification
-    mesa_dscp_t       dscp;               // DSCP value
-    mesa_bool_t       pcp_enable;         // Enable PCP classification
-    mesa_pcp_t        pcp;                // PCP value
-    mesa_bool_t       dei_enable;         // Enable DEI classification
-    mesa_dei_t        dei;                // DEI value
+    mesa_vid_t                vid;               // Classified VLAN ID
+    mesa_acl_policy_no_t      policy_no;         // ACL policy number
+    mesa_bool_t               pop_enable;        // Tag pop enable
+    uint8_t                   pop_cnt;           // Tag pop count
+    mesa_imap_sel_t           map_sel;           // Ingress map selection
+    mesa_qos_ingress_map_id_t map_id;            // Ingress map to use for classification
+    mesa_iflow_id_t           flow_id;           // Ingress flow ID.
+                                                 // (VOP_V2) If MESA_IFLOW_ID_NONE OAM will be
+                                                 // handled by the possibly enabled port-VOE.
+    mesa_oam_detect_t   oam_detect;              // OAM detection
+    mesa_bool_t         mrp_enable;              // Enable MRP
+    mesa_bool_t         prio_enable;             // Enable priority classification
+    mesa_prio_t         prio;                    // Priority value
+    mesa_bool_t         dp_enable;               // Enable DP classification
+    mesa_dp_level_t     dp;                      // DP value
+    mesa_bool_t         dscp_enable;             // Enable DSCP classification
+    mesa_dscp_t         dscp;                    // DSCP value
+    mesa_bool_t         pcp_enable;              // Enable PCP classification
+    mesa_pcp_t          pcp;                     // PCP value
+    mesa_bool_t         dei_enable;              // Enable DEI classification
+    mesa_dei_t          dei;                     // DEI value
+    uint16_t match_id   CAP(PACKET_RX_MATCH_ID); // Match ID value for CPU frame Rx information
+    uint16_t match_mask CAP(PACKET_RX_MATCH_ID); // Match ID mask
 } mesa_vce_action_t;
 
 // VLAN Control Entry

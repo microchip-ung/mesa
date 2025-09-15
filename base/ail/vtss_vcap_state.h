@@ -433,15 +433,15 @@ typedef struct {
     u8         pipe_pt;      /**< Pipeline_pt */
     u8         pipe_sel;     /**< Pipeline_act_sel */
     u8         nxt_key_type; /**< Next key type */
-    u16        match_id;     /**< The generated match id to follow the frame to CPU. The
-                                'MATCH_ID_MASK' is set to 0x0FFF */
-    BOOL nxt_idx_enable;     /**< The nxt_idx replace action is enabled */
-    u16  nxt_idx;            /**< The index that can be used as next lookup key. See
-                                VTSS_IS1_NXT_IDX_EVC_MASK */
-    BOOL fwd_disable;        /**< Forwarding is disabled */
-    u8   rt_sel;             /**< Routing selection */
-    BOOL cpu;                /**< Redirect to CPU if TRUE */
-    u8   cpu_queue;          /**< CPU queue used for redirect to CPU */
+    u16        match_id;
+    u16        match_mask;
+    BOOL       nxt_idx_enable; /**< The nxt_idx replace action is enabled */
+    u16        nxt_idx;        /**< The index that can be used as next lookup key. See
+                                  VTSS_IS1_NXT_IDX_EVC_MASK */
+    BOOL fwd_disable;          /**< Forwarding is disabled */
+    u8   rt_sel;               /**< Routing selection */
+    BOOL cpu;                  /**< Redirect to CPU if TRUE */
+    u8   cpu_queue;            /**< CPU queue used for redirect to CPU */
 
     u8                     mpls_rsvd_lbl;     /**< MPLS Reserved Label Value, usually GAL == 13 */
     vtss_mpls_fwd_type_t   mpls_fwd_type;     /**< MPLS forwarding type */

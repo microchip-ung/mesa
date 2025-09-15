@@ -1955,6 +1955,8 @@ static vtss_rc fa_clm_entry_add(vtss_state_t     *vtss_state,
 #endif
         FA_ACT_SET(CLM, FULL_PAG_OVERRIDE_MASK, pag_mask);
         FA_ACT_SET(CLM, FULL_PAG_VAL, pag_val);
+        FA_ACT_SET(CLM, FULL_MATCH_ID, action->match_id);
+        FA_ACT_SET(CLM, FULL_MATCH_ID_MASK, action->match_mask);
         FA_ACT_SET(CLM, FULL_PIPELINE_FORCE_ENA, action->pipe_enable);
         FA_ACT_SET(CLM, FULL_PIPELINE_ACT_SEL, action->pipe_sel);
         FA_ACT_SET(CLM, FULL_PIPELINE_PT, action->pipe_pt);
@@ -2252,8 +2254,9 @@ static vtss_rc fa_debug_clm(vtss_state_t *vtss_state, fa_vcap_data_t *data)
             FA_DEBUG_ACT_ENA(CLM, "s2_kel_sel", FULL_S2_KEY_SEL_ENA, FULL_S2_KEY_SEL_IDX);
             FA_DEBUG_ACT_ENA(CLM, "inj_masq", FULL_INJ_MASQ_ENA, FULL_INJ_MASQ_PORT);
             FA_DEBUG_ACT_ENA(CLM, "lport", FULL_LPORT_ENA, FULL_INJ_MASQ_LPORT);
-            FA_DEBUG_ACT(CLM, "match_id", FULL_MATCH_ID);
-            FA_DEBUG_ACT(CLM, "match_id_mask", FULL_MATCH_ID_MASK);
+            pr("\n");
+            FA_DEBUG_ACT_BITS(CLM, "match_id", FULL_MATCH_ID);
+            FA_DEBUG_ACT_BITS(CLM, "match_id_mask", FULL_MATCH_ID_MASK);
             pr("\n");
             FA_DEBUG_ACT(CLM, "pl_force_ena", FULL_PIPELINE_FORCE_ENA);
             FA_DEBUG_ACT(CLM, "pl_act_sel", FULL_PIPELINE_ACT_SEL);
@@ -2777,6 +2780,7 @@ static vtss_rc fa_is2_action_set(vtss_state_t       *vtss_state,
     vtss_port_no_t              port_no;
     u32                         discard = 0U, port, offs, ptp_cmd, ptp_add, ptp_opt, rew_sel = 0U;
     u32            sip_idx = 0U, rt_mode, mach, macl, dmac_offset_ena = 0U, log_msg_int;
+    u16            match_id, match_mask;
     u8             u;
     vtss_vid_mac_t vid_mac;
 
@@ -2886,9 +2890,16 @@ static vtss_rc fa_is2_action_set(vtss_state_t       *vtss_state,
         }
         FA_ACT_SET(IS2, BASE_TYPE_LOG_MSG_INTERVAL, log_msg_int);
     }
-    u = (FA_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? FA_IFH_CL_RSLT_ACL_FLAG : 0U));
-    FA_ACT_SET(IS2, BASE_TYPE_MATCH_ID, u);
-    FA_ACT_SET(IS2, BASE_TYPE_MATCH_ID_MASK, u);
+    if (action->match_mask > 0U) {
+        // Override legacy flags
+        match_id = action->match_id;
+        match_mask = action->match_mask;
+    } else {
+        match_id = (FA_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? FA_IFH_CL_RSLT_ACL_FLAG : 0U));
+        match_mask = match_id;
+    }
+    FA_ACT_SET(IS2, BASE_TYPE_MATCH_ID, match_id);
+    FA_ACT_SET(IS2, BASE_TYPE_MATCH_ID_MASK, match_mask);
     FA_ACT_SET(IS2, BASE_TYPE_CNT_ID, cnt_id);
     FA_ACT_SET(IS2, BASE_TYPE_SWAP_MAC_ENA, 0);
 
@@ -2975,6 +2986,8 @@ static void fa_action_old2new(const vtss_acl_action_t *old, vtss_hacl_action_t *
         new->addr.update = VTSS_ACL_ADDR_UPDATE_MAC_SWAP;
     }
     new->ifh_flag = old->ifh_flag;
+    new->match_id = old->match_id;
+    new->match_mask = old->match_mask;
 }
 
 static void fa_ace_key_bit_set(fa_vcap_data_t *data, u32 offset, vtss_ace_bit_t fld)
@@ -3579,8 +3592,8 @@ static vtss_rc fa_debug_is2(vtss_state_t *vtss_state, fa_vcap_data_t *data)
         pr("\n");
         FA_DEBUG_ACT_BITS(IS2, "match_id", BASE_TYPE_MATCH_ID);
         FA_DEBUG_ACT_BITS(IS2, "match_id_mask", BASE_TYPE_MATCH_ID_MASK);
-        FA_DEBUG_ACT(IS2, "swap_mac_ena", BASE_TYPE_SWAP_MAC_ENA);
         pr("\n");
+        FA_DEBUG_ACT(IS2, "swap_mac_ena", BASE_TYPE_SWAP_MAC_ENA);
         FA_DEBUG_ACT(IS2, "acl_rt_mode", BASE_TYPE_ACL_RT_MODE);
 #if defined(VTSS_ARCH_LAN969X)
         FA_DEBUG_ACT(IS2, "mac_rew_sel", BASE_TYPE_MAC_REW_SEL);

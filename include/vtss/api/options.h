@@ -228,6 +228,7 @@
 #define VTSS_FEATURE_XFLOW                           /**< Ingress and egress flows */
 #define VTSS_FEATURE_XSTAT                           /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                            /**< DLB policers allocated dynamically */
+#define VTSS_FEATURE_MATCH_ID                        // VCL/ACL match ID for CPU frame extraction
 #define VTSS_FEATURE_VCAP                            /**< VCAP */
 #define VTSS_FEATURE_VCL_KEY_DMAC                    /**< VCL entry has destination MAC address */
 #define VTSS_FEATURE_VCL_KEY_DIP                     /**< VCL entry has destination IP address */
@@ -530,6 +531,7 @@
 #define VTSS_FEATURE_EEE                             /**< Energy Efficient Ethernet */
 #define VTSS_FEATURE_FAN                             /**< Fan control */
 #define VTSS_FEATURE_TEMP_SENSOR                     /**< Temperature Sensor */
+#define VTSS_FEATURE_MATCH_ID                        // VCL/ACL match ID for CPU frame extraction
 #define VTSS_FEATURE_VCAP                            /**< VCAP */
 #define VTSS_FEATURE_ACL                             /**< Access Control Lists */
 #define VTSS_FEATURE_ACL_V2                          /**< Access Control Lists, V2 features */

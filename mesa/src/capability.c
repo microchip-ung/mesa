@@ -586,6 +586,12 @@ uint32_t mesa_capability(mesa_inst_t inst, mesa_cap_t cap)
 #endif
         break;
 
+    case MESA_CAP_PACKET_RX_MATCH_ID:
+#if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
+        c = 1U;
+#endif
+        break;
+
     // AFI
     case MESA_CAP_AFI_V1:
 #if defined(VTSS_AFI_V1)

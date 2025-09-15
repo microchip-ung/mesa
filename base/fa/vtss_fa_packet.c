@@ -735,8 +735,9 @@ vtss_rc vtss_cil_packet_rx_hdr_decode(const struct vtss_state_s *const   vtss_st
 
     info->xtr_qu_mask = VTSS_EXTRACT_BITFIELD(misc, 0U, 8U); // MISC:CPU_MASK
 
-    if ((VTSS_EXTRACT_BITFIELD64(dst, DST_CL_RSLT_POS, 16U) & FA_IFH_CL_RSLT_ACL_HIT) != 0U) {
-        // ACL hit signalled in DST:MATCH_ID_GRP_IDX
+    info->match_id = (u16)VTSS_EXTRACT_BITFIELD64(dst, DST_CL_RSLT_POS, 16U);
+    if ((info->match_id & FA_IFH_CL_RSLT_ACL_HIT) != 0U) {
+        // ACL hit signalled in DST:CL_RSLT
         info->acl_hit = TRUE;
     }
 

@@ -519,6 +519,7 @@ typedef struct {
     vtss_cosid_t      cosid;
     vtss_dp_level_t   dp;
     BOOL              acl_hit;
+    u16               match_id;
     u32               tstamp_id;
     BOOL              tstamp_id_decoded;
     u64               hw_tstamp;

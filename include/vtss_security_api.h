@@ -337,6 +337,10 @@ typedef struct {
     BOOL mac_swap; /**< Swap SMAC and DMAC */
     BOOL ifh_flag; /**< Control one target specific bit in IFH */
 #endif
+#if defined(VTSS_FEATURE_MATCH_ID)
+    u16 match_id;   // Match ID value for CPU frame Rx information
+    u16 match_mask; // Match ID mask
+#endif
 } vtss_acl_action_t;
 
 // ACL key generation for ARP/IPv4/IPv6 frames
@@ -858,6 +862,8 @@ typedef struct {
     vtss_acl_addr_action_t     addr;       /**< Address update configuration (I-PACL/I-VACL only) */
     BOOL                       ifh_flag; /**< Control one target specific bit in IFH (I-PACL/I-VACL
                                             only) */
+    u16 match_id;   // Match ID value for CPU frame Rx information (I-PACL/I-VACL)
+    u16 match_mask; // Match ID mask (I-PACL/I-VACL)
 } vtss_hacl_action_t;
 
 /** \brief Hierarchical ACL Entry */

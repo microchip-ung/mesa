@@ -930,6 +930,10 @@ typedef struct {
     vtss_pcp_t      pcp;         // PCP value
     BOOL            dei_enable;  // Enable DEI classification
     vtss_dei_t      dei;         // DEI value
+#if defined(VTSS_FEATURE_MATCH_ID)
+    u16 match_id;   // Match ID value for CPU frame Rx information
+    u16 match_mask; // Match ID mask
+#endif
 } vtss_vce_action_t;
 
 /** \brief VLAN Control Entry */

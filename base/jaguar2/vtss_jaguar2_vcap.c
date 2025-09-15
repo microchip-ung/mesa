@@ -700,15 +700,18 @@ static void jr2_debug_bits(jr2_vcap_data_t *data, const char *name, u32 offset, 
 {
     lmu_ss_t *ss = data->ss;
     u32       i, j;
-    int       n;
+    int       n, k;
 
     pr("%s:", name);
     for (i = 0; i < len; i++) {
         j = (len - 1 - i);
         if (i != 0) {
             if (len > 63 && (j % 32) == 31) {
-                n = (VTSS_STRLEN(name) + 1);
-                pr("\n%-*s", n, "");
+                pr("\n");
+                n = VTSS_STRLEN(name);
+                for (k = 0; k <= n; k++) {
+                    pr(" ");
+                }
             } else if ((j % 8) == 7)
                 pr(".");
         }
@@ -1693,6 +1696,9 @@ static vtss_rc jr2_clm_entry_add(vtss_state_t     *vtss_state,
                             VTSS_BITMASK(CLM_AL_X4_PAG_MASK - 1)); /* PAG(7) reserved */
                 JR2_ACT_SET(CLM, X4_PAG, action->pag);
             }
+            JR2_ACT_SET(CLM, X4_MATCH_ID, action->match_id);
+            JR2_ACT_SET(CLM, X4_MATCH_MASK, action->match_mask);
+
 #if defined(VTSS_ARCH_JAGUAR_2_B)
             JR2_ACT_ENA_SET(CLM, X4_VID, action->vid, action->vid);
 #else
@@ -2114,13 +2120,14 @@ static vtss_rc jr2_debug_clm(vtss_state_t *vtss_state, jr2_vcap_data_t *data)
             JR2_DEBUG_ACT(CLM, "pag_mask", X4_PAG_MASK);
             JR2_DEBUG_ACT(CLM, "pag", X4_PAG);
             JR2_DEBUG_ACT(CLM, "reserved", X4_RESERVED);
-            JR2_DEBUG_ACT(CLM, "match_id", X4_MATCH_ID);
-            JR2_DEBUG_ACT(CLM, "match_mask", X4_MATCH_MASK);
             JR2_DEBUG_ACT(CLM, "pl_ena", X4_PL_ENA);
             JR2_DEBUG_ACT(CLM, "pl_pt", X4_PL_PT);
 #if !defined(VTSS_ARCH_JAGUAR_2_B)
             JR2_DEBUG_ACT(CLM, "pl_sel", X4_PL_ACT_SEL);
 #endif /* VTSS_ARCH_JAGUAR_2_B */
+            pr("\n");
+            JR2_DEBUG_ACT_BITS(CLM, "match_id", X4_MATCH_ID);
+            JR2_DEBUG_ACT_BITS(CLM, "match_mask", X4_MATCH_MASK);
             pr("\nMPLS: ");
             JR2_DEBUG_ACT(CLM, "oam_typ", X4_MPLS_OAM_TYPE);
             JR2_DEBUG_ACT(CLM, "oam_flvr", X4_MPLS_OAM_FLVR);
@@ -2686,8 +2693,14 @@ static vtss_rc jr2_is2_action_set(vtss_state_t      *vtss_state,
                                                                  : IS2_MASK_MODE_OR_DSTMASK);
     /* If forwarding disabled, avoid CPU copy and signal ACL drop */
     JR2_ACT_SET(IS2, CPU_DIS, discard || action->cpu_disable ? 1 : 0);
-    match_id = (JR2_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? JR2_IFH_CL_RSLT_ACL_FLAG : 0));
-    match_mask = match_id;
+    if (action->match_mask > 0U) {
+        // Override legacy flags
+        match_id = action->match_id;
+        match_mask = action->match_mask;
+    } else {
+        match_id = (JR2_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? JR2_IFH_CL_RSLT_ACL_FLAG : 0));
+        match_mask = match_id;
+    }
     JR2_ACT_SET(IS2, LRN_DIS, action->learn ? 0 : 1);
     JR2_ACT_SET(IS2, RT_DIS, discard);
     JR2_ACT_SET(IS2, MIRROR_PROBE, action->mirror ? (JR2_MIRROR_PROBE_RX + 1) : 0);
@@ -3218,13 +3231,13 @@ static vtss_rc jr2_debug_is2(vtss_state_t *vtss_state, jr2_vcap_data_t *data)
         JR2_DEBUG_ACT_BITS(IS2, "ttl_update", TTL_UPDATE);
         JR2_DEBUG_ACT_BITS(IS2, "sam_seq_ena", SAM_SEQ_ENA);
         JR2_DEBUG_ACT_BITS(IS2, "tcp_udp_ena", TCP_UDP_ENA);
-        JR2_DEBUG_ACT(IS2, "match_id", MATCH_ID);
-        JR2_DEBUG_ACT(IS2, "match_mask", MATCH_MASK);
-        JR2_DEBUG_ACT(IS2, "cnt_id", CNT_ID);
-        pr("\n");
         JR2_DEBUG_ACT_BITS(IS2, "swap_mac", SWAP_MAC);
         JR2_DEBUG_ACT(IS2, "acl_rt_mode", ACL_RT_MODE);
         JR2_DEBUG_ACT(IS2, "ptp_dom", PTP_DOM);
+        JR2_DEBUG_ACT(IS2, "cnt_id", CNT_ID);
+        pr("\n");
+        JR2_DEBUG_ACT_BITS(IS2, "match_id", MATCH_ID);
+        JR2_DEBUG_ACT_BITS(IS2, "match_mask", MATCH_MASK);
         pr("\n");
         JR2_DEBUG_ACT_BITS(IS2, "acl_mac", ACL_MAC);
         cnt_id = jr2_act_get(data, IS2_AO_CNT_ID, IS2_AL_CNT_ID);

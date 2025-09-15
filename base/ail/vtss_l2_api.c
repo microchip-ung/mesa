@@ -6481,6 +6481,10 @@ vtss_rc vtss_cmn_vce_add(struct vtss_state_s    *vtss_state,
     action->dei_enable = vce->action.dei_enable;
     action->pcp = vce->action.pcp;
     action->dei = vce->action.dei;
+#if defined(VTSS_FEATURE_MATCH_ID)
+    action->match_id = vce->action.match_id;
+    action->match_mask = vce->action.match_mask;
+#endif
 
     /* Copy key data */
     VTSS_MEMCPY(key->port_list, vce->key.port_list, sizeof(key->port_list));
