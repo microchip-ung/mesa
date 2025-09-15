@@ -2059,7 +2059,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(struct vtss_state_s *vtss_state, const vtss_rb_i
     u32             port_a = 0U, port_b = 0U, next_a = 0U, next_b = 0U, net_id, j;
     u32             age, clk_period, val, msk, unit, mask = 0x4U, port, sv;
     u64             x64, y64;
-    BOOL            ena = TRUE, hsr = FALSE;
+    BOOL            ena = TRUE, hsr = FALSE, clr = FALSE;
 
     switch (conf->mode) {
     case VTSS_RB_MODE_PRP_SAN: mode = FA_RB_MODE_PRP_SAN; break;
@@ -2130,9 +2130,7 @@ vtss_rc vtss_cil_l2_rb_conf_set(struct vtss_state_s *vtss_state, const vtss_rb_i
         REG_WRM_CLR(VTSS_REW_PTP_MISC_CFG(port), VTSS_M_REW_PTP_MISC_CFG_PTP_RB_TAG_DIS);
         VTSS_RC(vtss_fa_rb_port_update(vtss_state, port_no));
         if (!ena) {
-            // Clear counters and host table
-            VTSS_RC(vtss_cil_l2_rb_counters_update(vtss_state, rb_id, TRUE));
-            VTSS_RC(fa_rb_host_cmd(vtss_state, rb_id, FA_HT_CMD_CLEAR, 0));
+            clr = TRUE;
         }
     }
     if (ena) {
@@ -2203,6 +2201,12 @@ vtss_rc vtss_cil_l2_rb_conf_set(struct vtss_state_s *vtss_state, const vtss_rb_i
     // Port configuration
     for (j = 0U; j < VTSS_RB_PORT_CNT; j++) {
         VTSS_RC(fa_rb_port_conf_set(vtss_state, rb_id, j, conf));
+    }
+
+    if (clr) {
+        // Clear counters and host table
+        VTSS_RC(vtss_cil_l2_rb_counters_update(vtss_state, rb_id, TRUE));
+        VTSS_RC(fa_rb_host_cmd(vtss_state, rb_id, FA_HT_CMD_CLEAR, 0));
     }
 
     // We might need to change DSM Taxi calendar when changing a RedBox
