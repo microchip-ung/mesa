@@ -1150,7 +1150,7 @@ class Mesa_Pc_b2b
     def reboot_dut conf
       if ((conf["dut"]["pcb"] == "6849-Sunrise") && (conf["dut"]["family"] == "laguna"))
         trigger_laguna_reboot_dut conf
-      elsif conf["dut"]["pcb"] == "8398"
+      elsif conf["power_control"].include?("gpio")
         t_i "Power cycle board (usb/gpio)"
         @pc.run conf["power_control"]
       else
