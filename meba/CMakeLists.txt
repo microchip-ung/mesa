@@ -105,6 +105,9 @@ endmacro()
 MEBA_LIB(LIB_NAME caracal MEBA_SRC_FOLDER caracal
          STATIC_DEPENDENCIES    mepa_caracal)
 
+MEBA_LIB(LIB_NAME caracal_macsec MEBA_SRC_FOLDER caracal
+         STATIC_DEPENDENCIES    mepa_caracal_macsec)
+
 MEBA_LIB(LIB_NAME jr2 MEBA_SRC_FOLDER jr2
          STATIC_DEPENDENCIES    mepa_jr2)
 
@@ -117,8 +120,14 @@ MEBA_LIB(LIB_NAME jr2_bringup MEBA_SRC_FOLDER jr2
 MEBA_LIB(LIB_NAME servalt MEBA_SRC_FOLDER servalt
          STATIC_DEPENDENCIES    mepa_servalt)
 
+MEBA_LIB(LIB_NAME servalt_macsec MEBA_SRC_FOLDER servalt
+         STATIC_DEPENDENCIES    mepa_servalt_macsec)
+
 MEBA_LIB(LIB_NAME ocelot MEBA_SRC_FOLDER ocelot
          STATIC_DEPENDENCIES    mepa_ocelot)
+
+MEBA_LIB(LIB_NAME ocelot_macsec MEBA_SRC_FOLDER ocelot
+         STATIC_DEPENDENCIES    mepa_ocelot_macsec)
 
 MEBA_LIB(LIB_NAME ocelot_pcb121 MEBA_SRC_FOLDER ocelot_pcb121
          STATIC_DEPENDENCIES    mepa_ocelot_pcb121)
@@ -134,6 +143,9 @@ MEBA_LIB(LIB_NAME sparx5_bringup MEBA_SRC_FOLDER sparx5
 
 MEBA_LIB(LIB_NAME lan966x MEBA_SRC_FOLDER lan966x
          STATIC_DEPENDENCIES    mepa_lan966x)
+
+MEBA_LIB(LIB_NAME lan966x_macsec MEBA_SRC_FOLDER lan966x
+         STATIC_DEPENDENCIES    mepa_lan966x_macsec)
 
 MEBA_LIB(LIB_NAME p64h MEBA_SRC_FOLDER p64h
          STATIC_DEPENDENCIES    mepa_p64h)
