@@ -2988,7 +2988,8 @@ static vtss_rc fa_usxgmii_enable(vtss_state_t        *vtss_state,
     u32 port = VTSS_CHIP_PORT(port_no);
     u32 tgt = dev_high ? VTSS_TO_HIGH_DEV(port) : VTSS_TO_DEV2G5(port);
 
-    if (vtss_state->port.current_if_type[port_no] == VTSS_PORT_INTERFACE_QXGMII) {
+    if (vtss_state->port.current_if_type[port_no] == VTSS_PORT_INTERFACE_QXGMII ||
+        vtss_state->port.current_if_type[port_no] == VTSS_PORT_INTERFACE_USXGMII) {
         return VTSS_RC_OK; // Already done
     }
 
@@ -3570,20 +3571,20 @@ static vtss_rc fa_port_conf_high_set(vtss_state_t *vtss_state, const vtss_port_n
         if (pcs_usx) {
             /* Setup USXGMII mode (once) */
             VTSS_RC(fa_usxgmii_enable(vtss_state, port_no, TRUE));
-        } else {
-            /* The PCS_BR block below handles 5G/10G speeds for all primary
-             * devices */
-
-            /* Handle Signal Detect in PCS */
-            REG_WR(VTSS_PCS_10GBASE_R_PCS_SD_CFG(pcs),
-                   VTSS_F_PCS_10GBASE_R_PCS_SD_CFG_SD_POL(conf->sd_active_high) |
-                       VTSS_F_PCS_10GBASE_R_PCS_SD_CFG_SD_SEL(!conf->sd_internal) |
-                       VTSS_F_PCS_10GBASE_R_PCS_SD_CFG_SD_ENA(conf->sd_enable));
-
-            /* Enable 10G PCS  */
-            REG_WRM(VTSS_PCS_10GBASE_R_PCS_CFG(pcs), VTSS_F_PCS_10GBASE_R_PCS_CFG_PCS_ENA(1),
-                    VTSS_M_PCS_10GBASE_R_PCS_CFG_PCS_ENA);
         }
+
+        /* The PCS_BR block below handles 5G/10G speeds for all primary
+         * devices */
+
+        /* Handle Signal Detect in PCS */
+        REG_WR(VTSS_PCS_10GBASE_R_PCS_SD_CFG(pcs),
+               VTSS_F_PCS_10GBASE_R_PCS_SD_CFG_SD_POL(conf->sd_active_high) |
+                   VTSS_F_PCS_10GBASE_R_PCS_SD_CFG_SD_SEL(!conf->sd_internal) |
+                   VTSS_F_PCS_10GBASE_R_PCS_SD_CFG_SD_ENA(conf->sd_enable));
+
+        /* Enable 10G PCS  */
+        REG_WRM(VTSS_PCS_10GBASE_R_PCS_CFG(pcs), VTSS_F_PCS_10GBASE_R_PCS_CFG_PCS_ENA(1),
+                VTSS_M_PCS_10GBASE_R_PCS_CFG_PCS_ENA);
     }
 
     /* MAC Host loopback */

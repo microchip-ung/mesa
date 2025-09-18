@@ -296,7 +296,7 @@ static vtss_rc vtss_port_usxgmii_status_get(vtss_state_t             *vtss_state
     }
     status->link_down = (clause_37_status.link ? FALSE : TRUE);
     status->aneg_complete = clause_37_status.autoneg.complete;
-    status->link = clause_37_status.autoneg.partner.usxgmii.link;
+    status->link = clause_37_status.link && clause_37_status.autoneg.partner.usxgmii.link;
     status->fdx = clause_37_status.autoneg.partner.usxgmii.fdx;
     status->speed = clause_37_status.autoneg.partner.usxgmii.speed;
 
