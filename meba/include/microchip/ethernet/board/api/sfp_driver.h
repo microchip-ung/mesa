@@ -95,6 +95,7 @@ typedef enum {
     MEBA_SFP_TRANSRECEIVER_10G_LRM,       // 10G Fiber SFP+ long range multimode (220m)
     MEBA_SFP_TRANSRECEIVER_10G_ER,        // 10G Fiber SFP+ extended range (40km)
     MEBA_SFP_TRANSRECEIVER_10G_DAC,       // 10G DAC SFP+ Cu
+    MEBA_SFP_TRANSRECEIVER_10GBASE_T,     // 10G Base-T (RJ45) 10G Cu SFP
     MEBA_SFP_TRANSRECEIVER_25G,           // 25G Fiber SFP+
     MEBA_SFP_TRANSRECEIVER_25G_SR,        // 25G Fiber SFP+ short range (400m)
     MEBA_SFP_TRANSRECEIVER_25G_LR,        // 25G Fiber SFP+ long range (10km)

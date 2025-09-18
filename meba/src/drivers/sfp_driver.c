@@ -277,6 +277,20 @@ static mesa_rc serdes_conf_set(meba_sfp_device_t *dev, const meba_sfp_driver_con
     return MESA_RC_OK;
 }
 
+static mesa_rc clause_37_disable(meba_sfp_device_t *dev, const meba_sfp_driver_conf_t *conf)
+{
+    sfp_data_t                   *data = (sfp_data_t *)(dev->data);
+    mesa_port_clause_37_control_t ctrl;
+
+    mesa_port_clause_37_control_get(data->inst, data->port_no, &ctrl);
+    if (ctrl.enable) {
+        ctrl.enable = false;
+        return mesa_port_clause_37_control_set(data->inst, data->port_no, &ctrl);
+    }
+
+    return MESA_RC_OK;
+}
+
 static mesa_rc fx_if_get(meba_sfp_device_t     *dev,
                          mesa_port_speed_t      speed,
                          mesa_port_interface_t *mac_if)
@@ -316,6 +330,14 @@ static mesa_rc tr_2g5_if_get(meba_sfp_device_t     *dev,
     case MESA_SPEED_2500M: *mac_if = MESA_PORT_INTERFACE_VAUI; return MESA_RC_OK;
     default:               *mac_if = MESA_PORT_INTERFACE_VAUI; return MESA_RC_ERROR;
     }
+}
+
+static mesa_rc tr_10gbaset_if_get(meba_sfp_device_t     *dev,
+                                  mesa_port_speed_t      speed,
+                                  mesa_port_interface_t *mac_if)
+{
+    *mac_if = MESA_PORT_INTERFACE_USXGMII;
+    return MESA_RC_OK;
 }
 
 static mesa_rc sfi_mt_none_get(meba_sfp_device_t *dev, mesa_sd10g_media_type_t *mt)
@@ -394,6 +416,12 @@ static mesa_rc tr_2g5_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 static mesa_rc tr_5g_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_5G;
+    return MESA_RC_OK;
+}
+
+static mesa_rc tr_10g_baset_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
+{
+    *tr = MEBA_SFP_TRANSRECEIVER_10GBASE_T;
     return MESA_RC_OK;
 }
 
@@ -766,6 +794,30 @@ meba_sfp_drivers_t meba_oem_driver_init()
          .meba_sfp_driver_mt_get = NULL,
          .meba_sfp_driver_tr_get = tr_1000_t_get,
          .meba_sfp_driver_probe = dev_probe,
+         },
+        {
+         // Fiberworks 10GBaseT/USXGMII
+            .product_name = "10GB-SFP-SR",
+         .meba_sfp_driver_delete = dev_delete,
+         .meba_sfp_driver_reset = dev_reset,
+         .meba_sfp_driver_poll = dev_poll,
+         .meba_sfp_driver_conf_set = clause_37_disable,
+         .meba_sfp_driver_if_get = tr_10gbaset_if_get,
+         .meba_sfp_driver_mt_get = sfi_mt_get,
+         .meba_sfp_driver_tr_get = tr_10g_baset_get,
+         .meba_sfp_driver_probe = dev_probe,
+         },
+        {
+         // FS 10GBaseT/USXGMII
+            .product_name = "SFP-10GM-T-30",
+         .meba_sfp_driver_delete = dev_delete,
+         .meba_sfp_driver_reset = dev_reset,
+         .meba_sfp_driver_poll = dev_poll,
+         .meba_sfp_driver_conf_set = clause_37_disable,
+         .meba_sfp_driver_if_get = tr_10gbaset_if_get,
+         .meba_sfp_driver_mt_get = sfi_mt_get,
+         .meba_sfp_driver_tr_get = tr_10g_baset_get,
+         .meba_sfp_driver_probe = dev_probe,
          }
     };
 
@@ -1105,8 +1157,8 @@ static if_func_t if_func_get(meba_sfp_transreceiver_t tr)
     case MEBA_SFP_TRANSRECEIVER_1000BASE_LR:
     case MEBA_SFP_TRANSRECEIVER_1000BASE_X:    return serdes_if_get;
 
-    case MEBA_SFP_TRANSRECEIVER_2G5: return tr_2g5_if_get;
-
+    case MEBA_SFP_TRANSRECEIVER_2G5:       return tr_2g5_if_get;
+    case MEBA_SFP_TRANSRECEIVER_10GBASE_T: return tr_10gbaset_if_get;
     case MEBA_SFP_TRANSRECEIVER_5G:
     case MEBA_SFP_TRANSRECEIVER_10G:
     case MEBA_SFP_TRANSRECEIVER_10G_SR:
@@ -1119,7 +1171,7 @@ static if_func_t if_func_get(meba_sfp_transreceiver_t tr)
     case MEBA_SFP_TRANSRECEIVER_25G_LR:
     case MEBA_SFP_TRANSRECEIVER_25G_LRM:
     case MEBA_SFP_TRANSRECEIVER_25G_ER:
-    case MEBA_SFP_TRANSRECEIVER_25G_DAC: return sfi_if_get;
+    case MEBA_SFP_TRANSRECEIVER_25G_DAC:   return sfi_if_get;
 
     default: break;
     }
