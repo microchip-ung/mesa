@@ -482,6 +482,8 @@ mepa_rc meba_port_status_get(meba_inst_t               inst,
     // Intel/ML driver uses the old link-status
     status_mepa.link = status->link;
 
+    memset(status, 0, sizeof(*status));
+
     MESA_RC(inst->api.meba_port_entry_get(inst, port_no, &entry));
     MESA_RC(mesa_port_conf_get(NULL, port_no, &conf));
     switch (conf.if_type) {
