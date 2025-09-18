@@ -123,6 +123,7 @@ const char *mesa_sfp_if2txt(meba_sfp_transreceiver_t sfp)
     case MEBA_SFP_TRANSRECEIVER_10G_LRM:       return "10G_LRM";
     case MEBA_SFP_TRANSRECEIVER_10G_ER:        return "10G_ER";
     case MEBA_SFP_TRANSRECEIVER_10G_DAC:       return "10G_DAC";
+    case MEBA_SFP_TRANSRECEIVER_10GBASE_T:     return "10GBASE_T";
     case MEBA_SFP_TRANSRECEIVER_25G:           return "25G";
     case MEBA_SFP_TRANSRECEIVER_25G_SR:        return "25G_SR";
     case MEBA_SFP_TRANSRECEIVER_25G_LR:        return "25G_LR";
@@ -413,7 +414,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
         conf.flow_control.obey ? "OBEY" : "", conf.flow_control.generate ? "GENERATE" : "",
         conf.loop);
 
-    if ((memcmp(&old_conf, &conf, sizeof(conf)) > 0) || init) {
+    if ((memcmp(&old_conf, &conf, sizeof(conf)) != 0) || init) {
         if (mesa_port_conf_set(NULL, port_no, &conf) != MESA_RC_OK) {
             T_E("mesa_port_conf_set(%u) failed", port_no);
         }
@@ -1870,8 +1871,8 @@ static void check_sfp_drv_status(meba_inst_t    inst,
 
 static mesa_bool_t port_is_aneg_mode(port_entry_t *entry)
 {
-    if (entry->conf.autoneg || ((entry->media_type == MSCC_PORT_TYPE_SFP) &&
-                                (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_1000BASE_T))) {
+    if (entry->conf.autoneg || (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_1000BASE_T) ||
+        (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10GBASE_T)) {
         return TRUE;
     }
     return FALSE;
