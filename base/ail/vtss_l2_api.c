@@ -527,13 +527,18 @@ vtss_rc vtss_update_masks(struct vtss_state_s *vtss_state,
             if (rb_conf->mode == VTSS_RB_MODE_DISABLED) {
                 // Skip disabled RedBox
             } else if (rb_conf->port_a == VTSS_PORT_NO_NONE) {
-                // Port A is internal, port B is forwarding
-                i_port = rb_conf->port_b;
+                if (rb_conf->port_b == VTSS_PORT_NO_NONE) {
+                    // Port A and B internal, port C is forwarding interlink
+                    i_port = rb_conf->port_c;
+                } else {
+                    // Port A is internal, port B is forwarding interlink
+                    i_port = rb_conf->port_b;
+                }
             } else if (rb_conf->port_b == VTSS_PORT_NO_NONE) {
-                // Port B is internal, port A is forwarding
+                // Port B is internal, port A is forwarding interlink
                 i_port = rb_conf->port_a;
             } else if (vtss_state->l2.port_state[rb_conf->port_b]) {
-                // Port A is forwarding, port B is discarding
+                // Port A is forwarding interlink, port B is discarding
                 i_port = rb_conf->port_a;
                 tx_forward[rb_conf->port_b] = FALSE;
             } else {
@@ -8494,24 +8499,49 @@ vtss_rc vtss_rb_conf_set(const vtss_inst_t           inst,
         if ((rc = vtss_cil_l2_rb_cap_get(vtss_state, rb_id, &cap)) == VTSS_RC_OK) {
             port_a = conf->port_a;
             port_b = conf->port_b;
-            if (conf->mode == VTSS_RB_MODE_DISABLED ||
-                (port_a != port_b && (port_a == VTSS_PORT_NO_NONE || cap.port_list[port_a]) &&
-                 (port_a != VTSS_PORT_NO_NONE || rb_id != 0U) &&
-                 (port_b == VTSS_PORT_NO_NONE || cap.port_list[port_b]) &&
-                 (port_b != VTSS_PORT_NO_NONE || rb_id < (VTSS_REDBOX_CNT - 1U)))) {
+            if (port_a == VTSS_PORT_NO_NONE) {
+                if (rb_id == 0U) {
+                    // Leftmost RedBox must be connected via port A
+                    rc = LM_RC_ERROR;
+                }
+                if (port_b == VTSS_PORT_NO_NONE && !cap.port_list[conf->port_c]) {
+                    // Port C not capable
+                    rc = LM_RC_ERROR;
+                }
+            } else if (port_a == port_b || !cap.port_list[port_a]) {
+                // Port A not capable or equal to port B
+                rc = LM_RC_ERROR;
+            } else {
+                // Empty on purpose
+            }
+            if (port_b == VTSS_PORT_NO_NONE) {
+                if (rb_id == (VTSS_REDBOX_CNT - 1U)) {
+                    // Rightmost RedBox must be connected via port B
+                    rc = LM_RC_ERROR;
+                }
+            } else if (!cap.port_list[port_b]) {
+                // Port A not capable or equal to port B
+                rc = LM_RC_ERROR;
+            } else {
+                // Empty on purpose
+            }
+            if (conf->mode == VTSS_RB_MODE_DISABLED) {
+                // Disabled, no checks
+                rc = LM_RC_OK;
+            }
+            if (rc == VTSS_RC_OK) {
                 rb_conf = &vtss_state->l2.rb_conf[rb_id];
                 vtss_state->l2.rb_conf_old = *rb_conf;
                 *rb_conf = *conf;
                 rc = vtss_cil_l2_rb_conf_set(vtss_state, rb_id);
             } else {
                 VTSS_E("illegal port A/B: %u/%u", port_a, port_b);
-                rc = VTSS_RC_ERROR;
             }
         }
     }
     if (rc == VTSS_RC_OK) {
         // Update aggregation masks
-        rc = vtss_update_masks(vtss_state, FALSE, FALSE, TRUE);
+        rc = vtss_update_masks(vtss_state, TRUE, FALSE, TRUE);
     }
     VTSS_EXIT();
     return rc;
@@ -9463,6 +9493,7 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
     BOOL                 header = TRUE;
     vtss_rb_id_t         i;
     vtss_rb_conf_t      *conf;
+    vtss_port_no_t       port_c;
     vtss_rb_counters_t   cnt;
     vtss_rb_mode_t       m;
     vtss_rb_node_t       node;
@@ -9479,20 +9510,26 @@ static void vtss_debug_print_redbox(vtss_state_t                  *vtss_state,
         }
         if (header) {
             header = FALSE;
-            pr("ID  Mode      Port A/B  NetId  LanId  NT DMAC Dis  NT Age  PNT Age  DD Age  SV       SV-Discard\n");
+            pr("ID  Mode      Port A/B/C  NetId  LanId  NT DMAC Dis  NT Age  PNT Age  DD Age  SV       SV-Discard\n");
         }
         lmu_fmt_buf_init(&buf);
+        port_c = conf->port_c;
         if (conf->port_a == VTSS_PORT_NO_NONE) {
             LMU_SS_FMT(&buf.ss, "-/");
         } else {
+            port_c = conf->port_a;
             LMU_SS_FMT(&buf.ss, "%u/", conf->port_a);
         }
         if (conf->port_b == VTSS_PORT_NO_NONE) {
             LMU_SS_FMT(&buf.ss, "-");
         } else {
             LMU_SS_FMT(&buf.ss, "%u", conf->port_b);
+            if (conf->port_a == VTSS_PORT_NO_NONE) {
+                port_c = conf->port_b;
+            }
         }
-        pr("%-4u%-10s%-10s%-7u%-7u%-13u%-8u%-9u%-8u%-9s%u\n", i,
+        LMU_SS_FMT(&buf.ss, "/%u", port_c);
+        pr("%-4u%-10s%-12s%-7u%-7u%-13u%-8u%-9u%-8u%-9s%u\n", i,
            m == VTSS_RB_MODE_DISABLED  ? "Disabled"
            : m == VTSS_RB_MODE_PRP_SAN ? "PRP-SAN"
            : m == VTSS_RB_MODE_HSR_SAN ? "HSR-SAN"

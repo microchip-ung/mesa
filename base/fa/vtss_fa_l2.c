@@ -2013,8 +2013,9 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t      *vtss_state,
 
 // Find Interlink port
 #define FA_RB_PORT_C(_c)                                                                           \
-    ((_c)->port_a != VTSS_PORT_NO_NONE ? (_c)->port_a                                              \
-                                       : ((_c)->port_b != VTSS_PORT_NO_NONE ? (_c)->port_b : 0U))
+    ((_c)->port_a != VTSS_PORT_NO_NONE   ? (_c)->port_a                                            \
+     : (_c)->port_b != VTSS_PORT_NO_NONE ? (_c)->port_b                                            \
+                                         : (_c)->port_c)
 
 vtss_rc vtss_fa_rb_port_update(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {

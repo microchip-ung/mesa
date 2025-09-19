@@ -1552,28 +1552,26 @@ typedef enum {
 // - Normal   : The port is used for switching and not related to the RedBox.
 //
 // Port A  Port B  Port X     Port Y     Comment
-// ------  ------  --------   ---------
-// ----------------------------------------- X       Y       Interlink  Unused
-// Redbox using port X and Y X       NONE    Interlink  Normal     RedBox using
-// port X, connected to right neighbour RedBox NONE    Y       Normal Interlink
-// RedBox using port Y, connected to left neighbour RedBox
+// ------  ------  --------   ---------  -----------------------------------------
+// X       Y       Interlink  Unused     Redbox using port X and Y
+// X       NONE    Interlink  Normal     RedBox using port X, connected to right neighbour RedBox
+// NONE    Y       Normal     Interlink  RedBox using port Y, connected to left neighbour RedBox
+// NONE    NONE    Normal     Normal     RedBox connected to left and right RedBox
 typedef struct {
-    mesa_rb_mode_t mode;                // Mode
-    mesa_port_no_t port_a;              // Port A or MESA_PORT_NO_NONE (connected to left
-                                        // neighbour RedBox)
-    mesa_port_no_t port_b;              // Port B or MESA_PORT_NO_NONE (connected to right
-                                        // neighbour RedBox)
-    uint8_t net_id;                     // NetId (0-7) used for HSR port Tx and Interlink Tx
-                                        // filtering (if non-zero)
-    uint8_t            lan_id;          // LanId (0/1) used for Interlink Tx for HSR-PRP
-    mesa_bool_t        nt_dmac_disable; // Disable Node Table DMAC filtering
-    mesa_rb_age_time_t nt_age_time;     // Node Table age time [seconds]
-    mesa_rb_age_time_t pnt_age_time;    // Proxy Node Table age time [seconds]
-    mesa_rb_age_time_t dd_age_time;     // Duplicate Discard age time [milliseconds]
-    mesa_rb_sv_t       sv;              // LRE-to-Interlink Supervision frame forwarding
-    mesa_bool_t        sv_discard;      // Interlink-to-LRE Supervision frame discard flag
-    mesa_bool_t        mode_u;          // Any HSR mode: Forward frames Rx'd on LRE with DMAC in
-                                        // PNT to other LRE port
+    mesa_rb_mode_t mode;   // Mode
+    mesa_port_no_t port_a; // Port A or MESA_PORT_NO_NONE (connected to left neighbour RedBox)
+    mesa_port_no_t port_b; // Port B or MESA_PORT_NO_NONE (connected to right neighbour RedBox)
+    mesa_port_no_t port_c; // Port C, if port A and B are both MESA_PORT_NO_NONE
+    uint8_t     net_id; // NetId (0-7) used for HSR port Tx and Interlink Tx filtering (if non-zero)
+    uint8_t     lan_id; // LanId (0/1) used for Interlink Tx for HSR-PRP
+    mesa_bool_t nt_dmac_disable;     // Disable Node Table DMAC filtering
+    mesa_rb_age_time_t nt_age_time;  // Node Table age time [seconds]
+    mesa_rb_age_time_t pnt_age_time; // Proxy Node Table age time [seconds]
+    mesa_rb_age_time_t dd_age_time;  // Duplicate Discard age time [milliseconds]
+    mesa_rb_sv_t       sv;           // LRE-to-Interlink Supervision frame forwarding
+    mesa_bool_t        sv_discard;   // Interlink-to-LRE Supervision frame discard flag
+    mesa_bool_t        mode_u;       // Any HSR mode: Forward frames Rx'd on LRE with DMAC in
+                                     // PNT to other LRE port
 } mesa_rb_conf_t;
 
 // Get RedBox configuration.

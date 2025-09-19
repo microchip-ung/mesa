@@ -29,6 +29,9 @@ $rb_id = nil
 # Global hash for connecting two RedBoxes
 $rb_pair = nil
 
+# Global hash for connecting three RedBoxes
+$rb_chain = nil
+
 # Global PTP type
 $ptp_encap = "etype"
 $ptp_encap = "ipv4"
@@ -84,6 +87,50 @@ check_capabilities do
         end
     end
 
+    # Look for a chain of three RedBoxes, which can be connected
+    $ts.dut.p.each_with_index do |port_a, idx_a|
+        rb_a = port_rb[port_a]
+        next if (rb_a == nil)
+        # Look for port B with next-neighbour RedBox ID
+        $ts.dut.p.each_with_index do |port_b, idx_b|
+            rb_b = port_rb[port_b]
+            next if (rb_b == nil)
+            if (rb_b == (rb_a + 2))
+                # Pair (A, B) found
+                $rb_chain = {rb_a: rb_a, rb_m: (rb_a + 1), rb_b: rb_b, idx_a: idx_a, idx_b: idx_b}
+                break
+            end
+            if (rb_a == (rb_b + 2))
+                # Pair (B, A) found, swapping
+                $rb_chain = {rb_a: rb_b, rb_m: (rb_b + 1), rb_b: rb_a, idx_a: idx_b, idx_b: idx_a}
+                break
+            end
+        end
+        if ($rb_chain != nil)
+            # Look for port C and D
+            $ts.dut.p.each_index do |idx|
+                next if (idx == $rb_chain[:idx_a] or idx == $rb_chain[:idx_b])
+                if ($rb_chain[:idx_c] == nil)
+                    $rb_chain[:idx_c] = idx
+                else
+                    $rb_chain[:idx_d] = idx
+                end
+            end
+            # Look for port E
+            port_rb.each_with_index do |rb, port|
+                if (rb == ($rb_chain[:rb_a] + 1))
+                    $rb_chain[:port_e] = port
+                    break
+                end
+            end
+            if ($rb_chain[:idx_d] != nil)
+                t_i("$rb_chain: #{$rb_chain}")
+                break
+            end
+            $rb_chain = nil
+        end
+    end
+
     # For each port A, look for port B/C/D
     $ts.dut.p.each_with_index do |port_a, idx_a|
         rb_id = port_rb[port_a]
@@ -112,7 +159,7 @@ check_capabilities do
             break
         end
     end
-    assert(($rb_table.size > 0 or $rb_pair != nil), "RedBox with two ports or RedBox pair must be present")
+    assert(($rb_table.size > 0 or $rb_pair != nil or $rb_chain != nil), "RedBox with two ports or RedBox pair/chain must be present")
 end
 
 #---------- Configuration -----------------------------------------------------
@@ -1446,13 +1493,16 @@ test_table =
     },
 ]
 
-def vlan_port_conf_set(idx, e)
-    port = $ts.dut.p[idx]
+def vlan_port_conf_set(port, e)
     conf = $ts.dut.call("mesa_vlan_port_conf_get", port)
     conf["port_type"] = ("MESA_VLAN_PORT_TYPE_" + fld_get(e, :type, "UNAWARE"))
     conf["pvid"] = fld_get(e, :pvid, 1)
     conf["untagged_vid"] = fld_get(e, :uvid, 1)
     $ts.dut.call("mesa_vlan_port_conf_set", port, conf)
+end
+
+def vlan_idx_conf_set(idx, e)
+    vlan_port_conf_set($ts.dut.p[idx], e)
 end
 
 def cnt_incr(c, port_name, cnt_name, incr = 1)
@@ -1680,6 +1730,7 @@ def rb_conf_set(rb_id, mode, port_a, port_b, cfg)
     conf["mode"] = ("MESA_RB_MODE_" + mode)
     conf["port_a"] = port_a
     conf["port_b"] = port_b
+    conf["port_c"] = fld_get(cfg, :port_c)
     conf["net_id"] = fld_get(cfg, :net_id)
     conf["lan_id"] = fld_get(cfg, :lan_id)
     conf["nt_dmac_disable"] = fld_get(cfg, :nt_dmac_dis, false)
@@ -1750,7 +1801,7 @@ def redbox_test(t)
         list.each do |e|
             idx = rb_idx(fld_get(e, :idx))
             vlan_idx_list.push(idx)
-            vlan_port_conf_set(idx, e)
+            vlan_idx_conf_set(idx, e)
         end
         $ts.dut.call("mesa_vlan_port_members_set", vid, port_idx_list_str(vlan_idx_list))
     end
@@ -1943,7 +1994,7 @@ def redbox_test(t)
 
     # Restore VLAN port configuration
     vlan_idx_list.each do |idx|
-        vlan_port_conf_set(idx, {})
+        vlan_idx_conf_set(idx, {})
     end
 
     # Delete ACL
@@ -1993,66 +2044,157 @@ $rb_table.each_with_index do |rb, rb_idx|
     end
 end
 
-def vlan_conf_set(vid, idx_list)
-    idx_list.each do |idx|
-        vlan_port_conf_set(idx, {pvid: vid, uvid: vid})
+def vlan_conf_set(vid, port_list)
+    port_list.each do |port|
+        vlan_port_conf_set(port, {pvid: vid, uvid: vid})
     end
-    $ts.dut.call("mesa_vlan_port_members_set", vid, port_idx_list_str(idx_list))
-end
-
-def redbox_pair_test
-    # Extract global RedBox pair
-    rb_a = $rb[:rb_a]
-    rb_b = $rb[:rb_b]
-    idx_a = $rb[:idx_a]
-    idx_b = $rb[:idx_b]
-    idx_c = $rb[:idx_c]
-    idx_d = $rb[:idx_d]
-    port_a = $ts.dut.p[idx_a]
-    port_b = $ts.dut.p[idx_b]
-    port_none = 0xffffffff
-
-    # Port A and C are in VLAN 1
-    vlan_conf_set(1, [idx_a, idx_c])
-
-    # Port B and D are in VLAN 2
-    vlan_conf_set(2, [idx_b, idx_d])
-
-    # Setup RedBox A
-    rb_conf_set(rb_a, "HSR_SAN", port_a, port_none, {})
-
-    # Setup RedBox B
-    rb_conf_set(rb_b, "HSR_PRP", port_none, port_b, {})
-
-    # Forwarding test
-    tab = [
-        {fwd: [{idx_tx: "a", hsr: {}},
-               {idx_rx: "b", hsr: {}},
-               {idx_rx: "c"},
-               {idx_rx: "d", prp: {}}]},
-        {fwd: [{idx_tx: "b", hsr: {}},
-               {idx_rx: "a", hsr: {}},
-               {idx_rx: "c"},
-               {idx_rx: "d", prp: {}}]},
-        {fwd: [{idx_tx: "c"},
-               {idx_rx: "a", hsr: {}},
-               {idx_rx: "b", hsr: {lan_id: 1}},
-               {idx_rx: "d", prp: {}}]},
-        {fwd: [{idx_tx: "d", prp: {}},
-               {idx_rx: "a", hsr: {}},
-               {idx_rx: "b", hsr: {lan_id: 0}},
-               {idx_rx: "c"}]},
-    ]
-    tab.each do |entry|
-        rb_frame_test("", entry, nil, 1, 0)
-    end
+    $ts.dut.call("mesa_vlan_port_members_set", vid, port_list.join(","))
 end
 
 if $rb_pair != nil and sel == nil
-    test "RedBox pair: HSR_SAN and HSR-PRP" do
+    test "RedBox pair: HSR-SAN and HSR-PRP" do
+        # Extract global RedBox pair
         $rb = $rb_pair
+        rb_a = $rb[:rb_a]
+        rb_b = $rb[:rb_b]
+        idx_a = $rb[:idx_a]
+        idx_b = $rb[:idx_b]
+        idx_c = $rb[:idx_c]
+        idx_d = $rb[:idx_d]
+        port_a = $ts.dut.p[idx_a]
+        port_b = $ts.dut.p[idx_b]
+        port_c = $ts.dut.p[idx_c]
+        port_d = $ts.dut.p[idx_d]
+        port_none = 0xffffffff
+
+        # Print setup
         show_rb_ports
-        redbox_pair_test
+        t_i("    C          D")
+        t_i("    |          |")
+        t_i("+------------------+")
+        t_i("|      Switch      |")
+        t_i("+------------------+")
+        t_i("    | A        | B")
+        t_i("+-------+  +-------+")
+        t_i("| RB_A  |  | RB_B  |")
+        t_i("|HSR-SAN|  |HSR-PRP|")
+        t_i("+-------+  +-------+")
+        t_i("  |   |      |   |")
+        t_i("  A   +------+   B")
+        t_i("")
+
+        # Port A and C are in VLAN 1
+        vlan_conf_set(1, [port_a, port_c])
+
+        # Port B and D are in VLAN 2
+        vlan_conf_set(2, [port_b, port_d])
+
+        # Setup RedBox A
+        rb_conf_set(rb_a, "HSR_SAN", port_a, port_none, {})
+
+        # Setup RedBox B
+        rb_conf_set(rb_b, "HSR_PRP", port_none, port_b, {})
+
+        # Forwarding test
+        tab = [
+            {fwd: [{idx_tx: "a", hsr: {}},
+                   {idx_rx: "b", hsr: {}},
+                   {idx_rx: "c"},
+                   {idx_rx: "d", prp: {}}]},
+            {fwd: [{idx_tx: "b", hsr: {}},
+                   {idx_rx: "a", hsr: {}},
+                   {idx_rx: "c"},
+                   {idx_rx: "d", prp: {}}]},
+            {fwd: [{idx_tx: "c"},
+                   {idx_rx: "a", hsr: {}},
+                   {idx_rx: "b", hsr: {lan_id: 1}},
+                   {idx_rx: "d", prp: {}}]},
+            {fwd: [{idx_tx: "d", prp: {}},
+                   {idx_rx: "a", hsr: {}},
+                   {idx_rx: "b", hsr: {lan_id: 0}},
+                   {idx_rx: "c"}]},
+        ]
+        tab.each do |entry|
+            rb_frame_test("", entry, nil, 1, 0)
+        end
+    end
+end
+
+if $rb_chain != nil and sel == nil
+    test "RedBox chain: HSR-SAN and HSR-PRP" do
+        # Extract global RedBox chain
+        $rb = $rb_chain
+        rb_a = $rb[:rb_a]
+        rb_m = $rb[:rb_m]
+        rb_b = $rb[:rb_b]
+        idx_a = $rb[:idx_a]
+        idx_b = $rb[:idx_b]
+        idx_c = $rb[:idx_c]
+        idx_d = $rb[:idx_d]
+        port_a = $ts.dut.p[idx_a]
+        port_b = $ts.dut.p[idx_b]
+        port_c = $ts.dut.p[idx_c]
+        port_d = $ts.dut.p[idx_d]
+        port_e = $rb[:port_e]
+        port_none = 0xffffffff
+
+        # Print setup
+        show_rb_ports
+        t_i("Port e: #{port_e}(#{$ts.port_map[port_e]["chip_port"]})")
+        t_i("               C          D")
+        t_i("               |          |")
+        t_i("+-----------------------------+")
+        t_i("|           Switch            |")
+        t_i("+-----------------------------+")
+        t_i("    | A        | E        | B")
+        t_i("+-------+  +-------+  +-------+")
+        t_i("| RB_A  |  | RB_M  |  | RB_B  |")
+        t_i("|HSR-SAN|  |HSR-PRP|  |HSR-PRP|")
+        t_i("+-------+  +-------+  +-------+")
+        t_i("  |   |      |   |      |   |")
+        t_i("  A   +------+   +------+   B")
+        t_i("")
+
+        # Port A is in VLAN 1 (isolated)
+        vlan_conf_set(1, [port_a])
+
+        # Port C and E are in VLAN 2
+        vlan_conf_set(2, [port_c, port_e])
+
+        # Port B and D are in VLAN 3
+        vlan_conf_set(3, [port_b, port_d])
+
+        # Setup RedBox A
+        rb_conf_set(rb_a, "HSR_SAN", port_a, port_none, {})
+
+        # Setup RedBox M: Switch port E is RedBox port C (interlink)
+        rb_conf_set(rb_m, "HSR_PRP", port_none, port_none, {port_c: port_e, lan_id: 1})
+
+        # Setup RedBox B
+        rb_conf_set(rb_b, "HSR_PRP", port_none, port_b, {})
+
+        # Forwarding test
+        tab = [
+            {fwd: [{idx_tx: "a", hsr: {}},
+                   {idx_rx: "b", hsr: {}},
+                   {idx_rx: "c", prp: {lan_id: 1}},
+                   {idx_rx: "d", prp: {}}]},
+            {fwd: [{idx_tx: "b", hsr: {}},
+                   {idx_rx: "a", hsr: {}},
+                   {idx_rx: "c", prp: {lan_id: 1}},
+                   {idx_rx: "d", prp: {}}]},
+            {fwd: [{idx_tx: "c", prp: {lan_id: 1}},
+                   {idx_rx: "a", hsr: {lan_id: 1}},
+                   {idx_rx: "b", hsr: {lan_id: 1}},
+                   {idx_rx: "d", prp: {}}]},
+            {fwd: [{idx_tx: "d", prp: {}},
+                   {idx_rx: "a", hsr: {}},
+                   {idx_rx: "b", hsr: {}},
+                   {idx_rx: "c", prp: {lan_id: 1}}]},
+        ]
+        tab.each do |entry|
+            rb_frame_test("", entry, nil, 1, 0)
+        end
     end
 end
 
@@ -2060,7 +2202,7 @@ test_summary(false)
 
 test "dump" do
     break
-    $ts.dut.run("mesa-cmd deb api cil redbox")
+    $ts.dut.run("mesa-cmd deb api ail redbox")
     #$ts.dut.run("mesa-cmd deb api ai vlan")
     #$ts.dut.run("mesa-cmd port stati pac")
     #$ts.dut.run("mesa-cmd mac dump")

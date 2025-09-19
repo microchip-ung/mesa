@@ -2327,9 +2327,21 @@ static void vtss_port_debug_print_conf(vtss_state_t                  *vtss_state
         if (vtss_state->vtss_features[FEATURE_REDBOX] != 0) {
             for (vtss_rb_id_t id = 0; id < VTSS_REDBOX_CNT; id++) {
                 vtss_rb_conf_t *rb_conf = &vtss_state->l2.rb_conf[id];
-                if (rb_conf->mode != VTSS_RB_MODE_DISABLED &&
-                    (rb_conf->port_a == port_no || rb_conf->port_b == port_no)) {
-                    pr(" (RedBox %u, port %s)", id, rb_conf->port_a == port_no ? "A" : "B");
+                vtss_port_no_t  port_a = rb_conf->port_a;
+                vtss_port_no_t  port_b = rb_conf->port_b;
+                char            c;
+                if (rb_conf->mode != VTSS_RB_MODE_DISABLED) {
+                    if (port_no == port_a) {
+                        c = 'A';
+                    } else if (port_no == port_b) {
+                        c = 'B';
+                    } else if (port_a == VTSS_PORT_NO_NONE && port_b == VTSS_PORT_NO_NONE &&
+                               port_no == rb_conf->port_c) {
+                        c = 'C';
+                    } else {
+                        continue;
+                    }
+                    pr(" (RedBox %u, port %c)", id, c);
                     break;
                 }
             }

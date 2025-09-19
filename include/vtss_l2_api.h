@@ -2798,6 +2798,7 @@ typedef struct {
     vtss_rb_mode_t mode;       // Mode
     vtss_port_no_t port_a;     // Port A or VTSS_PORT_NO_NONE
     vtss_port_no_t port_b;     // Port B or VTSS_PORT_NO_NONE
+    vtss_port_no_t port_c;     // Port C, if port A and B are both MESA_PORT_NO_NONE
     u8             net_id;     // NetId (0-7) used for HSR port Tx and Interlink Tx filtering
                                // (if non-zero)
     u8                 lan_id; // LanId (0/1) used for Interlink Tx for HSR-PRP
