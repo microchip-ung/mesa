@@ -1054,12 +1054,18 @@ vtss_rc vtss_cil_packet_tx_hdr_encode(struct vtss_state_s *const         vtss_st
         // Add mirror port if CPU ingress mirroring or egress mirroring on
         // dst_port is enabled.
         mi_port = vtss_state->l2.mirror_conf.port_no;
-        if (!afi && mi_port < vtss_state->port_count &&
-            (vtss_state->l2.mirror_cpu_ingress || vtss_state->l2.mirror_egress[info->dst_port]) &&
-            vtss_state->l2.port_state[mi_port]) {
-            IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1U, FWD_MIRROR_PROBE,
-                                2U); /* FWD.MIRROR_PROBE = Ingress mirror probe.
-                                       1-based in this field */
+#if defined(VTSS_FEATURE_AFI_SWC)
+        if (!afi)
+#endif
+        {
+            if (mi_port < vtss_state->port_count &&
+                (vtss_state->l2.mirror_cpu_ingress ||
+                 vtss_state->l2.mirror_egress[info->dst_port]) &&
+                vtss_state->l2.port_state[mi_port]) {
+                IFH_ENCODE_BITFIELD(bin_hdr, FA_MIRROR_PROBE_RX + 1U, FWD_MIRROR_PROBE,
+                                    2U); /* FWD.MIRROR_PROBE = Ingress mirror probe.
+                                           1-based in this field */
+            }
         }
 
         pdu_type = pdu_type_calc(info);
