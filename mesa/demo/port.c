@@ -335,8 +335,7 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
     conf.xaui_tx_lane_flip = (cap & MEBA_PORT_CAP_XAUI_LANE_FLIP ? 1 : 0);
     conf.serdes.rx_invert = (cap & MEBA_PORT_CAP_SERDES_RX_INVERT ? 1 : 0);
     conf.serdes.tx_invert = (cap & MEBA_PORT_CAP_SERDES_TX_INVERT ? 1 : 0);
-    if (entry->media_type == MSCC_PORT_TYPE_CU ||
-        entry->meba.mac_if == MESA_PORT_INTERFACE_MASQUERADING) {
+    if (entry->media_type == MSCC_PORT_TYPE_CU || entry->media_type == MSCC_PORT_TYPE_NONE) {
         conf.if_type = entry->meba.mac_if;
     }
     if (entry->sfp_device != NULL) {
@@ -346,7 +345,8 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
         }
     } else {
         // Not SFP, get media type from meba
-        (void)meba_port_media_type_get(meba_global_inst, conf.if_type, &conf.serdes.media_type);
+        (void)meba_port_media_type_get(meba_global_inst, port_no, conf.if_type,
+                                       &conf.serdes.media_type);
     }
     if (aneg) {
         /* Setup port based on auto negotiation status */
@@ -1640,6 +1640,8 @@ static void port_init(meba_inst_t inst)
         case MESA_PORT_INTERFACE_SFI:
             if (cap & MEBA_PORT_CAP_COPPER) {
                 entry->media_type = MSCC_PORT_TYPE_CU; // AQR phys in SFI mode
+            } else if (cap & MEBA_PORT_CAP_CU_BP) {
+                entry->media_type = MSCC_PORT_TYPE_NONE;
             } else {
                 entry->media_type = MSCC_PORT_TYPE_SFP;
             }

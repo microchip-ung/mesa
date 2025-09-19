@@ -450,12 +450,19 @@ mepa_rc meba_phy_synce_clock_conf_set(meba_inst_t                    inst,
         }                                                                                          \
     }
 mesa_rc meba_port_media_type_get(meba_inst_t              inst,
+                                 mepa_port_no_t           port_no,
                                  mesa_port_interface_t    if_type,
                                  mesa_sd10g_media_type_t *media)
 {
     // For ports that do not have SPFs connected might still need specific serdes preset.
-    // Call into meba.c for board specific media types is TBD
-    // If the meba API is not implemented then the below defaults are used:
+    meba_port_entry_t meba;
+
+    if (inst->api.meba_port_entry_get(inst, port_no, &meba) == MESA_RC_OK) {
+        if (meba.cap & MEBA_PORT_CAP_CU_BP) {
+            *media = MESA_SD10G_MEDIA_BP;
+            return MESA_RC_OK;
+        }
+    }
     switch (if_type) {
     case MESA_PORT_INTERFACE_XAUI:
     case MESA_PORT_INTERFACE_SFI:        *media = MESA_SD10G_MEDIA_DAC; break;
