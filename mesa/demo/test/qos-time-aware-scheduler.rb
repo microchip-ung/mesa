@@ -723,7 +723,10 @@ def jira_appl_3433_test
         # Why is is a tolerance of 15% needed? Is the queue system able to hold 47000 frames?
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000*0.73],       [15.0],          true,              [4])
     else
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000*0.73],       [2.0],          true,              [4])
+        # The non-preemptable traffic interval has guard band based on the "large" max SDU configuration
+        # and is therefore not getting 4/5 of the bandwidth. The test show 8.6 percent off.
+        # Expected rate is set to 7% lower with a tolerance of 2%
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [((990000000*4)/5) * 0.93],    [2],          true,              [4])
     end
 
     t_i ("Disable Frame Preemption")
@@ -731,13 +734,15 @@ def jira_appl_3433_test
     fp["enable_tx"] = false
     $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
 
-    t_i ("Measure after Frame Preemption disabled")
-    t_i ("Tolerance must be high due to large MAXSDU meaning large guard band")
+    t_i ("Measure preemptable traffic after Frame Preemption disabled")
        #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
     if ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN966X"))
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/8],       [5],           true,              [2])
     else
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/7.5],       [5],           true,              [2],    [cycle_time])
+        # Guard band is based on the "large" max SDU configuration
+        # The test show 39 percent off.
+        # Expected rate is set to 37% lower with a tolerance of 2%
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [(990000000/5) * 0.63],       [2],           true,              [2],    [cycle_time])
     end
 
     # Throughput of non-preemptable traffic should not be affected by enabling/disabling preemption
@@ -747,19 +752,35 @@ def jira_appl_3433_test
         # Why is is a tolerance of 15% needed? Is the queue system able to hold 47000 frames?
         measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000*0.73],       [15.0],          true,              [4])
     else
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000*0.73],       [2.0],          true,              [4])
+        # Guard band is based on the "large" max SDU configuration
+        # The test show 8.6 percent off.
+        # Expected rate is set to 7% lower with a tolerance of 2%
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [((990000000*4)/5) * 0.93],       [2.0],          true,              [4])
     end
 
-    t_i ("Enable Frame Preemption")
+    t_i ("Enable Frame Preemption again")
     fp["enable_tx"] = true
+    fp["admin_status"][2] = true
     $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
 
-    t_i ("Measure after Frame Preemption enabled")
+    t_i ("Measure preemptable traffic after FP enabled")
        #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
     if ($ts.dut.pcb == 135)
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [7.1],          true,              [2])
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [3.5],          true,              [2])
     else
-        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [5.6],          true,              [2])
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000/5],       [1.2],          true,              [2])
+    end
+
+    t_i ("Measure non-preemptable traffic after TAS created  pcb #{$ts.dut.pcb}")
+       #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    if ($ts.dut.pcb == 135)
+        # Why is is a tolerance of 15% needed? Is the queue system able to hold 47000 frames?
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000*0.73],       [15.0],          true,              [4])
+    else
+        # The non-preemptable traffic interval has guard band based on the "large" max SDU configuration
+        # and is therefore not getting 4/5 of the bandwidth. The test show 8.6 percent off.
+        # Expected rate is set to 7% lower with a tolerance of 2%
+        measure([ig], eg_measure, frame_size, 2,     false,            false,           [((990000000*4)/5) * 0.93],    [2],          true,              [4])
     end
 
     t_i ("Stop GCL")
@@ -770,20 +791,35 @@ def jira_appl_3433_test
     t_i ("Wait for GCL to stop")
     sleep 2
 
+#$ts.dut.run("mesa-cmd deb api cil qos act 7")
+#$ts.dut.run("symreg read SYS:PSTATE:FPORT_STATE[0-7].MAC_HOLD")
+
     t_i ("Check GCL is stopped")
     status = $ts.dut.call("mesa_qos_tas_port_status_get", $loop_port0)
     if (status["config_pending"] == true)
         t_e("GCL unexpected config_pending = #{status["config_pending"]}")
     end
+    open = 0
+    status["gate_open"].each do |value|
+        if (value == true)
+            open += 1
+        end
+    end
+    if (open != 8)
+        t_e("GCL unexpected number of open gates #{open}")
+    end
 
-    t_i ("Measure after stopping TAS")
-   #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1.8],          true,              [2])
-
+     t_i ("Measure after stopping TAS")
+    #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+     measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1.8],          true,              [2])
 
     t_i ("Disable Frame Preemption")
     fp["enable_tx"] = false
     $ts.dut.call("mesa_qos_fp_port_conf_set", $loop_port0, fp)
+
+    t_i ("Measure after disable FP")
+   #measure(ig,   eg,         size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
+    measure([ig], eg_measure, frame_size, 2,     false,            false,           [990000000],         [1.8],          true,              [2])
 
     $ts.dut.call("mesa_pvlan_port_members_set", 0, pvlan)
     $ts.dut.call("mesa_pvlan_port_members_set", 1, "")
@@ -1337,7 +1373,7 @@ def jira_mesa_1013_test
     eg = 0
     ig = [1]
     frame_size = 1230
-    max_sdu = 1230
+    max_sdu = 1250
     cycle_time = 1000000
     # In each cycle 10 frames are transmitted.
     # One cycle is 1 us, so in one second 10.000 frames is transmitted
@@ -1391,10 +1427,8 @@ def jira_mesa_1013_test
     $ts.dut.run("mesa-cmd mac flush")
     $ts.pc.run("sudo ef tx #{$ts.pc.p[eg]} eth dmac 00:00:00:00:01:02 smac 00:00:00:00:01:01 ctag vid 0 ipv4 dscp 0")
 
-    # Laguna cannot do this - only 9 out of 10 frames comes through
-    tolerance = ($cap_family == chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) ? 10 : 1
    #measure(ig, eg, size,       sec=1, frame_rate=false, data_rate=false, erate=[1000000000],  etolerance=[1], with_pre_tx=false, pcp=[],  cycle_time=[])
-    measure(ig, eg, frame_size, 2,     true,             false,           [frame_rate],        [tolerance],    true,              [4])
+    measure(ig, eg, frame_size, 2,     true,             false,           [frame_rate],        [0.1],          true,              [4])
 
     t_i ("Stop GCL")
     conf = $ts.dut.call("mesa_qos_tas_port_conf_get", $ts.dut.p[eg])
@@ -1554,6 +1588,10 @@ test "test_run" do
     conf = $ts.dut.call("mesa_qos_tas_conf_get")
     conf["always_guard_band"] = false
     conf = $ts.dut.call("mesa_qos_tas_conf_set", conf)
+
+    if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
+        jira_appl_3433_test
+    end
 
 #   This test is out commented and failing as it is a mis-configuration
 #   jira_appl_4898_test

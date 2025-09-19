@@ -37,7 +37,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
                                u32                       obsolete_list_idx,
                                vtss_qos_tas_port_conf_t *port_conf,
                                u32                       startup_time);
-vtss_rc lan966x_tas_frag_size_update(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
+vtss_rc lan969x_tas_frag_size_update(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no);
 void    tas_list_state_write(vtss_state_t *vtss_state, u32 list_idx, u32 state);
 u8      tas_link_speed_calc(vtss_port_speed_t speed);
 vtss_rc tas_profile_free(vtss_state_t *vtss_state, u32 profile_idx);

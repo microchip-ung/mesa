@@ -4202,6 +4202,9 @@ vtss_rc vtss_cil_qos_fp_port_conf_set(struct vtss_state_s *vtss_state, const vts
     }
     (void)fa_qos_tas_update(vtss_state, port_no);
 #endif
+#if defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
+    (void)lan969x_tas_frag_size_update(vtss_state, port_no);
+#endif
 
     return VTSS_RC_OK;
 }
@@ -4255,7 +4258,7 @@ vtss_rc vtss_fa_qos_port_change(vtss_state_t *vtss_state, vtss_port_no_t port_no
     rc1 = (is_reset ? fa_qos_queue_cut_through_set(vtss_state, port_no) : VTSS_RC_OK);
 
 #if defined(VTSS_FEATURE_QOS_TAS_LIST_LINKED)
-    rc2 = lan966x_tas_frag_size_update(vtss_state, port_no);
+    rc2 = lan969x_tas_frag_size_update(vtss_state, port_no);
 #endif
     return ((rc1 != VTSS_RC_OK) ? rc1 : rc2);
 }

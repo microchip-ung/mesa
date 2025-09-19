@@ -337,17 +337,19 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
     hold_advance = (fp_enable_tx != 0U) ? (VTSS_X_DSM_PREEMPT_CFG_P_MIN_SIZE(value) + 1U) : 0U;
     /* FP pre-emptable frames must not be guard banded as this is controlled by
      * the MAC HOLD command */
-    preemptable = tas_preemptable_calc(gcl, gcl_length);
+    preemptable = (fp_enable_tx != 0U) ? tas_preemptable_calc(gcl, gcl_length) : 0U;
     /* Note that queues marked with '1' in SCH_TRAFFIC_QUEUES has guard banding
      * disabled */
     REG_WRM(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx),
             VTSS_F_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES(preemptable) |
                 VTSS_F_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(hold_advance) |
+                VTSS_F_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY(0) |
                 VTSS_F_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED(tas_link_speed_calc(vtss_state->port
                                                                                   .conf[port_no]
                                                                                   .speed)),
             VTSS_M_HSCH_TAS_PROFILE_CONFIG_SCH_TRAFFIC_QUEUES |
                 VTSS_M_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE |
+                VTSS_M_HSCH_TAS_PROFILE_CONFIG_TAS_CLOSE_DLY |
                 VTSS_M_HSCH_TAS_PROFILE_CONFIG_LINK_SPEED);
 
     /* Configure the list elements */
@@ -394,7 +396,7 @@ vtss_rc lan969x_tas_list_start(vtss_state_t             *vtss_state,
     return VTSS_RC_OK;
 }
 
-vtss_rc lan966x_tas_frag_size_update(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no)
+vtss_rc lan969x_tas_frag_size_update(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no)
 {
     u32                       chip_port = VTSS_CHIP_PORT(port_no);
     vtss_qos_tas_port_conf_t *port_conf = &vtss_state->qos.tas.port_conf[port_no];
@@ -423,7 +425,7 @@ vtss_rc lan966x_tas_frag_size_update(struct vtss_state_s *vtss_state, const vtss
             (fp_enable_tx != 0U) ? (VTSS_X_HSCH_TAS_PROFILE_CONFIG_HOLDADVANCE(value) + 1U) : 0U;
         /* FP pre-emptable frames must not be guard banded as this is controlled
          * by the MAC HOLD command */
-        preemptable = tas_preemptable_calc(gcl, gcl_length);
+        preemptable = (fp_enable_tx != 0U) ? tas_preemptable_calc(gcl, gcl_length) : 0U;
         /* Note that queues marked with '1' in SCH_TRAFFIC_QUEUES has guard
          * banding disabled */
         REG_WRM(VTSS_HSCH_TAS_PROFILE_CONFIG(profile_idx),
