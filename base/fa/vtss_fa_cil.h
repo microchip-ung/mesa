@@ -518,6 +518,12 @@ void vtss_fa_debug_cnt(lmu_ss_t            *ss,
 #define FA_VCAP_IS2_KEY_SEL_ERLEG 1U
 #define FA_VCAP_IS2_KEY_SEL_VD0   2U
 
+// Find Interlink port
+#define FA_RB_PORT_C(_c)                                                                           \
+    ((_c)->port_a != VTSS_PORT_NO_NONE   ? (_c)->port_a                                            \
+     : (_c)->port_b != VTSS_PORT_NO_NONE ? (_c)->port_b                                            \
+                                         : (_c)->port_c)
+
 /* Common functions */
 vtss_rc vtss_fa_init_groups(vtss_state_t *vtss_state, vtss_init_cmd_t cmd);
 vtss_rc vtss_fa_port2taxi(vtss_state_t  *vtss_state,

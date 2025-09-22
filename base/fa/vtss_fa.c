@@ -2482,15 +2482,9 @@ vtss_rc fa_dsm_calc_and_apply_calendar(vtss_state_t *vtss_state, BOOL force)
             (rb_conf->port_a == VTSS_PORT_NO_NONE || rb_conf->port_b == VTSS_PORT_NO_NONE)) {
             // This SKU has the RedBox feature active, the RedBox is
             // enabled and either port_a or port_b is interconnected with
-            // the neighboring RedBox. The interlink is the port that has a
-            // value != VTSS_PORT_NO_NONE.
-            if (rb_conf->port_a != VTSS_PORT_NO_NONE) {
-                interlink_chip_port = VTSS_CHIP_PORT(rb_conf->port_a);
-            } else if (rb_conf->port_b != VTSS_PORT_NO_NONE) {
-                interlink_chip_port = VTSS_CHIP_PORT(rb_conf->port_b);
-            } else {
-                // Empty on purpose
-            }
+            // the neighboring RedBox. The interlink port is found.
+            vtss_port_no_t port_c = FA_RB_PORT_C(rb_conf);
+            interlink_chip_port = VTSS_CHIP_PORT(port_c);
         }
 #endif
 
