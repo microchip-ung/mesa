@@ -2890,15 +2890,16 @@ static vtss_rc fa_is2_action_set(vtss_state_t       *vtss_state,
         }
         FA_ACT_SET(IS2, BASE_TYPE_LOG_MSG_INTERVAL, log_msg_int);
     }
-    if (action->match_mask > 0U) {
-        // Override legacy flags
-        match_id = action->match_id;
-        match_mask = action->match_mask;
-    } else {
-        u = (FA_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? FA_IFH_CL_RSLT_ACL_FLAG : 0U));
-        match_id = u;
-        match_mask = match_id;
+
+    // Match ID/mask, including legacy flags
+    u = (action->ifh_flag ? FA_IFH_CL_RSLT_ACL_FLAG : 0U);
+    if (!action->acl_hit_disable) {
+        u |= FA_IFH_CL_RSLT_ACL_HIT;
     }
+    match_id = u;
+    match_mask = match_id;
+    match_id |= action->match_id;
+    match_mask |= action->match_mask;
     FA_ACT_SET(IS2, BASE_TYPE_MATCH_ID, match_id);
     FA_ACT_SET(IS2, BASE_TYPE_MATCH_ID_MASK, match_mask);
     FA_ACT_SET(IS2, BASE_TYPE_CNT_ID, cnt_id);
@@ -2987,6 +2988,7 @@ static void fa_action_old2new(const vtss_acl_action_t *old, vtss_hacl_action_t *
         new->addr.update = VTSS_ACL_ADDR_UPDATE_MAC_SWAP;
     }
     new->ifh_flag = old->ifh_flag;
+    new->acl_hit_disable = old->acl_hit_disable;
     new->match_id = old->match_id;
     new->match_mask = old->match_mask;
 }

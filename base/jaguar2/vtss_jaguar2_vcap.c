@@ -2693,14 +2693,16 @@ static vtss_rc jr2_is2_action_set(vtss_state_t      *vtss_state,
                                                                  : IS2_MASK_MODE_OR_DSTMASK);
     /* If forwarding disabled, avoid CPU copy and signal ACL drop */
     JR2_ACT_SET(IS2, CPU_DIS, discard || action->cpu_disable ? 1 : 0);
-    if (action->match_mask > 0U) {
-        // Override legacy flags
-        match_id = action->match_id;
-        match_mask = action->match_mask;
-    } else {
-        match_id = (JR2_IFH_CL_RSLT_ACL_HIT | (action->ifh_flag ? JR2_IFH_CL_RSLT_ACL_FLAG : 0));
-        match_mask = match_id;
+
+    // Match ID/mask, including legacy flags
+    match_id = (action->ifh_flag ? JR2_IFH_CL_RSLT_ACL_FLAG : 0);
+    if (!action->acl_hit_disable) {
+        match_id |= JR2_IFH_CL_RSLT_ACL_HIT;
     }
+    match_mask = match_id;
+    match_id |= action->match_id;
+    match_mask |= action->match_mask;
+
     JR2_ACT_SET(IS2, LRN_DIS, action->learn ? 0 : 1);
     JR2_ACT_SET(IS2, RT_DIS, discard);
     JR2_ACT_SET(IS2, MIRROR_PROBE, action->mirror ? (JR2_MIRROR_PROBE_RX + 1) : 0);

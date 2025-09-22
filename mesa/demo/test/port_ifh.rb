@@ -65,6 +65,7 @@ test "xtr-match_id" do
     action = ace["action"]
     action["port_action"] = "MESA_ACL_PORT_ACTION_FILTER"
     action["port_list"] = "#{$ts.dut.port_list[$idx_xtr]}"
+    action["acl_hit_disable"] = true
     action["match_id"] = 0x1200
     action["match_mask"] = 0xff00
     $ts.dut.call("mesa_ace_add", 0, ace)

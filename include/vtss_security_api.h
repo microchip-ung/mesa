@@ -335,11 +335,12 @@ typedef struct {
 #endif                   /* VTSS_ARCH_OCELOT */
 #if !defined(VTSS_ARCH_LUTON26)
     BOOL mac_swap; /**< Swap SMAC and DMAC */
-    BOOL ifh_flag; /**< Control one target specific bit in IFH */
+    BOOL ifh_flag; /**< Control one target specific bit in IFH (match_id bit 1, if supported) */
 #endif
 #if defined(VTSS_FEATURE_MATCH_ID)
-    u16 match_id;   // Match ID value for CPU frame Rx information
-    u16 match_mask; // Match ID mask
+    BOOL acl_hit_disable; // Disable ACL hit flag via match_id bit 0
+    u16  match_id;        // Match ID value for CPU frame Rx information
+    u16  match_mask;      // Match ID mask
 #endif
 } vtss_acl_action_t;
 
@@ -862,8 +863,9 @@ typedef struct {
     vtss_acl_addr_action_t     addr;       /**< Address update configuration (I-PACL/I-VACL only) */
     BOOL                       ifh_flag; /**< Control one target specific bit in IFH (I-PACL/I-VACL
                                             only) */
-    u16 match_id;   // Match ID value for CPU frame Rx information (I-PACL/I-VACL)
-    u16 match_mask; // Match ID mask (I-PACL/I-VACL)
+    BOOL acl_hit_disable;                // Disable ACL hit flag via match_id bit 0
+    u16  match_id;   // Match ID value for CPU frame Rx information (I-PACL/I-VACL)
+    u16  match_mask; // Match ID mask (I-PACL/I-VACL)
 } vtss_hacl_action_t;
 
 /** \brief Hierarchical ACL Entry */
