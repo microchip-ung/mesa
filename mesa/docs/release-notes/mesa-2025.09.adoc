@@ -1,0 +1,52 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2025.09
+
+== MESA-2025.09
+
+|===
+|Version:          |MESA-2025.09
+|Previous Version: |MESA-2025.06
+|Date:             |2025-09-25
+|Description:      |Roadmap release
+|===
+
+=== MISRA Compliance on lan969x_lm target
+
+The 'lan969x_lm' CMake target has been taken through MISRA-C:2023 compliance.
+This target is being used in VelocityDRIVE-SP, and it is this project which has
+been driving the MISRA enforcement.
+
+The majority of changes are internally, but a few changes have been made in the
+public header files. Changes in the public headers are mostly renaming of the
+include-guard define, and adding a `U` suffix to various constant defines used
+as unsigned, and finally the `c:mesa_capability` signature has changed to use
+the enumerated value of the capability instead of an `int`.
+
+Coverity is being used to perform the compliance test, and all MISRA-C:2023
+mandatory and required rules are passing in the 'lan969x_lm' target when used by
+VelocityDRIVE-SP
+
+We have observed that Coverity does not report violations on functions
+not being used, and due to this, it is expected the MISRA coverage at this
+point, only reflect what is used in VelocityDRIVE-SP. Additional
+tailoring will likely be needed if other applications need MISRA compliance.
+
+=== Additional HSR functionality for PTP support
+
+The `mesa_packet_tx_info_t` structure has been extended with the following new
+attributes: `mesa_packet_tx_info_t::rb_tag_ptp`,
+`mesa_packet_tx_info_t::rb_path_id` and `mesa_packet_tx_info_t::rb_seq_no`.
+
+These additional attributes are needed if doing SW forwarding of PTP frames over
+HSR.
+
+
+=== Port CPU masquerading
+
+Platforms that implement the `MESA_CAP_PORT_CPU_MASQUERADING` (only the Laika
+target supports this capability), can now configure a port to be masquerading
+for CPU0 or CPU1.
+
+
