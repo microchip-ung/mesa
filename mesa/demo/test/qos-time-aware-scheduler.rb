@@ -1589,10 +1589,6 @@ test "test_run" do
     conf["always_guard_band"] = false
     conf = $ts.dut.call("mesa_qos_tas_conf_set", conf)
 
-    if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
-        jira_appl_3433_test
-    end
-
 #   This test is out commented and failing as it is a mis-configuration
 #   jira_appl_4898_test
 
