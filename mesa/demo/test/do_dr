@@ -6,7 +6,7 @@
 set -e
 
 if (( $# < 2 )); then
-   echo "Usage: $0 all|fam|ca1/ca2/oc/st/j2/mr/mc/m8/fa/la [<test_server>] <test_script> [short]"
+   echo "Usage: $0 all|fam|ca1/ca2/oc/st/j2/mr/mc/m8/fa/la [<test_server>] <test_script> [brief|clean|short]"
    exit
 fi
 
@@ -14,18 +14,34 @@ platform=$1
 cnt=$#
 suffix=""
 last=${!#}
+brief=0
+clean=0
 
-# Brief output may be used for test suites or when 'all' platforms are tested
-if [ $last == "brief" ]; then
-    suffix="--brief"
-    ((cnt--))
-fi
+# Parse options
+while true ; do
+    case ${!cnt} in
+        brief)
+            # Brief output may be used for test suites or multiple platforms
+            brief=1
+            suffix+="--brief "
+            ;;
 
-# Short output may be used for pasting into Jira
-if [ $last == "short" ]; then
-    suffix="--short"
+        clean)
+            # Clean build may be nice if external interfaces have changed
+            clean=1
+            ;;
+
+        short)
+            # Short output may be used for pasting into Jira
+            suffix+="--short "
+            ;;
+
+        *)
+            break
+            ;;
+    esac
     ((cnt--))
-fi
+done
 
 ts2=0
 if [ $cnt == 2 ]; then
@@ -76,6 +92,9 @@ esac
 for build in $build_list; do
     cd ../../../build-$build
     echo "=== Build: $build"
+    if [ $clean == 1 ]; then
+        dr make clean
+    fi
     dr make -j 10
     cd -
 done
@@ -154,7 +173,7 @@ for platform in $platform_list; do
         ts=$ts2
     fi
     echo "=== Reserve: $ts"
-    if [ $last == "brief" ]; then
+    if [ $brief == 1 ]; then
         et reserve $ts > /dev/null
     else
         et reserve $ts
