@@ -664,11 +664,9 @@ vtss_rc fa_qos_dwrr_conf_set(vtss_state_t     *vtss_state,
                              u32               dwrr_cnt,
                              const vtss_pct_t *dwrr_pct);
 vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
 vtss_rc vtss_fa_policer_conf_set(vtss_state_t            *vtss_state,
                                  u32                      lb_set_idx,
                                  vtss_dlb_policer_conf_t *conf);
-#endif
 #if defined(VTSS_FEATURE_QOS_INGRESS_MAP)
 u32 vtss_fa_imap_key2clm(u16 imap_key, BOOL inner_tag);
 #endif

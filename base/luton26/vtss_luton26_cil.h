@@ -153,10 +153,8 @@ vtss_rc vtss_l26_policer_conf_set(vtss_state_t            *vtss_state,
                                   vtss_l26_policer_conf_t *conf);
 vtss_rc vtss_l26_policer_free_get(vtss_state_t *vtss_state, u16 *new);
 vtss_rc vtss_l26_qos_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
 vtss_rc vtss_l26_evc_policer_conf_set(vtss_state_t               *vtss_state,
                                       const vtss_evc_policer_id_t policer_id);
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
 vtss_rc vtss_l26_qos_debug_print(vtss_state_t                  *vtss_state,
                                  lmu_ss_t                      *ss,
                                  const vtss_debug_info_t *const info);

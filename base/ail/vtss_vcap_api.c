@@ -2416,10 +2416,10 @@ void vtss_vcap_debug_print_acl(struct vtss_state_s           *vtss_state,
         pr("%-6u%-8s%-5u%-6u%-7u", port_no, &buf, act->cpu, act->cpu_once, act->cpu_queue);
         if (act->police) {
             VTSS_FMT(buf, "%u (ACL)", act->policer_no);
-#if defined(VTSS_ARCH_LUTON26) && defined(VTSS_FEATURE_QOS_POLICER_DLB)
+#if defined(VTSS_FEATURE_EVC_POLICERS)
         } else if (act->evc_police) {
             VTSS_FMT(buf, "%u (EVC)", act->evc_policer_id);
-#endif /* VTSS_ARCH_LUTON26 && VTSS_FEATURE_QOS_POLICER_DLB */
+#endif /* VTSS_FEATURE_EVC_POLICERS */
         } else {
             VTSS_FMT(buf, "Disabled");
         }

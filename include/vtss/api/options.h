@@ -81,7 +81,6 @@
 #define VTSS_FEATURE_XFLOW                           /**< Ingress and egress flows */
 #define VTSS_FEATURE_XSTAT                           /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                            /**< DLB policers allocated dynamically */
-#define VTSS_FEATURE_QOS_POLICER_DLB                 /**< DLB policers */
 #define VTSS_FEATURE_FRER                            /**< IEEE 802.1CB: Frame Replication and Elimination \
                                                         for Reliability */
 #define VTSS_FEATURE_FRER_IFLOW_POP                  /**< FRER R-tag popping per ingress flow */
@@ -204,7 +203,6 @@
                                                         cut-through support */
 #define VTSS_FEATURE_QOS_FRAME_PREEMPTION            /**< QoS: Frame Preemption support            \
                                                         (802.1Qbu and 802.3br) */
-#define VTSS_FEATURE_QOS_POLICER_DLB                 /**< DLB policers */
 #define VTSS_FEATURE_QOS_HSCH_LEAK_LISTS             /**< QoS: Has leak lists for                  \
                                                         scheduler elements */
 #define VTSS_FEATURE_TIMESTAMP                       /**< Packet timestamp feature (for PTP) */
@@ -228,6 +226,7 @@
 #define VTSS_FEATURE_XFLOW                           /**< Ingress and egress flows */
 #define VTSS_FEATURE_XSTAT                           /**< Ingress and egress statistics */
 #define VTSS_FEATURE_XDLB                            /**< DLB policers allocated dynamically */
+#define VTSS_FEATURE_XDLB_ENVELOPE                   /**< DLB policers Mef 10.3 Envelope feature */
 #define VTSS_FEATURE_MATCH_ID                        // VCL/ACL match ID for CPU frame extraction
 #define VTSS_FEATURE_VCAP                            /**< VCAP */
 #define VTSS_FEATURE_VCL_KEY_DMAC                    /**< VCL entry has destination MAC address */
@@ -499,7 +498,6 @@
 #define VTSS_FEATURE_QOS_EGRESS_MAP                  /**< QoS: Has Egress Map Table */
 #define VTSS_FEATURE_QOS_HSCH_LEAK_LISTS             /**< QoS: Has leak lists for                  \
                                                         scheduler elements */
-#define VTSS_FEATURE_QOS_POLICER_DLB                 /**< DLB policers */
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER             /**< QoS: Has CPU port shaper */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB    /**< QoS: Egress Queue                        \
                                                         Shapers has CRedit Based                   \
@@ -608,8 +606,7 @@
 #endif                    /* CARACAL */
 
 #if defined(VTSS_ARCH_CARACAL) || defined(VTSS_CHIP_SPARX_III_10_01)
-#define VTSS_FEATURE_QOS_POLICER_DLB /**< DLB policers */
-#define VTSS_FEATURE_EVC_POLICERS    /**< EVC/ECE policers */
+#define VTSS_FEATURE_EVC_POLICERS /**< EVC/ECE policers */
 #endif
 
 #if defined(VTSS_ARCH_SPARX_III) || defined(VTSS_ARCH_CARACAL)
@@ -783,7 +780,6 @@
                                                         aware */
 #define VTSS_FEATURE_QOS_WRED_V2                     /**< QoS: WRED global - per queue (0..7), per \
                                                         dpl (0..1) */
-#define VTSS_FEATURE_QOS_POLICER_DLB                 /**< DLB policers */
 #define VTSS_FEATURE_QOS_CPU_QUEUE_SHAPER            /**< QoS: Has CPU queue shaper */
 #define VTSS_FEATURE_QOS_CPU_PORT_SHAPER             /**< QoS: Has CPU port shaper */
 #define VTSS_FEATURE_QOS_EGRESS_QUEUE_SHAPERS_CRB    /**< QoS: Egress Queue                        \

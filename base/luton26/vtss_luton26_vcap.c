@@ -672,11 +672,11 @@ static vtss_rc l26_is2_prepare_action(vtss_state_t       *vtss_state,
         policer_ena = 1;
         policer = L26_ACL_POLICER_DISC;
         mode = 0; // Use mode 0 to make Rx red counters increase
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
+#if defined(VTSS_FEATURE_EVC_POLICERS)
     } else if (action->evc_police) {
         policer_ena = 1;
         policer = vtss_state->qos.evc_policer_alloc[action->evc_policer_id].policer;
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
+#endif
     } else if (action->police) {
         policer_ena = 1;
         policer = vtss_state->vcap.acl_policer_alloc[action->policer_no].policer;
@@ -1221,12 +1221,14 @@ static vtss_rc l26_is2_port_action_update(vtss_state_t *vtss_state, const vtss_p
 
 static vtss_rc l26_action_check(const vtss_acl_action_t *action)
 {
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
+#if defined(VTSS_FEATURE_EVC_POLICERS)
     if (action->police && action->evc_police) {
+#else
+    if (action->police) {
+#endif
         VTSS_E("ACL policer and EVC policer can not both be enabled");
         return VTSS_RC_ERROR;
     }
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
     return VTSS_RC_OK;
 }
 
@@ -1238,12 +1240,12 @@ static vtss_policer_alloc_t *l26_acl_alloc_get(vtss_state_t            *vtss_sta
         *user = VTSS_POLICER_USER_ACL;
         return &vtss_state->vcap.acl_policer_alloc[action->policer_no];
     }
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
+#if defined(VTSS_FEATURE_EVC_POLICERS)
     if (action->evc_police) {
         *user = VTSS_POLICER_USER_EVC;
         return &vtss_state->qos.evc_policer_alloc[action->evc_policer_id];
     }
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
+#endif
     return NULL;
 }
 
@@ -1288,10 +1290,10 @@ static vtss_rc l26_acl_policer_alloc(vtss_state_t *vtss_state, const vtss_acl_ac
         pol_alloc->count++;
         if (user == VTSS_POLICER_USER_ACL)
             return vtss_cil_vcap_acl_policer_set(vtss_state, action->policer_no);
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
+#if defined(VTSS_FEATURE_EVC_POLICERS)
         if (user == VTSS_POLICER_USER_EVC)
             return vtss_cil_qos_evc_policer_conf_set(vtss_state, action->evc_policer_id);
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
+#endif
     }
     VTSS_I("no more policers");
     return VTSS_RC_ERROR;
@@ -1437,11 +1439,11 @@ static vtss_rc l26_is2_policer_free(vtss_state_t *vtss_state, vtss_is2_data_t *i
     if (is2->policer_type == VTSS_L26_POLICER_ACL) {
         action.police = 1;
         action.policer_no = is2->policer;
+#if defined(VTSS_FEATURE_EVC_POLICERS)
     } else {
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
         action.evc_police = 1;
         action.evc_policer_id = is2->policer;
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
+#endif
     }
     return l26_acl_policer_free(vtss_state, &action);
 }
@@ -1552,11 +1554,11 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
     if (ace->action.police) {
         is2->policer_type = VTSS_L26_POLICER_ACL;
         is2->policer = ace->action.policer_no;
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
+#if defined(VTSS_FEATURE_EVC_POLICERS)
     } else if (ace->action.evc_police) {
         is2->policer_type = VTSS_L26_POLICER_EVC;
         is2->policer = ace->action.evc_policer_id;
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
+#endif
     } else
         is2->policer_type = VTSS_L26_POLICER_NONE;
     policer_type = is2->policer_type;

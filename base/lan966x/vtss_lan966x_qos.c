@@ -607,13 +607,11 @@ vtss_rc vtss_cil_qos_conf_set(vtss_state_t *vtss_state, BOOL changed)
     return VTSS_RC_OK;
 }
 
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
 vtss_rc vtss_cil_evc_policer_conf_set(vtss_state_t               *vtss_state,
                                       const vtss_evc_policer_id_t policer_id)
 {
     return VTSS_RC_OK;
 }
-#endif
 
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
 vtss_rc vtss_cil_qos_cpu_port_shaper_set(vtss_state_t *vtss_state, const vtss_bitrate_t rate)

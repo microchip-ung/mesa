@@ -8,7 +8,7 @@
 
 /* - CIL functions ------------------------------------------------- */
 
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
+#if defined(VTSS_FEATURE_EVC_POLICERS)
 static vtss_rc l26_evc_policer_move(vtss_state_t *vtss_state, u32 policer)
 {
     vtss_policer_alloc_t *pol_alloc;
@@ -79,7 +79,7 @@ vtss_rc vtss_cil_qos_evc_policer_conf_set(vtss_state_t               *vtss_state
     return vtss_l26_policer_conf_set(vtss_state, VTSS_POLICER_USER_EVC, pol_alloc->policer, 1,
                                      &cfg);
 }
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
+#endif /* VTSS_FEATURE_EVC_POLICERS */
 
 /*
    Configure one of the shared 256 policers.
@@ -139,14 +139,14 @@ vtss_rc vtss_l26_policer_conf_set(vtss_state_t            *vtss_state,
                     return VTSS_RC_ERROR;
                 }
                 break;
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
             case VTSS_POLICER_USER_EVC:
+#if defined(VTSS_FEATURE_EVC_POLICERS)
                 if (l26_evc_policer_move(vtss_state, policer) != VTSS_RC_OK) {
                     VTSS_I("unable to move EVC policer %u", policer);
                     return VTSS_RC_ERROR;
                 }
+#endif
                 break;
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
             default:
                 VTSS_I("Unmovable policer %u occupied by user %d", policer, owner);
                 return VTSS_RC_ERROR;
