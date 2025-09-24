@@ -189,14 +189,11 @@ static mesa_rc cisco_sgmii_2g5_if_get(meba_sfp_device_t     *dev,
     switch (speed) {
     case MESA_SPEED_10M:
     case MESA_SPEED_100M:
-    case MESA_SPEED_1G:
-    case MESA_SPEED_AUTO:  *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO; return MESA_RC_OK;
-    case MESA_SPEED_2500M: *mac_if = MESA_PORT_INTERFACE_SERDES; return MESA_RC_OK;
+    case MESA_SPEED_1G:   *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO; return MESA_RC_OK;
     default:
-        // Set the same interface, even the user sets wrong speed,
-        // so we will have one interface.
-        *mac_if = MESA_PORT_INTERFACE_SGMII_CISCO;
-        return MESA_RC_ERROR;
+        // Default to the highest speed
+        *mac_if = MESA_PORT_INTERFACE_SERDES;
+        return MESA_RC_OK;
     }
 }
 
@@ -404,6 +401,12 @@ static mesa_rc tr_1000_t_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *t
 static mesa_rc tr_1000_x_get(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
 {
     *tr = MEBA_SFP_TRANSRECEIVER_1000BASE_X;
+    return MESA_RC_OK;
+}
+
+static mesa_rc tr_2g5_get_t(meba_sfp_device_t *dev, meba_sfp_transreceiver_t *tr)
+{
+    *tr = MEBA_SFP_TRANSRECEIVER_2G5_T;
     return MESA_RC_OK;
 }
 
@@ -713,7 +716,18 @@ meba_sfp_drivers_t meba_fs_driver_init()
          .meba_sfp_driver_conf_set = cisco_sgmii_conf_set,
          .meba_sfp_driver_if_get = cisco_sgmii_2g5_if_get,
          .meba_sfp_driver_mt_get = NULL,
-         .meba_sfp_driver_tr_get = tr_2g5_get,
+         .meba_sfp_driver_tr_get = tr_2g5_get_t,
+         .meba_sfp_driver_probe = dev_probe,
+         },
+        {
+         .product_name = "SFP-2.5G-T-I",
+         .meba_sfp_driver_delete = dev_delete,
+         .meba_sfp_driver_reset = dev_reset,
+         .meba_sfp_driver_poll = dev_poll,
+         .meba_sfp_driver_conf_set = cisco_sgmii_conf_set,
+         .meba_sfp_driver_if_get = cisco_sgmii_2g5_if_get,
+         .meba_sfp_driver_mt_get = NULL,
+         .meba_sfp_driver_tr_get = tr_2g5_get_t,
          .meba_sfp_driver_probe = dev_probe,
          },
     };

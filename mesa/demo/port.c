@@ -116,6 +116,7 @@ const char *mesa_sfp_if2txt(meba_sfp_transreceiver_t sfp)
     case MEBA_SFP_TRANSRECEIVER_1000BASE_LR:   return "1000BASE_LR";
     case MEBA_SFP_TRANSRECEIVER_1000BASE_X:    return "1000BASE_X";
     case MEBA_SFP_TRANSRECEIVER_2G5:           return "2G5";
+    case MEBA_SFP_TRANSRECEIVER_2G5_T:         return "2G5_T";
     case MEBA_SFP_TRANSRECEIVER_5G:            return "5G";
     case MEBA_SFP_TRANSRECEIVER_10G:           return "10G";
     case MEBA_SFP_TRANSRECEIVER_10G_SR:        return "10G_SR";
@@ -168,7 +169,8 @@ static mesa_rc port_speed_adjust(mesa_port_no_t        port_no,
             if (speed_in == MESA_SPEED_1G || speed_in == MESA_SPEED_2500M) {
                 *speed_out = speed_in;
                 return MESA_RC_OK;
-            } else if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_2G5) {
+            } else if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_2G5 ||
+                       entry->sfp_type == MEBA_SFP_TRANSRECEIVER_2G5_T) {
                 *speed_out = MESA_SPEED_2500M;
                 return MESA_RC_OK;
             }
