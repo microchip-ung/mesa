@@ -136,6 +136,10 @@ libvsc*.so:
   :int: 121
   :val:
   :chip: libvsc*.so
+- :str: MESA_CAP_PORT_CPU_MASQUERADING
+  :int: 122
+  :val:
+  :chip: libvsc*.so
 - :str: MESA_CAP_PACKET_RX_QUEUE_CNT
   :int: 200
   :val:
@@ -964,16 +968,32 @@ libvsc*.so:
   :int: 1001
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_HQOS_CNT
+- :str: MESA_CAP_HQOS
   :int: 1100
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_HQOS_STAT_CNT_SERVICE
+- :str: MESA_CAP_HQOS_PORT_MAX
   :int: 1101
   :val:
   :chip: libvsc*.so
-- :str: MESA_CAP_HQOS_SHAPER_RT
+- :str: MESA_CAP_HQOS_PORT_PRIORITY_MAX
   :int: 1102
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_HQOS_ID_MAX
+  :int: 1103
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_HQOS_CNT
+  :int: 1104
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_HQOS_STAT_CNT_SERVICE
+  :int: 1105
+  :val:
+  :chip: libvsc*.so
+- :str: MESA_CAP_HQOS_SHAPER_RT
+  :int: 1106
   :val:
   :chip: libvsc*.so
 - :str: MESA_CAP_VOP
