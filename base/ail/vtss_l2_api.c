@@ -4694,6 +4694,10 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
         e->key.data.vid.vid = tce->key.vid;
         es0->vid = tce->key.vid;
     }
+#if defined(VTSS_FEATURE_TCL_KEY_OAM)
+    e->key.oam = tce->key.oam;
+    e->key.mel = tce->key.mel;
+#endif
 #if defined(VTSS_FEATURE_XFLOW)
     if (tce->key.flow_enable) {
         e->key.type = VTSS_ES0_TYPE_ISDX;
@@ -4751,6 +4755,23 @@ static vtss_rc vtss_cmn_tce_add(vtss_state_t           *vtss_state,
     if (e->action.rtag.sel != VTSS_RTAG_SEL_NONE) {
         /* Always pop R-tag when pushing R-tag */
         e->action.rtag.pop = TRUE;
+    }
+#endif
+#if defined(VTSS_FEATURE_TCL_ACT_FWD)
+    switch (tce->action.fwd) {
+    case VTSS_TCE_FWD_CPU:
+        e->action.forward_sel = 2; // REDIR
+        e->action.cpu_queue = (u8)tce->action.cpu_queue;
+        break;
+    case VTSS_TCE_FWD_LB:
+        e->action.forward_sel = 2;        // REDIR
+        e->action.pipe_act = 1;           // LBK_ASM
+        e->action.pipe_pt = 2;            // REW_SAT
+        e->action.mac_swap_enable = TRUE; // SWAP_SMAC_ENA
+        break;
+    default:
+        // Empty on purpose
+        break;
     }
 #endif
     for (port_no = 0U; port_no < port_cnt; port_no++) {

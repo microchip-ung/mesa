@@ -714,10 +714,12 @@ typedef uint16_t mesa_eflow_id_t;
 
 // TCE Key
 typedef struct {
-    mesa_port_list_t port_list;   // Port list
-    mesa_vid_t       vid;         // Classified VLAN ID (zero means any VID)
-    mesa_bool_t      flow_enable; // Enable ingress flow ID instead of VLAN ID
-    mesa_iflow_id_t  flow_id;     // Ingress flow ID
+    mesa_port_list_t    port_list;           // Port list
+    mesa_vid_t          vid;                 // Classified VLAN ID (zero means any VID)
+    mesa_bool_t         flow_enable;         // Enable ingress flow ID instead of VLAN ID
+    mesa_iflow_id_t     flow_id;             // Ingress flow ID
+    mesa_vcap_bit_t oam CAP(L2_TCL_KEY_OAM); /**< OAM Y.1731 frame matching */
+    mesa_vcap_u8_t mel  CAP(L2_TCL_KEY_OAM); /**< MEG level (7 bit) */
 } mesa_tce_key_t;
 
 // TCE TPID selection
@@ -772,6 +774,13 @@ typedef struct {
     mesa_bool_t     pop; // R-tag popping
 } mesa_tce_rtag_t;
 
+// TCE forwarding
+typedef enum {
+    MESA_TCE_FWD_DEFAULT, // Forwarding not affected by TCE
+    MESA_TCE_FWD_CPU,     // Redirect to CPU
+    MESA_TCE_FWD_LB,      // Loopback, swapping MAC addresses
+} mesa_tce_fwd_t;
+
 // TCE Action
 typedef struct {
     mesa_tce_tag_t  tag;       // Outer tag
@@ -782,6 +791,9 @@ typedef struct {
                                // port-VOE will see OAM as data.
     mesa_tce_rtag_t rtag;      // R-tag control, if capability MESA_CAP_L2_FRER is
                                // non-zero and MESA_CAP_L2_FRER_IFLOW_POP is zero.
+    mesa_tce_fwd_t fwd               CAP(L2_TCL_ACT_FWD); // Forwarding
+    mesa_packet_rx_queue_t cpu_queue CAP(L2_TCL_ACT_FWD); // CPU queue
+
 } mesa_tce_action_t;
 
 // Tag Control Entry

@@ -898,8 +898,10 @@ typedef struct {
     BOOL            vid_any;    /* Match any vid */
     BOOL            vsi_enable; /* Jaguar-2: VSI enable */
     u16             vsi;        /* Jaguar-2: VSI */
+    vtss_vcap_bit_t oam;
+    vtss_vcap_u8_t  mel;
 
-    union {
+    struct {
         struct {
             vtss_vid_t     vid;
             vtss_vcap_u8_t pcp;

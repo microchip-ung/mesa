@@ -232,6 +232,8 @@
 #define VTSS_FEATURE_VCAP                            /**< VCAP */
 #define VTSS_FEATURE_VCL_KEY_DMAC                    /**< VCL entry has destination MAC address */
 #define VTSS_FEATURE_VCL_KEY_DIP                     /**< VCL entry has destination IP address */
+#define VTSS_FEATURE_TCL_KEY_OAM                     /**< TCL entry OAM MEL key */
+#define VTSS_FEATURE_TCL_ACT_FWD                     /**< TCL entry forward options */
 #define VTSS_FEATURE_QCL_KEY_INNER_TAG               /**< QoS: QoS Control Lists has inner         \
                                                         tag */
 #define VTSS_FEATURE_LAYER3                          /**< Layer 3 (routing) */
@@ -522,6 +524,7 @@
 #define VTSS_FEATURE_VLAN_SVL                        /**< Shared VLAN Learning */
 #define VTSS_FEATURE_VCL_KEY_DMAC                    /**< VCL entry has destination MAC address */
 #define VTSS_FEATURE_VCL_KEY_DIP                     /**< VCL entry has destination IP address */
+#define VTSS_FEATURE_TCL_ACT_FWD                     /**< TCL entry forward options */
 #define VTSS_FEATURE_IPV4_MC_SIP                     /**< Source specific IPv4 multicast */
 #define VTSS_FEATURE_IPV6_MC_SIP                     /**< Source specific IPv6 multicast */
 #define VTSS_FEATURE_MAC_AGE_AUTO                    /**< Automatic MAC address ageing */

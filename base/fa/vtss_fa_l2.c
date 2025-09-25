@@ -930,9 +930,6 @@ vtss_rc vtss_cil_l2_iflow_conf_set(struct vtss_state_s *vtss_state, const vtss_i
            VTSS_F_ANA_L2_MISC_CFG_CT_DIS(conf->cut_through_disable ? 1 : 0) |
                VTSS_F_ANA_L2_MISC_CFG_PIPELINE_PT(15));
 
-    /* Use ISDX key in ES0 */
-    REG_WR(VTSS_ANA_L2_SERVICE_CTRL(isdx), VTSS_F_ANA_L2_SERVICE_CTRL_ES0_ISDX_KEY_ENA(0));
-
 #if defined(VTSS_FEATURE_QOS_OT)
     REG_WR(VTSS_ANA_L2_QGRP_CFG(isdx), VTSS_F_ANA_L2_QGRP_CFG_QGRP_ENA(conf->ot ? 1 : 0) |
                                            VTSS_F_ANA_L2_QGRP_CFG_QGRP_IDX(1) |
@@ -3889,6 +3886,9 @@ static vtss_rc fa_l2_port_map_set(vtss_state_t *vtss_state)
         VTSS_RC(vtss_cil_l2_vlan_port_conf_update(vtss_state, port_no, conf));
         port = VTSS_CHIP_PORT(port_no);
         REG_WRM_CLR(VTSS_ANA_CL_FILTER_CTRL(port), VTSS_M_ANA_CL_FILTER_CTRL_FILTER_SMAC_MC_DIS);
+        // Force ES0 lookup using ISDX (and XVID)
+        REG_WRM(VTSS_REW_RTAG_ETAG_CTRL(port), VTSS_F_REW_RTAG_ETAG_CTRL_ES0_ISDX_KEY_ENA(1),
+                VTSS_M_REW_RTAG_ETAG_CTRL_ES0_ISDX_KEY_ENA);
     }
 
 #if defined(VTSS_FEATURE_L2_MSTP)

@@ -1249,6 +1249,10 @@ typedef struct {
     BOOL            flow_enable; /**< Enable ingress flow ID instead of VLAN ID */
     vtss_iflow_id_t flow_id;     /**< Ingress flow ID */
 #endif
+#if defined(VTSS_FEATURE_TCL_KEY_OAM)
+    vtss_vcap_bit_t oam; /**< OAM Y.1731 frame matching */
+    vtss_vcap_u8_t  mel; /**< MEG level (7 bit) */
+#endif
 } vtss_tce_key_t;
 
 /** \brief TCE TPID selection */
@@ -1304,6 +1308,15 @@ typedef struct {
 } vtss_tce_rtag_t;
 #endif
 
+#if defined(VTSS_FEATURE_TCL_ACT_FWD)
+// TCE forwarding
+typedef enum {
+    VTSS_TCE_FWD_DEFAULT, // Forwarding not affected by TCE
+    VTSS_TCE_FWD_CPU,     // Redirect to CPU
+    VTSS_TCE_FWD_LB,      // Loopback, swapping MAC addresses
+} vtss_tce_fwd_t;
+#endif
+
 /** \brief TCE Action */
 typedef struct {
     vtss_tce_tag_t tag;       /**< Outer tag */
@@ -1314,6 +1327,10 @@ typedef struct {
 #endif
 #if defined(VTSS_FEATURE_FRER)
     vtss_tce_rtag_t rtag; // R-tag
+#endif
+#if defined(VTSS_FEATURE_TCL_ACT_FWD)
+    vtss_tce_fwd_t         fwd;       // Forwarding
+    vtss_packet_rx_queue_t cpu_queue; // CPU queue
 #endif
 } vtss_tce_action_t;
 

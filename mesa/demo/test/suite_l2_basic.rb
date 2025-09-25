@@ -21,6 +21,7 @@ run %w{./l2_psfp.rb}
 run %w{./l2_pvlan.rb}
 run %w{./l2_ssm.rb}
 run %w{./l2_stp.rb}
+run %w{./l2_tcl.rb}
 run %w{./l2_vcl.rb}
 run %w{./l2_vcl_ops.rb}
 run %w{./l2_vlan.rb}

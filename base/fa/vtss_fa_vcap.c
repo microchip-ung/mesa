@@ -5256,8 +5256,7 @@ static vtss_rc fa_es0_entry_add(vtss_state_t     *vtss_state,
     vtss_es0_key_t    *key = &es0->entry->key;
     vtss_es0_action_t *action = &es0->entry->action;
     fa_es0_tag_t       tag;
-    u32                addr, mip_idx = 0U, val;
-    BOOL               key_isdx = (key->type == VTSS_ES0_TYPE_ISDX);
+    u32                addr, mip_idx = 0U;
 
     VTSS_MEMSET(data, 0, sizeof(*data));
     data->vcap_type = VTSS_VCAP_TYPE_ES0;
@@ -5267,20 +5266,18 @@ static vtss_rc fa_es0_entry_add(vtss_state_t     *vtss_state,
     VTSS_I("row: %u, col: %u, addr: %u", idx->row, idx->col, addr);
 
     /* Key fields */
-    val = (u32)(key_isdx ? ES0_X1_TYPE_ISDX : ES0_X1_TYPE_VID);
-    FA_KEY_SET(ES0, X1_TYPE, val, fa_u32_mask(ES0_KL_X1_TYPE));
+    FA_KEY_SET(ES0, X1_TYPE, ES0_X1_TYPE_ISDX, fa_u32_mask(ES0_KL_X1_TYPE));
     if (key->port_no != VTSS_PORT_NO_NONE) {
         FA_KEY_SET(ES0, X1_EGR_PORT, VTSS_CHIP_PORT(key->port_no), fa_u32_mask(ES0_KL_X1_EGR_PORT));
     }
     FA_BIT_SET(ES0, X1_SERVICE_FRM, key->isdx_neq0);
-    if (key_isdx) {
-        FA_KEY_SET(ES0, ISDX_ISDX, key->data.isdx.isdx,
-                   key->data.isdx.isdx_enable ? fa_u32_mask(ES0_KL_ISDX_ISDX) : 0U);
-    } else {
-        FA_KEY_SET(ES0, X1_XVID, key->data.vid.vid,
-                   key->data.vid.vid == VTSS_VID_ALL || key->vid_any ? 0U
-                                                                     : fa_u32_mask(ES0_KL_X1_XVID));
-    }
+    FA_KEY_SET(ES0, ISDX_ISDX, key->data.isdx.isdx,
+               key->data.isdx.isdx_enable ? fa_u32_mask(ES0_KL_ISDX_ISDX) : 0U);
+    FA_KEY_SET(ES0, X1_XVID, key->data.vid.vid,
+               key->data.vid.vid == VTSS_VID_ALL || key->vid_any ? 0U
+                                                                 : fa_u32_mask(ES0_KL_X1_XVID));
+    FA_BIT_SET(ES0, X1_OAM_Y1731, key->oam);
+    FA_KEY_SET(ES0, X1_OAM_MEL_FLAGS, key->mel.value, key->mel.mask);
 
     /* Action fields */
     /* Outer tag */

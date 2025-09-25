@@ -867,6 +867,18 @@ uint32_t mesa_capability(mesa_inst_t inst, mesa_cap_t cap)
 #endif
         break;
 
+    case MESA_CAP_L2_TCL_KEY_OAM:
+#if defined(VTSS_FEATURE_TCL_KEY_OAM)
+        c = 1U;
+#endif
+        break;
+
+    case MESA_CAP_L2_TCL_ACT_FWD:
+#if defined(VTSS_FEATURE_TCL_ACT_FWD)
+        c = 1U;
+#endif
+        break;
+
     // Layer 3
     case MESA_CAP_L3:
 #if defined(VTSS_FEATURE_LAYER3)
