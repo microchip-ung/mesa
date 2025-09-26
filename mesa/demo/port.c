@@ -911,13 +911,16 @@ static void cli_cmd_sfp_dump(cli_req_t *req)
         if (mreq->full) {
             if (meba_global_inst->api.meba_sfp_i2c_xfer(meba_global_inst, iport, FALSE, 0x50, 0,
                                                         rom, sizeof(rom), FALSE) == MESA_RC_OK) {
-                cli_printf("Rom content at A0h:\n%s\n",
+                cli_printf("Rom content at 0x50:\n%s\n",
                            misc_mem_print(rom, sizeof(rom), out_buf, sizeof(out_buf)));
-                if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_1000BASE_T) {
+                if (entry->sfp_type == MEBA_SFP_TRANSRECEIVER_1000BASE_T ||
+                    entry->sfp_type == MEBA_SFP_TRANSRECEIVER_2G5_T ||
+                    entry->sfp_type == MEBA_SFP_TRANSRECEIVER_10GBASE_T) {
                     if (meba_global_inst->api.meba_sfp_i2c_xfer(meba_global_inst, iport, FALSE,
                                                                 0x56, 0, rom, 128,
                                                                 FALSE) == MESA_RC_OK) {
-                        cli_printf("Phy content:\n%s\n", misc_mem_print(rom, 128, out_buf, 128));
+                        cli_printf("Phy content at 0x56:\n%s\n",
+                                   misc_mem_print(rom, 128, out_buf, 128));
                     } else {
                         cli_printf("Could i2c read SFP PHY\n");
                     }
