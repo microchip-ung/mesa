@@ -2257,11 +2257,17 @@ static void vtss_port_debug_print_conf(vtss_state_t                  *vtss_state
         case VTSS_SPEED_25G:   mode = (conf->fdx ? "25Gfdx" : "25Ghdx"); break;
         default:               mode = "?"; break;
         }
-        aneg = conf->if_type == VTSS_PORT_INTERFACE_QXGMII ||
-                       conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO ||
-                       vtss_state->port.clause_37[port_no].enable
-                   ? "Yes"
-                   : "No";
+
+        if (conf->if_type == VTSS_PORT_INTERFACE_QXGMII ||
+            conf->if_type == VTSS_PORT_INTERFACE_USXGMII) {
+            aneg = "USX";
+        } else if (conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
+            aneg = "SGMII";
+        } else if (vtss_state->port.clause_37[port_no].enable) {
+            aneg = "CL37";
+        } else {
+            aneg = "No";
+        }
         lmu_fmt_buf_init(&buf);
         LMU_SS_FMT(&buf.ss, "%s", vtss_serdes_if_txt(vtss_state->port.serdes_mode[port_no]));
         if (vtss_state->port.serdes_mode[port_no] != VTSS_SERDES_MODE_DISABLE) {

@@ -498,11 +498,12 @@ vtss_rc vtss_cil_port_clause_37_ctrl_get(struct vtss_state_s                 *vt
 {
     u32 value;
     u32 tgt = VTSS_TO_DEV2G5(VTSS_CHIP_PORT(port_no));
-
-    REG_RD(VTSS_DEV1G_PCS1G_ANEG_CFG(tgt), &value);
-    control->enable = VTSS_BOOL(VTSS_X_DEV1G_PCS1G_ANEG_CFG_ANEG_ENA(value));
-    value = VTSS_X_DEV1G_PCS1G_ANEG_CFG_ADV_ABILITY(control->enable ? value : 0U);
-    VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &control->advertisement));
+    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES) {
+        REG_RD(VTSS_DEV1G_PCS1G_ANEG_CFG(tgt), &value);
+        control->enable = VTSS_BOOL(VTSS_X_DEV1G_PCS1G_ANEG_CFG_ANEG_ENA(value));
+        value = VTSS_X_DEV1G_PCS1G_ANEG_CFG_ADV_ABILITY(control->enable ? value : 0U);
+        VTSS_RC(vtss_cmn_port_clause_37_adv_get(value, &control->advertisement));
+    }
 
     return VTSS_RC_OK;
 }
