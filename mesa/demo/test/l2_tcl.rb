@@ -5,9 +5,10 @@
 
 require_relative 'libeasy/et'
 
-$ts = get_test_setup("mesa_pc_b2b_2x")
+$ts = get_test_setup("mesa_pc_b2b_4x")
 
 test "config-vlan", false do
+    # Index 0/1 are normal ports, index 2 is NPI port
     $ts.dut.call("mesa_vlan_port_members_set", 1, port_idx_list_str([0, 1]))
 end
 
@@ -21,7 +22,6 @@ test_table =
     {
         txt: "tce-cpu",
         cap: "ACT_FWD",
-        grp: [0, 1],
         tcl: [{idx: 1, fwd: "CPU", cpu_queue: 6}], 
         npi: {idx: 2, cpu_queue: 6}, 
         tab: [[{idx_tx: 0},
@@ -30,7 +30,6 @@ test_table =
     {
         txt: "tce-loopback",
         cap: "ACT_FWD",
-        grp: [0, 1],
         tcl: [{idx: 1, fwd: "LB"}], 
         tab: [[{idx_tx: 0, frm: "dmac 2 smac 1"},
                {idx_rx: 0, frm: "dmac 1 smac 2"}]]
@@ -38,9 +37,8 @@ test_table =
     {
         txt: "tce-oam",
         cap: "KEY_OAM",
-        grp: [0, 1],
         vce: {idx: 0, type: "ETYPE", oam: "UNTAGGED"},
-        # Match MEL XX11111, meaning value 0-5
+        # Match MEL XX11111, meaning value 5-7
         tcl: [{idx: 1, oam: "1", fwd: "LB", mel_val: 0x1f, mel_msk: 0x1f}], 
         tab: [[{idx_tx: 0, frm: "dmac 2 smac 1 oam-ccm mel 5"},
                {idx_rx: 0, frm: "dmac 1 smac 2 oam-ccm mel 5"}],
@@ -50,7 +48,6 @@ test_table =
     {
         txt: "tce-iflow",
         cap: "ACT_FWD",
-        grp: [0, 1],
         vce: {idx: 0, type: "IPV4"},
         tcl: [{idx: 1, fwd: "LB"}], 
         tab: [[{idx_tx: 0, frm: "dmac 2 smac 1 ipv4"},
