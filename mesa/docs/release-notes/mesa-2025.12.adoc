@@ -1,0 +1,48 @@
+// Copyright (c) 2004-2022 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MESA-2025.12
+
+== MESA-2025.12
+
+|===
+|Version:          |MESA-2025.12
+|Previous Version: |MESA-2025.09
+|Date:             |2025-10-25
+|Description:      |Roadmap release
+|===
+
+=== Port IFH control
+
+SparX-5/LAN969x/Luton26: The use of IFH can now be controlled using `mesa_port_ifh_conf_set()`.
+
+Jaguar-2/Serval-T/Ocelot/LAN966x: The injection direction has been changed to use long prefix.
+
+=== Extended ACL key for LLC frames
+
+SparX-5/LAN969x: ACL/HACL rules now support extended filtering for LLC frames.
+The addition of the llc_ext field in the `mesa_ace_frame_llc_t` and `mesa_hace_frame_llc_t`
+structures allows for matching byte 4-7 after the Ethernet Type/Length field.
+
+Jaguar-2/Serval-T: ACL rules now allow matching of LLC frame byte 4-7.
+
+Ocelot/LAN966x: ACL rules now allow matching of LLC frame byte 4.
+
+=== VCL/ACL support for MATCH_ID
+
+SparX-5/LAN969x/Jaguar-2/Serval-T: VCL/ACL rules can now be used to control the MATCH_ID
+field in the frame extraction header (IFH). This is done using the match_id/match_mask fields
+in the `mesa_vce_action_t`, `mesa_acl_action_t` and `mesa_hacl_action_t` structures.
+The MATCH ID is also decoded in the `mesa_packet_rx_info_t` structure.
+
+Notice that MATCH ID bit 0 and 1 were already used by other ACL actions. To allow control of all
+16 bits, the ifh_flag must be set to false and acl_hit_disable must be set to true for all ACL actions.
+
+=== Extended TCL keys and actions
+
+SparX-5/LAN969x: TCL rules can now match OAM frames and MEG levels. This is done using the oam and
+mel fields in the `mesa_tce_key_t` structure. Notice that matching also requires OAM frames to be detected
+using VCL rules, via the oam_detect field in the `mesa_vce_action_t` structure.
+
+SparX-5/LAN969x/Jaguar-2/Serval-T: TCL rules can now redirect frames to the CPU or loop back frames,
+swapping MAC addresses. This is done using the fwd field in the `mesa_tce_action_t` structure.
