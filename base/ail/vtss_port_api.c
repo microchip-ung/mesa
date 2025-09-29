@@ -988,7 +988,7 @@ static vtss_rc vtss_port_conf_sync(vtss_state_t *vtss_state, vtss_port_no_t port
 static vtss_rc vtss_port_clause_37_sync(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 {
     vtss_rc                       rc = VTSS_RC_OK;
-    vtss_port_clause_37_control_t old_ctrl, *new_ctrl = &vtss_state->port.clause_37[port_no];
+    vtss_port_clause_37_control_t old_ctrl = {}, *new_ctrl = &vtss_state->port.clause_37[port_no];
     vtss_port_clause_37_adv_t    *old, *new;
 
     old = &old_ctrl.advertisement;
