@@ -40,6 +40,9 @@ Notice that MATCH ID bit 0 and 1 were already used by other ACL actions. To allo
 
 === Extended TCL keys and actions
 
+SparX-5/LAN969x: TCL rules can now match on both vid and flow_id in the `mesa_tce_key_t` structure.
+Other platforms can still only match on either vid or flow_id for a given rule.
+
 SparX-5/LAN969x: TCL rules can now match OAM frames and MEG levels. This is done using the oam and
 mel fields in the `mesa_tce_key_t` structure. Notice that matching also requires OAM frames to be detected
 using VCL rules, via the oam_detect field in the `mesa_vce_action_t` structure.
