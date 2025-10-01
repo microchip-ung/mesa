@@ -754,6 +754,12 @@ uint32_t mesa_capability(mesa_inst_t inst, mesa_cap_t cap)
 #endif
         break;
 
+    case MESA_CAP_L2_DLB_ENVELOPE:
+#if defined(VTSS_FEATURE_XDLB_ENVELOPE)
+        c = 1U;
+#endif
+        break;
+
     case MESA_CAP_L2_TPID_AWARE:
 #if defined(VTSS_ARCH_LUTON26) || defined(VTSS_ARCH_OCELOT) || defined(VTSS_ARCH_LAN966X)
         /* Older devices are not fully VLAN aware */

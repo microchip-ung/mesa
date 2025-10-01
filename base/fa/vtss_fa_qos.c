@@ -89,24 +89,31 @@ static i32 lb_prev_lb_set_get(vtss_state_t *vtss_state, u32 grp_idx, u32 lb_set_
     return i;
 }
 
-/* ir and max_ir in 1000 bit/s or f/s */
-static vtss_rc lb_config(vtss_state_t *vtss_state,
-                         u32           grp_idx,
-                         u32           set_idx,
-                         u32           lb_idx,
-                         u32          *ir,
-                         u32           max_ir,
-                         u32          *bs,
-                         u32           bs_hyst,
-                         BOOL          cf,
-                         BOOL          frame_rate)
+typedef struct {
+    u32 mode;
+    u32 ancestor_idx, ancestor_lb;
+    u32 inheritor_lb;
+    u32 inherited_ir;
+} lb_inherent_t;
+
+/* ir in 1000 bit/s or f/s */
+static vtss_rc lb_config(vtss_state_t  *vtss_state,
+                         u32            grp_idx,
+                         u32            set_idx,
+                         u32            lb_idx,
+                         u32           *ir,
+                         u32           *bs,
+                         u32            bs_hyst,
+                         lb_inherent_t *inherent,
+                         BOOL           frame_rate)
 {
     vtss_qos_lb_group_t *group;
-    u32 i, pup_tokens, max_pup_tokens, bs_in_bytes, bs_hyst_in_bytes, thres, hyst, inh_mode,
-        max_burst;
-    u64 ir_in_bps, max_ir_in_bps, max_rate, min_rate;
+    u32 i, pup_tokens, max_pup_tokens, bs_in_bytes, bs_hyst_in_bytes, thres, hyst, max_burst;
+    u64 ir_in_bps, inherited_ir_in_bps, max_rate, min_rate;
+    u32 value, pup_interval;
+    u32 ancestor_mode, ancestor_lbgrp, ancestor_pup_interval;
 
-    VTSS_I("Enter grp_idx %u, set_idx %u lb_idx %u ir %u", grp_idx, set_idx, lb_idx, *ir);
+    VTSS_I("Enter grp_idx %u, set_idx %u lb_idx %u", grp_idx, set_idx, lb_idx);
 
     if (*ir == 0U) {
         VTSS_D("No IR was requested");
@@ -138,13 +145,20 @@ static vtss_rc lb_config(vtss_state_t *vtss_state,
     }
     group = &vtss_state->qos.lb_groups[grp_idx];
 
+    // Retrieve the ancestor configuration
+    REG_RD(VTSS_ANA_AC_SDLB_INH_CTRL(inherent->ancestor_idx, inherent->ancestor_lb), &value);
+    ancestor_mode = VTSS_X_ANA_AC_SDLB_INH_CTRL_INH_MODE(value);
+    REG_RD(VTSS_ANA_AC_SDLB_XLB_NEXT(inherent->ancestor_idx), &value);
+    ancestor_lbgrp = VTSS_X_ANA_AC_SDLB_XLB_NEXT_LBGRP(value);
+    ancestor_pup_interval = vtss_state->qos.lb_groups[ancestor_lbgrp].pup_interval;
+
     ir_in_bps = (u64)*ir * 1000U;
-    max_ir_in_bps = (u64)max_ir * 1000U;
+    inherited_ir_in_bps = (u64)inherent->inherited_ir * 1000U;
     bs_in_bytes = *bs;
     bs_hyst_in_bytes = bs_hyst;
     if (frame_rate) {
         ir_in_bps = (u64)*ir * (u64)group->frame_size * 8U;
-        max_ir_in_bps = (u64)max_ir * (u64)group->frame_size * 8U;
+        inherited_ir_in_bps = (u64)inherent->inherited_ir * (u64)group->frame_size * 8U;
         bs_in_bytes = *bs * group->frame_size;
         bs_hyst_in_bytes = bs_hyst * group->frame_size;
     }
@@ -163,7 +177,7 @@ static vtss_rc lb_config(vtss_state_t *vtss_state,
         VTSS_D("Group %u.  Burst size %u is too high for this group", grp_idx, bs_in_bytes);
         bs_in_bytes = max_burst;
     }
-    /* Now the maximun rate can be calculated based on the burst size */
+    /* Now the maximum supported rate can be calculated based on the burst size */
     max_rate = lb_group_lb_max_rate_calc(bs_in_bytes, group->pup_interval);
 
     /* Adjust the information rate to fit into the group */
@@ -195,19 +209,23 @@ static vtss_rc lb_config(vtss_state_t *vtss_state,
         return (VTSS_RC_ERROR);
     }
 
-    /* Calculate the number of tokens required for this MAX IR in this group
-     * (PUP_INTERVAL) */
-    max_pup_tokens = (u32)lb_group_lb_pup_token_calc(max_ir_in_bps, group->pup_interval);
+    /* Calculate the MAX number of tokens allowed in this group (PUP_INTERVAL) */
+    max_pup_tokens = (u32)lb_group_lb_pup_token_calc(ir_in_bps, group->pup_interval);
+    if ((inherited_ir_in_bps != 0U) && (ancestor_mode == 1U)) { // Add inherited pup tokens
+        pup_interval = (ancestor_pup_interval <= group->pup_interval) ? group->pup_interval
+                                                                      : ancestor_pup_interval;
+        max_pup_tokens += (u32)lb_group_lb_pup_token_calc(inherited_ir_in_bps, pup_interval);
+    }
 
     // The following should NEVER trigger! The checking was done when selecting
     // group.
-    if ((max_pup_tokens == 0U) && (max_ir != 0U)) {
+    if ((max_pup_tokens == 0U) && (inherited_ir_in_bps != 0U)) {
         VTSS_D("Bucket %u cannot be added to group %u. Check flow parameters.", set_idx, grp_idx);
         return (VTSS_RC_ERROR);
     }
     if (max_pup_tokens > LB_PUP_TOKEN_MAX) {
-        VTSS_D("Calculated pup tokens %u value exceeds max value", max_pup_tokens);
-        return (VTSS_RC_ERROR);
+        VTSS_D("Calculated pup tokens %u value exceeds max %u", max_pup_tokens, LB_PUP_TOKEN_MAX);
+        max_pup_tokens = LB_PUP_TOKEN_MAX;
     }
 
     // Calculate the bucket threshold - that is the burst size
@@ -226,12 +244,6 @@ static vtss_rc lb_config(vtss_state_t *vtss_state,
                (hyst * group->min_burst));
     }
 
-    // Calculate the Inherent mode
-    inh_mode = 0U;
-    if (cf && (lb_idx == 0U)) { /* This is CIR LB and Coupling Flag - spilling into EIR LB */
-        inh_mode = 2U;
-    }
-
     REG_WR(VTSS_ANA_AC_SDLB_PUP_TOKENS(set_idx, lb_idx),
            VTSS_F_ANA_AC_SDLB_PUP_TOKENS_PUP_TOKENS(pup_tokens));
     REG_WRM(VTSS_ANA_AC_SDLB_INH_CTRL(set_idx, lb_idx),
@@ -242,7 +254,9 @@ static vtss_rc lb_config(vtss_state_t *vtss_state,
     REG_WRM(VTSS_ANA_AC_SDLB_THRES(set_idx, lb_idx), VTSS_F_ANA_AC_SDLB_THRES_THRES_HYS(hyst),
             VTSS_M_ANA_AC_SDLB_THRES_THRES_HYS);
     REG_WRM(VTSS_ANA_AC_SDLB_INH_CTRL(set_idx, lb_idx),
-            VTSS_F_ANA_AC_SDLB_INH_CTRL_INH_MODE(inh_mode), VTSS_M_ANA_AC_SDLB_INH_CTRL_INH_MODE);
+            VTSS_F_ANA_AC_SDLB_INH_CTRL_INH_LB(inherent->inheritor_lb) |
+                VTSS_F_ANA_AC_SDLB_INH_CTRL_INH_MODE(inherent->mode),
+            VTSS_M_ANA_AC_SDLB_INH_CTRL_INH_LB | VTSS_M_ANA_AC_SDLB_INH_CTRL_INH_MODE);
 
     /* Revert the return values to interface */
     if (frame_rate) {
@@ -367,7 +381,7 @@ static vtss_rc lb_group_find(vtss_state_t *vtss_state,
         /* Now the maximum information rate of this group can be calculated
          * based on burst size */
         max_rate = lb_group_lb_max_rate_calc(bs_in_bytes, group->pup_interval);
-        if (ir_in_bps > max_rate) { /* Check if the reqursted information rate
+        if (ir_in_bps > max_rate) { /* Check if the requested information rate
                                        is too high for this group */
             VTSS_D("Group %u.  Information rate %" PRIu64
                    " is too high for this group (max_rate %" PRIu64 ")",
@@ -588,14 +602,56 @@ static vtss_rc lb_group_lb_set_remove(vtss_state_t *vtss_state, u32 lb_set_idx)
     return VTSS_RC_OK;
 }
 
+static void inherent_cir_calc(u32                      cos_id,
+                              u32                      cos_highest,
+                              vtss_dlb_policer_conf_t *conf,
+                              lb_inherent_t           *inherent)
+{
+    inherent->ancestor_lb = 0;                         // CIR receive tokens from CIR
+    inherent->inheritor_lb = (cos_id == 0U) ? 1U : 0U; // COS0 share to EIR. Other COS share to CIR
+    inherent->inherited_ir = conf->inherit_cir;
+    if (conf->cf) { /* Coupling Flag - share overflow CIR into EIR LB */
+        inherent->mode = 2U;
+        inherent->inheritor_lb = 1U;
+    } else if (conf->share_cir) { /* Share the CIR overflow tokens to other COSID */
+        inherent->mode = 1U;
+    } else { /* No sharing */
+        inherent->mode = 0U;
+    }
+}
+
+static void inherent_eir_calc(u32                      cos_id,
+                              u32                      cos_highest,
+                              vtss_dlb_policer_conf_t *conf,
+                              lb_inherent_t           *inherent)
+{
+    inherent->ancestor_lb = (cos_id == cos_highest) ? 0U : 1U;
+    inherent->inheritor_lb = 1U; // EIR share to EIR
+    inherent->inherited_ir = (conf->inherit_eir == 0U)
+                                 ? 0U // Inherited rate includes CIR if CF
+                                 : ((conf->cf ? conf->cir : 0U) + conf->inherit_eir);
+    if (conf->share_eir) { /* Share the EIR overflow tokens to other COSID */
+        /* The EIR COS0 cannot share */
+        inherent->mode = (cos_id == 0U) ? 0U : 1U;
+    } else { /* No sharing */
+        inherent->mode = 0U;
+    }
+}
+
 static vtss_rc lb_group_lb_set_add(vtss_state_t            *vtss_state,
                                    u32                      grp_idx,
                                    u32                      lb_set_idx,
                                    vtss_dlb_policer_conf_t *conf)
 {
-    u32                  reg, sum, nxt_idx, i, mark_all_red = 0U, drop_yellow = 0U;
-    i32                  prev_idx;
-    vtss_qos_lb_group_t *group, *grp;
+    u32                      reg, sum, nxt_idx, i, mark_all_red = 0U, drop_yellow = 0U;
+    lb_inherent_t            inherent = {};
+    i32                      prev_idx;
+    vtss_qos_lb_group_t     *group, *grp;
+    u32                      cos_id, cos_highest, idx_min, idx_max;
+    vtss_xpol_entry_t       *pol = NULL;
+    u32                      inheritor_grp, inheritor_inherit_ir;
+    u32                      inheritor_lb, inheritor_idx, inheritor_cos_id;
+    vtss_dlb_policer_conf_t *inheritor_conf;
 
     VTSS_D("Enter  grp_idx %u  lb_set_idx %u", grp_idx, lb_set_idx);
 
@@ -633,6 +689,19 @@ static vtss_rc lb_group_lb_set_add(vtss_state_t            *vtss_state,
         group->lb_set_count -= 1U;
         return (VTSS_RC_ERROR);
     }
+    /* Find the API state policer group */
+    for (i = 0; i < VTSS_EVC_POL_CNT; ++i) {
+        pol = &vtss_state->l2.pol.table[i];
+        idx_min = pol->idx;
+        idx_max = (u32)pol->idx + (u32)pol->cnt - (u32)1U;
+        if ((lb_set_idx >= idx_min) && (lb_set_idx <= idx_max)) {
+            break;
+        }
+    }
+    if (i == VTSS_EVC_POL_CNT) {
+        VTSS_D("The Policer group was not found for this policer set index %u", lb_set_idx);
+        return VTSS_RC_ERROR;
+    }
 
 #if defined(VTSS_FEATURE_PSFP)
     mark_all_red = (conf->mark_all_red.enable ? 1U : 0U);
@@ -651,14 +720,32 @@ static vtss_rc lb_group_lb_set_add(vtss_state_t            *vtss_state,
            VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR_LBSET(lb_set_idx) |
                VTSS_F_ANA_AC_SDLB_MARK_ALL_FRMS_RED_CLR_VLD(1U));
 #endif
-    /* Configure the LB */
-    /* Configure the per CIR and EIR related */
-    VTSS_RC(lb_config(vtss_state, grp_idx, lb_set_idx, 0U, &conf->cir, 0U, &conf->cbs,
-                      LB_THRES_HYS_NONE, conf->cf, (0 == 1))); /* CIR */
-    VTSS_RC(lb_config(vtss_state, grp_idx, lb_set_idx, 1U, &conf->eir, 0U, &conf->ebs,
-                      LB_THRES_HYS_NONE, conf->cf, (0 == 1))); /* EIR */
+
+    /* The COSID and the highest COSID */
+    cos_id = lb_set_idx - pol->idx;
+    cos_highest = pol->cos_highest;
+
+    /* In case of token sharing, there is a circular reference. */
+    /* The COS-0 share to cos_highest. Other COS share to COS - 1. */
+    /* Note - this is the potential references, not necessarily the configured */
+    inheritor_idx = pol->idx + ((cos_id != 0U) ? (cos_id - 1U) : cos_highest);
+    inherent.ancestor_idx = pol->idx + ((cos_id != cos_highest) ? (cos_id + 1U) : 0U);
+
+    /* Configure the LB set */
+
+    /* Calculate the CIR Inherent mode and configure the CIR LB*/
+    inherent_cir_calc(cos_id, cos_highest, conf, &inherent);
+    VTSS_RC(lb_config(vtss_state, grp_idx, lb_set_idx, 0U, &conf->cir, &conf->cbs,
+                      LB_THRES_HYS_NONE, &inherent, (0 == 1)));
+
+    /* Calculate the EIR Inherent mode and configure the EIR LB */
+    inherent_eir_calc(cos_id, cos_highest, conf, &inherent);
+    VTSS_RC(lb_config(vtss_state, grp_idx, lb_set_idx, 1U, &conf->eir, &conf->ebs,
+                      LB_THRES_HYS_NONE, &inherent, (0 == 1)));
 
     /* Configure the CIR and EIR common */
+    REG_WR(VTSS_ANA_AC_SDLB_INH_LBSET_ADDR(lb_set_idx),
+           VTSS_F_ANA_AC_SDLB_INH_LBSET_ADDR_INH_LBSET_ADDR(inheritor_idx));
     REG_WR(VTSS_ANA_AC_SDLB_DLB_MISC(lb_set_idx),
            VTSS_F_ANA_AC_SDLB_DLB_MISC_DLB_FRM_RATE_ENA(0U) |
                VTSS_F_ANA_AC_SDLB_DLB_MISC_MARK_ALL_FRMS_RED_ENA(mark_all_red) |
@@ -725,6 +812,34 @@ static vtss_rc lb_group_lb_set_add(vtss_state_t            *vtss_state,
     }
 
     vtss_state->qos.lb_set_grp_idx[lb_set_idx] = (u16)grp_idx; /* This LB set is now in a group */
+
+    inheritor_conf = &vtss_state->l2.pol_conf[inheritor_idx];
+    inheritor_grp = vtss_state->qos.lb_set_grp_idx[inheritor_idx];
+    inheritor_inherit_ir =
+        (cos_id == 0U) ? inheritor_conf->inherit_eir : inheritor_conf->inherit_cir;
+    inheritor_cos_id = inheritor_idx - pol->idx;
+
+    /* The group and thereby the pup_interval of this LB set might have changed. */
+    /* If we share, the inheritor LB set must be updated */
+    inherent.ancestor_idx = lb_set_idx;
+
+    if (conf->share_cir && inheritor_conf->enable && (inheritor_inherit_ir != 0U)) {
+        /* Share of CIR and the inheritor LB is enabled and is configured to inherit CIR/EIR */
+        inheritor_lb = (cos_id == 0U) ? 1U : 0U; // COS0 share to EIR. Other COS share to CIR
+        inherent_cir_calc(inheritor_cos_id, cos_highest, inheritor_conf, &inherent);
+        VTSS_RC(lb_config(vtss_state, inheritor_grp, inheritor_idx, inheritor_lb,
+                          &inheritor_conf->cir, &inheritor_conf->cbs, LB_THRES_HYS_NONE, &inherent,
+                          (0 == 1)));
+    }
+
+    if (conf->share_eir && inheritor_conf->enable && (inheritor_conf->inherit_eir != 0U)) {
+        /* Share of EIR and the inheritor LB is enabled and is configured to inherit */
+        inheritor_lb = 1; // EIR always share to EIR
+        inherent_eir_calc(inheritor_cos_id, cos_highest, inheritor_conf, &inherent);
+        VTSS_RC(lb_config(vtss_state, inheritor_grp, inheritor_idx, inheritor_lb,
+                          &inheritor_conf->eir, &inheritor_conf->ebs, LB_THRES_HYS_NONE, &inherent,
+                          (0 == 1)));
+    }
 
     VTSS_D("Exit");
 
@@ -963,7 +1078,7 @@ vtss_rc vtss_fa_policer_conf_set(vtss_state_t            *vtss_state,
                                  u32                      lb_set_idx,
                                  vtss_dlb_policer_conf_t *conf)
 {
-    u32 grp_idx1 = (RT_LB_GROUP_CNT - 1U), grp_idx2 = grp_idx1;
+    u32 max_rate, grp_idx1 = (RT_LB_GROUP_CNT - 1U), grp_idx2 = grp_idx1;
 
     VTSS_D("Enter  lb_set_idx %u, enable %u", lb_set_idx, conf->enable);
 
@@ -979,13 +1094,15 @@ vtss_rc vtss_fa_policer_conf_set(vtss_state_t            *vtss_state,
     VTSS_RC(lb_group_lb_set_remove(vtss_state, lb_set_idx));
 
     if (conf->enable) { /* The LB is enabled. Find the suitable group */
-        VTSS_RC(lb_group_find(vtss_state, conf->cir, conf->cbs, LB_THRES_HYS_NONE, (0 == 1),
+        max_rate = conf->cir + conf->inherit_cir;
+        VTSS_RC(lb_group_find(vtss_state, max_rate, conf->cbs, LB_THRES_HYS_NONE, (0 == 1),
                               &grp_idx1));
         if (conf->eir != 0U) {
             /* EIR present, create LB 2. In case of coupling, the max rate is
              * the sum of CIR and EIR */
-            VTSS_RC(lb_group_find(vtss_state, (conf->cf ? conf->cir : 0U) + conf->eir, conf->ebs,
-                                  LB_THRES_HYS_NONE, (0 == 1), &grp_idx2));
+            max_rate = (conf->cf ? conf->cir : 0U) + conf->eir + conf->inherit_eir;
+            VTSS_RC(lb_group_find(vtss_state, max_rate, conf->ebs, LB_THRES_HYS_NONE, (0 == 1),
+                                  &grp_idx2));
             grp_idx1 = MIN(grp_idx1,
                            grp_idx2); // Smallest group (fastest update) is selected
         }
@@ -4723,18 +4840,25 @@ static vtss_rc debug_tas_conf_print(vtss_state_t *vtss_state,
 }
 #endif
 
+static u64 pup_tokens_to_rate(vtss_state_t *vtss_state, u32 set_idx, u32 pup_tokens)
+{
+    u32 grp_idx = vtss_state->qos.lb_set_grp_idx[set_idx];
+    u64 pup_interval = vtss_state->qos.lb_groups[grp_idx].pup_interval;
+    return (VTSS_DIV64_ROUND_UP((u64)pup_tokens * (lb_clk_in_hz * 8U), pup_interval));
+}
+
 static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                             lmu_ss_t                      *ss,
                             const vtss_debug_info_t *const info)
 {
     vtss_port_no_t port_no;
     u32 chip_port, i, j, max_burst, min_token, value = 0U, service_pol_set_idx = 0U, divv = 0U;
-    u32 qno, src, prio, dst;
+    u32 qno, src, prio, dst, tokens;
 #if defined(VTSS_FEATURE_QOS_TAS)
     vtss_port_no_t tas_port = 0U;
     u32            tas_list_idx = 0U;
 #endif
-    u64                  min_rate, lowest_max_nxt;
+    u64                  min_rate, lowest_max_nxt, rate, grp;
     vtss_qos_lb_group_t *group, *group_nxt;
     BOOL                 show_act, basics_act, ingr_mapping_act, gen_pol_act, service_pol_grp_act,
         service_pol_set_act, port_pol_act, storm_pol_act, schedul_act, band_act, shape_act,
@@ -5166,33 +5290,49 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                                                  one */
                 continue;
             }
-            if ((vtss_state->qos.lb_set_grp_idx[i] < RT_LB_SET_CNT) ||
+            if (((grp = vtss_state->qos.lb_set_grp_idx[i]) < RT_LB_GROUP_CNT) ||
                 (divv > 1U)) { /* Only print LB set in a group unless a specific
                                 LB set */
+                group = &vtss_state->qos.lb_groups[grp];
                 pr("LB_SET %u\n", i);
                 pr("%-32s: %4u\n", "lb_set_grp_idx ", vtss_state->qos.lb_set_grp_idx[i]);
+
                 REG_RD(VTSS_ANA_AC_SDLB_PUP_TOKENS(i, 0), &value);
-                pr("%-32s: %4u\n", "PUP_TOKENS[0] ",
-                   VTSS_X_ANA_AC_SDLB_PUP_TOKENS_PUP_TOKENS(value));
+                rate = pup_tokens_to_rate(vtss_state, i,
+                                          VTSS_X_ANA_AC_SDLB_PUP_TOKENS_PUP_TOKENS(value));
+                pr("%-32s: %4u  rate: %" PRIu64 "\n", "PUP_TOKENS[0]  ",
+                   VTSS_X_ANA_AC_SDLB_PUP_TOKENS_PUP_TOKENS(value), rate);
                 REG_RD(VTSS_ANA_AC_SDLB_THRES(i, 0), &value);
-                pr("%-32s: %4u\n", "THRES[0] ", VTSS_X_ANA_AC_SDLB_THRES_THRES(value));
+                tokens = VTSS_X_ANA_AC_SDLB_THRES_THRES(value) * group->min_burst;
+                pr("%-32s: %4u  tokens: %u\n", "THRES[0] ", VTSS_X_ANA_AC_SDLB_THRES_THRES(value),
+                   tokens);
                 pr("%-32s: %4u\n", "THRES_HYS[0] ", VTSS_X_ANA_AC_SDLB_THRES_THRES_HYS(value));
                 REG_RD(VTSS_ANA_AC_SDLB_INH_CTRL(i, 0), &value);
-                pr("%-32s: %4u\n", "PUP_TOKENS_MAX[0] ",
-                   VTSS_X_ANA_AC_SDLB_INH_CTRL_PUP_TOKENS_MAX(value));
+                rate = pup_tokens_to_rate(vtss_state, i,
+                                          VTSS_X_ANA_AC_SDLB_INH_CTRL_PUP_TOKENS_MAX(value));
+                pr("%-32s: %4u  rate: %" PRIu64 "\n", "PUP_TOKENS_MAX[0] ",
+                   VTSS_X_ANA_AC_SDLB_INH_CTRL_PUP_TOKENS_MAX(value), rate);
                 pr("%-32s: %4u\n", "INH_MODE[0] ", VTSS_X_ANA_AC_SDLB_INH_CTRL_INH_MODE(value));
                 pr("%-32s: %4u\n", "INH_LB[0] ", VTSS_X_ANA_AC_SDLB_INH_CTRL_INH_LB(value));
+
                 REG_RD(VTSS_ANA_AC_SDLB_PUP_TOKENS(i, 1), &value);
-                pr("%-32s: %4u\n", "PUP_TOKENS[1] ",
-                   VTSS_X_ANA_AC_SDLB_PUP_TOKENS_PUP_TOKENS(value));
+                rate = pup_tokens_to_rate(vtss_state, i,
+                                          VTSS_X_ANA_AC_SDLB_PUP_TOKENS_PUP_TOKENS(value));
+                pr("%-32s: %4u  rate: %" PRIu64 "\n", "PUP_TOKENS[1] ",
+                   VTSS_X_ANA_AC_SDLB_PUP_TOKENS_PUP_TOKENS(value), rate);
                 REG_RD(VTSS_ANA_AC_SDLB_THRES(i, 1), &value);
-                pr("%-32s: %4u\n", "THRES[1] ", VTSS_X_ANA_AC_SDLB_THRES_THRES(value));
+                tokens = VTSS_X_ANA_AC_SDLB_THRES_THRES(value) * group->min_burst;
+                pr("%-32s: %4u  tokens: %u\n", "THRES[1] ", VTSS_X_ANA_AC_SDLB_THRES_THRES(value),
+                   tokens);
                 pr("%-32s: %4u\n", "THRES_HYST[1] ", VTSS_X_ANA_AC_SDLB_THRES_THRES_HYS(value));
                 REG_RD(VTSS_ANA_AC_SDLB_INH_CTRL(i, 1), &value);
-                pr("%-32s: %4u\n", "PUP_TOKENS_MAX[1] ",
-                   VTSS_X_ANA_AC_SDLB_INH_CTRL_PUP_TOKENS_MAX(value));
+                rate = pup_tokens_to_rate(vtss_state, i,
+                                          VTSS_X_ANA_AC_SDLB_INH_CTRL_PUP_TOKENS_MAX(value));
+                pr("%-32s: %4u  rate: %" PRIu64 "\n", "PUP_TOKENS_MAX[1] ",
+                   VTSS_X_ANA_AC_SDLB_INH_CTRL_PUP_TOKENS_MAX(value), rate);
                 pr("%-32s: %4u\n", "INH_MODE[1] ", VTSS_X_ANA_AC_SDLB_INH_CTRL_INH_MODE(value));
                 pr("%-32s: %4u\n", "INH_LB[1] ", VTSS_X_ANA_AC_SDLB_INH_CTRL_INH_LB(value));
+
                 REG_RD(VTSS_ANA_AC_SDLB_XLB_NEXT(i), &value);
                 pr("%-32s: %4u\n", "LBSET_NEXT ", VTSS_X_ANA_AC_SDLB_XLB_NEXT_LBSET_NEXT(value));
                 pr("%-32s: %4u\n", "LBGRP ", VTSS_X_ANA_AC_SDLB_XLB_NEXT_LBGRP(value));
@@ -5220,8 +5360,16 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
                 pr("%-32s: %4u\n", "DLB_MODE ", VTSS_X_ANA_AC_SDLB_DLB_CFG_DLB_MODE(value));
                 pr("%-32s: %4u\n", "TRAFFIC_TYPE_MASK ",
                    VTSS_X_ANA_AC_SDLB_DLB_CFG_TRAFFIC_TYPE_MASK(value));
+                pr("\n");
             }
         }
+        REG_RD(VTSS_ANA_AC_SDLB_WARN, &value);
+        REG_WR(VTSS_ANA_AC_SDLB_WARN, 0xFF);
+        pr("%-32s: %X\n", "WARN ", value);
+        REG_RD(VTSS_ANA_AC_SDLB_FAIL, &value);
+        REG_WR(VTSS_ANA_AC_SDLB_FAIL, 0xFF);
+        pr("%-32s: %X\n", "FAIL ", value);
+        pr("\n");
     }
 
     if ((info->has_action == FALSE) || (port_pol_act == TRUE)) {

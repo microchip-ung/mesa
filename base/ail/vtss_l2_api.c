@@ -3255,7 +3255,9 @@ static vtss_rc vtss_cmn_pol_move(vtss_state_t *vtss_state, u16 idx_old, u16 idx_
     /* Move policers */
     for (i = 0; i < count; i++) {
         vtss_state->l2.pol_conf[idx_new + i] = vtss_state->l2.pol_conf[idx_old + i];
-        VTSS_RC(vtss_cil_l2_policer_update(vtss_state, idx_new + i));
+        /* In case of envelope token sharing, the shared to COSID is one lower. */
+        /* Wrapping to the highest COSID in the group */
+        VTSS_RC(vtss_cil_l2_policer_update(vtss_state, (idx_new + i)));
     }
 
     /* Update ISDX entries referring to the old index */
@@ -3951,6 +3953,7 @@ vtss_rc vtss_dlb_policer_free(const vtss_inst_t inst, const vtss_dlb_policer_id_
                 rc = rc1;
             }
             pol->cnt = 0;
+            pol->cos_highest = 0;
         }
     }
     VTSS_EXIT();
@@ -3989,9 +3992,17 @@ vtss_rc vtss_dlb_policer_conf_set(const vtss_inst_t                    inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_check(inst, &vtss_state)) == VTSS_RC_OK) {
-        if ((pol = vtss_pol_lookup(vtss_state, id)) != NULL && cosid < pol->cnt) {
+        if (((pol = vtss_pol_lookup(vtss_state, id)) != NULL) && (cosid < pol->cnt)
+#if defined(VTSS_FEATURE_XDLB_ENVELOPE)
+            && (!(conf->share_cir || conf->share_eir) || (pol->cnt > 1U))) { /* Share if cnt > 1 */
+#else
+        ) {
+#endif
             vtss_state->l2.pol_conf[pol->idx + cosid] = *conf;
-            rc = vtss_cil_l2_policer_update(vtss_state, pol->idx + cosid);
+            pol->cos_highest = (cosid > pol->cos_highest) ? cosid : pol->cos_highest;
+            /* In case of envelope token sharing, the shared to COSID is one lower. */
+            /* Wrapping to the highest COSID in the group */
+            rc = vtss_cil_l2_policer_update(vtss_state, (pol->idx + cosid));
         } else {
             rc = VTSS_RC_ERROR;
         }

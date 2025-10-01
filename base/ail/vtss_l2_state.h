@@ -484,8 +484,9 @@ typedef struct {
 } vtss_xstat_table_t;
 
 typedef struct {
-    u16 idx; /* Allocated idx */
-    u8  cnt; /* Number of classes, zero means unused */
+    u16 idx;         /* Allocated idx */
+    u8  cnt;         /* Number of classes, zero means unused */
+    u8  cos_highest; /* The highest COS ID configured */
 } vtss_xpol_entry_t;
 
 typedef struct {
