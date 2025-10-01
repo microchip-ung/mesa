@@ -523,7 +523,7 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
     end
 
     t_i("Start tcpdump logging on egress port: #{$ts.pc.p[eg]}")
-    pid_tcp = $ts.pc.bg("tcpdump", "tcpdump -i #{$ts.pc.p[eg]} -j adapter_unsynced -s18 -w /tmp/dump.pcap")
+    pid_tcp = $ts.pc.bg("tcpdump", "tcpdump -i #{$ts.pc.p[eg]} -j adapter_unsynced -s22 -w /tmp/dump.pcap")
 
 #    t_i("Wait for necessary amount of frames to be transmitted")
 #    time1 = Time.now

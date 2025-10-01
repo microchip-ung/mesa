@@ -214,7 +214,10 @@ For example, if an ingress flow is mapped to 4 COSIDs, a block of 4 ingress coun
 The API provides functions to get and clear each counter set (`mesa_ingress_counters_t`). 
 
 === Dual Leaky Bucket Policers
-If the capability `MESA_CAP_L2_XDLB` is non-zero, it is possible to allocate and free a block of Dual Leaky Bucket (DLB) policers. Each policer can be setup for single or dual bucket operation (`mesa_dlb_policer_conf_t`).
+If the capability `MESA_CAP_L2_XDLB` is non-zero, it is possible to allocate and free a block of Dual Leaky Bucket (DLB) policers. +
+The first policer in the block is hit by frames classified to COS 0 then next policer is hit by frames classified to COS 1 and so on. +
+Each policer can be setup for single or dual bucket operation (`mesa_dlb_policer_conf_t`).
+The DLB policers also support the MEF10.1 Envelope Policer based on token sharing between sequential COS in the flow.
 
 === Egress Flows
 If the capability `MESA_CAP_L2_XFLOW` is non-zero, it is possible to allocate and free egress flows.

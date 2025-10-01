@@ -21,6 +21,7 @@ run %w{./qos-queue-policer.rb}
 run %w{./qos-queue-shaper.rb}
 run %w{./qos-scheduler.rb}
 run %w{./qos-dlb-policer.rb}
+run %w{./qos-envelope-policer.rb}
 run %w{./qos-time-aware-scheduler.rb}
 run %w{./qos-otit-scheduler-shaper.rb}
 
