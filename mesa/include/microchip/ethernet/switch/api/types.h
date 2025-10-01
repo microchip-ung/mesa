@@ -32,6 +32,9 @@ typedef uint32_t mesa_mrp_idx_t;
 
 #define MESA_MRP_IDX_NONE 0xFFFFFFFFU // Special value meaning no MRP
 
+// DLB policer ID
+typedef uint16_t mesa_dlb_policer_id_t;
+
 /****************************************************************************
  * QoS types
  ****************************************************************************/

@@ -206,15 +206,22 @@ typedef struct {
     BOOL flow_control;                            /**< Flow control is enabled */
 } vtss_policer_ext_t;
 
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
+typedef enum {
+    VTSS_SHARE_RX_NONE, // Sharing is not enabled
+    VTSS_SHARE_RX_CIR,  // Sharing is done to CIR bucket
+    VTSS_SHARE_RX_EIR,  // Sharing is done to EIR bucket
+} vtss_share_receiver_t;
+
 /** \brief Dual leaky buckets policer configuration */
 typedef struct {
     vtss_policer_type_t type;   /**< Policer type */
     BOOL                enable; /**< Enable/disable policer */
 #if defined(VTSS_ARCH_JAGUAR_2) || defined(VTSS_ARCH_FA)
-    BOOL cm;                      /**< Colour Mode (TRUE means colour aware) */
-#endif                            /* VTSS_ARCH_JAGUAR_2 */
-    BOOL               cf;        /**< Coupling Flag */
+    BOOL cm; /**< Colour Mode (TRUE means colour aware) */
+#endif       /* VTSS_ARCH_JAGUAR_2 */
+    // Coupling Flag
+    // True means: Share CIR overflow tokens to EIR bucket of this policer set
+    BOOL               cf;
     BOOL               line_rate; /**< Line rate policing (default is data rate policing) */
     vtss_bitrate_t     cir;       /**< Committed Information Rate */
     vtss_burst_level_t cbs;       /**< Committed Burst Size */
@@ -225,8 +232,32 @@ typedef struct {
     vtss_opt_bool_t mark_all_red; // MarkAllFramesRedEnable/MarkAllFramesRed:
                                   // Discard all frames if red frame seen
 #endif
+#if defined(VTSS_FEATURE_XDLB_ENVELOPE)
+    // The MEF 10.3 dual leaky bucket policer envelope feature.
+    // The policer on this COSID can share overflow tokens to another policer in the group.
+    // The group must contain more than one policer.
+
+    // Share CIR overflow tokens to either CIR or EIR bucket.
+    // If this COSID is not '0' then CIR overflow is shared to CIR on COSID - 1
+    // If this COSID is '0' then CIR overflow is shared to EIR on the highest COSID in the group.
+    // This only happens if cf element is false
+    BOOL share_cir;
+
+    // Share EIR overflow tokens to EIR bucket.
+    // If this COSID is not '0' then EIR overflow is shared to EIR on COSID - 1
+    // If this COSID is '0' then EIR overflow is NOT shared.
+    BOOL share_eir;
+
+    // The rate of inherited Green tokens
+    // The maximum rate of tokens added to the green bucket (GTRmax) is cir + cir_inherit
+    vtss_bitrate_t inherit_cir;
+    // The rate of inherited Yellow tokens
+    // The maximum rate of tokens added to the yellow bucket (YTRmax).
+    // If cf == true it is cir + eir + eir_inherit
+    // If cf == false it is eir + eir_inherit
+    vtss_bitrate_t inherit_eir;
+#endif
 } vtss_dlb_policer_conf_t;
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
 
 #if defined(VTSS_ARCH_CARACAL)
 /** \page qos
@@ -958,12 +989,9 @@ vtss_rc vtss_qos_egress_map_del_all(const vtss_inst_t inst);
 vtss_rc vtss_qos_shaper_calibrate(const vtss_inst_t inst);
 #endif /* defined(VTSS_ARCH_OCELOT) */
 
-#if defined(VTSS_FEATURE_QOS_POLICER_DLB)
+#if defined(VTSS_FEATURE_EVC_POLICERS)
 /** \brief EVC policer configuration */
 typedef vtss_dlb_policer_conf_t vtss_evc_policer_conf_t;
-#endif /* VTSS_FEATURE_QOS_POLICER_DLB */
-
-#if defined(VTSS_FEATURE_EVC_POLICERS)
 
 #if defined(VTSS_CHIP_SERVAL)
 #define VTSS_EVC_POLICERS 1022 /**< Maximum number of EVC policers */

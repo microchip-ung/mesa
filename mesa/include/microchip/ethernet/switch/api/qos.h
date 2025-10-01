@@ -681,15 +681,40 @@ typedef struct {
     mesa_policer_type_t type;            // Policer type
     mesa_bool_t         enable;          // Enable/disable policer
     mesa_bool_t cm      CAP(QOS_DLB_CM); // Colour Mode (TRUE means colour aware)
-    mesa_bool_t         cf;              // Coupling Flag
-    mesa_bool_t         line_rate;       // Line rate policing (default is data rate policing)
-    mesa_bitrate_t      cir;             // Committed Information Rate
-    mesa_burst_level_t  cbs;             // Committed Burst Size
-    mesa_bitrate_t      eir;             // Excess Information Rate
-    mesa_burst_level_t  ebs;             // Excess Burst Size
-    mesa_bool_t         drop_yellow;     // DropOnYellow: Discard yellow frames
-    mesa_opt_bool_t     mark_all_red;    // MarkAllFramesRedEnable/MarkAllFramesRed:
-                                         // Discard all frames if red frame seen
+    // Coupling Flag
+    // True means: Share CIR excess tokens to EIR bucket of this policer set
+    mesa_bool_t        cf;
+    mesa_bool_t        line_rate;    // Line rate policing (default is data rate policing)
+    mesa_bitrate_t     cir;          // Committed Information Rate
+    mesa_burst_level_t cbs;          // Committed Burst Size
+    mesa_bitrate_t     eir;          // Excess Information Rate
+    mesa_burst_level_t ebs;          // Excess Burst Size
+    mesa_bool_t        drop_yellow;  // DropOnYellow: Discard yellow frames
+    mesa_opt_bool_t    mark_all_red; // MarkAllFramesRedEnable/MarkAllFramesRed:
+                                     // Discard all frames if red frame seen
+    // The MEF 10.3 dual leaky bucket policer envelope feature.
+    // The policer on this COSID can share overflow tokens to another policer in the group.
+    // The group must contain more than one policer.
+
+    // Share CIR overflow tokens to either CIR or EIR bucket.
+    // If this COSID is not '0' then CIR overflow is shared to CIR on COSID - 1
+    // If this COSID is '0' then CIR overflow is shared to EIR on the highes COSID in the group.
+    // This only happens if cf element is false
+    mesa_bool_t share_cir CAP(L2_DLB_ENVELOPE);
+
+    // Share EIR overflow tokens to EIR bucket.
+    // If this COSID is not '0' then EIR overflow is shared to EIR on COSID - 1
+    // If this COSID is '0' then EIR overflow is NOT shared.
+    mesa_bool_t share_eir CAP(L2_DLB_ENVELOPE);
+
+    // The rate of inherited Green tokens
+    // The maximum rate of tokens added to the green bucket (GTRmax) is cir + cir_inherit
+    mesa_bitrate_t inherit_cir CAP(L2_DLB_ENVELOPE);
+    // The rate of inherited Yellow tokens
+    // The maximum rate of tokens added to the yellow bucket (YTRmax).
+    // If cf == true it is cir + eir + eir_inherit
+    // If cf == false it is eir + eir_inherit
+    mesa_bitrate_t inherit_eir CAP(L2_DLB_ENVELOPE);
 } mesa_dlb_policer_conf_t;
 
 // EVC policer configuration

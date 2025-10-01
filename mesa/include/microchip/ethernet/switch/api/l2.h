@@ -598,12 +598,13 @@ mesa_rc mesa_ingress_cnt_clear(const mesa_inst_t           inst,
 
 /* - Dual Leaky Bucket policers ------------------------------------ */
 
-// DLB policer ID
-typedef uint16_t mesa_dlb_policer_id_t;
-
-// Allocate DLB policers.
-// cnt [IN]   Number of classes/COSIDs
+// Allocate a DLB policer group.
+// cnt [IN]   Number of classes/COSIDs in the group
 // id [OUT]   DLB policer ID.
+// For this policer ID a cnt number of policers are allocated in HW.
+// The related COSID is incremental starting from '0'.
+// The IFLOW is pointing at the policer ID and the frame classified COSID is selecting the policer
+// in the group.
 mesa_rc mesa_dlb_policer_alloc(const mesa_inst_t            inst,
                                const mesa_class_cnt_t       cnt,
                                mesa_dlb_policer_id_t *const id);
@@ -636,9 +637,9 @@ mesa_rc mesa_dlb_policer_conf_get(const mesa_inst_t              inst,
 // A policer must fit into a group. Unsupported combinations of burst size and
 // information rate exists. When requested burst size and information rate is
 // not supported, the parameters are changed for best fit. Requested information
-// rate too low is changed to the all group lowest minimum Requested information
-// rate too high is changed to the all group highest maximum Requested burst
-// size too low is changed to the group minimum for the selected rate Requested
+// rate too low is changed to the all group lowest minimum. Requested information
+// rate too high is changed to the all group highest maximum. Requested burst
+// size too low is changed to the group minimum for the selected rate. Requested
 // burst size too high is changed to the group maximum for the selected rate
 mesa_rc mesa_dlb_policer_conf_set(const mesa_inst_t                    inst,
                                   const mesa_dlb_policer_id_t          id,

@@ -1069,9 +1069,6 @@ vtss_rc vtss_ingress_cnt_clear(const vtss_inst_t           inst,
 
 /* - Dual Leaky Bucket policers ------------------------------------ */
 
-/** \brief DLB policer ID */
-typedef u16 vtss_dlb_policer_id_t;
-
 /**
  * \brief Allocate DLB policers.
  *
@@ -1079,6 +1076,10 @@ typedef u16 vtss_dlb_policer_id_t;
  * \param cnt [IN]   Number of classes/COSIDs
  * \param id [OUT]   DLB policer ID.
  *
+ * For this policer ID a cnt number of policers are allocated in HW.
+ * The related COSID is incremental starting from '0'.
+ * The IFLOW is pointing at the policer ID and the frame classified COSID is selecting the policer
+ *in the group.
  * \return Return code.
  **/
 vtss_rc vtss_dlb_policer_alloc(const vtss_inst_t            inst,

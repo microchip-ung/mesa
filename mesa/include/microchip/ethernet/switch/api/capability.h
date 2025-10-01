@@ -143,6 +143,7 @@ typedef enum {
     MESA_CAP_L2_XFLOW,                 /**< Ingress and egress flows */
     MESA_CAP_L2_XSTAT,                 /**< Ingress and egress statistics */
     MESA_CAP_L2_XDLB,                  /**< DLB policers allocated dynamically */
+    MESA_CAP_L2_DLB_ENVELOPE,          /**< MEF 10.3 DLB policer envelope feature */
     MESA_CAP_L2_TPID_AWARE,            /**< Full VLAN awareness */
     MESA_CAP_L2_FRER,                  /**< FRER */
     MESA_CAP_L2_FRER_MSTREAM_CNT,      /**< Number of FRER Member Streams */

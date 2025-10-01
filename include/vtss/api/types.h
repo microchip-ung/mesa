@@ -469,6 +469,9 @@ typedef u32 vtss_mrp_idx_t;
 
 #define VTSS_MRP_IDX_NONE 0xFFFFFFFFU /**< Special value meaning no MRP */
 
+/** \brief DLB policer ID */
+typedef u16 vtss_dlb_policer_id_t;
+
 /****************************************************************************
  * QoS types
  ****************************************************************************/
