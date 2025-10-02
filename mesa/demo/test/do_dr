@@ -6,7 +6,7 @@
 set -e
 
 if (( $# < 2 )); then
-   echo "Usage: $0 all|fam|ca1/ca2/oc/st/j2/mr/mc/m8/fa/la [<test_server>] <test_script> [brief|clean|short]"
+   echo "Usage: $0 all|fam|ca1/ca2/oc/st/j2/mr/mc/m8/fa/la [<test_server>] <test_script> [brief|clean|short|skip]"
    exit
 fi
 
@@ -16,45 +16,7 @@ suffix=""
 last=${!#}
 brief=0
 clean=0
-
-# Parse options
-while true ; do
-    case ${!cnt} in
-        brief)
-            # Brief output may be used for test suites or multiple platforms
-            brief=1
-            suffix+="--brief "
-            ;;
-
-        clean)
-            # Clean build may be nice if external interfaces have changed
-            clean=1
-            ;;
-
-        short)
-            # Short output may be used for pasting into Jira
-            suffix+="--short "
-            ;;
-
-        *)
-            break
-            ;;
-    esac
-    ((cnt--))
-done
-
-ts2=0
-if [ $cnt == 2 ]; then
-  file=$2
-else
-  ts2=$2
-  file=$3
-fi
-
-if [ ! -f $file ]; then
-   echo "Test script not found: $file"
-   exit
-fi
+skip=0
 
 # Build list and platform list
 build_list="mipsel arm arm64"
@@ -88,6 +50,61 @@ case $platform in
         ;;
 esac
 
+# Parse options
+while true ; do
+    case ${!cnt} in
+        brief)
+            # Brief output may be used for test suites or multiple platforms
+            brief=1
+            suffix+="--brief "
+            ;;
+
+        clean)
+            # Clean build may be nice if external interfaces have changed
+            clean=1
+            ;;
+
+        short)
+            # Short output may be used for pasting into Jira
+            suffix+="--short "
+            ;;
+
+        skip)
+            # Skip test, just build
+            skip=1
+            ;;
+
+        *)
+            break
+            ;;
+    esac
+    ((cnt--))
+done
+
+if [ $skip != 1 ]; then
+    ts2=0
+    case $cnt in
+        1)
+            echo "Test script not specified"
+            exit
+            ;;
+
+        2)
+            file=$2
+            ;;
+
+        *)
+            ts2=$2
+            file=$3
+            ;;
+    esac
+
+    if [ ! -f $file ]; then
+        echo "Test script not found: $file"
+        exit
+    fi
+fi
+
 # Build
 for build in $build_list; do
     cd ../../../build-$build
@@ -98,6 +115,10 @@ for build in $build_list; do
     dr make -j 10
     cd -
 done
+
+if [ $skip == 1 ]; then
+    exit
+fi
 
 # Reserve/upload/test/release
 for platform in $platform_list; do
