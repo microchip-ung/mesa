@@ -1396,6 +1396,7 @@ static vtss_rc srvlt_phy_config(vtss_state_t *vtss_state, u32 port, BOOL enable)
     if (port > 1) {
         return VTSS_RC_OK; // Not internal Phy
     }
+
     // Field: VTSS_F_DEVCPU_GCB_PHY_PHY_CFG_PHY_ENA
     JR2_WRM(VTSS_DEVCPU_GCB_PHY_PHY_CFG, enable ? VTSS_BIT(port) : 0, VTSS_BIT(port));
 
@@ -1802,7 +1803,7 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
     vtss_port_speed_t  speed = conf->speed;
     u32                value;
     BOOL               fdx = conf->fdx, disable = conf->power_down;
-    BOOL               sgmii = 0, if_100fx = 0;
+    BOOL               sgmii = 0, if_100fx = 0, ena_int_phy = 0;
     vtss_serdes_mode_t serdes_mode = VTSS_SERDES_MODE_SGMII;
 #if defined(VTSS_ARCH_SERVAL_T)
     u32 bt_fld = (port == 9) ? 0 : 2;
@@ -1873,8 +1874,12 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
         return VTSS_RC_ERROR;
     }
     // Enable/disable the internal Phy of ServalT
-    VTSS_RC(srvlt_phy_config(vtss_state, port,
-                             (conf->if_type == VTSS_PORT_INTERFACE_SGMII) ? TRUE : FALSE));
+    if ((vtss_state->port.map[port_no].miim_controller == VTSS_MIIM_CONTROLLER_0) &&
+        (conf->if_type == VTSS_PORT_INTERFACE_SGMII)) {
+        ena_int_phy = 1;
+    }
+
+    VTSS_RC(srvlt_phy_config(vtss_state, port, ena_int_phy));
 #endif
 
     if (VTSS_PORT_IS_10G(port)) {
