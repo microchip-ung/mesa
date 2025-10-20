@@ -27,6 +27,7 @@ typedef enum {
 /* Local mapping table */
 typedef struct {
     int32_t                chip_port;
+    int32_t                phy_base_port;
     mesa_miim_controller_t miim_controller;
     uint8_t                miim_addr;
     mesa_port_interface_t  mac_if;
@@ -80,14 +81,14 @@ static port_map_t port_table_adaro[] = {
     // Port |                        | Addr|            INTERFACE    | |
     // Support| Port |
     //---------------------------------------------------------------------------------------------------------------
-    {0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     0},
-    {1, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     1},
-    {2, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     2},
-    {3, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     3}
+    {0, 0, MESA_MIIM_CONTROLLER_0, 0, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 0},
+    {1, 0, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 1},
+    {2, 0, MESA_MIIM_CONTROLLER_0, 2, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 2},
+    {3, 0, MESA_MIIM_CONTROLLER_0, 3, MESA_PORT_INTERFACE_GMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 3}
 };
 
 static port_map_t port_table_sunrise[] = {
@@ -97,16 +98,16 @@ static port_map_t port_table_sunrise[] = {
     // Port |                          | Addr|            INTERFACE | | Support|
     // Port |
     //--------------------------------------------------------------------------------------------------------------------------
-    {0, MESA_MIIM_CONTROLLER_0,    4, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     0},
-    {1, MESA_MIIM_CONTROLLER_0,    5, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     1},
-    {2, MESA_MIIM_CONTROLLER_0,    6, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     2},
-    {3, MESA_MIIM_CONTROLLER_0,    7, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     3},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE,             false,
-     4}
+    {0, 0, MESA_MIIM_CONTROLLER_0,    4, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 0},
+    {1, 0, MESA_MIIM_CONTROLLER_0,    5, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 1},
+    {2, 0, MESA_MIIM_CONTROLLER_0,    6, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 2},
+    {3, 0, MESA_MIIM_CONTROLLER_0,    7, MESA_PORT_INTERFACE_GMII,          MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 3},
+    {4, 0, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE,
+     false, 4}
 };
 
 static port_map_t port_table_8port[] = {
@@ -120,22 +121,22 @@ static port_map_t port_table_8port[] = {
     // Port |                       | Addr|            INTERFACE      | |
     // Support| Port |
     //----------------------------------------------------------------------------------------------------------------
-    {2, MESA_MIIM_CONTROLLER_0, 9,  MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true,
-     0                                                                                                 },
-    {3, MESA_MIIM_CONTROLLER_0, 10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     true,                                                                                            1},
-    {0, MESA_MIIM_CONTROLLER_0, 7,  MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true,
-     2                                                                                                 },
-    {1, MESA_MIIM_CONTROLLER_0, 8,  MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, true,
-     3                                                                                                 },
-    {6, MESA_MIIM_CONTROLLER_0, 17, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     true,                                                                                            4},
-    {7, MESA_MIIM_CONTROLLER_0, 18, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     true,                                                                                            5},
-    {4, MESA_MIIM_CONTROLLER_0, 15, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     true,                                                                                            6},
-    {5, MESA_MIIM_CONTROLLER_0, 16, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
-     true,                                                                                            7}
+    {2, 0, MESA_MIIM_CONTROLLER_0, 9,  MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true, 0},
+    {3, 0, MESA_MIIM_CONTROLLER_0, 10, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true, 1},
+    {0, 0, MESA_MIIM_CONTROLLER_0, 7,  MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true, 2},
+    {1, 0, MESA_MIIM_CONTROLLER_0, 8,  MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true, 3},
+    {6, 4, MESA_MIIM_CONTROLLER_0, 17, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true, 4},
+    {7, 4, MESA_MIIM_CONTROLLER_0, 18, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true, 5},
+    {4, 4, MESA_MIIM_CONTROLLER_0, 15, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true, 6},
+    {5, 4, MESA_MIIM_CONTROLLER_0, 16, MESA_PORT_INTERFACE_QSGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     true, 7}
 };
 
 static port_map_t port_table_endnode[] = {
@@ -145,12 +146,70 @@ static port_map_t port_table_endnode[] = {
     // Port |                          | Addr|            INTERFACE | | Support|
     // Port |
     //--------------------------------------------------------------------------------------------------------------------------
-    {0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
+    {0, 0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 0},
+    {1, 0, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false, 1},
+    {4, 0, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE,
+     false, 2},
+};
+
+#define MEBA_CAP_INT_LAN8814 (MEBA_PORT_CAP_INT_PHY | MEBA_PORT_CAP_TRI_SPEED_COPPER)
+static port_map_t port_table_eds2[] = {
+    //--------------------------------------------------------------------------------------------------------------------------
+    // Chip | MII-Controller           | MII |            MAC |              CAP
+    // | PoE    | PoE  |
+    // Port |                          | Addr|            INTERFACE | | Support|
+    // Port |
+    //--------------------------------------------------------------------------------------------------------------------------
+    {0, 0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_CAP_INT_LAN8814, false, 0},
+    {1, 0, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_CAP_INT_LAN8814, false, 1},
+};
+
+static port_map_t port_table_eds2_lan8840[] = {
+    //--------------------------------------------------------------------------------------------------------------------------
+    // Chip | MII-Controller           | MII |            MAC |              CAP
+    // | PoE    | PoE  |
+    // Port |                          | Addr|            INTERFACE | | Support|
+    // Port |
+    //--------------------------------------------------------------------------------------------------------------------------
+    {0, 0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_CAP_INT_LAN8814,           false, 0},
+    {1, 0, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_CAP_INT_LAN8814,           false, 1},
+    {2, 0, MESA_MIIM_CONTROLLER_0, 1, MESA_PORT_INTERFACE_RGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false,                                                                                             1},
+};
+
+// When using QSGMII, the SERDES_TX_INVERT must be enabled for the EDS2 board
+#define MEBA_CAP_EDS2_LAN8814 (MEBA_PORT_CAP_TRI_SPEED_COPPER | MEBA_PORT_CAP_SERDES_TX_INVERT)
+static port_map_t port_table_eds2_lan8814[] = {
+    //----------------------------------------------------------------------------------------------------
+    // Chip | MII-Controller | MII |     MAC                  |       CAP               | PoE    |
+    // PoE  |
+    // Port |                | Addr| INTERFACE                |                         | Support|
+    // Port |
+    //----------------------------------------------------------------------------------------------------
+    {2, 0, MESA_MIIM_CONTROLLER_0, 9,  MESA_PORT_INTERFACE_QSGMII, MEBA_CAP_EDS2_LAN8814, false, 0},
+    {3, 0, MESA_MIIM_CONTROLLER_0, 10, MESA_PORT_INTERFACE_QSGMII, MEBA_CAP_EDS2_LAN8814, false, 0},
+    {0, 0, MESA_MIIM_CONTROLLER_0, 7,  MESA_PORT_INTERFACE_QSGMII, MEBA_CAP_EDS2_LAN8814, false, 0},
+    {1, 0, MESA_MIIM_CONTROLLER_0, 8,  MESA_PORT_INTERFACE_QSGMII, MEBA_CAP_EDS2_LAN8814, false, 0},
+};
+
+#define MEBA_CAP_EDS2_VSC8574 (MEBA_PORT_CAP_TRI_SPEED_COPPER)
+static port_map_t port_table_eds2_vsc8574[] = {
+    //----------------------------------------------------------------------------------------------------
+    // Chip | MII-Controller | MII |     MAC                  |       CAP               | PoE    |
+    // PoE  |
+    // Port |                | Addr| INTERFACE                |                         | Support|
+    // Port |
+    //----------------------------------------------------------------------------------------------------
+    {0, 0, MESA_MIIM_CONTROLLER_0, 0x10, MESA_PORT_INTERFACE_QSGMII, MEBA_CAP_EDS2_VSC8574, false,
      0},
-    {1, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     1},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE,             false,
-     2},
+    {1, 0, MESA_MIIM_CONTROLLER_0, 0x11, MESA_PORT_INTERFACE_QSGMII, MEBA_CAP_EDS2_VSC8574, false,
+     0},
+    {2, 0, MESA_MIIM_CONTROLLER_0, 0x12, MESA_PORT_INTERFACE_QSGMII, MEBA_CAP_EDS2_VSC8574, false,
+     0},
+    {3, 0, MESA_MIIM_CONTROLLER_0, 0x13, MESA_PORT_INTERFACE_QSGMII, MEBA_CAP_EDS2_VSC8574, false,
+     0},
 };
 
 #define CAP_SFP    (MEBA_PORT_CAP_SFP_2_5G - MEBA_PORT_CAP_100M_FDX)
@@ -165,14 +224,16 @@ static port_map_t port_table_endnode_carrier[] = {
     // Port |                          | Addr|            INTERFACE | | Support|
     // Port |
     //-------------------------------------------------------------------------------------------------------------------------------
-    {0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     0                                                                                                           },
-    {1, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER, false,
-     1                                                                                                           },
-    {2, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES,        CAP_SFP | CAP_SD_EXT,           false, 2},
-    {3, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES,        CAP_SFP | CAP_SD_EXT,           false, 3},
-    {4, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE,             false,
-     4                                                                                                           }
+    {0, 0, MESA_MIIM_CONTROLLER_1,    1, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false,                                                                                                        0},
+    {1, 0, MESA_MIIM_CONTROLLER_1,    2, MESA_PORT_INTERFACE_SGMII,         MEBA_PORT_CAP_TRI_SPEED_COPPER,
+     false,                                                                                                        1},
+    {2, 0, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES,        CAP_SFP | CAP_SD_EXT,           false,
+     2                                                                                                              },
+    {3, 0, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_SERDES,        CAP_SFP | CAP_SD_EXT,           false,
+     3                                                                                                              },
+    {4, 0, MESA_MIIM_CONTROLLER_NONE, 0, MESA_PORT_INTERFACE_NO_CONNECTION, MEBA_PORT_CAP_NONE,
+     false,                                                                                                        4}
 };
 
 #define CAP_SFP_1G ((MEBA_PORT_CAP_SFP_1G - MEBA_PORT_CAP_100M_FDX) | MEBA_PORT_CAP_SFP_SD_HIGH)
@@ -191,18 +252,18 @@ static port_map_t port_table_endnode_carrier_dual[] = {
 //-------------------------------------------------------------------------------------------------------------------------------
 #if 0
     // Copper
-    { 0    , MESA_MIIM_CONTROLLER_1   , 1   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER     , false  , 0    },
-    { 1    , MESA_MIIM_CONTROLLER_1   , 2   , MESA_PORT_INTERFACE_SGMII        , MEBA_PORT_CAP_TRI_SPEED_COPPER     , false  , 1    },
+    { 0, 0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 0 },
+    { 1, 0, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, MEBA_PORT_CAP_TRI_SPEED_COPPER, false, 1 },
 #endif
 #if 0
     // Fiber
-    { 0    , MESA_MIIM_CONTROLLER_NONE, 1   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP_1G                         , false  , 0    },
-    { 1    , MESA_MIIM_CONTROLLER_NONE, 2   , MESA_PORT_INTERFACE_SERDES       , CAP_SFP_1G                         , false  , 1    },
+    { 0, 0, MESA_MIIM_CONTROLLER_NONE, 1, MESA_PORT_INTERFACE_SERDES, CAP_SFP_1G, false, 0 },
+    { 1, 0, MESA_MIIM_CONTROLLER_NONE, 2, MESA_PORT_INTERFACE_SERDES, CAP_SFP_1G, false, 1 },
 #endif
 #if 1
     // Dual (not supported by mesa-demo)
-    {0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, CAP_DUAL, false, 0},
-    {1, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, CAP_DUAL, false, 1},
+    {0, 0, MESA_MIIM_CONTROLLER_1, 1, MESA_PORT_INTERFACE_SGMII, CAP_DUAL, false, 0},
+    {1, 0, MESA_MIIM_CONTROLLER_1, 2, MESA_PORT_INTERFACE_SGMII, CAP_DUAL, false, 1},
 #endif
 };
 
@@ -332,55 +393,31 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
         (void)mesa_ts_external_io_mode_set(NULL, 4, &pps_mode);
         break;
     case BOARD_TYPE_EDS2:
-        for (gpio_no = 32; gpio_no < 36; gpio_no++) {
-            // SGPIO signals
-            (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_2);
+
+        // GPIO 24 is IRQ from PHYs
+        (void)mesa_gpio_mode_set(NULL, 0, GPIO_IRQ, MESA_GPIO_ALT_4);
+        (void)mesa_gpio_event_enable(NULL, 0, GPIO_IRQ, true);
+
+        // GPIO 28/29 are MDC/MDIO
+        for (gpio_no = 28; gpio_no < 30; gpio_no++) {
+            (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_ALT_0);
         }
-        if (mesa_sgpio_conf_get(NULL, 0, 0, &conf) == MESA_RC_OK) {
-            // Mode 0 is 5 Hz, two bits per port are used
-            conf.bmode[0] = MESA_SGPIO_BMODE_5;
-            conf.bit_count = 2;
 
-            for (port = 0; port < 12; port++) {
-                pc = &conf.port_conf[port];
-                pc->enabled = (port < 4 || port > 7); // Port 4-7 unused
+        // No PHY reset ????????????????????????
 
-                // Input port 1: SFP0_TXFAULT, SFP1_TXFAULT (Tx fault)
-                // Input port 2: SFP0_LOS, SFP0_MODDET (Module detect)
-                // Input port 3: SFP1_LOS, SFP1_MODDET (Module detect)
-                if (port > 0 && port < 4) {
-                    pc->int_pol_high[0] = 1;
-                    pc->int_pol_high[1] = 1;
-                }
+        // GPIO 63 is used for PHY coma mode for slot 1
+        gpio_no = 63;
+        (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
+        // GPIO 64 is used for PHY coma mode for slot 2
+        gpio_no = 63;
+        (void)mesa_gpio_mode_set(NULL, 0, gpio_no, MESA_GPIO_OUT);
+        (void)mesa_gpio_write(NULL, 0, gpio_no, 0);
 
-                // Output port  0: P0_GRN, P0_YEL (LED control)
-                // Output port  1: P1_GRN, P1_YEL (LED control)
-                // Output port  2: SFP0_GR, SFP0_RD (LED control), S0_BLU/S0_GRN
-                // (Endnode) Output port  3: SFP1_GR, SFP1_RD (LED control),
-                // S1_BLU/S1_GRN (Endnode) Output port  8: SFP0_RS0, SFP0_RS1
-                // (Rate select) Output port  9: SFP1_RS0, SFP1_RS1 (Rate select)
-                // Output port 10: SFP0_TXEN, SFP1_TXEN (Tx enable)
-                // Output port 11: SFP0_SCKEN, SFP1_SCKEN (I2C clock select)
-                if (port < 2) {
-                    // Port 0/1 LED control, turn green on and yellow off while
-                    // booting
-                    pc->mode[0] = MESA_SGPIO_MODE_OFF;
-                    pc->mode[1] = MESA_SGPIO_MODE_ON;
-                } else if (port < 4) {
-                    // Port 2/3 LED control, turn green on and red off while
-                    // booting Endnode: Turn blue/green off (Carrier SFP ports
-                    // not present)
-                    pc->mode[0] = (board->type == BOARD_TYPE_ENDNODE ? MESA_SGPIO_MODE_ON
-                                                                     : MESA_SGPIO_MODE_OFF);
-                    pc->mode[1] = MESA_SGPIO_MODE_ON;
-                } else if (port == 8 || port == 9) {
-                    // Rate select
-                    pc->mode[0] = MESA_SGPIO_MODE_ON;
-                    pc->mode[1] = MESA_SGPIO_MODE_ON;
-                }
-            }
-            (void)mesa_sgpio_conf_set(NULL, 0, 0, &conf);
-        }
+        // TODO: PPS configuration for PHYs
+
+        // SGPIO not used by daughter cards
+
         break;
 
     default: break;
@@ -391,6 +428,7 @@ static mesa_rc lan966x_board_init(meba_inst_t inst)
 static void port_entry_map(meba_port_entry_t *entry, port_map_t *map)
 {
     entry->map.chip_port = map->chip_port;
+    entry->phy_base_port = map->phy_base_port;
     entry->map.miim_controller = map->miim_controller;
     entry->map.miim_addr = map->miim_addr;
     entry->mac_if = map->mac_if;
@@ -408,11 +446,6 @@ static void lan966x_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *
     board->port_cnt = port_cnt;
     for (port_no = 0; port_no < port_cnt; port_no++) {
         port_entry_map(&board->entry[port_no], &map[port_no]);
-        // Link phy base port for 8 port board.
-        if (board->type == BOARD_TYPE_8PORT) {
-            board->entry[port_no].phy_base_port = port_no >= 4 && port_no <= 7 ? 4 : 0;
-        }
-
         T_I(inst, "port_no= %d, poe_support=%d", port_no, board->entry->poe_support);
     }
 }
@@ -571,7 +604,7 @@ static mesa_rc lan966x_reset(meba_inst_t inst, meba_reset_point_t reset)
     case MEBA_BOARD_INITIALIZE: rc = lan966x_board_init(inst); break;
 
     case MEBA_PORT_LED_INITIALIZE:
-        if (board->type == BOARD_TYPE_8PORT) {
+        if (board->type == BOARD_TYPE_8PORT || board->type == BOARD_TYPE_EDS2) {
             mesa_port_no_t   port_no;
             mepa_gpio_conf_t conf;
 
@@ -844,6 +877,14 @@ repeat_handler:
             }
             handled = 1;
         }
+        if (board->type == BOARD_TYPE_EDS2 && gpio_events[GPIO_IRQ]) {
+            for (port_no = 0; port_no < board->port_cnt; port_no++) {
+                if ((board->entry[port_no].cap & MEBA_PORT_CAP_INT_PHY) == MEBA_PORT_CAP_INT_PHY) {
+                    (void)meba_generic_phy_event_check(inst, port_no, signal_notifier);
+                }
+            }
+            handled = 1;
+        }
         // Check the timestamp events.
         if (board->type == BOARD_TYPE_8PORT && gpio_events[GPIO_IRQ]) {
             for (port_no = 0; port_no < board->port_cnt; port_no++) {
@@ -1029,12 +1070,61 @@ static mesa_rc lan966x_event_enable(meba_inst_t inst, meba_event_t event_id, mes
     return rc;
 }
 
+const char *ev16r73a = "EV16R73A";
+const char *ev12n54a = "EV12N54A";
+const char *ev87s66a = "EV87S66A";
+
+mesa_rc read_plugin_module(int address, const char **plugin_module)
+{
+    char eeprom_name[128];
+    char eeprom[128];
+
+    *plugin_module = NULL; // No plugin module found yet;
+
+    sprintf(eeprom_name, "/sys/bus/i2c/devices/0-00%x/eeprom", address);
+
+    FILE *f = fopen(eeprom_name, "r");
+    if (!f) {
+        return MESA_RC_ERROR;
+    }
+
+    int i;
+    for (i = 0; i < sizeof(eeprom) - 1; ++i) {
+        int c = fgetc(f);
+        if (c < 0) {
+            break;
+        }
+        eeprom[i] = c;
+    }
+    eeprom[i] = 0;
+    fclose(f);
+
+    char *p = eeprom;
+    while (p < eeprom + sizeof(eeprom) - 1) {
+        if (strstr(p, ev16r73a)) {
+            *plugin_module = ev16r73a;
+            return MESA_RC_OK;
+        } else if (strstr(p, ev12n54a)) {
+            *plugin_module = ev12n54a;
+            return MESA_RC_OK;
+        } else if (strstr(p, ev87s66a)) {
+            *plugin_module = ev87s66a;
+            return MESA_RC_OK;
+        }
+        p += strlen(p) + 1;
+    }
+
+    // Unrecognized pluging module
+    return MESA_RC_OK;
+}
+
 meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *callouts)
 {
     meba_inst_t         inst;
     meba_board_state_t *board;
     int                 pcb;
     uint32_t            type;
+    const char         *plugin_module;
 
     if (callouts_size < sizeof(*callouts)) {
         fprintf(stderr, "Callouts size problem, expected %zd, got %zd\n", sizeof(*callouts),
@@ -1096,8 +1186,47 @@ meba_inst_t meba_initialize(size_t callouts_size, const meba_board_interface_t *
             lan966x_init_port_table(inst, 5, port_table_endnode_carrier);
         }
         break;
-    case BOARD_TYPE_EDS2: lan966x_init_port_table(inst, 2, port_table_endnode);
-    default:              break;
+    case BOARD_TYPE_EDS2:
+        // The configuration of mux_mode dependes on the intended usage of the EDS board
+        // LAN966X
+        // MESA_PORT_MUX_MODE_0: 2xQSGMII (LAN9668)
+        // MESA_PORT_MUX_MODE_1: 2xCu + 2x2.5G (+ 1xQSGMII for LAN9668)
+        // MESA_PORT_MUX_MODE_2: 2xCu + 1x2.5G + 2xRGMII
+        // MESA_PORT_MUX_MODE_3: 2xCu + 2xRGMII + 1xQSGMII (LAN9668)
+        // MESA_PORT_MUX_MODE_5: 2xCu + 3x1G (LAN9668)
+
+        if (MESA_RC_ERROR == read_plugin_module(0x54, &plugin_module)) {
+            printf("No plugin module found, use internal PHY only\n");
+            // Just using the builtin PHYs
+            inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
+            lan966x_init_port_table(inst, 2, port_table_eds2);
+        } else if (plugin_module == ev16r73a) {
+            printf("Found plugin module %s in slot A\n", ev16r73a);
+            // Using QSGMII for both plugin modules
+            inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
+            lan966x_init_port_table(inst, sizeof(port_table_eds2_vsc8574) / sizeof(port_map_t),
+                                    port_table_eds2_vsc8574);
+        } else if (plugin_module == ev12n54a) {
+            printf("Found plugin module %s in slot A\n", ev12n54a);
+            // Using the builtin PHYs + LAN8840 in first slot
+            inst->props.mux_mode = MESA_PORT_MUX_MODE_3;
+            lan966x_init_port_table(inst, sizeof(port_table_eds2_lan8840) / sizeof(port_map_t),
+                                    port_table_eds2_lan8840);
+        } else if (plugin_module == ev87s66a) {
+            printf("Found plugin module %s in slot A\n", ev87s66a);
+            // Using QSGMII for both plugin modules
+            inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
+            lan966x_init_port_table(inst, sizeof(port_table_eds2_lan8814) / sizeof(port_map_t),
+                                    port_table_eds2_lan8814);
+        } else {
+            printf("Unrecognized plugin module in slot A, assume %s\n", ev87s66a);
+            inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
+            lan966x_init_port_table(inst, sizeof(port_table_eds2_lan8814) / sizeof(port_map_t),
+                                    port_table_eds2_lan8814);
+        }
+
+        break;
+    default: break;
     }
 
     inst->props.board_type = board->type;
