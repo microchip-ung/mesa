@@ -1623,7 +1623,9 @@ test "test_run" do
     end
     jira_appl_3396_test
     if (($ts.dut.looped_port_list != nil) && ($ts.dut.looped_port_list.length > 1))
-        jira_appl_3433_test
+        if ($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_SPARX5"))
+            jira_appl_3433_test
+        end
         jira_mesa_1047_test
     end
 
