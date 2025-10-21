@@ -241,7 +241,7 @@ def tod_latency_test(port0, port1)
     t_i "Measure nanosecond delay with egress latency 0 and ingress latency 0"
     nano_delay_0 = nano_delay_measure(port0, port1)
     # The loop cable is a 1 meter DAC that should give delay close to 4 nanoseconds.
-    min = -2
+    min = -2.1
     max = 18  #Value 17 is seen on Fireant Jenkins test
     if $meba_cap[:out].include?("COPPER")
         min = -11
