@@ -428,6 +428,8 @@ def http_del url
     return
   end
 
+  url = url.gsub("/api/storage","")
+
   uri = URI(url)
 
   req = Net::HTTP::Delete.new(uri, 'Content-Type' => 'application/octet-stream', 'Accept' => '*/*')
@@ -654,7 +656,10 @@ def promote_build url
   # before going through the manifest file and updating the unge-keep-until
   # property set the keep_until to a high value (100 years),
   $keep_until = Time.now + ($days * 24 * 60 * 60)
-  update_keep_until_deps manifest["dependencies"]
+
+  if not manifest["dependencies"].nil?
+    update_keep_until_deps manifest["dependencies"]
+  end
 
   # now update also the keep until on the manifest file
   http_set_keep_until url, $keep_until + $buffer
@@ -757,58 +762,62 @@ def delete_manifest url
   body = http_get url
   manifest = JSON.parse(body)
 
-  threads = []
-  manifest["dependencies"].each do |d|
-    func = -> (d) {
-      if d["type"] == "generic-file"
-        time = http_get_keep_until d["generic-file-url"]
-        if time < Time.now
-          http_del d["generic-file-url"]
-        end
-      elsif d["type"] == "docker"
-        u = URI.parse("https://#{d["docker-path"]}")
-        repo = "unknown"
-        case u.port
-        when 7996
-          repo = "ung-docker-dev-local"
-        else
-          raise "Unexpected port: #{u.port}, in #{d.inspect}"
-        end
-        manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
-        manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
+  if not manifest["dependencies"].nil?
+    threads = []
+    manifest["dependencies"].each do |d|
+      func = -> (d) {
+        if d["type"] == "generic-file"
+          time = http_get_keep_until d["generic-file-url"]
+          if time < Time.now
+            http_del d["generic-file-url"]
+          end
+        elsif d["type"] == "docker"
+          u = URI.parse("https://#{d["docker-path"]}")
+          repo = "unknown"
+          case u.port
+          when 7996
+            repo = "ung-docker-dev-local"
+          else
+            raise "Unexpected port: #{u.port}, in #{d.inspect}"
+          end
+          manifest_file = "#{repo}/#{u.path}/#{d["docker-tag"]}/manifest.json"
+          manifest_file = "https://artifacts-aws.devops.microchip.com/artifactory/#{manifest_file}"
 
-        time = http_get_keep_until manifest_file
-        if time < Time.now
-          http_del "#{repo}/#{u.path}/#{d["docker-tag"]}"
+          time = http_get_keep_until manifest_file
+          if time < Time.now
+            http_del "https://artifacts-aws.devops.microchip.com/artifactory/#{repo}/#{u.path}/#{d["docker-tag"]}"
+          end
+        elsif d["type"] == "build-artifact"
+          delete_manifest "#{d["build-artifact-url"]}/manifest.json"
         end
-      elsif d["type"] == "build-artifact"
-        delete_manifest "#{d["build-artifact-url"]}/manifest.json"
+      }
+      if $threads_support == true
+        threads << Thread.new { func.call(d) }
+      else
+        func.call(d)
       end
-    }
-    if $threads_support == true
-      threads << Thread.new { func.call(d) }
-    else
-      func.call(d)
     end
-  end
-  threads.each do |t|
-    t.join
+    threads.each do |t|
+      t.join
+    end
   end
 
   url_path = url.sub("/manifest.json", "")
   threads = []
-  manifest["files"].each do |f|
-    func = -> (f, url_path) {
-      http_del "#{url_path}/#{f["path"]}"
-    }
-    if $threads_support == true
-      threads << Thread.new { func.call(f, url) }
-    else
-      func.call(f, url)
+  if not manifest["files"].nil?
+    manifest["files"].each do |f|
+      func = -> (f, url_path) {
+        http_del "#{url_path}/#{f["path"]}"
+      }
+      if $threads_support == true
+        threads << Thread.new { func.call(f, url_path) }
+      else
+        func.call(f, url_path)
+      end
     end
-  end
-  threads.each do |t|
-    t.join
+    threads.each do |t|
+      t.join
+    end
   end
 
   http_del url
@@ -867,28 +876,38 @@ def clear_path base, url
   if exists_manifest(info)
     time = http_get_keep_until "#{content_base}#{url}/manifest.json"
     if time <= Time.now
+      # this will go through dependencies and call delete for each of them and
+      # then delete all the files in the manifest and the manifest file
       delete_manifest "#{content_base}#{url}/manifest.json"
 
-      # call itself again to delete files that are not in manifest
-      clear_path base, url
+      # Now delete the entire folder, just in case there are files that were not
+      # in the manifest file but added there by mistake.
+      http_del "#{content_base}#{url}"
     else
-      # read the manifest files and the files under the current directory
-      files_manifest = read_manifest_files "#{content_base}#{url}/manifest.json"
-      files_path = get_path_files "#{base}#{url}", ""
+      # if we don't need to delete the folder we are searching for files that
+      # are not in the manifest file to delete them, the problem with the docker
+      # repo is that there is a manifest file and doesn't have the same content
+      # as the manifest files we create, so this will fail. So for now just
+      # don't check for other files under the docker repo
+      if not url.include?("ung-docker-dev-local")
+        # read the manifest files and the files under the current directory
+        files_manifest = read_manifest_files "#{content_base}#{url}/manifest.json"
+        files_path = get_path_files "#{base}#{url}", ""
 
-      # find files that are in the manifest file but not in files_path
-      tmp = files_manifest - files_path
-      if tmp.size != 0
-        puts "The following files don't exist anymore #{tmp}"
-      end
+        # find files that are in the manifest file but not in files_path
+        tmp = files_manifest - files_path
+        if tmp.size != 0
+          puts "The following files don't exist anymore #{tmp}"
+        end
 
-      # find files that are in files path but not in the manifest files,
-      # these files need to be removed, there is an issue if someone does
-      # this
-      tmp = files_path - files_manifest
-      if tmp.size != 0
-        tmp.each do |f|
-          http_del "#{base}#{url}/#{f}"
+        # find files that are in files path but not in the manifest files,
+        # these files need to be removed, there is an issue if someone does
+        # this
+        tmp = files_path - files_manifest
+        if tmp.size != 0
+          tmp.each do |f|
+            http_del "#{base}#{url}/#{f}"
+          end
         end
       end
     end
@@ -902,7 +921,7 @@ def clear_path base, url
       else
         time = http_get_keep_until "#{content_base}#{url}#{c["uri"]}"
         if time <= Time.now
-          http_del "#{base}/#{url}/#{c["uri"]}"
+          http_del "#{base}#{url}#{c["uri"]}"
         end
       end
     end
@@ -941,7 +960,8 @@ $user = ENV["ARTIFACTORY_USER"]
 $branch = ENV["GIT_BRANCH"]
 $sha = ENV["GIT_COMMIT"]
 $build_no = ENV["BUILD_NUMBER"]
-$days = 10
+$days = nil
+$until = nil
 $buffer = 5 * 24 * 60 * 60
 $verbose = 0
 $dep_file = []
@@ -1068,6 +1088,11 @@ Options:"""
     $days = d
   end
 
+  opts.on("-u", "--until <STRING>", "Date until the artifacts need to be save. If both days and until",
+          "are pass then the until option take precedence over days") do |u|
+    $until = Date.parse(u)
+  end
+
   opts.on("--dep-generic-file-dst <STRING>", "Instead of uploading the list of files to the usual\n",
           "ung-generic-dev-local/<ROOT>/<REPO-BASE>/<BRANCH>/<BUILD-NO>/... location, upload to the specified path\n",
           "This will also add the files to the manifest.json file as a generic-file dependency.\n",
@@ -1133,6 +1158,20 @@ $upload_list = ARGV.clone
 if $incremental and $final
   puts "-i and -f are mutually exclusive"
   exit -1
+end
+
+if $days and $until
+  puts "--days and --until are mutually exclusive"
+  exit -1
+
+elsif $until
+  $days = $until - Date.today;
+  # as the $days get the Rational type change it to be an Integer as before
+  $days = $days.to_i()
+
+elsif not $days
+  $days = 10
+
 end
 
 if $cmd.nil?
