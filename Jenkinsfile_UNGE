@@ -144,7 +144,7 @@ pipeline {
 
         stage("aggr-bin's") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'Test', usernameVariable: 'ARTIFACTORY_USER', passwordVariable: 'ARTIFACTORY_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'Test4', usernameVariable: 'ARTIFACTORY_USER', passwordVariable: 'ARTIFACTORY_PASS')]) {
                     container('pod-mesa-base') {
                         unstash name: "bin-mipsel"
                         unstash name: "bin-arm64"
