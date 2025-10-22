@@ -10,7 +10,7 @@ $ts = get_test_setup("mesa_pc_b2b_4x")
 check_capabilities do
     $dpl_cnt = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_DPL_CNT")
     $chip_family = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-    $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
+    $cap_dwrr_mode = $ts.dut.call("mesa_capability", "MESA_CAP_QOS_SCHEDULER_MODE_DWRR")
     assert(($cap_family != chip_family_to_id("MESA_CHIP_FAMILY_LAN969X")) || ($cap_fpga != 0), "This test must be checked on Laguna chip")
 end
 
@@ -166,6 +166,95 @@ test "Weighted scheduling with 10, 30 and 60 percent test from #{ig_list} to #{$
         measure(ig, eg, 1000, 1,     false,            false,           [erate0,erate1,erate2], [4,6.5,5.1],   true,              [0,1,2])
     end
     end
+end
+
+if ($cap_dwrr_mode == 1)
+test "Weighted frame scheduling with 10, 30 and 60 percent test from #{ig_list} to #{$ts.dut.p[eg]}" do
+    # Expect distribution of frames in queue 0..2 based on weights (10%, 30%, 60%)
+    w0 = 10
+    w1 = 30
+    w2 = 60
+    s0 = 64+20
+    s1 = 512+20
+    s2 = 1024+20
+
+    conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[eg])
+    conf["dwrr_enable"] = true
+    conf["dwrr_mode"] = "MESA_DWWR_MODE_FRAME"
+    conf["dwrr_cnt"] = 3
+    conf["queue"][0]["pct"] = w0
+    conf["queue"][1]["pct"] = w1
+    conf["queue"][2]["pct"] = w2
+    conf = $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], conf)
+
+# Calculate the number of frames received in one second
+
+#   (s0*n0 + s1*n1 + s2*n2)*8 = 1000000000
+#   w0*n1 = w1*n0
+#   n1 = (w1*n0)/w0
+#   w0*n2 = w2*n0
+#   n2 = (w2*n0)/w0
+#   (s0*n0 + s1*(w1*n0)/w0 + s2*(w2*n0)/w0)*8 = 1000000000
+#   n0*(s0 + s1*w1/w0 + s2*w2/w0)*8 = 1000000000
+    n0 = 1000000000/((s0 + s1*w1/w0 + s2*w2/w0)*8)
+
+#   (s0*n0 + s1*n1 + s2*n2)*8 = 1000000000
+#   w1*n0 = w0*n1
+#   n0 = (w0*n1)/w1
+#   w1*n2 = w2*n1
+#   n2 = (w2*n1)/w1
+#   (s0*(w0*n1)/w1 + s1*n1 + s2*(w2*n1)/w1)*8 = 1000000000
+#   n1*(s0*w0/w1 + s1 + s2*w2/w1)*8 = 1000000000
+    n1 = 1000000000/((s0*w0/w1 + s1 + s2*w2/w1)*8)
+
+#   (s0*n0 + s1*n1 + s2*n2)*8 = 1000000000
+#   w2*n0 = w0*n2
+#   n0 = (w0*n2)/w2
+#   w2*n1 = w1*n2
+#   n1 = (w1*n2)/w2
+#   (s0*(w0*n2)/w2 + s1*(w1*n2)/w2 + s2*n2)*8 = 1000000000
+#   n2*(s0*w0/w2 + s1*w1/w2 + s2)*8 = 1000000000
+    n2 = 1000000000/((s0*w0/w2 + s1*w1/w2 + s2)*8)
+
+   #measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1,   with_pre_tx=false, pcp=MEASURE_PCP_NONE)
+    measure(ig, eg, 1000, 1,     true,            false,           [n0,n1,n2],        [5.5,8.5,2.5], true,              [0,1,2], [], [(s0-20),(s1-20),(s2-20)])
+end
+
+test "Weighted frame scheduling TC11 test with 2, 3 percent from #{ig_list} to #{$ts.dut.p[eg]}" do
+    # Expect distribution of frames in queue 0..2 based on weights (10%, 30%, 60%)
+    w0 = 2
+    w1 = 3
+    s0 = 64+20
+    s1 = 1500+20
+
+    conf = $ts.dut.call("mesa_qos_port_conf_get", $ts.dut.p[eg])
+    conf["dwrr_enable"] = true
+    conf["dwrr_mode"] = "MESA_DWWR_MODE_FRAME"
+    conf["dwrr_cnt"] = 2
+    conf["queue"][0]["pct"] = w0
+    conf["queue"][1]["pct"] = w1
+    conf = $ts.dut.call("mesa_qos_port_conf_set", $ts.dut.p[eg], conf)
+
+# Calculate the number of frames received in one second
+
+#   (s0*n0 + s1*n1)*8 = 1000000000
+#   w0*n1 = w1*n0
+#   n1 = (w1*n0)/w0
+#   (s0*n0 + s1*(w1*n0)/w0)*8 = 1000000000
+#   n0*(s0 + s1*w1/w0)*8 = 1000000000
+    n0 = 1000000000/((s0 + s1*w1/w0)*8)
+
+#   (s0*n0 + s1*n1)*8 = 1000000000
+#   w1*n0 = w0*n1
+#   n0 = (w0*n1)/w1
+#   (s0*(w0*n1)/w1 + s1*n1)*8 = 1000000000
+#   n1*(s0*w0/w1 + s1)*8 = 1000000000
+    n1 = 1000000000/((s0*w0/w1 + s1)*8)
+
+    ig.pop
+   #measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=1000000000, tolerance=1, with_pre_tx=false, pcp=MEASURE_PCP_NONE)
+    measure(ig, eg, 1000, 1,     true,            false,            [n0,n1],          [3,1.5],   true,              [0,1], [], [(s0-20),(s1-20)])
+end
 end
 
 # Restore configuration

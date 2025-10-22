@@ -191,6 +191,7 @@ typedef enum {
     MESA_CAP_QOS_EGRESS_MAP_CNT,            /**< Number of QoS egress map entries */
     MESA_CAP_QOS_COSID_CLASSIFICATION,      /**< COSID classification */
     MESA_CAP_QOS_SCHEDULER_CNT_DWRR,        /**< Number of queues in DWRR mode */
+    MESA_CAP_QOS_SCHEDULER_MODE_DWRR,       /**< The DWRR account mode is supported */
     MESA_CAP_QOS_CPU_PORT_SHAPER,           /**< CPU port shaper */
     MESA_CAP_QOS_WRED,                      /**< WRED */
     MESA_CAP_QOS_DLB_CM,                    /**< DLB policer Color Mode */

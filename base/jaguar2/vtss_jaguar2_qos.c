@@ -280,7 +280,7 @@ static vtss_rc jr2_qos_dwrr_conf_set(vtss_state_t *vtss_state, const vtss_port_n
     u32 se = chip_port;              /* Default se for JAGUAR_2_C or SERVAL_T when HQoS is
                                         not present */
     u8  dwrr_cost[8] = {0};
-    u32 dwrr_cnt, dwrr_num;
+    u32 dwrr_cnt, dwrr_num, dwrr_mode;
     int queue;
 
     /* DWRR configuration */
@@ -313,8 +313,11 @@ static vtss_rc jr2_qos_dwrr_conf_set(vtss_state_t *vtss_state, const vtss_port_n
             VTSS_M_HSCH_HSCH_MISC_HSCH_CFG_CFG_HSCH_LAYER |
                 VTSS_M_HSCH_HSCH_MISC_HSCH_CFG_CFG_CFG_SE_IDX);
 
-    JR2_WRM(VTSS_HSCH_HSCH_CFG_SE_CFG(se), VTSS_F_HSCH_HSCH_CFG_SE_CFG_SE_DWRR_CNT(dwrr_cnt),
-            VTSS_M_HSCH_HSCH_CFG_SE_CFG_SE_DWRR_CNT);
+    dwrr_mode = (conf->dwrr_mode == VTSS_DWWR_MODE_LINE) ? 0 : 2;
+    JR2_WRM(VTSS_HSCH_HSCH_CFG_SE_CFG(se),
+            VTSS_F_HSCH_HSCH_CFG_SE_CFG_SE_DWRR_CNT(dwrr_cnt) |
+                VTSS_F_HSCH_HSCH_CFG_SE_CFG_SE_DWRR_FRM_MODE(dwrr_mode),
+            VTSS_M_HSCH_HSCH_CFG_SE_CFG_SE_DWRR_CNT | VTSS_M_HSCH_HSCH_CFG_SE_CFG_SE_DWRR_FRM_MODE);
 
     VTSS_RC(vtss_cmn_qos_weight2cost(conf->queue_pct, dwrr_cost, dwrr_num,
                                      VTSS_QOS_DWRR_COST_BIT_WIDTH));

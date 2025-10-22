@@ -322,20 +322,27 @@ typedef struct {
     mesa_pct_t    pct;    // The DWRR Queue percentage if DWRR is enabled ('dwrr_enable')
 } mesa_qos_port_ot_queue_conf_t;
 
+// DWRR Accounting Mode
+typedef enum {
+    MESA_DWWR_MODE_LINE, // DWRR Cost is frame length on the line
+    MESA_DWWR_MODE_FRAME // DWRR cost is one per frame
+} mesa_dwrr_mode_t CAP(QOS_SCHEDULER_MODE_DWRR);
+
 // QoS configuration per PORT
 typedef struct {
-    mesa_shaper_t             shaper;             // Egress port shaper
-    mesa_prio_t               default_prio;       // Default ingress priority (QoS class)
-    mesa_dp_level_t           default_dpl;        // Default ingress drop precedence level
-    mesa_qos_port_tag_conf_t  tag;                // VLAN tag configuration
-    mesa_qos_port_dscp_conf_t dscp;               // DSCP configuration
-    mesa_bool_t               dwrr_enable;        // Enable Deficit Weighted Round Robin (DWRR)
-                                                  // fairness scheduling.
-    uint8_t dwrr_cnt CAP(QOS_SCHEDULER_CNT_DWRR); // Number of queues running in DWRR mode
+    mesa_shaper_t             shaper;       // Egress port shaper
+    mesa_prio_t               default_prio; // Default ingress priority (QoS class)
+    mesa_dp_level_t           default_dpl;  // Default ingress drop precedence level
+    mesa_qos_port_tag_conf_t  tag;          // VLAN tag configuration
+    mesa_qos_port_dscp_conf_t dscp;         // DSCP configuration
+    mesa_bool_t               dwrr_enable;  // Enable Deficit Weighted Round Robin (DWRR)
+                                            // fairness scheduling.
+    mesa_dwrr_mode_t dwrr_mode CAP(QOS_SCHEDULER_MODE_DWRR); // The DWRR account mode
+    uint8_t dwrr_cnt           CAP(QOS_SCHEDULER_CNT_DWRR); // Number of queues running in DWRR mode
                                                   // starting from queue 0. Value 3 means that
                                                   // queue 0 to 2 is running DWRR scheduling.
-    mesa_bool_t dmac_dip CAP(QOS_QCL_DMAC_DIP);   // QCL lookup matching on DMAC/DIP (default is
-                                                  // SMAC/SIP)
+    mesa_bool_t dmac_dip CAP(QOS_QCL_DMAC_DIP); // QCL lookup matching on DMAC/DIP (default is
+                                                // SMAC/SIP)
     mesa_vcap_key_type_t key_type CAP(QOS_QCL_KEY_TYPE); // QCL lookup key type for received frames
     mesa_wred_group_t wred_group
                        CAP(QOS_WRED_GROUP_CNT);       // WRED group number of this port - zero based

@@ -494,19 +494,23 @@ def counter_get(direction, port)
 end
 
 MEASURE_PCP_NONE = 0xFFFF
-def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[1000000000], etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[])
-    test "measure  ig: #{ig}  eg: #{eg}  size: #{size}  sec: #{sec}  frame_rate #{frame_rate}  data_rate #{data_rate}  erate #{erate}  etolerance #{etolerance}  with_pre_tx: #{with_pre_tx}  pcp #{pcp}  cycle_time #{cycle_time}" do
-
-    sec_count_in = 1000000000/8/(20+size)    # Calculate frames per second at line speed. The ef tx function can only run at line speed. The 'size' parameter is the requested frame size inclusive checksum
-    t_i("Calculated frames per sec at line speed: #{sec_count_in}")
+def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[1000000000], etolerance=[1], with_pre_tx=false, pcp=[], cycle_time=[], size_array=[])
+    test "measure  ig: #{ig}  eg: #{eg}  size: #{size}  sec: #{sec}  frame_rate #{frame_rate}  data_rate #{data_rate}  erate #{erate}  etolerance #{etolerance}  with_pre_tx: #{with_pre_tx}  pcp #{pcp}  cycle_time #{cycle_time}  size_array #{size_array}" do
 
     pre_tx = with_pre_tx ? 1 : 0    # Calculate the possible pre tx time in seconds
-    t_i("Start Easy Frame transmitting #{sec*sec_count_in} frames of size #{size} with #{pre_tx} sec of pre TX and 2 sec of post TX. Speed is 1 Gbps.")
     time = (pre_tx+sec+100)     # Calculate the required seconds that the transmitter must at least (+100) be transmitting
-    rep = time*sec_count_in     # Convert the required transmission seconds to number of frames, as this is the parameter to ef tx function
     pid_ef = []
     max_cnt = 50
     ig.each_with_index do |ig_value, ig_idx|
+        if (size_array != [])
+            size = size_array[ig_idx]
+        end
+
+        sec_count_in = 1000000000/8/(20+size)    # Calculate frames per second at line speed. The ef tx function can only run at line speed. The 'size' parameter is the requested frame size inclusive checksum
+        rep = time*sec_count_in     # Convert the required transmission seconds to number of frames, as this is the parameter to ef tx function
+
+#        t_i("Calculated frames per sec at line speed: #{sec_count_in}")
+        t_i("Start Easy Frame transmitting #{sec*sec_count_in} frames of size #{size} with #{pre_tx} sec of pre TX and 2 sec of post TX. Speed is 1 Gbps.")
         if (pcp != [])
             pid_ef << $ts.pc.bg("ef tx #{pcp[ig_idx]}", "sudo ef tx #{$ts.pc.p[ig_value]} rep #{rep} eth dmac 00:00:00:00:01:01 smac 00:00:00:00:01:1#{ig_idx} ctag vid 0 pcp #{pcp[ig_idx]} data pattern cnt #{size - (6+6+4+2+4)}") # 'size' is requested frame size inclusive checksum
         else
@@ -571,7 +575,6 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
     end
 
     t_i("Analyze pcap file")
-    sec_count_out = 1000000000/8/((data_rate ? 0 : 20)+size)  # This is the theoretical full rate number of outgoing frames per sec. 'size' is requested frame size inclusive checksum
     expected_count = ""
     expected_tolerance = ""
     expected_pcp = ""
@@ -579,8 +582,14 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
 
     if (pcp != [])
         pcp.each_with_index do |pcp_value, pcp_idx|
+            if (size_array != [])
+                size = size_array[pcp_idx]
+            end
+            sec_count_in = 1000000000/8/(20+size)    # Calculate frames per second at line speed. The ef tx function can only run at line speed. The 'size' parameter is the requested frame size inclusive checksum
+            sec_count_out = 1000000000/8/((data_rate ? 0 : 20)+size)  # This is the theoretical full rate number of outgoing frames per sec. 'size' is requested frame size inclusive checksum
             sec_count = (sec_count_out*erate[pcp_idx])/1000000000   # Number of outgoing frames per sec as a fraction of the full rate count
             sec_count = (sec_count < sec_count_in) ? sec_count : sec_count_in   # Number of outgoing frames cannot be larger than the number of incoming. In case of data rate and line speed shaping this could be calculated
+
             expected_pcp << "#{pcp_value},"
             count = frame_rate ? sec*erate[pcp_idx] : sec*sec_count
             expected_count << "#{count},"
@@ -593,6 +602,8 @@ def measure(ig, eg, size, sec=1, frame_rate=false, data_rate=false, erate=[10000
         end
         $ts.pc.try("pcap_analyze.rb --frame-count pcp --pre-tx-sec #{pre_tx} --count-sec #{sec} --pcp_values #{expected_pcp} --exp-count #{expected_count} --exp-tolerance #{expected_tolerance} #{expected_cycle} /tmp/dump.pcap")
     else
+        sec_count_in = 1000000000/8/(20+size)    # Calculate frames per second at line speed. The ef tx function can only run at line speed. The 'size' parameter is the requested frame size inclusive checksum
+        sec_count_out = 1000000000/8/((data_rate ? 0 : 20)+size)  # This is the theoretical full rate number of outgoing frames per sec. 'size' is requested frame size inclusive checksum
         sec_count = (sec_count_out*erate[0])/1000000000   # Number of outgoing frames per sec as a fraction of the full rate count
         sec_count = (sec_count < sec_count_in) ? sec_count : sec_count_in   # Number of outgoing frames cannot be larger than the number of incomming. In case of data rate and line speed shaping this could be calculated
         expected_count = frame_rate ? sec*erate[0] : sec*sec_count

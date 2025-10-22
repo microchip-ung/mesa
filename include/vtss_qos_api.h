@@ -371,6 +371,12 @@ typedef enum {
 #endif                        /* VTSS_FEATURE_QOS_DSCP_REMARK_DP_AWARE */
 } vtss_dscp_emode_t;
 
+// DWRR Accounting Mode
+typedef enum {
+    VTSS_DWWR_MODE_LINE, // DWRR Cost is frame length on the line
+    VTSS_DWWR_MODE_FRAME // DWRR cost is one per frame
+} vtss_dwrr_mode_t;
+
 /** \page qos
 
     \section port_conf Port Configuration
@@ -436,6 +442,9 @@ typedef struct {
                                                         DP level to DEI */
 
     BOOL dwrr_enable; /**< Enable Weighted fairness queueing */
+#if defined(VTSS_FEATURE_QOS_SCHEDULER_DWRR_MODE)
+    vtss_dwrr_mode_t dwrr_mode; /**< The DWRR account mode */
+#endif                          /* VTSS_FEATURE_QOS_SCHEDULER_DWRR_MODE */
 #if defined(VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT)
     u8 dwrr_cnt; /**< Number of queues, starting from queue 0, running in DWRR
                     mode */

@@ -187,6 +187,8 @@
                                                         2 support */
 #define VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT          /**< QoS: Scheduler supports                  \
                                                         variable number of DWRR inputs    */
+#define VTSS_FEATURE_QOS_SCHEDULER_DWRR_MODE         /**< QoS: Scheduler supports                  \
+                                                        different account modes    */
 #define VTSS_FEATURE_QOS_COSID_CLASSIFICATION        /**< QoS: Has COSID                           \
                                                         classification per port */
 #define VTSS_FEATURE_QOS_EGRESS_SHAPERS_RT           /**< Qos: Egress shapers have rate            \
@@ -474,6 +476,8 @@
 #define VTSS_FEATURE_QOS_SCHEDULER_V2                /**< QoS: 2. version of scheduler */
 #define VTSS_FEATURE_QOS_SCHEDULER_DWRR_CNT          /**< QoS: Scheduler supports                  \
                                                         variable number of DWRR inputs    */
+#define VTSS_FEATURE_QOS_SCHEDULER_DWRR_MODE         /**< QoS: Scheduler supports                  \
+                                                        different account modes    */
 #define VTSS_FEATURE_QOS_TAG_REMARK_V2               /**< QoS: 2. version of tag priority          \
                                                         remarking */
 #define VTSS_FEATURE_QOS_CLASSIFICATION_V2           /**< QoS: 2. version of                       \

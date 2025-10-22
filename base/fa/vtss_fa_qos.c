@@ -1223,11 +1223,12 @@ vtss_rc fa_qos_dwrr_conf_set(vtss_state_t     *vtss_state,
                              u32               se,
                              u32               layer,
                              BOOL              dwrr_enable,
+                             vtss_dwrr_mode_t  dwrr_mode,
                              u32               dwrr_cnt,
                              const vtss_pct_t *dwrr_pct)
 {
     u8  dwrr_cost[64] = {0U};
-    u32 dwrr_num;
+    u32 dwrr_num, dwrr_mode_value;
     u32 queue;
     u32 dwrr_cnt_max = 8U;
 
@@ -1277,8 +1278,12 @@ vtss_rc fa_qos_dwrr_conf_set(vtss_state_t     *vtss_state,
 
     // 3) Configure it...
     // a. No. of DWRR inputs
-    REG_WRM(VTSS_HSCH_SE_CFG(se), VTSS_F_HSCH_SE_CFG_SE_DWRR_CNT(dwrr_cnt),
-            VTSS_M_HSCH_SE_CFG_SE_DWRR_CNT);
+    dwrr_mode_value = (dwrr_mode == VTSS_DWWR_MODE_LINE) ? 0U : 2U;
+    REG_WRM(VTSS_HSCH_SE_CFG(se),
+            VTSS_F_HSCH_SE_CFG_SE_DWRR_CNT(dwrr_cnt) |
+                VTSS_F_HSCH_SE_CFG_SE_DWRR_FRM_MODE(dwrr_mode_value),
+            VTSS_M_HSCH_SE_CFG_SE_DWRR_CNT | VTSS_M_HSCH_SE_CFG_SE_DWRR_FRM_MODE);
+
     // b. Cost for each input
     VTSS_RC(vtss_cmn_qos_weight2cost(dwrr_pct, dwrr_cost, dwrr_num, VTSS_QOS_DWRR_COST_BIT_WIDTH));
     for (queue = 0U; queue < dwrr_cnt_max; queue++) {
@@ -1963,12 +1968,12 @@ vtss_rc vtss_cil_qos_port_conf_update(struct vtss_state_s *vtss_state, const vts
     if (!hqos)
 #endif
     {
-        VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 2U, conf->dwrr_enable, conf->dwrr_cnt,
-                                     conf->queue_pct));
+        VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 2U, conf->dwrr_enable, conf->dwrr_mode,
+                                     conf->dwrr_cnt, conf->queue_pct));
     }
 #else
-    VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 1U, conf->dwrr_enable, conf->dwrr_cnt,
-                                 conf->queue_pct));
+    VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 1U, conf->dwrr_enable, conf->dwrr_mode,
+                                 conf->dwrr_cnt, conf->queue_pct));
 #endif
 
     // Port shaper configuration. Use scheduler element in layer 2 indexed by
@@ -1988,13 +1993,14 @@ vtss_rc vtss_cil_qos_port_conf_update(struct vtss_state_s *vtss_state, const vts
     if (vtss_state->vtss_features[FEATURE_QOS_OT]) {
         // OT bandwidth distribution configuration (DWRR).
         VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, FA_HSCH_L0_OT_SE(chip_port), 0U,
-                                     conf->ot_dwrr_enable, conf->ot_dwrr_cnt, conf->ot_queue_pct));
+                                     conf->ot_dwrr_enable, VTSS_DWWR_MODE_LINE, conf->ot_dwrr_cnt,
+                                     conf->ot_queue_pct));
 
         // OT-IT bandwidth distribution configuration (DWRR).
         ot_it_pct[0] = 100U - conf->ot_pct; /* IT percent */
         ot_it_pct[1] = conf->ot_pct;        /* OT percent */
-        VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 2U, conf->ot_it_dwrr_enable, 2,
-                                     ot_it_pct));
+        VTSS_RC(fa_qos_dwrr_conf_set(vtss_state, chip_port, 2U, conf->ot_it_dwrr_enable,
+                                     VTSS_DWWR_MODE_LINE, 2, ot_it_pct));
 
         // IT shaper configuration. Use scheduler element in layer 1 indexed by
         // chip_port.

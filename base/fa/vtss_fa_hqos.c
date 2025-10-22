@@ -628,7 +628,8 @@ static vtss_rc fa_l1_l2_dwrr_configure(vtss_state_t          *vtss_state,
     // VTSS_E("%u-%u-%u-%u",
     //        ip[60], ip[61], ip[62], ip[63]);
 
-    if (VTSS_RC_OK != fa_qos_dwrr_conf_set(vtss_state, l1_se, 1, TRUE, input_cnt, ip)) {
+    if (VTSS_RC_OK !=
+        fa_qos_dwrr_conf_set(vtss_state, l1_se, 1, TRUE, VTSS_DWWR_MODE_LINE, input_cnt, ip)) {
         VTSS_E("L1 DWRR configuration failed");
         return VTSS_RC_ERROR;
     }
@@ -690,7 +691,8 @@ static vtss_rc fa_l1_l2_dwrr_configure(vtss_state_t          *vtss_state,
     // VTSS_E("Layer 2 se %u total_rate %u dwrr_cnt %u", chip_port, total, input_cnt);
     // VTSS_E("input_pct %u-%u-%u-%u-%u-%u-%u-%u-%u-%u-%u-%u-%u-%u-%u", ip[0], ip[1], ip[2], ip[3],
     // ip[4], ip[5], ip[6], ip[7], ip[8], ip[9], ip[10], ip[11], ip[12], ip[13], ip[14]);
-    if (VTSS_RC_OK != fa_qos_dwrr_conf_set(vtss_state, chip_port, 2, TRUE, input_cnt, ip)) {
+    if (VTSS_RC_OK !=
+        fa_qos_dwrr_conf_set(vtss_state, chip_port, 2, TRUE, VTSS_DWWR_MODE_LINE, input_cnt, ip)) {
         VTSS_E("L2 DWRR configuration failed");
         return VTSS_RC_ERROR;
     }
@@ -1119,7 +1121,7 @@ vtss_rc vtss_cil_hqos_add(vtss_state_t                 *vtss_state,
 
     // Configure the L0 SE DWRR
     if (VTSS_RC_OK != fa_qos_dwrr_conf_set(vtss_state, hier_se->se, 0, (conf->dwrr_cnt != 0),
-                                           conf->dwrr_cnt, conf->input_pct)) {
+                                           VTSS_DWWR_MODE_LINE, conf->dwrr_cnt, conf->input_pct)) {
         VTSS_E("L0 DWRR configuration failed");
         return VTSS_RC_ERROR;
     }

@@ -991,6 +991,12 @@ uint32_t mesa_capability(mesa_inst_t inst, mesa_cap_t cap)
 #endif
         break;
 
+    case MESA_CAP_QOS_SCHEDULER_MODE_DWRR:
+#if defined(VTSS_FEATURE_QOS_SCHEDULER_DWRR_MODE)
+        c = 1U;
+#endif
+        break;
+
     case MESA_CAP_QOS_CPU_PORT_SHAPER:
 #if defined(VTSS_FEATURE_QOS_CPU_PORT_SHAPER)
         c = 1U;

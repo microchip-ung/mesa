@@ -661,6 +661,7 @@ vtss_rc fa_qos_dwrr_conf_set(vtss_state_t     *vtss_state,
                              u32               se,
                              u32               layer,
                              BOOL              dwrr_enable,
+                             vtss_dwrr_mode_t  dwrr_mode,
                              u32               dwrr_cnt,
                              const vtss_pct_t *dwrr_pct);
 vtss_rc vtss_fa_port_policer_fc_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no);
