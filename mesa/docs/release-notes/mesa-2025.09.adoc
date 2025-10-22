@@ -48,15 +48,3 @@ HSR.
 Platforms that implement the `MESA_CAP_PORT_CPU_MASQUERADING` (only the Laika
 target supports this capability), can now configure a port to be masquerading
 for CPU0 or CPU1.
-
-
-=== MEF 10.3 Envelope Dual Leaky Bucket policer
-
-The `mesa_dlb_policer_conf_t` structure has been extended with the following new attributes: +
-`mesa_dlb_policer_conf_t::share_cir` +
-`mesa_dlb_policer_conf_t::share_eir` +
-`mesa_dlb_policer_conf_t::inherit_cir` +
-`mesa_dlb_policer_conf_t::inherit_eir` +
-
-This enables configuring of sharing and inheriting of spill over tokens between DLB policers in a group,
-to support the Envelope policing as describer in MEF 10.3

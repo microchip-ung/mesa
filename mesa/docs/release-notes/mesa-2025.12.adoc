@@ -49,3 +49,14 @@ using VCL rules, via the oam_detect field in the `mesa_vce_action_t` structure.
 
 SparX-5/LAN969x/Jaguar-2/Serval-T: TCL rules can now redirect frames to the CPU or loop back frames,
 swapping MAC addresses. This is done using the fwd field in the `mesa_tce_action_t` structure.
+
+=== MEF 10.3 Envelope Dual Leaky Bucket policer
+
+The `mesa_dlb_policer_conf_t` structure has been extended with the following new attributes: +
+`mesa_dlb_policer_conf_t::share_cir` +
+`mesa_dlb_policer_conf_t::share_eir` +
+`mesa_dlb_policer_conf_t::inherit_cir` +
+`mesa_dlb_policer_conf_t::inherit_eir` +
+
+This enables configuring of sharing and inheriting of spill over tokens between DLB policers in a group,
+to support the Envelope policing as describer in MEF 10.3
