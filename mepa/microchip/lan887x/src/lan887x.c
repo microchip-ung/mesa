@@ -48,59 +48,114 @@ static const struct phy_reg_map lan887x_onetime_setup[] = {
  */
 
 static const struct phy_reg_dbg lan887x_regs[] = {
-    { "Basic Control Register", 0, MII_BMCR},
-    { "Basic Status Register", 0, MII_BMSR},
-    { "Device Identifier 1 Register", 0, MII_PHYSID1},
-    { "Device Identifier 2 Register", 0, MII_PHYSID2},
-    { "MMD Access Control Register", 0, MII_MMD_CTRL},
-    { "MMD Access Address/Data Register", 0, MII_MMD_DATA},
-    { "chiptop_regs:PMA_CONTROL_T1", MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL},
+    { "Basic Control Register", 0, MII_BMCR, 0, 0, 0U},
+    { "Basic Status Register", 0, MII_BMSR, 0, 0, 0U},
+    { "Device Identifier 1 Register", 0, MII_PHYSID1, 0, 0, 0U},
+    { "Device Identifier 2 Register", 0, MII_PHYSID2, 0, 0, 0U},
+    { "MMD Access Control Register", 0, MII_MMD_CTRL, 0, 0, 0U},
+    { "MMD Access Address/Data Register", 0, MII_MMD_DATA, 0, 0, 0U},
+    {
+        "chiptop_regs:PMA_CONTROL_T1", MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL, 0,
+        0, 0U
+    },
     //SGMII or RGMII configuration
-    { "mis_regs:MIS_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0},
-    { "mx_chip_top_regs:SGMII_CTL", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_REG_SGMII_CTL},
-    { "mx_chip_top_regs:SGMII_MPLL_CTL", MDIO_MMD_VEND1, 0xF028},
-    { "mx_chip_top_regs:SGMII_CTL_STS", MDIO_MMD_VEND1, 0xF02B},
-    { "mx_chip_top_regs:SGMII_PCS_CFG", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_SGMII_PCS_CFG},
-    { "mx_chip_top_regs:PCS_ANEG_CFG", MDIO_MMD_VEND1, 0xF035},
-    { "mx_chip_top_regs:QSGMII_ANEG", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_QSGMII_ANEG_REG},
-    { "mx_chip_top_regs:SGMII_MPLL_CTL", MDIO_MMD_VEND1, LAN887X_MX_CHIP_TOP_SGMII_MPLL_CTL},
+    { "mis_regs:MIS_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0, 0, 0, 0U},
+    {
+        "mx_chip_top_regs:SGMII_CTL", MDIO_MMD_VEND1,
+        LAN887X_MX_CHIP_TOP_REG_SGMII_CTL, 0, 0, 0U
+    },
+    { "mx_chip_top_regs:SGMII_MPLL_CTL", MDIO_MMD_VEND1, 0xF028, 0, 0, 0U},
+    { "mx_chip_top_regs:SGMII_CTL_STS", MDIO_MMD_VEND1, 0xF02B, 0, 0, 0U},
+    {
+        "mx_chip_top_regs:SGMII_PCS_CFG", MDIO_MMD_VEND1,
+        LAN887X_MX_CHIP_TOP_SGMII_PCS_CFG, 0, 0, 0U
+    },
+    { "mx_chip_top_regs:PCS_ANEG_CFG", MDIO_MMD_VEND1, 0xF035, 0, 0, 0U},
+    {
+        "mx_chip_top_regs:QSGMII_ANEG", MDIO_MMD_VEND1,
+        LAN887X_MX_CHIP_TOP_QSGMII_ANEG_REG, 0, 0, 0U
+    },
+    {
+        "mx_chip_top_regs:SGMII_MPLL_CTL", MDIO_MMD_VEND1,
+        LAN887X_MX_CHIP_TOP_SGMII_MPLL_CTL, 0, 0, 0U
+    },
     // start - SGMII debugging
-    { "mx_chip_top_regs:SKU_DBG_STS", MDIO_MMD_VEND1, 0xF041},
-    { "mx_chip_top_regs:EFUSE_READ_DAT9", MDIO_MMD_VEND1, 0xF209},
-    { "mx_uvov_regs:UVOV_CFG2_0", MDIO_MMD_VEND1, 0xF22C},
-    { "mx_uvov_regs:UVOV_CFG2_1", MDIO_MMD_VEND1, 0xF22D},
-    { "mx_uvov_regs:UVOV_CFG2_2", MDIO_MMD_VEND1, 0xF22E},
-    { "mx_uvov_regs:UVOV_CFG2_3", MDIO_MMD_VEND1, 0xF22F},
+    { "mx_chip_top_regs:SKU_DBG_STS", MDIO_MMD_VEND1, 0xF041, 0, 0, 0U},
+    { "mx_chip_top_regs:EFUSE_READ_DAT9", MDIO_MMD_VEND1, 0xF209, 0, 0, 0U},
+    { "mx_uvov_regs:UVOV_CFG2_0", MDIO_MMD_VEND1, 0xF22C, 0, 0, 0U},
+    { "mx_uvov_regs:UVOV_CFG2_1", MDIO_MMD_VEND1, 0xF22D, 0, 0, 0U},
+    { "mx_uvov_regs:UVOV_CFG2_2", MDIO_MMD_VEND1, 0xF22E, 0, 0, 0U},
+    { "mx_uvov_regs:UVOV_CFG2_3", MDIO_MMD_VEND1, 0xF22F, 0, 0, 0U},
     // end - SGMII debugging
     // start - Aneg debugging
-    { "mis_regs:MIS_DLL_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_TX_DLL_CFG_REG0},
-    { "mis_regs:MIS_DLL_CFG_REG1", MDIO_MMD_VEND1, LAN887X_MIS_RX_DLL_CFG_REG1},
-    { "aneg_regs:ANEG_CNTRL_REG1", MDIO_MMD_AN, 0x200},
-    { "aneg_regs:ANEG_STAT_REG1", MDIO_MMD_AN, 0x201},
-    { "aneg_regs:ANEG_ADV_REG1", MDIO_MMD_AN, 0x202},
-    { "aneg_regs:ANEG_ADV_REG2", MDIO_MMD_AN, 0x203},
-    { "aneg_regs:ANEG_ADV_REG3", MDIO_MMD_AN, 0x204},
-    { "aneg_regs:ANEG_LP_AB_REG1", MDIO_MMD_AN, 0x205},
-    { "aneg_regs:ANEG_LP_AB_REG2", MDIO_MMD_AN, 0x206},
-    { "aneg_regs:ANEG_LP_AB_REG3", MDIO_MMD_AN, 0x207},
-    { "aneg_regs:VEND_DBG_CTRL_STAT_REG", MDIO_MMD_AN, 0x8013},
-#ifdef MEPA_OPT_TC10
+    {
+        "mis_regs:MIS_DLL_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_TX_DLL_CFG_REG0,
+        0, 0, 0U
+    },
+    {
+        "mis_regs:MIS_DLL_CFG_REG1", MDIO_MMD_VEND1, LAN887X_MIS_RX_DLL_CFG_REG1,
+        0, 0, 0U
+    },
+    { "aneg_regs:ANEG_CNTRL_REG1", MDIO_MMD_AN, 0x200, 0, 0, 0U},
+    { "aneg_regs:ANEG_STAT_REG1", MDIO_MMD_AN, 0x201, 0, 0, 0U},
+    { "aneg_regs:ANEG_ADV_REG1", MDIO_MMD_AN, 0x202, 0, 0, 0U},
+    { "aneg_regs:ANEG_ADV_REG2", MDIO_MMD_AN, 0x203, 0, 0, 0U},
+    { "aneg_regs:ANEG_ADV_REG3", MDIO_MMD_AN, 0x204, 0, 0, 0U},
+    { "aneg_regs:ANEG_LP_AB_REG1", MDIO_MMD_AN, 0x205, 0, 0, 0U},
+    { "aneg_regs:ANEG_LP_AB_REG2", MDIO_MMD_AN, 0x206, 0, 0, 0U},
+    { "aneg_regs:ANEG_LP_AB_REG3", MDIO_MMD_AN, 0x207, 0, 0, 0U},
+    { "aneg_regs:VEND_DBG_CTRL_STAT_REG", MDIO_MMD_AN, 0x8013, 0, 0, 0U},
     // end - Aneg debugging
-    { "tc10_dev30_common:REG15", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_REG_REG15},
-    { "tc10_dev30_common:TC10_MISC33", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC33},
-    { "tc10_dev30_common:TC10_MISC32", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC32},
-    { "tc10_dev30_common:TC10_MISC46", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC46},
-    { "tc10_dev30_common:TC10_MISC36", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC36},
-    { "tc10_dev30_common:TC10_SENDZ_MINWAIT_TMR_CFG", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_SENDZ_MINWAIT_TMR_CFG},
-    { "misc_regs:REG16", MDIO_MMD_VEND1, LAN887X_MISC_REGS_REG16},
-    { "misc_regs:MISC37", MDIO_MMD_VEND1, LAN887X_MISC_REGS_MISC37},
-#endif // MEPA_OPT_TC10
-    { "statistics:TX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG0},
-    { "statistics:RX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG1},
-    { "statistics:RX ERR Count detected by PCS", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG3},
-    { "statistics:TX CRC ERR Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG4},
-    { "statistics:RX CRC ERR Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG5},
-    { "statistics:RX ERR Count for SGMII MII2GMII", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG6},
+    {
+        "tc10_dev30_common:REG15", MDIO_MMD_VEND1,
+        LAN887X_DEV30_COMMON_TC10_REG_REG15, 0, 0, 0U
+    },
+    {
+        "tc10_dev30_common:TC10_MISC33", MDIO_MMD_VEND1,
+        LAN887X_DEV30_COMMON_TC10_MISC33, 0, 0, 0U
+    },
+    {
+        "tc10_dev30_common:TC10_MISC32", MDIO_MMD_VEND1,
+        LAN887X_DEV30_COMMON_TC10_MISC32, 0, 0, 0U
+    },
+    {
+        "tc10_dev30_common:TC10_MISC46", MDIO_MMD_VEND1,
+        LAN887X_DEV30_COMMON_TC10_MISC46, 0, 0, 0U
+    },
+    {
+        "tc10_dev30_common:TC10_MISC36", MDIO_MMD_VEND1,
+        LAN887X_DEV30_COMMON_TC10_MISC36, 0, 0, 0U
+    },
+    {
+        "tc10_dev30_common:TC10_SENDZ_MINWAIT_TMR_CFG", MDIO_MMD_VEND1,
+        LAN887X_DEV30_COMMON_TC10_SENDZ_MINWAIT_TMR_CFG, 0, 0, 0U
+    },
+    { "misc_regs:REG16", MDIO_MMD_VEND1, LAN887X_MISC_REGS_REG16, 0, 0, 0U},
+    { "misc_regs:MISC37", MDIO_MMD_VEND1, LAN887X_MISC_REGS_MISC37, 0, 0, 0U},
+    {
+        "statistics:TX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG0, 0,
+        0, 0U
+    },
+    {
+        "statistics:RX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG1, 0,
+        0, 0U
+    },
+    {
+        "statistics:RX ERR Count detected by PCS", MDIO_MMD_VEND1,
+        LAN887X_MIS_PKT_STAT_REG3, 0, 0, 0U
+    },
+    {
+        "statistics:TX CRC ERR Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG4,
+        0, 0, 0U
+    },
+    {
+        "statistics:RX CRC ERR Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG5,
+        0, 0, 0U
+    },
+    {
+        "statistics:RX ERR Count for SGMII MII2GMII", MDIO_MMD_VEND1,
+        LAN887X_MIS_PKT_STAT_REG6, 0, 0, 0U
+    },
 };
 
 #ifdef MEPA_lan887x_static_mem
@@ -151,35 +206,6 @@ static mepa_rc phy_get_device_info(mepa_device_t *const dev)
     data->dev.id |= GET_PHY_ID2(id2);
 
     return MEPA_RC_OK;
-}
-
-//callout print API
-static void phy_dbg_pr (mepa_device_t *const dev, const mepa_debug_print_t pr,
-                        uint8_t mmd, uint16_t offset, const char *str)
-{
-    uint16_t value = 0;
-
-    if (MEPA_RC_OK == phy_mmd_reg_rd(dev, mmd, offset, &value)) {
-        (void) pr("%-45s:\t[0X%02X].[0X%X]\t=\t0X%08X \r\n", str, mmd, offset, value);
-    }
-}
-
-//Register dump
-static void phy_reg_dump(struct mepa_device *const dev,
-                         const mepa_debug_print_t pr,
-                         const struct phy_reg_dbg *const regs, const uint8_t reglen)
-{
-    uint8_t i;
-    phy_data_t *data = (phy_data_t *)dev->data;
-    uint32_t port_no = data->port_no;
-    uint32_t dev_id = dev->drv->id;
-
-    //Direct registers
-    (void) pr("************ Register Dump for PHY-0x%x @ Port-%u ************ \r\n", dev_id, port_no);
-    (void) pr("%-45s:\tPAGE.REG\t=\tVALUE \r\n", "REG_NAME");
-    for (i = 0; i < reglen; i++) {
-        phy_dbg_pr(dev, pr, regs[i].mmd, regs[i].reg, regs[i].string);
-    }
 }
 
 //Configure set of registers
@@ -530,10 +556,8 @@ static mepa_rc lan887x_phy_setup(mepa_device_t *const dev)
     }
     data->init_done = PHY_TRUE;
 
-#ifdef MEPA_OPT_TC10
     // Initialize TC10 required config
     MEPA_RC_GOTO(rc, lan887x_phy_tc10_set_config(dev, &data->tc10_cfg));
-#endif // MEPA_OPT_TC10
 
     MEPA_RC_GOTO(rc, lan887x_phy_init(dev));
 
@@ -574,12 +598,10 @@ static mepa_rc lan887x_phy_cfg_clr(mepa_device_t *const dev)
     phy_data_t *data = (phy_data_t *) dev->data;
     mepa_rc rc = MEPA_RC_OK;
 
-#ifdef MEPA_OPT_TC10
     uint16_t reg_val = 0;
 
     //clear tc10 interrupt register
     MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0xc22U, &reg_val));
-#endif // MEPA_OPT_TC10
 
     //clear loopback if it is setup in prev. config
     MEPA_RC_GOTO(rc, lan887x_setup_lpbk(dev, NULL));
@@ -1578,7 +1600,6 @@ static void lan887x_fill_probe_data(mepa_driver_t *drv,
 
     data->led_conf[MEPA_LED2].led_num = MEPA_LED2;
     data->led_conf[MEPA_LED2].mode = MEPA_GPIO_MODE_LED_LINK_ACTIVITY;
-#ifdef MEPA_OPT_TC10
     data->tc10_cfg.sleep_enable = PHY_TRUE;
     data->tc10_cfg.wakeup_mode = MEPA_TC10_WAKEUP_WUP_WAKEIN_ENABLE;
     data->tc10_cfg.wakeup_fwd_mode = MEPA_TC10_WAKEUP_FWD_WUP_WAKEOUT_ENABLE;
@@ -1586,7 +1607,6 @@ static void lan887x_fill_probe_data(mepa_driver_t *drv,
     data->tc10_cfg.wake_out_pol = MEPA_GPIO_MODE_ACTIVE_LOW;
     data->tc10_cfg.wake_out_mode = MEPA_GPIO_MODE_PUSH_PULL;
     data->tc10_cfg.inh_mode = MEPA_GPIO_MODE_OPEN_SOURCE;
-#endif // MEPA_OPT_TC10
 
     //Cable diag data reset
     data->cd_res.link = PHY_LINKDOWN;
@@ -2147,7 +2167,8 @@ static mepa_rc lan887x_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
         if (data->init_done == PHY_TRUE) {
             phy_info->part_number = data->dev.model;
             phy_info->revision = data->dev.rev;
-            phy_info->cap = (data->conf.speed == MESA_SPEED_100M ? MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
+            phy_info->cap = (data->conf.speed == MESA_SPEED_100M ?
+                             MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
 
             rc = MEPA_RC_OK;
         }
@@ -2170,7 +2191,7 @@ static mepa_rc lan887x_debug_info(struct mepa_device *dev,
         case MEPA_DEBUG_GROUP_ALL:
         case MEPA_DEBUG_GROUP_PHY: {
             MEPA_ENTER(dev);
-            phy_reg_dump(dev, pr, lan887x_regs, ARRAY_SIZE(lan887x_regs));
+            phy_reg_dump(dev, pr, lan887x_regs, ARRAY_SIZE(lan887x_regs), 0U);
             rc = MEPA_RC_OK;
             MEPA_EXIT(dev);
         }
@@ -2326,7 +2347,7 @@ mepa_drivers_t mepa_lan887x_driver_init(void)
             .mepa_driver_cable_diag_get     = lan887x_cable_diag_get,
 #ifdef MEPA_OPT_TC10
             .mepa_tc10                      = &lan887x_tc10_drivers,
-#endif
+#endif //MEPA_OPT_TC10
         },
     };
     mepa_drivers_t result;

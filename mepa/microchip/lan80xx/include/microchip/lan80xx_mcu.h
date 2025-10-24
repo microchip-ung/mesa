@@ -55,6 +55,7 @@
 #define MCU_DATA_RAM_OFFSET                    (0x00080000UL)
 #define DFU_STATUS_REG_OFFSET                  (0x04U)
 #define DFU_SIGN_VERIFY_FAIL_POS               (BIT3)
+#define BOOT_STS_DFU_MODE                      (0x12U)
 
 /* Maximum length of the message data */
 #define MB_MAX_PKT_HEADER_LEN                  (4U)

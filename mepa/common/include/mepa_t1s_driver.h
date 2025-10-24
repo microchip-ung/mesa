@@ -17,7 +17,7 @@
  *   MEPA_RC_ERROR on error.
  **/
 typedef mepa_rc (*mepa_driver_t1s_set_plca_config_t)(struct mepa_device *dev,
-                                                 const mepa_t1s_plca_cfg_t cfg);
+                                                     const mepa_t1s_plca_cfg_t cfg);
 
 
 /**
@@ -31,7 +31,7 @@ typedef mepa_rc (*mepa_driver_t1s_set_plca_config_t)(struct mepa_device *dev,
  *   MEPA_RC_ERROR on error.
  **/
 typedef mepa_rc (*mepa_driver_t1s_get_plca_config_t)(struct mepa_device *dev,
-                                                 mepa_t1s_plca_cfg_t *const cfg);
+                                                     mepa_t1s_plca_cfg_t *const cfg);
 
 
 /** \brief PHY T1S Driver */

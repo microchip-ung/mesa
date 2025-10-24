@@ -17,8 +17,8 @@
 #define GENMASK(offset, width)      (BIT_MASK(width) << (offset))
 #define GENMASK32(offset, width)    (BIT32_MASK(width) << (offset))
 
-#define MCHP_MASK           GENMASK32(15, 0)
-#define MCHP_4B_MASK        GENMASK32(31, 0)
+#define MCHP_MASK           (0xFFFFU)
+#define MCHP_4B_MASK        (0xFFFFFFFFU)
 #define DEF_MASK            (0xFFFFU)
 
 #define EXTRACT_BITFIELD(value, offset, width)  (((value) >> (offset)) & BIT_MASK(width))
@@ -36,7 +36,7 @@
 /* Generate register address from reg_group + reg_offset */
 #define MCHP_TEST_BIT(v, x)      ((((v) & BIT32(x)) != 0U) ? 1U : 0U)
 
-#define MCHP_EXTRACT_V(v, h, l) (((v) & GENMASK32((h), (l))) >> (l))
+#define MCHP_EXTRACT_V(v, h, l) (((v) & GENMASK32((l), ((h) - (l) + 1U))) >> (l))
 
 #define MCHP_BSWAP(A) ((((A) & 0xFF00UL) >> 8UL) | (((A) & 0x00FFUL) << 8UL))
 
@@ -95,6 +95,7 @@
 #define MDIO_AN_T1_LP_L         (517U)     /* BASE-T1 AN LP Base Page ability register [15:0] */
 #define MDIO_AN_T1_LP_M         (518U)     /* BASE-T1 AN LP Base Page ability register [31:16] */
 #define MDIO_AN_T1_LP_H         (519U)     /* BASE-T1 AN LP Base Page ability register [47:32] */
+#define MDIO_PCS_1000BT1_STAT   (2305U)    /* 1000BASE-T1 PCS status register */
 
 #define MDIO_AN_T1_ADV_L_FORCE_MS       (0x1000U)   /* Force Master/slave Configuration */
 #define MDIO_AN_T1_LP_L_FORCE_MS        (0x1000U)   /* LP Force Master/slave Configuration */
@@ -122,6 +123,9 @@
 
 /* BASE-T1 PMA/PMD control register */
 #define MDIO_PMA_PMD_BT1_CTRL_CFG_MST   (0x4000U) /* MASTER-SLAVE config value */
+
+#define TC12_CD_STS(v)   (((v) & GENMASK(4, 8)) >> 4U)
+#define TC12_CD_LOC(v)   (((v) & GENMASK(8, 6)) >> 8U)
 
 #define T_D(format, ...) MEPA_trace(MEPA_TRACE_GRP_GEN, MEPA_TRACE_LVL_DEBUG, __func__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 

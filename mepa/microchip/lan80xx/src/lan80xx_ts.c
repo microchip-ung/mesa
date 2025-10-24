@@ -205,7 +205,7 @@ static mepa_rc lan80xx_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t 
             ts_init_conf->clk_src = MEPA_TS_CLOCK_SRC_EXTERNAL;
             break;
         default:
-            T_E(MEPA_TRACE_GRP_GEN, "Not a valide clock src %s:  %d\n", __func__, ts_init_conf->clk_src);
+            T_E(MEPA_TRACE_GRP_TS, "Not a valide clock src %s:  %d\n", __func__, ts_init_conf->clk_src);
             /* We don't return error here, as get function just fetch existing config */
         }
         ts_init_conf->clk_freq          = init_conf.clk_freq;
@@ -235,7 +235,7 @@ static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_c
     mepa_rc rc = MEPA_RC_ERROR;
 
     if (base_data->features.ptp_1588_disable != 0U) {
-        T_E(MEPA_TRACE_GRP_GEN, "\n PHY SKU on port : %d doesn't support PTP", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "\n PHY SKU on port : %d doesn't support PTP", data->port_no);
         return MEPA_RC_ERROR;
     }
     MEPA_ENTER(dev);
@@ -264,7 +264,7 @@ static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_c
         break;
 
     default:
-        T_E(MEPA_TRACE_GRP_GEN, "Not a valide clock src %s:  %d\n", __FUNCTION__, ts_init_conf->clk_src);
+        T_E(MEPA_TRACE_GRP_TS, "Not a valide clock src %s:  %d\n", __FUNCTION__, ts_init_conf->clk_src);
         MEPA_EXIT(dev);
         return MEPA_RC_ERROR;
     }
@@ -481,19 +481,19 @@ static mepa_rc lan80xx_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_l
     MEPA_ENTER(dev);
     do {
         if (num == NULL) {
-            T_E(MEPA_TRACE_GRP_GEN, "Invalid argument\n");
+            T_E(MEPA_TRACE_GRP_TS, "Invalid argument\n");
             rc = MEPA_RC_ERROR;
             break;
         }
 
         if (size < LAN80XX_PHY_TS_FIFO_MAX_ENTRIES) {
-            T_E(MEPA_TRACE_GRP_GEN, "Size of Input TS list is less than 16\n");
+            T_E(MEPA_TRACE_GRP_TS, "Size of Input TS list is less than 16\n");
             rc = MEPA_RC_ERROR;
             break;
         }
 
         if (lan80xx_phy_ts_fifo_get(dev, data->port_no, ts_list, LAN80XX_PHY_TS_FIFO_MAX_ENTRIES, num) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Failed to get FIFO entries!!\n");
+            T_E(MEPA_TRACE_GRP_TS, "Failed to get FIFO entries!!\n");
             rc = MEPA_RC_ERROR;
         }
     } while (0);
@@ -667,6 +667,23 @@ static mepa_rc lan80xx_ts_pps_conf_get(mepa_device_t *dev, mepa_ts_pps_conf_t *c
     return rc;
 }
 
+mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t  *dev, const mepa_port_no_t  port_no, const phy25g_ts_fifo_sig_mask_t   sig_mask)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    MEPA_ENTER(dev);
+    rc = lan80xx_phy_ts_fifo_sig_set_priv(dev, port_no, sig_mask);
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+mepa_rc lan80xx_phy_ts_fifo_sig_get(mepa_device_t  *dev, const mepa_port_no_t  port_no, phy25g_ts_fifo_sig_mask_t   *sig_mask)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    MEPA_ENTER(dev);
+    rc = lan80xx_phy_ts_fifo_sig_get_priv(dev, port_no, sig_mask);
+    MEPA_EXIT(dev);
+    return rc;
+}
 
 mepa_ts_driver_t lan80xx_ts_drivers = {
     .mepa_ts_reset                      = lan80xx_ts_reset,

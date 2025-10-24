@@ -18,28 +18,52 @@
 
 //
 // MEPA_OPSYS_PLATFORM:
-//	os_platform is OS agnostic environment of Trafford family.
-//	It is based on POSIX and provides APIs and framework regardless of
-//	Linux or FreeRTOS.
+//  os_platform is OS agnostic environment of Trafford family.
+//  It is based on POSIX and provides APIs and framework regardless of
+//  Linux or FreeRTOS.
 //
 
 #if defined(MEPA_OPSYS_VELOCITYSP)
- #include <mepa_os_velocitysp.h>
+#include <mepa_os_velocitysp.h>
 #elif defined(MEPA_OPSYS_PLATFORM)
- #include <mepa_os_platform.h>
+#include <mepa_os_platform.h>
 #else
- #include <mepa_os_linux.h>
+#include <mepa_os_linux.h>
 #endif
 
-static inline u64 to_u64(uint64_t i) { return (u64)i; }
-static inline u32 to_u32(uint32_t i) { return (u32)i; }
-static inline u16 to_u16(uint16_t i) { return (u16)i; }
-static inline u8  to_u8( uint8_t i)  { return (u8)i; }
+static inline u64 to_u64(uint64_t i)
+{
+    return (u64)i;
+}
+static inline u32 to_u32(uint32_t i)
+{
+    return (u32)i;
+}
+static inline u16 to_u16(uint16_t i)
+{
+    return (u16)i;
+}
+static inline u8  to_u8( uint8_t i)
+{
+    return (u8)i;
+}
 
-static inline uint64_t to_uint64_t(uint64_t i) { return (uint64_t)i; }
-static inline uint32_t to_uint32_t(uint32_t i) { return (uint32_t)i; }
-static inline uint16_t to_uint16_t(uint16_t i) { return (uint16_t)i; }
-static inline uint8_t  to_uint8_t(uint8_t i)   { return (uint8_t)i; }
+static inline uint64_t to_uint64_t(uint64_t i)
+{
+    return (uint64_t)i;
+}
+static inline uint32_t to_uint32_t(uint32_t i)
+{
+    return (uint32_t)i;
+}
+static inline uint16_t to_uint16_t(uint16_t i)
+{
+    return (uint16_t)i;
+}
+static inline uint8_t  to_uint8_t(uint8_t i)
+{
+    return (uint8_t)i;
+}
 
 
 #endif /* _MEPA_OS_H_ */

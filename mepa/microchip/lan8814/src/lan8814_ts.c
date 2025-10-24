@@ -2166,6 +2166,10 @@ static mepa_rc lan8814_ts_tx_ts_get (mepa_device_t *dev)
             sig.sequence_id = head2;
             sig.crc_src_port = head1 >> 4;
             sig.has_crc_src = TRUE;
+            sig.dmac_sig_supported = FALSE;
+            sig.ipv4_sig_supported = FALSE;
+            memset(&sig.dest_ipv4, 0 , sizeof(sig.dest_ipv4));
+            memset(&sig.dmac_addr, 0, sizeof(sig.dmac_addr));
 
             MEPA_EXIT(dev);
             rd_cb(data->port_no, &ts, &sig, status);
@@ -2322,6 +2326,10 @@ mepa_rc lan8814_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_list[], 
             ts_list[i].sig.msg_type = val & 0xF;
             ts_list[i].sig.crc_src_port = val >> 4;
             ts_list[i].sig.has_crc_src = TRUE;
+            ts_list[i].sig.dmac_sig_supported = FALSE;
+            ts_list[i].sig.ipv4_sig_supported = FALSE;
+            memset(&ts_list[i].sig.dest_ipv4, 0 , sizeof(ts_list[i].sig.dest_ipv4));
+            memset(&ts_list[i].sig.dmac_addr, 0, sizeof(ts_list[i].sig.dmac_addr));
 
             EP_RD_INCR(dev, LAN8814_PTP_TX_MSG_HEADER2, &val, FALSE);
             ts_list[i].sig.sequence_id = val;

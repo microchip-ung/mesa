@@ -11,10 +11,10 @@ MEPA offers a set of standard APIs for the features that are common across MCHP 
 but for features that are specific to a particular chip, we have chip specific APIs and
 for LAN80XX, they are listed down here
 
-	* link:#mepa/docs/lan80xx-chip-specific@_synce[SyncE]
+     	* link:#mepa/docs/lan80xx-chip-specific@_synce[SyncE]
         * link:#mepa/docs/lan80xx-chip-specific@_operating_mode_of_phy[Phy Operating Mode Select]
         * link:#mepa/docs/lan80xx-chip-specific@_flow_control_configuration[Flow Control Configuration]
-	* link:#mepa/docs/lan80xx-chip-specific@_phy_diagnostics[Diagnostics]
+	    * link:#mepa/docs/lan80xx-chip-specific@_phy_diagnostics[Diagnostics]
         * link:#mepa/docs/lan80xx-chip-specific@_gpio_aggregate_interrupt_configuration[GPIO Interrupt]
         * link:#mepa/docs/lan80xx-chip-specific@_loopback_configuration_set_and_get[Loopbacks]
         * link:#mepa/docs/lan80xx-chip-specific@_two_wire_interfacetwi[TWI Host]
@@ -693,55 +693,57 @@ the PHY how to process the Packet.
 NOTE: By default MACsec Engine Will be in TCAM Mode.
 
 == PTP APIs
+ 
+=== LSC Pin Input config for PPS signal to PHY
+   * `lan80xx_phy_ts_pps_input_confset()` -- Configures LSC Pin as PPS input Pin and selects the mode of LTC Save
 
-    * `lan80xx_ts_egress_engine_conf_set()` is used to configure the following encapsulations specified in `phy25g_ts_encap_t`
-in the egress direction for a port. Each engine supports 8 flows, so the max `flow_index` supported is 8.For the
-for the encapsulation the flow needs to be configured properly in `phy25g_ts_engine_flow_conf_t`
+API Configuration settings of `phy25g_pps_input_conf_t` are listed in following table:
+[cols="1,1", options="header"]
+|===
+| Argument                | Description
+| clk_select              | Clock for PPS signal sampling, Asyncronous will sample with internal LTC clock
+| pin_inv_pol             | LSC Pin polarity configuration (Active High or Active Low)
+| pin_sync_mode           | LTC Save mode (Immediate or one time on active edge or continously on active edge of PPS signal)
+| lsc_select              | LSC Pin to be configured with above configurations
+|===
+
+The `clk_select` option allows you to specify when the 1PPS signal pin should be sampled to determine its current state.
+
+If *Asynchronous mode* is selected, the PTP block samples the state of the 1PPS signal on both the rising and falling edges of the LTC_CLK,
+which operates at 318 MHz. This results in the 1PPS pin being sampled approximately every 1.6 nanoseconds.
+
+If a rising edge of the 1PPS signal occurs between these 1.6 ns intervals, it may impact sub-nanosecond accuracy.
+
+To address this, there is an option to synchronize the sampling of the 1PPS signal. Instead of using the LTC_CLK for sampling,
+user can provide an external clock to any of the LSC pins that is synchronized with the 1PPS signal. 
+By selecting "clk_sel" to a mode other than Asynchronous, the 1PPS signal will be sampled using the external synchronous clock provided by the user,
+thereby improving sub-nanosecond accuracy.
+
+=== LSC Pin Output configuration
+
+   * `lan80xx_phy_ts_pps_ouput_conf_set()` -- Configures selected LSC PIN as output pin either to generate PPS signal or square wave
+
+=== TS FIFO Signature Configuration
+
+The API `lan80xx_phy_ts_fifo_sig_set()` allows to select the fields of the PTP/Header that needs
+to be captured in TS FIFO Signature, this API is applicable only for LAN80XX PHYs which can support
+28-bytes TS FIFO for PTP Signature
+
+Following are the different fields that can be captured in TS FIFO.
 
 ----
-eg: for encap_type `LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP` the pseudo code looks like
-        {
-            phy25g_ts_engine_t eng_id = LAN80XX_PHY_TS_PTP_ENGINE_ID_0;
-            const u16 flow_index = 0;
-            uint8_t dest_addr[6] = {0,0,0,0,0,1};
-            phy25g_ts_encap_t encap = LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP;
-            phy25g_ts_engine_flow_conf_t flow_conf;
-            flow_conf.eng_mode = true;
-            /*Configuring the eth1 comparator */
-            flow_conf.flow_conf.ptp.eth1_opt.comm_opt.etype = 0x8847;
-            flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].flow_en = true;
-            flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].addr_match_mode = LAN80XX_PHY_TS_ETH_ADDR_MATCH_ANY_UNICAST;
-            flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].addr_match_select = LAN80XX_PHY_TS_ETH_MATCH_DEST_ADDR;
-            memcpy(flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].mac_addr, dest_addr, sizeof(dest_addr));
-            flow_conf.flow_conf.ptp.eth1_opt.flow_opt[0].vlan_check = false; //disabling vlan.
-            /*configuring the mpls comparator */
-            flow_conf.flow_conf.ptp.mpls_opt.comm_opt.cw_en = false; //No control word in the packet
-            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].flow_en = true;
-            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].stack_ref_point = LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP;
-            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].stack_depth = LAN80XX_PHY_TS_MPLS_STACK_DEPTH_1;
-            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].top_down.top.lower = 0;
-            flow_conf.flow_conf.ptp.mpls_opt.flow_opt[0].top_down.top.upper = 0x5;
-            /*Configuring the Eth2 comparator*/
-            flow_conf.flow_conf.ptp.eth2_opt.comm_opt.etype = 0x88f7;
-            flow_conf.flow_conf.ptp.eth2_opt.flow_opt[0].flow_en = true;
-            flow_conf.flow_conf.ptp.eth2_opt.flow_opt[0].addr_match_mode = LAN80XX_PHY_TS_ETH_ADDR_MATCH_ANY_UNICAST;
-            flow_conf.flow_conf.ptp.eth2_opt.flow_opt[0].addr_match_select = LAN80XX_PHY_TS_ETH_MATCH_DEST_ADDR;
-            memcpy(flow_conf.flow_conf.ptp.eth2_opt.flow_opt[0].mac_addr, dest_addr, sizeof(dest_addr));
-            if (lan80xx_ts_egress_engine_conf_set(dev, 0, 0, encap, &flow_conf) != MEPA_RC_OK){
-                return MEPA_RC_ERROR;
-            }
-        }
+#define LAN80XX_PHY_TS_FIFO_SIG_SRC_IP            (0x01U)  /**< IPv4 Src IP address */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_IP           (0x02U)  /**< IPv4 Dest IP address */
+#define LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE          (0x04U)  /**< PTP Message type */
+#define LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM        (0x08U)  /**< PTP Domain number */
+#define LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID    (0x10U)  /**< Source port identity */
+#define LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID            (0x20U)  /**< PTP frame Sequence ID */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC          (0x40U)  /**< Dest MAC address for ETH-PTP */
+#define LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP      (0x80U)  /**< IPv6 Dest IP */
 ----
 
-Similarly the ingress engine can be configured with the desired encapsulation specified in `phy25g_ts_encap_t` with
-the API `lan80xx_ts_ingress_engine_conf_set()`.
+The API `lan80xx_phy_ts_fifo_sig_get()` is used to get the signature fields enabled on the port.
 
-The Above parameters configured for ingress/egress engine can be get with the APIs `lan80xx_ts_ingress_engine_conf_get()`
-and `lan80xx_ts_egress_engine_conf_get()`.
-
-When FIFO opeation is involved i.e 2 Step PTP operation the fifo entry can be get directly without filling the callout by
-the API `lan80xx_phy_ts_fifo_empty()`  fifo entry will be present in the `phy25g_ts_fifo_entry_t` , the max number of
-entries stored in `phy25g_ts_fifo_entry_t` is given as `num`.
 
 == Frame Preemption PMAC Counters
 LAN80XX PHYs Support Frame Preemption in `MAC_RETIMER` mode of the PHY where the premptable Frames are handled by

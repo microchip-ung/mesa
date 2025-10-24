@@ -96,23 +96,6 @@ typedef struct {
 
 
 /**
- * \brief Frame signature mask
-**/
-typedef u32 phy25g_ts_fifo_sig_mask_t;
-
-/**
- * \brief Defines Tx TSFIFO signature mask.
- **/
-#define LAN80XX_PHY_TS_FIFO_SIG_SRC_IP            (0x01U)  /**< Src IP address: inner IP for IP-over-IP */
-#define LAN80XX_PHY_TS_FIFO_SIG_DEST_IP           (0x02U)  /**< Dest IP address */
-#define LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE          (0x04U)  /**< Message type */
-#define LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM        (0x08U)  /**< Domain number */
-#define LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID    (0x10U)  /**< Source port identity */
-#define LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID            (0x20U)  /**< PTP frame Sequence ID */
-#define LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC          (0x40U)  /**< Dest MAC address */
-
-
-/**
  * \brief Time interval in ns * 1<<16
  * range +-2**47 ns = 140737 sec = 39 hours
  * For example, 2.5 ns is expressed as 0x0000.0000.0002.8000
@@ -570,7 +553,6 @@ typedef struct lan80xx_phy_ts_target_map {
  * encapsulation type provided during engine allocation.
  **/
 typedef struct {
-    mepa_bool_t                              eng_mode;    /**< engine enable/disable */
     union {
         phy25g_ts_ptp_engine_flow_conf_t ptp;       /**< PTP engine configuration */
     } flow_conf; /**< PTP/OAM flow config */
@@ -676,7 +658,6 @@ typedef struct {
 typedef struct {
     mepa_bool_t                     eng_used; /* allocated the engine to application */
     phy25g_ts_encap_t               encap_type; /* engine encapsulation */
-    phy25g_ts_engine_flow_match_t   flow_match_mode; /* strict/non-strict flow match */
     uint8_t                         flow_st_index; /* start index of flow */
     uint8_t                         flow_end_index; /* end index of flow */
     phy25g_ts_engine_flow_conf_t    flow_conf; /* engine flow config */
@@ -691,41 +672,41 @@ typedef i64 phy25g_ts_scaled_ppb_t;
 
 
 typedef struct {
-    mepa_bool_t                      port_ts_init_done; /* PHY TS init done */
-    mepa_port_no_t                   base_port; /* base port for multi-channel PHY */
-    mepa_bool_t                       port_ena;
-    mepa_port_no_t                   alt_port;
-    phy25g_phy_ts_clockfreq_t          clk_freq;  /* reference clock frequency */
-    phy25g_phy_ts_clock_src_t          clk_src;   /* reference clock source */
-    phy25g_phy_ts_rxtimestamp_pos_t    rx_ts_pos; /* Rx timestamp position */
-    phy25g_phy_ts_rxtimestamp_len_t    rx_ts_len; /* Rx timestamp length */
-    phy25g_phy_ts_fifo_mode_t          tx_fifo_mode; /* Tx TSFIFO access mode */
-    phy25g_phy_ts_fifo_timestamp_len_t tx_ts_len; /* timestamp size in Tx TSFIFO */
-    phy25g_phy_ts_tc_op_mode_t         tc_op_mode; /* TC operating Mode: Mode A or B*/
-    uint16_t                         load_pulse_delay;
-    mepa_bool_t                      chk_ing_modified;
-    mepa_bool_t                      auto_clear_ls;
-    mepa_bool_t                      macsec_ena;
-    mepa_bool_t                      one_step_txfifo;
-    uint8_t                          ip1_nxt_cmp[4]; /* IP1 comparator is available only in blocks 0,1,2,3. */
-    uint8_t                          ip2_nxt_cmp[4]; /* IP2 comparator is available only in blocks 0,1,2,3. */
-    phy25g_ts_event_t                  event_mask; /* interrupt mask config */
-    uint32_t                         egr_reg_mask;  /* Egress mask register value */
-    uint32_t                         ingr_reg_mask; /* Ingress mask register value */
-    uint32_t                         ltc_reg_mask;  /* LTC reg mask value */
-    mepa_bool_t                      event_enable; /* interrupt enable/disable */
-    mepa_bool_t                      is_gen2;
-    phy25g_ts_scaled_ppb_t         rate_adj;  /* clock rate adjustment */
-    phy25g_ts_alt_clock_mode_t       alt_clock_mode;
-    phy25g_ltc_freq_synth_t            ltc_freq_synth;
-    phy25g_timeinterval_t              ingress_latency;
-    phy25g_timeinterval_t              egress_latency;
-    phy25g_timeinterval_t              path_delay;
-    phy25g_timeinterval_t              delay_asym;
-    phy25g_ts_fifo_sig_mask_t      sig_mask;
-    phy25g_ts_eng_conf_t           egress_eng_conf[4];
-    phy25g_ts_eng_conf_t           ingress_eng_conf[4];
-    mepa_mch_pch_t                   mch_conf;
+    mepa_bool_t                         port_ts_init_done; /* PHY TS init done */
+    mepa_port_no_t                      base_port; /* base port for multi-channel PHY */
+    mepa_bool_t                         port_ena;
+    mepa_port_no_t                      alt_port;
+    phy25g_phy_ts_clockfreq_t           clk_freq;  /* reference clock frequency */
+    phy25g_phy_ts_clock_src_t           clk_src;   /* reference clock source */
+    phy25g_phy_ts_rxtimestamp_pos_t     rx_ts_pos; /* Rx timestamp position */
+    phy25g_phy_ts_rxtimestamp_len_t     rx_ts_len; /* Rx timestamp length */
+    phy25g_phy_ts_fifo_mode_t           tx_fifo_mode; /* Tx TSFIFO access mode */
+    phy25g_phy_ts_fifo_timestamp_len_t  tx_ts_len; /* timestamp size in Tx TSFIFO */
+    phy25g_phy_ts_tc_op_mode_t          tc_op_mode; /* TC operating Mode: Mode A or B*/
+    uint16_t                            load_pulse_delay;
+    mepa_bool_t                         chk_ing_modified;
+    mepa_bool_t                         auto_clear_ls;
+    mepa_bool_t                         macsec_ena;
+    mepa_bool_t                         one_step_txfifo;
+    uint8_t                             ip1_nxt_cmp[4]; /* IP1 comparator is available only in blocks 0,1,2,3. */
+    uint8_t                             ip2_nxt_cmp[4]; /* IP2 comparator is available only in blocks 0,1,2,3. */
+    phy25g_ts_event_t                   event_mask; /* interrupt mask config */
+    uint32_t                            egr_reg_mask;  /* Egress mask register value */
+    uint32_t                            ingr_reg_mask; /* Ingress mask register value */
+    uint32_t                            ltc_reg_mask;  /* LTC reg mask value */
+    mepa_bool_t                         event_enable; /* interrupt enable/disable */
+    mepa_bool_t                         is_gen2;
+    phy25g_ts_scaled_ppb_t              rate_adj;  /* clock rate adjustment */
+    phy25g_ts_alt_clock_mode_t          alt_clock_mode;
+    phy25g_ltc_freq_synth_t             ltc_freq_synth;
+    phy25g_timeinterval_t               ingress_latency;
+    phy25g_timeinterval_t               egress_latency;
+    phy25g_timeinterval_t               path_delay;
+    phy25g_timeinterval_t               delay_asym;
+    phy25g_ts_fifo_sig_mask_t           sig_mask;
+    phy25g_ts_eng_conf_t                egress_eng_conf[4];
+    phy25g_ts_eng_conf_t                ingress_eng_conf[4];
+    mepa_mch_pch_t                      mch_conf;
 } phy25g_phy_ts_port_conf_t;
 
 typedef struct {
@@ -754,6 +735,7 @@ typedef struct {
 #define LAN80XX_PHY_TS_SIG_DEST_IP_LEN            (4U)
 #define LAN80XX_PHY_TS_SIG_SRC_IP_LEN             (4U)
 #define LAN80XX_PHY_TS_SIG_DEST_MAC_LEN           (6U)
+#define LAN80XX_PHY_TS_SIG_IPV6_LEN               (16U)
 #define LAN80XX_PTP_SIGNATURE_LEN                 (28U)
 
 /**
@@ -792,10 +774,14 @@ typedef struct {
  * \param port_no [IN]              port number
  * \phy25g_ts_fifo_sig_mask_t[IN]   mask for the frame signature field.
 */
-mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                    *dev,
-                                    const mepa_port_no_t             port_no,
-                                    phy25g_ts_engine_t               eng_id,
-                                    const phy25g_ts_fifo_sig_mask_t  sig_mask);
+mepa_rc lan80xx_phy_ts_fifo_sig_set_priv(mepa_device_t                     *dev,
+                                         const mepa_port_no_t              port_no,
+                                         const phy25g_ts_fifo_sig_mask_t   sig_mask);
+
+
+mepa_rc lan80xx_phy_ts_fifo_sig_get_priv(mepa_device_t                     *dev,
+                                         const mepa_port_no_t              port_no,
+                                         phy25g_ts_fifo_sig_mask_t         *sig_mask);
 
 
 phy25g_phy_ts_tc_op_mode_t mepa_to_lan80xx_tc_opmode(mepa_ts_tc_op_mode_t tc_opmode);

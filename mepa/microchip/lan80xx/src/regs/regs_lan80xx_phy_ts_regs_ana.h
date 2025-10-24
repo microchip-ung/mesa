@@ -2713,6 +2713,25 @@
 #define  LAN80XX_X_ANA_FRAME_SIG_CFG_FSB_MAP_REG_3_FSB_MAP_15(x)                                    (LAN80XX_EXTRACT_BITFIELD(x,0,6))
 
 /**
+ * \brief Frame signature builder mapping register 4
+ *
+ * \details
+ * Register: \a ANA:FRAME_SIG_CFG:FSB_MAP_REG_4
+ *
+ * @param target A \a ::lan80xx_target_ANA_e target
+ */
+#define LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_4   (0x336)
+
+/**
+ * \brief Frame signature builder mapping register 5
+ *
+ * \details
+ * Register: \a ANA:FRAME_SIG_CFG:FSB_MAP_REG_5
+ *
+ * @param target A \a ::lan80xx_target_ANA_e target
+ */
+#define LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_5   (0x337)
+/**
  * \brief Analyzer mode register
  *
  * \details

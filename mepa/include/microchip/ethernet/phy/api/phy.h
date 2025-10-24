@@ -114,10 +114,10 @@ typedef mepa_rc (*mepa_miim_write_t)(struct mepa_callout_ctx         *ctx,
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_spi_read_t)(struct mepa_callout_ctx          *ctx,
-                                 mepa_port_no_t                   port_no,
-                                 const uint8_t                     mmd,
-                                 const uint16_t                    addr,
-                                 uint32_t                         *const value);
+                                   mepa_port_no_t                   port_no,
+                                   const uint8_t                     mmd,
+                                   const uint16_t                    addr,
+                                   uint32_t                         *const value);
 
 /**
  * \brief SPI  64bit read function
@@ -783,7 +783,7 @@ mepa_rc mepa_chip_temp_get(struct mepa_device *dev, int16_t *const temp);
  *   MEPA_RC_OK on success.
  **/
 mepa_rc mepa_fefi_set(struct mepa_device *dev,
-                       const mepa_fefi_mode_t *fefi_conf);
+                      const mepa_fefi_mode_t *fefi_conf);
 
 /**
  * \brief Get FEFI configuration
@@ -796,7 +796,7 @@ mepa_rc mepa_fefi_set(struct mepa_device *dev,
  *   MEPA_RC_OK on success.
  **/
 mepa_rc mepa_fefi_get(struct mepa_device *dev,
-                       mepa_fefi_mode_t *const fefi_conf);
+                      mepa_fefi_mode_t *const fefi_conf);
 
 /**
  * \brief FEFI detection
@@ -809,7 +809,7 @@ mepa_rc mepa_fefi_get(struct mepa_device *dev,
  *   MEPA_RC_OK on success.
  **/
 mepa_rc mepa_fefi_detect(struct mepa_device *dev,
-                          mepa_bool_t *const fefi_detect);
+                         mepa_bool_t *const fefi_detect);
 
 /**
  *  \brief Read Chip temperature API for supported PHYs.
@@ -1013,7 +1013,7 @@ mepa_rc mepa_serdes_tx_conf_set(struct mepa_device *dev, const mepa_serdes_tx_co
  *   Required capability of the PHY based on phy id.
  **/
 
-uint32_t mepa_capability(struct mepa_device *dev , uint32_t capability);
+uint32_t mepa_capability(struct mepa_device *dev, uint32_t capability);
 
 /**
  * \brief To End  Warm restart configuration

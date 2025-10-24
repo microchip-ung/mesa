@@ -9,6 +9,16 @@
 #include "lan80xx_ts.h"
 #include "regs_lan80xx_ts_dump.h"
 
+/* Each system clock cycle, the time-of-day is increased with the value set in these registers, with fixed point 5.59 nanosecond value
+ * CLK_PER_CFG_0 represents the LSB 32-bit
+ * CLK_PER_CFG_1 represents the MSB 32-bit
+ *
+ * LTC Clock Frequency = 318.309886158 MHz, so the Time period is 3.1415926538443369637994679176244 ns
+ * 5.59 fixed point representation of 3.1415926538443369637994679176244 ns will be 0x1921fb547f9eae35 which is spilited into two
+ * 32-bit values (5 + 59 = 64-bit) and configured in CLK_PER_CFG_1 and CLK_PER_CFG_0 register 
+ */
+#define LAN80XX_PTP_LTC_CLK_PER_CFG_1     (0x1921fb54)
+#define LAN80XX_PTP_LTC_CLK_PER_CFG_0     (0x7f9eae35)
 
 static lan80xx_phy_ts_pll_map_t phy25g_ts_pll_map[] = {
     [LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK] = {
@@ -457,7 +467,7 @@ static mepa_rc lan80xx_ts_base_port_get_priv(const mepa_device_t *dev,
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
     if (data->base_dev == NULL) {
-        T_E(MEPA_TRACE_GRP_GEN, "Base port not assigned for port %s: %u", __FUNCTION__, data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "Base port not assigned for port %s: %u", __FUNCTION__, data->port_no);
         return MEPA_RC_ERROR;
     }
 
@@ -495,7 +505,7 @@ static mepa_rc lan80xx_phy_ts_write_csr(const mepa_device_t *dev,
     phy25g_phy_state_t     *data = (phy25g_phy_state_t *)dev->data;
     lan80xx_phy_ts_biu_addr_map_t *biu_addr_map_ptr = &phy25g_ts_biu_addr_map[0];
 
-    T_D(MEPA_TRACE_GRP_TS, "lan80xx_phy_ts_csr_wr addr =%x value=%x\n", biu_addr_map_ptr->mdio_address[blk_id] | csr_address, *value);
+    T_N(MEPA_TRACE_GRP_TS, "lan80xx_phy_ts_csr_wr addr =%x value=%x\n", biu_addr_map_ptr->mdio_address[blk_id] | csr_address, *value);
     LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1, (biu_addr_map_ptr->mdio_address[blk_id] | csr_address)), *value);
 
     return MEPA_RC_OK;
@@ -514,7 +524,7 @@ static mepa_rc lan80xx_phy_ts_read_csr(const mepa_device_t *dev,
     LAN80XX_CSR_RD(dev, data->port_no,
                    LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1,
                                  (biu_addr_map_ptr->mdio_address[blk_id] | csr_address)), value);
-    T_D(MEPA_TRACE_GRP_TS, "lan80xx_phy_ts_csr_rd addr =%x value=%x\n", biu_addr_map_ptr->mdio_address[blk_id] | csr_address, *value);
+    T_N(MEPA_TRACE_GRP_TS, "lan80xx_phy_ts_csr_rd addr =%x value=%x\n", biu_addr_map_ptr->mdio_address[blk_id] | csr_address, *value);
 
     return MEPA_RC_OK;
 }
@@ -583,19 +593,26 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
                         LAN80XX_F_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE(1),
                         LAN80XX_M_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE);
 
-        /* setting the clock value */
-        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(1), 0x1921fabd);
-        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(0), 0x7F2Cf720);
-
         /* Wait for PLL lock */
-        LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_STS_REG, &value);
-        if (value & LAN80XX_M_CLK_CFG_LTCPLL_STS_REG_LTCPLL_STS) {
-            T_I(MEPA_TRACE_GRP_TS, "LTC PLL Locked");
-            base_data->ptp_shared_ltc_pll_init = TRUE;
-        } else {
-            T_E(MEPA_TRACE_GRP_TS, "LTC PLL Lock FAIL!!");
-            return MEPA_RC_ERROR;
+        u8 u8timeout = 0;
+        while (1) {
+            LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_STS_REG, &value);
+            if (value & LAN80XX_M_CLK_CFG_LTCPLL_STS_REG_LTCPLL_STS) {
+                T_I(MEPA_TRACE_GRP_TS, "LTC PLL Locked after %d ms \n", u8timeout);
+                base_data->ptp_shared_ltc_pll_init = TRUE;
+                break;
+            }
+            MEPA_MSLEEP(1); /* 1 ms sleep */
+            u8timeout++;
+            if (u8timeout >= 50) {
+                T_E(MEPA_TRACE_GRP_GEN, "LTC PLL Lock FAIL after %d ms\n", u8timeout);
+                return MEPA_RC_ERROR;
+            }
         }
+
+        /* setting the clock value */
+        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(1), LAN80XX_PTP_LTC_CLK_PER_CFG_1);
+        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(0), LAN80XX_PTP_LTC_CLK_PER_CFG_0);
 
         if (!base_data-> ptp_shared_ltc_resource) {
             value = 0x802B;
@@ -1240,10 +1257,11 @@ static mepa_rc lan80xx_phy_ts_ana_blk_id_get(phy25g_ts_engine_t eng_id,
     default:
         /* should never reach here */
         *blk_id = LAN80XX_PHY_TS_ANA_BLK_ID_ING(0);
-        T_E(MEPA_TRACE_GRP_GEN, "Invalid engine id (%d), ingress %d", eng_id, ingress);
+        T_E(MEPA_TRACE_GRP_TS, "Invalid engine id (%d), ingress %d", eng_id, ingress);
         rc = MEPA_RC_ERROR;
         break;
     }
+    T_D(MEPA_TRACE_GRP_TS, "PTP Engine : %d, Block ID : %d\n", eng_id, *blk_id);
     return rc;
 }
 
@@ -1443,7 +1461,7 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
     old_mpls_conf = &flow_conf->flow_conf.ptp.mpls_opt;
 
     if (mpls_conf->flow_opt[flow_index].stack_depth > (MEPA_PTP_MPLS_ALLOW_1LABEL | MEPA_PTP_MPLS_ALLOW_2LABEL | MEPA_PTP_MPLS_ALLOW_3LABEL | MEPA_PTP_MPLS_ALLOW_4LABEL)) {
-        T_E(MEPA_TRACE_GRP_GEN, "\n Maximum supported MPLS Label on port : %d is 4\n", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "\n Maximum supported MPLS Label on port : %d is 4\n", data->port_no);
         return MEPA_RC_ERROR;
     }
 
@@ -1688,10 +1706,9 @@ static mepa_rc lan80xx_ts_eth1_flow_conf(mepa_device_t                 *dev,
             } else {
                 value &= ~LAN80XX_F_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE_ETH1_FLOW_ENABLE;
             }
+            csr_address = (ptp_engine_2 ? (LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE(flow_index) + 0x10) : LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE(flow_index));
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, csr_address, &value));
         }
-
-        csr_address = (ptp_engine_2 ? (LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE(flow_index) + 0x10) : LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE(flow_index));
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, csr_address, &value));
 
         /* addr match mode, match select and last 2 bytes of MAC */
         bool1 = (old_eth_conf->flow_opt[flow_index].addr_match_mode != eth_conf->flow_opt[flow_index].addr_match_mode);
@@ -1963,7 +1980,6 @@ static  mepa_rc lan80xx_ts_eth2_flow_conf(mepa_device_t *dev,
             MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, csr_address, &value));
         }
 
-
         /* addr match mode, match select and last 2 bytes of MAC */
         bool1 = (old_eth_conf->flow_opt[flow_index].addr_match_mode != eth_conf->flow_opt[flow_index].addr_match_mode);
         bool2 = (old_eth_conf->flow_opt[flow_index].addr_match_select != eth_conf->flow_opt[flow_index].addr_match_select);
@@ -2188,68 +2204,67 @@ static mepa_rc lan80xx_ts_ip2_flow_conf(mepa_device_t *dev,
                 MEPA_RC(lan80xx_phy_ts_ip2_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_6));
                 MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_NXT_COMPARATOR, &value));
             }
+        }
 
+        bool2 = (ip_conf->flow_opt[flow_index].flow_en != old_ip_conf->flow_opt[flow_index].flow_en);
+        bool3 = (ip_conf->flow_opt[flow_index].match_mode != old_ip_conf->flow_opt[flow_index].match_mode);
+        if (bool2 || bool3) {
+            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA(flow_index), &value));
+            if (bool2) {
+                if (ip_conf->flow_opt[flow_index].flow_en) {
+                    value |=  LAN80XX_F_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_FLOW_ENA;
+                } else {
+                    value &=  ~LAN80XX_F_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_FLOW_ENA;
+                }
+            }
+            if (bool3) {
+                temp = LAN80XX_F_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_FLOW_MATCH_MODE(ip_conf->flow_opt[flow_index].match_mode);
+                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_FLOW_MATCH_MODE) | temp;
+            }
+            value = value | LAN80XX_F_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_CHANNEL_MASK(3);
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA(flow_index), &value));
+        }
 
-            bool2 = (ip_conf->flow_opt[flow_index].flow_en != old_ip_conf->flow_opt[flow_index].flow_en);
-            bool3 = (ip_conf->flow_opt[flow_index].match_mode != old_ip_conf->flow_opt[flow_index].match_mode);
-            if (bool2 || bool3) {
-                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA(flow_index), &value));
-                if (bool2) {
-                    if (ip_conf->flow_opt[flow_index].flow_en) {
-                        value |=  LAN80XX_F_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_FLOW_ENA;
-                    } else {
-                        value &=  ~LAN80XX_F_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_FLOW_ENA;
-                    }
+        /* IP address */
+        if (memcmp(&old_ip_conf->flow_opt[flow_index].ip_addr, &ip_conf->flow_opt[flow_index].ip_addr, sizeof(old_ip_conf->flow_opt[flow_index].ip_addr)) != 0) {
+            if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_4) {
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.addr;
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_UPPER(flow_index), &value));
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask;
+                /* As suggested by HW team, mask set to '0' should log error message and further continue with configuration */
+                if (!ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask) {
+                    T_W(MEPA_TRACE_GRP_TS, "1588 IP mask is set to zero");
                 }
-                if (bool3) {
-                    temp = LAN80XX_F_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_FLOW_MATCH_MODE(ip_conf->flow_opt[flow_index].match_mode);
-                    value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_FLOW_MATCH_MODE) | temp;
-                }
-                value = value | LAN80XX_F_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA_IP2_CHANNEL_MASK(3);
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA(flow_index), &value));
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER(flow_index), &value));
+                /* clear the other mask register */
+                value = 0;
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER_MID(flow_index), &value));
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER_MID(flow_index), &value));
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER(flow_index), &value));
             }
 
-            /* IP address */
-            if (memcmp(&old_ip_conf->flow_opt[flow_index].ip_addr, &ip_conf->flow_opt[flow_index].ip_addr, sizeof(old_ip_conf->flow_opt[flow_index].ip_addr)) != 0) {
-                if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_4) {
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.addr;
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_UPPER(flow_index), &value));
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask;
-                    /* As suggested by HW team, mask set to '0' should log error message and further continue with configuration */
-                    if (!ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask) {
-                        T_W(MEPA_TRACE_GRP_TS, "1588 IP mask is set to zero");
-                    }
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER(flow_index), &value));
-                    /* clear the other mask register */
-                    value = 0;
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER_MID(flow_index), &value));
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER_MID(flow_index), &value));
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER(flow_index), &value));
-                }
+            else {
+                /* Upper 32-bit of ipv6 address */
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[3];
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_UPPER(flow_index), &value));
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[3];
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER(flow_index), &value));
+                /* Upper mid 32-bit of ipv6 address */
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[2];
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_UPPER_MID(flow_index), &value));
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[2];
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER_MID(flow_index), &value));
 
-                else {
-                    /* Upper 32-bit of ipv6 address */
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[3];
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_UPPER(flow_index), &value));
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[3];
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER(flow_index), &value));
-                    /* Upper mid 32-bit of ipv6 address */
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[2];
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_UPPER_MID(flow_index), &value));
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[2];
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER_MID(flow_index), &value));
-
-                    /* Lower mid 32-bit of ipv6 address */
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[1];
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_LOWER_MID(flow_index), &value));
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[1];
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER_MID(flow_index), &value));
-                    /* Lower 32-bit of ipv6 address */
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[0];
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_LOWER(flow_index), &value));
-                    value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[0];
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER(flow_index), &value));
-                }
+                /* Lower mid 32-bit of ipv6 address */
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[1];
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_LOWER_MID(flow_index), &value));
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[1];
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER_MID(flow_index), &value));
+                /* Lower 32-bit of ipv6 address */
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[0];
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_LOWER(flow_index), &value));
+                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[0];
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER(flow_index), &value));
             }
         }
     }
@@ -2333,25 +2348,22 @@ static mepa_rc lan80xx_ts_ip1_flow_conf(mepa_device_t *dev,
                 MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
                 MEPA_RC(lan80xx_phy_ts_ip1_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_6, FALSE));
             }
-
-            /* Src and dest port number */
-            bool1 = (old_ip_conf->comm_opt.sport_val != ip_conf->comm_opt.sport_val);
-            bool2 = (old_ip_conf->comm_opt.dport_val != ip_conf->comm_opt.dport_val);
-            if (bool1 || bool2) {
-                value = ip_conf->comm_opt.sport_val << 16 | ip_conf->comm_opt.dport_val;
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MATCH_2_UPPER, &value));
-            }
-            bool1 = (old_ip_conf->comm_opt.sport_mask != ip_conf->comm_opt.sport_mask);
-            bool2 = (old_ip_conf->comm_opt.dport_mask != ip_conf->comm_opt.dport_mask);
-
-            if (bool1 || bool2) {
-                value = ip_conf->comm_opt.sport_mask << 16 | ip_conf->comm_opt.dport_mask;
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MASK_2_UPPER, &value));
-            }
         }
-
     }
+    /* Src and dest port number */
+    bool1 = (old_ip_conf->comm_opt.sport_val != ip_conf->comm_opt.sport_val);
+    bool2 = (old_ip_conf->comm_opt.dport_val != ip_conf->comm_opt.dport_val);
+    if (bool1 || bool2) {
+        value = ip_conf->comm_opt.sport_val << 16 | ip_conf->comm_opt.dport_val;
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MATCH_2_UPPER, &value));
+    }
+    bool1 = (old_ip_conf->comm_opt.sport_mask != ip_conf->comm_opt.sport_mask);
+    bool2 = (old_ip_conf->comm_opt.dport_mask != ip_conf->comm_opt.dport_mask);
 
+    if (bool1 || bool2) {
+        value = ip_conf->comm_opt.sport_mask << 16 | ip_conf->comm_opt.dport_mask;
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MASK_2_UPPER, &value));
+    }
 
     bool2 = (ip_conf->flow_opt[flow_index].flow_en != old_ip_conf->flow_opt[flow_index].flow_en);
     bool3 = (ip_conf->flow_opt[flow_index].match_mode != old_ip_conf->flow_opt[flow_index].match_mode);
@@ -3669,60 +3681,23 @@ static mepa_rc lan80xx_phy_ts_engine_ptp_action_flow_delete_priv(
     const phy25g_ts_engine_t eng_id,
     const u8                   flow_index)
 {
-    u32 value;
+    u32 value = 0;
+    u16 ptp_engine2_csr_add_offset = 0;
 
-    if (eng_id == LAN80XX_PHY_TS_PTP_ENGINE_ID_0 || eng_id == LAN80XX_PHY_TS_PTP_ENGINE_ID_1) {
-        /* flow disable */
-        value = 0;
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_ENA(flow_index), &value));
-        /* clear other action registers */
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_DOMAIN_RANGE(flow_index), &value));
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MASK_UPPER(flow_index), &value));
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MASK_LOWER(flow_index), &value));
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MATCH_UPPER(flow_index), &value));
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MATCH_LOWER(flow_index), &value));
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index), &value));
+    T_D(MEPA_TRACE_GRP_TS, "\n Disabling previous PTP action on port: %d\n", port_no);
+    if (eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2A || eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2B) {
+        ptp_engine2_csr_add_offset = 0xF0;
     }
-#if 0
-    else {
-        /* For OAM engine, action may be shared, check before disable the flow */
-        LAN80XX_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_FLOW_ENA(flow_index), &value));
-        temp = LAN80XX_X_ANA_OAM_PTP_FLOW_PTP_FLOW_ENA_PTP_NXT_PROT_GRP_MASK(value);
-        if (eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2A) {
-            /* Gr 2B is set, don't delete the entry, just remove Gr 2A */
-            if (temp & 0x02) {
-                temp = LAN80XX_F_ANA_OAM_PTP_FLOW_PTP_FLOW_ENA_PTP_NXT_PROT_GRP_MASK(0x02);
-                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_OAM_PTP_FLOW_PTP_FLOW_ENA_PTP_NXT_PROT_GRP_MASK) | temp;
-                LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_FLOW_ENA(flow_index), &value));
-                return LAN80XX_RC_OK;
-            }
-        } else {
-            /* Gr 2A is set, don't delete the entry, just remove Gr 2B */
-            if (temp & 0x01) {
-                temp = LAN80XX_F_ANA_OAM_PTP_FLOW_PTP_FLOW_ENA_PTP_NXT_PROT_GRP_MASK(0x01);
-                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_OAM_PTP_FLOW_PTP_FLOW_ENA_PTP_NXT_PROT_GRP_MASK) | temp;
-                LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_FLOW_ENA(flow_index), &value));
-                return LAN80XX_RC_OK;
-            }
-        }
-
-        /* that means flow is not shared, so need to be removed */
-        /* flow disable */
-        value = 0;
-        LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_FLOW_ENA(flow_index), &value));
-        /* clear other action registers */
-        LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_DOMAIN_RANGE(flow_index), &value));
-        LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_FLOW_MASK_UPPER(flow_index), &value));
-        LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_FLOW_MASK_LOWER(flow_index), &value));
-        LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_FLOW_MATCH_UPPER(flow_index), &value));
-        LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_FLOW_MATCH_LOWER(flow_index), &value));
-        LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_ACTION(flow_index), &value));
-        LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-        LAN80XX_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_OAM_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index), &value));
-    }
-#endif
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_FLOW_ENA(flow_index) - ptp_engine2_csr_add_offset), &value));
+    /* clear other action registers */
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_DOMAIN_RANGE(flow_index) - ptp_engine2_csr_add_offset), &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MASK_UPPER(flow_index) - ptp_engine2_csr_add_offset), &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MASK_LOWER(flow_index) - ptp_engine2_csr_add_offset), &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MATCH_UPPER(flow_index) - ptp_engine2_csr_add_offset), &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MATCH_LOWER(flow_index) - ptp_engine2_csr_add_offset), &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index) - ptp_engine2_csr_add_offset), &value));
     return MEPA_RC_OK;
 }
 
@@ -3738,8 +3713,9 @@ static mepa_rc lan80xx_phy_ts_engine_action_set_priv(mepa_device_t              
     phy25g_ts_blk_id_t blk_id;
     u32 action_index = 0;
     mepa_rc rc = MEPA_RC_OK;
-
     old_action_conf = &eng_conf->action_conf;
+
+    T_D(MEPA_TRACE_GRP_TS, "\n lan80xx_phy_ts_engine_action_set_priv function(Ingress : %d, port_no : %d, eng_id : %d)", ingress, port_no, eng_id);
     /*
      * if the old config was action enable, delete the flow first
      * corresponding to the old action and add new flow based on new config
@@ -3760,6 +3736,7 @@ static mepa_rc lan80xx_phy_ts_engine_action_set_priv(mepa_device_t              
         }
     }
     if (!new_action_conf->action.ptp_conf.enable) {
+        T_D(MEPA_TRACE_GRP_TS, "PTP Action flow disabled on port : %d\n", port_no);
         return MEPA_RC_OK;
     }
     if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC1STEP && new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_E2E) {
@@ -3903,10 +3880,6 @@ mepa_rc lan80xx_ts_egress_engine_clear(mepa_device_t *dev,
     do {
         eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
 
-        if (!eng_conf->eng_used) {
-            rc = MEPA_RC_ERROR;
-            break;
-        }
         flow_conf = &eng_conf->flow_conf;
         //action_conf = &eng_conf->action_conf;
 
@@ -3932,10 +3905,6 @@ mepa_rc lan80xx_ts_ingress_engine_clear(mepa_device_t *dev,
     do {
         eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
 
-        if (!eng_conf->eng_used) {
-            rc = MEPA_RC_ERROR;
-            break;
-        }
         flow_conf = &eng_conf->flow_conf;
         rc = lan80xx_phy_ts_engine_clear_priv(dev, TRUE, port_no, eng_id);
         /* clear the engine config */
@@ -4031,10 +4000,6 @@ mepa_rc lan80xx_ts_egress_engine_action_set(mepa_device_t *dev, mepa_port_no_t p
     phy25g_ts_eng_conf_t *eng_conf;
     do {
         eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-        if (!eng_conf->eng_used) {
-            rc = MEPA_RC_ERROR;
-            break;
-        }
         rc = lan80xx_phy_ts_engine_action_set_priv(dev, FALSE, port_no,
                                                    eng_id, eng_conf, action_conf);
         /* save the action config */
@@ -4128,10 +4093,6 @@ mepa_rc lan80xx_ts_ingress_engine_action_set(mepa_device_t *dev, mepa_port_no_t 
     MEPA_ASSERT(action_conf == NULL);
     do {
         eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
-        if (!eng_conf->eng_used) {
-            rc = MEPA_RC_ERROR;
-            break;
-        }
         rc = lan80xx_phy_ts_engine_action_set_priv(dev, TRUE, port_no, eng_id, eng_conf, action_conf);
         /* save the action config */
         if (rc == MEPA_RC_OK) {
@@ -4175,11 +4136,6 @@ static mepa_rc lan80xx_ts_egress_engine_action_get(mepa_device_t                
     phy25g_ts_eng_conf_t *eng_conf;
     do {
         eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-        if (!eng_conf->eng_used) {
-            T_E(MEPA_TRACE_GRP_TS, "\n PTP Engine not in use on port : %d\n", port_no);
-            rc = MEPA_RC_ERROR;
-            break;
-        }
         memcpy(action_conf, &eng_conf->action_conf, sizeof(phy25g_ts_engine_action_t));
     } while (0);
     return rc;
@@ -4195,11 +4151,6 @@ static mepa_rc lan80xx_ts_ingress_engine_action_get(mepa_device_t  *dev,
     phy25g_ts_eng_conf_t *eng_conf;
     do {
         eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
-        if (!eng_conf->eng_used) {
-            T_E(MEPA_TRACE_GRP_TS, "\n PTP Engine not in use on port : %d\n", port_no);
-            rc = MEPA_RC_ERROR;
-            break;
-        }
         memcpy(action_conf, &eng_conf->action_conf, sizeof(phy25g_ts_engine_action_t));
     } while (0);
     return rc;
@@ -4252,10 +4203,6 @@ mepa_rc lan80xx_ts_ingress_engine_conf_get(mepa_device_t  *dev,
     phy25g_ts_eng_conf_t *eng_conf;
     do {
         eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
-        if (!eng_conf->eng_used) {
-            rc = MEPA_RC_ERROR;
-            break;
-        }
         memcpy(flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
     } while (0);
     return rc;
@@ -4271,10 +4218,6 @@ mepa_rc lan80xx_ts_egress_engine_conf_get(mepa_device_t  *dev,
     phy25g_ts_eng_conf_t *eng_conf;
     do {
         eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-        if (!eng_conf->eng_used) {
-            rc = MEPA_RC_ERROR;
-            break;
-        }
         memcpy(flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
     } while (0);
     return rc;
@@ -4413,20 +4356,16 @@ mepa_rc lan80xx_rx_classifier_conf_get_priv(mepa_device_t         *dev,
     }
 
     eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
-    if (!eng_conf->eng_used) {
-        memset(out_conf, 0, sizeof(mepa_ts_classifier_t));
-        out_conf->enable = FALSE;
-    } else {
-        // Get conf from engine
-        rc = lan80xx_ts_ingress_engine_conf_get(dev, data->port_no, eng_id, &flow_conf);
-        if (rc != MEPA_RC_OK) {
-            return MEPA_RC_ERR_TS_FLOW_GET_FAIL;
-        }
-        out_conf->pkt_encap_type = lan80xx_to_mepa_encap(eng_conf->encap_type);
-        out_conf->enable = TRUE;
-        lan80xx_get_class_from_flow(&flow_conf, flow_id, out_conf);
-        out_conf->clock_id = eng_id; // 1 clock per engine
+    // Get conf from engine
+    rc = lan80xx_ts_ingress_engine_conf_get(dev, data->port_no, eng_id, &flow_conf);
+    if (rc != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_TS, "\n Engine Get conf failed on port : %d", data->port_no);
+        return MEPA_RC_ERR_TS_FLOW_GET_FAIL;
     }
+    out_conf->pkt_encap_type = lan80xx_to_mepa_encap(eng_conf->encap_type);
+    out_conf->enable = eng_conf->eng_used;
+    lan80xx_get_class_from_flow(&flow_conf, flow_id, out_conf);
+    out_conf->clock_id = eng_id; // 1 clock per engine
 
     return MEPA_RC_OK;
 }
@@ -4447,20 +4386,16 @@ mepa_rc lan80xx_tx_classifier_conf_get_priv(mepa_device_t *dev,
         return MEPA_RC_ERROR;
     }
     eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-    if (!eng_conf->eng_used) {
-        memset(out_conf, 0, sizeof(mepa_ts_classifier_t));
-        out_conf->enable = FALSE;
-    } else {
-        // Get conf from engine
-        rc = lan80xx_ts_egress_engine_conf_get(dev, data->port_no, eng_id, &flow_conf);
-        if (rc != MEPA_RC_OK) {
-            return MEPA_RC_ERR_TS_FLOW_GET_FAIL;
-        }
-        out_conf->pkt_encap_type = lan80xx_to_mepa_encap(eng_conf->encap_type);
-        out_conf->enable = TRUE;
-        lan80xx_get_class_from_flow(&flow_conf, flow_id, out_conf);
-        out_conf->clock_id = eng_id; // 1 clock per engine
+    // Get conf from engine
+    rc = lan80xx_ts_egress_engine_conf_get(dev, data->port_no, eng_id, &flow_conf);
+    if (rc != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_TS, "\n Engine Get conf failed on port : %d", data->port_no);
+        return MEPA_RC_ERR_TS_FLOW_GET_FAIL;
     }
+    out_conf->pkt_encap_type = lan80xx_to_mepa_encap(eng_conf->encap_type);
+    out_conf->enable = eng_conf->eng_used;
+    lan80xx_get_class_from_flow(&flow_conf, flow_id, out_conf);
+    out_conf->clock_id = eng_id; // 1 clock per engine
     return MEPA_RC_OK;
 }
 
@@ -4543,8 +4478,7 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
     u32    pos = 0;
 
     mepa_timestamp_t             ts;
-    phy25g_ts_fifo_sig_mask_t    sig_mask;
-    phy25g_ts_fifo_sig_t         signature;
+    phy25g_ts_fifo_sig_t         signature = {0};
     mepa_ts_fifo_status_t        status = MEPA_TS_FIFO_SUCCESS;
 
     u32   val_1st = 0, val_2nd = 0;
@@ -4555,6 +4489,10 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
     memset(&mepa_sig, 0, sizeof(mepa_ts_fifo_sig_t));
     memset(&ts, 0, sizeof(mepa_timestamp_t));
 
+    phy25g_ts_fifo_sig_mask_t         sig_mask;
+
+    sig_mask = data->phy_ts_port_conf.sig_mask;
+
     if (callback) {
         if (data->ts_fifo_cb == NULL) {
             T_E(MEPA_TRACE_GRP_TS, "\n FIFO Read callback function not registered on Port : %d", data->port_no);
@@ -4564,8 +4502,6 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
     } else {
         *num = 0;
     }
-
-    sig_mask = data->phy_ts_port_conf.sig_mask;
 
     /* Step 1:: Loop reading the TSFIFO_0 register, until TS_EMPTY bit = 0 */
     do {
@@ -4674,72 +4610,62 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
             sig[37] = LAN80XX_PHY_TS_EXTRACT_BYTE(value, 16);
             sig[38] = LAN80XX_PHY_TS_EXTRACT_BYTE(value, 24);
 
-            signature.sig_mask = sig_mask;
             ts.picoseconds = (uint8_t)sig[0];
             ts.nanoseconds = (uint32_t)((sig[4] << 24) | (sig[3] << 16) | (sig[2] << 8)  | sig[1]);
             ts.seconds.low = (uint32_t)((sig[8] << 24) | (sig[7] << 16) | (sig[6] << 8)  | sig[5]);
             ts.seconds.high = (uint16_t)((sig[10] << 8) | sig[9]);
 
             T_D(MEPA_TRACE_GRP_TS, "Time sh: %u ,sl: %u ns: %u fns=%u\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);
-            //printf("Time sh: %d ,sl: %d ns: %d fns=%d\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);
-#if 0
-            printf("\n");
-            printf("\n ============ \n");
-            for (int i = 0; i < 39; i ++) {
-                printf("\n sig[%d] : %d , 0x%X", i, sig[i], sig[i]);
-            }
-            printf("Time sh: %d ,sl: %d ns: %d fns=%d\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);
-            printf("\n ========\n");
-            printf("\n");
-#endif
 
             pos += LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN; /* 11 Byte Timestamp length */
 
             if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID) {
                 MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
                 signature.sequence_id = (sig[pos + 1] << 8) | sig[pos];
-                pos += LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN;
             }
+            pos += LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN;
 
             if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID) {
                 MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
                 for (id_cnt = 0; id_cnt <= 9; id_cnt++) { /* 0 - 9, Total 10 Byte Source Port ID */
                     signature.src_port_identity[id_cnt] = sig[pos + (9 - id_cnt)];
                 }
-                pos += LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN;
             }
+            pos += LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN;
 
             if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM) {
                 MEPA_ASSERT((pos + 1) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
-                signature.domain_num = sig[pos++];
+                signature.domain_num = sig[pos];
             }
+            pos += 1;
 
+            /* message_type field is only the lower nibble
+             */
             if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE) {
-                /* message_type field is only the lower nibble
-                 */
                 MEPA_ASSERT((pos + 1) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
-                signature.msg_type = sig[pos++] & 0x0f;
+                signature.msg_type = sig[pos] & 0x0f;
             }
+            pos = pos + 1;
 
             if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_IP) {
                 MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_DEST_IP_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
                 signature.dest_ip = (sig[pos + 3] << 24) | (sig[pos + 2] << 16) | (sig[pos + 1] << 8) | sig[pos];
-                pos += LAN80XX_PHY_TS_SIG_DEST_IP_LEN;
             }
+            pos += LAN80XX_PHY_TS_SIG_DEST_IP_LEN;
 
             if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SRC_IP) {
                 MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SRC_IP_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
                 signature.src_ip = (sig[pos + 3] << 24) | (sig[pos + 2] << 16) | (sig[pos + 1] << 8) | sig[pos];
-                pos += LAN80XX_PHY_TS_SIG_SRC_IP_LEN;
             }
+            pos += LAN80XX_PHY_TS_SIG_SRC_IP_LEN;
 
             if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC) {
                 MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_DEST_MAC_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
                 for (loop_cnt = 0; loop_cnt < LAN80XX_PHY_TS_SIG_DEST_MAC_LEN; loop_cnt++) {
                     signature.dest_mac[loop_cnt] = sig[pos + loop_cnt];
                 }
-                pos += LAN80XX_PHY_TS_SIG_DEST_MAC_LEN;
             }
+            pos += LAN80XX_PHY_TS_SIG_DEST_MAC_LEN;
 
             T_D(MEPA_TRACE_GRP_TS, "Signature  :: ");
             T_D(MEPA_TRACE_GRP_TS, "    Message Type  :: %x ", signature.msg_type);
@@ -4764,6 +4690,17 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
             memcpy(&mepa_sig.src_port_identity, &signature.src_port_identity, sizeof(signature.src_port_identity));
             mepa_sig.has_crc_src = FALSE;
             mepa_sig.crc_src_port = 0;
+            mepa_sig.dmac_sig_supported = TRUE;
+            memcpy(&mepa_sig.dmac_addr, &signature.dest_mac, sizeof(signature.dest_mac));
+            mepa_sig.ipv4_sig_supported = TRUE;
+            mepa_sig.dest_ipv4[0] = (signature.dest_ip >> 24) & 0xFF;
+            mepa_sig.dest_ipv4[1] = (signature.dest_ip >> 16) & 0xFF;
+            mepa_sig.dest_ipv4[2] = (signature.dest_ip >> 8) & 0xFF;
+            mepa_sig.dest_ipv4[3] = signature.dest_ip & 0xFF;
+
+            if (mepa_sig.dest_ipv4[0] || mepa_sig.dest_ipv4[1] || mepa_sig.dest_ipv4[2] || mepa_sig.dest_ipv4[3]) {
+                memset(&mepa_sig.dmac_addr, 0, sizeof(mepa_sig.dmac_addr));
+            }
 
             if (callback) {
                 status = MEPA_TS_FIFO_SUCCESS;
@@ -4793,7 +4730,7 @@ static mepa_rc lan80xx_phy_ts_ip1_sig_mask_set_priv(mepa_device_t               
     phy25g_ts_fifo_sig_mask_t sig_mask;
     phy25g_ts_engine_flow_conf_t *flow_conf = NULL;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    sig_mask = data->phy_ts_port_conf.sig_mask ;
+    sig_mask = data->phy_ts_port_conf.sig_mask;
     flow_conf = &data->phy_ts_port_conf.egress_eng_conf[engine_id].flow_conf;
 
     if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP)) {
@@ -4823,11 +4760,62 @@ static mepa_rc lan80xx_phy_ts_ip1_sig_mask_set_priv(mepa_device_t               
     /* select the IP1 comparator */
     MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_CFG, &value));
     value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL);
-    value |= LAN80XX_F_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL(2) ;
+    value |= LAN80XX_F_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL(2);
     MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_CFG, &value));
 
     return MEPA_RC_OK;
 }
+
+static mepa_rc lan80xx_phy_ts_eth2_sig_mask_set_priv(mepa_device_t *dev,
+                                                     const mepa_port_no_t              port_no,
+                                                     const phy25g_ts_engine_t        engine_id,
+                                                     const phy25g_ts_blk_id_t        blk_id)
+{
+    u32 value;
+    phy25g_ts_fifo_sig_mask_t sig_mask;
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    sig_mask = data->phy_ts_port_conf.sig_mask;
+
+    if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC) {
+        if (engine_id < LAN80XX_PHY_TS_OAM_ENGINE_ID_2A) {
+            /* select the offset */
+            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id,
+                                            LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL, &value));
+
+            value = LAN80XX_PHY_TS_CLR_BITS(value,
+                                            LAN80XX_M_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_FRAME_SIG_OFFSET);
+
+            value |= LAN80XX_F_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_FRAME_SIG_OFFSET(0);
+
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id,
+                                             LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL, &value));
+
+            /* select the ETH1 comparator in Frame Signature builder mode config register*/
+            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id,
+                                            LAN80XX_ANA_FRAME_SIG_CFG_FSB_CFG, &value));
+
+            value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL);
+            value |= LAN80XX_F_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL(1);
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_CFG, &value));
+
+        } else if (engine_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2A || engine_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2B) {
+
+            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL, &value));
+
+            value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_FRAME_SIG_OFFSET);
+            value |= LAN80XX_F_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_FRAME_SIG_OFFSET(0);
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL, &value));
+
+            /* select the ETH1 comparator in Frame Signature builder mode config register*/
+            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_CFG_OFFSET, &value));
+            value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL);
+            value |= LAN80XX_F_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL(1);
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_CFG_OFFSET, &value));
+        }
+    }
+    return MEPA_RC_OK;
+}
+
 
 static mepa_rc lan80xx_phy_ts_eth1_sig_mask_set_priv(mepa_device_t *dev,
                                                      const mepa_port_no_t              port_no,
@@ -4880,15 +4868,14 @@ static mepa_rc lan80xx_phy_ts_eth1_sig_mask_set_priv(mepa_device_t *dev,
 
 static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
                                                  const mepa_port_no_t  port_no,
-                                                 phy25g_ts_engine_t    eng_id)
+                                                 phy25g_ts_engine_t    eng_id,
+                                                 const phy25g_ts_fifo_sig_mask_t   sig_mask)
 {
     u32 value = 0, pos = 0;
     i32 byte_ct = 0;
     u8 sig_sel[LAN80XX_PTP_SIGNATURE_LEN];
     phy25g_ts_blk_id_t blk_id;
     phy25g_ts_encap_t  encap_type;
-    phy25g_ts_fifo_sig_mask_t sig_mask;
-
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     /* Configure the signature bytes in each of the 3 engines */
     /* If the engine is not able to generate the signature than Ignore the sig_mask
@@ -4901,17 +4888,15 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
      *            2. Based on the Signature mask bits select the bytes in
      *                the PTP header to extract the signature.
      */
-    sig_mask = data->phy_ts_port_conf.sig_mask;
-    memset(&sig_sel[0], 0, LAN80XX_PTP_SIGNATURE_LEN);
-
+    memset(&sig_sel[0], 63, LAN80XX_PTP_SIGNATURE_LEN);
 
     if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID) {
         /* sequene_id is 2 Bytes long, it starts from 30th byte in PTP header
          * [0 - based byte count]
          * use 0, 1
          */
-        sig_sel[pos++] = 0;
-        sig_sel[pos++] = 1;
+        sig_sel[0] = 0;
+        sig_sel[1] = 1;
     }
 
     if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID) {
@@ -4921,7 +4906,7 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
          */
         for (byte_ct = 0; byte_ct < 10; byte_ct++) {
             /* Select Byte starting is 2 and ending is 11 */
-            sig_sel[pos + byte_ct] = 2 + byte_ct;
+            sig_sel[2 + byte_ct] = 2 + byte_ct;
         }
         pos += LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN;
     }
@@ -4930,7 +4915,7 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
         /* domain_num is the 4th byte in PTP header [0 - based byte count]
          * use 25
          */
-        sig_sel[pos++] = 25;
+        sig_sel[12] = 25;
 
     }
 
@@ -4938,7 +4923,7 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
         /* msg_type is 1 nibble in 0 byte in PTP header [0 - based byte count]
          * use 26
          */
-        sig_sel[pos++] = 26;
+        sig_sel[13] = 26;
     }
 
     if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP)) {
@@ -4978,14 +4963,10 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
              * [0 - based byte count]
              * use 28,29,30,31
              */
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 36;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 37;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 38;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 39;
+            sig_sel[14] = 36;
+            sig_sel[15] = 37;
+            sig_sel[16] = 38;
+            sig_sel[17] = 39;
         }
 
         if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SRC_IP) {
@@ -4993,15 +4974,31 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
              * [0 - based byte count]
              * use 32,33,34,35
              */
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 40;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 41;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 42;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 43;
+            sig_sel[18] = 40;
+            sig_sel[19] = 41;
+            sig_sel[20] = 42;
+            sig_sel[21] = 43;
         }
+    }
+
+    if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP) {
+
+        sig_sel[12] = 28;
+        sig_sel[13] = 29;
+        sig_sel[14] = 30;
+        sig_sel[15] = 31;
+        sig_sel[16] = 32;
+        sig_sel[17] = 33;
+        sig_sel[18] = 34;
+        sig_sel[19] = 35;
+        sig_sel[20] = 36;
+        sig_sel[21] = 37;
+        sig_sel[22] = 38;
+        sig_sel[23] = 39;
+        sig_sel[24] = 40;
+        sig_sel[25] = 41;
+        sig_sel[26] = 42;
+        sig_sel[27] = 43;
     }
 
     if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC)) {
@@ -5011,20 +5008,11 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
         MEPA_RC(lan80xx_phy_ts_ana_blk_id_get(eng_id, FALSE, &blk_id));
         if (data->phy_ts_port_conf.egress_eng_conf[eng_id].eng_used == TRUE) {
 
-            if ((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP) ||
-                (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP)) {
-
+            if (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_PTP) {
                 MEPA_RC(lan80xx_phy_ts_eth1_sig_mask_set_priv(dev, port_no, eng_id, blk_id));
+            } else if ((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP)) {
+                MEPA_RC(lan80xx_phy_ts_eth2_sig_mask_set_priv(dev, port_no, eng_id, blk_id));
             }
-#if 0
-            else if (((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP)      ||
-                      (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP)   ||
-                      (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) ||
-                      (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) &&
-                     (engine_id != LAN80XX_PHY_TS_OAM_ENGINE_ID_2B)) {
-                //MEPA_RC(lan80xx_phy_ts_eth2_sig_mask_set_priv(dev, port_no, engine_id, blk_id));
-            }
-#endif
         }
         /* If Destination MAC is selected for signature then use next position storing
          * the MAC address */
@@ -5037,18 +5025,12 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
              * [0 - based byte count]
              * use 30,31,32,33,34,35
              */
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 35;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 34;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 33;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 32;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 31;
-            MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 30;
+            sig_sel[22] = 35;
+            sig_sel[23] = 34;
+            sig_sel[24] = 33;
+            sig_sel[25] = 32;
+            sig_sel[26] = 31;
+            sig_sel[27] = 30;
         }
     }
     /* configure the signature selection
@@ -5096,24 +5078,58 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
     }
 
     value = 0;
-    value = (sig_sel[pos++] & 0x3f);
+    for (byte_ct = 4; byte_ct >= 0; byte_ct--) {
+        value = (value << 6) | (sig_sel[pos + byte_ct] & 0x3f);
+    }
+    pos += 5;
     if (ptp_engine_2 == 1) {
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_3_OFFSET, &value));
     } else {
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_3, &value));
     }
+
+    value = 0;
+    for (byte_ct = 4; byte_ct >= 0; byte_ct--) {
+        value = (value << 6) | (sig_sel[pos + byte_ct] & 0x3f);
+    }
+    pos += 5;
+    if (ptp_engine_2 == 1) {
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_4_OFFSET, &value));
+    } else {
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_4, &value));
+    }
+
+    value = 0;
+    for (byte_ct = 2; byte_ct >= 0; byte_ct--) {
+        value = (value << 6) | (sig_sel[pos + byte_ct] & 0x3f);
+    }
+    if (ptp_engine_2 == 1) {
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_5_OFFSET, &value));
+    } else {
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_5, &value));
+    }
+
     return MEPA_RC_OK;
 }
 
-mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                     *dev,
-                                    const mepa_port_no_t              port_no,
-                                    phy25g_ts_engine_t                eng_id,
-                                    const phy25g_ts_fifo_sig_mask_t   sig_mask)
+mepa_rc lan80xx_phy_ts_fifo_sig_get_priv(mepa_device_t                     *dev,
+                                         const mepa_port_no_t              port_no,
+                                         phy25g_ts_fifo_sig_mask_t         *sig_mask)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+
+    *sig_mask = data->phy_ts_port_conf.sig_mask;
+    return MEPA_RC_OK;
+}
+
+
+mepa_rc lan80xx_phy_ts_fifo_sig_set_priv(mepa_device_t                     *dev,
+                                         const mepa_port_no_t              port_no,
+                                         const phy25g_ts_fifo_sig_mask_t   sig_mask)
 {
     mepa_rc        rc = MEPA_RC_OK;
     u8             len = 0;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-
 
     if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE) {
         len += 1;    /* PTP Msg Type = 1Byte */
@@ -5136,9 +5152,12 @@ mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                     *dev,
     if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC) {
         len += LAN80XX_PHY_TS_SIG_DEST_MAC_LEN;    /* Dest MAC = 6 Bytes */
     }
+    if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP) {
+        len += LAN80XX_PHY_TS_SIG_IPV6_LEN;
+    }
 
     if (len > LAN80XX_PTP_SIGNATURE_LEN) {
-        T_E(MEPA_TRACE_GRP_TS, "Invalid FIFO signature length");
+        T_E(MEPA_TRACE_GRP_TS, "Invalid FIFO signature length\n");
         return MEPA_RC_ERROR;
     }
 
@@ -5150,9 +5169,15 @@ mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                     *dev,
              */
             /* set the signature timestamp bytes based on the signature mask config */
 
-            if ((rc = lan80xx_phy_ts_signature_set_priv(dev, port_no, eng_id)) != MEPA_RC_OK) {
-                T_E(MEPA_TRACE_GRP_TS, "Signature set fail, port %u", port_no);
+            for (u8 eng_id = LAN80XX_PHY_TS_PTP_ENGINE_ID_0; eng_id <= LAN80XX_PHY_TS_OAM_ENGINE_ID_2A; eng_id++) { 
+                if ((rc = lan80xx_phy_ts_signature_set_priv(dev, port_no, eng_id, sig_mask)) != MEPA_RC_OK) {
+                    T_E(MEPA_TRACE_GRP_TS, "Signature set fail, on PTP Engine :%d at port %u\n", eng_id, port_no);
+                    rc = MEPA_RC_ERROR;
+                }
             }
+        } else {
+            T_E(MEPA_TRACE_GRP_TS, "Signature set failed as TS Port init not completed on port : %d \n", port_no);
+            rc = MEPA_RC_ERROR;
         }
     } while (0);
     return rc;
@@ -5407,43 +5432,47 @@ static mepa_rc lan80xx_ts_csr_set_priv(mepa_device_t *dev,
                         LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_ENA(1),
                         LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_ENA);
 
+        u8 u8timeout = 0;
+        mepa_bool_t locked = FALSE;
         if (enable) {
-            /* PHAD lock takes ~1.2ms to lock */
-            MEPA_MSLEEP(2);
-            /* Check PHAD_LOCK to port clock */
-            if (!data->conf.conf_25g.rs_fec_25g) {
-                LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_EGR_SOF_PHAD_CTRL, &value);
-                if (!LAN80XX_X_PTP_PROC_EGR_SOF_PHAD_CTRL_EGR_STAT_LOCKED(value)) {
-                    T_E(MEPA_TRACE_GRP_TS, "SOF Egress phad control lock failed for port %u value=%x\n", __FUNCTION__, port_no, value);
-                    rc = MEPA_RC_ERROR;
+
+            while (u8timeout < 50) {
+                /* Check PHAD_LOCK to port clock */
+                if (!data->conf.conf_25g.rs_fec_25g) {
+                    LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_EGR_SOF_PHAD_CTRL, &value);
+                    if (LAN80XX_X_PTP_PROC_EGR_SOF_PHAD_CTRL_EGR_STAT_LOCKED(value)) {
+                        T_I(MEPA_TRACE_GRP_TS, "SOF egress phad locked to port clock\n");
+                        LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_INGR_SOF_PHAD_CTRL, &value);
+
+                        if (LAN80XX_X_PTP_PROC_INGR_SOF_PHAD_CTRL_INGR_STAT_LOCKED(value)) {
+                            locked = TRUE;
+                            T_I(MEPA_TRACE_GRP_TS, "SOF ingress phad locked to port clock\n");
+                            break;
+                        }
+                    }
                 } else {
-                    T_I(MEPA_TRACE_GRP_TS, "SOF egress phad locked to port clock\n");
-                    LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_INGR_SOF_PHAD_CTRL, &value);
-                    if (!LAN80XX_X_PTP_PROC_INGR_SOF_PHAD_CTRL_INGR_STAT_LOCKED(value)) {
-                        T_E(MEPA_TRACE_GRP_TS, "SOF Ingress phad control lock failed for port %u value=%x\n", __FUNCTION__, port_no, value);
-                        rc = MEPA_RC_ERROR;
-                    } else {
-                        T_I(MEPA_TRACE_GRP_TS, "SOF ingress phad locked to port clock\n");
+                    LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_EGR_RSFEC_PHAD_CTRL, &value);
+                    if (LAN80XX_X_PTP_PROC_EGR_RSFEC_PHAD_CTRL_EGR_STAT_LOCKED(value)) {
+                        T_I(MEPA_TRACE_GRP_TS, "RS-FEC egress phad locked to port clock\n");
+                        LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_INGR_RSFEC_PHAD_CTRL, &value);
+                        if (LAN80XX_X_PTP_PROC_INGR_RSFEC_PHAD_CTRL_INGR_STAT_LOCKED(value)) {
+                            T_I(MEPA_TRACE_GRP_TS, "RS-FEC ingress phad locked to port clock\n");
+                            locked = TRUE;
+                            break;
+                        }
                     }
                 }
-            } else {
-                LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_EGR_RSFEC_PHAD_CTRL, &value);
-                if (!LAN80XX_X_PTP_PROC_EGR_RSFEC_PHAD_CTRL_EGR_STAT_LOCKED(value)) {
-                    T_E(MEPA_TRACE_GRP_TS, "RSFEC egress phad control lock failed for port %u value=%x\n", __FUNCTION__, port_no, value);
-                    rc = MEPA_RC_ERROR;
-                } else {
-                    T_I(MEPA_TRACE_GRP_TS, "RS-FEC egress phad locked to port clock\n");
-                    LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_INGR_RSFEC_PHAD_CTRL, &value);
-                    if (!LAN80XX_X_PTP_PROC_INGR_RSFEC_PHAD_CTRL_INGR_STAT_LOCKED(value)) {
-                        T_E(MEPA_TRACE_GRP_TS, "RSFEC Ingress phad control lock failed for port %u value=%x\n", __FUNCTION__, port_no, value);
-                        rc = MEPA_RC_ERROR;
-                    } else {
-                        T_I(MEPA_TRACE_GRP_TS, "RS-FEC ingress phad locked to port clock\n");
-                    }
-                }
+                MEPA_MSLEEP(1);
+                u8timeout++;
             }
-            if (rc == MEPA_RC_ERROR) {
+            if (locked == FALSE) {
+                if (!data->conf.conf_25g.rs_fec_25g) {
+                    T_E(MEPA_TRACE_GRP_TS, "SOF PHAD lock timeout on port %u\n", port_no);
+                } else {
+                    T_E(MEPA_TRACE_GRP_TS, "RS-FEC PHAD lock timeout on port %u\n", port_no);
+                }
                 data->phy_ts_port_conf.port_ena = FALSE;
+                rc = MEPA_RC_ERROR;
             }
         }
 
@@ -5724,7 +5753,7 @@ static mepa_rc lan80xx_ts_csr_set_priv(mepa_device_t *dev,
         mask = 0;
 
         if (data->ptp_lsc_output_config.sertod_conf.pin_select == LAN80XX_PTP_LS_CTRL_3) {
-            T_E(MEPA_TRACE_GRP_GEN, "no o/p support in ls ctrl 3");
+            T_E(MEPA_TRACE_GRP_TS, "no o/p support in ls ctrl 3");
             return MEPA_RC_ERROR;
         }
 
@@ -5997,14 +6026,7 @@ mepa_rc lan80xx_ts_mode_get_priv( mepa_device_t *dev,
     mepa_rc      rc = MEPA_RC_OK;
 
     MEPA_ASSERT(enable == NULL);
-    do {
-        if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", data->port_no);
-            rc = MEPA_RC_ERROR;
-            break;
-        }
-        *enable = data->phy_ts_port_conf.port_ena;
-    } while (0);
+    *enable = data->phy_ts_port_conf.port_ena;
 
     return rc;
 }
@@ -6101,14 +6123,13 @@ mepa_rc lan80xx_ts_rx_classifier_conf_set_priv(struct mepa_device *dev,
         T_D(MEPA_TRACE_GRP_TS, "Initializing engine (%d)flow...\n", eng_id);
         memcpy(&flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
         eng_conf->encap_type = encap;
-        eng_conf->eng_used = TRUE;
-        eng_conf->flow_match_mode = TRUE;
+        eng_conf->eng_used = pkt_class_conf->enable;
+
         flow_conf.flow_conf.ptp.eth1_opt.comm_opt.etype = eth_in->vlan_conf.etype;
         flow_conf.flow_conf.ptp.eth1_opt.comm_opt.tpid = eth_in->vlan_conf.tpid;
         flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en =  eth_in->vlan_conf.pbb_en;
         //Engine enable
-        flow_conf.eng_mode = TRUE;
-        eth_flow->flow_en = TRUE;
+        eth_flow->flow_en = pkt_class_conf->enable;
         eth_flow->addr_match_mode = lan80xx_get_vs_addr_type(pkt_class_conf->eth_class_conf.mac_match_mode);
         eth_flow->addr_match_select = lan80xx_get_vs_mac_type(pkt_class_conf->eth_class_conf.mac_match_select);
         memcpy(eth_flow->mac_addr, eth_in->mac_addr, sizeof(eth_in->mac_addr));
@@ -6162,7 +6183,7 @@ mepa_rc lan80xx_ts_rx_classifier_conf_set_priv(struct mepa_device *dev,
             ip2_flow =  &flow_conf.flow_conf.ptp.ip2_opt.flow_opt[eng_flow];
             in_ip2_conf = &pkt_class_conf->ip2_class_conf;
 
-            ip2_flow->flow_en = TRUE;
+            ip2_flow->flow_en = pkt_class_conf->enable;
             ip2_flow->match_mode = lan80xx_get_vs_ntw_type(in_ip2_conf->ip_match_mode);
             if (in_ip2_conf->ip_ver == MEPA_TS_IP_VER_4) {
                 flow_conf.flow_conf.ptp.ip2_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
@@ -6183,7 +6204,7 @@ mepa_rc lan80xx_ts_rx_classifier_conf_set_priv(struct mepa_device *dev,
             (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP) || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP)
             || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP) || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) {
             in_ip_conf = &pkt_class_conf->ip_class_conf;
-            ip_flow->flow_en = TRUE;
+            ip_flow->flow_en = pkt_class_conf->enable;
             ip_flow->match_mode = lan80xx_get_vs_ntw_type(in_ip_conf->ip_match_mode);
             if (in_ip_conf->ip_ver == MEPA_TS_IP_VER_4) {
                 flow_conf.flow_conf.ptp.ip1_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
@@ -6209,7 +6230,7 @@ mepa_rc lan80xx_ts_rx_classifier_conf_set_priv(struct mepa_device *dev,
             flow_conf.flow_conf.ptp.eth2_opt.comm_opt.etype = eth2_in->vlan_conf.etype;
             flow_conf.flow_conf.ptp.eth2_opt.comm_opt.tpid = eth2_in->vlan_conf.tpid;
 
-            eth2_flow->flow_en = TRUE;
+            eth2_flow->flow_en = pkt_class_conf->enable;
             eth2_flow->addr_match_mode = lan80xx_get_vs_addr_type(pkt_class_conf->eth2_class_conf.mac_match_mode);
             eth2_flow->addr_match_select = lan80xx_get_vs_mac_type(pkt_class_conf->eth2_class_conf.mac_match_select);
             eth2_flow->vlan_check = pkt_class_conf->eth2_class_conf.vlan_check;
@@ -6257,7 +6278,7 @@ mepa_rc lan80xx_ts_rx_classifier_conf_set_priv(struct mepa_device *dev,
             (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP)) {
             void *Ptrmem = NULL;
             flow_conf.flow_conf.ptp.mpls_opt.comm_opt.cw_en = pkt_class_conf->mpls_class_conf.cw_en;
-            mpls_flow->flow_en = pkt_class_conf->mpls_class_conf.flow_en;
+            mpls_flow->flow_en = (pkt_class_conf->mpls_class_conf.flow_en & pkt_class_conf->enable);
             mpls_flow->stack_depth = pkt_class_conf->mpls_class_conf.stack_depth;
             mpls_flow->stack_ref_point = pkt_class_conf->mpls_class_conf.stack_ref_point;
             Ptrmem = memcpy(&mpls_flow->stack_level.top_down, &pkt_class_conf->mpls_class_conf.stack_level, sizeof(mpls_flow->stack_level.top_down));
@@ -6328,15 +6349,13 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
         T_D(MEPA_TRACE_GRP_TS, "Initializing engine (%d)flow...\n", eng_id);
         memcpy(&flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
         eng_conf->encap_type = encap;
-        eng_conf->eng_used = TRUE;
-        //Stict mode
-        eng_conf->flow_match_mode = TRUE;
+        eng_conf->eng_used = pkt_class_conf->enable;
+
         flow_conf.flow_conf.ptp.eth1_opt.comm_opt.etype = eth_in->vlan_conf.etype;
         flow_conf.flow_conf.ptp.eth1_opt.comm_opt.tpid = eth_in->vlan_conf.tpid;
         flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en =  eth_in->vlan_conf.pbb_en;
         //Engine enable
-        flow_conf.eng_mode = TRUE;
-        eth_flow->flow_en = TRUE;
+        eth_flow->flow_en = pkt_class_conf->enable;
         eth_flow->addr_match_mode = lan80xx_get_vs_addr_type(pkt_class_conf->eth_class_conf.mac_match_mode);
         eth_flow->addr_match_select = lan80xx_get_vs_mac_type(pkt_class_conf->eth_class_conf.mac_match_select);
         memcpy(eth_flow->mac_addr, eth_in->mac_addr, sizeof(eth_in->mac_addr));
@@ -6392,7 +6411,7 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
             ip2_flow =  &flow_conf.flow_conf.ptp.ip2_opt.flow_opt[eng_flow];
             in_ip2_conf = &pkt_class_conf->ip2_class_conf;
 
-            ip2_flow->flow_en = TRUE;
+            ip2_flow->flow_en = pkt_class_conf->enable;
             ip2_flow->match_mode = lan80xx_get_vs_ntw_type(in_ip2_conf->ip_match_mode);
             if (in_ip2_conf->ip_ver == MEPA_TS_IP_VER_4) {
                 T_D(MEPA_TRACE_GRP_TS, "\n IP2 IPv4 configuration on port : %d\n", data->port_no);
@@ -6421,7 +6440,7 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
 
             T_D(MEPA_TRACE_GRP_TS, "\n IP1 configuration on port : %d\n", data->port_no);
             in_ip_conf = &pkt_class_conf->ip_class_conf;
-            ip_flow->flow_en = TRUE;
+            ip_flow->flow_en = pkt_class_conf->enable;
             ip_flow->match_mode = lan80xx_get_vs_ntw_type(in_ip_conf->ip_match_mode);
             if (in_ip_conf->ip_ver == MEPA_TS_IP_VER_4) {
                 T_D(MEPA_TRACE_GRP_TS, "\n IP1 IPv4 configuration on port : %d\n", data->port_no);
@@ -6452,7 +6471,7 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
             flow_conf.flow_conf.ptp.eth2_opt.comm_opt.etype = eth2_in->vlan_conf.etype;
             flow_conf.flow_conf.ptp.eth2_opt.comm_opt.tpid = eth2_in->vlan_conf.tpid;
 
-            eth2_flow->flow_en = TRUE;
+            eth2_flow->flow_en = pkt_class_conf->enable;
             eth2_flow->addr_match_mode = lan80xx_get_vs_addr_type(pkt_class_conf->eth2_class_conf.mac_match_mode);
             eth2_flow->addr_match_select = lan80xx_get_vs_mac_type(pkt_class_conf->eth2_class_conf.mac_match_select);
             eth2_flow->vlan_check = pkt_class_conf->eth2_class_conf.vlan_check;
@@ -6501,7 +6520,7 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
             T_D(MEPA_TRACE_GRP_TS, "\n MPLS configuration on port : %d\n", data->port_no);
             void *Ptrmem = NULL;
             flow_conf.flow_conf.ptp.mpls_opt.comm_opt.cw_en = pkt_class_conf->mpls_class_conf.cw_en;
-            mpls_flow->flow_en = pkt_class_conf->mpls_class_conf.flow_en;
+            mpls_flow->flow_en = (pkt_class_conf->mpls_class_conf.flow_en & pkt_class_conf->enable);
             mpls_flow->stack_depth = pkt_class_conf->mpls_class_conf.stack_depth;
             mpls_flow->stack_ref_point = pkt_class_conf->mpls_class_conf.stack_ref_point;
             Ptrmem = memcpy(&mpls_flow->stack_level.top_down, &pkt_class_conf->mpls_class_conf.stack_level, sizeof(mpls_flow->stack_level.top_down));
@@ -6520,10 +6539,10 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
         }
 
         /* TS FIFO Signature configuration */
-        /* Signature length is forced to 28-bytes so all the Signature fields are enabled by default */
-        phy25g_ts_fifo_sig_mask_t sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SRC_IP | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM |
-                                              LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID | LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC);
-        if ((rc = lan80xx_phy_ts_fifo_sig_set(dev, data->port_no, eng_id, sig_mask)) != MEPA_RC_OK) {
+        phy25g_ts_fifo_sig_mask_t sig_mask;
+        sig_mask = data->phy_ts_port_conf.sig_mask | (LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID);
+
+        if ((rc = lan80xx_phy_ts_fifo_sig_set_priv(dev, data->port_no, sig_mask)) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_TS, "\n Failed to configure TS FIFO Signature Mask on port : %d \n", data->port_no);
             return MEPA_RC_ERROR;
         }
@@ -6548,41 +6567,35 @@ mepa_rc lan80xx_ts_tx_clock_conf_set_priv(struct mepa_device *dev,
     }
     uint16_t eng_id = clock_id;
     eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-    if (!eng_conf->eng_used) {
-        T_E(MEPA_TRACE_GRP_TS, "Engine not initialized");
+    if ((eng_conf->eng_used == FALSE) && (ptpclock_conf->enable == TRUE)) {
+        T_E(MEPA_TRACE_GRP_TS, "Engine not initialized\n");
         return MEPA_RC_ERROR;
     }
     memcpy(&action_conf, &eng_conf->action_conf, sizeof(phy25g_ts_engine_action_t));
     action = &action_conf.action.ptp_conf;
-    if ((ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_NONE) || (!ptpclock_conf->enable)) {
+    if (ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_NONE) {
         T_I(MEPA_TRACE_GRP_TS, "disabling action for engine ");
-        if (action->enable) {
-            action->enable = FALSE;
-        } else {
-            T_E(MEPA_TRACE_GRP_TS, "Prev Action not found for Engine");
-            return MEPA_RC_ERROR;
-        }
+        action->enable = FALSE;
     } else if (action->enable) {
         T_I(MEPA_TRACE_GRP_TS, "action enabled already with clk_mode %d in mode %d\n", action->clk_mode, ptpclock_conf->clk_mode);
         if ((action->clk_mode != ptpclock_conf->clk_mode) || (action->delaym_type != ptpclock_conf->delaym_type) || (action->cf_update != ptpclock_conf->cf_update)) {
             T_E(MEPA_TRACE_GRP_TS, "Action in use");
             return MEPA_RC_ERR_TS_ACTION_IN_USE;
         }
+    }
+    T_I(MEPA_TRACE_GRP_TS, "clk_mode %d delaym_type %d\n", ptpclock_conf->clk_mode, ptpclock_conf->delaym_type);
+    action->enable = ptpclock_conf->enable;
+    action->clk_mode = ptpclock_conf->clk_mode;
+    action->delaym_type = ptpclock_conf->delaym_type;
+    action->cf_update = ptpclock_conf->cf_update;
+    if (ptpclock_conf->ptp_class_conf.domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
+        action->ptp_conf.range_en = 1;
+        action->ptp_conf.range.lower = ptpclock_conf->ptp_class_conf.domain.match.range.lower;
+        action->ptp_conf.range.upper = ptpclock_conf->ptp_class_conf.domain.match.range.upper;
     } else {
-        T_I(MEPA_TRACE_GRP_TS, "clk_mode %d delaym_type %d\n", ptpclock_conf->clk_mode, ptpclock_conf->delaym_type);
-        action->enable = TRUE;
-        action->clk_mode = ptpclock_conf->clk_mode;
-        action->delaym_type = ptpclock_conf->delaym_type;
-        action->cf_update = ptpclock_conf->cf_update;
-        if (ptpclock_conf->ptp_class_conf.domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
-            action->ptp_conf.range_en = 1;
-            action->ptp_conf.range.lower = ptpclock_conf->ptp_class_conf.domain.match.range.lower;
-            action->ptp_conf.range.upper = ptpclock_conf->ptp_class_conf.domain.match.range.upper;
-        } else {
-            action->ptp_conf.range_en = 0;
-            action->ptp_conf.value.val  = ptpclock_conf->ptp_class_conf.domain.match.value.val & 0xff;
-            action->ptp_conf.value.mask = ptpclock_conf->ptp_class_conf.domain.match.value.mask & 0xff;
-        }
+        action->ptp_conf.range_en = 0;
+        action->ptp_conf.value.val  = ptpclock_conf->ptp_class_conf.domain.match.value.val & 0xff;
+        action->ptp_conf.value.mask = ptpclock_conf->ptp_class_conf.domain.match.value.mask & 0xff;
     }
     if ((rc = lan80xx_ts_egress_engine_action_set(dev, data->port_no, eng_id, &action_conf)) != MEPA_RC_OK) {
         return MEPA_RC_ERROR;
@@ -6607,34 +6620,29 @@ mepa_rc lan80xx_ts_rx_clock_conf_set_priv(struct mepa_device *dev,
     }
     uint16_t eng_id = clock_id;
     eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
-    if (!eng_conf->eng_used) {
-        T_E(MEPA_TRACE_GRP_TS, "Engine not initialized");
+    if ((eng_conf->eng_used == FALSE) && (ptpclock_conf->enable == TRUE)) {
+        T_E(MEPA_TRACE_GRP_TS, "Engine not initialized\n");
         return MEPA_RC_ERROR;
     }
     memcpy(&action_conf, &eng_conf->action_conf, sizeof(phy25g_ts_engine_action_t));
     action = &action_conf.action.ptp_conf;
-    if ((ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_NONE) || (!ptpclock_conf->enable)) {
+    if (ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_NONE) {
         T_I(MEPA_TRACE_GRP_TS, "disabling action for engine ");
-        if (action->enable) {
-            action->enable = FALSE;
-        } else {
-            T_E(MEPA_TRACE_GRP_TS, "Prev Action not found for Engine");
-            return MEPA_RC_ERROR;
-        }
+        action->enable = FALSE;
     } else if (action->enable) {
         T_I(MEPA_TRACE_GRP_TS, "action enabled already with clk_mode %d in mode %d\n", action->clk_mode, ptpclock_conf->clk_mode);
         if ((action->clk_mode != ptpclock_conf->clk_mode) || (action->delaym_type != ptpclock_conf->delaym_type) || (action->cf_update != ptpclock_conf->cf_update)) {
-            T_E(MEPA_TRACE_GRP_TS, "Action in use");
+            T_E(MEPA_TRACE_GRP_TS, "Action in use\n");
             return MEPA_RC_ERR_TS_ACTION_IN_USE;
         }
-    } else {
-        T_I(MEPA_TRACE_GRP_TS, "clk_mode %d delaym_type %d\n", ptpclock_conf->clk_mode, ptpclock_conf->delaym_type);
-        action->enable = TRUE;
-        action->clk_mode = ptpclock_conf->clk_mode;
-        action->delaym_type = ptpclock_conf->delaym_type;
-        action->cf_update = ptpclock_conf->cf_update;
-        action->delay_req_recieve_timestamp = data->ts.dly_req_recv_10byte_ts;
     }
+    T_I(MEPA_TRACE_GRP_TS, "clk_mode %d delaym_type %d\n", ptpclock_conf->clk_mode, ptpclock_conf->delaym_type);
+    action->enable = ptpclock_conf->enable;
+    action->clk_mode = ptpclock_conf->clk_mode;
+    action->delaym_type = ptpclock_conf->delaym_type;
+    action->cf_update = ptpclock_conf->cf_update;
+    action->delay_req_recieve_timestamp = data->ts.dly_req_recv_10byte_ts;
+
     if (ptpclock_conf->ptp_class_conf.domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
         action->ptp_conf.range_en = 1;
         action->ptp_conf.range.lower = ptpclock_conf->ptp_class_conf.domain.match.range.lower;
@@ -6661,14 +6669,14 @@ mepa_rc lan80xx_phy_ts_ltc_ls_action_set(mepa_device_t *dev, const mepa_port_no_
 
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_GEN, "\n TS port init not done for port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "\n TS port init not done for port %u", port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
 
         rc = lan80xx_ts_base_port_get_priv(dev, &base_port, &base_data);
         if (rc != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "\n Failed to get TS base port for port : %d %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "\n Failed to get TS base port for port : %d %u", port_no);
             break;
         }
 
@@ -6693,14 +6701,14 @@ mepa_rc lan80xx_phy_ts_delay_asymmetry_set(mepa_device_t *dev,
     MEPA_ASSERT(delay_asym == NULL);
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_GEN, "Init not done, port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
         if (*delay_asym <= (32767LL) && *delay_asym >= (-32768LL)) {
             data->phy_ts_port_conf.delay_asym = *delay_asym;
             if ((rc = lan80xx_ts_csr_set_priv(dev, port_no, LAN80XX_PHY_TS_DELAY_ASYM_SET)) != MEPA_RC_OK) {
-                T_E(MEPA_TRACE_GRP_GEN, "Asymmetry set fail, port %u", port_no);
+                T_E(MEPA_TRACE_GRP_TS, "Asymmetry set fail, port %u", port_no);
                 /* don't break, needs to unpause */
             }
         } else {
@@ -6739,14 +6747,14 @@ mepa_rc lan80xx_phy_ts_path_delay_set(mepa_device_t *dev,
     MEPA_ENTER(dev);
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_GEN, "Init not done, port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
         data->phy_ts_port_conf.path_delay = *path_delay;
         ////LAN80XX_PHY_TS_SPI_PAUSE(port_no);
         if (lan80xx_ts_csr_set_priv(dev, port_no, LAN80XX_PHY_TS_PATH_DELAY_SET) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Path_delay set fail, port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Path_delay set fail, port %u", port_no);
             rc = MEPA_RC_ERROR;
             /* don't break, needs to unpause */
         }
@@ -6791,7 +6799,7 @@ mepa_rc lan80xx_phy_ts_clock_rateadj_set(mepa_device_t  *dev,
         data->phy_ts_port_conf.rate_adj = *adj;
         //LAN80XX_PHY_TS_SPI_PAUSE(port_no);
         if ((rc = lan80xx_ts_csr_set_priv(dev, port_no, LAN80XX_PHY_TS_RATE_ADJ_SET)) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Rate Adj fail, port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Rate Adj fail, port %u", port_no);
             /* don't break, needs to unpause */
         }
         //LAN80XX_PHY_TS_SPI_UNPAUSE(port_no);
@@ -6975,7 +6983,7 @@ mepa_rc lan80xx_phy_ts_pps_ouput_conf_set(mepa_device_t *dev, const mepa_port_no
     MEPA_ENTER(dev);
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_GEN, "Init not done, port %u", data->port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", data->port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
@@ -6985,14 +6993,14 @@ mepa_rc lan80xx_phy_ts_pps_ouput_conf_set(mepa_device_t *dev, const mepa_port_no
             break;
         }
         if (pps_out_conf->lsc_select == LAN80XX_PTP_LSC_PIN_3) {
-            T_E(MEPA_TRACE_GRP_GEN, "\nno o/p support in ls ctrl 3");
+            T_E(MEPA_TRACE_GRP_TS, "\nno o/p support in ls ctrl 3");
             break;
         }
         base_data->ptp_lsc_output_config.pps_conf = *pps_out_conf;
 
         rc = LAN80XX_RC_COLD(lan80xx_ts_csr_set_priv(dev, data->port_no, LAN80XX_PHY_TS_PPS_OUTPUT_CONF_SET));
         if (rc != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "PPS Configuration set fail, port %u", data->port_no);
+            T_E(MEPA_TRACE_GRP_TS, "PPS Configuration set fail, port %u", data->port_no);
         }
     } while (0);
 
@@ -7012,7 +7020,7 @@ mepa_rc lan80xx_ts_pps_conf_set_priv(mepa_device_t *dev, const mepa_ts_pps_conf_
     }
 
     if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-        T_E(MEPA_TRACE_GRP_GEN, "Init not done, port %u", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", data->port_no);
         return MEPA_RC_ERROR;
     }
 
@@ -7033,7 +7041,7 @@ mepa_rc lan80xx_ts_pps_conf_set_priv(mepa_device_t *dev, const mepa_ts_pps_conf_
 
     rc = lan80xx_ts_csr_set_priv(dev, data->port_no, LAN80XX_PHY_TS_PPS_OUTPUT_CONF_SET);
     if (rc != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "PPS Configuration set fail, port %u", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "PPS Configuration set fail, port %u", data->port_no);
     }
     return rc;
 }
@@ -7357,6 +7365,45 @@ mepa_rc lan80xx_ptp_reg_dump(mepa_device_t            *dev,
     u32 mmd = 0;
     mepa_bool_t is_32 = TRUE;
     u32 val1 = 0, val2 = 0;
+
+    pr("\n\n\t\t:-:-:-:  PTP_LTC  :-:-:-:\n\n");
+    mmd = MMD_ID_PTP_LTC;
+    for (u8 j = 0; j < 4; j++) {
+        for (u8 i = 0; i < LAN80XX_PTP_LTC_PIN_NUM; i = i + 2) {
+            MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32,
+                    (LAN80XX_PTP_LTC_PIN_CFG_BASE + (dump_ptp_ltc_pin_cfg_dump[i].addr) + (0x10 * j)), &val1));
+
+            MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32,
+                    (LAN80XX_PTP_LTC_PIN_CFG_BASE + (dump_ptp_ltc_pin_cfg_dump[i+1].addr) + (0x10 * j)), &val2));
+
+            pr("%d%-24s: 0x%08X     %d%-24s: 0x%08X\n", j, dump_ptp_ltc_pin_cfg_dump[i].str, val1,
+               j, dump_ptp_ltc_pin_cfg_dump[i + 1].str, val2);
+        }
+    }
+
+    for (u8 i = 0; i < LAN80XX_PTP_LTC_PHAD_NUM; i = i + 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_phad_det_dump[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_phad_det_dump[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n",dump_ptp_ltc_phad_det_dump[i].str,val1, dump_ptp_ltc_phad_det_dump[i + 1].str, val2);
+    }
+
+    for (u8 i = 0; i < (LAN80XX_PTP_LTC_MISC_NUM - 1); i = i + 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_misc_dump[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_misc_dump[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n", dump_ptp_ltc_misc_dump[i].str, val1, dump_ptp_ltc_misc_dump[i + 1].str, val2);
+    }
+
+    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_misc_dump[LAN80XX_PTP_LTC_MISC_NUM - 1].addr, &val1));
+    pr("%-25s: 0x%08X\n", dump_ptp_ltc_misc_dump[LAN80XX_PTP_LTC_MISC_NUM - 1].str, val1);
+
+    pr("\n\n\t\t:-:-:-:  PTP_STI  :-:-:-:\n\n");
+    mmd = MMD_ID_PTP_STI;
+    for (u8 i = 0; i < LAN80XX_PTP_STI_REG_NUM; i = i + 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_sti_dump[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_sti_dump[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n", dump_ptp_sti_dump[i].str, val1, dump_ptp_sti_dump[i + 1].str, val2);
+    }
+
     pr("\n\n\t\t:-:-:-:  PTP_PROC  :-:-:-:\n\n");
     mmd = MMD_ID_PTP_BLOCK;
     for (u8 i = 0; i < LAN80XX_PTP_PROC_LTC_REG_NUM; i = i + 2) {

@@ -20,7 +20,7 @@
 #define LAN80XX_MAC_REG_NUM                                                                         (36)
 #define LAN80XX_FC_BUFFER_RG_NUM                                                                    (54)
 #define LAN80XX_MCU_MISC_REG_NUM                                                                    (26)
-
+#define LAN80XX_RSFEC_REG_NUM                                                                       (12)
 #define LAN80XX_GPIO_PAD_REG_NUM                                                                    (80)
 #define LAN80XX_GPIO_PAD_CTRL_BASE_ADDR                                                             (0x280)
 
@@ -32,6 +32,22 @@ static phy25g_pma_reg_dump_t dump_cmu_grp_2 = {"PMA_CMU_", 0xF000, 0x40, 0x4C};
 static phy25g_pma_reg_dump_t dump_lane_grp_0 = {"PMA_LANE_", 0xF100, 0x00, 0x47};
 static phy25g_pma_reg_dump_t dump_lane_grp_1 = {"PMA_LANE_", 0xF100, 0xC0, 0xDE};
 static phy25g_pma_reg_dump_t dump_lane_grp_2 = {"PMA_LANE_", 0xF100, 0xE0, 0xE4};
+
+/* RS-FEC Registers */
+static phy25g_reg_dump_t dump_rsfec_reg[LAN80XX_RSFEC_REG_NUM] = {
+    {"RS_FEC_CONTROL",             0xC8},
+    {"RS_FEC_STATUS",              0xC9},
+    {"RS_FEC_CCW_LO",              0xCA},
+    {"RS_FEC_CCW_HI",              0xCB},
+    {"RS_FEC_NCCW_LO",             0xCC},
+    {"RS_FEC_NCCW_HI",             0xCD},
+    {"RS_FEC_LANEMAP",             0xCE},
+    {"RS_FEC_SYMBLERR0_LO",        0xD2},
+    {"RS_FEC_SYMBLERR0_HI",        0x8200},
+    {"RS_FEC_VENDOR_CONTROL",      0x8201},
+    {"RS_FEC_VENDOR_INFO1",        0x8202},
+    {"RS_FEC_VENDOR_INFO2",        0x8203},
+};
 
 /* MAC Block Registers */
 static phy25g_reg_dump_t dump_host_mac[LAN80XX_MAC_REG_NUM] = {

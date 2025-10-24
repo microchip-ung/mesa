@@ -19,6 +19,7 @@
 #define BLOCK_RESET_1                                 (0xFFFFU)
 #define BLOCK_RESET_2                                 (0xFFFFU)
 
+#define LAN80XX_PCS1G_XMIT_DATA_MODE                  (0x3U)
 #define MAX_SOURCE_EVENTS                             (31U)
 #define MAX_ACK_TIMER                                 (15U)
 #define LAN80XX_IS_BITSET(value, x)                   ( (((value) & (x)) != 0U) ? 1U : 0U )
@@ -176,7 +177,7 @@ static mepa_rc lan80xx_a0_a1_revision_serd_init_strap_wrkrd(mepa_device_t *dev, 
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), &val);
         val |= SERDES_INIT_STRAP;
         LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), val);
-        T_IM("Forcing Serdes Init strap to high for A0 and A1 silicon revison\n");
+        T_IM(data->port_no,"Forcing Serdes Init strap to high for A0 and A1 silicon revison\n");
     }
     return MEPA_RC_OK;
 }
@@ -740,7 +741,7 @@ mepa_rc lan80xx_csr_rd(const mepa_device_t         *dev,
 
     if (dev->callout->spi_read != NULL) {
         MEPA_RC(dev->callout->spi_read(dev->callout_ctx, port_no, (uint8_t)mmd_dev, (uint16_t)addr, value));
-        T_D(MEPA_TRACE_GRP_GEN, "SPI Read : Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, *value);
+        T_N(MEPA_TRACE_GRP_GEN, "SPI Read : Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, *value);
         return MEPA_RC_OK;
     }
     if (dev->callout->mmd_read != NULL && dev->callout->mmd_read_inc != NULL) {
@@ -753,12 +754,12 @@ mepa_rc lan80xx_csr_rd(const mepa_device_t         *dev,
             MEPA_RC(mmd_read_inc_func(dev->callout_ctx, mmd_dev, reg_addr, reg_value, 2));
             *value = reg_value[0] + (((uint32_t)reg_value[1]) << LAN80XX_16_BIT_SHIFT);
 
-            T_D(MEPA_TRACE_GRP_GEN, "MDIO Read 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n", port_no, mmd_dev, addr, reg_addr, *value);
+            T_N(MEPA_TRACE_GRP_GEN, "MDIO Read 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n", port_no, mmd_dev, addr, reg_addr, *value);
             return MEPA_RC_OK;
         } else {
             MEPA_RC(mmd_read_func(dev->callout_ctx, mmd_dev, addr, &reg_value[0]));
             *value = (u32)reg_value[0];
-            T_D(MEPA_TRACE_GRP_GEN, "MDIO Read 16-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, reg_value : 0x%x\n", port_no, mmd_dev, addr, *value);
+            T_N(MEPA_TRACE_GRP_GEN, "MDIO Read 16-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, reg_value : 0x%x\n", port_no, mmd_dev, addr, *value);
             return MEPA_RC_OK;
         }
     }
@@ -787,7 +788,7 @@ mepa_rc lan80xx_csr_rd_64(const mepa_device_t         *dev,
 
     if (dev->callout->spi_read_64bit != NULL) {
         MEPA_RC(dev->callout->spi_read_64bit(dev->callout_ctx, port_no, (uint8_t)mmd_dev, (uint16_t)addr, value));
-        T_D(MEPA_TRACE_GRP_GEN, "SPI Read 64-bit : Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, *value);
+        T_N(MEPA_TRACE_GRP_GEN, "SPI Read 64-bit : Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, *value);
         return MEPA_RC_OK;
     }
     if (dev->callout->spi_read != NULL) {
@@ -807,7 +808,7 @@ mepa_rc lan80xx_csr_rd_64(const mepa_device_t         *dev,
         *value = value_hi;
         *value = (*value << LAN80XX_32_BIT_SHIFT) + value_low;
 
-        T_D(MEPA_TRACE_GRP_GEN, "MDIO Read two 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n",
+        T_N(MEPA_TRACE_GRP_GEN, "MDIO Read two 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n",
             port_no, mmd_dev, addr, reg_addr, *value);
         return MEPA_RC_OK;
     }
@@ -830,7 +831,7 @@ mepa_rc lan80xx_csr_wr(const mepa_device_t         *dev,
 
     if (dev->callout->spi_write != NULL) {
         MEPA_RC(dev->callout->spi_write(dev->callout_ctx, port_no, (uint8_t)mmd_dev, (uint16_t)addr, &value));
-        T_D(MEPA_TRACE_GRP_GEN, "SPI Write: Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, value);
+        T_N(MEPA_TRACE_GRP_GEN, "SPI Write: Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, value);
         return MEPA_RC_OK;
     }
 
@@ -848,11 +849,11 @@ mepa_rc lan80xx_csr_wr(const mepa_device_t         *dev,
             /* Write the Lower 2 Bytes */
             MEPA_RC(mmd_write_func(dev->callout_ctx, mmd_dev, reg_addr, reg_value_lower));
 
-            T_D(MEPA_TRACE_GRP_GEN, "MDIO write 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n", port_no,             mmd_dev, addr, reg_addr, value);
+            T_N(MEPA_TRACE_GRP_GEN, "MDIO write 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n", port_no,             mmd_dev, addr, reg_addr, value);
             return MEPA_RC_OK;
         } else {
             MEPA_RC(mmd_write_func(dev->callout_ctx, mmd_dev, addr, reg_value_lower));
-            T_D(MEPA_TRACE_GRP_GEN, "MDIO write 16-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, reg_value : 0x%x\n",
+            T_N(MEPA_TRACE_GRP_GEN, "MDIO write 16-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, reg_value : 0x%x\n",
                 port_no, mmd_dev, addr, reg_value_lower);
             return MEPA_RC_OK;
         }
@@ -913,9 +914,9 @@ mepa_rc _lan80xx_csr_warm_wrm(const mepa_device_t *dev,
         /* Read the current register value and compare with requested */
         MEPA_RC(lan80xx_csr_rd(dev, port_no, io->mmd, io->is32, io->addr, &curr_val));
         if ((curr_val ^ value) & mask & chk_mask) { /* Change in bit field */
-            T_D(MEPA_TRACE_GRP_GEN, "Warm start synch. field changed: Port:%u MMD:%d Register:0x%X\n", port_no, io->mmd, io->addr);
-            T_D(MEPA_TRACE_GRP_GEN, "Mask:0x%X Chip value:0x%X API value:0x%X\n", mask, curr_val, value);
-            T_D(MEPA_TRACE_GRP_GEN, "Function:%s, Line:%d (chk_mask:0x%X)\n", function, line, chk_mask);
+            T_N(MEPA_TRACE_GRP_GEN, "Warm start synch. field changed: Port:%u MMD:%d Register:0x%X\n", port_no, io->mmd, io->addr);
+            T_N(MEPA_TRACE_GRP_GEN, "Mask:0x%X Chip value:0x%X API value:0x%X\n", mask, curr_val, value);
+            T_N(MEPA_TRACE_GRP_GEN, "Function:%s, Line:%d (chk_mask:0x%X)\n", function, line, chk_mask);
             //data->warm_start_reg_changed = TRUE; // Signaling that a register for this port has changed.
             MEPA_RC(lan80xx_csr_wrm(dev, port_no, io->mmd, io->is32, io->addr, value, mask));
         }
@@ -955,6 +956,8 @@ static mepa_rc lan80xx_aneg_status(const mepa_device_t *dev, mepa_port_no_t port
             speed = SPEED_10G;
         } else if ((val & LAN80XX_M_HOST_KR_BP_ETH_STS_AN_NEG_1G_KX)) {
             speed = SPEED_1G;
+        } else {
+            speed = SPEED_NONE;
         }
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_LINE_REG(LAN80XX, is_line, KR_AN_STS0), &status);
         prl_detect = LAN80XX_X_HOST_KR_AN_STS0_PARDETFLT(status);
@@ -2464,6 +2467,21 @@ static mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no,
         LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS25G_CFG, 0, LAN80XX_M_HOST_PCS_CFG_PCS25G_CFG_PCS25G_ENA);
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS25G_CFG, 0, LAN80XX_M_HOST_PCS_CFG_PCS25G_CFG_PCS25G_ENA);
 
+        /* Enable SGMII for 1000BASE-T Media type */
+        if (data->conf.conf_25g.line_media == MEPA_MEDIA_TYPE_1000BASE_T) {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA,
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
+            T_I(MEPA_TRACE_GRP_GEN, "LINE PCS1G SGMII Enabled \n");
+        } else {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, 0,
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
+        }
+
+        if (lan80xx_clause37_conf_set_priv(dev, port_no, &data->conf.cl37_conf) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "\n Failed to configure Clause37 on port : %d\n", port_no);
+            return MEPA_RC_ERROR;
+        } 
+
         /* Line side configurations */
         /*line pcs enable */
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_CFG_PCS_ENA,
@@ -2492,16 +2510,6 @@ static mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no,
 
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA,
                         LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA);
-
-        /* Enable SGMII for 1000BASE-T Media type */
-        if (data->conf.conf_25g.line_media == MEPA_MEDIA_TYPE_1000BASE_T) {
-            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA,
-                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
-            T_I(MEPA_TRACE_GRP_GEN, "LINE PCS1G SGMII Enabled \n");
-        } else {
-            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, 0,
-                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
-        }
 
         LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_MODE_CFG, 0, LAN80XX_M_HOST_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
 
@@ -2856,7 +2864,7 @@ static mepa_rc lan80xx_mail_box_command_set(mepa_device_t *dev, uint8_t u8Packet
 mepa_rc lan80xx_kr_aneg_enable(mepa_device_t *dev, mepa_port_no_t port_no, const mepa_conf_t *const config)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
-    T_D(MEPA_TRACE_GRP_GEN, "Aneg KR Configuring on port : %d\n", port_no);
+    T_D(MEPA_TRACE_GRP_GEN, "Clause 73: Aneg KR Configuring on port : %d\n", port_no);
     u32 conf_info = 0;
     u8 cmd_param[7] = { 0 };
 
@@ -2895,6 +2903,7 @@ mepa_rc lan80xx_kr_aneg_enable(mepa_device_t *dev, mepa_port_no_t port_no, const
     cmd_param[3] = (conf_info >> 16) & 0xFF;
     cmd_param[4] = (conf_info >> 24) & 0xFF;
 
+    T_D(MEPA_TRACE_GRP_GEN, "\n Port : %d, cmd_param[1] : 0x%x, cmd_param[2] : 0x%x, cmd_param[3] : 0x%x, cmd_param[4] : 0x%x\n", port_no, cmd_param[1], cmd_param[2], cmd_param[3], cmd_param[4]);
     if (lan80xx_mail_box_command_set(dev, eSET_PORT_ANEGKR_CFG, 5, &cmd_param[0]) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "\n Error in config aneg set on Port %d\n", port_no);
         return MEPA_RC_OK;
@@ -2924,6 +2933,8 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
     memset(status, 0, sizeof(phy25g_status_t));
     phy25g_oper_speed_mode_t phy_speed;
     mepa_bool_t line_lp_enabled = 0;
+    u8 xmit_mode = 0;
+    u8 line_xmit_mode = 0, host_xmit_mode = 0;
 
     /* When H3P or H3M Loopback is Enabled Line side Rx Link Goes down, eliminating LINE Side link
      * check in poll when H3M or H3P loopback is enabled, so traffic can be forwared from HOST */
@@ -2962,16 +2973,35 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS25G_STATUS, &value);
     status->line_pcs25g.hi_ber = LAN80XX_IS_BITSET(value, LAN80XX_M_LINE_PCS_CFG_PCS25G_STATUS_HI_BER);
 
-
     //LINE PCS1G Status
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS1G_LINK_STATUS, &value);
     status->line_pcs1g.link_status = LAN80XX_IS_BITSET(value, LAN80XX_M_LINE_PCS_CFG_PCS1G_LINK_STATUS_LINK_STATUS);
     status->line_pcs1g.sync_status = LAN80XX_IS_BITSET(value, LAN80XX_M_LINE_PCS_CFG_PCS1G_LINK_STATUS_SYNC_STATUS);
+    line_xmit_mode = LAN80XX_X_LINE_PCS_CFG_PCS1G_LINK_STATUS_XMIT_MODE(value);
+
+    if (line_xmit_mode != LAN80XX_PCS1G_XMIT_DATA_MODE) {
+        status->line_pcs1g.link_status = 0;
+    }
 
     //HOST PCS1G Status
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_PCS_CFG_PCS1G_LINK_STATUS, &value);
     status->host_pcs1g.link_status = LAN80XX_IS_BITSET(value, LAN80XX_M_HOST_PCS_CFG_PCS1G_LINK_STATUS_LINK_STATUS);
     status->host_pcs1g.sync_status = LAN80XX_IS_BITSET(value, LAN80XX_M_HOST_PCS_CFG_PCS1G_LINK_STATUS_SYNC_STATUS);
+    host_xmit_mode = LAN80XX_X_HOST_PCS_CFG_PCS1G_LINK_STATUS_XMIT_MODE(value);
+
+    if (host_xmit_mode != LAN80XX_PCS1G_XMIT_DATA_MODE) {
+        status->host_pcs1g.link_status = 0;
+    }
+
+
+    /* SW Workarround for Clause37 RTL Bug
+     * As per Clause-37 Auto-Negotiation when the HCD of Link partner is not matching with advertised abilities then its RTL
+     * responsiblity to send IDLE signals by changing XMIT_MODE to IDLE and clear LINK_STATUS, but in LAN80XX PHYs the LINK_STATUS
+     * bit is not cleared even the LP Abilties are not matched with advertised abilities by XMIT_MODE is changed to IDLE mode
+     */
+    if ((line_xmit_mode == LAN80XX_PCS1G_XMIT_DATA_MODE) && (host_xmit_mode == LAN80XX_PCS1G_XMIT_DATA_MODE)) {
+        xmit_mode = 1;
+    }
 
     //Check RS-FEC status
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS25G_RSFEC_CFG, &value);
@@ -2999,7 +3029,7 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
 
     if (data->conf.speed == MESA_SPEED_AUTO) {
         MEPA_RC(lan80xx_aneg_status(dev, port_no));
-        data->port_state.speed = data->host_aneg_status.neg_speed;
+        data->port_state.speed = data->line_aneg_status.neg_speed;
     }
     phy_speed = data->port_state.speed;
     switch (phy_speed) {
@@ -3007,7 +3037,8 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
         if (line_lp_enabled) {
             status->phy_status = (status->host_pcs1g.link_status) ? TRUE : FALSE;
         } else {
-            status->phy_status = (status->pma.rx_link && status->line_pcs1g.link_status && status->host_pcs1g.link_status) ? TRUE : FALSE;
+            status->phy_status = (status->pma.rx_link && status->line_pcs1g.link_status && status->host_pcs1g.link_status &&
+                                  xmit_mode) ? TRUE : FALSE;
         }
         break;
     case SPEED_10G:
@@ -3035,8 +3066,8 @@ mepa_rc lan80xx_status_get_priv(const mepa_device_t   *dev,
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     rc = LAN80XX_RC_COLD(lan80xx_pcs_pma_status_get_priv(dev, port_no, status));
     status->oper_mode = data->port_state.port_mode.oper_mode;
-    status->host_neg_speed = data->line_aneg_status.neg_speed;
-    status->line_neg_speed = data->host_aneg_status.neg_speed;
+    status->host_neg_speed = data->host_aneg_status.neg_speed;
+    status->line_neg_speed = data->line_aneg_status.neg_speed;
     return rc;
 }
 
@@ -3685,8 +3716,9 @@ mepa_rc lan80xx_rx_eye_scan_conf_set_priv (const mepa_device_t          *dev,
     /* Normal Eye Scan */
     LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_LINE_REG(LAN80XX, is_line, PMA_8BIT_LANE_2E), 0,
                     LAN80XX_HOST_LINE_REG(LAN80XX_M, is_line, PMA_8BIT_LANE_2E_LN_CFG_EN_FAST_ISCAN));
-    cnt = 0;
+
     while (!max_vref) {
+        cnt = 0;
         /* Polling the EYE Scan status bit for 10 ms */
         while (cnt <= LAN80XX_EYE_SCAN_POLL_DELAY_10MS) {
             LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_LINE_REG(LAN80XX, is_line, PMA_8BIT_LANE_DD), &value);
@@ -4329,7 +4361,7 @@ mepa_rc lan80xx_phy_i2c_init_priv(mepa_device_t         *dev,
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     if (prescalar < LAN80XX_I2C_SCL_PRESCALAR_INVALID) {
-        T_D(MEPA_TRACE_GRP_GEN, "Invalid prescaler value %d", prescalar);
+        T_E(MEPA_TRACE_GRP_GEN, "Invalid prescaler value %d", prescalar);
         return MEPA_RC_ERROR;
     }
     //Default Prescalar 0x0095 = 400 kHz,
@@ -5195,6 +5227,22 @@ mepa_rc lan80xx_pcs_reg_dump(mepa_device_t            *dev,
         MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, host_line_pcs25g[i + 1].addr, &val2));
         pr("%-25s: 0x%08X     %-25s: 0x%08X\n", host_line_pcs25g[i].str, val1, host_line_pcs25g[i + 1].str, val2);
     }
+
+    pr("\n\n\t\t:-:-:-:  HOST_RSFEC  :-:-:-:\n\n");
+    mmd = MMD_ID_HOST_RSFEC;
+    for (u8 i = 0; i < LAN80XX_RSFEC_REG_NUM; i += 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_rsfec_reg[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_rsfec_reg[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n", dump_rsfec_reg[i].str, val1, dump_rsfec_reg[i + 1].str, val2);
+    }
+
+    pr("\n\n\t\t:-:-:-:  LINE_RSFEC  :-:-:-:\n\n");
+    mmd = MMD_ID_LINE_RSFEC;
+    for (u8 i = 0; i < LAN80XX_RSFEC_REG_NUM; i += 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_rsfec_reg[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_rsfec_reg[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n", dump_rsfec_reg[i].str, val1, dump_rsfec_reg[i + 1].str, val2);
+    }
     return MEPA_RC_OK;
 }
 
@@ -5781,7 +5829,7 @@ static mepa_rc lan80xx_ram_init(mepa_device_t    *dev, mepa_port_no_t  port_no)
     mepa_rc rc = MEPA_RC_OK;
     u32 val = 0;
 
-    T_IM("POST 1 RAM INIT Triggered on Port : %d\n", port_no);
+    T_IM(data->port_no,"POST 1 RAM INIT Triggered on Port : %d\n", port_no);
     /* Read Channel ID */
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_SLICE_SPARE_RW_0, &val);
     u8 channel_id =  LAN80XX_X_HOST_SLICE_SPARE_RW_0_SPARE_RW_0_CHN_ID(val);
@@ -5854,7 +5902,7 @@ static mepa_rc lan80xx_post1_bist_trigger(mepa_device_t  *dev, mepa_port_no_t  p
     mepa_rc rc = MEPA_RC_OK;
     u32 val = 0;
 
-    T_IM("POST 1 BIST Trigger on Port : %d\n", port_no);
+    T_IM(data->port_no,"POST 1 BIST Trigger on Port : %d\n", port_no);
     /* Read Channel ID */
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_SLICE_SPARE_RW_0, &val);
     u8 channel_id =  LAN80XX_X_HOST_SLICE_SPARE_RW_0_SPARE_RW_0_CHN_ID(val);
@@ -5908,7 +5956,7 @@ static mepa_rc lan80xx_post1_bist_trigger(mepa_device_t  *dev, mepa_port_no_t  p
                         LAN80XX_M_MCU_IO_MNGT_MISC_POST1_SLICE0_BIST_STATUS_P1_SLICE0_BIST_TO,
                         LAN80XX_M_MCU_IO_MNGT_MISC_POST1_SLICE0_BIST_STATUS_P1_SLICE0_BIST_TO)
 
-        T_EM("POST 1 Init Failed on Port : %d\n", port_no);
+        T_EM(data->port_no,"POST 1 Init Failed on Port : %d\n", port_no);
         base_data->post1_passed = 0;
         rc = MEPA_RC_ERROR;
     }
@@ -5959,7 +6007,7 @@ mepa_rc lan80xx_post1_init_priv(mepa_device_t   *dev, mepa_port_no_t port_no)
         LAN80XX_CSR_WRM(base_data->port_no, LAN80XX_MCU_IO_MNGT_MISC_POST1_POST_STATUS, 0, LAN80XX_POST1_STATUS_P1_POST_DONE);
         rc = MEPA_RC_ERROR;
     }
-    T_IM("POST1 INIT Done\n");
+    T_IM(data->port_no,"POST1 INIT Done\n");
     return rc;
 }
 
@@ -5969,13 +6017,13 @@ mepa_rc lan80xx_check_mcu_rdy_priv(mepa_device_t *dev)
     u32 val;
     mepa_rc rc = MEPA_RC_ERROR;
 
-    T_DM("Checking MCU ready status...\n");
+    T_DM(data->port_no,"Checking MCU ready status...\n");
     LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), &val);
     if (val & 0x4) {
-        T_IM("%s MCU ready ", __FUNCTION__);
+        T_IM(data->port_no,"%s MCU ready ", __FUNCTION__);
         rc = MEPA_RC_OK;
     } else {
-        T_EM("%s Error in MCU ready ", __FUNCTION__);
+        T_EM(data->port_no,"%s Error in MCU ready ", __FUNCTION__);
         rc = MEPA_RC_ERROR;
     }
     return rc;
@@ -5994,20 +6042,13 @@ mepa_rc lan80xx_mcu_mailbox_init_priv(const mepa_device_t *dev, u32 u32McuIntMas
     }
     data = (phy25g_phy_state_t *)dev->data;
 
-    T_IM("Clearing MB host mask...\n");
-    /* Clearing Interrupt Mask and Flags */
-    LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_HOST_INT_MASK, 0);
-    T_IM("Clearing MB mcu mask...\n");
-    LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_MCU_INT_MASK, 0);
-    T_IM("Clearing MB flags...\n");
-    LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), MALIBOX_FALG_CLEAR_ALL);
-    T_IM("Enabling MB host mask...\n");
+    T_IM(data->port_no,"Enabling MB host mask...\n");
     /* Enable Host interrupt mask register */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_HOST_INT_MASK, u32HostIntMask, LAN80XX_BIT(1));
-    T_IM("Enabling MB mcu mask...\n");
+    T_IM(data->port_no,"Enabling MB mcu mask...\n");
     /* Enable MCU interrupt mask register */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_MCU_INT_MASK, u32McuIntMask, LAN80XX_BIT(0));
-    T_IM("Enabling MB src en...\n");
+    T_IM(data->port_no,"Enabling MB src en...\n");
     /* Enable INTR_SRC_EN_1 with mailbox interrupt */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_GPIO_CTRL_INTR_SRC_EN(1), LAN80XX_M_GPIO_CTRL_INTR_SRC_EN_MCU_MBOX_INTR_EN,
                     LAN80XX_M_GPIO_CTRL_INTR_SRC_EN_MCU_MBOX_INTR_EN);
@@ -6310,7 +6351,7 @@ mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt
         }
     }
     if (u16Timeout > u16MailboxTimeout) {
-        T_EM("%s: Timeout. No response from MCU", __FUNCTION__);
+        T_EM(data->port_no,"%s: Timeout. No response from MCU", __FUNCTION__);
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), &u32Val);
         T_E(MEPA_TRACE_GRP_GEN, "MB Flag:0x%x\n", u32Val);
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_HOST_INTR_MASK_REGISTER), &u32Val);
@@ -6335,7 +6376,7 @@ mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt
         if (pPktHdr->u16PktLen == 0) {
             /* Clear HOST interrupt flag */
             lan80xx_MB_ClearFlag(dev, MAILBOX_FLAG_CLEAR_BIT1);
-            T_EM("%s: Response packet length is 0, pkt: 0x%x\n", __FUNCTION__, u32Val);
+            T_EM(data->port_no,"%s: Response packet length is 0, pkt: 0x%x\n", __FUNCTION__, u32Val);
             rc = MEPA_RC_ERR_MB_INVALID_PKT_LEN;
             return rc;
         }
@@ -6429,7 +6470,7 @@ mepa_rc lan80xx_get_fw_info_priv(const mepa_device_t *dev, DEVICE_INFO *psDevInf
         T_I(MEPA_TRACE_GRP_GEN, "Part ID: 0x%x\n", psDevInfo->PartId);
         T_I(MEPA_TRACE_GRP_GEN, "Target ID: 0x%x\n", psDevInfo->TargetId);
         T_I(MEPA_TRACE_GRP_GEN, "Image Type: 0x%x\n", psDevInfo->ImageType);
-        T_I(MEPA_TRACE_GRP_GEN, "Firmware Version: %02x.%02x\n", pu8Payload[4], pu8Payload[5]);
+        T_I(MEPA_TRACE_GRP_GEN, "Firmware Version: %02d.%02d\n", pu8Payload[4], pu8Payload[5]);
     } else {
         if (recvPkt->u8PktId == eGET_DEVICE_INFO + 0x81) {
             T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
@@ -6724,7 +6765,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
     }
 
     if (u16Timeout > MAILBOX_INTR_TIMEOUT) {
-        T_EM("%s. DFU Strap not set, Abort Firmware Update", __FUNCTION__);
+        T_EM(data->port_no,"%s. DFU Strap not set, Abort Firmware Update", __FUNCTION__);
         rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
         return rc;
     }
@@ -6732,13 +6773,32 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
     T_D(MEPA_TRACE_GRP_GEN, "Resetting MCU...");
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_GLOBAL_REGISTERS, 1, BLOCK_LVL_SOFT_RESET2), SW_RESET_MCU);
 
-    T_DM("Waiting for First packet interrupt...\n");
+    T_IM(data->port_no,"Waiting for FW to enter DFU mode...\n");
+    u16Timeout = 0;
+    while (u16Timeout <= MAILBOX_INTR_TIMEOUT)
+    {
+        LAN80XX_CSR_RD(dev, port_no, LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &u32Val);
+        if (u32Val == BOOT_STS_DFU_MODE)
+        {
+            /* DFU mode */
+            break;
+        }
+        MEPA_MSLEEP(1);
+        u16Timeout++;
+        if (u16Timeout > MAILBOX_INTR_TIMEOUT)
+        {
+            T_E(MEPA_TRACE_GRP_GEN, "FW Failed to enter DFU mode [BOOT_STS: %d]\n", u32Val);
+            rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
+            return rc;
+        }
+    }
     /* Configure Mailbox MCU and Host interrupt mask after reset */
     rc = lan80xx_mcu_mailbox_init_priv(dev, MAILBOX_INTR_ENABLE, MAILBOX_HOST_INTR_MASK);
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "mailbox init failed\n");
         return rc;
     }
+    T_IM(data->port_no,"Waiting for First packet interrupt...\n");
     // Wait for DFU first packet Interrupt
     u16Timeout = 0;
     while (1) {
@@ -6770,7 +6830,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
         lan80xx_memory_read_priv(dev, LAN80XX_MCU_CODE_RAM_START_REGION + LAN80XX_MEMORY_SLICE_THREE_OFFSET, byDataBuffer, 4);
         do {
             u16Count++;
-            T_IM("Sending DFU packet %d...\n", u16Count);
+            T_IM(data->port_no,"Sending DFU packet %d...\n", u16Count);
             if ((u32Offset + MB_MAX_PAYLOAD_LEN) > u32Size) {
                 u16CmdParamLen = u32Size - u32Offset;
             } else {
@@ -6795,7 +6855,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
 
             PKT_HDR_T *recvPkt = (PKT_HDR_T *)&gau8RespBuffer[0];
             if (recvPkt->u8PktId == eDFU_UPDATE + 0x80) {
-                T_IM("%s:DFU Packet %d success", __FUNCTION__, u16Count);
+                T_IM(data->port_no,"%s:DFU Packet %d success", __FUNCTION__, u16Count);
             } else {
                 if (recvPkt->u8PktId == eDFU_UPDATE + 0x81) {
                     T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
@@ -6835,7 +6895,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
                 }
             }
             LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), &u32Val);
-            T_IM("Waiting for FW ready interrupt...\n");
+            T_IM(data->port_no,"Waiting for FW ready interrupt...\n");
             u16Timeout = 0;
             while (u16Timeout < MAILBOX_INTR_TIMEOUT) {
                 /* Read FW Status */
@@ -6843,16 +6903,16 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
                 /* As endianess is different, bit 0 goes to MSB*/
                 if (u32Val & 0x04) {
                     /* If BIT0 set, FW status active*/
-                    T_DM("Switched to Application. Took %d msecs", u16Timeout);
+                    T_DM(data->port_no,"Switched to Application. Took %d msecs", u16Timeout);
                     break;
                 }
                 MEPA_MSLEEP(1);
                 u16Timeout++;
             }
             if (u16Timeout == MAILBOX_INTR_TIMEOUT) {
-                T_EM("MB Flag reg value : 0x%x", u32Val);
+                T_EM(data->port_no,"MB Flag reg value : 0x%x", u32Val);
                 LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_MCU_INTR_MASK_REGISTER), &u32Val);
-                T_EM("MB mask reg value : 0x%x", u32Val);
+                T_EM(data->port_no,"MB mask reg value : 0x%x", u32Val);
                 T_E(MEPA_TRACE_GRP_GEN, "Failed to start Application, aborting");
                 rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
                 return rc;
@@ -6873,12 +6933,12 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
                 return rc;
             }
             T_D(MEPA_TRACE_GRP_GEN, "%s. Signature Verification passed", __FUNCTION__);
-            T_IM("DFU Success!!\n");
+            T_IM(data->port_no,"DFU Success!!\n");
         } else {
-            T_EM("DFU aborted!!\n");
+            T_EM(data->port_no,"DFU aborted!!\n");
         }
     } else {
-        T_EM("Timeout! No first packet interrupt received");
+        T_EM(data->port_no,"Timeout! No first packet interrupt received");
         rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
         /* Clearing DFU Strap  for failure case before return */
         T_D(MEPA_TRACE_GRP_GEN, "Clearing DFU strap");
@@ -8204,4 +8264,100 @@ mepa_rc lan80xx_KRLog_Reset_priv(const mepa_device_t *dev, uint32_t u32KRLogOffs
         packet_dump(&gau8RespBuffer[0]);
     }
     return rc;
+}
+
+/**
+ * Advertisement Word (Refer to IEEE 802.3 Clause 37):
+ *  MSB                                                                         LSB
+ *  D15  D14  D13  D12  D11  D10   D9   D8   D7   D6   D5   D4   D3   D2   D1   D0
+ * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+ * | NP | Ack| RF2| RF1|rsvd|rsvd|rsvd| PS2| PS1| HD | FD |rsvd|rsvd|rsvd|rsvd|rsvd|
+ * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+ **/
+mepa_rc lan80xx_clause37_conf_set_priv(mepa_device_t        *dev,
+                                       mepa_port_no_t       port_no,
+                                       mepa_cl37_conf_t     *cl37_conf)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+    u32 adv_abilities = 0;
+    u32 val = 0;
+    if (cl37_conf->enable == FALSE) {
+        T_D(MEPA_TRACE_GRP_GEN, "Disabling Clause37 on port : %d\n", port_no);
+        if (cl37_conf->advertise_dir == MEPA_ADV_SIDE_LINE || cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST_LINE || cl37_conf->advertise_dir == MEPA_ADV_SIDE_NONE) {
+             LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_1, LAN80XX_F_LINE_PCS_CFG_PCS1G_ANEG_CFG_1_ADV_ABILITY(adv_abilities));
+             LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_0, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT,
+                             LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT |
+                             LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA);
+        }
+        if (cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST || cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST_LINE || cl37_conf->advertise_dir == MEPA_ADV_SIDE_NONE) {
+             LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_CFG_1, LAN80XX_F_HOST_PCS_CFG_PCS1G_ANEG_CFG_1_ADV_ABILITY(adv_abilities));
+             LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_CFG_0, LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT,
+                             LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT |
+                             LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA);
+        }
+        return MEPA_RC_OK;
+    }
+
+	u8 full_duplex_1g = 1;
+    u8 half_duplex_1g = 0;
+    adv_abilities =((full_duplex_1g              << LAN80XX_CLAUSE37_ADV_1G_FDX_BIT) |
+                    (half_duplex_1g              << LAN80XX_CLAUSE37_ADV_1G_HDX_BIT) |
+                    (cl37_conf->symmetric_pause  << LAN80XX_CLAUSE37_ADV_SYMMETRIC_PAUSE) |
+                    (cl37_conf->asymmetric_pause << LAN80XX_CLAUSE37_ADV_ASYMMETRIC_PAUSE) |
+                    (cl37_conf->remote_fault     << LAN80XX_CLAUSE37_ADV_REMOTE_FAULT) |
+                    (cl37_conf->acknowledge      << LAN80XX_CLAUSE37_ADV_ACK) |
+                    (cl37_conf->next_page        << LAN80XX_CLAUSE37_ADV_NEXT_PAGE));
+
+    T_D(MEPA_TRACE_GRP_GEN, "Clause 37, base page ability : 0x%x on port : %d \n", adv_abilities, port_no);
+    T_D(MEPA_TRACE_GRP_GEN, "Clause 37, Next page state : %d , next page ability : 0x%x on port : %d \n", cl37_conf->next_page, cl37_conf->next_page_abilities,  port_no);
+
+    if (cl37_conf->advertise_dir == MEPA_ADV_SIDE_LINE || cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST_LINE) {
+
+        T_D(MEPA_TRACE_GRP_GEN, "Enabling Clause37 on Line side of the port : %d\n", port_no);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_1, LAN80XX_F_LINE_PCS_CFG_PCS1G_ANEG_CFG_1_ADV_ABILITY(adv_abilities));
+
+        if (cl37_conf->next_page == TRUE) {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_1, LAN80XX_F_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_1_NP_TX(cl37_conf->next_page_abilities),
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_1_NP_TX);
+
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT);
+        } else {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0, 0, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT);
+        }
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_0,
+                        LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT,
+                        LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT);
+
+        LAN80XX_CSR_RD(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, &val);
+
+        if (val & LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA) {
+            val = LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_SW_RESOLVE_ENA;
+        } else {
+            val = 0;
+        }
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_0, val, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_SW_RESOLVE_ENA);
+    }
+
+    if (cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST || cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST_LINE) {
+
+        T_D(MEPA_TRACE_GRP_GEN, "Enabling Clause37 on Host side of the port : %d\n", port_no);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_CFG_1, LAN80XX_F_HOST_PCS_CFG_PCS1G_ANEG_CFG_1_ADV_ABILITY(adv_abilities));
+
+        if (cl37_conf->next_page == TRUE) {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_1, LAN80XX_F_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_1_NP_TX(cl37_conf->next_page_abilities),
+                            LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_1_NP_TX);
+
+            LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0, LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT, LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT);
+        } else {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0, 0, LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT);
+        }
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_CFG_0,
+                        LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT,
+                        LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT);
+    }
+    return MEPA_RC_OK;
 }

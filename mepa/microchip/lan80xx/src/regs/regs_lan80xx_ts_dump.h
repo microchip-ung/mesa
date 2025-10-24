@@ -9,6 +9,10 @@
 #define LAN80XX_PTP_PROC_LTC_REG_NUM     (18)
 #define LAN80XX_PTP_PROC_REG_NUM         (38)
 #define LAN80XX_PTP_ANA_REG_NUM          (417)
+#define LAN80XX_PTP_LTC_MISC_NUM         (45)
+#define LAN80XX_PTP_LTC_PIN_NUM          (12)
+#define LAN80XX_PTP_LTC_PHAD_NUM         (12)
+#define LAN80XX_PTP_STI_REG_NUM          (14)
 #define LAN80XX_PTP_PROC_INGR_BASE       (0x9020)
 #define LAN80XX_PTP_PROC_EGR_BASE        (0x9057)
 #define LAN80XX_PTP_ANA0_INGR_BASE       (0xA000)
@@ -17,6 +21,103 @@
 #define LAN80XX_PTP_ANA1_EGR_BASE        (0xB800)
 #define LAN80XX_PTP_ANA2_INGR_BASE       (0xC000)
 #define LAN80XX_PTP_ANA2_EGR_BASE        (0xC800)
+#define LAN80XX_PTP_LTC_PIN_CFG_BASE     (0xD000)
+
+static phy25g_reg_dump_t dump_ptp_sti_dump[] = {
+    {"TS_FIFO_SI_CFG",               0xD200},
+    {"TS_FIFO_SI_TX_CNT_0",          0xD201},
+    {"TS_FIFO_SI_TX_CNT_1",          0xD202},
+    {"TS_FIFO_SI_TX_CNT_2",          0xD203},
+    {"TS_FIFO_SI_TX_CNT_3",          0xD204},
+    {"STI_SPARE_REG_CFG",            0xD205},
+    {"STI_DEBUG0_CFG",               0xD2F8},
+    {"STI_DEBUG1_CFG",               0xD2F9},
+    {"STI_DEBUG2_CFG",               0xD2FA},
+    {"STI_DEBUG3_CFG",               0xD2FB},
+    {"STI_DEBUG4_CFG",               0xD2FC},
+    {"STI_DEBUG5_CFG",               0xD2FD},
+    {"STI_DEBUG6_CFG",               0xD2FE},
+    {"STI_DEBUG7_CFG",               0xD2FF},
+};
+
+static phy25g_reg_dump_t dump_ptp_ltc_pin_cfg_dump[LAN80XX_PTP_LTC_PIN_NUM] = {
+    {"_PIN_CFG",                     0x0},
+    {"_TOD_SEC_MSB",                 0x1},
+    {"_TOD_SEC_LSB",                 0x2},
+    {"_TOD_NSEC",                    0x3},
+    {"_TOD_NSEC_FRAC",               0x4},
+    {"_NTP_NSEC",                    0x5},
+    {"_WF_HIGH_PERIOD",              0x6},
+    {"_WF_LOW_PERIOD",               0x7},
+    {"_IOBOUNCE_DELAY",              0x8},
+    {"_EPPS_DET_ADJ",                0x9},
+    {"_EPPS_CFG_N_COUNTERS",         0xA},
+    {"_EMBEDED_TOD_CFG",             0xB},
+};
+
+static phy25g_reg_dump_t dump_ptp_ltc_phad_det_dump[LAN80XX_PTP_LTC_PHAD_NUM] = {
+    {"0_PHAD_CTRL",                   0xD040},
+    {"0_PHAD_CYC_STAT",               0xD041},
+    {"0_PHAD_ERR_STAT",               0xD042},
+    {"1_PHAD_CTRL",                   0xD043},
+    {"1_PHAD_CYC_STAT",               0xD044},
+    {"1_PHAD_ERR_STAT",               0xD045},
+    {"2_PHAD_CTRL",                   0xD046},
+    {"2_PHAD_CYC_STAT",               0xD047},
+    {"2_PHAD_ERR_STAT",               0xD048},
+    {"3_PHAD_CTRL",                   0xD049},
+    {"3_PHAD_CYC_STAT",               0xD04A},
+    {"3_PHAD_ERR_STAT",               0xD04B},
+};
+
+static phy25g_reg_dump_t dump_ptp_ltc_misc_dump[LAN80XX_PTP_LTC_MISC_NUM] = {
+    {"PTP_DOM_CFG",                  0xD04C},
+    {"PTP_CLK_REF_CFG",              0xD04D},
+    {"PTP_PIN_INTR",                 0xD04E},
+    {"PTP_PIN_INTR_ENA",             0xD04F},
+    {"CLK_PER_CFG[0]",               0xD057},
+    {"CLK_PER_CFG[1]",               0xD058},
+    {"PTP_CUR_NSEC",                 0xD059},
+    {"PTP_CUR_NSEC_FRAC",            0xD05A},
+    {"PTP_CUR_SEC_LSB",              0xD05B},
+    {"PTP_CUR_SEC_MSB",              0xD05C},
+    {"NTP_CUR_NSEC",                 0xD05D},
+    {"PIN_LOAD_DELAY_CFG",           0xD05E},
+    {"PIN_STORE_DELAY_CFG[0]",       0xD05F},
+    {"PIN_STORE_DELAY_CFG[1]",       0xD060},
+    {"PIN_STORE_DELAY_CFG[2]",       0xD061},
+    {"PIN_STORE_DELAY_CFG[3]",       0xD062},
+    {"PTP_SER_TOD_LOAD_STORE_CFG",   0xD063},
+    {"PTP_SER_TOD_LOAD_PERIOD_CFG",  0xD064},
+    {"LTC_MEAS_CTRL",                0xD065},
+    {"MEAS_COUNT[0]",                0xD066},
+    {"MEAS_COUNT[1]",                0xD067},
+    {"MEAS_THRESHOLD[0]",            0xD068},
+    {"MEAS_THRESHOLD[1]",            0xD069},
+    {"PTP_TOD_1_SEC_MSB",            0xD06A},
+    {"PTP_TOD_1_SEC_LSB",            0xD06B},
+    {"PTP_TOD_1_NSEC",               0xD06C},
+    {"PTP_TOD_1_NSEC_FRAC",          0xD06D},
+    {"PTP_TOD_2_SEC_MSB",            0xD06E},
+    {"PTP_TOD_2_SEC_LSB",            0xD06F},
+    {"PTP_TOD_2_NSEC",               0xD070},
+    {"PTP_TOD_2_NSEC_FRAC",          0xD071},
+    {"DF_PHAD_CTRL",                 0xD072},
+    {"DF_PHAD_CYC_STAT",             0xD073},
+    {"DF_PHAD_ERR_STAT",             0xD074},
+    {"LTC_TEST_CFG",                 0xD075},
+    {"LTC_TIMING_CFG",               0xD076},
+    {"LTC_SPARE_REG_CFG",            0xD077},
+    {"LTC_DEBUG0_CFG",               0xD0F8},
+    {"LTC_DEBUG1_CFG",               0xD0F9},
+    {"LTC_DEBUG2_CFG",               0xD0FA},
+    {"LTC_DEBUG3_CFG",               0xD0FB},
+    {"LTC_DEBUG4_CFG",               0xD0FC},
+    {"LTC_DEBUG5_CFG",               0xD0FD},
+    {"LTC_DEBUG6_CFG",               0xD0FE},
+    {"LTC_DEBUG7_CFG",               0xD0FF},
+};
+
 
 static phy25g_reg_dump_t dump_ptp_proc_ltc[LAN80XX_PTP_PROC_LTC_REG_NUM] = {
     {"INTERFACE_CTL",                       0x9000},

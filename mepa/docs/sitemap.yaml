@@ -31,6 +31,8 @@ pages:
           src:  "mepa/docs/release-notes/mepa-2025.03.adoc"
         - name: "MEPA-2025.06"
           src:  "mepa/docs/release-notes/mepa-2025.06.adoc"
+        - name: "MEPA-2025.09"
+          src:  "mepa/docs/release-notes/mepa-2025.09.adoc"
 
     - name: "Introduction"
       src:  "mepa/docs/introduction.adoc"

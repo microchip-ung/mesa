@@ -12,31 +12,32 @@
 #define MEPA_RC(expr) { mesa_rc __rc__ = (expr); if (__rc__ < MESA_RC_OK) return __rc__; }
 #define MEPA_ASSERT(x) if((x)) { return MESA_RC_ERROR;}
 
+#define T_N(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 
-#define T_DM(format, ...) \
+#define T_DM(port_no, format, ...) \
     do { \
         uint32_t val = 0; \
-        LAN80XX_CSR_RD(dev, 0, \
+        LAN80XX_CSR_RD(dev, port_no, \
                         LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
         T_D(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
     } while (0)
 
-#define T_EM(format, ...) \
+#define T_EM(port_no, format, ...) \
     do { \
         uint32_t val = 0; \
-        LAN80XX_CSR_RD(dev, 0, \
+        LAN80XX_CSR_RD(dev, port_no, \
                         LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
         T_E(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
     } while (0)
 
-#define T_IM(format, ...) \
+#define T_IM(port_no, format, ...) \
     do { \
         uint32_t val = 0; \
-        LAN80XX_CSR_RD(dev, 0, \
+        LAN80XX_CSR_RD(dev, port_no, \
                         LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
         T_I(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
     } while (0)
@@ -92,6 +93,13 @@
 #define LAN80XX_GPIO_26                         (26U)
 #define LAN80XX_GPIO_27                         (27U)
 
+#define LAN80XX_CLAUSE37_ADV_1G_FDX_BIT        (5U)
+#define LAN80XX_CLAUSE37_ADV_1G_HDX_BIT        (6U)
+#define LAN80XX_CLAUSE37_ADV_SYMMETRIC_PAUSE   (7U)
+#define LAN80XX_CLAUSE37_ADV_ASYMMETRIC_PAUSE  (8U)
+#define LAN80XX_CLAUSE37_ADV_REMOTE_FAULT      (12U)
+#define LAN80XX_CLAUSE37_ADV_ACK               (14U)
+#define LAN80XX_CLAUSE37_ADV_NEXT_PAGE         (15U)
 
 /* MAC block Config values */
 #define LAN80XX_MAC_FC_BUFF_STICY_MASK         (0xFFFFFFU)
@@ -693,5 +701,9 @@ mepa_rc lan80xx_KRLog_Enable_priv(const mepa_device_t *dev,
 mepa_rc lan80xx_KRLog_Reset_priv(const mepa_device_t *dev,
                                  uint32_t u32KRLogOffset,
                                  uint16_t u16Len);
+
+mepa_rc lan80xx_clause37_conf_set_priv(mepa_device_t        *dev,
+                                       mepa_port_no_t       port_no,
+                                       mepa_cl37_conf_t     *cl37_conf);
 
 #endif //_MEPA_LAN80XX_PRIVATE_H_

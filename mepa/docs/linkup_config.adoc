@@ -135,6 +135,9 @@ mepa_rc  mepa_conf_set(struct mepa_device  *dev,
 | force_ams_mode_sel
 | VSC 1G PHYs
 
+| cl37_conf
+| LAN80XX PHYs
+
 | conf_10g
 | VSC 10G PHYs
 
@@ -158,6 +161,7 @@ Following table will provide the short Description about different arguments ava
 | man_neg            | To chose the current PHY port needs to be in master or slave in ANEG mode for 1G
 | mdi_mode           | MDI/MDIX/Auto Mode to select crossover and polarity detection
 | force_ams_mode_sel | Serdes Media or Copper Media or Auto - Based on AMS the media mode will be selected
+| cl37_conf          | Clause-37 Auto-negotiation for 1000BASE-X
 | conf_10g           | Mode and Media Configuration of VSC 10G PHYs
 | conf_25g           | Channel ID, Media ,Aneg Abilites and FEC Config of LAN80XX 25G PHY
 |===

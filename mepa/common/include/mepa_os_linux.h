@@ -72,7 +72,7 @@ static inline time_t MEPA_UPTIME_MSECONDS(void)
 {
     struct timespec time;
     if (clock_gettime(CLOCK_MONOTONIC, &time) == 0) {
-        return (time.tv_sec*1000)+(time.tv_nsec/1000000);
+        return (time.tv_sec * 1000) + (time.tv_nsec / 1000000);
     }
     return 0;
 }

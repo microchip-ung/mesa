@@ -30,7 +30,7 @@ typedef struct mepa_t1s_plca_config {
  *   MEPA_RC_ERROR on error.
  **/
 mepa_rc mepa_t1s_set_plca_config(struct mepa_device *dev,
-                                                const mepa_t1s_plca_cfg_t cfg);
+                                 const mepa_t1s_plca_cfg_t cfg);
 
 /**
  * \brief Get t1s plca configurations.
@@ -43,7 +43,7 @@ mepa_rc mepa_t1s_set_plca_config(struct mepa_device *dev,
  *   MEPA_RC_ERROR on error.
  **/
 mepa_rc mepa_t1s_get_plca_config(struct mepa_device *dev,
-                                                mepa_t1s_plca_cfg_t *const cfg);
+                                 mepa_t1s_plca_cfg_t *const cfg);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /* MEPA_T1S_API_H */

@@ -65,6 +65,7 @@ mepa_rc test_ptp_init(mepa_device_t *dev) {
     /**
      * Set PHY specific PTP configurations
      * Ex:
+     *  ptp_cfg.tx_ts_len = MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE;
      *
      *  #if defined(MEPA_HAS_LAN8814)
      *      ptp_cfg.clk_src = MEPA_TS_CLOCK_SRC_125MHZ_INTERNAL_SYS_PLL;
@@ -81,7 +82,15 @@ mepa_rc test_ptp_init(mepa_device_t *dev) {
      *      ptp_cfg.tx_fifo_mode = MEPA_TS_FIFO_MODE_NORMAL;
      *  #endif
      *
-     *  ptp_cfg.tx_ts_len = MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE;
+     *  #if defined(MEPA_HAS_LAN80XX)
+     *      ptp_cfg.clk_src = MEPA_TS_CLOCK_SRC_INTERNAL;
+     *      ptp_cfg.clk_freq = MEPA_TS_CLOCK_FREQ_15625M;
+     *      ptp_cfg.rx_ts_pos = MEPA_TS_RX_TIMESTAMP_POS_IN_PTP;
+     *      ptp_cfg.rx_ts_len = MEPA_TS_RX_TIMESTAMP_LEN_30BIT;
+     *      ptp_cfg.tx_fifo_mode = MEPA_TS_FIFO_MODE_NORMAL;
+     *      ptp_cfg.tx_ts_len = MEPA_TS_FIFO_TIMESTAMP_LEN_4BYTE;
+     *  #endif
+     *
      *  ptp_cfg.tx_fifo_spi_conf = 0;
      *  ptp_cfg.auto_clear_ls = 0;
      *  ptp_cfg.tc_op_mode = MEPA_TS_TC_OP_MODE_A;
@@ -98,6 +107,22 @@ mepa_rc test_ptp_init(mepa_device_t *dev) {
     if (drv->mepa_ts->mepa_ts_mode_set (dev, TRUE) != MEPA_RC_OK) {
         return MEPA_RC_ERROR;
     }
+
+    #if defined(MEPA_HAS_LAN80XX)
+
+        /* For LAN80XX PHYs, the required LSC PIN to be configured for input pin to sample 1PPS signal, in this example LSC PIN 0 is used for 1PPS signal */
+        phy25g_pps_input_conf_t pin_conf;
+
+        pin_conf.clk_select = LAN80XX_PTP_ASYNC_NO_CLOCK;
+        pin_conf.pin_inv_pol = LAN80XX_PTP_LSC_ACTIVE_HIGH;
+        pin_conf.pin_sync_mode = LAN80XX_PTP_ACTION_CONTINUOUS;
+        pin_conf.lsc_select = LAN80XX_PTP_LSC_PIN_0;
+
+        if(lan80xx_phy_ts_pps_input_confset(dev, port_no, &pin_conf) != MEPA_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+    #endif
+
 
     //Enable TS Events
     if (drv->mepa_ts->mepa_ts_event_set (dev, 1, MEPA_TS_EGR_TIMESTAMP_CAPTURED) != MEPA_RC_OK) {
@@ -155,6 +180,14 @@ mepa_rc test_prp_classifier_cfg(mepa_device_t *dev, bool const is_baseport) {
         flow_id = 8;
         clk_id = 2;
     }
+
+    #if defined(MEPA_HAS_LAN80XX)
+        /* In LAN80XX PHYs, the argument "flow_idx" is used to select PTP engine on the port, each port supports 3 engines (Engine number = 0, 1, 2)
+         * each engine can be configured for different encapsulation
+         */
+        flow_id = ((PTP_ENGINE_NUMBER) * 8);
+    #endif
+
     // Get the classifier config
     if (drv->mepa_ts->mepa_ts_rx_classifier_conf_get(dev, flow_id, &cls_cf) == MEPA_RC_OK) {
         cls_cf.pkt_encap_type = MEPA_TS_ENCAP_ETH_PTP; //Or MEPA_TS_ENCAP_ETH_IP_PTP
@@ -248,6 +281,13 @@ mepa_rc test_prp_clk_cfg(mepa_device_t *dev, bool const is_baseport) {
         flow_id = 8;
         clk_id = 2;
     }
+    #if defined(MEPA_HAS_LAN80XX)
+        /* In LAN80XX PHYs, the argument "clk_id" is used to select PTP engine on the port, each port supports 3 engines (Engine number = 0, 1, 2)
+         * each engine can be configured for different encapsulation
+         */
+        clk_id = PTP_ENGINE_NUMBER;
+    #endif
+
     // Get the default clock action
     if (drv->mepa_ts->mepa_ts_tx_clock_conf_get(dev, clk_id, &clk_cf) == MEPA_RC_OK) {
         clk_cf.pkt_encap_type = MEPA_TS_ENCAP_ETH_PTP; //Or MEPA_TS_ENCAP_ETH_IP_PTP
@@ -349,13 +389,12 @@ system time or not.
 TS FIFO has two interfaces: SPI and MDIO/Parallel interface to access the
 TX timestamps. FIFO supports maximum of 8 TS entries.
 
-* SPI Interface - For PHYs such as the LAN8814, an alternate method of
+* SPI Interface - For PHYs such as the LAN8814 and LAN80XX, an alternate method of
 providing timestamping event information is provided. Rather than placing
 the event in a FIFO for the host to retrieve, the PHY will asynchronously
 output the event over a SPI bus. The PHY is in total control of this bus,
 providing the clock and data signals. External logic must be added to the
 design using this method to capture the data and provide it to the host.
-// Feature yet to be supported.
 
 * MDIO or Parallel Interface - Timestamps are gathered into a FIFO,
 application can register a callback function to read the FIFO.
@@ -390,6 +429,30 @@ The API `mepa_ts_reset()` allows to reset the timestamping block.
 The API `mepa_ts_stats_get()` allows to get timestamping statistics which includes
 `mepa_ts_stats_t` parameters.
 
+
+=== TS FIFO Signature Configuration
+
+The API `lan80xx_phy_ts_fifo_sig_set()` allows to select the fields of the PTP/Header that needs
+to be captured in TS FIFO Signature, this API is applicable only for LAN80XX PHYs which can support
+28-bytes TS FIFO for PTP Signature
+
+Following are the different fields that can be captured in TS FIFO.
+
+----
+#define LAN80XX_PHY_TS_FIFO_SIG_SRC_IP            (0x01U)  /**< IPv4 Src IP address */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_IP           (0x02U)  /**< IPv4 Dest IP address */
+#define LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE          (0x04U)  /**< PTP Message type */
+#define LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM        (0x08U)  /**< PTP Domain number */
+#define LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID    (0x10U)  /**< Source port identity */
+#define LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID            (0x20U)  /**< PTP frame Sequence ID */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC          (0x40U)  /**< Dest MAC address for ETH-PTP */
+#define LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP      (0x80U)  /**< IPv6 Dest IP */
+----
+
+The API `lan80xx_phy_ts_fifo_sig_get()` is used to get the signature fields enabled on the port.
+
+NOTE: The APIs `lan80xx_phy_ts_fifo_sig_set()` and `lan80xx_phy_ts_fifo_sig_get()` are applicable only for LAN80XX PHYs.
+
 === TS PPS Configurations
 
 PPS configuration APIs are used for configuring required parameters for
@@ -403,6 +466,9 @@ The API `mepa_ts_pps_conf_get()` allows to get configured offset
 
 The API `mepa_ts_pps_conf_set()` can be used to set offset for the PPS
 generation using `mepa_ts_pps_conf_t` structure.
+
+Note :: In LAN80XX PHYs, the API `mepa_ts_pps_conf_set()` is used to generate asyncronous 1PPS signal, with configured
+offset from LSC Pin 1. If user wants to generate 1PPS signal from anyother LSC pin use the chip-specific API `lan80xx_phy_ts_pps_ouput_conf_set()` 
 
 === PHY TS Event Interrupts
 

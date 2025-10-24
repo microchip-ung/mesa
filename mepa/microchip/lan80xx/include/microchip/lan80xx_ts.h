@@ -175,4 +175,45 @@ mepa_rc lan80xx_phy_ts_sertod_output_confset(mepa_device_t *dev, const mepa_port
 */
 mepa_rc lan80xx_phy_ts_pps_ouput_conf_set(mepa_device_t *dev, const mepa_port_no_t  port_no, const phy25g_pps_output_conf_t *const pps_out_conf);
 
+
+/**
+ * \brief Frame signature mask
+**/
+typedef u32 phy25g_ts_fifo_sig_mask_t;
+
+/**
+ * \brief Defines Tx TSFIFO signature mask.
+ **/
+#define LAN80XX_PHY_TS_FIFO_SIG_SRC_IP            (0x01U)  /**< IPv4 Src IP address */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_IP           (0x02U)  /**< IPv4 Dest IP address */
+#define LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE          (0x04U)  /**< PTP Message type */
+#define LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM        (0x08U)  /**< PTP Domain number */
+#define LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID    (0x10U)  /**< Source port identity */
+#define LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID            (0x20U)  /**< PTP frame Sequence ID */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC          (0x40U)  /**< Dest MAC address for ETH-PTP */
+#define LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP      (0x80U)  /**< IPv6 Dest IP */
+
+/**
+ * \brief configure PTP TS FIFO Signature Paramters
+ *
+ * \param dev                   [IN] Mepa driver Instance
+ * \param port_no               [IN] Port number
+ * \param sig_mask              [IN] FIFO signature fields
+ *
+ * "NOTE": Bydefault, SEQ_ID and Message Type fields are enabled in PTP Signature in "mepa_ts_tx_classifier_set()" API
+ *
+*/
+mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t  *dev, const mepa_port_no_t  port_no, const phy25g_ts_fifo_sig_mask_t   sig_mask);
+
+/**
+ * \brief Get PTP TS FIFO Signature Paramters enabled in PTP engine
+ *
+ * \param dev                   [IN]  Mepa driver Instance
+ * \param port_no               [IN]  Port number
+ * \param sig_mask              [OUT] FIFO signature fields
+ *
+ *
+*/
+mepa_rc lan80xx_phy_ts_fifo_sig_get(mepa_device_t  *dev, const mepa_port_no_t  port_no, phy25g_ts_fifo_sig_mask_t   *sig_mask);
+
 #endif

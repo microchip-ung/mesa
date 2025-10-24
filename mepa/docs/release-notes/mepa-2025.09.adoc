@@ -1,0 +1,57 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MEPA-2025.09
+
+== MEPA-2025.09
+|===
+|Version:          |MEPA-2025.09
+|Previous Version: |MEPA-2025.06
+|Date:             |2025-09-26
+|Description:      |Release Notes
+|===
+
+=== Release Status
+
+==== Bugs Fixed:
+
+  * `MEPA-1233`      : PTP LOAD/SAVE and IPv6 Encapsulation bug fixed for LAN80XX PHYs, removed chip-specific API "lan80xx_phy_ts_load_store_contoller_set()"
+  * `MEPA-1241`      : Failed to configure multiple PTP engines on single port of LAN80XX PHYs
+  * `MEPA-1238`      : Added DMAC and IPv4 Address support in TS FIFO signature for 2-step mode
+  * `MEPA-1232`      : Added Clause37 Aneg support in 1000BASE-X mode for LAN80XX PHYs and the ADOC updated
+  * `MEPA-1243`      : Introduced T_N(Noise level) trace in LAN80XX PHY and moved CSR register read/write to noise level
+  * `MEPA-1237`      : Added Mutex lock/unlock for LAN80XX MCU Public APIs
+  * `MEPA-881`       : Added register dump for FC buffer registers for VSC8258
+  * `MEPA-1186`      : Connector loopback not working in LAN8814
+  * `MEPA-1215`      : 25G Media type enums is not backward compatible with 10G Media configs for VSC8258 PHYs
+  * `MEPA-1034`      : VSC8258 CH2 and CH3 link drops due to misconfiguration of LOPC
+  * `MEPA-1172`      : Removed unwanted LAN80XX symbols added to MEPA Drivers
+  * `MEPA-1095`      : Added Reg Dump of LMAC and HMAC Registers for VSC MACSec PHY's
+  * `MEPA-1181`      : High and Medium impact MISRA violation fixes in MEPA Library
+  * `MEPA-1197`      : Removed TSN and MSEC binaries and created single EDSx binary
+
+==== Documentation update
+
+  * `MEPA-1224`      : MEPA API ADOC updated with flow diagrams and updated description for each MACsec APIs
+
+==== New features:
+
+  * `MEPA-1204,1227` : Added MEPA driver support for LAN8268, LAN8264, LAN8267, LAN8263, LAN8262 SKUs
+  * `MEPA-1163`      : Added MPLS-PTP encapsulation support for LAN80XX MEPA TS Driver
+  * `MEPA-1223`      : Added support for 1000BASE-T SGMII in LAN80XX PHYs
+  * `MEPA-1219`      : LAN80XX PHY MCU Firmware binary updated with v2.37
+  * `MEPA-1239`      : Removed ETH-IP-IP-PTP Encapsulation in LAN80XX PHY TS Driver
+  * `MEPA-1065`      : Bump v2025.06 MESA and added Utils library support used in MESA
+  * `MEPA-1177`      : Added FAN support on EDSx boards
+  * `MEPA-1118`      : Added MACsec Warmstart application support LAN80XX PHYs
+  * `MEPA-1101`      : Added KR logging application support for LAN80XX PHYs
+
+==== Known Bugs:
+
+  * `MEPA-1245`      : IPv6 Address support not available in TS FIFO signature for LAN80XX PHYs
+  * `MEPA-1184`      : LAN80XX MCU FW upate fails when debug/info level trace enabled
+  * `MEPA-644`       : SyncE Disable not working in VSC8258
+  * `MEPA-793`       : When MACSec+1588 Enabled using VSC8584, after oos_mitigation there is very large PTP Offsets
+  * `MEPA-1246`      : VSC8574 does not properly determine Link Status when Media is 100BaseFX Media
+  * `MEPA-1084`      : LAN8814 w/long cable shows traffic FCS error and link down issue
+  * `MEPA-966`       : Indy QSGMII serdes loopback broken

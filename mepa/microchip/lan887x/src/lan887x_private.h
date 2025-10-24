@@ -85,7 +85,6 @@ typedef struct {
     mepa_bool_t is_master_fault;
 } phy_dev_info_t;
 
-#ifdef MEPA_OPT_TC10
 typedef struct {
     mepa_bool_t                     sleep_enable;
     mepa_tc10_wakeup_mode_t         wakeup_mode;
@@ -95,7 +94,6 @@ typedef struct {
     mepa_gpio_mode_t                wake_out_mode;
     mepa_gpio_mode_t                inh_mode;
 } lan887x_tc10_data_t;
-#endif //MEPA_OPT_TC10
 
 typedef struct {
     mepa_bool_t             init_done;
@@ -109,19 +107,11 @@ typedef struct {
     phy_dev_info_t          dev;
     mepa_bool_t             ctx_status;
     mepa_cable_diag_result_t cd_res;
-#ifdef MEPA_OPT_TC10
     lan887x_tc10_data_t         tc10_cfg;
-#endif //MEPA_OPT_TC10
     mepa_gpio_conf_t        led_conf[4];
     /* Pointer to the device of base port on the phy chip */
     //mepa_device_t           *base_dev;
 } phy_data_t;
-
-struct phy_reg_dbg {
-    const char *string;
-    uint8_t mmd;
-    uint16_t reg;
-};
 
 struct phy_reg_map {
     uint8_t  mmd;
@@ -146,9 +136,7 @@ typedef enum {
     LAN87XX_CABLE_TEST_SHORT,
 } lan887x_cd_status_t;
 
-#ifdef MEPA_OPT_TC10
 extern mepa_tc10_driver_t lan887x_tc10_drivers;
 mepa_rc lan887x_phy_tc10_set_config(struct mepa_device *dev, lan887x_tc10_data_t *cfg);
-#endif //MEPA_OPT_TC10
 
 #endif //LAN887X_PRIVATE_H

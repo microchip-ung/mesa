@@ -185,7 +185,6 @@
 
 #define LAN887X_MX_CHIP_TOP_SGMII_MPLL_CTL                      (0xF028U)
 
-#ifdef MEPA_OPT_TC10
 /**********************************/
 //     TC10 Registers
 /**********************************/
@@ -272,18 +271,16 @@
 #define LAN887X_DEV30_COMMON_TC10_MISC46_WK_PORT_TEST_MASK  GENMASK(7, 0)
 #define LAN887X_DEV30_COMMON_TC10_MISC46_WK_PORT_TEST_VAL   (0x04U)
 
-#define LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT                (0x0C2D)
+#define LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT                (0x0C2DU)
 #define LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_ABORT    BIT(5)
 #define LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_RJCT     BIT(4)
 
 #define LAN887X_DEV30_COMMON_TC10_SENDZ_MINWAIT_TMR_CFG     (0xC2FU)
-#endif //MEPA_OPT_TC10
 
-#define LAN887X_VEND_CTRL_STAT_REG      (0x8013U)
-#define LAN887X_AN_LOCAL_CFG_FAULT      BIT(10)
-#define LAN887X_AN_LOCAL_SLAVE          BIT(9)
-#define LAN887X_AN_LOCAL_MASTER         BIT(8)
-
+#define LAN887X_VEND_CTRL_STAT_REG              (0x8013U)
+#define LAN887X_AN_LOCAL_CFG_FAULT              BIT(10)
+#define LAN887X_AN_LOCAL_SLAVE                  BIT(9)
+#define LAN887X_AN_LOCAL_MASTER                 BIT(8)
 /* End:: DEV-0x1E Registers */
 
 #endif //LAN887X_REGISTERS_H

@@ -269,6 +269,16 @@ mepa_rc lan80xx_xconnect_conf_get(mepa_device_t *dev, const mepa_port_no_t port_
     return MEPA_RC_NOT_IMPLEMENTED;
 }
 
+mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t  *dev, const mepa_port_no_t  port_no, const phy25g_ts_fifo_sig_mask_t   sig_mask)
+{
+    return MEPA_RC_NOT_IMPLEMENTED;
+}
+
+mepa_rc lan80xx_phy_ts_fifo_sig_get(mepa_device_t  *dev, const mepa_port_no_t  port_no, phy25g_ts_fifo_sig_mask_t   *sig_mask)
+{
+    return MEPA_RC_NOT_IMPLEMENTED;
+}
+
 mepa_rc lan80xx_phy_ts_pps_input_confset(mepa_device_t *dev, const mepa_port_no_t    port_no, const  phy25g_pps_input_conf_t *const pin_conf)
 {
     return MEPA_RC_NOT_IMPLEMENTED;

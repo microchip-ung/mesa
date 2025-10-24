@@ -30,7 +30,7 @@ typedef mepa_rc (*mepa_macsec_tx_sc_status_get_t)(struct mepa_device *dev, const
 typedef mepa_rc (*mepa_macsec_rx_sa_set_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an, const uint32_t lowest_pn, const mepa_macsec_sak_t *const sak);
 typedef mepa_rc (*mepa_macsec_rx_sa_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an, uint32_t *const lowest_pn, mepa_macsec_sak_t *const sak, mepa_bool_t *const active);
 typedef mepa_rc (*mepa_macsec_rx_sa_activate_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an);
-typedef mepa_rc (*mepa_macsec_rx_sa_disable_t)(struct mepa_device  *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an);  
+typedef mepa_rc (*mepa_macsec_rx_sa_disable_t)(struct mepa_device  *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an);
 typedef mepa_rc (*mepa_macsec_rx_sa_del_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an);
 typedef mepa_rc (*mepa_macsec_rx_sa_lowest_pn_update_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an, const uint32_t lowest_pn);
 typedef mepa_rc (*mepa_macsec_rx_sa_status_get_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, const uint16_t an, mepa_macsec_rx_sa_status_t *const status);
@@ -82,9 +82,7 @@ typedef mepa_rc (*mepa_macsec_event_xpn_seq_threshold_get_t)(struct mepa_device 
 typedef mepa_rc (*mepa_macsec_egr_intr_sa_get_t)(struct mepa_device *dev, const mepa_port_no_t port_no, mepa_macsec_port_t *const port, uint16_t *const an);
 typedef mepa_rc (*mepa_macsec_csr_read_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const uint16_t mmd, const uint32_t addr, uint32_t *const value);
 typedef mepa_rc (*mepa_macsec_csr_write_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const uint32_t mmd, const uint32_t addr, const uint32_t value);
-#ifndef MEPA_OPT_AUTOMOTIVE
 typedef mepa_rc (*mepa_macsec_dbg_counter_get_t)(struct mepa_device *dev, const mepa_port_no_t port_no, mepa_macsec_rc_dbg_counters_t *const counters);
-#endif
 typedef mepa_rc (*mepa_macsec_hmac_counters_get_t)(struct mepa_device *dev, const mepa_port_no_t port_no, mepa_macsec_mac_counters_t *const counters, const mepa_bool_t clear);
 typedef mepa_rc (*mepa_macsec_lmac_counters_get_t)(struct mepa_device *dev, const mepa_port_no_t port_no, mepa_macsec_mac_counters_t *const counters, const mepa_bool_t clear);
 typedef mepa_rc (*mepa_macsec_is_capable_t)(struct mepa_device *dev, const mepa_port_no_t port_no, mepa_bool_t *capable);
@@ -106,16 +104,12 @@ typedef mepa_rc (*mepa_macsec_rxsa_an_status_get_t)(struct mepa_device *dev, con
 typedef mepa_rc (*mepa_mac_block_mtu_get_t)(struct mepa_device *dev, const mepa_port_no_t port_no, uint16_t *const mtu_value, mepa_bool_t *const mtu_tag_check);
 typedef mepa_rc (*mepa_mac_block_mtu_set_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const uint16_t mtu_value, const mepa_bool_t mtu_tag_check);
 typedef mepa_rc (*mepa_macsec_fcbuf_frame_gap_comp_set_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const uint8_t frm_gap);
-#ifndef MEPA_OPT_AUTOMOTIVE
 typedef mepa_rc (*mepa_macsec_dbg_fcb_block_reg_dump_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const mepa_debug_print_t pr);
 typedef mepa_rc (*mepa_macsec_dbg_frm_match_handling_ctrl_reg_dump_t)(struct mepa_device *dev, const mepa_port_no_t port_no, const mepa_debug_print_t pr);
-#endif
 #ifdef MEPA_MACSEC_FIFO_OVERFLOW_WORKAROUND
 typedef mepa_rc (*mepa_macsec_dbg_reconfig_t)(struct mepa_device *dev, const mepa_port_no_t port_no);
 #endif
-#ifndef MEPA_OPT_AUTOMOTIVE
 typedef mepa_rc (*mepa_macsec_dbg_update_seq_set_t)(struct mepa_device *dev, const mepa_macsec_port_t port, const mepa_macsec_sci_t *const sci, uint16_t an, mepa_bool_t egr, const mepa_bool_t disable);
-#endif
 
 /** \brief PHY MACsec Driver */
 typedef struct mepa_macsec_driver {
@@ -170,7 +164,7 @@ typedef struct mepa_macsec_driver {
     mepa_macsec_tx_sa_counters_get_t mepa_macsec_tx_sa_counters_get;
     mepa_macsec_rx_sa_counters_get_t mepa_macsec_rx_sa_counters_get;
     mepa_macsec_control_frame_match_conf_set_t mepa_macsec_control_frame_match_conf_set;
-    mepa_macsec_control_frame_match_conf_del_t mepa_macsec_control_frame_match_conf_del; 
+    mepa_macsec_control_frame_match_conf_del_t mepa_macsec_control_frame_match_conf_del;
     mepa_macsec_control_frame_match_conf_get_t mepa_macsec_control_frame_match_conf_get;
     mepa_macsec_pattern_set_t mepa_macsec_pattern_set;
     mepa_macsec_pattern_del_t mepa_macsec_pattern_del;
@@ -195,9 +189,7 @@ typedef struct mepa_macsec_driver {
     mepa_macsec_egr_intr_sa_get_t mepa_macsec_egr_intr_sa_get;
     mepa_macsec_csr_read_t mepa_macsec_csr_read;
     mepa_macsec_csr_write_t mepa_macsec_csr_write;
-#ifndef MEPA_OPT_AUTOMOTIVE
     mepa_macsec_dbg_counter_get_t mepa_macsec_dbg_counter_get;
-#endif
     mepa_macsec_hmac_counters_get_t mepa_macsec_hmac_counters_get;
     mepa_macsec_lmac_counters_get_t mepa_macsec_lmac_counters_get;
     mepa_macsec_is_capable_t mepa_macsec_is_capable;
@@ -219,16 +211,12 @@ typedef struct mepa_macsec_driver {
     mepa_mac_block_mtu_get_t mepa_mac_block_mtu_get;
     mepa_mac_block_mtu_set_t mepa_mac_block_mtu_set;
     mepa_macsec_fcbuf_frame_gap_comp_set_t mepa_macsec_fcbuf_frame_gap_comp_set;
-#ifndef MEPA_OPT_AUTOMOTIVE
     mepa_macsec_dbg_fcb_block_reg_dump_t mepa_macsec_dbg_fcb_block_reg_dump;
     mepa_macsec_dbg_frm_match_handling_ctrl_reg_dump_t mepa_macsec_dbg_frm_match_handling_ctrl_reg_dump;
-#endif
 #ifdef MEPA_MACSEC_FIFO_OVERFLOW_WORKAROUND
     mepa_macsec_dbg_reconfig_t mepa_macsec_dbg_reconfig;
 #endif
-#ifndef MEPA_OPT_AUTOMOTIVE
     mepa_macsec_dbg_update_seq_set_t mepa_macsec_dbg_update_seq_set;
-#endif
 
 
 } mepa_macsec_driver_t;

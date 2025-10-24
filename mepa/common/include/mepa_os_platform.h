@@ -18,8 +18,8 @@ typedef uint64_t  u64;
 
 typedef uint8_t   BOOL;
 
-#define MEPA_OS_TRUE	(1U)
-#define MEPA_OS_FALSE	(0U)
+#define MEPA_OS_TRUE    (1U)
+#define MEPA_OS_FALSE   (0U)
 
 #define MEPA_DIV64(dividend, divisor) ((dividend) / (divisor))
 #define MEPA_MOD64(dividend, divisor) ((dividend) % (divisor))
@@ -27,10 +27,10 @@ typedef uint8_t   BOOL;
 #define MEPA_LABS(arg) ((arg > 0) ? arg : -arg)
 
 #define TICKS_PER_MS_300MHZ             (300000UL)
-#define MAX_ALLOWED_TIME_DIFF			(4000U)
+#define MAX_ALLOWED_TIME_DIFF           (4000U)
 
 #define task_delay(delay) \
-	    {volatile uint32_t n = delay * 4U; while (n > 0U) { n--; } }
+        {volatile uint32_t n = delay * 4U; while (n > 0U) { n--; } }
 
 #define MEPA_NSLEEP(delay) task_delay(delay) /**< Sleep macro */
 
@@ -49,7 +49,7 @@ typedef struct {
 #if 0
 static inline time_t MEPA_UPTIME_SECONDS(void)
 {
-	return os_platform_get_uptime_seconds();
+    return os_platform_get_uptime_seconds();
 }
 #endif
 

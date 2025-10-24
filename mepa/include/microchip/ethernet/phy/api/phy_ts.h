@@ -349,7 +349,7 @@ typedef enum {
     MEPA_PTP_MPLS_PARSE_TOP_TO_BOTTOM = 0,
     MEPA_PTP_MPLS_PARSE_BOTTOM_TO_TOP = 1,
 } mepa_ts_mpls_parse_t;
-   
+
 
 #define MEPA_PTP_MPLS_ALLOW_1LABEL  (0x1)
 #define MEPA_PTP_MPLS_ALLOW_2LABEL  (0x2)
@@ -406,6 +406,10 @@ typedef struct {
     uint16_t                    sequence_id;           /**< PTP message sequence ID */
     uint16_t                    crc_src_port;          /**< 12-bit CRC of source port identity. */
     mepa_bool_t                 has_crc_src;           /**< true if the phy returns CRC-12 of source port identity in crc_src_port field. False if Source port identity is filled in src_port_identity field. Set to true for Lan8814 and false for VSC phys. */
+    mepa_mac_t                  dmac_addr;             /**< Destination MAC Address in case of ETH-PTP */
+    mepa_bool_t                 dmac_sig_supported;    /**< Indicates whether PHY supports DMAC in signature or not */
+    uint8_t                     dest_ipv4[4];          /**< Destination IPv4 Address */
+    mepa_bool_t                 ipv4_sig_supported;    /**<Indicates whether PHY supports Dest IPv4 address in signature or not */
 } mepa_ts_fifo_sig_t;
 
 /** \brief TS FIFO status */
