@@ -490,13 +490,21 @@ vtss_rc vtss_port_conf_bulk_set(const vtss_inst_t inst, const vtss_port_bulk_t b
 #endif /* VTSS_FEATURE_PORT_CONF_BULK */
 
 #if defined(VTSS_FEATURE_PORT_IFH)
+// IFH prefix selection
+typedef enum {
+    VTSS_IFH_PFX_ETH, // Ethernet header (DMAC, SMAC, Etype = 0x8880 and 2 bytes ID)
+    VTSS_IFH_PFX_NONE // No prefix
+} vtss_ifh_pfx_t;
+
 /** \brief Port Internal Frame Header structure */
 typedef struct {
     BOOL ena_inj_header; // Enable injection header
     BOOL ena_xtr_header; // Enable extraction header
 #if defined(VTSS_ARCH_JAGUAR_2)
-    BOOL ena_ifh_header; // Same as ena_xtr_header (for JR1 compatibility)
-#endif                   /* VTSS_ARCH_JAGUAR_2 */
+    BOOL ena_ifh_header;    // Same as ena_xtr_header (for JR1 compatibility)
+#endif                      /* VTSS_ARCH_JAGUAR_2 */
+    vtss_ifh_pfx_t inj_pfx; // Injection prefix
+    vtss_ifh_pfx_t xtr_pfx; // Extraction prefix
 } vtss_port_ifh_t;
 
 /**

@@ -11,36 +11,50 @@ $idx_normal = 0
 $idx_inj = 1
 $idx_xtr = 2
 
-test "ifh-conf" do
-    [$idx_inj, $idx_xtr].each do |idx|
-        port = $ts.dut.p[idx]
+pfx_list = [false, true]
+if (cap_get("PACKET_IFH_EPID") == 0)
+    # Luton26, no prefix
+    pfx_list = [false]
+end
+
+pfx_list.each do |pfx|
+    txt = ("inj-to-normal-" + (pfx ? "with" : "no") + "-prefix")
+    test txt do
+        port = $ts.dut.p[$idx_inj]
         conf = $ts.dut.call("mesa_port_ifh_conf_get", port)
-        fld = (idx == $idx_inj ? "ena_inj_header" : "ena_xtr_header")
-        conf[fld] = true
+        conf["ena_inj_header"] = true
+        conf["inj_pfx"] = "MESA_IFH_PFX_" + (pfx ? "ETH" : "NONE")
         $ts.dut.call("mesa_port_ifh_conf_set", port, conf)
+
+        f = "eth data pattern cnt 46"
+        cmd = "ef name f_inj "
+        cmd += cmd_tx_ifh_push({"dst_port": $ts.dut.p[$idx_normal]}, pfx)
+        cmd += "#{f} name f_normal #{f} "
+        cmd += "tx #{$ts.pc.p[$idx_inj]} name f_inj "
+        cmd += "rx #{$ts.pc.p[$idx_normal]} name f_normal "
+        cmd += "rx #{$ts.pc.p[$idx_xtr]}"
+        $ts.pc.run(cmd)
     end
 end
 
-test "inj-to-normal" do
-    f = "eth data pattern cnt 46"
-    cmd = "ef name f_inj "
-    cmd += cmd_tx_ifh_push({"dst_port": $ts.dut.p[$idx_normal]})
-    cmd += "#{f} name f_normal #{f} "
-    cmd += "tx #{$ts.pc.p[$idx_inj]} name f_inj "
-    cmd += "rx #{$ts.pc.p[$idx_normal]} name f_normal "
-    cmd += "rx #{$ts.pc.p[$idx_xtr]}"
-    $ts.pc.run(cmd)
-end
+pfx_list.each do |pfx|
+    txt = ("normal-to-xtr-" + (pfx ? "with" : "no") + "-prefix")
+    test txt do
+        port = $ts.dut.p[$idx_xtr]
+        conf = $ts.dut.call("mesa_port_ifh_conf_get", port)
+        conf["ena_xtr_header"] = true
+        conf["xtr_pfx"] = "MESA_IFH_PFX_" + (pfx ? "ETH" : "NONE")
+        $ts.dut.call("mesa_port_ifh_conf_set", port, conf)
 
-test "normal-to-xtr" do
-    f = "eth data pattern cnt 46"
-    cmd = "ef name f_normal #{f} name f_xtr "
-    cmd += cmd_rx_ifh_push({port_idx: $idx_normal})
-    cmd += "#{f} "
-    cmd += "tx #{$ts.pc.p[$idx_normal]} name f_normal "
-    cmd += "rx #{$ts.pc.p[$idx_xtr]} name f_xtr "
-    cmd += "rx #{$ts.pc.p[$idx_inj]} name f_normal"
-    $ts.pc.run(cmd)
+        f = "eth data pattern cnt 46"
+        cmd = "ef name f_normal #{f} name f_xtr "
+        cmd += cmd_rx_ifh_push({port_idx: $idx_normal}, pfx)
+        cmd += "#{f} "
+        cmd += "tx #{$ts.pc.p[$idx_normal]} name f_normal "
+        cmd += "rx #{$ts.pc.p[$idx_xtr]} name f_xtr "
+        cmd += "rx #{$ts.pc.p[$idx_inj]} name f_normal"
+        $ts.pc.run(cmd)
+    end
 end
 
 test "xtr-match_id" do

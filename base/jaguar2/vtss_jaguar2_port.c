@@ -1803,10 +1803,11 @@ static vtss_rc jr2_port_conf_1g_set(vtss_state_t *vtss_state, const vtss_port_no
     vtss_port_speed_t  speed = conf->speed;
     u32                value;
     BOOL               fdx = conf->fdx, disable = conf->power_down;
-    BOOL               sgmii = 0, if_100fx = 0, ena_int_phy = 0;
+    BOOL               sgmii = 0, if_100fx = 0;
     vtss_serdes_mode_t serdes_mode = VTSS_SERDES_MODE_SGMII;
 #if defined(VTSS_ARCH_SERVAL_T)
-    u32 bt_fld = (port == 9) ? 0 : 2;
+    BOOL ena_int_phy = 0;
+    u32  bt_fld = (port == 9) ? 0 : 2;
 #else // Offset of Dev10G_MODE
     u32 bt_fld = (port == 49) ? 12 : (port == 50) ? 14 : (port == 51) ? 16 : 18;
 #endif
@@ -2944,19 +2945,22 @@ vtss_rc vtss_cil_port_test_conf_set(vtss_state_t *vtss_state, const vtss_port_no
 
 vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
-    u32              port = VTSS_CHIP_PORT(port_no);
     vtss_port_ifh_t *ifh = &vtss_state->port.ifh_conf[port_no];
-    BOOL             extr = ifh->ena_xtr_header || ifh->ena_ifh_header;
+    u32              port = VTSS_CHIP_PORT(port_no), inj = 0, xtr = 0;
 
-    /* Enable/Disable IFH parsing at ingress DMAC:SMAC:0x8880:0x0007:IFH:Frame */
+    // Control IFH insertion and parsing
+    if (ifh->ena_inj_header) {
+        inj = (ifh->inj_pfx == VTSS_IFH_PFX_NONE ? 1 : 2);
+    }
+    if (ifh->ena_xtr_header || ifh->ena_ifh_header) {
+        xtr = (ifh->xtr_pfx == VTSS_IFH_PFX_NONE ? 1 : 2);
+    }
     JR2_WRM(VTSS_ASM_CFG_PORT_CFG(port),
-            VTSS_F_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG(ifh->ena_inj_header ? 2 : 0),
-            VTSS_M_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG);
-
-    /* Enable/Disable IFH prepend at egress DMAC:SMAC:0x8880:0x0007:IFH:Frame */
-    JR2_WRM(VTSS_REW_COMMON_PORT_CTRL(port), VTSS_F_REW_COMMON_PORT_CTRL_KEEP_IFH_SEL(extr ? 2 : 0),
+            VTSS_F_ASM_CFG_PORT_CFG_SKIP_PREAMBLE_ENA(inj == 1U) |
+                VTSS_F_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG(inj),
+            VTSS_M_ASM_CFG_PORT_CFG_SKIP_PREAMBLE_ENA | VTSS_M_ASM_CFG_PORT_CFG_INJ_FORMAT_CFG);
+    JR2_WRM(VTSS_REW_COMMON_PORT_CTRL(port), VTSS_F_REW_COMMON_PORT_CTRL_KEEP_IFH_SEL(xtr),
             VTSS_M_REW_COMMON_PORT_CTRL_KEEP_IFH_SEL);
-
     return VTSS_RC_OK;
 }
 

@@ -1249,11 +1249,15 @@ vtss_rc vtss_cil_port_conf_set(vtss_state_t *vtss_state, const vtss_port_no_t po
 vtss_rc vtss_cil_port_ifh_set(vtss_state_t *vtss_state, const vtss_port_no_t port_no)
 {
     vtss_port_ifh_t *ifh = &vtss_state->port.ifh_conf[port_no];
-    u32              port = VTSS_CHIP_PORT(port_no);
+    u32              port = VTSS_CHIP_PORT(port_no), inj = 0, xtr = 0;
 
-    REG_WRM(SYS_PORT_MODE(port),
-            SYS_PORT_MODE_INCL_INJ_HDR(ifh->ena_inj_header ? 3 : 0) |
-                SYS_PORT_MODE_INCL_XTR_HDR(ifh->ena_xtr_header ? 3 : 0),
+    if (ifh->ena_inj_header) {
+        inj = (ifh->inj_pfx == VTSS_IFH_PFX_NONE ? 1 : 3);
+    }
+    if (ifh->ena_xtr_header) {
+        xtr = (ifh->xtr_pfx == VTSS_IFH_PFX_NONE ? 1 : 3);
+    }
+    REG_WRM(SYS_PORT_MODE(port), SYS_PORT_MODE_INCL_INJ_HDR(inj) | SYS_PORT_MODE_INCL_XTR_HDR(xtr),
             SYS_PORT_MODE_INCL_INJ_HDR_M | SYS_PORT_MODE_INCL_XTR_HDR_M);
     return VTSS_RC_OK;
 }

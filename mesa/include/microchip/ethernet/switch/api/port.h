@@ -428,26 +428,34 @@ mesa_rc mesa_port_forward_state_set(const mesa_inst_t         inst,
                                     const mesa_port_no_t      port_no,
                                     const mesa_port_forward_t forward);
 
+// IFH prefix selection
+typedef enum {
+    MESA_IFH_PFX_ETH, // Ethernet header (DMAC, SMAC, Etype = 0x8880 and 2 bytes ID)
+    MESA_IFH_PFX_NONE // No prefix
+} mesa_ifh_pfx_t;
+
 // Port Internal Frame Header structure
 typedef struct {
-    mesa_bool_t ena_inj_header CAP(PORT_INJ_HDR); // Enable injection header
-    mesa_bool_t ena_xtr_header CAP(PORT_XTR_HDR); // Enable extraction header
-    mesa_bool_t ena_ifh_header CAP(PORT_XTR_HDR); // Same as ena_xtr_header (JR1 compatibility)
-} mesa_port_ifh_t CAP(PORT_IFH);
+    mesa_bool_t    ena_inj_header; // Enable injection header
+    mesa_bool_t    ena_xtr_header; // Enable extraction header
+    mesa_bool_t    ena_ifh_header; // Same as ena_xtr_header (JR1 compatibility)
+    mesa_ifh_pfx_t inj_pfx;        // Injection prefix
+    mesa_ifh_pfx_t xtr_pfx;        // Extraction prefix
+} mesa_port_ifh_t;
 
 // Set port Internal Frame Header settings.
 // port_no [IN]  Port number.
 // conf [IN]     Port IFH structure.
 mesa_rc mesa_port_ifh_conf_set(const mesa_inst_t            inst,
                                const mesa_port_no_t         port_no,
-                               const mesa_port_ifh_t *const conf) CAP(PORT_IFH);
+                               const mesa_port_ifh_t *const conf);
 
 // Get port Internal Frame Header settings.
 // port_no [IN]  Port number.
 // conf [OUT]    Port IFH configuration.
 mesa_rc mesa_port_ifh_conf_get(const mesa_inst_t      inst,
                                const mesa_port_no_t   port_no,
-                               mesa_port_ifh_t *const conf) CAP(PORT_IFH);
+                               mesa_port_ifh_t *const conf);
 
 // Read value from MIIM register.
 // port_no [IN]  Port number.

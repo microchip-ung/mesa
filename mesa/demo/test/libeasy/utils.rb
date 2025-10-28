@@ -203,10 +203,13 @@ def cmd_tag_push(tag)
     cmd
 end
 
-def cmd_rx_ifh_push(ifh={})
+def cmd_rx_ifh_push(ifh={}, pfx = true)
     # Short prefix by default (Jaguar-2 format used)
     epid = cap_get("PACKET_IFH_EPID")
-    cmd = "sp-jr2 ign et 0x8880 id #{epid}"
+    cmd = ""
+    if (pfx)
+        cmd = "sp-jr2 ign et 0x8880 id #{epid} "
+    end
 
     # Default field names
     port_name = "src-port"
@@ -217,25 +220,25 @@ def cmd_rx_ifh_push(ifh={})
     case epid
     when 5, 10
         # Serval-1/Ocelot
-        cmd += " efh-oc1 ign"
+        cmd += "efh-oc1 ign"
     when 7, 9
         # Jaguar-2/Serval-T
-        cmd += " ifh-jr2 ign"
+        cmd += "ifh-jr2 ign"
         port_name = "f-src-port"
         isdx_name = "vm1-isdx"
         vid_name = "vt-cl-vid"
     when 11
         # FireAnt
-        cmd += " ifh-fa ign"
+        cmd += "ifh-fa ign"
         port_name = "f-src-port"
         isdx_name = "vm1-isdx"
         vid_name = "vt-cl-vid"
     when 13
         # Maserati
-        cmd += " ifh-mas ign"
+        cmd += "ifh-mas ign"
     when 14
         # Laguna
-        cmd += " ifh-la ign"
+        cmd += "ifh-la ign"
         port_name = "f-src-port"
         isdx_name = "vm1-isdx"
         vid_name = "vt-cl-vid"
@@ -269,12 +272,12 @@ def cmd_rx_ifh_push(ifh={})
     cmd
 end
 
-def cmd_tx_ifh_push(info={})
+def cmd_tx_ifh_push(info={}, pfx = true)
     # Short prefix by default (Jaguar-2 format used)
     epid = cap_get("PACKET_IFH_EPID")
     cmd = "sp-jr2 dmac ff:ff:ff:ff:ff:ff smac fe:ff:ff:ff:ff:ff id #{epid} "
-    if (epid == 0)
-        # Luton26, no prefix
+    if (epid == 0 || !pfx)
+        # Luton26 or no prefix
         cmd = ""
     end
 

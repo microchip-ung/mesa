@@ -16,7 +16,7 @@
 
 SparX-5/LAN969x/Luton26: The use of IFH can now be controlled using `mesa_port_ifh_conf_set()`.
 
-Jaguar-2/Serval-T/Ocelot/LAN966x: The injection direction has been changed to use long prefix.
+The use of prefix can also be controlled for each direction.
 
 === Extended ACL key for LLC frames
 

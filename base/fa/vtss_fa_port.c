@@ -4552,15 +4552,22 @@ vtss_rc vtss_cil_port_conf_set_bulk(struct vtss_state_s *vtss_state)
 
 vtss_rc vtss_cil_port_ifh_set(struct vtss_state_s *vtss_state, const vtss_port_no_t port_no)
 {
-    u32              port = VTSS_CHIP_PORT(port_no);
     vtss_port_ifh_t *ifh = &vtss_state->port.ifh_conf[port_no];
+    u32              port = VTSS_CHIP_PORT(port_no), inj = 0U, xtr = 0U;
 
     // Control IFH insertion and parsing
-    REG_WRM(VTSS_REW_IFH_CTRL(port), VTSS_F_REW_IFH_CTRL_KEEP_IFH_SEL(ifh->ena_xtr_header ? 2 : 0),
-            VTSS_M_REW_IFH_CTRL_KEEP_IFH_SEL);
+    if (ifh->ena_inj_header) {
+        inj = (ifh->inj_pfx == VTSS_IFH_PFX_NONE ? 1U : 2U);
+    }
+    if (ifh->ena_xtr_header) {
+        xtr = (ifh->xtr_pfx == VTSS_IFH_PFX_NONE ? 1U : 2U);
+    }
     REG_WRM(VTSS_ASM_PORT_CFG(port),
-            VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(ifh->ena_inj_header ? 2 : 0),
-            VTSS_M_ASM_PORT_CFG_INJ_FORMAT_CFG);
+            VTSS_F_ASM_PORT_CFG_SKIP_PREAMBLE_ENA(inj == 1U) |
+                VTSS_F_ASM_PORT_CFG_INJ_FORMAT_CFG(inj),
+            VTSS_M_ASM_PORT_CFG_SKIP_PREAMBLE_ENA | VTSS_M_ASM_PORT_CFG_INJ_FORMAT_CFG);
+    REG_WRM(VTSS_REW_IFH_CTRL(port), VTSS_F_REW_IFH_CTRL_KEEP_IFH_SEL(xtr),
+            VTSS_M_REW_IFH_CTRL_KEEP_IFH_SEL);
     return VTSS_RC_OK;
 }
 
