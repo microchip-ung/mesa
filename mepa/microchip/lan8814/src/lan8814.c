@@ -2165,12 +2165,10 @@ static mepa_rc lan8814_loopback_set(mepa_device_t *dev, const mepa_loopback_t *l
             WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_RESTART_ANEG,
                 LAN8814_F_BASIC_CTRL_ANEG_ENA | LAN8814_F_BASIC_CTRL_RESTART_ANEG);
         }
-        if (data->dev.rev <= 3) {
-            EP_WR(dev, LAN8814_POWER_MGMT_MODE_5, 0x6677);
-            EP_WR(dev, LAN8814_POWER_MGMT_MODE_6, 0x6677);
-            EP_WR(dev, LAN8814_POWER_MGMT_MODE_8, 0x4377);
-            EP_WR(dev, LAN8814_POWER_MGMT_MODE_11, 0x4377);
-        }
+        EP_WR(dev, LAN8814_POWER_MGMT_MODE_5, 0x6677);
+        EP_WR(dev, LAN8814_POWER_MGMT_MODE_6, 0x6677);
+        EP_WR(dev, LAN8814_POWER_MGMT_MODE_8, 0x4377);
+        EP_WR(dev, LAN8814_POWER_MGMT_MODE_11, 0x4377);
     }
     if (loopback->connector_ena == TRUE) {
         // Disable auto-negotiation

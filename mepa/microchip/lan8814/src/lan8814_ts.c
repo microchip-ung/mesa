@@ -1521,7 +1521,10 @@ static mepa_rc lan8814_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16
         if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
             MEPA_RC(lan8814_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
         } else {
-            parse_config = parse_config | LAN8814_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
+            // Work-around till revision C1.
+            if (data->dev.rev < 4 || pkt_conf->eth_class_conf.mac_match_select != MEPA_TS_ETH_MATCH_NONE) {
+                parse_config = parse_config | LAN8814_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
+            }
             if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY) { // Match any Unicast or Multicast.
                 parse_config = parse_config | LAN8814_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(6);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
@@ -1550,7 +1553,10 @@ static mepa_rc lan8814_ts_rx_classifier_conf_set_priv(mepa_device_t *dev, uint16
         if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
             MEPA_RC(lan8814_ts_classifier_mac_conf_set_priv(dev, TRUE, pkt_conf->eth_class_conf.mac_addr));
         } else {
-            parse_config = parse_config | LAN8814_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
+            // Work-around till revision C1.
+            if (data->dev.rev < 4 || pkt_conf->eth_class_conf.mac_match_select != MEPA_TS_ETH_MATCH_NONE) {
+                parse_config = parse_config | LAN8814_PTP_RX_PARSE_CONFIG_MAC_DA_EN;
+            }
             if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY) { // Match any Unicast or Multicast.
                 parse_config = parse_config | LAN8814_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(6);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
@@ -1633,14 +1639,18 @@ static mepa_rc lan8814_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16
         if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
             MEPA_RC(lan8814_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
         } else {
-            parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
-            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
+            // Work-around till revision C1.
+            if (data->dev.rev < 4 || pkt_conf->eth_class_conf.mac_match_select != MEPA_TS_ETH_MATCH_NONE) {
+                parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_EN;
+            }
+            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY) { // Match any Unicast or Multicast.
+                parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(6);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
                 parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(2);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
                 parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(lan8814_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
@@ -1662,14 +1672,18 @@ static mepa_rc lan8814_ts_tx_classifier_conf_set_priv(mepa_device_t *dev, uint16
         if (pkt_conf->eth_class_conf.mac_match_select == MEPA_TS_ETH_MATCH_SRC_ADDR) {
             MEPA_RC(lan8814_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
         } else {
-            parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(pkt_conf->eth_class_conf.mac_match_mode);
-            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
+            // Work-around till revision C1.
+            if (data->dev.rev < 4 || pkt_conf->eth_class_conf.mac_match_select != MEPA_TS_ETH_MATCH_NONE) {
+                parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_EN;
+            }
+            if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY) { // Match any Unicast or Multicast.
+                parse_config = parse_config | LAN8814_PTP_RX_PARSE_CONFIG_MAC_DA_MODE_F(6);
+            } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST) { // Match any Unicast MAC
                 parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(2);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST) { // Match any Multicast MAC
                 parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(4);
             } else if (pkt_conf->eth_class_conf.mac_match_mode == MEPA_TS_ETH_ADDR_MATCH_48BIT) { // Match compleete 48 bit MAC
                 parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_MODE_F(1);
-                parse_config = parse_config | LAN8814_PTP_TX_PARSE_CONFIG_MAC_DA_EN;
                 MEPA_RC(lan8814_ts_classifier_mac_conf_set_priv(dev, FALSE, pkt_conf->eth_class_conf.mac_addr));
             }
         }
