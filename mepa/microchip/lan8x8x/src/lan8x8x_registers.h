@@ -158,9 +158,6 @@
 #define GMII_BYPASS_SEL         BIT(1)
 #define XGMII_BYPASS_SEL        BIT(0)
 
-#define MAC_NE_LPBK         (CHIPTOP + 0x1FU)
-#define MAC_NE_LPBK_ENA         BIT(0)
-
 #define OTP_STRAP_READ_REG              (CHIPTOP + 0x38U)
 #define OTP_STRAP_READ_AUTO_MODE_EN     BIT(3)
 #define OTP_STRAP_READ_SPEED_SEL        BIT(2)

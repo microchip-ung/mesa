@@ -378,21 +378,12 @@ static mepa_rc lan8x8x_rgmii_init(mepa_device_t *dev)
 static mepa_rc lan8x8x_config_mac(mepa_device_t *dev)
 {
     const phy_data_t *const data = (const phy_data_t *const)dev->data;
-    uint16_t val = 0U;
-    mepa_rc rc;
 
     if (data->mac_if == MESA_PORT_INTERFACE_SGMII) {
-        rc = lan8x8x_sgmii_init(dev);
-        val = MAC_NE_LPBK_ENA;
-    } else {
-        rc = lan8x8x_rgmii_init(dev);
+        return lan8x8x_sgmii_init(dev);
     }
 
-    //UNG_EWOOD-599: set/clear MAC_NE based on mac_ifc
-    MEPA_RC(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
-                               MAC_NE_LPBK, val));
-
-    return rc;
+    return lan8x8x_rgmii_init(dev);
 }
 
 static mepa_rc lan8x8x_phy_init(mepa_device_t *const dev)

@@ -956,4 +956,6 @@ mepa_rc lan80xx_ts_rx_clock_conf_set_priv(struct mepa_device *dev,
 mepa_rc lan80xx_ts_pps_conf_set_priv(mepa_device_t *dev, const mepa_ts_pps_conf_t *const phy_pps_conf);
 
 mepa_rc lan80xx_ts_pps_conf_get_priv(mepa_device_t *dev, mepa_ts_pps_conf_t *const phy_pps_conf);
+
+mepa_rc lan80xx_phy_ts_stats_clear_priv(mepa_device_t *dev, const mepa_port_no_t port_no);
 #endif //_MEPA_LAN80XX_TS_PRIVATE_H_

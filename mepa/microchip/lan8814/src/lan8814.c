@@ -4,7 +4,6 @@
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>
 #include <mepa_ts_driver.h>
-#include <string.h>
 
 #include "../../common/include/lan8814_registers.h"
 #include "microchip/lan8814_cs.h"

@@ -413,7 +413,7 @@ mepa_rc lan80xx_xconnect_conf_get_priv(mepa_device_t  *dev, mepa_port_no_t port_
     }
     LAN80XX_CSR_RD(dev, base_data->port_no, (switch_sel ? LAN80XX_CROSS_CONNECT_WPS1_FAILOVER_CTRL : LAN80XX_CROSS_CONNECT_WPS0_FAILOVER_CTRL), &value);
     conf->failover_conf.ack_timer = LAN80XX_X_CROSS_CONNECT_WPS1_FAILOVER_CTRL_FC_ACK_TIMER(value);
-    conf->failover_conf.fc_signal_enable = LAN80XX_X_CROSS_CONNECT_WPS1_FAILOVER_CTRL_FC_SIGNAL_DISABLE(value);
+    conf->failover_conf.fc_signal_enable = !(LAN80XX_X_CROSS_CONNECT_WPS1_FAILOVER_CTRL_FC_SIGNAL_DISABLE(value));
 
     LAN80XX_CSR_RD(dev, base_data->port_no, (switch_sel ? LAN80XX_CROSS_CONNECT_WPS0_FILTER_COUNTA_LSB : LAN80XX_CROSS_CONNECT_WPS1_FILTER_COUNTA_LSB), &value);
 
@@ -582,7 +582,7 @@ mepa_rc lan80xx_xconnect_hostfailover_Protection(mepa_device_t  *dev, mepa_port_
     if (conf->ack_timer <= MAX_ACK_TIMER) {
         LAN80XX_CSR_WRM(base_port, switch_sel ? LAN80XX_CROSS_CONNECT_WPS1_FAILOVER_CTRL : LAN80XX_CROSS_CONNECT_WPS0_FAILOVER_CTRL,
                         LAN80XX_F_CROSS_CONNECT_WPS1_FAILOVER_CTRL_FC_ACK_TIMER(conf->ack_timer) |
-                        LAN80XX_F_CROSS_CONNECT_WPS0_FAILOVER_CTRL_FC_SIGNAL_DISABLE(conf->fc_signal_enable),
+                        LAN80XX_F_CROSS_CONNECT_WPS0_FAILOVER_CTRL_FC_SIGNAL_DISABLE(!conf->fc_signal_enable),
                         LAN80XX_M_CROSS_CONNECT_WPS1_FAILOVER_CTRL_FC_ACK_TIMER | LAN80XX_M_CROSS_CONNECT_WPS0_FAILOVER_CTRL_FC_SIGNAL_DISABLE);
     }
     /* Event Source Configuration */

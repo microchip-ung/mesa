@@ -1052,9 +1052,14 @@ mepa_rc lan80xx_ts_reset_priv(mepa_device_t *dev, const mepa_ts_reset_conf_t *co
         LAN80XX_CSR_COLD_WR(data->port_no, LAN80XX_LINE_SLICE_LINE_IP1588_RESET, u32Val);
 
         rc = lan80xx_ts_mode_set_priv(dev, FALSE);
+        T_D(MEPA_TRACE_GRP_TS, "Reseted and Disabled PTP on port : %d\n", data->port_no);
+
+        rc = lan80xx_phy_ts_stats_clear_priv(dev, data->port_no);
+        T_D(MEPA_TRACE_GRP_TS, "Cleared PTP Statistics on port : %d\n", data->port_no);
 
         if (data->port_no == base_data->port_no) {
             base_data->ptp_shared_ltc_pll_init = FALSE;
+            T_D(MEPA_TRACE_GRP_TS, "Base Port PTP Reseted\n");
         }
         memset(&data->phy_ts_port_conf, 0 , sizeof(phy25g_phy_ts_port_conf_t));
     }
@@ -6993,7 +6998,8 @@ mepa_rc lan80xx_phy_ts_pps_ouput_conf_set(mepa_device_t *dev, const mepa_port_no
             break;
         }
         if (pps_out_conf->lsc_select == LAN80XX_PTP_LSC_PIN_3) {
-            T_E(MEPA_TRACE_GRP_TS, "\nno o/p support in ls ctrl 3");
+            T_E(MEPA_TRACE_GRP_TS, "No o/p support in ls ctrl 3");
+            rc = MEPA_RC_ERROR;
             break;
         }
         base_data->ptp_lsc_output_config.pps_conf = *pps_out_conf;
@@ -7192,6 +7198,21 @@ static mepa_rc lan80xx_phy_ts_csr_event_poll_priv(mepa_device_t *dev, const mepa
     return rc;
 }
 
+mepa_rc lan80xx_phy_ts_stats_clear_priv(mepa_device_t *dev, const mepa_port_no_t port_no)
+{
+    u32 value = 0;
+
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0), LAN80XX_PTP_PROC_INGR_RW_PREAMBLE_ERR_CNT, &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0), LAN80XX_PTP_PROC_EGR_RW_PREAMBLE_ERR_CNT, &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0), LAN80XX_PTP_PROC_INGR_RW_FCS_ERR_CNT, &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0), LAN80XX_PTP_PROC_EGR_RW_FCS_ERR_CNT, &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0), LAN80XX_PTP_PROC_INGR_RW_MODFRM_CNT, &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0), LAN80XX_PTP_PROC_EGR_RW_MODFRM_CNT, &value));
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0), LAN80XX_PTP_PROC_EGR_TSFIFO_DROP_CNT, &value));
+
+    return MEPA_RC_OK;
+}
+
 static mepa_rc lan80xx_phy_ts_stats_get_priv(mepa_device_t *dev, const mepa_port_no_t port_no, phy25g_phy_ts_stats_t   *const statistics)
 {
     u32          value = 0;
@@ -7317,6 +7338,7 @@ mepa_rc lan80xx_phy_ts_stats_get(mepa_device_t *dev, const mepa_port_no_t  port_
     MEPA_ASSERT(statistics == NULL);
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
+            T_E(MEPA_TRACE_GRP_TS, "TS Init not done\n");
             rc = MEPA_RC_ERROR;
             break;
         }
