@@ -248,6 +248,8 @@ error:
     return rc;
 }
 
+#define LINK_STATUS_ENHANCED
+
 mepa_rc lan867x_get_link_status(mepa_device_t *const dev, mepa_status_t *const status)
 {
     mepa_rc rc = MEPA_RC_ERROR;
