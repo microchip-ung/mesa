@@ -1227,6 +1227,11 @@ vtss_rc vtss_cil_ts_status_change(struct vtss_state_s *vtss_state, vtss_port_no_
         if (speed == VTSS_SPEED_2500M) { /* 2.5 Gbps */
             rx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000U * 33U) : (1000U * 21U);
             tx_delay += (sd_type == FA_SERDES_TYPE_25G) ? (1000U * 33U) : (1000U * 21U);
+#if defined(VTSS_ARCH_SPARX5)
+            /* APPL-4485: additional adjustment for PCB135 */
+            rx_delay += 5534U * 1000U;
+            tx_delay += 4014U * 1000U;
+#endif
         }
         break;
     case VTSS_PORT_INTERFACE_RGMII:
