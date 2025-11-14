@@ -483,6 +483,13 @@ typedef struct {
     vtss_mac_t smac;   /**< SMAC */
 } vtss_ace_sip_smac_t;
 
+// IPv6 SIP/SMAC filtering
+typedef struct {
+    BOOL        enable; // Enable SIP/SMAC filtering
+    vtss_ipv6_t sip;    // SIP
+    vtss_mac_t  smac;   // SMAC
+} vtss_ace_ipv6_sip_smac_t;
+
 /** \brief ACE VLAN information */
 typedef struct {
     vtss_ace_vid_t vid;      /**< VLAN ID (12 bit) */
@@ -581,21 +588,22 @@ typedef struct {
 #if defined(VTSS_FEATURE_ACL_EXT_DIP)
     vtss_ace_u128_t dip; // IPv6 destinaton address, VTSS_ACL_KEY_EXT
 #endif
-    vtss_ace_bit_t     ttl;            /**< TTL zero */
-    vtss_ace_u8_t      ds;             /**< DS field */
-    vtss_ace_u48_t     data;           /**< Not UDP/TCP: IP data */
-    vtss_ace_udp_tcp_t sport;          /**< UDP/TCP: Source port */
-    vtss_ace_udp_tcp_t dport;          /**< UDP/TCP: Destination port */
-    vtss_ace_bit_t     tcp_fin;        /**< TCP FIN */
-    vtss_ace_bit_t     tcp_syn;        /**< TCP SYN */
-    vtss_ace_bit_t     tcp_rst;        /**< TCP RST */
-    vtss_ace_bit_t     tcp_psh;        /**< TCP PSH */
-    vtss_ace_bit_t     tcp_ack;        /**< TCP ACK */
-    vtss_ace_bit_t     tcp_urg;        /**< TCP URG */
-    vtss_ace_bit_t     sip_eq_dip;     /**< SIP equals DIP  */
-    vtss_ace_bit_t     sport_eq_dport; /**< SPORT equals DPORT  */
-    vtss_ace_bit_t     seq_zero;       /**< TCP sequence number is zero */
-    vtss_ace_ptp_t     ptp;            /**< PTP filtering (overrides sip byte 0-3) */
+    vtss_ace_bit_t           ttl;            /**< TTL zero */
+    vtss_ace_u8_t            ds;             /**< DS field */
+    vtss_ace_u48_t           data;           /**< Not UDP/TCP: IP data */
+    vtss_ace_udp_tcp_t       sport;          /**< UDP/TCP: Source port */
+    vtss_ace_udp_tcp_t       dport;          /**< UDP/TCP: Destination port */
+    vtss_ace_bit_t           tcp_fin;        /**< TCP FIN */
+    vtss_ace_bit_t           tcp_syn;        /**< TCP SYN */
+    vtss_ace_bit_t           tcp_rst;        /**< TCP RST */
+    vtss_ace_bit_t           tcp_psh;        /**< TCP PSH */
+    vtss_ace_bit_t           tcp_ack;        /**< TCP ACK */
+    vtss_ace_bit_t           tcp_urg;        /**< TCP URG */
+    vtss_ace_bit_t           sip_eq_dip;     /**< SIP equals DIP  */
+    vtss_ace_bit_t           sport_eq_dport; /**< SPORT equals DPORT  */
+    vtss_ace_bit_t           seq_zero;       /**< TCP sequence number is zero */
+    vtss_ace_ptp_t           ptp;            /**< PTP filtering (overrides sip byte 0-3) */
+    vtss_ace_ipv6_sip_smac_t sip_smac;       /**< SIP/SMAC matching (overrides sip field) */
 } vtss_ace_frame_ipv6_t;
 
 /** \brief Access Control Entry */
@@ -808,20 +816,21 @@ typedef struct {
 
 /** \brief Frame data for VTSS_ACE_TYPE_IPV6 */
 typedef struct {
-    vtss_ace_bit_t     ttl;     /**< TTL zero */
-    vtss_ace_u8_t      ds;      /**< DS field */
-    vtss_ace_u8_t      proto;   /**< IPv6 protocol */
-    vtss_ace_u128_t    sip;     /**< IPv6 source address */
-    vtss_ace_u128_t    dip;     /**< IPv6 destination address */
-    vtss_ace_u48_t     data;    /**< Not UDP/TCP: IP data */
-    vtss_ace_udp_tcp_t sport;   /**< UDP/TCP: Source port */
-    vtss_ace_udp_tcp_t dport;   /**< UDP/TCP: Destination port */
-    vtss_ace_bit_t     tcp_fin; /**< TCP FIN */
-    vtss_ace_bit_t     tcp_syn; /**< TCP SYN */
-    vtss_ace_bit_t     tcp_rst; /**< TCP RST */
-    vtss_ace_bit_t     tcp_psh; /**< TCP PSH */
-    vtss_ace_bit_t     tcp_ack; /**< TCP ACK */
-    vtss_ace_bit_t     tcp_urg; /**< TCP URG */
+    vtss_ace_bit_t           ttl;      /**< TTL zero */
+    vtss_ace_u8_t            ds;       /**< DS field */
+    vtss_ace_u8_t            proto;    /**< IPv6 protocol */
+    vtss_ace_u128_t          sip;      /**< IPv6 source address */
+    vtss_ace_u128_t          dip;      /**< IPv6 destination address */
+    vtss_ace_u48_t           data;     /**< Not UDP/TCP: IP data */
+    vtss_ace_udp_tcp_t       sport;    /**< UDP/TCP: Source port */
+    vtss_ace_udp_tcp_t       dport;    /**< UDP/TCP: Destination port */
+    vtss_ace_bit_t           tcp_fin;  /**< TCP FIN */
+    vtss_ace_bit_t           tcp_syn;  /**< TCP SYN */
+    vtss_ace_bit_t           tcp_rst;  /**< TCP RST */
+    vtss_ace_bit_t           tcp_psh;  /**< TCP PSH */
+    vtss_ace_bit_t           tcp_ack;  /**< TCP ACK */
+    vtss_ace_bit_t           tcp_urg;  /**< TCP URG */
+    vtss_ace_ipv6_sip_smac_t sip_smac; /**< SIP/SMAC matching (overrides sip field) */
 } vtss_hace_frame_ipv6_t;
 
 /** \brief Hierarchical ACL key */

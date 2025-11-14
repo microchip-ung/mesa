@@ -393,7 +393,7 @@ extern uintptr_t vtss_os_cpu_to_dma_addr(void *ptr);
 #define VTSS_STRCPY(sd, ss) strcpy(sd, ss)
 
 #define VTSS_TOUPPER(arg) (toupper(arg))
-#define VTSS_TOLOWER(arg) (toupper(arg))
+#define VTSS_TOLOWER(arg) (tolower(arg))
 
 #define VTSS_PROF_ENTER(id, sub)
 #define VTSS_PROF_EXIT(id, sub)

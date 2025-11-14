@@ -285,6 +285,13 @@ typedef struct {
     mesa_mac_t  smac;   // SMAC
 } mesa_ace_sip_smac_t;
 
+// IPv6 SIP/SMAC filtering
+typedef struct {
+    mesa_bool_t enable; // Enable SIP/SMAC filtering
+    mesa_ipv6_t sip;    // SIP
+    mesa_mac_t  smac;   // SMAC
+} mesa_ace_ipv6_sip_smac_t;
+
 // ACE VLAN information
 typedef struct {
     mesa_ace_vid_t vid;      // VLAN ID (12 bit)
@@ -368,26 +375,27 @@ typedef struct {
 
 // Frame data for MESA_ACE_TYPE_IPV6
 typedef struct {
-    mesa_ace_u48_t dmac CAP(ACL_EXT_MAC); // DMAC, MESA_ACL_KEY_EXT
-    mesa_ace_u48_t smac CAP(ACL_EXT_MAC); // SMAC, MESA_ACL_KEY_EXT
-    mesa_ace_u8_t       proto;            // IPv6 protocol
-    mesa_ace_u128_t     sip; // IPv6 source address (byte 0-7 only used for MESA_ACL_KEY_EXT)
-    mesa_ace_u128_t dip CAP(ACL_EXT_DIP); // IPv6 destination address, MESA_ACL_KEY_EXT
-    mesa_ace_bit_t      ttl;              // TTL zero
-    mesa_ace_u8_t       ds;               // DS field
-    mesa_ace_u48_t      data;             // Not UDP/TCP: IP data
-    mesa_ace_udp_tcp_t  sport;            // UDP/TCP: Source port
-    mesa_ace_udp_tcp_t  dport;            // UDP/TCP: Destination port
-    mesa_ace_bit_t      tcp_fin;          // TCP FIN
-    mesa_ace_bit_t      tcp_syn;          // TCP SYN
-    mesa_ace_bit_t      tcp_rst;          // TCP RST
-    mesa_ace_bit_t      tcp_psh;          // TCP PSH
-    mesa_ace_bit_t      tcp_ack;          // TCP ACK
-    mesa_ace_bit_t      tcp_urg;          // TCP URG
-    mesa_ace_bit_t      sip_eq_dip;       // SIP equals DIP
-    mesa_ace_bit_t      sport_eq_dport;   // SPORT equals DPORT
-    mesa_ace_bit_t      seq_zero;         // TCP sequence number is zero
-    mesa_ace_ptp_t      ptp;              // PTP filtering (overrides sip byte 0-3)
+    mesa_ace_u48_t dmac      CAP(ACL_EXT_MAC); // DMAC, MESA_ACL_KEY_EXT
+    mesa_ace_u48_t smac      CAP(ACL_EXT_MAC); // SMAC, MESA_ACL_KEY_EXT
+    mesa_ace_u8_t            proto;            // IPv6 protocol
+    mesa_ace_u128_t          sip; // IPv6 source address (byte 0-7 only used for MESA_ACL_KEY_EXT)
+    mesa_ace_u128_t dip      CAP(ACL_EXT_DIP); // IPv6 destination address, MESA_ACL_KEY_EXT
+    mesa_ace_bit_t           ttl;              // TTL zero
+    mesa_ace_u8_t            ds;               // DS field
+    mesa_ace_u48_t           data;             // Not UDP/TCP: IP data
+    mesa_ace_udp_tcp_t       sport;            // UDP/TCP: Source port
+    mesa_ace_udp_tcp_t       dport;            // UDP/TCP: Destination port
+    mesa_ace_bit_t           tcp_fin;          // TCP FIN
+    mesa_ace_bit_t           tcp_syn;          // TCP SYN
+    mesa_ace_bit_t           tcp_rst;          // TCP RST
+    mesa_ace_bit_t           tcp_psh;          // TCP PSH
+    mesa_ace_bit_t           tcp_ack;          // TCP ACK
+    mesa_ace_bit_t           tcp_urg;          // TCP URG
+    mesa_ace_bit_t           sip_eq_dip;       // SIP equals DIP
+    mesa_ace_bit_t           sport_eq_dport;   // SPORT equals DPORT
+    mesa_ace_bit_t           seq_zero;         // TCP sequence number is zero
+    mesa_ace_ptp_t           ptp;              // PTP filtering (overrides sip byte 0-3)
+    mesa_ace_ipv6_sip_smac_t sip_smac;         // SIP/SMAC matching (overrides sip field)
 } mesa_ace_frame_ipv6_t;
 
 // Access Control Entry
@@ -547,20 +555,21 @@ typedef struct {
 
 // Frame data for MESA_ACE_TYPE_IPV6
 typedef struct {
-    mesa_ace_bit_t     ttl;     // TTL zero
-    mesa_ace_u8_t      ds;      // DS field
-    mesa_ace_u8_t      proto;   // IPv6 protocol
-    mesa_ace_u128_t    sip;     // IPv6 source address
-    mesa_ace_u128_t    dip;     // IPv6 destination address
-    mesa_ace_u48_t     data;    // Not UDP/TCP: IP data
-    mesa_ace_udp_tcp_t sport;   // UDP/TCP: Source port
-    mesa_ace_udp_tcp_t dport;   // UDP/TCP: Destination port
-    mesa_ace_bit_t     tcp_fin; // TCP FIN
-    mesa_ace_bit_t     tcp_syn; // TCP SYN
-    mesa_ace_bit_t     tcp_rst; // TCP RST
-    mesa_ace_bit_t     tcp_psh; // TCP PSH
-    mesa_ace_bit_t     tcp_ack; // TCP ACK
-    mesa_ace_bit_t     tcp_urg; // TCP URG
+    mesa_ace_bit_t           ttl;      // TTL zero
+    mesa_ace_u8_t            ds;       // DS field
+    mesa_ace_u8_t            proto;    // IPv6 protocol
+    mesa_ace_u128_t          sip;      // IPv6 source address
+    mesa_ace_u128_t          dip;      // IPv6 destination address
+    mesa_ace_u48_t           data;     // Not UDP/TCP: IP data
+    mesa_ace_udp_tcp_t       sport;    // UDP/TCP: Source port
+    mesa_ace_udp_tcp_t       dport;    // UDP/TCP: Destination port
+    mesa_ace_bit_t           tcp_fin;  // TCP FIN
+    mesa_ace_bit_t           tcp_syn;  // TCP SYN
+    mesa_ace_bit_t           tcp_rst;  // TCP RST
+    mesa_ace_bit_t           tcp_psh;  // TCP PSH
+    mesa_ace_bit_t           tcp_ack;  // TCP ACK
+    mesa_ace_bit_t           tcp_urg;  // TCP URG
+    mesa_ace_ipv6_sip_smac_t sip_smac; // SIP/SMAC matching (overrides sip field)
 } mesa_hace_frame_ipv6_t CAP(ACL_HACL);
 
 // Hierarchical ACL key

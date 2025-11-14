@@ -2894,7 +2894,7 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t     *vtss_state,
         jr2_vcap_key_u3_set(&data, IS2_KO_X16_PCP, &ace->vlan.usr_prio);
         jr2_ace_key_bit_set(&data, IS2_KO_X16_DEI, ace->vlan.cfi);
         if (is2->entry->host_match) {
-            /* Host match for IPv4 */
+            /* Host match for IPv4/IPv6 */
             jr2_vcap_key_bit_set(&data, IS2_KO_X16_SMAC_SIP, VTSS_VCAP_BIT_1);
         }
         jr2_vcap_key_u48_set(&data, IS2_KO_X16_DMAC, ipv4 ? &ipv4->dmac : &ipv6->dmac);
@@ -3121,7 +3121,7 @@ static vtss_rc jr2_is2_entry_add(vtss_state_t     *vtss_state,
     jr2_vcap_key_u3_set(&data, IS2_KO_X8_PCP, &ace->vlan.usr_prio);
     jr2_ace_key_bit_set(&data, IS2_KO_X8_DEI, ace->vlan.cfi);
     if (is2->entry->host_match) {
-        /* Host match for IPv4 */
+        /* Host match for IPv4/IPv6 */
         jr2_vcap_key_bit_set(&data, IS2_KO_X8_SMAC_SIP, VTSS_VCAP_BIT_1);
     }
 
@@ -4158,23 +4158,23 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
                               const vtss_ace_id_t     ace_id,
                               const vtss_ace_t *const ace)
 {
-    vtss_vcap_obj_t             *obj = &vtss_state->vcap.is2.obj;
-    vtss_vcap_obj_t             *obj_lpm = &vtss_state->vcap.lpm.obj;
-    vtss_vcap_user_t             user = VTSS_IS2_USER_ACL;
-    vtss_vcap_user_t             user_lpm = VTSS_LPM_USER_ACL;
-    vtss_vcap_data_t             data;
-    vtss_is2_data_t             *is2 = &data.u.is2;
-    vtss_is2_entry_t             entry;
-    vtss_lpm_entry_t             entry_lpm;
-    vtss_res_t                   res;
-    const vtss_ace_frame_ipv4_t *ipv4 = &ace->frame.ipv4;
-    const vtss_ace_frame_ipv6_t *ipv6 = &ace->frame.ipv6;
-    vtss_ace_udp_tcp_t          *sport = NULL, *dport = NULL;
-    vtss_vcap_range_chk_table_t  range_new = vtss_state->vcap.range;
-    u32                          i, cnt_id = 0;
-    vtss_vcap_key_size_t         key_size, key_lpm;
-    BOOL                         sip_smac_new = 0, sip_smac_old = 0;
-    vtss_port_no_t               port_no;
+    vtss_vcap_obj_t            *obj = &vtss_state->vcap.is2.obj;
+    vtss_vcap_obj_t            *obj_lpm = &vtss_state->vcap.lpm.obj;
+    vtss_vcap_user_t            user = VTSS_IS2_USER_ACL;
+    vtss_vcap_user_t            user_lpm = VTSS_LPM_USER_ACL;
+    vtss_vcap_data_t            data;
+    vtss_is2_data_t            *is2 = &data.u.is2;
+    vtss_is2_entry_t            entry;
+    vtss_lpm_entry_t            entry_lpm;
+    vtss_res_t                  res;
+    vtss_ace_frame_ipv4_t      *ipv4 = &entry.ace.frame.ipv4;
+    vtss_ace_frame_ipv6_t      *ipv6 = &entry.ace.frame.ipv6;
+    vtss_ace_udp_tcp_t         *sport = NULL, *dport = NULL;
+    vtss_vcap_range_chk_table_t range_new = vtss_state->vcap.range;
+    u32                         i, cnt_id = 0;
+    vtss_vcap_key_size_t        key_size, key_lpm;
+    BOOL                        sip_smac_new = 0, sip_smac_old = 0;
+    vtss_port_no_t              port_no;
 
     /* Check the simple things */
     VTSS_RC(vtss_cmn_ace_add(vtss_state, ace_id, ace));
@@ -4207,6 +4207,12 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
         VTSS_E("no ACE counter free");
         return VTSS_RC_ERROR;
     }
+
+    // Initialize entry and copy ACE
+    vtss_vcap_is2_init(&data, &entry);
+    is2->cnt_id = cnt_id;
+    entry.ace = *ace;
+
     if (ace->type == VTSS_ACE_TYPE_IPV4) {
         if (ipv4->sip_smac.enable) {
             /* SIP/SMAC entry needed */
@@ -4214,18 +4220,23 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
             res.lpm.add_key[key_lpm] = 1;
         }
         if (vtss_vcap_udp_tcp_rule(&ipv4->proto)) {
-            sport = &entry.ace.frame.ipv4.sport;
-            dport = &entry.ace.frame.ipv4.dport;
+            sport = &ipv4->sport;
+            dport = &ipv4->dport;
         }
-    } else if (ace->type == VTSS_ACE_TYPE_IPV6 && vtss_vcap_udp_tcp_rule(&ipv6->proto)) {
-        sport = &entry.ace.frame.ipv6.sport;
-        dport = &entry.ace.frame.ipv6.dport;
+    } else if (ace->type == VTSS_ACE_TYPE_IPV6) {
+        if (ipv6->sip_smac.enable) {
+            /* SIP/SMAC entry needed */
+            sip_smac_new = 1;
+            key_lpm = VTSS_VCAP_KEY_SIZE_QUARTER;
+            res.lpm.add_key[key_lpm] = 1;
+        }
+        if (vtss_vcap_udp_tcp_rule(&ipv6->proto)) {
+            sport = &ipv6->sport;
+            dport = &ipv6->dport;
+        }
     }
     VTSS_RC(vtss_cmn_res_check(vtss_state, &res));
 
-    vtss_vcap_is2_init(&data, &entry);
-    is2->cnt_id = cnt_id;
-    entry.ace = *ace;
     data.key_size = key_size;
     if (ace->action.port_action == VTSS_ACL_PORT_ACTION_REDIR) {
         is2->action.redir = 1;
@@ -4237,8 +4248,15 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
     }
     if (sip_smac_new) {
         entry.host_match = 1;
-        entry.ace.frame.ipv4.sip.value = ipv4->sip_smac.sip;
-        entry.ace.frame.ipv4.sip.mask = 0xffffffff;
+        if (ace->type == VTSS_ACE_TYPE_IPV4) {
+            ipv4->sip.value = ipv4->sip_smac.sip;
+            ipv4->sip.mask = 0xffffffff;
+        } else {
+            for (i = 0; i < 16; i++) {
+                ipv6->sip.value[i] = ipv6->sip_smac.sip.addr[i];
+                ipv6->sip.mask[i] = 0xff;
+            }
+        }
     }
 
     /* Allocate and commit new range checkers */
@@ -4257,13 +4275,17 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
         VTSS_MEMSET(&entry_lpm, 0, sizeof(entry_lpm));
         data.u.lpm.entry = &entry_lpm;
         data.key_size = key_lpm;
-        entry_lpm.key.type = VTSS_LPM_KEY_SGL_IP4;
-        entry_lpm.key.data.sgl_ip4.xip = entry.ace.frame.ipv4.sip;
+        if (ace->type == VTSS_ACE_TYPE_IPV4) {
+            entry_lpm.key.type = VTSS_LPM_KEY_SGL_IP4;
+            entry_lpm.key.data.sgl_ip4.xip = ipv4->sip;
+            entry_lpm.action.data.arp_entry.mac = ipv4->sip_smac.smac;
+        } else {
+            entry_lpm.key.type = VTSS_LPM_KEY_SGL_IP6;
+            entry_lpm.key.data.sgl_ip6.xip = ipv6->sip;
+            entry_lpm.action.data.arp_entry.mac = ipv6->sip_smac.smac;
+        }
         entry_lpm.action.type = LPM_TYPE_ARP_ENTRY;
         entry_lpm.action.data.arp_entry.secur_match_mac_ena = 1;
-        for (i = 0; i < 6; i++) {
-            entry_lpm.action.data.arp_entry.mac.addr[i] = ipv4->sip_smac.smac.addr[i];
-        }
         VTSS_RC(vtss_vcap_add(vtss_state, obj_lpm, user_lpm, ace->id, VTSS_VCAP_ID_LAST, &data, 0));
     } else if (sip_smac_old) {
         VTSS_RC(vtss_vcap_del(vtss_state, obj_lpm, user_lpm, ace->id));

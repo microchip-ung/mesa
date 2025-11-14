@@ -604,6 +604,13 @@ test_table =
          f_0: {cmd: "ipv6 next 10 data hex 010203040506"},
          f_1: {cmd: "ipv6 next 10 data hex 010203040507"}
      },
+     {
+         txt: "ipv6/sip_smac",
+         ace: {type: "IPV6", sip_smac: {sip: {addr: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]}, smac: [0,1,2,3,4,5]}},
+         key: {ipv6: ["DEFAULT", "EXT"]},
+         f_0: {smac: "00:01:02:03:04:05", cmd: "ipv6 sip 0001:0203:0405:0607:0809:0a0b:0c0d:0e0f"},
+         f_1: {smac: "00:01:02:03:04:06", cmd: "ipv6 sip 0001:0203:0405:0607:0809:0a0b:0c0d:0e0f"}
+     },
     ]
 
 def ace_test(t, type_ext)

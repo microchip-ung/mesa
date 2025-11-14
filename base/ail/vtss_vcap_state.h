@@ -468,16 +468,17 @@ typedef struct {
 } vtss_is1_action_t;
 
 typedef enum {
-    VTSS_IS1_TYPE_ANY,      /**< Any frame type */
-    VTSS_IS1_TYPE_ETYPE,    /**< Ethernet Type */
-    VTSS_IS1_TYPE_LLC,      /**< LLC */
-    VTSS_IS1_TYPE_SNAP,     /**< SNAP */
-    VTSS_IS1_TYPE_IPV4,     /**< IPv4 */
-    VTSS_IS1_TYPE_IPV6,     /**< IPv6 */
-    VTSS_IS1_TYPE_SMAC_SIP, /**< SMAC/SIP */
-    VTSS_IS1_TYPE_RCE,      /**< RCE */
-    VTSS_IS1_TYPE_MPLS_MLL, /**< MPLS Link Layer */
-    VTSS_IS1_TYPE_MPLS_MLBS /**< MPLS LaBel Stack */
+    VTSS_IS1_TYPE_ANY,           /**< Any frame type */
+    VTSS_IS1_TYPE_ETYPE,         /**< Ethernet Type */
+    VTSS_IS1_TYPE_LLC,           /**< LLC */
+    VTSS_IS1_TYPE_SNAP,          /**< SNAP */
+    VTSS_IS1_TYPE_IPV4,          /**< IPv4 */
+    VTSS_IS1_TYPE_IPV6,          /**< IPv6 */
+    VTSS_IS1_TYPE_SMAC_SIP,      /**< SMAC/SIP */
+    VTSS_IS1_TYPE_IPV6_SMAC_SIP, /**< IPv6 SMAC/SIP */
+    VTSS_IS1_TYPE_RCE,           /**< RCE */
+    VTSS_IS1_TYPE_MPLS_MLL,      /**< MPLS Link Layer */
+    VTSS_IS1_TYPE_MPLS_MLBS      /**< MPLS LaBel Stack */
 } vtss_is1_type_t;
 
 typedef struct {
@@ -538,10 +539,14 @@ typedef struct {
 } vtss_is1_frame_ipv6_t;
 
 typedef struct {
-    vtss_port_no_t port_no; /**< Ingress port or VTSS_PORT_NO_NONE */
-    vtss_mac_t     smac;    /**< SMAC */
-    vtss_ip_t      sip;     /**< Source IP address */
+    vtss_mac_t smac; /**< SMAC */
+    vtss_ip_t  sip;  /**< Source IP address */
 } vtss_is1_frame_smac_sip_t;
+
+typedef struct {
+    vtss_mac_t  smac; /**< SMAC */
+    vtss_ipv6_t sip;  /**< Source IP address */
+} vtss_is1_frame_ipv6_smac_sip_t;
 
 typedef struct {
     BOOL upstream; /**< TRUE == upstream-assigned label Ethertype; FALSE ==
@@ -581,14 +586,15 @@ typedef struct {
 
     union {
         /* VTSS_IS1_TYPE_ANY: No specific fields */
-        vtss_is1_frame_etype_t     etype;    /**< VTSS_IS1_TYPE_ETYPE */
-        vtss_is1_frame_llc_t       llc;      /**< VTSS_IS1_TYPE_LLC */
-        vtss_is1_frame_snap_t      snap;     /**< VTSS_IS1_TYPE_SNAP */
-        vtss_is1_frame_ipv4_t      ipv4;     /**< VTSS_IS1_TYPE_IPV4 */
-        vtss_is1_frame_ipv6_t      ipv6;     /**< VTSS_IS1_TYPE_IPV6 */
-        vtss_is1_frame_smac_sip_t  smac_sip; /**< VTSS_IS1_TYPE_SMAC_SIP */
-        vtss_is1_frame_mpls_mll_t  mll;      /**< VTSS_IS1_TYPE_MPLS_MLL */
-        vtss_is1_frame_mpls_mlbs_t mlbs;     /**< VTSS_IS1_TYPE_MPLS_MLBS */
+        vtss_is1_frame_etype_t         etype;         /**< VTSS_IS1_TYPE_ETYPE */
+        vtss_is1_frame_llc_t           llc;           /**< VTSS_IS1_TYPE_LLC */
+        vtss_is1_frame_snap_t          snap;          /**< VTSS_IS1_TYPE_SNAP */
+        vtss_is1_frame_ipv4_t          ipv4;          /**< VTSS_IS1_TYPE_IPV4 */
+        vtss_is1_frame_ipv6_t          ipv6;          /**< VTSS_IS1_TYPE_IPV6 */
+        vtss_is1_frame_smac_sip_t      smac_sip;      /**< VTSS_IS1_TYPE_SMAC_SIP */
+        vtss_is1_frame_ipv6_smac_sip_t ipv6_smac_sip; /**< VTSS_IS1_TYPE_IPv6_SMAC_SIP */
+        vtss_is1_frame_mpls_mll_t      mll;           /**< VTSS_IS1_TYPE_MPLS_MLL */
+        vtss_is1_frame_mpls_mlbs_t     mlbs;          /**< VTSS_IS1_TYPE_MPLS_MLBS */
 #if defined(VTSS_FEATURE_RCL)
         vtss_rce_key_t rce_key;
 #endif

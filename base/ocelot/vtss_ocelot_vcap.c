@@ -2225,7 +2225,6 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t     *vtss_state,
     vtss_vcap_vid_t        sp, dp;
     vtss_ace_ptp_t        *ptp;
     u8                    *p, val[7], msk[7];
-    vtss_vcap_ip_t         sip;
     vtss_ace_u40_t         llc;
     BOOL                   host_match = is2->entry->host_match;
     BOOL                   smac_sip6 = is2->entry->smac_sip6;
@@ -2249,16 +2248,24 @@ static vtss_rc srvl_is2_entry_add(vtss_state_t     *vtss_state,
         /* Setup SMAC_SIP key fields */
         if (smac_sip6) {
             srvl_vcap_key_set(data, IS2_HKO_TYPE, IS2_HKL_TYPE, IS2_TYPE_SMAC_SIP6, type_mask);
+            if (host_match) {
+                srvl_vcap_key_set(data, IS2_HKO_SMAC_SIP6_IGR_PORT, IS2_QKL_IGR_PORT, 0, 0);
+                for (i = 0; i < 6; i++) {
+                    smac_data.value[i] = ipv6->sip_smac.smac.addr[i];
+                    smac_data.mask[i] = 0xff;
+                }
+                srvl_vcap_key_u48_set(data, IS2_HKO_SMAC_SIP6_L2_SMAC, &smac_data);
+                srvl_vcap_key_bytes_set(data, IS2_HKO_SMAC_SIP6_L3_IP6_SIP, ipv6->sip.value,
+                                        ipv6->sip.mask, 16);
+            }
         } else if (host_match) {
             srvl_vcap_key_set(data, IS2_QKO_IGR_PORT, IS2_QKL_IGR_PORT, 0, 0);
             for (i = 0; i < 6; i++) {
-                smac_data.value[i] = ace->frame.ipv4.sip_smac.smac.addr[i];
+                smac_data.value[i] = ipv4->sip_smac.smac.addr[i];
                 smac_data.mask[i] = 0xff;
             }
             srvl_vcap_key_u48_set(data, IS2_QKO_L2_SMAC, &smac_data);
-            sip.value = ace->frame.ipv4.sip_smac.sip;
-            sip.mask = 0xffffffff;
-            srvl_vcap_key_ipv4_set(data, IS2_QKO_L3_IP4_SIP, &sip);
+            srvl_vcap_key_ipv4_set(data, IS2_QKO_L3_IP4_SIP, &ipv4->sip);
         }
 
         /* Setup action */
@@ -3362,12 +3369,17 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
     vtss_vcap_data_t            data;
     vtss_is2_data_t            *is2 = &data.u.is2;
     vtss_is2_entry_t            entry;
+    vtss_ace_frame_ipv4_t      *ipv4 = &entry.ace.frame.ipv4;
+    vtss_ace_frame_ipv6_t      *ipv6 = &entry.ace.frame.ipv6;
     vtss_res_chg_t              chg;
     vtss_ace_udp_tcp_t         *sport = NULL, *dport = NULL;
     vtss_vcap_range_chk_table_t range_new = vtss_state->vcap.range;
     BOOL                        sip_smac_new = 0, sip_smac_old = 0;
     vtss_port_no_t              port_no;
     vtss_vcap_key_size_t        key_size = VTSS_VCAP_KEY_SIZE_HALF;
+    vtss_vcap_key_size_t        key_smac_sip = VTSS_VCAP_KEY_SIZE_QUARTER;
+    vtss_vcap_idx_t             idx;
+    u8                          i;
 
     /* Check the simple things */
     VTSS_RC(vtss_cmn_ace_add(vtss_state, ace_id, ace));
@@ -3388,32 +3400,42 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
         VTSS_RC(vtss_vcap_range_free(&range_new, is2->drange));
 
         /* Lookup SIP/SMAC rule */
-        if (vtss_vcap_lookup(vtss_state, obj, VTSS_IS2_USER_ACL_SIP, ace->id, NULL, NULL) ==
+        if (vtss_vcap_lookup(vtss_state, obj, VTSS_IS2_USER_ACL_SIP, ace->id, NULL, &idx) ==
             VTSS_RC_OK) {
             sip_smac_old = 1;
-            chg.del_key[VTSS_VCAP_KEY_SIZE_QUARTER] = 1;
+            chg.del_key[idx.key_size] = 1;
         }
     }
 
+    // Initialize entry and copy ACE
+    vtss_vcap_is2_init(&data, &entry);
+    entry.ace = *ace;
+
     if (ace->type == VTSS_ACE_TYPE_IPV4) {
-        if (ace->frame.ipv4.sip_smac.enable) {
+        if (ipv4->sip_smac.enable) {
             /* SMAC_SIP4 rule needed */
             sip_smac_new = 1;
-            chg.add_key[VTSS_VCAP_KEY_SIZE_QUARTER] = 1;
+            chg.add_key[key_smac_sip] = 1;
         }
-        if (vtss_vcap_udp_tcp_rule(&ace->frame.ipv4.proto)) {
-            sport = &entry.ace.frame.ipv4.sport;
-            dport = &entry.ace.frame.ipv4.dport;
+        if (vtss_vcap_udp_tcp_rule(&ipv4->proto)) {
+            sport = &ipv4->sport;
+            dport = &ipv4->dport;
         }
     }
-    if (ace->type == VTSS_ACE_TYPE_IPV6 && vtss_vcap_udp_tcp_rule(&ace->frame.ipv6.proto)) {
-        sport = &entry.ace.frame.ipv6.sport;
-        dport = &entry.ace.frame.ipv6.dport;
+    if (ace->type == VTSS_ACE_TYPE_IPV6) {
+        if (ipv6->sip_smac.enable) {
+            /* SMAC_SIP6 rule needed */
+            sip_smac_new = 1;
+            key_smac_sip = VTSS_VCAP_KEY_SIZE_HALF;
+            chg.add_key[key_smac_sip] = 1;
+        }
+        if (vtss_vcap_udp_tcp_rule(&ipv6->proto)) {
+            sport = &ipv6->sport;
+            dport = &ipv6->dport;
+        }
     }
     VTSS_RC(vtss_cmn_vcap_res_check(obj, &chg));
 
-    vtss_vcap_is2_init(&data, &entry);
-    entry.ace = *ace;
     if (sport && dport) {
         /* Allocate new range checkers */
         VTSS_RC(vtss_vcap_udp_tcp_range_alloc(&range_new, &is2->srange, sport, 1));
@@ -3427,8 +3449,15 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
     entry.first = 1;
     if (sip_smac_new) {
         entry.host_match = 1;
-        entry.ace.frame.ipv4.sip.value = ace->frame.ipv4.sip_smac.sip;
-        entry.ace.frame.ipv4.sip.mask = 0xffffffff;
+        if (ace->type == VTSS_ACE_TYPE_IPV4) {
+            ipv4->sip.value = ipv4->sip_smac.sip;
+            ipv4->sip.mask = 0xffffffff;
+        } else {
+            for (i = 0; i < 16; i++) {
+                ipv6->sip.value[i] = ipv6->sip_smac.sip.addr[i];
+                ipv6->sip.mask[i] = 0xff;
+            }
+        }
     }
     data.key_size = key_size;
     if (ace->action.port_action == VTSS_ACL_PORT_ACTION_REDIR) {
@@ -3445,7 +3474,8 @@ vtss_rc vtss_cil_vcap_ace_add(vtss_state_t           *vtss_state,
     /* Add/delete SIP/SMAC entry */
     user = VTSS_IS2_USER_ACL_SIP;
     if (sip_smac_new) {
-        data.key_size = VTSS_VCAP_KEY_SIZE_QUARTER;
+        entry.smac_sip6 = (ace->type == VTSS_ACE_TYPE_IPV6);
+        data.key_size = key_smac_sip;
         VTSS_RC(vtss_vcap_add(vtss_state, obj, user, ace->id, SRVL_VCAP_ID_SMAC_SIP4_DEF, &data,
                               0));
     } else if (sip_smac_old) {
