@@ -1274,6 +1274,12 @@ vtss_rc vtss_cil_ts_status_change(struct vtss_state_s *vtss_state, vtss_port_no_
             rx_delay += (2000U * 1000U);
             tx_delay += (2000U * 1000U);
         }
+#if defined(VTSS_ARCH_SPARX5)
+        if (speed == VTSS_SPEED_1G) {  /* APPL-4997: Additional adjustment for 1G */
+            rx_delay += (416U * 1000U);
+            tx_delay += (1616U * 1000U);
+        }
+#endif
         break;
 
     default: VTSS_D("MISRA NON empty default"); break;
