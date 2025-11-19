@@ -1297,6 +1297,9 @@ vtss_rc vtss_cil_ts_status_change(struct vtss_state_s *vtss_state, vtss_port_no_
             case VTSS_SPEED_100M:
                 enable = 0U;
                 value = 3U;
+                /* APPL-5915: additional adjustment for 100M */
+                rx_delay += 118472862U;
+                tx_delay += 52936862U;
                 break;
             case VTSS_SPEED_1G:    value = 1U; break;
             case VTSS_SPEED_2500M: value = 3U; break;
