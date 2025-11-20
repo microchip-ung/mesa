@@ -1977,7 +1977,7 @@ static vtss_rc fa_rb_port_conf_set(vtss_state_t      *vtss_state,
            VTSS_F_RB_TBL_CFG_CLR_AGE_FLAG_DIS(1) | VTSS_F_RB_TBL_CFG_DUPL_DISC_ENA(dupl_disc) |
                VTSS_F_RB_TBL_CFG_HOST_TYPE(ht) | VTSS_F_RB_TBL_CFG_HOST_AGE_INTERVAL(age) |
                VTSS_F_RB_TBL_CFG_UPD_DISC_TBL_ENA(1) | VTSS_F_RB_TBL_CFG_UPD_HOST_TBL_ENA(pnt_ena) |
-               VTSS_F_RB_TBL_CFG_UPD_SEQ_NUM_ENA(1) |
+               VTSS_F_RB_TBL_CFG_UPD_SEQ_NUM_ENA(lre ? 0 : 1) |
                VTSS_F_RB_TBL_CFG_NEW_HOST_TBL_DIS(ht == FA_HT_NONE ? 1 : 0));
 
     REG_WR(VTSS_RB_BPDU_CFG(tgt, j), VTSS_F_RB_BPDU_CFG_BPDU_REDIR_ENA(lre ? 0xffff : 0));
