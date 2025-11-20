@@ -1305,10 +1305,10 @@ static void ll_group_init(vtss_qos_leak_layer_t *ll, u32 sys_clk_per_100ps)
          * of bits in CIR_RATE bit field */
         leak_interval =
             (131071U * 1000U) / lg->max_rate; /* Calculate leak_interval in uS (max_rate is kbps) */
-        lg->resolution = 1000U / leak_interval; /* Calculate resolution in kbps
-                                                  (leak_interval is in uS) */
-        lg->leak_time = 1000U * leak_interval;  /* Calculate leak_time in 1nS units
-                                                  (leak_interval is in uS) */
+        lg->resolution = 1000000U / leak_interval; /* Calculate resolution in bps
+                                                     (leak_interval is in uS) */
+        lg->leak_time = 1000U * leak_interval;     /* Calculate leak_time in 1nS units
+                                                     (leak_interval is in uS) */
         ses32 =
             (1000U * leak_interval) / sys_clk_per_100ps; /* We can service one SE in ~10 cycles.
                                                            Calculate the maximum number of SEs
@@ -1616,6 +1616,7 @@ vtss_rc vtss_fa_qos_se_queue_shaper_conf_set(vtss_state_t        *vtss_state,
     const vtss_shaper_t *shaper;
     // Note that layer 3 is a queue shaper layer only
     u32            cir, cbs, queue, layer = 3, port_max_rate = 0;
+    u64            cir_64;
     vtss_bitrate_t resolution;
     BOOL           unlink = TRUE;
 
@@ -1647,7 +1648,8 @@ vtss_rc vtss_fa_qos_se_queue_shaper_conf_set(vtss_state_t        *vtss_state,
 
         if (shaper->rate != VTSS_BITRATE_DISABLED) {
             unlink = FALSE;
-            cir = MIN(VTSS_BITMASK(17), VTSS_DIV_ROUND_UP(shaper->rate, resolution));
+            cir_64 = VTSS_DIV64_ROUND_UP(((u64)shaper->rate * 1000U), (u64)resolution);
+            cir = MIN(VTSS_BITMASK(17), (u32)cir_64);
             cbs = MIN(VTSS_BITMASK(6), VTSS_DIV_ROUND_UP(shaper->level, 4096));
 
             REG_WR(VTSS_HSCH_QSHP_CFG(queue), VTSS_F_HSCH_QSHP_CFG_SE_FRM_MODE(shaper->mode));
@@ -1729,8 +1731,8 @@ vtss_rc vtss_fa_qos_shaper_conf_set(vtss_state_t        *vtss_state,
     if (shaper->rate != VTSS_BITRATE_DISABLED) {
         if (shaper->mode != VTSS_SHAPER_MODE_FRAME) {
             VTSS_RC(fa_qos_leak_list_link(vtss_state, layer, se, shaper->rate, &resolution));
-
-            cir = MIN(VTSS_BITMASK(17), VTSS_DIV_ROUND_UP(shaper->rate, resolution));
+            cir_64 = VTSS_DIV64_ROUND_UP(((u64)shaper->rate * 1000U), (u64)resolution);
+            cir = MIN(VTSS_BITMASK(17), (u32)cir_64);
             cbs = MIN(VTSS_BITMASK(6), VTSS_DIV_ROUND_UP(shaper->level, 4096U));
             mode = (u32)shaper->mode;
         } else {
@@ -4428,7 +4430,7 @@ static vtss_rc fa_debug_qos_leak_chain(vtss_state_t                  *vtss_state
             REG_RD(VTSS_HSCH_HSCH_LEAK_CFG(layer, group), &value);
             pr("%-32s: %8u\n", "LEAK_FIRST", VTSS_X_HSCH_HSCH_LEAK_CFG_LEAK_FIRST(value));
             pr("%-32s: %8u\n", "LEAK_ERR", VTSS_X_HSCH_HSCH_LEAK_CFG_LEAK_ERR(value));
-            pr("%-32s: %8u\n", "Resolution (kbps)", lg->resolution);
+            pr("%-32s: %8u\n", "Resolution (bps)", lg->resolution);
             pr("%-32s: %8u\n", "Max. rate (kbps)", lg->max_rate);
             pr("%-32s: %8u\n", "Current no. of SEs", lg->cur_ses);
             pr("%-32s: %8u\n", "Max. no. of SEs", lg->max_ses);
@@ -5722,7 +5724,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         pr("-------------------\n");
         for (port_no = VTSS_PORT_NO_START; port_no < vtss_state->port_count; port_no++) {
             u32 l0_se;
-            if (info->port_list[port_no]) {
+            if (info->port_list[port_no] == FALSE) {
                 continue;
             }
             chip_port = VTSS_CHIP_PORT(port_no);
@@ -5840,7 +5842,7 @@ static vtss_rc fa_debug_qos(vtss_state_t                  *vtss_state,
         for (port_no = VTSS_PORT_NO_START; port_no < (vtss_state->port_count + 2U); port_no++) {
             u32 layer = 2U, se;
             if (port_no < vtss_state->port_count) {
-                if (info->port_list[port_no]) {
+                if (info->port_list[port_no] == FALSE) {
                     continue;
                 }
                 chip_port = VTSS_CHIP_PORT(port_no);

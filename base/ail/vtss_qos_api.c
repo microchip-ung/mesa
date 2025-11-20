@@ -1337,6 +1337,12 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
         qos->shaper_port.eir = VTSS_BITRATE_DISABLED;
         qos->shaper_port.ebs = level;
 #endif /* VTSS_FEATURE_QOS_EGRESS_SHAPERS_DLB */
+#if defined(VTSS_FEATURE_QOS_OT)
+        qos->ot_shaper.rate = VTSS_BITRATE_DISABLED;
+        qos->ot_shaper.level = level;
+        qos->it_shaper.rate = VTSS_BITRATE_DISABLED;
+        qos->it_shaper.level = level;
+#endif /* VTSS_FEATURE_QOS_OT */
 
         for (i = VTSS_QUEUE_START; i < VTSS_QUEUE_END; i++) {
             qos->shaper_queue[i].rate = VTSS_BITRATE_DISABLED;
@@ -1351,6 +1357,10 @@ vtss_rc vtss_qos_inst_create(struct vtss_state_s *vtss_state)
 #if defined(VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH)
             qos->cut_through_enable[i] = FALSE;
 #endif /* VTSS_FEATURE_QOS_EGRESS_QUEUE_CUT_THROUGH */
+#if defined(VTSS_FEATURE_QOS_OT)
+            qos->ot_shaper_queue[i].rate = VTSS_BITRATE_DISABLED;
+            qos->ot_shaper_queue[i].level = level;
+#endif /* VTSS_FEATURE_QOS_OT */
         }
 
         qos->default_dpl = 0;
