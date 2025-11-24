@@ -443,8 +443,6 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
     case VTSS_BOARD_CONF_48x1G_8x10G_NPI:
         if (port_no < 48) {
             if (board->gpy241_present) {
-                // PCB135 rev 4,5 with Indy Phy. Each Phy covers 4 ports
-                entry->phy_base_port = (port_no / 4) * 4;
                 board->port[port_no].ts_phy = true;
             }
             if (board->gpy241_present && board->gpy241_usxgmii_mode && (port_no % 16 == 8)) {
@@ -456,6 +454,11 @@ static void fa_pcb135_init_port(meba_inst_t inst, mesa_port_no_t port_no, meba_p
                 bw = MESA_BW_1G;
             }
             update_entry(inst, entry, if_type, bw, port_no);
+            if (entry->map.chip_port == 0) { // MESA-1022
+                entry->phy_base_port = port_no;
+            } else {
+                entry->phy_base_port = (port_no / 4) * 4;
+            }
             entry->poe_port =
                 entry->map.chip_port % 24; // Each PD69200 controller controls 24 ports.
             entry->poe_support = true;
