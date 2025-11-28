@@ -1787,8 +1787,8 @@ vtss_rc vtss_cil_qos_tas_port_conf_set(vtss_state_t *vtss_state, const vtss_port
              * two times the current cycle time */
             vtss_ts_domain_timeofday_get_private(vtss_state, vtss_state->ts.conf.tsn_domain,
                                                  &stop_base_time, &tc);
-            /* Add 1 ms to assure start in the future */
-            (void)vtss_timestampAddNano(&stop_base_time, 1 * 1000 * 1000);
+            /* Add 5 ms to assure start in the future */
+            (void)vtss_timestampAddNano(&stop_base_time, 5 * 1000 * 1000);
 
             /* Cancel the current list */
             /* This is a bit tricky. I mark the current list to have an inherited profile, */
