@@ -68,6 +68,9 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *v
 {
     u32 value, tgt = VTSS_TO_DEV(vtss_state->port.map[port_no].chip_port);
     u32 port = VTSS_CHIP_PORT(port_no);
+    vtss_port_clause_37_control_t *aneg = &vtss_state->port.clause_37[port_no];
+    vtss_port_conf_t              *conf = &vtss_state->port.conf[port_no];
+    BOOL                           sync;
 
     if (vtss_state->port.conf[port_no].power_down) {
         status->link = 0;
@@ -96,6 +99,8 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *v
                        L26_BF(DEV_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_SYNC_STATUS, value);
     }
 
+    sync = L26_BF(DEV_PCS1G_CFG_STATUS_PCS1G_LINK_STATUS_SYNC_STATUS, value);
+
     /* Get PCS ANEG status register */
     L26_RD(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
 
@@ -103,27 +108,26 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *v
     status->autoneg.complete = L26_BF(DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
 
     /* Workaround for a Serdes issue, when aneg completes with FDX capability=0 */
-    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SERDES) {
-        if (status->autoneg.complete) {
-            if (((value >> 21) & 0x1) == 0) {
-                L26_WRM_CLR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
-                            VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-                L26_WRM_SET(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
-                            VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-                (void)vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no); /* Restart
-                                                                                   Aneg */
-                VTSS_MSLEEP(50);
-                L26_RD(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
-                status->autoneg.complete =
-                    L26_BF(DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
-            }
+    if (status->autoneg.complete &&
+        (aneg->enable || conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO)) {
+        if ((((value >> 21) & 0x1) == 0) || (sync && !status->autoneg.complete)) {
+            L26_WRM_CLR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
+                        VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
+            L26_WRM_SET(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
+                        VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
+            (void)vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no); /* Restart
+                                                                            Aneg */
+            VTSS_MSLEEP(50);
+            L26_RD(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
+            status->autoneg.complete =
+                L26_BF(DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
         }
     }
 
     /* Return partner advertisement ability */
     value = VTSS_X_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_LP_ADV_ABILITY(value);
 
-    if (vtss_state->port.conf[port_no].if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
+    if (conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO) {
         status->autoneg.partner.sgmii.link = ((value >> 15) == 1) ? 1 : 0;
         status->autoneg.partner.sgmii.speed_10M = (((value >> 10) & 3) == 0) ? 1 : 0;
         status->autoneg.partner.sgmii.speed_100M = (((value >> 10) & 3) == 1) ? 1 : 0;
