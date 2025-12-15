@@ -8,7 +8,7 @@
 |===
 |Version:          |MESA-2025.12
 |Previous Version: |MESA-2025.09
-|Date:             |2025-10-25
+|Date:             |2025-12-18
 |Description:      |Roadmap release
 |===
 
@@ -60,3 +60,21 @@ The `mesa_dlb_policer_conf_t` structure has been extended with the following new
 
 This enables configuring of sharing and inheriting of spill over tokens between DLB policers in a group,
 to support the Envelope policing as describer in MEF 10.3
+
+
+=== ACL: Support for IPv6 SIP and source MAC matching
+
+The `mesa_ace_frame_ipv6_t` structure has been extended with a
+`mesa_ace_frame_ipv6_t::sip_smac` field to support matching on IPv6 source
+address and MAC source address.
+
+This can be used to implement IPv6 source guard support.
+
+
+=== QOS: DWRR mode configuration
+
+It is now possible to configure DWRR mode by using the
+`mesa_qos_port_conf_t::dwrr_mode` field in `mesa_qos_port_conf_t`. The scheduler
+can operate in line-rate or frame rate.
+
+
