@@ -107,21 +107,21 @@ vtss_rc vtss_cil_port_clause_37_status_get(vtss_state_t                       *v
     /* Get 'Aneg complete'   */
     status->autoneg.complete = L26_BF(DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
 
-    /* Workaround for a Serdes issue, when aneg completes with FDX capability=0 */
-    if (status->autoneg.complete &&
-        (aneg->enable || conf->if_type == VTSS_PORT_INTERFACE_SGMII_CISCO)) {
-        if ((((value >> 21) & 0x1) == 0) || (sync && !status->autoneg.complete)) {
+    /* Workaround for a Serdes fdx issue */
+    if (aneg->enable) {
+        /* Check if auto-negotiation needs restart */
+        if ((status->autoneg.complete && (((value >> 21) & 0x1) == 0)) ||
+            (sync && !status->autoneg.complete))
             L26_WRM_CLR(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
                         VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-            L26_WRM_SET(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
-                        VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
-            (void)vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no); /* Restart
-                                                                            Aneg */
-            VTSS_MSLEEP(50);
-            L26_RD(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
-            status->autoneg.complete =
-                L26_BF(DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
-        }
+        L26_WRM_SET(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_CFG(tgt),
+                    VTSS_F_DEV_PCS1G_CFG_STATUS_PCS1G_CFG_PCS_ENA);
+        /* Restart Clause 37 Auto-Negotiation */
+        (void)vtss_cil_port_clause_37_ctrl_set(vtss_state, port_no);
+        VTSS_MSLEEP(50);
+        L26_RD(VTSS_DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS(tgt), &value);
+        status->autoneg.complete =
+            L26_BF(DEV_PCS1G_CFG_STATUS_PCS1G_ANEG_STATUS_ANEG_COMPLETE, value);
     }
 
     /* Return partner advertisement ability */
