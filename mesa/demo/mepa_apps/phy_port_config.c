@@ -240,6 +240,8 @@ static void cli_cmd_phy_conf(cli_req_t *req)
             }
             if (json_rpc_get_mepa_conf_t(&json_req, json_req.params, &conf) != MESA_RC_OK) {
                 T_E("Error in the json configuration");
+                /* json_req.buf carries the parser's precise complaint */
+                cli_printf("json parse error: %s\n", json_req.buf);
                 goto file_close;
             }
             if (mepa_conf_set(dev, &conf) != MESA_RC_OK) {
