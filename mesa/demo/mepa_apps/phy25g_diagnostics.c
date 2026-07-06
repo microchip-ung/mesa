@@ -12,6 +12,7 @@
 #include "phy_demo_apps.h"
 #include "mepa_driver.h"
 #include "lan80xx.h"
+#include "lan80xx_mcu.h"   /* lan80xx_get_serdes_config, eSERDES_CFG_T, __SERDES_CONFIG_T */
 
 #define LAN80XX_MAX_VREF_EYE 127
 
@@ -416,6 +417,45 @@ static void cli_cmd_csr_rd(cli_req_t *req)
     return;
 }
 
+/*
+ * Read the MCU-mailbox SerDes config (TX FFE taps + swing) on a
+ * Dev-created device. The "Phy serdes get" KR-demo command uses
+ * meba_phy_kr_inst->phy_devices[0], which in PHY-only mode has a NULL base_dev
+ * and bails inside LAN80XX_BASE_DEV (returns -1 before any mailbox I/O). The
+ * diag instance's phy_devices[] are properly base_dev-linked (same ones cl45/
+ * eye_diag/prbs use), so the mailbox runs. Loops all speeds (1G/10G/25G).
+ */
+static void cli_cmd_serdes_get(cli_req_t *req)
+{
+    mepa_device_t *dev = meba_phy_diag_instance->phy_devices[req->port_no];
+    const char *spd_name[] = { "1G", "10G", "25G" };
+    __SERDES_CONFIG_T cfg;
+    mepa_rc rc, rc2;
+    int spd;
+
+    if (dev == NULL) {
+        cli_printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        return;
+    }
+    cli_printf("\nSerDes config  port %u  (MCU mailbox)\n", req->port_no);
+    for (spd = SD_CFG_1G; spd < SD_UNKNOWN_SPEED; spd++) {   /* 1G, 10G, 25G */
+        memset(&cfg, 0, sizeof(cfg));
+        rc  = lan80xx_get_serdes_config(dev, (SD_CFG_SPEED_IDX_t)spd, eTX_EQ_CFG, &cfg);
+        rc2 = lan80xx_get_serdes_config(dev, (SD_CFG_SPEED_IDX_t)spd, eTX_SWING_CFG, &cfg);
+        if (rc != MEPA_RC_OK || rc2 != MEPA_RC_OK) {
+            cli_printf("  [%-3s] get failed (TX_EQ rc=%d, TX_SWING rc=%d)\n",
+                       spd_name[spd], rc, rc2);
+            continue;
+        }
+        cli_printf("  [%-3s] TX FFE: main=%u dly(pre)=%u adv(post)=%u  en[m/d/a]=%u/%u/%u  swing(Itx)=%u\n",
+                   spd_name[spd],
+                   cfg.sTx_eq_cfg.Tap_main, cfg.sTx_eq_cfg.Tap_dly, cfg.sTx_eq_cfg.Tap_adv,
+                   cfg.sTx_eq_cfg.En_main, cfg.sTx_eq_cfg.En_dly, cfg.sTx_eq_cfg.En_adv,
+                   cfg.sTx_swing_cfg.Itx_ipdriver_base);
+    }
+    return;
+}
+
 static void cli_cmd_tx_eqa(cli_req_t *req)
 {
     phy25g_appl_diag_t      *mreq = req->module_req;
@@ -761,6 +801,10 @@ static cli_cmd_t cli_cmd_table[] = {
     {
      "PHY CL45_READ <port_no> <mmd> <address>",                                                        "Clause 45 CSR Read of PHY",
      cli_cmd_csr_rd, },
+
+    {
+     "serdes_get <port_no>",                                                                  "Get MCU-mailbox SerDes TX-EQ/swing config, all speeds (Dev-created device)",
+     cli_cmd_serdes_get, },
 
     {
      "PHY CL45_WRITE <port_no> <mmd> <address> <reg_val>",                                    "Clause 45 CSR Write of PHY",
