@@ -419,7 +419,7 @@ static void cli_cmd_csr_rd(cli_req_t *req)
 static void cli_cmd_tx_eqa(cli_req_t *req)
 {
     phy25g_appl_diag_t      *mreq = req->module_req;
-    phy25g_tx_rx_equa_conf_t tx_conf;
+    phy25g_tx_rx_equa_conf_t tx_conf = {};
     mepa_rc                  rc;
     if (!req->set) {
         cli_printf(
@@ -448,7 +448,7 @@ static void cli_cmd_tx_eqa(cli_req_t *req)
 static void cli_cmd_rx_eqa(cli_req_t *req)
 {
     phy25g_appl_diag_t      *mreq = req->module_req;
-    phy25g_tx_rx_equa_conf_t rx_conf;
+    phy25g_tx_rx_equa_conf_t rx_conf = {};
     mepa_rc                  rc;
     if (!req->set) {
         cli_printf(
