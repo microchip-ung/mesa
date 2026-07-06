@@ -97,8 +97,21 @@ file(GLOB_RECURSE MEPA_APP_SRC
 
 add_library(mesa_demo_lib STATIC trace.c cli.c port.c mac.c vlan.c packet.c ip.c
                                  debug.c symreg.c test.c spi.c udmabuf.c uio.c ${MESA_RPC} json_rpc.c
-                                 example.c kr.c intr.c ${MEPA_APP_SRC})
+                                 example.c kr.c intr.c phy_only.c ${MEPA_APP_SRC})
 target_include_directories(mesa_demo_lib PUBLIC ${CMAKE_BINARY_DIR}/mesa-ag/)
+
+# Optional: the external mepa_spidev_proxy dev package
+# (github.com/vjardin/mepa-spidev-proxy). When it is installed and found,
+# phy_only.c gets its '-P proxy:<sock>' SPI-proxy client mode; otherwise the
+# demo builds without it.
+find_package(mepa_spidev_proxy CONFIG QUIET)
+if (mepa_spidev_proxy_FOUND)
+    target_link_libraries(mesa_demo_lib PRIVATE mepa_spidev_proxy::spiproxy)
+    target_compile_definitions(mesa_demo_lib PRIVATE MEPA_HAS_SPIPROXY)
+    message(STATUS "mepa_spidev_proxy found: PHY-only '-P proxy:<sock>' mode enabled")
+else()
+    message(STATUS "mepa_spidev_proxy not found: PHY-only '-P proxy:<sock>' mode disabled")
+endif()
 
 file(GLOB_RECURSE EXAMPLE_SRC
      LIST_DIRECTORIES false

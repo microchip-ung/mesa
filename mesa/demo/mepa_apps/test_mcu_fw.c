@@ -14,6 +14,7 @@
 #include "main.h"
 #include "trace.h"
 #include "cli.h"
+#include "phy_only.h" /* phy_only_mdint_register() */
 
 #include "lan80xx_mcu.h"
 #include "lan80xx_mcu_otp_cfgWrite.h"
@@ -322,8 +323,34 @@ static int cli_parm_otp_cfg_idx(cli_req_t *req)
     return cli_parm_u8(req, &mreq->cfg_idx, 0, 63);
 }
 
+/* Bind the LAN80xx mailbox host-interrupt to a host GPIO line (edge events)
+ * instead of polling the flag over SPI. The INTR line is board-specific: taken
+ * from $LAN80XX_MDINT, else the built-in default -- either a DT line name
+ * (gpio-line-names, probed across all gpiochips) or an explicit "<chip>:<line>".
+ * After this, the mailbox/DFU wait on the real interrupt. */
+static void cli_cmd_mcu_intr_gpio(cli_req_t *req)
+{
+    mepa_device_t *dev = gmeba_inst->phy_devices[req->port_no];
+
+    if (dev == NULL) {
+        cli_printf("Dev not created for port %u\n", req->port_no);
+        return;
+    }
+    if (phy_only_mdint_register(dev, NULL) == MESA_RC_OK) {
+        cli_printf("mcu intr: port %u mailbox INTR bound to host GPIO "
+                   "($LAN80XX_MDINT, else the built-in default)\n",
+                   iport2uport(req->port_no));
+    } else {
+        cli_printf("mcu intr: port %u GPIO INTR bind failed (see trace)\n",
+                   iport2uport(req->port_no));
+    }
+}
+
 static cli_cmd_t cli_cmd_table[] = {
     {"PHY MCU fw info <port_no>",                     "get mcu firmware information",               cli_cmd_get_fw_info            },
+    {"PHY MCU intr <port_no>",
+     "bind mailbox host-interrupt to a host GPIO (edge events); DT line name or <chip>:<line> from $LAN80XX_MDINT, else the built-in default",
+     cli_cmd_mcu_intr_gpio                                                                                                         },
     {"PHY MCU reset <port_no>",                       "reset mcu via soft reset",                   cli_cmd_mcu_reset              },
     {"PHY MCU fw update <port_no>",                   "mcu firmware update",                        cli_cmd_mcu_fw_update          },
     {"PHY MCU otp read <port_no> [<offset>] [<len>]", "read OTP memory through mcu",

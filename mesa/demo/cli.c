@@ -16,6 +16,7 @@
 #include "cli.h"
 #include "trace.h"
 #include "ipc.h"
+#include "phy_only.h"
 
 static mscc_appl_trace_module_t trace_module = {.name = "cli"};
 
@@ -923,6 +924,13 @@ static void cli_init(void)
             cli_port_cnt = iport;
         }
         free(port_map);
+    }
+
+    /* No MESA port map in PHY-only mode: use the MEBA board port count
+     * so the PHY slot ports stay addressable from the CLI. */
+    if (phy_only_mode && cli_port_cnt == 0 && cli_req.inst != NULL) {
+        cli_port_cnt =
+            cli_req.inst->api.meba_capability(cli_req.inst, MEBA_CAP_BOARD_PORT_COUNT);
     }
 
     /* Register general commands */

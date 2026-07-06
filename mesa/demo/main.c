@@ -21,6 +21,7 @@
 #include "trace.h"
 #include "cli.h"
 #include "ipc.h"
+#include "phy_only.h"
 #include "vtss_os.h"
 
 #define ARRSZ(_x_) (sizeof(_x_) / sizeof((_x_)[0]))
@@ -426,6 +427,11 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
     // Try device-tree first
     if (board_dtree_get(tag, buf, bufsize, buflen) == MESA_RC_OK) {
         return MESA_RC_OK;
+    }
+
+    /* No switch: the MESA-capability-based detection below cannot run */
+    if (phy_only_mode) {
+        return phy_only_board_conf_get(tag, buf, bufsize, buflen);
     }
 
     /* Board detection is currently done based on MESA capabilities */
@@ -934,6 +940,7 @@ static void main_init(mscc_appl_init_t *init)
         mscc_appl_opt_reg(&main_opt_loop_port);
         mscc_appl_opt_reg(&main_opt_reset);
         mscc_appl_opt_reg(&main_opt_spidev);
+        phy_only_opt_reg();
         mscc_appl_opt_reg(&main_opt_vlan_counters_disable);
         mscc_appl_opt_reg(&main_opt_phy_spi);
         break;
@@ -948,6 +955,10 @@ static void init_modules(mscc_appl_init_t *init)
 {
     main_init(init);
     mscc_appl_cli_init(init);
+    if (phy_only_mode) {
+        phy_only_init_modules(init); /* PHY-safe subset of the list below */
+        return;
+    }
     mscc_appl_port_init(init);
     mscc_appl_mac_init(init);
     mscc_appl_vlan_init(init);
@@ -1165,6 +1176,18 @@ int main(int argc, char **argv)
         rc = uio_reg_io_init();
         reg_read = uio_reg_read;
         reg_write = uio_reg_write;
+        if (rc != MESA_RC_OK || phy_only_slots_configured()) {
+            /* Runtime no-switch detection (or PHY-only forced by -P):
+             * keep serving the MEPA PHY slots over SPI instead of
+             * aborting. */
+            if (phy_only_slots_configured() && phy_only_slots_open() != MESA_RC_OK) {
+                return 1;
+            }
+            phy_only_enter();
+            reg_read = phy_only_reg_read;
+            reg_write = phy_only_reg_write;
+            rc = MESA_RC_OK;
+        }
     }
 
     if (rc != MESA_RC_OK) {
@@ -1212,13 +1235,22 @@ int main(int argc, char **argv)
     init->board_inst = meba_inst;
     T_D("MEBA Instantiated");
 
-    // Create API instance
-    mesa_inst_get(meba_inst->props.target, &create);
-    if (mesa_inst_create(&create, NULL) != MESA_RC_OK) {
-        T_E("API Failed to Instantiate");
-        return 1;
+    // Create API instance (switch only -- no switch in PHY-only mode)
+    if (!phy_only_mode) {
+        mesa_inst_get(meba_inst->props.target, &create);
+        if (mesa_inst_create(&create, NULL) != MESA_RC_OK) {
+            T_E("API Failed to Instantiate");
+            return 1;
+        }
+        T_D("API Instantiated");
     }
-    T_D("API Instantiated");
+
+    if (phy_only_mode) {
+        /* Skip the switch-instance init below (API conf, board init,
+         * port map, chip id): it reads and writes switch chip
+         * registers that do not exist on this board. */
+        goto phy_only_skip;
+    }
 
     // Initialize API instance
     if (mesa_init_conf_get(NULL, &conf) != MESA_RC_OK) {
@@ -1277,14 +1309,17 @@ int main(int argc, char **argv)
     T_D("Chip ID: 0x%04x, revision: %u", chip_id.part_number, chip_id.revision);
 
     // Initialize modules
+phy_only_skip:
     init->cmd = MSCC_INIT_CMD_INIT;
     init_modules(init);
 
-    // Initialize fan and chip/board temperature sensors
-    if (MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_TEMP_SENSORS)) {
+    // Initialize fan and chip/board temperature sensors (board/switch only)
+    if (!phy_only_mode &&
+        MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_TEMP_SENSORS)) {
         MEBA_WRAP(meba_reset, init->board_inst, MEBA_SENSOR_INITIALIZE);
     }
-    if (MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_FAN_SUPPORT)) {
+    if (!phy_only_mode &&
+        MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_FAN_SUPPORT)) {
         MEBA_WRAP(meba_reset, init->board_inst, MEBA_FAN_INITIALIZE);
     }
     // Poll modules
@@ -1319,7 +1354,7 @@ int main(int argc, char **argv)
             T_N("Call init_modules() and mesa_poll_1sec()");
             init->cmd = MSCC_INIT_CMD_POLL;
             init_modules(init);
-            if (MESA_RC_OK != mesa_poll_1sec(NULL)) { // One sec poll
+            if (!phy_only_mode && MESA_RC_OK != mesa_poll_1sec(NULL)) { // One sec poll
                 T_E("mesa_poll_1sec() failed");
             }
         }
