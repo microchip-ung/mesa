@@ -10,7 +10,6 @@
 #include <microchip/ethernet/phy/api.h>
 
 #include "meba_aux.h"
-#include "cli.h"
 
 /** \brief Number of LAN966X PTP pins, that can be used as 1PPS or clock output/input. */
 #define VTSS_TS_IO_ARRAY_SIZE       7
@@ -879,6 +878,36 @@ static mesa_rc eds2_event_enable(meba_inst_t inst,
     return rc;
 }
 
+
+/* PHY SPI register access: forward to the application-provided board_info
+ * accessors (iface.spi_read/spi_write). In the PHY-only demo these route to
+ * /dev/spidev or to the lan80xx-spid SPI proxy ('-P proxy:<sock>'). The
+ * ctrl_idx/cs arguments are unused on this board (slot demux is done by the
+ * application's slot table). */
+static mesa_rc eds2_phy_spi_read(meba_inst_t     inst,
+                                 mesa_port_no_t  port_no,
+                                 uint8_t         dev,
+                                 uint16_t        reg_num,
+                                 uint32_t *const data)
+{
+    if (inst->iface.spi_read == NULL) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+    return inst->iface.spi_read(port_no, dev, 0, reg_num, data);
+}
+
+static mesa_rc eds2_phy_spi_write(meba_inst_t     inst,
+                                  mesa_port_no_t  port_no,
+                                  uint8_t         dev,
+                                  uint16_t        reg_num,
+                                  uint32_t *const data)
+{
+    if (inst->iface.spi_write == NULL) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+    return inst->iface.spi_write(port_no, dev, 0, reg_num, data);
+}
+
 meba_inst_t meba_initialize(size_t callouts_size,
                             const meba_board_interface_t *callouts)
 {
@@ -947,10 +976,11 @@ meba_inst_t meba_initialize(size_t callouts_size,
     inst->api.meba_event_enable               = eds2_event_enable;
     inst->api.meba_deinitialize               = meba_deinitialize;
     inst->api.meba_ptp_rs422_conf_get         = eds2_ptp_rs422_conf_get;
+    inst->api.meba_phy_spi_read               = eds2_phy_spi_read;
+    inst->api.meba_phy_spi_write              = eds2_phy_spi_write;
     inst->api_synce                           = meba_synce_get();
     inst->api_tod                             = meba_tod_get();
     inst->api.meba_ptp_external_io_conf_get   = eds2_ptp_external_io_conf_get;
-    inst->api_poe = meba_poe_get();
 
     return inst;
 
