@@ -141,6 +141,9 @@ MEBA_LIB(LIB_NAME sparx5_macsec MEBA_SRC_FOLDER sparx5
 MEBA_LIB(LIB_NAME sparx5_bringup MEBA_SRC_FOLDER sparx5
          STATIC_DEPENDENCIES    mepa_sparx5_bringup)
 
+MEBA_LIB(LIB_NAME eds2 MEBA_SRC_FOLDER eds2
+         STATIC_DEPENDENCIES    mepa_eds2)
+
 MEBA_LIB(LIB_NAME lan966x MEBA_SRC_FOLDER lan966x
          STATIC_DEPENDENCIES    mepa_lan966x)
 

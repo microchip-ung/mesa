@@ -92,6 +92,10 @@ MEPA_LIB(LIB_NAME mepa_sparx5_bringup ADVANCED
          DEFS     -DMEPA_HAS_VTSS
          DRVS     mepa_drv_vtss_10g_ts)
 
+MEPA_LIB(LIB_NAME mepa_eds2 ADVANCED
+         DEFS     -DMEPA_HAS_VTSS -DMEPA_HAS_KSZ9031 -DMEPA_HAS_LAN8814 -DMEPA_HAS_LAN884x -DMEPA_HAS_LAN80XX
+         DRVS     mepa_drv_vtss_ts mepa_drv_ksz9031 mepa_drv_lan8814 mepa_drv_lan884x mepa_drv_lan80xx_ts_msec)
+
 MEPA_LIB(LIB_NAME mepa_lan966x ADVANCED
          DEFS     -DMEPA_HAS_VTSS -DMEPA_HAS_KSZ9031 -DMEPA_HAS_LAN8814 -DMEPA_HAS_LAN884x -DMEPA_HAS_LAN887X
          DRVS     mepa_drv_vtss   mepa_drv_ksz9031   mepa_drv_lan8814   mepa_drv_lan884x   mepa_drv_lan887x)

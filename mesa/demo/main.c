@@ -413,6 +413,24 @@ static mesa_rc board_dtree_get(const char *tag, char *buf, size_t bufsize, size_
 
 #define PCB_TYPE_NONE 10000
 
+static mesa_rc phy_only_board_spi_read(const mesa_port_no_t port_no,
+                                       const uint8_t        ctrl_idx,
+                                       const uint8_t        cs,
+                                       const uint32_t       addr,
+                                       uint32_t *const      data)
+{
+    return phy_only_spi_rw(port_no, 1, ctrl_idx, addr, data);
+}
+
+static mesa_rc phy_only_board_spi_write(const mesa_port_no_t port_no,
+                                        const uint8_t        ctrl_idx,
+                                        const uint8_t        cs,
+                                        const uint32_t       addr,
+                                        uint32_t *const      data)
+{
+    return phy_only_spi_rw(port_no, 0, ctrl_idx, addr, data);
+}
+
 static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t *buflen)
 {
     uint32_t    port_cnt = mesa_port_cnt(NULL); // Compiled
@@ -1217,6 +1235,11 @@ int main(int argc, char **argv)
     memset(&board_info, 0, sizeof(board_info));
     board_info.reg_read = reg_read;
     board_info.reg_write = reg_write;
+    if (phy_only_slots_configured()) {
+        /* PHY-slot SPI access for the board layer ('-P', spidev or proxy) */
+        board_info.spi_read = phy_only_board_spi_read;
+        board_info.spi_write = phy_only_board_spi_write;
+    }
     board_info.i2c_read = i2c_read;
     board_info.i2c_write = i2c_write;
     board_info.conf_get = board_conf_get;

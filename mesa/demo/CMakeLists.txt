@@ -264,6 +264,8 @@ macro(IMG_TARGET)
     endif()
 endmacro()
 
+APP_TARGET(NAME app_eds2               MESA lan966x            MEBA meba_eds2)
+set_target_properties(app_eds2 PROPERTIES OUTPUT_NAME "mesa-demo-eds2")
 APP_TARGET(NAME app_vsc7410            MESA vsc7410            MEBA meba_servalt)
 APP_TARGET(NAME app_vsc7415            MESA vsc7415            MEBA meba_servalt)
 APP_TARGET(NAME app_vsc7423            MESA vsc7423            MEBA meba_caracal)
