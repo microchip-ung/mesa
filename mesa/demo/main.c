@@ -775,19 +775,19 @@ static void cli_cmd_board_dump(cli_req_t *req)
     mesa_bool_t cap_sensor =
         MEBA_WRAP(meba_capability, appl_init.board_inst, MEBA_CAP_TEMP_SENSORS);
 
-    printf("Board name: %s\n", appl_init.board_inst->props.name);
-    printf("Ref board PCB: %d\n", appl_init.board_inst->props.board_type);
-    printf("API Target: 0x%x\n", appl_init.board_inst->props.target);
-    printf("Compiled port count  (mesa): %d\n", mesa_port_cnt(NULL));
-    printf("Ref board port count (meba): %d\n", meba_cnt);
+    cli_printf("Board name: %s\n", appl_init.board_inst->props.name);
+    cli_printf("Ref board PCB: %d\n", appl_init.board_inst->props.board_type);
+    cli_printf("API Target: 0x%x\n", appl_init.board_inst->props.target);
+    cli_printf("Compiled port count  (mesa): %d\n", mesa_port_cnt(NULL));
+    cli_printf("Ref board port count (meba): %d\n", meba_cnt);
     if (cap_sensor && mesa_temp_sensor_get(NULL, &temp_celsius) == MESA_RC_OK) {
-        printf("Chip temperature: %d (C)\n", temp_celsius);
+        cli_printf("Chip temperature: %d (C)\n", temp_celsius);
     }
     for (uint32_t i = 0; i < meba_cnt; i++) {
         int port_temp;
         if (MEBA_WRAP(meba_sensor_get, appl_init.board_inst, MEBA_SENSOR_PORT_TEMP, (int)i,
                       &port_temp) == MESA_RC_OK) {
-            printf("Port %u temperature: %d (C)\n", i, port_temp);
+            cli_printf("Port %u temperature: %d (C)\n", i, port_temp);
         }
     }
 }
